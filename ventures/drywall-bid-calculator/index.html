@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Drywall Bid Calculator | Price the Finish Level, Not the Sheets</title>
+  <title>Drywall Bid Calculator — Price the Finish Level, Not Sheets</title>
   <meta name="description" content="Price a hang-and-finish drywall job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels 0–5 — not a flat price per square foot. See labor hours, walk-away price, and the margin a $1.50-a-foot special actually leaves.">
   <meta property="og:title" content="Drywall Bid Calculator">
   <meta property="og:description" content="Bid drywall the way the trade does — hang is the cheap half. Finish level, texture, height, and openings decide whether the job pays.">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Drywall Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-room wall and ceiling takeoff, waste and sheet count, finish levels 0-5, texture, height multiplier, tear-out, opening labor, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this drywall estimate include?","acceptedAnswer":{"@type":"Answer","text":"Each room’s wall and optional ceiling area net of openings, a waste percentage rolled into a sheet count, hang labor by board type, finish labor by level, texture labor and material, tear-off of existing drywall when you flag it, add-ons like stilts or extra corner bead, and overhead and margin on top."}},{"@type":"Question","name":"What’s the difference between finish level 4 and finish level 5?","acceptedAnswer":{"@type":"Answer","text":"Level 4 is the typical paint-ready residential job; level 5 is a full skim coat used where critical or raking light would otherwise show joint lines. The tool applies more finish hours and more mud per 100 square feet as the level goes up — these are ballpark starting hours, not a production standard."}},{"@type":"Question","name":"Does choosing Type X board mean the wall is fire-rated?","acceptedAnswer":{"@type":"Answer","text":"No. Type X is priced here only as a material choice with its own waste percentage and hours. The tool does not evaluate or certify any fire rating, which depends on the full wall assembly and a building inspector’s sign-off, not on the board alone."}},{"@type":"Question","name":"Why does ceiling height matter if I’m not hanging the ceiling?","acceptedAnswer":{"@type":"Answer","text":"Taller walls take longer to hang and finish even at the same square footage, so rooms over 8, 10, and 12 feet get a labor multiplier applied room by room. A 12-foot great room will not inflate the hours for an 8-foot closet in the same job."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Inputs and business details are optionally saved in this browser’s local storage, and a share link encodes only the quote fields in the page’s URL hash, not sent to us."}},{"@type":"Question","name":"How is the sheet count estimated?","acceptedAnswer":{"@type":"Answer","text":"Net hung area — walls plus any ceiling, minus openings — gets your waste percentage added, and that billable area is then divided by the sheet size you pick and rounded up, so the estimate is always a whole number of sheets you can actually order."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c221c; background: #e8eee6; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -28,7 +29,7 @@
     .room-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
     .ceiling-check { display: flex; gap: 6px; align-items: center; font-weight: 550; padding-bottom: 8px; }
     .ceiling-check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a8b8a4; background: #eef4ea; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b8a4; background: #eef4ea; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c221c; }
     button:hover { background: #e2ecdc; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
@@ -287,7 +288,44 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
-<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this drywall estimate include?</h3>
+      <p>Each room&rsquo;s wall and optional ceiling area net of openings, a waste percentage rolled
+        into a sheet count, hang labor by board type, finish labor by level, texture labor and
+        material, tear-off of existing drywall when you flag it, add-ons like stilts or extra corner
+        bead, and overhead and margin on top.</p>
+
+      <h3>What&rsquo;s the difference between finish level 4 and finish level 5?</h3>
+      <p>Level 4 is the typical paint-ready residential job; level 5 is a full skim coat used where
+        critical or raking light would otherwise show joint lines. The tool applies more finish hours
+        and more mud per 100 square feet as the level goes up &mdash; these are ballpark starting hours,
+        not a production standard.</p>
+
+      <h3>Does choosing Type X board mean the wall is fire-rated?</h3>
+      <p>No. Type X is priced here only as a material choice with its own waste percentage and hours.
+        The tool does not evaluate or certify any fire rating, which depends on the full wall assembly
+        and a building inspector&rsquo;s sign-off, not on the board alone.</p>
+
+      <h3>Why does ceiling height matter if I&rsquo;m not hanging the ceiling?</h3>
+      <p>Taller walls take longer to hang and finish even at the same square footage, so rooms over 8,
+        10, and 12 feet get a labor multiplier applied room by room. A 12-foot great room will not
+        inflate the hours for an 8-foot closet in the same job.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser.
+        Inputs and business details are optionally saved in this browser&rsquo;s local storage, and a
+        share link encodes only the quote fields in the page&rsquo;s URL hash, not sent to us.</p>
+
+      <h3>How is the sheet count estimated?</h3>
+      <p>Net hung area &mdash; walls plus any ceiling, minus openings &mdash; gets your waste percentage
+        added, and that billable area is then divided by the sheet size you pick and rounded up, so the
+        estimate is always a whole number of sheets you can actually order.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when it prints. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>

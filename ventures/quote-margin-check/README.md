@@ -40,7 +40,10 @@ escaping for currency labels containing commas, quotes, or line breaks, so you
 can append results from several proposals to a spreadsheet without retyping
 calculations. The browser Copy / Download buttons emit the same columns plus
 the time-overrun, cost-rise, discount-ask, and kill-fee rows already on the
-page. The browser can also copy a share link that keeps quote figures in the URL
+page. `time_buffer_percent` and `buffered_hours` are exported alongside
+`buffered_target_price` so the buffered figures stay reproducible from the file
+itself, and the Markdown review lists the time buffer with the other supplied
+inputs. The browser can also copy a share link that keeps quote figures in the URL
 fragment (not sent as a referrer) and a plain-text review summary for an email or
 proposal note. It includes the quote's arithmetic, the supplied target
 comparison, the local next-step prompt (send / revise / hold remains yours),

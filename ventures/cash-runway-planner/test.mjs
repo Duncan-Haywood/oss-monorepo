@@ -137,11 +137,35 @@ test('the plan measures the deepest week of the run, not the first negative week
   assert.equal(plan.deficit, 2100);
   assert.equal(plan.runEndWeek, 4);
   assert.equal(plan.recoveryWeek, null);
-  // The van payment is inside the run but starts after the first negative
-  // week, so delaying it cannot rescue week 2 and is not offered.
-  assert.equal(plan.delay, null);
+  // The van payment lands after the first negative week but at or before the
+  // trough (week 4), so it still deepens the deficit this plan reports and
+  // is still offered -- it just does not clear the whole gap on its own.
+  assert.equal(plan.delay.name, 'Van');
+  assert.equal(plan.delay.clears, false);
   assert.equal(plan.structural, true);
   assert.equal(plan.recurringGap, 400);
+});
+
+test('a payment that lands after the first negative week but at or before the trough is still offered', () => {
+  // The run goes negative in week 2 from recurring costs alone. A tax bill
+  // hits in week 3 -- inside the same run, before the deepest week -- and is
+  // the single biggest lever the owner has. Because the deficit the plan
+  // reports is the trough (week 5), not the first negative week, a payment
+  // is eligible to fix it exactly when it lands at or before the trough --
+  // not only when it lands at or before the run's first week.
+  const items = [{ name: 'Tax bill', amount: 500, week: 3, kind: 'out' }];
+  const rows = forecast({ cash: 100, weeklyIncome: 0, collectionWeeks: 0, weeklyCosts: 90, weeks: 5, items });
+  assert.deepEqual(rows.map((row) => row.balance), [10, -80, -670, -760, -850]);
+  const plan = shortfallPlan(rows, { items, weeklyIncome: 0, weeklyCosts: 90 });
+  assert.equal(plan.week, 2);
+  assert.equal(plan.troughWeek, 5);
+  assert.equal(plan.deficit, 850);
+  // The tax bill is inside the window (week 3 <= trough week 5) and is the
+  // only dated item there, so it must be offered -- not reported as nothing
+  // dated being available to move.
+  assert.ok(plan.delay, 'a dated payment inside the shortfall window should be offered');
+  assert.equal(plan.delay.name, 'Tax bill');
+  assert.equal(plan.delay.clears, false);
 });
 
 test('a partial fix is named as partial rather than sold as a solution', () => {

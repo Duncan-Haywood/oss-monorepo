@@ -34,8 +34,15 @@ import path from 'node:path';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const execFileAsync = promisify(execFile);
+
+// Anchored to this file, not to cwd: the build pod runs `node
+// platform/pages/check.mjs` from the repo root, but the test suite and a
+// laptop run it from elsewhere. Same idiom as build.mjs.
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 const PLACEHOLDER_ORIGIN = 'https://example.invalid';
 
@@ -50,6 +57,11 @@ const REQUIRED_ROOT_FILES = [
   // so a build that drops it drops the site's machine-readable front door
   // without any page 404ing to show it.
   'llms.txt',
+  // The "what's new" door. Unlike the pages, nothing 404s when this is
+  // missing -- a subscriber's reader just quietly stops seeing new tools, and
+  // nothing on the site says so. That silence is why it is a required file
+  // rather than a nice-to-have.
+  'feed.xml',
   // Browsers request /favicon.ico on their own for every page, so if it is
   // missing every page load logs a 404 and opens an anonymous blank tab.
   'favicon.ico',
@@ -77,12 +89,38 @@ const IMPORT_RE = /\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g;
 const DYNAMIC_IMPORT_RE = /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g;
 const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 
+// Directories at the artifact root that are this build's own pages, not a
+// published venture. Every other root directory is a product, and the checks
+// below hold it to a product's contract: an `index.html`, a hub link, a row in
+// `llms.txt`, a disclaimer. `c/` holds the category landing pages, which are
+// none of those things — they have their own checks further down, because the
+// ways they fail are different (a category with no page, a page listing a tool
+// that did not ship).
+//
+// Kept as a set rather than a prefix test so a venture named `c-something` is
+// still checked as a product.
+export const CATEGORY_DIR = 'c';
+export const ABOUT_DIR = 'about';
+
+// Directories the site builds for itself. They are not products, so the
+// reachability check below must not demand a `data-tool` card on the hub for
+// them — the hub links these from its footer, which is the right weight for a
+// page about the site rather than a tool.
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR]);
+
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
 // page missing it ships calculated money figures with no limitation of
 // liability — the one defect in this file with legal weight rather than just
 // broken-link weight.
 const DISCLAIMER_MARKER = /no warranty/i;
+
+// The budget a published description has to fit, restated rather than imported.
+// This file checks the artifact `build.mjs` produced and is deliberately not
+// built out of it, so importing the builder to learn its own limit would let a
+// mistake in `snippetize` mark its own homework. `build.test.mjs` asserts the
+// two numbers agree, which is the part worth automating.
+export const SNIPPET_MAX = 160;
 
 // Every `<script>` on a page, with its attributes and its inline body. Used to
 // parse-check the bodies; `SCRIPT_OR_STYLE_RE` above strips them instead.
@@ -387,6 +425,117 @@ async function linkedStylesheets(site, relative, html, cache) {
   return sheets.join('\n');
 }
 
+// ---- What nginx will call each file when the pod serves it -----------------
+//
+// The public site is served by `nginx-unprivileged` in
+// `gitops/prod/portfolio-site.yaml`, and nginx types a response purely by file
+// extension. An extension its `mime.types` does not list falls through to
+// `default_type application/octet-stream`, and the site sets
+// `X-Content-Type-Options: nosniff`, so the browser is forbidden from guessing
+// its way out. For a `<script type="module">` that is fatal: the module is
+// refused and the page renders but does nothing.
+//
+// That has already happened twice. `.mjs` is not in nginx's mime.types (still
+// true as of 1.27), and neither is `.webmanifest`; both needed an explicit
+// `location` block. Neither showed up on GitHub Pages, which types them
+// correctly -- so the bug was invisible until the moment the site moved to
+// nginx, which is exactly when nobody is watching.
+//
+// This map is the third fix: rather than wait for the next extension to break,
+// every extension the build emits has to be listed here with how it gets
+// typed. A venture that ships a new asset kind fails the build with
+// instructions instead of silently serving octet-stream in production.
+//
+//   'stock' -- nginx's own conf/mime.types covers it. Verified against
+//              nginx 1.27.0's conf/mime.types, which is the tag the
+//              `nginxinc/nginx-unprivileged:1.27-alpine` image builds from.
+//   'conf'  -- nginx does NOT cover it; portfolio-site.yaml carries an
+//              explicit `location ~ \.EXT$` block. Cross-checked below
+//              against the manifest itself, so deleting the block fails here.
+export const SERVED_EXTENSIONS = new Map([
+  ['.html', 'stock'],
+  ['.css', 'stock'],
+  ['.js', 'stock'],
+  ['.json', 'stock'],
+  ['.xml', 'stock'],
+  ['.txt', 'stock'],
+  ['.png', 'stock'],
+  ['.svg', 'stock'],
+  ['.ico', 'stock'],
+  ['.pdf', 'stock'],
+  ['.mjs', 'conf'],
+  ['.webmanifest', 'conf'],
+  ['.csv', 'conf'],
+]);
+
+// Where the served config lives, relative to the repo root. The build pod
+// clones the whole repository and runs this script from that checkout, so the
+// manifest is on disk next to the site being checked.
+const NGINX_MANIFEST = 'gitops/prod/portfolio-site.yaml';
+
+/**
+ * Every extension in `site` must be one this site knows how to serve.
+ *
+ * `conf`-typed extensions are additionally checked against the manifest, so
+ * the two cannot drift apart: dropping a `location` block from
+ * portfolio-site.yaml fails the build that would have shipped past it.
+ *
+ * `nginxConf` is the manifest text, or null when the check runs outside a
+ * repository checkout (a bare `check.mjs --dist=...` against a downloaded
+ * artifact). The extension allowlist still applies; only the cross-check is
+ * skipped, since there is nothing to cross-check against.
+ */
+export function checkServedExtensions(files, nginxConf) {
+  const problems = [];
+  const seen = new Map();
+
+  for (const relative of files) {
+    // A file that should not have shipped at all is already a problem, and the
+    // leak check owns it. Reporting `VENTURE.yaml` a second time under "nginx
+    // cannot type .yaml" buries the actual fix (delete it) under a mime-type
+    // question nobody needs to answer.
+    if (LEAKED_FILE_RE.test(relative)) continue;
+    if (relative.split('/').some((segment) => LEAKED_DIRS.has(segment))) continue;
+    // Node reports no extension for a dotfile like `.nojekyll`, which is what
+    // we want: it is never linked, and nginx's default_type is correct for it.
+    const ext = path.extname(relative).toLowerCase();
+    if (!ext) continue;
+    if (!seen.has(ext)) seen.set(ext, relative);
+  }
+
+  for (const [ext, example] of [...seen].sort()) {
+    const how = SERVED_EXTENSIONS.get(ext);
+    if (!how) {
+      problems.push(
+        `${example}: nothing says how nginx should type "${ext}". Add it to ` +
+          `SERVED_EXTENSIONS in platform/pages/check.mjs -- 'stock' if nginx's ` +
+          `mime.types already lists it, otherwise add a location block to ` +
+          `${NGINX_MANIFEST} and mark it 'conf'. Left alone it is served as ` +
+          `application/octet-stream, which nosniff makes unrecoverable.`,
+      );
+      continue;
+    }
+    if (how === 'conf' && nginxConf !== null) {
+      // Matches the manifest's own idiom: an empty `types { }` (which extends
+      // the inherited map rather than replacing it) immediately before the
+      // default_type. Looking for the escaped extension alone would pass on a
+      // block that had lost its types/default_type pair.
+      const block = new RegExp(
+        `location\\s+~\\s+\\\\${ext.replace('.', '\\.')}\\$\\s*\\{\\s*\\n\\s*types\\s*\\{\\s*\\}\\s*\\n\\s*default_type\\s+\\S+;`,
+      );
+      if (!block.test(nginxConf)) {
+        problems.push(
+          `${example}: "${ext}" is marked 'conf' but ${NGINX_MANIFEST} has no ` +
+            `\`location ~ \\${ext}$\` block typing it. nginx's mime.types does ` +
+            `not cover it, so it would serve as application/octet-stream.`,
+        );
+      }
+    }
+  }
+
+  return problems;
+}
+
 export async function checkSite(site, { minProducts = 1 } = {}) {
   const problems = [];
 
@@ -397,7 +546,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   }
 
   const entries = await fs.readdir(site, { withFileTypes: true });
-  const productDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+  const productDirs = entries
+    .filter((e) => e.isDirectory() && !SITE_OWN_DIRS.has(e.name))
+    .map((e) => e.name);
   if (productDirs.length === 0) problems.push('no product directories in the artifact');
   else if (productDirs.length < minProducts) {
     problems.push(`only ${productDirs.length} product(s) published, expected at least ${minProducts} — discovery may have regressed`);
@@ -414,6 +565,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // link with nothing behind it is a 404 a visitor sees. A product with no hub
   // link is worse and quieter: it built, deployed, passed every other check,
   // and no visitor can reach it.
+  let hubCategoryLinks = new Set();
   const hubHtml = await fs.readFile(path.join(site, 'index.html'), 'utf8').catch(() => null);
   if (hubHtml !== null) {
     // Scripts first, because a hub link is markup and script is not. The
@@ -431,6 +583,78 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
     }
     if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
+    hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
+  }
+
+  // ---- Category landing pages ---------------------------------------------
+  //
+  // Same reachability argument as the products, one level up. These pages exist
+  // to be the entry point organic search sends a visitor to, so the failure
+  // that matters is a page that shipped and nothing links, or a link with no
+  // page behind it — and neither shows up anywhere else: the hub still renders,
+  // every product still resolves.
+  {
+    const categoryRoot = path.join(site, CATEGORY_DIR);
+    const shipped = (await fs.readdir(categoryRoot, { withFileTypes: true }).catch(() => []))
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+
+    for (const id of hubCategoryLinks) {
+      if (!shipped.includes(id)) {
+        problems.push(`index.html: links category "${id}" but ${CATEGORY_DIR}/${id}/ did not ship`);
+      }
+    }
+    for (const id of shipped) {
+      // No "only if the hub linked something" escape hatch, unlike the product
+      // check above. That guard exists there so a stub hub does not report all
+      // 164 products at once; here the directory only exists because this build
+      // wrote it, so a category page with no hub link is always the defect.
+      if (!hubCategoryLinks.has(id)) {
+        problems.push(`${CATEGORY_DIR}/${id}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+      const relative = path.join(CATEGORY_DIR, id, 'index.html');
+      const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+      if (html === null) {
+        problems.push(`${CATEGORY_DIR}/${id}/: has no index.html`);
+        continue;
+      }
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      // A category page that lists a tool the build did not publish is a 404
+      // handed to the one visitor who was closest to using it.
+      const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      const tools = new Set([...markup.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+      if (tools.size === 0) problems.push(`${relative}: lists no tools`);
+      for (const slug of tools) {
+        if (!productDirs.includes(slug)) {
+          problems.push(`${relative}: links "${slug}" but no such product shipped`);
+        }
+      }
+    }
+  }
+
+  // ---- About page ----------------------------------------------------------
+  //
+  // Exempted from the product sweep above (it is not a tool), so it needs its
+  // own reachability check or it has none at all. It is the page that answers
+  // "is this thing going to email my numbers to someone" and the one a linker
+  // is pointed at for boilerplate — a build that silently stopped emitting it,
+  // or emitted it with nothing linking it, would look completely healthy
+  // everywhere else in this file.
+  {
+    const relative = path.join(ABOUT_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${ABOUT_DIR}/: did not ship, so the site has no privacy or press page`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="about\/"/.test(hubHtml)) {
+        problems.push(`${ABOUT_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
   }
 
   // Same reachability argument as the hub, for the machine-readable door. A
@@ -447,14 +671,74 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
     }
     for (const slug of listed) {
-      if (!productDirs.includes(slug)) {
+      // `SITE_OWN_DIRS` are legitimately listed here — llms.txt names the About
+      // page and the category pages under "Optional" so an assistant can cite
+      // the page about the site, or about a trade, instead of a tool. They are
+      // not products, so the "no such product shipped" reading is wrong for
+      // them; that they shipped is checked in their own blocks above.
+      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
         problems.push(`llms.txt: lists "${slug}" but no such product shipped`);
       }
     }
   }
 
+  // The feed is the only surface built from a *committed* data file
+  // (`launched.mjs`) rather than derived from the tree, so it is the only one
+  // that can silently fall behind: a tool lands, nobody re-runs the refresh,
+  // and it never appears in the feed. Nothing else in the artifact shows that
+  // — the tool's own pages, sitemap entry and llms.txt line are all fine.
+  //
+  // The dates are read back out of `catalog.json` rather than from the repo,
+  // so this check is a statement about the artifact and holds when the check
+  // runs against a downloaded one. `catalog.json` carries every tool's date;
+  // the feed carries only the newest few dozen by design, so an older tool
+  // being absent from the feed is correct and cannot be the test.
+  const catalog = await fs
+    .readFile(path.join(site, 'catalog.json'), 'utf8')
+    .then(JSON.parse)
+    .catch(() => null);
+  if (catalog !== null) {
+    const dated = new Map((catalog.tools ?? []).map((t) => [t.slug, t.launched]));
+    for (const product of productDirs) {
+      const date = dated.get(product);
+      if (!date) {
+        problems.push(
+          `${product}/: shipped with no launch date, so it can never enter the feed — run \`node platform/pages/launched.mjs --write\``,
+        );
+      } else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        problems.push(`${product}/: launch date "${date}" is not YYYY-MM-DD`);
+      }
+    }
+  }
+
+  const feed = await fs.readFile(path.join(site, 'feed.xml'), 'utf8').catch(() => null);
+  if (feed !== null) {
+    for (const slug of new Set(
+      [...feed.matchAll(/<id>tag:[^<]*?:tool\/([^<]+)<\/id>/g)].map((m) => m[1]),
+    )) {
+      if (!productDirs.includes(slug)) {
+        problems.push(`feed.xml: lists "${slug}" but no such product shipped`);
+      }
+    }
+    // A reader that cannot parse the document sees no entries at all, and the
+    // likeliest cause is an unescaped `&` or `<` from a tool's own description
+    // reaching the XML. One raw ampersand takes the whole feed down for every
+    // subscriber at once, which is why this is a check and not a test.
+    if (/&(?!amp;|lt;|gt;|quot;|#39;|apos;)/.test(feed)) {
+      problems.push('feed.xml: contains a raw `&`, which makes the whole feed unparseable');
+    }
+  }
+
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
+
+  // The pod runs this from its own clone, so the manifest that will serve
+  // these files is on disk. Absent (a bare run against a downloaded artifact)
+  // only skips the cross-check, not the allowlist.
+  const nginxConf = await fs
+    .readFile(path.join(REPO_ROOT, NGINX_MANIFEST), 'utf8')
+    .catch(() => null);
+  problems.push(...checkServedExtensions(files, nginxConf));
 
   await checkInlineScripts(site, servedPages, problems);
 
@@ -598,6 +882,37 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         const has = new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value}["']`, 'i').test(html);
         if (!has) problems.push(`${relative}: no ${value}, so a shared link previews without it`);
       }
+
+      // A description longer than a result or a card will show.
+      //
+      // These grow on their own: a session adds a feature to a tool and adds a
+      // clause to its description saying so, and nothing ever takes one out.
+      // 138 of 168 pages had drifted past the budget and one had reached 1,862
+      // characters — a snippet that read "...whether a" and stopped. `build.mjs`
+      // cuts them (`snippetize`), so reaching here over the budget means either
+      // that pass did not run on this page or something after it wrote a longer
+      // one back. Both ship copy no reader sees the end of, on the two surfaces
+      // this site is actually found through.
+      for (const [attr, value] of [
+        ['name', 'description'],
+        ['property', 'og:description'],
+        ['name', 'twitter:description'],
+      ]) {
+        // Whole-tag matcher: a description may contain a bare `>`, and a
+        // `[^>]*` scan would stop at it and miss the longest ones of all.
+        const tag = [...html.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)]
+          .find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0]));
+        if (!tag) continue;
+        const content = /\bcontent=(["'])([\s\S]*?)\1/i.exec(tag[0])?.[2] ?? '';
+        // Entities are one character to a reader and to the count that matters.
+        const length = content.replace(/&(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);/gi, ' ').length;
+        if (length > SNIPPET_MAX) {
+          problems.push(
+            `${relative}: ${value} is ${length} characters, over the ${SNIPPET_MAX}-character ` +
+              'budget a search result and a share card show',
+          );
+        }
+      }
     }
   }
 
@@ -696,6 +1011,14 @@ if (invokedDirectly) {
 
   const files = await walk(site);
   const pages = files.filter((f) => f.endsWith('.html')).length;
-  const products = (await fs.readdir(site, { withFileTypes: true })).filter((e) => e.isDirectory()).length;
-  console.log(`${site} looks publishable: ${products} products, ${pages} pages, no dead links.`);
+  // Same exclusion `checkSite` applies: `c/` holds this build's own category
+  // pages, and counting it as a product overstates the catalogue by one.
+  const rootDirs = (await fs.readdir(site, { withFileTypes: true })).filter((e) => e.isDirectory());
+  const products = rootDirs.filter((e) => !SITE_OWN_DIRS.has(e.name)).length;
+  const categories = rootDirs.some((e) => e.name === CATEGORY_DIR)
+    ? (await fs.readdir(path.join(site, CATEGORY_DIR), { withFileTypes: true })).filter((e) => e.isDirectory()).length
+    : 0;
+  console.log(
+    `${site} looks publishable: ${products} products, ${categories} category pages, ${pages} pages, no dead links.`,
+  );
 }

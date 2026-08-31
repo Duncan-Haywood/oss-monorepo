@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SaaS seat true-up calculator | Find unused subscription spend</title>
+  <title>SaaS Seat True-Up Calculator — Find Unused Spend</title>
   <meta name="description" content="Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="SaaS seat true-up calculator">
   <meta property="og:description" content="Find unused subscription seats before renewal with a private, browser-local calculator.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SaaS Seat True-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a “used” seat?","acceptedAnswer":{"@type":"Answer","text":"Whatever your own review decides, and the definition is the whole game. A seat assigned to someone who left, a seat held for a contractor whose project ended, a seat that has not seen a login in ninety days — all of them are provisioned and billed, and none of them are used in any sense your finance team would recognise. Most vendor admin consoles will export last-login per user; that export, not the assigned-seat count, is the number to type here."}},{"@type":"Question","name":"Why does it show both a remaining-term figure and an annual one?","acceptedAnswer":{"@type":"Answer","text":"Because they answer different questions. The remaining-term figure is what the current contract still commits you to — on the worked example, 6 unused seats at $18 with 4 months left is $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if you renew at the same count. The first is usually sunk; the second is the one you can actually act on, and it is why a seat review is worth doing before the renewal conversation rather than after it."}},{"@type":"Question","name":"What if we are over the purchased count instead of under?","acceptedAnswer":{"@type":"Answer","text":"Then the tool prices the overage rather than the saving, and that is often the more urgent number. Overage is commonly billed at list plus a contracted premium, so there is a field for that premium — leave it at 0% if your agreement charges plain list. Being over is not necessarily bad; it can mean the product is working. It just should not be a surprise on the true-up invoice."}},{"@type":"Question","name":"Does this tell me what to do at renewal?","acceptedAnswer":{"@type":"Answer","text":"No. It sizes the number so you can decide. Cutting seats has real costs it cannot see: seat minimums and step pricing mean dropping from 20 to 14 may not save 30%, tier discounts can be tied to volume, and a seat released today may have to be re-bought at a worse rate in six months. Read your own agreement for minimums, true-up timing, and whether reductions are permitted mid-term at all — many contracts allow additions any time and reductions only at renewal."}},{"@type":"Question","name":"Can I use this across several tools at once?","acceptedAnswer":{"@type":"Answer","text":"Run them one at a time and add up the annual figures. Each subscription has its own price, term, and overage treatment, so averaging them together hides the one that matters. In practice a handful of tools usually account for most of the waste, and doing them individually is what makes that visible."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculation runs entirely in your browser. A saved scenario stores only the totals you typed and stays in this browser; reset deletes it. There are no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned off below. Seat counts and prices are commercially sensitive, which is exactly why none of this leaves the page."}}]}</script>
   <style>
     :root { color-scheme: light; --ink:#18252b; --muted:#5e6c70; --paper:#f7f3eb; --accent:#af5331; --line:#d9d0c2; }
     * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
@@ -52,6 +53,54 @@
       <div class="metric"><strong id="monthly">$108.00</strong><span id="monthlyLabel">avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span id="remainingLabel">avoidable through renewal</span></div>
     </div><div class="callout" id="message">A seat review could release $1,296.00 over a full year if the unused seats are not renewed.</div></section>
   </section>
+
+  <section class="panel" id="faq">
+    <h2>Common questions</h2>
+
+    <h3>What counts as a &ldquo;used&rdquo; seat?</h3>
+    <p>Whatever your own review decides, and the definition is the whole game. A seat assigned to
+      someone who left, a seat held for a contractor whose project ended, a seat that has not seen a
+      login in ninety days &mdash; all of them are provisioned and billed, and none of them are used in
+      any sense your finance team would recognise. Most vendor admin consoles will export last-login
+      per user; that export, not the assigned-seat count, is the number to type here.</p>
+
+    <h3>Why does it show both a remaining-term figure and an annual one?</h3>
+    <p>Because they answer different questions. The remaining-term figure is what the current contract
+      still commits you to &mdash; on the worked example, 6 unused seats at $18 with 4 months left is
+      $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if
+      you renew at the same count. The first is usually sunk; the second is the one you can actually
+      act on, and it is why a seat review is worth doing <em>before</em> the renewal conversation rather
+      than after it.</p>
+
+    <h3>What if we are over the purchased count instead of under?</h3>
+    <p>Then the tool prices the overage rather than the saving, and that is often the more urgent
+      number. Overage is commonly billed at list plus a contracted premium, so there is a field for that
+      premium &mdash; leave it at 0% if your agreement charges plain list. Being over is not necessarily
+      bad; it can mean the product is working. It just should not be a surprise on the true-up
+      invoice.</p>
+
+    <h3>Does this tell me what to do at renewal?</h3>
+    <p>No. It sizes the number so you can decide. Cutting seats has real costs it cannot see: seat
+      minimums and step pricing mean dropping from 20 to 14 may not save 30%, tier discounts can be tied
+      to volume, and a seat released today may have to be re-bought at a worse rate in six months.
+      Read your own agreement for minimums, true-up timing, and whether reductions are permitted
+      mid-term at all &mdash; many contracts allow additions any time and reductions only at
+      renewal.</p>
+
+    <h3>Can I use this across several tools at once?</h3>
+    <p>Run them one at a time and add up the annual figures. Each subscription has its own price, term,
+      and overage treatment, so averaging them together hides the one that matters. In practice a
+      handful of tools usually account for most of the waste, and doing them individually is what makes
+      that visible.</p>
+
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No account and no network requests &mdash; the calculation runs entirely in your browser. A saved
+      scenario stores only the totals you typed and stays in this browser; reset deletes it. There are
+      no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned
+      off below. Seat counts and prices are commercially sensitive, which is exactly why none of this
+      leaves the page.</p>
+  </section>
+
   <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Saved scenarios store only the totals entered here and stay in this browser. Reset deletes the saved scenario. Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events are stored only in this browser and can be disabled with <a href="#" id="disable">turning usage counting off</a>.</footer>
 </main><script type="module">
   import { calculateTrueUp, formatMoney, reviewMessage } from './calc.mjs';
@@ -76,6 +125,18 @@
       document.querySelector('#message').textContent = reviewMessage(result);
       if (count) recordEvent('true_up_calculated');
     } catch (error) {
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid review on screen next to a small error line -- that
+      // reads as if the stale unused-seat count, utilization, and dollar
+      // figures still answer the inputs now in the form. Clear every derived
+      // field and show the message only in its own region.
+      document.querySelector('#unused').textContent = '';
+      document.querySelector('#unusedLabel').textContent = '';
+      document.querySelector('#utilization').textContent = '';
+      document.querySelector('#monthly').textContent = '';
+      document.querySelector('#monthlyLabel').textContent = '';
+      document.querySelector('#remaining').textContent = '';
+      document.querySelector('#remainingLabel').textContent = '';
       document.querySelector('#message').textContent = error.message;
     }
   }

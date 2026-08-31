@@ -33,8 +33,26 @@ test("flags overages, duplicates, missing codes, and evidence", () => {
     flagged: 3,
     recoverable: 100,
     unpriced: 0,
+    supported: 1,
     actionable: 2,
   });
+});
+
+test("an overage with evidence supporting the billed amount is not counted as recoverable", () => {
+  // A $300 detention line against a $75 rate-card figure looks like a
+  // $225.00 overage until a scale ticket or dock log is attached that
+  // supports the $300 as billed. `priorityFor` already keeps such a row
+  // out of `actionable`; `recoverable` must exclude it too, or the
+  // headline "above expected" total still claims a gap the evidence has
+  // already closed.
+  const results = auditCharges([
+    { invoice: "INV-4", reference: "PO-11", code: "DET", billed: "300", expected: "75", evidence: "supports" },
+  ]);
+  assert.equal(results[0].priority, "supported");
+  const totals = auditTotals(results);
+  assert.equal(totals.recoverable, 0);
+  assert.equal(totals.supported, 1);
+  assert.equal(totals.actionable, 0);
 });
 
 test("a line with no expected amount is not counted as a full recovery", () => {

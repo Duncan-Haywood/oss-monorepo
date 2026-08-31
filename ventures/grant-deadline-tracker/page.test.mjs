@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compareLateReport } from "./calc.mjs";
+import { faqEntries, injectChrome } from "../../platform/pages/build.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const dueSeo = readFileSync(new URL("./when-is-my-next-grant-report-due.html", import.meta.url), "utf8");
@@ -70,4 +71,57 @@ test("the grant-writer landing page uses the same worked example the tests lock"
   assert.equal(comparison.yourself.net, 20912);
   assert.equal(comparison.writer.net, 20820);
   assert.match(sitemap, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
+});
+
+test("an invalid risk input clears the stale comparison instead of leaving it next to a silent error", () => {
+  // Before this fix, a rejected input in the "cash at risk" panel (a negative
+  // number, non-numeric text) overwrote only #riskMessage with the error
+  // sentence and left the three stat call-outs, the three-path comparison
+  // table, and the board-ready note all showing the last valid comparison. A
+  // visitor could easily miss the one-line message and read those stale
+  // figures as the answer for the inputs now on screen.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, "app script not found");
+  const script = scriptMatch[1];
+  const fnMatch = script.match(/function renderRisk\([\s\S]*?\n {2}\}/);
+  assert.ok(fnMatch, "renderRisk() not found");
+  const catchMatch = fnMatch[0].match(/\} catch \(error\) \{([\s\S]*?)\n {4}\}/);
+  assert.ok(catchMatch, "renderRisk() catch block not found");
+  const body = catchMatch[1];
+  for (const id of ["riskAtRisk", "riskWriterCost", "riskKept", "riskNote"]) {
+    assert.match(
+      body,
+      new RegExp(`\\$\\("${id}"\\)\\.textContent\\s*=\\s*""`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /\$\("riskRows"\)\.innerHTML\s*=/, "the stale comparison table rows are never cleared");
+  assert.match(body, /\$\("lateReport"\)\.dataset\.note\s*=\s*""/, "the stale board-ready note is never cleared");
+  assert.match(body, /error\.message/, "the error message is never shown");
+});
+
+test("the entry page's FAQ derivation is not suppressed by its own explanatory comment", () => {
+  // The source carries only a *comment* explaining that FAQPage schema is
+  // derived by build.mjs, not an authored block. build.mjs used to check for
+  // the literal substring "FAQPage" anywhere in the page -- including inside
+  // that comment -- so it read the explanation as "this venture already
+  // wrote its own" and skipped derivation, shipping no FAQPage schema at all
+  // despite six real question headings below. faqEntries() alone can't catch
+  // this: it derives correctly from the source; the loss only appears in
+  // injectChrome's output. 2026-08-31.
+  const entries = faqEntries(html);
+  assert.ok(entries.length >= 6, `expected at least 6 derived FAQ entries, got ${entries.length}`);
+  const questions = entries.map((e) => e.question);
+  assert.ok(questions.some((q) => /next grant report due/i.test(q)));
+  assert.ok(questions.some((q) => /hire a grant writer/i.test(q)));
+
+  const built = injectChrome(html, {
+    slug: "grant-deadline-tracker",
+    toRoot: "../",
+    total: 169,
+    related: [],
+    canonical: "https://e.test/grant-deadline-tracker/",
+    isEntry: true,
+  });
+  assert.match(built, /"@type":"FAQPage"/, "the derived schema must actually be injected, not suppressed by the comment");
 });

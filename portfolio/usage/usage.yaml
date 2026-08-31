@@ -61,6 +61,11 @@ products:
           local_calculation_events: 0
           payment_draft_copies: 0
         note: Shipped browser-local retainage and payment-delay worksheet; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          cash_flow_record_downloads: 0
+        note: Added a browser-local plain-text cash-flow record download for carrying a reviewed snapshot into a contractor's own records; public URL remains owner-gated.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -921,6 +926,18 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added per-channel time-to-sale: what each channel keeps per day of
+          waiting, a ranking toggle between profit-per-sale and profit-per-day,
+          and a callout when the two disagree. New opt-in event
+          `ranked_by_speed` is the one that answers whether sellers value the
+          speed view — the second hypothesis in VENTURE.yaml. Still no public
+          URL, so still no traffic signal; 34 unit tests pass and the primary
+          journey was verified in Chromium.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
@@ -2973,6 +2990,23 @@ products:
           onto current main. Public URL remains owner-gated; the
           local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-08-31
+        signals:
+          live_url_visitors: null
+          estimate_completed: 0
+          result_copied: 0
+          repack_target_copied: 0
+        note: >-
+          Restated the density gap as the two levers a shipper controls:
+          the packed height and the per-piece weight that reach the next
+          class down, and the height at which a carrier remeasure re-rates
+          the freight into the class above. New signal
+          `repack_target_copied` fires only when someone copies the repack
+          instruction, so acting on a lever is separable from reading the
+          class — the outcome measure for this feature rather than another
+          view count. Event name and day only, opt-out, DNT/GPC honoured,
+          never leaves the browser. Public URL still owner-gated, so this
+          stays a zero baseline.
 
   - slug: hvac-maintenance-contract-calculator
     surface: static-page-in-repo
@@ -3061,6 +3095,27 @@ products:
           onto current main. Local CLI only; --usage-file is opt-in and
           stores an aggregate count. Public URL remains owner-gated.
 
+  - slug: public-record-watch
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after register exports, get the identical
+          added/removed/changed report the CLI produces, parsed and rendered
+          client-side. Nothing is uploaded; register names and record fields
+          are never sent anywhere. This venture had a CLI but no way for a
+          stranger to try it without a clone and a Python install, same shape
+          as npm-deployment-evidence and vendor-change-evidence before their
+          own browser front ends. Public URL remains owner-gated on the same
+          two blockers as every other tool here; usage is opt-out and honors
+          DNT/GPC.
+
   - slug: contractor-bid-readiness
     surface: static-page-in-repo
     readings:
@@ -3137,6 +3192,23 @@ products:
           opt-in and stores an aggregate count. Public URL remains
           owner-gated. Baseline row.
 
+  - slug: fifo-pick-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+          example_used: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js) that
+          runs the CLI's identical FIFO pick-order check client-side —
+          drag/drop or paste a pick-log CSV, never uploaded. Separate
+          surface from the existing repository-cli row per this file's own
+          rule; first reading is the baseline, no public URL yet.
+
   - slug: cleaning-dilution-calculator
     surface: static-page-in-repo
     readings:
@@ -3197,6 +3269,19 @@ products:
           Repair-and-merge of unique #1202 pool route pricing calculator
           onto current main. Public URL remains owner-gated; local counting
           is anonymous, honors DNT/GPC, and is off by a visible control.
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          local_estimate_events: 0
+          local_share_link_events: 0
+        note: >-
+          Added a private local draft (localStorage) so route assumptions
+          survive a reload, and a shareable link (URL hash, nothing
+          uploaded) so an operator can send a route to a partner without
+          retyping eight numbers -- this venture had share.mjs/persistence
+          that most sibling calculators already carry. New share-link
+          event added to the same anonymous, DNT/GPC-respecting counter.
+          Still zero because the surface is not public yet.
 
   - slug: construction-evidence-log
     surface: static-page-in-repo
@@ -3301,6 +3386,22 @@ products:
           Repair-and-merge of unique #1169 vendor-change evidence onto current
           main. Local snapshot compare only; failed fetches stay inconclusive.
           Keep #1368 open until supersede_check exits 0.
+
+  - slug: vendor-change-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after snapshots, get the identical
+          changed/unchanged/inconclusive report the CLI produces, parsed
+          entirely client-side. evidence.js ports vendor_change.py's compare()
+          rules line-for-line so the two surfaces cannot silently diverge.
 
   - slug: tender-radar
     surface: static-page-in-repo
@@ -3557,6 +3658,24 @@ products:
           Shipped a local package-lock v2/v3 production-vs-dev reachability
           report. No public URL; usage is an optional local aggregate
           counter only.
+
+  - slug: npm-deployment-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+          example_used: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js) that
+          runs the CLI's identical lockfile-classification logic
+          client-side — drag/drop or paste a package-lock.json, never
+          uploaded. Separate surface from the existing local-cli row per
+          this file's own rule; first reading is the baseline, no public
+          URL yet.
 
   - slug: cra-evidence-desk
     surface: local-cli

@@ -86,8 +86,24 @@ export function reviewAll(grants, today) {
   return grants.map((grant) => reviewGrant(grant, today)).sort((a, b) => (a.daysUntilReport ?? Infinity) - (b.daysUntilReport ?? Infinity));
 }
 
+// Every field the queue reads, not just the ones the table renders. A CSV
+// exported to a board member, a co-signer, or a funder's file is often the
+// only copy of an award that leaves this browser -- so a recipient with only
+// the five displayed columns can see that a report is "Overdue" but cannot
+// check *why* (no awardDate or intervalMonths to recompute nextReport from),
+// cannot tell an approximate deadline from an urgent one (status buckets
+// "Due soon" into one label whether it is due tomorrow or in three weeks,
+// with no daysUntilReport), and cannot verify restrictedBalance without the
+// awardAmount and spentAmount it is derived from. Dropping any of those from
+// the export is the same defect `where-to-sell-calculator` shipped by
+// hand-keeping an allowlist beside the form instead of deriving it: a field
+// the page collects and computes quietly missing from the copy a second
+// person reads.
 export function toCsv(rows) {
-  const fields = ['name', 'funder', 'nextReport', 'status', 'restrictedBalance'];
+  const fields = [
+    'name', 'funder', 'awardDate', 'intervalMonths', 'nextReport',
+    'daysUntilReport', 'status', 'awardAmount', 'spentAmount', 'restrictedBalance',
+  ];
   const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
   return [fields.join(','), ...rows.map((row) => fields.map((field) => quote(row[field])).join(','))].join('\n');
 }

@@ -549,7 +549,16 @@ export function feeChangeNote(impact) {
 export function maxBuyCost(input) {
   const probe = { ...input, cogs: 0 };
   const atZero = calculateOrder(probe);
-  if (atZero.expectedProfit < 0) return 0;
+  // When the SKU loses money even on free goods, no purchase cost clears it.
+  // Returning 0 here said "pay at most $0.00 and you break even", which is
+  // false — at $0.00 it is still under water — and is indistinguishable from
+  // the legitimate answer for a SKU that breaks even exactly at zero COGS.
+  // The fee-change page presents this as "the number to take to a supplier",
+  // so a 0 sent a seller to negotiate a price that was never going to work
+  // when the real answer is that the listing price has to move. `null` is
+  // what breakEvenPrice and priceForTargetMargin already return when no
+  // input reaches the target.
+  if (atZero.expectedProfit < 0) return null;
   let lo = 0;
   let hi = Math.max(1, Number(input.itemPrice) || 1);
   let found = false;
@@ -568,4 +577,68 @@ export function maxBuyCost(input) {
     else hi = mid;
   }
   return (lo + hi) / 2;
+}
+
+/**
+ * Selling `bundleQuantity` units in one discounted order against selling
+ * that many units as separate full-price orders.
+ *
+ * The two are not the same order scaled by a factor: a bundle pays the
+ * fixed per-order costs (payment processing's flat fee, one shot at a
+ * return) once, while `bundleQuantity` separate orders pay each of those
+ * once per order. `calculateOrder`'s `quantity` already models "one order
+ * of N units" correctly (`feeBase`/`referralFee`/`productCost` scale with
+ * it, `paymentFixed` does not), so the honest separate-orders total is
+ * `bundleQuantity` independent single-unit orders, not
+ * `calculateOrder({ quantity: bundleQuantity })` at full price.
+ */
+export function compareBundleDiscount(input = {}) {
+  const itemPrice = number(input.itemPrice, "Item price");
+  const bundleQuantity = optionalNumber(input.bundleQuantity, "Bundle quantity", 2, {
+    min: 2,
+  });
+  const bundleDiscountPct = optionalNumber(input.bundleDiscountPct, "Bundle discount", 10);
+  if (bundleDiscountPct >= 100) throw new Error("Bundle discount must be less than 100%");
+
+  const single = calculateOrder({ ...input, quantity: 1 });
+  const separateTotal = single.expectedProfit * bundleQuantity;
+
+  const bundlePrice = itemPrice * (1 - bundleDiscountPct / 100);
+  const bundle = calculateOrder({ ...input, quantity: bundleQuantity, itemPrice: bundlePrice });
+
+  const breakEvenBundlePrice = searchPrice(
+    { ...input, quantity: bundleQuantity },
+    (result) => result.expectedProfit >= separateTotal,
+  );
+  const breakEvenDiscountPct =
+    breakEvenBundlePrice === null ? null : (1 - breakEvenBundlePrice / itemPrice) * 100;
+
+  return {
+    bundleQuantity,
+    bundleDiscountPct,
+    bundlePrice,
+    single,
+    separateTotal,
+    bundle,
+    bundleGain: bundle.expectedProfit - separateTotal,
+    winner: bundle.expectedProfit >= separateTotal ? "bundle" : "separate",
+    breakEvenBundlePrice,
+    breakEvenDiscountPct,
+  };
+}
+
+export function bundleDiscountNote(comparison) {
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { bundleQuantity, bundleDiscountPct, bundleGain, winner, breakEvenDiscountPct } =
+    comparison;
+  if (winner === "bundle") {
+    return `A ${bundleQuantity}-pack at ${bundleDiscountPct}% off keeps ${money(bundleGain)} more than ${bundleQuantity} separate full-price orders, mostly by paying flat per-order costs once instead of ${bundleQuantity} times.`;
+  }
+  if (breakEvenDiscountPct === null) {
+    return `A ${bundleQuantity}-pack at ${bundleDiscountPct}% off keeps ${money(-bundleGain)} less than ${bundleQuantity} separate full-price orders, and no discount shallow enough recovers that — the separate orders' saved per-order fee is not worth the price cut here.`;
+  }
+  return `A ${bundleQuantity}-pack at ${bundleDiscountPct}% off keeps ${money(-bundleGain)} less than ${bundleQuantity} separate full-price orders. Dropping the discount to about ${breakEvenDiscountPct.toFixed(1)}% would match them.`;
 }

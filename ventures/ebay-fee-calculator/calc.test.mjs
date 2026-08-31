@@ -318,13 +318,54 @@ test('unrefunded fees stay in the return loss', () => {
   near(r.expectedProfit, -10.4, 'every order comes back');
 });
 
-test('break-even return rate is zero when the completed sale already loses', () => {
+// Regression: breakEvenReturnRate used to hard-code 0% whenever the
+// completed sale already lost money -- the same wrong-branch defect fixed
+// in shopify-fee-calculator's breakEvenRefundRate. At 0% returns, this
+// order's expected profit is -$16.625, not $0, so "0%" told a seller the
+// order was already break-even when it was already a $16.625 loss.
+// returnProfit here (-$5) is a smaller loss than completing the sale, but
+// it never reaches $0 even at a 100% return rate, so no return rate can
+// zero expected profit -- the honest answer is unreachable (Infinity), not
+// 0%. Brute force (independent of the formula under test) confirms
+// expectedProfit stays negative across the full [0, 100] range.
+test('break-even return rate is unreachable, not zero, when returning is a smaller loss but never a gain', () => {
   const r = calculateOrder({
     price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
     costOfGoods: 20, shippingCost: 5,
   });
   assert.ok(r.profit < 0, 'losing sale');
-  assert.equal(r.breakEvenReturnRate, 0);
+  near(r.returnProfit, -5, 'a return is a smaller loss, not a gain');
+  assert.equal(r.breakEvenReturnRate, Infinity);
+  for (let pct = 0; pct <= 100; pct += 5) {
+    const at = calculateOrder({
+      price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+      costOfGoods: 20, shippingCost: 5, returnRatePercent: pct,
+    });
+    assert.ok(at.expectedProfit < 0, `expected profit stays negative at ${pct}% returns, got ${at.expectedProfit}`);
+  }
+});
+
+// Regression: the same defect, but confirming a genuine reachable
+// break-even is still found once profit is negative -- returnProfit can be
+// exactly $0 (no unrefunded fees, no sunk shipping/packaging/return-label
+// cost) even though the completed sale lost money, and 100% returns is
+// then the real -- if extreme -- crossing point, not the 0% the old branch
+// reported.
+test('break-even return rate solves to 100% when a full-refund return costs nothing and the sale already lost money', () => {
+  const r = calculateOrder({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 0, packagingCost: 0, otherCost: 0,
+    returnShippingCost: 0, feeRefundOnReturnPercent: 100,
+  });
+  assert.ok(r.profit < 0, 'losing sale');
+  near(r.returnProfit, 0, 'a full refund on this order sinks nothing');
+  near(r.breakEvenReturnRate, 100, 'only returning every order zeroes expected profit');
+  const atBreakEven = calculateOrder({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 0, packagingCost: 0, otherCost: 0,
+    returnShippingCost: 0, feeRefundOnReturnPercent: 100, returnRatePercent: 100,
+  });
+  near(atBreakEven.expectedProfit, 0, 'expected profit actually reaches zero at the reported rate');
 });
 
 test('rejects a return rate or fee-refund rate above 100%', () => {
@@ -2407,4 +2448,173 @@ test('label note names the $1.07 drag, the $0.13 postage-only save, and the $3.1
   assert.equal(text, ebayLabelsNote(compareEbayLabels(LABEL_BASE)));
   assert.equal(text, ebayLabelsSummary(compareEbayLabels(LABEL_BASE)));
   assert.throws(() => ebayLabelsNote({}), /missing rows/);
+});
+
+// Regression: eight break-even/ceiling rates across this file shared one
+// defect, the same class fixed in etsy-profit-calculator's
+// breakEvenSellThroughRate and shopify-fee-calculator's six break-even
+// solvers -- each gated its division on "the scaled path's profit is
+// positive" and hard-coded 0% (or, for waitChanceCeiling, effectively
+// claimed a trivial tie at 0% chance) whenever that path was already
+// losing money, without checking whether the value it was being compared
+// against was also negative. When both are negative they can still cross
+// at a real, positive rate (breakEvenScaledRate(target, profitAtFullRate)
+// = target / profitAtFullRate * 100 is positive whenever target and
+// profitAtFullRate share a sign). A high cost-of-goods relative to price
+// makes both sides of each comparison lose money below; each case below
+// independently reconstructs the crossing by scaling the pipeline's own
+// per-unit/per-order fields (not by calling breakEvenScaledRate), and
+// confirms the reported rate actually ties the two paths.
+test('compareSellerInitiatedOffer.breakEvenAcceptPct solves when both accepting and waiting already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 25, shippingCost: 2,
+    offerPercent: 10, waitSellThroughPct: 40, offerAcceptPct: 55,
+  };
+  const r = compareSellerInitiatedOffer(input);
+  assert.ok(r.wait.expectedProfit < 0, 'waiting for list already loses money');
+  assert.ok(r.offer.soldExpectedProfit < 0, 'the discounted offer, if sold, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenAcceptPct) && r.breakEvenAcceptPct > 0,
+    `accept floor should be reachable and nonzero, got ${r.breakEvenAcceptPct}`,
+  );
+  assert.notEqual(r.breakEvenAcceptPct, 0);
+  near(
+    (r.breakEvenAcceptPct / 100) * r.offer.soldExpectedProfit,
+    r.wait.expectedProfit,
+    'accepting at the reported rate ties waiting',
+  );
+});
+
+test('compareQuantityDiscount.breakEvenTakePct solves when both singles and the discounted box already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    qtyDiscountUnits: 3, qtyDiscountPercent: 15, qtyTakePct: 60, singlesSellThroughPct: 40,
+  };
+  const r = compareQuantityDiscount(input);
+  assert.ok(r.singles.expectedProfit < 0, 'selling separately already loses money');
+  assert.ok(r.discount.soldExpectedProfit < 0, 'the discounted box, if taken, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenTakePct) && r.breakEvenTakePct > 0,
+    `take floor should be reachable and nonzero, got ${r.breakEvenTakePct}`,
+  );
+  assert.notEqual(r.breakEvenTakePct, 0);
+  near(
+    (r.breakEvenTakePct / 100) * r.discount.soldExpectedProfit,
+    r.singles.expectedProfit,
+    'taking the box at the reported rate ties selling separately',
+  );
+});
+
+test('compareSellerCoupon solves both sell-through floors when every path already loses money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    couponPercent: 15, couponRedeemPct: 40,
+    listedSellThroughPct: 40, couponSellThroughPct: 55, dropSellThroughPct: 50,
+  };
+  const r = compareSellerCoupon(input);
+  assert.ok(r.listed.expectedProfit < 0, 'staying listed already loses money');
+  assert.ok(r.coupon.soldExpectedProfit < 0, 'a coupon sale also loses money');
+  assert.ok(r.drop.soldExpectedProfit < 0, 'a dropped-list sale also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenCouponSellThroughPct) && r.breakEvenCouponSellThroughPct > 0,
+    `coupon ST floor should be reachable and nonzero, got ${r.breakEvenCouponSellThroughPct}`,
+  );
+  assert.ok(
+    Number.isFinite(r.breakEvenDropSellThroughPct) && r.breakEvenDropSellThroughPct > 0,
+    `drop ST floor should be reachable and nonzero, got ${r.breakEvenDropSellThroughPct}`,
+  );
+  near(
+    (r.breakEvenCouponSellThroughPct / 100) * r.coupon.soldExpectedProfit,
+    r.listed.expectedProfit,
+    'the coupon at its reported sell-through ties staying listed',
+  );
+  near(
+    (r.breakEvenDropSellThroughPct / 100) * r.drop.soldExpectedProfit,
+    r.coupon.expectedProfit,
+    'dropping the list at its reported sell-through ties the coupon',
+  );
+});
+
+test('compareImmediatePayment.breakEvenImmediateSellThroughPct solves when both paths already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    laterSellThroughPct: 40, immediateSellThroughPct: 55,
+  };
+  const r = compareImmediatePayment(input);
+  assert.ok(r.later.expectedProfit < 0, 'allowing later checkout already loses money');
+  assert.ok(r.immediate.soldExpectedProfit < 0, 'requiring immediate payment also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenImmediateSellThroughPct) && r.breakEvenImmediateSellThroughPct > 0,
+    `immediate ST floor should be reachable and nonzero, got ${r.breakEvenImmediateSellThroughPct}`,
+  );
+  near(
+    (r.breakEvenImmediateSellThroughPct / 100) * r.immediate.soldExpectedProfit,
+    r.later.expectedProfit,
+    'requiring immediate payment at its reported sell-through ties allowing later checkout',
+  );
+});
+
+test('compareGlobalShipping.breakEvenSelfShipSellThroughPct solves when both GSP and self-ship already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    gspSellThroughPct: 40, selfShipSellThroughPct: 55,
+  };
+  const r = compareGlobalShipping(input);
+  assert.ok(r.gsp.expectedProfit < 0, 'GSP already loses money');
+  assert.ok(r.selfShip.soldExpectedProfit < 0, 'self-shipping, after claims, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenSelfShipSellThroughPct) && r.breakEvenSelfShipSellThroughPct > 0,
+    `self-ship ST floor should be reachable and nonzero, got ${r.breakEvenSelfShipSellThroughPct}`,
+  );
+  near(
+    (r.breakEvenSelfShipSellThroughPct / 100) * r.selfShip.soldExpectedProfit,
+    r.gsp.expectedProfit,
+    'self-shipping at its reported sell-through ties GSP',
+  );
+});
+
+// The wait/offer prices share every cost and fee, so profit is strictly
+// increasing in price -- an incoming offer below list can never be a
+// *smaller* loss than waiting for list once list itself is a loss. The
+// true crossing is therefore never inside (0, 100) here; it is either the
+// trivial edge (identical prices) or unreachable. The old code still
+// hard-coded 0% ("the offer already ties waiting for free"), which is
+// wrong in the ordinary way this bug class is wrong: 0% claims the two
+// tie before any chance of a sale at all, when in fact waiting stays
+// strictly better than the offer at every chance from 0% to 100%.
+test('compareBestOffer.waitChanceCeiling reports unreachable, not zero, when the offer is a bigger loss than a losing list price', () => {
+  const input = {
+    price: 40, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 42, shippingCost: 2,
+  };
+  const r = compareBestOffer(input, 30, 50);
+  assert.ok(r.listing.profit < 0, 'list price already loses money');
+  assert.ok(r.offer.profit < 0, 'the incoming offer loses even more');
+  assert.equal(r.waitChanceCeiling, Infinity);
+  for (let pct = 0; pct <= 100; pct += 10) {
+    const expectedWaitProfit = r.listing.profit * (pct / 100);
+    assert.ok(
+      r.offer.profit < expectedWaitProfit,
+      `waiting should still beat the offer at ${pct}% chance, got offer ${r.offer.profit} vs wait ${expectedWaitProfit}`,
+    );
+  }
+});
+
+test('compareFreeShipping.breakEvenFreeShipSellThroughPct solves when both buyer-pays and free-shipping already lose money', () => {
+  const input = {
+    price: 20, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    buyerPaysSellThroughPct: 40, freeShipSellThroughPct: 55,
+  };
+  const r = compareFreeShipping(input);
+  assert.ok(r.buyerPays.expectedProfit < 0, 'buyer-pays shipping already loses money');
+  assert.ok(r.freeShip.soldExpectedProfit < 0, 'free shipping, if sold, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenFreeShipSellThroughPct) && r.breakEvenFreeShipSellThroughPct > 0,
+    `free-ship ST floor should be reachable and nonzero, got ${r.breakEvenFreeShipSellThroughPct}`,
+  );
+  assert.notEqual(r.breakEvenFreeShipSellThroughPct, 0);
+  near(
+    (r.breakEvenFreeShipSellThroughPct / 100) * r.freeShip.soldExpectedProfit,
+    r.buyerPays.expectedProfit,
+    'free shipping at its reported sell-through ties buyer-pays',
+  );
 });

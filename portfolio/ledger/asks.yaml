@@ -288,18 +288,26 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    Three linked owner steps, per `ventures/ubuntu-agent-server/README.md`
-    ("Guardrails, in order of how hard they are to bypass by accident")
-    and `config/repos.yml`'s comments: (1) provision the Hetzner agent box
-    (`make provision`) if not already done; (2) on that box, run `codex
-    login` interactively, once, against a subscription account (ChatGPT
-    Plus/Pro/Team's *included* usage — ansible cannot do an interactive
-    OAuth login for you, and this is a different credential from the
-    `codex-governor-enable` ask's metered project API key); (3) only
-    after watching a few dry runs behave correctly, flip
-    `agent_runner_start_disabled: false` in `group_vars/all.yml` and
-    `dry_run: false` on the repo entries in `config/repos.yml` you want
-    live (`make provision` again to apply).
+    **Read this first: you probably do not need this row.** If what you
+    want is "Codex spends the plan quota on a Hetzner box", seal
+    `CODEX_AUTH_JSON` under `codex-governor-enable` instead — that route
+    runs on the cpx22 the cluster already owns and needs no new machine.
+    This row is the *separate* LAN / Tailscale single-box runner, and it
+    is only worth doing if you actually want a second, non-Hetzner
+    machine running agents. `ventures/ubuntu-agent-server/README.md` is
+    explicit that the Hetzner boxes belong to the k3s + Argo path and
+    that a host must not be driven by both ("Do not dual-drive the same
+    host with both"), so do **not** point `make provision` at cpx22 or
+    cpx52. Then, per that README ("Guardrails, in order of how hard they
+    are to bypass by accident") and `config/repos.yml`'s comments: (1)
+    provision that LAN/Tailscale box (`make provision`, after filling in
+    `inventory.ini`, which ships as `REPLACE_ME`); (2) on that box, run
+    `codex login` interactively, once, against a subscription account
+    (ChatGPT Plus/Pro/Team's *included* usage — ansible cannot do an
+    interactive OAuth login for you); (3) only after watching a few dry
+    runs behave correctly, flip `agent_runner_start_disabled: false` in
+    `group_vars/all.yml` and `dry_run: false` on the repo entries in
+    `config/repos.yml` you want live (`make provision` again to apply).
   unlocks:
     - >-
       Unattended Codex dev work on this repo's own issues, billed against
@@ -312,16 +320,24 @@ decisions:
       supervised session, same as every other agent in this repo.
   blocked_by: []
   note: >-
-    Not a duplicate of `codex-governor-enable`: that ask is the
-    `gitops/agents/governor` Kubernetes CronJob, metered by an OpenAI
-    project API key with a hard dollar spend limit under a separate org.
-    This ask is `ventures/ubuntu-agent-server`'s `agent_runner` role,
-    which authenticates via an interactive `codex login` against a
-    subscription plan instead — a distinct mechanism with a distinct
-    owner action (nobody can script an interactive OAuth login), and
-    `README.md` line ~17 is explicit that it is "not metered API
-    billing." Both existed on `main` before this row; neither had a
-    queue entry. `dry_run: true` and `agent_runner_start_disabled: true`
+    Not a duplicate of `codex-governor-enable`, but the line between them
+    moved and this note used to draw it in the wrong place. It said that
+    row was "metered by an OpenAI project API key" and *this* row was the
+    subscription one, so the two were told apart by **which budget they
+    spend**. That stopped being true on 2026-08-29, when
+    `gitops/agents/workers/worker.sh` learned to seed `auth.json` from a
+    sealed `CODEX_AUTH_JSON` and prefer it over `OPENAI_API_KEY`: the
+    Kubernetes path now spends the plan quota too, and prefers it. What
+    still separates the two rows is **which machine**, not which budget —
+    `codex-governor-enable` is the k3s CronJob on the Hetzner cpx22,
+    this row is `ventures/ubuntu-agent-server`'s `agent_runner` role on a
+    separate LAN/Tailscale box.
+    Reading it the old way is expensive in both directions: it sends an
+    owner who wants the plan quota on Hetzner to ansible-provision a
+    machine k3s already owns (which that playbook's own README forbids),
+    and it makes the k3s route look like it costs money when sealing
+    `CODEX_AUTH_JSON` there costs nothing. Both existed on `main` before
+    this row; neither had a queue entry. `dry_run: true` and `agent_runner_start_disabled: true`
     remain untouched by #1999/#2000 on purpose — widening the prompt is
     not the same as flipping the switch, and only the owner flips it.
     Which ChatGPT/Codex account to log in with (a dedicated one vs. the
@@ -589,14 +605,24 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    Three linked owner steps, per `infra/OWNER_CHECKLIST.md`: (1) create a
-    separate OpenAI org -- not the main personal one -- with a dashboard
-    monthly spend limit set to "Enforce a hard limit"; (2) mint a project
-    API key under that org (never an Admin key) and seal it, with a
-    scoped `GH_TOKEN` (Contents read/write, Pull requests write, Metadata
-    read only; no Administration/Secrets/Workflows/Actions/Environments/
-    Pages), into the `codex-secrets` Kubernetes Secret per
-    `gitops/agents/secrets/codex-token.template.yaml`; (3) only after that
+    Three linked owner steps, per `infra/OWNER_CHECKLIST.md`. (1) Choose a
+    credential. **Either** `CODEX_AUTH_JSON` -- the whole contents of
+    `~/.codex/auth.json` after one `codex login` -- which draws on a
+    ChatGPT plan's *included* usage, so a tick costs nothing extra; this is
+    the "use the built-in quota" route and it needs no OpenAI org, no API
+    key and no billing change. **Or** `OPENAI_API_KEY`, a project key
+    (never an Admin key) on a separate OpenAI org whose dashboard monthly
+    spend limit is set to "Enforce a hard limit"; this bills per token but
+    has a euro ceiling, which a plan does not -- a plan is capped only by
+    its 5-hour/weekly windows, shared with whoever is signed into that
+    account, so use a seat that is not your day-to-day login. Sealing both
+    is allowed and the subscription wins, because it is the one that does
+    not bill; the worker logs which mode it used on every run.
+    (2) Seal the chosen credential, with a scoped `GH_TOKEN` (Contents
+    read/write, Pull requests write, Metadata read only; no
+    Administration/Secrets/Workflows/Actions/Environments/Pages), into the
+    `codex-secrets` Kubernetes Secret per
+    `gitops/agents/secrets/codex-token.template.yaml`. (3) Only after that
     seal, flip `gitops/agents/governor/cronjob.yaml` `suspend: false` and
     `gitops/agents/governor/policy.json` `"enabled": true`.
   unlocks:
@@ -665,23 +691,30 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    Two owner steps remain, typed out with a verification command each
-    under "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md`
-    (the rationale for each is in `gitops/README.md`): (1) mint a
-    fine-grained GitHub token scoped to this one repository with
-    Contents:Read-only and nothing else, then seal it into
-    `prod/kustomization.yaml` per
+    ONE owner step remains, typed out with a verification command under
+    "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md` (the
+    rationale is in `gitops/README.md`): mint a fine-grained GitHub token
+    scoped to this one repository with Contents:Read-only and nothing
+    else, then seal it into `prod/kustomization.yaml` per
     `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous); (2) replace the
-    placeholder `replace-me@duncanhaywood.dev` in
-    `platform/cert-manager/issuer.yaml` with a real mailbox Let's Encrypt
-    can register. The DNS step this row used to list is already
-    satisfied and needs no action: `tools.marisstella.dev` already
-    resolves to `89.167.29.39` (verified 2026-08-29 with `getent hosts
-    tools.marisstella.dev`) -- `marisstella.dev`'s existing wildcard
-    `A/*` record already covers the subdomain. The two remaining steps
-    are all that stand between the portfolio and a live site; after them
-    it is reachable on a Let's Encrypt *staging* certificate, which
+    private, so the in-cluster clone cannot be anonymous). Both of the
+    other steps this row used to list are gone and need no action. DNS:
+    `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
+    2026-08-29 with `getent hosts tools.marisstella.dev`) --
+    `marisstella.dev`'s existing wildcard `A/*` record already covers the
+    subdomain. ACME contact: dropped 2026-08-30. This row used to ask for
+    a real mailbox to replace `replace-me@duncanhaywood.dev`, on the
+    stated grounds that Let's Encrypt would refuse to register the
+    placeholder. An ACME account contact is optional (RFC 8555 makes
+    `contact` optional and cert-manager's `email` follows), so
+    `platform/cert-manager/issuer.yaml` now omits `email` entirely and
+    registers normally -- no address to choose, nothing to wait on.
+    Adding a real one later, purely to receive Let's Encrypt's expiry
+    warnings, is a one-line change per issuer that cert-manager applies by
+    updating the existing account registration; it is optional and it does
+    not block anything. That single remaining step is all that stands
+    between the portfolio and a live site; after it the site is
+    reachable on a Let's Encrypt *staging* certificate, which
     browsers warn about. The last step -- flipping the Ingress annotation
     from `letsencrypt-staging` to `letsencrypt-prod` and updating the
     test that pins it -- is an ordinary code change, not an owner action:

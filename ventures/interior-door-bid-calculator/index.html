@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Interior Door Bid Calculator | How Much to Charge to Replace Interior Doors</title>
+  <title>Interior Door Bid Calculator — Price to Replace Doors</title>
   <meta name="description" content="Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.">
   <meta property="og:title" content="Interior Door Bid Calculator">
   <meta property="og:description" content="Bid an interior door the way the trade does — opening, leaf, and extras, not a published installed dump — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Interior Door Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Door count, hollow slab vs hollow prehung vs solid-core vs French-or-barn comparison, hang-only vs prehung-swap vs new-opening vs pocket-conversion comparison, owner-supplied vs carpenter-supplied hang, weekday they-leave vs they-stay vs Saturday overtime, 80-inch vs 96-inch vs double, paint haul lockset extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a flyer advertise “$150 a door installed”?","acceptedAnswer":{"@type":"Answer","text":"Because that number describes one specific job, and it is the first preset here: a hollow-core slab hung on an existing jamb, 80-inch single opening, no paint, no haul-away, no hardware upgrade. Hang-only bills 0.75 hours of hang labor and a $48 door invoice — genuinely close to $150 installed. A prehung swap, a new framed opening, or a pocket conversion is a different job with its own framing and casing hours, and the flyer’s number was never written to cover them."}},{"@type":"Question","name":"Why does a pocket conversion cost so much more than a prehung swap?","acceptedAnswer":{"@type":"Answer","text":"Because it is framing a wall cavity, not swapping a unit. A prehung swap bills 1.4 hours to hang, 0.3 to frame, and a $0 frame kit. A pocket conversion bills 1.8 hours to hang, 3.4 hours to frame, and a $240 frame kit on top of $68 of casing — more than ten times the framing labor of a swap, before the door leaf itself is counted."}},{"@type":"Question","name":"What does the door type change beyond the invoice?","acceptedAnswer":{"@type":"Answer","text":"Both labor and material move together. A hollow-core slab adds zero extra hours and a $48 invoice. A hollow-core prehung unit adds 0.15 hours and $175. A solid-core prehung adds 0.5 hours — it is heavier to hang and shim — and $340. A French pair or barn door adds 1.15 hours and $720, since it is effectively two leaves or a track system instead of one swinging slab."}},{"@type":"Question","name":"Why does an 8-foot or double door cost more than the standard 80-inch single?","acceptedAnswer":{"@type":"Answer","text":"Height and leaf count each carry their own hours and hardware cost, on top of whatever the door type already bills. A 96-inch single adds 0.55 hours and a $95 extra-leaf charge for the taller jamb and casing run. A double opening adds 0.9 hours and $175, since it is two leaves and two sets of hardware in one frame."}},{"@type":"Question","name":"What do paint, haul-away, and hardware upgrades add per door?","acceptedAnswer":{"@type":"Answer","text":"Each is billed per door, not as a flat job fee, so they scale with door count the way a whole- house order actually does. Skipping them on a single-door swap barely moves the price; skipping them on an eight-door whole-house job is the difference between a painter’s punch list and a finished room."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit. The optional usage counter records only which features were used and the day, never your door count, wages, or prices."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,7 +26,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0ab; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0ab; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1f2a32; }
     button:hover { background: #dce8ec; }
     .result { position: sticky; top: 15px; background: #16323a; color: #eef5f7; border-color: #16323a; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -288,6 +289,49 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can a flyer advertise &ldquo;$150 a door installed&rdquo;?</h3>
+      <p>Because that number describes one specific job, and it is the first preset here: a hollow-core
+        slab hung on an existing jamb, 80-inch single opening, no paint, no haul-away, no hardware
+        upgrade. Hang-only bills 0.75 hours of hang labor and a $48 door invoice &mdash; genuinely close
+        to $150 installed. A prehung swap, a new framed opening, or a pocket conversion is a different
+        job with its own framing and casing hours, and the flyer&rsquo;s number was never written to
+        cover them.</p>
+
+      <h3>Why does a pocket conversion cost so much more than a prehung swap?</h3>
+      <p>Because it is framing a wall cavity, not swapping a unit. A prehung swap bills 1.4 hours to hang,
+        0.3 to frame, and a $0 frame kit. A pocket conversion bills 1.8 hours to hang, 3.4 hours to frame,
+        and a $240 frame kit on top of $68 of casing &mdash; more than ten times the framing labor of a
+        swap, before the door leaf itself is counted.</p>
+
+      <h3>What does the door type change beyond the invoice?</h3>
+      <p>Both labor and material move together. A hollow-core slab adds zero extra hours and a $48
+        invoice. A hollow-core prehung unit adds 0.15 hours and $175. A solid-core prehung adds 0.5 hours
+        &mdash; it is heavier to hang and shim &mdash; and $340. A French pair or barn door adds 1.15
+        hours and $720, since it is effectively two leaves or a track system instead of one swinging
+        slab.</p>
+
+      <h3>Why does an 8-foot or double door cost more than the standard 80-inch single?</h3>
+      <p>Height and leaf count each carry their own hours and hardware cost, on top of whatever the door
+        type already bills. A 96-inch single adds 0.55 hours and a $95 extra-leaf charge for the taller
+        jamb and casing run. A double opening adds 0.9 hours and $175, since it is two leaves and two
+        sets of hardware in one frame.</p>
+
+      <h3>What do paint, haul-away, and hardware upgrades add per door?</h3>
+      <p>Each is billed per door, not as a flat job fee, so they scale with door count the way a whole-
+        house order actually does. Skipping them on a single-door swap barely moves the price; skipping
+        them on an eight-door whole-house job is the difference between a painter&rsquo;s punch list and
+        a finished room.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit. The optional usage
+        counter records only which features were used and the day, never your door count, wages, or
+        prices.</p>
+    </section>
 <!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when it prints. -->

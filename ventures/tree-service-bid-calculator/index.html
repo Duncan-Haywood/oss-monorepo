@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tree Service Bid Calculator | Price Removal by DBH, Access, and Haul</title>
+  <title>Tree Service Bid Calculator — Removal by DBH and Access</title>
   <meta name="description" content="Price a tree-removal stop the way the job actually costs: DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and the walk-away number. Free, in your browser.">
   <meta property="og:title" content="Tree Service Bid Calculator">
   <meta property="og:description" content="Bid the tree, the access, and the wood — not a day-rate guess. See which tree is carrying the job before you send the price.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tree Service Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"DBH-squared removal hours, access and hazard multipliers, stump grinding, haul and dump fees, travel billed once per stop, loaded crew cost, mobilization minimum, walk-away price, per-inch sanity check, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why not just quote a price per inch of trunk diameter?","acceptedAnswer":{"@type":"Answer","text":"Because wood volume does not grow with diameter, it grows with diameter squared. This tool uses (DBH ÷ 12)² against a 12-inch reference tree, so a 24\" trunk is four times the wood of a 12\" one at the same height — not twice. A linear per-inch rule underprices every big removal on the schedule and overprices the small ones, which is how a crew stays busy all season and still finishes the year flat."}},{"@type":"Question","name":"What actually drives the hours — species or access?","acceptedAnswer":{"@type":"Answer","text":"Access, usually by a wide margin. Species moves the base hours by a factor of 0.7 (palm) to 1.25 (oak, maple, hickory, beech), with mixed or unknown at 1.0. Access moves them from 1.0 at the street with the chipper at the tree, to 1.15 for a side yard, 1.4 for carrying brush out of a backyard, 1.75 for a tight backyard or work over a structure, and 2.1 when a crane is required. Hazard premiums stack on top of that and add up: +25% near a structure, +40% near power, +20% for a dead or hazardous tree. Those are pricing factors for your own estimate, not a hazard rating or a recommendation to remove anything — that is an arborist's call."}},{"@type":"Question","name":"How is haul priced separately from the removal?","acceptedAnswer":{"@type":"Answer","text":"As a share of the tree's base removal hours, before access and hazard multipliers: leaving wood on site is 0, chipping on site and leaving the chips is 0.12, chip-and-haul is 0.35, and hauling logs is 0.45. The two haul options that actually leave the property also add a dump fee per tree. Basing haul on base hours rather than the multiplied figure keeps a backyard carry from being counted twice — the carry is already in the access multiplier."}},{"@type":"Question","name":"Does the stump grind come out of the removal price?","acceptedAnswer":{"@type":"Answer","text":"No, it is its own line and only when you tick it. Grind hours are about 0.2 h of setup plus a growth term that scales with the stump's face — diameter squared, not diameter, because the wheel sweeps the whole cross-section — roughly 0.6 h for a 12\" stump and 3.8 h for a 36\" one (three times the diameter is nine times the face), in the range a two-person grind crew actually spends including repositioning. You can enter a stump diameter that differs from DBH, which is what you want on a flared or previously topped tree."}},{"@type":"Question","name":"Why does a one-small-tree job come out at the minimum charge?","acceptedAnswer":{"@type":"Answer","text":"Because a stop costs more than its cutting. Round-trip drive for the whole crew is priced from the travel minutes you enter and billed at the loaded crew rate, equipment is charged per on-site hour, and a crane — if any tree on the stop needs one — is a day rate charged once for the whole stop, not per tree. When the margin price still lands under your mobilization floor, the floor is used instead and the result says so. That is the number a \"can you just take out this little one?\" call actually costs you."}},{"@type":"Question","name":"Is my bid data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. No account and no network requests — the address, the trees, your wages, and your prices stay in this browser. The business details saved for the printed proposal live in this browser's local storage, and \"Forget my business details\" clears them. The optional local usage counter records only which features were used and the day, and the footer checkbox turns it off."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c261c; background: #eef3ea; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -29,7 +30,7 @@
     .flags { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 10px; font-size: .82rem; font-weight: 550; }
     .flags label { display: inline-flex; align-items: center; gap: 6px; font-weight: 550; }
     .flags input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a7b6a4; background: #f2f6ee; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a7b6a4; background: #f2f6ee; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c261c; }
     button:hover { background: #e4eddf; }
     .remove { padding: 8px 12px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; margin-top: 10px; }
     .result { position: sticky; top: 15px; background: #1b3a22; color: #f2f8f2; border-color: #1b3a22; }
@@ -98,6 +99,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -181,6 +194,55 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The hour factors are starting points, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace the wages and fees with yours.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why not just quote a price per inch of trunk diameter?</h3>
+      <p>Because wood volume does not grow with diameter, it grows with diameter squared. This tool uses
+        (DBH&nbsp;&divide;&nbsp;12)&sup2; against a 12-inch reference tree, so a 24" trunk is four times the
+        wood of a 12" one at the same height &mdash; not twice. A linear per-inch rule underprices every big
+        removal on the schedule and overprices the small ones, which is how a crew stays busy all season and
+        still finishes the year flat.</p>
+
+      <h3>What actually drives the hours &mdash; species or access?</h3>
+      <p>Access, usually by a wide margin. Species moves the base hours by a factor of 0.7 (palm) to 1.25
+        (oak, maple, hickory, beech), with mixed or unknown at 1.0. Access moves them from 1.0 at the street
+        with the chipper at the tree, to 1.15 for a side yard, 1.4 for carrying brush out of a backyard, 1.75
+        for a tight backyard or work over a structure, and 2.1 when a crane is required. Hazard premiums stack
+        on top of that and add up: +25% near a structure, +40% near power, +20% for a dead or hazardous tree.
+        Those are pricing factors for your own estimate, not a hazard rating or a recommendation to remove
+        anything &mdash; that is an arborist's call.</p>
+
+      <h3>How is haul priced separately from the removal?</h3>
+      <p>As a share of the tree's <em>base</em> removal hours, before access and hazard multipliers: leaving
+        wood on site is 0, chipping on site and leaving the chips is 0.12, chip-and-haul is 0.35, and hauling
+        logs is 0.45. The two haul options that actually leave the property also add a dump fee per tree.
+        Basing haul on base hours rather than the multiplied figure keeps a backyard carry from being counted
+        twice &mdash; the carry is already in the access multiplier.</p>
+
+      <h3>Does the stump grind come out of the removal price?</h3>
+      <p>No, it is its own line and only when you tick it. Grind hours are about 0.2&nbsp;h of setup plus a
+        growth term that scales with the stump's face &mdash; diameter squared, not diameter, because the
+        wheel sweeps the whole cross-section &mdash; roughly 0.6&nbsp;h for a 12" stump and 3.8&nbsp;h for a
+        36" one (three times the diameter is nine times the face), in the range a two-person grind crew
+        actually spends including repositioning. You can enter a stump diameter that differs from DBH,
+        which is what you want on a flared or previously topped tree.</p>
+
+      <h3>Why does a one-small-tree job come out at the minimum charge?</h3>
+      <p>Because a stop costs more than its cutting. Round-trip drive for the whole crew is priced from the
+        travel minutes you enter and billed at the loaded crew rate, equipment is charged per on-site hour,
+        and a crane &mdash; if any tree on the stop needs one &mdash; is a day rate charged once for the
+        whole stop, not per tree. When the margin price still lands under your mobilization floor, the floor
+        is used instead and the result says so. That is the number a "can you just take out this little
+        one?" call actually costs you.</p>
+
+      <h3>Is my bid data uploaded anywhere?</h3>
+      <p>No. No account and no network requests &mdash; the address, the trees, your wages, and your prices
+        stay in this browser. The business details saved for the printed proposal live in this browser's
+        local storage, and "Forget my business details" clears them. The optional local usage counter records
+        only which features were used and the day, and the footer checkbox turns it off.</p>
     </section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">

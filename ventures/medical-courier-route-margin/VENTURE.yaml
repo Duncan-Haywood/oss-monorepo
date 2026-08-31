@@ -1,5 +1,5 @@
 name: medical-courier-route-margin
-description: A browser-local route pricing calculator for independent medical couriers that includes stops, paid wait, loaded labor, vehicle cost, temperature-control consumables, overhead, and margin.
+description: A browser-local route pricing calculator for independent medical couriers covering stops, paid wait, deadhead, loaded labor, vehicle cost, temperature-control consumables and overhead, and reporting the per-stop rate the route needs to break even or clear a target margin.
 stage: prototype
 owner: duncan
 hypotheses:

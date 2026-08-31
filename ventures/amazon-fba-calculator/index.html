@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Amazon FBA vs FBM Profit Calculator | Inbound Placement vs Split Freight</title>
+  <title>Amazon FBA vs FBM Profit Calculator — Placement vs Freight</title>
   <meta name="description" content="Free Amazon FBA vs FBM calculator: compare fulfillment paths after expected returns. Get net profit, max buy cost, the return rate that wipes the listing, when inbound placement still beats split freight, and whether aged inventory still beats a removal.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -367,8 +367,8 @@
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
         <dt>Max buy cost</dt><dd id="maxBuy"></dd>
         <dt>Max buy at target margin</dt><dd id="targetMarginBuy"></dd>
+        <dt>Buy-cost check</dt><dd id="buyCostStatus"></dd>
         <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
-        <dt>Sourcing check</dt><dd id="buyCheck"></dd>
         <dt>FBA vs FBM</dt><dd id="advantage"></dd>
         <dt>Profit before returns</dt><dd id="profitBeforeReturns"></dd>
         <dt>Return drag</dt><dd id="returnDrag"></dd>
@@ -970,6 +970,38 @@
       between paths is an arithmetic comparison of the rates you entered.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I use FBA or FBM for this product?</h3>
+  <p>Compare both paths on the same sale price and cost of goods. FBA adds a fulfillment fee, inbound, and monthly storage. FBM replaces those with the shipping label you pay. This page does the arithmetic from the rates you enter; it does not recommend a fulfillment method.</p>
+  <h3>How do I calculate Amazon FBA profit?</h3>
+  <p>Start with the sale price. Subtract the category referral fee, the FBA fulfillment fee for the size tier, allocated storage, inbound to Amazon, cost of goods, prep, ads, and a share of the professional seller fee. Enter the share of orders you expect to come back to mix that leftover with return handling and unsellable units. What remains is expected net contribution. Enter the rates from your current Amazon fee preview — this page does not publish Amazon's live schedule.</p>
+  <h3>What is the maximum I can pay for Amazon inventory?</h3>
+  <p>The max buy cost is the cost of goods that drives net profit to zero after the referral fee and the fulfillment-path costs you entered. Buy above that number and the unit loses money on these assumptions.</p>
+  <h3>Does this Amazon coupon still leave a profit?</h3>
+  <p>A coupon cuts the price the buyer pays, so the referral fee falls with it, and Amazon also charges a per-redemption coupon fee. Fulfillment, inbound, and storage stay the same. Compare the list-price unit to 5%, 10%, 15%, and 20% coupons, then see how many extra couponed sales you would need to match this month's list-price profit. The page does not recommend running a coupon.</p>
+  <h3>Does Amazon Subscribe &amp; Save still leave a profit?</h3>
+  <p>Subscribe &amp; Save cuts the price enrolled buyers pay, so referral falls with that price. Fulfillment, inbound, and storage stay the same, and there is typically no coupon redemption fee. Compare list to 5%, 10%, and 15%, then see what a mixed month still keeps when only some units enroll — and how many new S&amp;S-only sales would offset those converted buyers. The page does not recommend enrolling the listing.</p>
+  <h3>Should I fulfill a website order with Amazon MCF or sell it on Amazon?</h3>
+  <p>A website order fulfilled from FBA inventory pays Multi-Channel Fulfillment and your card processor, not Amazon's referral fee. Compare that leftover to the same unit sold on Amazon and to shipping it yourself. The page does the arithmetic from the rates you enter; it does not recommend a sales channel.</p>
+  <h3>Should I stay under Amazon Low-Price FBA or raise the price?</h3>
+  <p>A one-cent raise above the Low-Price threshold usually loses, because the regular pick fee jumps by more than the extra revenue after referral. The calculator shows the raise that matches Low-Price profit on the fees you enter. It does not publish Amazon's live schedule or say a listing is eligible.</p>
+  <h3>Does this Amazon supplier MOQ still pay after extra FBA storage?</h3>
+  <p>A cheaper unit cost at a minimum order quantity still sits in FBA until it sells. The calculator scales the warehouse stay by pile size, then shows leftover per unit, extra cash tied up, and the MOQ cost that still matches your usual purchase order. It does not recommend taking the MOQ.</p>
+  <h3>Is Amazon inbound placement cheaper than splitting a shipment?</h3>
+  <p>Add the freight you would pay to one warehouse plus Amazon's per-unit inbound placement fee, then compare that total with the extra freight of a partial or Amazon-optimized split. The cheaper total inbound is the one to send. This page does the arithmetic from the rates you enter; it does not publish Amazon's live placement schedule.</p>
+  <h3>Should I pay Amazon to prep inbound or do it myself?</h3>
+  <p>Amazon FBA Prep Service charges per unit for FNSKU labels, polybags, and bubble wrap on inbound shipments. You-prep is the supplies and time already in the listing. The calculator swaps that line and shows leftover profit, the monthly gap, and the Amazon fee that still matches you-prep. It does not recommend a prep path.</p>
+  <h3>Is Amazon Professional worth it vs Individual?</h3>
+  <p>Professional pays for itself on the account fee when monthly units exceed the monthly plan price divided by the Individual per-item fee. At the illustrative US defaults that is about 40.4 units a month. This page also applies each plan to the same FBA or FBM listing so you can see profit and max buy cost, not only the subscription math, and a volume ladder at 10, 20, 40, 80, and 200 units so you can see when the $0.99/item fee flips. It does not recommend an account type.</p>
+  <h3>Do Amazon returns wipe FBA profit?</h3>
+  <p>They can. A completed FBA sale keeps the leftover after referral, pick fee, inbound, and storage. A return typically refunds the buyer and the referral, but the outbound pick fee, inbound, storage, and ads stay spent, and Amazon often adds a return-processing fee. Cost of goods comes back only when the unit can be sold again. Expected profit mixes those two outcomes at the return rate you type. On the $29.99 example a 15% rate with $2.50 handling and 20% unsellable drops $10.99 to $7.75; the rate that wipes expected profit is about 50.9%.</p>
+  <h3>Should I leave FBA for Seller Fulfilled Prime?</h3>
+  <p>Seller Fulfilled Prime keeps the Prime badge if you buy a 2-day label and pack on time. On the default $29.99 large-standard unit, FBA keeps $4.03 more per session than SFP because Amazon's $4.15 pick plus inbound is cheaper than an $8.95 2-day label and 6 minutes at $18. The 2-day label has to fall to about $2.75 before SFP matches. Merchant fulfilled without Prime can keep more on a completed sale but usually converts fewer sessions. The page does the arithmetic from the rates you enter; it does not recommend a fulfillment method.</p>
+  <h3>Should I use Amazon Remote Fulfillment for Canada?</h3>
+  <p>Remote Fulfillment ships a unit already sitting in US FBA to Canada or Mexico for a per-unit surcharge. On the default $29.99 large-standard unit, that path keeps $5.12 more per Canada session than skipping ($204.86 on 40 sessions). A first dedicated Canada pile at $5.20 inbound is $0.25 behind because local Prime take does not yet cover the extra inbound. A $2.40 Canada inbound flips the pile ahead by $1.57. The page does the arithmetic from the rates you enter; it does not recommend opening Canada.</p>
+  <h3>Does a smaller box drop my Amazon FBA size tier?</h3>
+  <p>It can, when the packed cube crosses a dimensional or weight gate. On the default 8×6×2 inch carton at 0.75 lb, flattening the shortest side to 0.75 inch is what classifies the same unit as small standard if it still fits. Illustrative fulfillment drops from $4.15 to $3.38 and the smaller cube keeps about $0.80 more per unit, $64.02 a month at 80 units, before extra prep. The page does not claim the product fits the smaller box.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -983,8 +1015,8 @@
       applyPlacementPreset,
       applyStoragePreset,
       blendedStorageRate,
-      calculateListing,
       buyCostCheck,
+      calculateListing,
       compareBulkBuy,
       compareCoupons,
       compareInboundPlacement,
@@ -1409,7 +1441,8 @@
     function update() {
       updateFeePlaceholder();
       try {
-        const result = calculateListing(listingInput());
+        const input = listingInput();
+        const result = calculateListing(input);
         const profitEl = document.getElementById("profit");
         profitEl.textContent = money(result.selected.profit);
         profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
@@ -1424,17 +1457,19 @@
         document.getElementById("roi").textContent = result.selected.roi === null ? "n/a" : `${result.selected.roi.toFixed(1)}%`;
         document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
           ? money(result.selected.breakEvenPrice) : "never";
-        document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
+        document.getElementById("maxBuy").textContent = result.selected.breakEvenBuyCostRaw < 0
+          ? `${money(0)} — loses money even at $0 cost`
+          : money(result.selected.breakEvenBuyCost);
         document.getElementById("targetMarginBuy").textContent = money(result.selected.targetMarginBuyCost);
+        const check = buyCostCheck(result, input.costOfGoods);
+        document.getElementById("buyCostStatus").textContent =
+          check.status === "below_ceiling"
+            ? `${money(check.headroom)} under the zero-profit ceiling`
+            : check.status === "above_ceiling"
+              ? `${money(-check.headroom)} over the zero-profit ceiling`
+              : "at the zero-profit ceiling";
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
-        const buyCheck = buyCostCheck(result, readInput().costOfGoods);
-        const checkCopy = buyCheck.status === "above_ceiling"
-          ? `${money(-buyCheck.headroom)} above the selected path's zero-profit ceiling`
-          : buyCheck.status === "at_ceiling"
-            ? "exactly at the selected path's zero-profit ceiling"
-            : `${money(buyCheck.headroom)} of headroom before the selected path reaches zero profit`;
-        document.getElementById("buyCheck").textContent = checkCopy;
         const extra = result.fbaAdvantage;
         document.getElementById("advantage").textContent =
           extra > 0 ? `${money(extra)} more with FBA` : extra < 0 ? `${money(-extra)} more with FBM` : "same profit";
@@ -1650,7 +1685,7 @@
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginBuy", "targetMarginPrice", "buyCheck", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "currentAcos", "breakEvenAcos", "targetMarginAcos", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginBuy", "buyCostStatus", "targetMarginPrice", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "currentAcos", "breakEvenAcos", "targetMarginAcos", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";

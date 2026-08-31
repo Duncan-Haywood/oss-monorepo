@@ -3,6 +3,30 @@
 An agent can write this tree. It cannot mint accounts, money, or
 identities. Nothing here applies itself.
 
+## The short version: three seals, one command
+
+Three sealed secrets are what the live site, working CI, and the Codex
+worker are each waiting on. They are items 8, 9 and "Publish
+`tools.marisstella.dev`" below, and they were spread across six files
+because each was written when it became true. From a laptop with a
+kubeconfig and `kubeseal`:
+
+```bash
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run   # preflight only
+./bootstrap/scripts/seal-owner-secrets.sh             # all three, in order
+```
+
+It prompts for each token with echo off, verifies against the GitHub API
+that the token can do the one thing its pod needs (a mis-scoped one is
+rejected before it becomes a CrashLoopBackOff), seals it, and wires it
+into the right `kustomization.yaml`. Only ciphertext is written. Commit
+the `*.sealed.yaml` files, push, and Argo does the rest.
+
+Read the rest of this file for what each token is and how to scope it —
+the script assumes you have already decided that. What it does not do:
+mint the tokens, flip `CI_RUNNER`, or enable the governor. Those stay
+yours, deliberately.
+
 ## Already true (from the console you pasted)
 
 - Two Helsinki servers exist: cpx52 `#163417666` and cpx22 `#163580094`.
@@ -108,15 +132,28 @@ codes as exit 42 and a rejected credential as exit 43.
 4. Fine-grained GH token (agents) + read-only deploy key (Argo).
 5. Age keypair — `bootstrap/scripts/gen-age-key.sh`. Private key stays
    offline. Public key goes in `.sops.yaml`.
-6. ACME email — replace `replace-me@duncanhaywood.dev` in
-   `gitops/platform/cert-manager/issuer.yaml`.
+6. ~~ACME email~~ — **no longer required (2026-08-30).** An ACME account
+   contact is optional, so `gitops/platform/cert-manager/issuer.yaml`
+   ships without one instead of with a placeholder. Add a real address
+   later if you want Let's Encrypt's expiry warnings; nothing waits on it.
 7. Merge this PR, then from the laptop with the **write** token:
    `tofu plan` (must not replace either server) → `tofu apply` → the
    three bootstrap scripts.
-8. New OpenAI org + hard spend limit + project API key. Seal
-   `codex-secrets` (`OPENAI_API_KEY`, `GH_TOKEN`) in a follow-up PR.
-   Only then flip `gitops/agents/governor/cronjob.yaml` `suspend: false`
-   and `policy.json` `"enabled": true`.
+8. **Codex credential.** Pick one of the two routes described under
+   "Codex" above — they are equally supported and the choice is yours:
+   - *Plan quota (no money spent).* `codex login` once, then seal
+     `codex-secrets` with `CODEX_AUTH_JSON` (the whole contents of
+     `~/.codex/auth.json`) + `GH_TOKEN`. No OpenAI org, no API key, no
+     billing change. This is the "use the built-in quota" route.
+   - *Metered (euro ceiling).* New OpenAI org + hard spend limit +
+     project API key; seal `codex-secrets` with `OPENAI_API_KEY` +
+     `GH_TOKEN`.
+
+   Seal both and the subscription wins — it is the one that does not
+   bill, and the worker logs which mode it used. Either way, seal in a
+   follow-up PR, and only then flip
+   `gitops/agents/governor/cronjob.yaml` `suspend: false` and
+   `policy.json` `"enabled": true`.
 9. **Restore CI.** Every workflow has been red since 2026-08-26 with
    `runner_id: 0` and zero steps — jobs that were never assigned a
    runner, because metered Actions minutes on this private repo ran out.
@@ -136,14 +173,26 @@ public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
 
-The build half is done and was rehearsed on 2026-08-29 with the exact
-commands the pod runs (`PAGES_BASE_URL=https://tools.marisstella.dev/
-node platform/pages/build.mjs --out=… && node platform/pages/check.mjs
---dist=…`): 164 products, 446 pages, no dead links, and no
-`duncan-haywood.github.io` URL surviving anywhere in the output. Nothing
+The build half is done and was rehearsed with the exact commands the pod
+runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
+platform/pages/build.mjs --out=… && node platform/pages/check.mjs
+--dist=…`). Re-run on 2026-08-31 against that day's `main`: **169
+products, 508 pages, no dead links**, and no `duncan-haywood.github.io`
+URL surviving anywhere in the output. (The 2026-08-29 run said 164 and
+446; the difference is ventures merged since, not a regression.) Nothing
 about it depends on GitHub Actions (no runner since 2026-08-26) or on
 GitHub Pages (not enabled, and a private repo's Pages site is not public
 on the free tier anyway).
+
+The 2026-08-31 run also served that artifact and drove it in Chromium,
+which the earlier rehearsal did not do — `build.mjs` and `check.mjs`
+passing proves the *files* are right, not that a visitor can use them.
+The hub, the MCP manifest-compare tool (fixture loads, comparison renders
+a verdict) and the FBA calculator (one input change propagated through
+15+ derived tables) all worked, with zero console or page errors, and the
+no-warranty clause and Sponsors link present on the product page. So what
+is waiting on step 1 below is a site already known to work, not one that
+will need debugging once it is reachable.
 
 **DNS — already done, no action needed.** `tools.marisstella.dev`
 already resolves to `89.167.29.39` (verified 2026-08-29:
@@ -162,26 +211,40 @@ checklist used to list as step 1 does not need adding.
    `kubectl -n prod logs deploy/portfolio-site -c build` ends in
    `built … files`.
 
-2. **A real ACME contact.** Replace `replace-me@duncanhaywood.dev` in
-   `gitops/platform/cert-manager/issuer.yaml` with a mailbox that
-   exists — Let's Encrypt refuses to register the placeholder, so no
-   certificate can issue until this changes. (Same address as item 6
-   above; do it once.) Verify:
+2. ~~A real ACME contact.~~ **Removed 2026-08-30 — this is no longer an
+   owner action.** The issuers used to carry
+   `replace-me@duncanhaywood.dev` and this list said no certificate could
+   issue until it became a real mailbox. An ACME account contact is
+   optional, so `gitops/platform/cert-manager/issuer.yaml` now omits
+   `email` entirely and registers normally. Verify alongside step 1:
    `kubectl -n prod get certificate` reports `READY=True`.
 
-Steps 1–2 are all that stand between the portfolio and a live site. Once
-they land the site is reachable, on a Let's Encrypt **staging**
-certificate — browsers will warn, because staging is not a trusted root.
+   Optional, any time: add a real address back to both issuers to receive
+   Let's Encrypt expiry warnings. cert-manager updates the existing
+   account registration in place — no reissue, no downtime.
 
-3. **The issuer flip, last.** Only after a staging certificate has
-   issued, change the Ingress annotation
-   `cert-manager.io/cluster-issuer` in `gitops/prod/portfolio-site.yaml`
-   from `letsencrypt-staging` to `letsencrypt-prod`, and update
-   `gitops/tests/test_manifests.py::test_portfolio_site_starts_on_the_staging_certificate_issuer`
-   which pins it. Unlike 1–2 this one is not owner-only — it is an
-   ordinary code change an agent can open as a PR once you confirm the
-   staging certificate issued, and asking for it that way is less work
-   than editing two files by hand.
+**Step 1 is now the only thing standing between the portfolio and a live
+site**, and as of 2026-08-31 it lands on a publicly trusted certificate
+rather than a warning page.
+
+3. ~~**The issuer flip, last.**~~ **Done 2026-08-31 — no action needed.**
+   Both `gitops/prod/portfolio-site.yaml` and
+   `gitops/prod/portfolio-apex.yaml` now carry
+   `cert-manager.io/cluster-issuer: letsencrypt-prod`.
+
+   This item used to say the flip came *after* step 1, once a staging
+   certificate had issued. That ordering was the bug: staging is not a
+   trusted root, so sealing the clone token first would have made the site
+   reachable and simultaneously unusable — a browser interstitial in front
+   of all 508 pages, and a handshake crawlers reject. The precondition the
+   staging default was protecting (DNS for `tools.marisstella.dev`) was
+   satisfied on 2026-08-29, so the flip was moved ahead of the seal.
+
+   Nothing here is owner-only, and nothing is left to ask a session for.
+   After you complete step 1, confirm the certificate with
+   `kubectl -n prod get certificate` — `portfolio-site-tls` and
+   `portfolio-apex-tls` should both reach `READY=True` within a minute or
+   two of the pods coming up.
 
 Deliberately **not** on this list: enabling GitHub Pages. That is a
 separate queued ask (`deploy-settings`) and, on its own, would not put
@@ -203,7 +266,14 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
 
 - Keep 6443 world-open until the private net (`10.42.0.10`) works, then
   flip `expose_k3s_api_publicly = false`.
-- What keeps serving on `marisstella.dev`. This stack will not steal it.
+- ~~What keeps serving on `marisstella.dev`. This stack will not steal it.~~
+  Resolved: nothing was serving it. ingress-nginx runs `hostNetwork: true`
+  on the cpx52, so it holds :80/:443 and no second listener could bind
+  there; the apex resolved to the box and fell to the default backend,
+  which is what issue #1925 reported. `gitops/prod/portfolio-apex.yaml`
+  now claims `marisstella.dev` and `www.marisstella.dev` and 301s both to
+  `tools.marisstella.dev`. No owner action — it goes live with the same
+  clone token the site itself waits on.
 - Whether `duncanhaywood.dev` should get an A record for a cluster
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise

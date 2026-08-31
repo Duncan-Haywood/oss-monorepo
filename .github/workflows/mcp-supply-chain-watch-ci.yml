@@ -37,3 +37,21 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Example manifests produce a report
         run: python3 src/mcp_watch.py examples/before.json examples/after.json --format markdown
+
+  site-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ventures/mcp-supply-chain-watch/site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page. Checked here so this venture goes red on its own PR, not on the
+      # Pages job after the merge.
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs mcp-supply-chain-watch

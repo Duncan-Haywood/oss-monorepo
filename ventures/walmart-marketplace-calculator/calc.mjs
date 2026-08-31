@@ -30,8 +30,31 @@ export const SIZE_TIER_LABELS = {
 };
 
 const FULFILLMENT_METHODS = new Set(["wfs", "seller"]);
+export const FULFILLMENT_VALUES = [...FULFILLMENT_METHODS];
 
 export const DEFAULT_REFERRAL_MINIMUM = 0.3;
+
+// The numeric fields index.html's own `ids` array reads and writes, in the
+// same order. share.mjs imports this list rather than keeping its own, so a
+// new input field is shareable the day it ships instead of being silently
+// dropped from a link — the failure ebay-fee-calculator's share module hit
+// twice and where-to-sell-calculator's hit once, both by hand-maintaining a
+// second copy of this list.
+export const INPUT_FIELDS = [
+  "salePrice", "matchPrice", "referralRate", "referralMinimum", "length",
+  "width", "height", "weightLb", "monthsInStorage", "storageRate",
+  "fulfillmentFee", "costOfGoods", "inboundPerUnit", "sellerShippingCost",
+  "packagingCost", "adsPerUnit", "otherCost", "monthlySellerFee",
+  "monthlyUnits", "targetMargin", "twoDayShippingCost", "twoDayMinutes",
+  "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct",
+  "returnRatePct", "wfsReturnFee", "sellerReturnLabel", "restockMinutes",
+  "restockHourlyWage", "unsellableReturnPct", "leftoverUnits",
+  "monthlySellThroughPct", "horizonMonths", "agedStorageRate",
+  "removalFee", "disposalFee", "acosPct", "extraAdUnits",
+  "attributedOrganicPct", "highAcosPct", "highExtraAdUnits",
+  "highAttributedOrganicPct", "holdTakePct", "matchTakePct",
+  "promoTakePct", "promoDays", "monthDays",
+];
 
 function number(value, name, fallback = 0) {
   if (value === undefined || value === null || value === "") {
@@ -220,7 +243,17 @@ function listingAtPrice(input, salePrice) {
   const targetMarginRate = targetMargin / 100;
 
   function finish(path, cogsInCash) {
-    path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
+    // The raw ceiling can be negative: fees and non-COGS cash costs alone
+    // already exceed the sale price, so no sourcing cost -- not even $0 --
+    // reaches break-even. Clamping that to 0 for display would read as "pay
+    // at most $0.00" -- a real, if tight, break-even point -- when the truth
+    // is that this listing loses money before a unit is even bought.
+    // `breakEvenBuyCostRaw` keeps the signed figure so callers can tell the
+    // two apart instead of reading a bare $0.00 as a genuine break-even.
+    // Same bug class already fixed for amazon-fba-calculator's maxBuyCost.
+    const rawBreakEvenBuyCost = salePrice - path.feeTotal - (path.cashInvested - cogsInCash);
+    path.breakEvenBuyCostRaw = rawBreakEvenBuyCost;
+    path.breakEvenBuyCost = Math.max(0, rawBreakEvenBuyCost);
     return path;
   }
 
@@ -305,6 +338,41 @@ function twoDayPath({
   };
 }
 
+/**
+ * Where a take-rate path ties a rival whose expected profit is fixed, and
+ * which side of that rate the path is the better one on.
+ *
+ * Expected profit on a take path is `take% × completed profit`, so the tie is
+ * one division. The part worth spelling out is the direction, because it flips
+ * and the old code did not: when a completed sale *loses* money, a higher take
+ * rate books more of that loss, so the path is better BELOW the crossing
+ * instead of above it.
+ *
+ * That is not a corner case here. WFS fees on a heavy item, or a seller label
+ * plus pack time on a thin-margin one, routinely put both paths under water at
+ * once — and two loss-making paths still cross at a real rate, the same way
+ * two profitable ones do. The previous guard (`completed > 1e-12`) returned
+ * `Infinity` for every one of them, so the page told a seller the rate was
+ * "unreachable" when it was, say, 95.5% and directly actionable.
+ *
+ * `betterBelow` is what lets the sentence say "until take rises to" rather
+ * than "if take rises to". Reporting the number without the direction would
+ * hand the seller the right figure attached to the wrong advice.
+ */
+function takeRateCrossing(rivalExpected, completedProfit) {
+  if (!Number.isFinite(completedProfit) || Math.abs(completedProfit) <= 1e-12) {
+    return { rate: Infinity, betterBelow: false };
+  }
+  const betterBelow = completedProfit < 0;
+  const rate = (rivalExpected / completedProfit) * 100;
+  // A rate outside 0..100 is genuinely unreachable: take is a share of
+  // sessions and cannot exceed all of them or fall below none.
+  if (!Number.isFinite(rate) || rate < -1e-9 || rate > 100 + 1e-9) {
+    return { rate: Infinity, betterBelow };
+  }
+  return { rate: Math.max(0, Math.min(100, rate)), betterBelow };
+}
+
 function twoDaySummary({
   winner,
   wfs,
@@ -317,6 +385,8 @@ function twoDaySummary({
   breakEvenTwoDayShipping,
   breakEvenTwoDayTakePct,
   breakEvenStandardTakePct,
+  twoDayTakeIsCeiling,
+  standardTakeIsCeiling,
 }) {
   const wfsKeep = moneyLabel(wfs.expectedProfit);
   const twoDayKeep = moneyLabel(twoDay.expectedProfit);
@@ -343,18 +413,27 @@ function twoDaySummary({
     );
   }
   if (winner === "standard") {
+    // When standard's completed sale loses money, a higher take rate books
+    // more of that loss — so the crossing is the point standard stops being
+    // ahead, not the point it starts.
+    const standardLine = standardTakeIsCeiling
+      ? `Standard stays ahead of WFS until take rises to about ${standardFloor}.`
+      : `Standard still needs about ${standardFloor} take to match WFS.`;
     return (
       `Seller-fulfilled standard shipping keeps ${standardGap} more per session than WFS ` +
       `(${standardKeep} vs ${wfsKeep}). 2-day is ${twoDayKeep}. ` +
-      `Standard still needs about ${standardFloor} take to match WFS.`
+      standardLine
     );
   }
   if (winner === "wfs") {
+    const twoDayLine = twoDayTakeIsCeiling
+      ? `or take falls to about ${twoDayFloor}`
+      : `or take rises to about ${twoDayFloor}`;
     return (
       `WFS keeps ${twoDayGap} more per session than seller-fulfilled 2-day ` +
       `(${wfsKeep} vs ${twoDayKeep}), ${monthGap} on ${volume}. ` +
       `2-day matches if the label falls to about ${shipCeil} ` +
-      `or take rises to about ${twoDayFloor}. Standard is ${standardKeep}.`
+      `${twoDayLine}. Standard is ${standardKeep}.`
     );
   }
   return "WFS, seller-fulfilled 2-day, and standard shipping leave the same expected leftover on these rates.";
@@ -489,25 +568,10 @@ export function compareTwoDay(input = {}) {
     if (!Number.isFinite(breakEvenTwoDayShipping)) breakEvenTwoDayShipping = Infinity;
   }
 
-  let breakEvenTwoDayTakePct = Infinity;
-  if (twoDayCompleted > 1e-12) {
-    breakEvenTwoDayTakePct = (wfsExpected / twoDayCompleted) * 100;
-    if (breakEvenTwoDayTakePct < -1e-9 || breakEvenTwoDayTakePct > 100 + 1e-9) {
-      breakEvenTwoDayTakePct = Infinity;
-    } else {
-      breakEvenTwoDayTakePct = Math.max(0, Math.min(100, breakEvenTwoDayTakePct));
-    }
-  }
-
-  let breakEvenStandardTakePct = Infinity;
-  if (standardCompleted > 1e-12) {
-    breakEvenStandardTakePct = (wfsExpected / standardCompleted) * 100;
-    if (breakEvenStandardTakePct < -1e-9 || breakEvenStandardTakePct > 100 + 1e-9) {
-      breakEvenStandardTakePct = Infinity;
-    } else {
-      breakEvenStandardTakePct = Math.max(0, Math.min(100, breakEvenStandardTakePct));
-    }
-  }
+  const twoDayCrossing = takeRateCrossing(wfsExpected, twoDayCompleted);
+  const standardCrossing = takeRateCrossing(wfsExpected, standardCompleted);
+  const breakEvenTwoDayTakePct = twoDayCrossing.rate;
+  const breakEvenStandardTakePct = standardCrossing.rate;
 
   return {
     rows,
@@ -535,6 +599,10 @@ export function compareTwoDay(input = {}) {
     breakEvenTwoDayShipping,
     breakEvenTwoDayTakePct,
     breakEvenStandardTakePct,
+    // True when the path's completed sale loses money, so the rate above is a
+    // ceiling the path stays ahead below, not a floor it has to climb to.
+    twoDayTakeIsCeiling: twoDayCrossing.betterBelow,
+    standardTakeIsCeiling: standardCrossing.betterBelow,
     summary: twoDaySummary({
       winner,
       wfs: rows[0],
@@ -547,6 +615,8 @@ export function compareTwoDay(input = {}) {
       breakEvenTwoDayShipping,
       breakEvenTwoDayTakePct,
       breakEvenStandardTakePct,
+      twoDayTakeIsCeiling: twoDayCrossing.betterBelow,
+      standardTakeIsCeiling: standardCrossing.betterBelow,
     }),
   };
 }
@@ -1044,6 +1114,7 @@ export function compareAgedWfs(input = {}) {
 
   const keepArgs = {
     units: leftoverUnits,
+    sellThroughPct: monthlySellThroughPct,
     horizonMonths,
     storagePerUnitMonth,
     contribution: keepContribution,
@@ -1373,14 +1444,23 @@ export function compareWalmartAds(input = {}) {
   if (organicUnits > 1e-12 && adSpendPerUnit > 1e-12) {
     breakEvenAttributedOrganicPct =
       (extraAdUnits * extraMargin * 100) / (organicUnits * adSpendPerUnit);
-    if (breakEvenAttributedOrganicPct < -1e-9) {
+    // Attribution is a share of organic units, so a crossing above 100% is as
+    // unreachable as one below 0%. Clamping the high side to exactly 100 used
+    // to report a tie at full attribution when ads in fact still win there.
+    if (
+      breakEvenAttributedOrganicPct < -1e-9 ||
+      breakEvenAttributedOrganicPct > 100 + 1e-9
+    ) {
       breakEvenAttributedOrganicPct = Infinity;
     } else {
       breakEvenAttributedOrganicPct = Math.max(0, Math.min(100, breakEvenAttributedOrganicPct));
     }
-  } else if (adSpendPerUnit <= 1e-12) {
-    breakEvenAttributedOrganicPct = 100;
   }
+  // Free clicks (0% ACOS) have no attribution rate that ties skipping: with no
+  // ad spend the gap is `extra units × organic leftover` whatever share of
+  // organic the ads claim, so the two paths never cross. This used to report
+  // exactly 100%, which reads as a real, reachable answer — the worst of the
+  // three possible outputs, since "unreachable" at least tells the truth.
 
   return {
     rows,
@@ -1459,6 +1539,7 @@ function matchTakeSummary({
   breakEvenMatchTakePct,
   breakEvenPromoDays,
   breakEvenMatchPrice,
+  matchTakeIsCeiling,
 }) {
   const holdKeep = moneyLabel(hold.monthlyProfit);
   const matchKeep = moneyLabel(match.monthlyProfit);
@@ -1476,6 +1557,10 @@ function matchTakeSummary({
   const priceFloor = Number.isFinite(breakEvenMatchPrice)
     ? moneyLabel(breakEvenMatchPrice)
     : "an unreachable match price";
+  // A matched sale that loses money gets worse as take rises, so the crossing
+  // is the rate matching stops winning at rather than the one it starts at.
+  const matchTakeMoves = matchTakeIsCeiling ? "rises" : "falls";
+  const holdTakeMoves = matchTakeIsCeiling ? "falls" : "rises";
 
   if (winner === "match") {
     return (
@@ -1483,7 +1568,7 @@ function matchTakeSummary({
       `(${matchKeep} vs ${holdKeep}) on ${volume}. ` +
       `A time-boxed promo is ${promoKeep}, ${vsPromo} behind the match. ` +
       `The promo matches a permanent drop at about ${dayFloor}. ` +
-      `Holding matches if match take falls to about ${takeFloor}.`
+      `Holding matches if match take ${matchTakeMoves} to about ${takeFloor}.`
     );
   }
   if (winner === "promo") {
@@ -1492,7 +1577,7 @@ function matchTakeSummary({
       `(${promoKeep} vs ${holdKeep}) on ${volume}. ` +
       `A permanent match is ${matchKeep}. ` +
       `The promo still beats a permanent drop down to about ${dayFloor}. ` +
-      `Holding matches if match take falls to about ${takeFloor}.`
+      `Holding matches if match take ${matchTakeMoves} to about ${takeFloor}.`
     );
   }
   if (winner === "hold") {
@@ -1500,7 +1585,7 @@ function matchTakeSummary({
       `Holding the list price keeps ${matchGap} more than permanently matching ` +
       `(${holdKeep} vs ${matchKeep}) on ${volume}. ` +
       `A time-boxed promo is ${promoKeep}. ` +
-      `Matching wins if take rises to about ${takeFloor} ` +
+      `Matching wins if take ${holdTakeMoves} to about ${takeFloor} ` +
       `or the match price stays above about ${priceFloor}.`
     );
   }
@@ -1633,15 +1718,8 @@ export function compareMatchTake(input = {}) {
   ].filter((row) => Math.abs(row.value - bestMonthly) <= 1e-9);
   const winner = leaders.length === 1 ? leaders[0].id : "tie";
 
-  let breakEvenMatchTakePct = Infinity;
-  if (matchCompleted > 1e-12) {
-    breakEvenMatchTakePct = (holdExpected / matchCompleted) * 100;
-    if (breakEvenMatchTakePct < -1e-9 || breakEvenMatchTakePct > 100 + 1e-9) {
-      breakEvenMatchTakePct = Infinity;
-    } else {
-      breakEvenMatchTakePct = Math.max(0, Math.min(100, breakEvenMatchTakePct));
-    }
-  }
+  const matchCrossing = takeRateCrossing(holdExpected, matchCompleted);
+  const breakEvenMatchTakePct = matchCrossing.rate;
 
   let breakEvenPromoDays = Infinity;
   const promoLift = promoPeriodExpected - holdExpected;
@@ -1693,6 +1771,9 @@ export function compareMatchTake(input = {}) {
     extraPromoVsHold,
     extraMatchVsPromo,
     breakEvenMatchTakePct,
+    // True when the matched sale loses money, so the rate above is a ceiling
+    // matching stays ahead below, not a floor it has to climb to.
+    matchTakeIsCeiling: matchCrossing.betterBelow,
     breakEvenPromoDays,
     breakEvenMatchPrice,
     summary: matchTakeSummary({
@@ -1705,6 +1786,7 @@ export function compareMatchTake(input = {}) {
       extraMatchVsPromo,
       monthlyUnits,
       breakEvenMatchTakePct,
+      matchTakeIsCeiling: matchCrossing.betterBelow,
       breakEvenPromoDays,
       breakEvenMatchPrice,
     }),

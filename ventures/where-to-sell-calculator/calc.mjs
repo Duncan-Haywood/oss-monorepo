@@ -21,6 +21,7 @@
  * compute them. A seller whose channel differs can zero one field and fold the
  * rate into another.
  */
+
 export const CHANNEL_PRESETS = [
   {
     id: "ebay",
@@ -455,6 +456,13 @@ export function calculateChannel(channel, shared = {}) {
     // they never entered. 30-day month is a planning figure, not a calendar.
     profitPerDay: daysToSell === null ? null : profit / daysToSell,
     monthlyProfitAtVelocity: daysToSell === null ? null : profit * (30 / daysToSell),
+    // How many times a year the same cash completes this buy-sell loop. Stated
+    // as a turnover count rather than an annualised percentage on purpose: a
+    // three-day flip annualises to four figures, which is arithmetically true,
+    // reads as a promise, and would be the one dishonest number on the page.
+    // "Your cash goes round 122 times a year" is the same fact without the
+    // implied compounding.
+    cashTurnsPerYear: daysToSell === null ? null : 365 / daysToSell,
     /**
      * Item price this channel needs, holding shipping charged constant, to
      * clear `targetProfit`. This is the number that turns a comparison into a
@@ -496,6 +504,12 @@ export function compareChannels(channels, shared = {}) {
   const active = channels.filter((channel) => channel?.enabled !== false);
   if (active.length === 0) throw new Error("Switch on at least one channel to compare");
   const results = active.map((channel) => calculateChannel(channel, shared));
+  // A seller-entered profit goal, shared across every channel: "what would
+  // each one have to charge to leave me exactly this much?" Blank, null or
+  // absent means the question was not asked, so the field on every result
+  // stays null rather than solving for a target nobody gave.
+  const hasTargetProfit = shared.targetProfit !== undefined && shared.targetProfit !== null && shared.targetProfit !== "";
+  const targetProfit = hasTargetProfit ? number(shared.targetProfit, "Target profit") : null;
   // Rank on expected keep after returns unless the seller has turned that
   // overlay off. Sold-sale profit is still on every row so the table can
   // show the flip: a channel can win on a completed sale and lose once
@@ -510,7 +524,17 @@ export function compareChannels(channels, shared = {}) {
       result.profitPerDay > winner.profitPerDay ? result : winner
     ));
 
-  const ranked = [...results].sort((a, b) => score(b) - score(a));
+  // Ranking by profit stays the default: it is the question people arrive with.
+  // `rankBy: "profitPerDay"` re-sorts on what the cash earns while it waits.
+  // A channel with no holding period sorts last there rather than winning on an
+  // unknown, and ties fall back to the profit score (expected keep after
+  // returns, unless that overlay is off) so the order stays stable.
+  const rankBy = shared.rankBy === "profitPerDay" ? "profitPerDay" : "profit";
+  const perDay = (result) => (result.profitPerDay === null ? -Infinity : result.profitPerDay);
+  const order = rankBy === "profitPerDay"
+    ? (a, b) => perDay(b) - perDay(a) || score(b) - score(a)
+    : (a, b) => score(b) - score(a);
+  const ranked = [...results].sort(order);
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
   const bestScore = score(best);
 
@@ -538,6 +562,14 @@ export function compareChannels(channels, shared = {}) {
   const volumesDiffer = results.some(
     (result) => result.expectedMonthlySales !== results[0].expectedMonthlySales,
   );
+
+  // The winner on speed, computed whichever way the table is sorted, because
+  // the interesting case is the two disagreeing: a channel that nets less per
+  // sale but turns the cash over faster.
+  const timed = results.filter((result) => result.profitPerDay !== null);
+  const fastestReturn = timed.length
+    ? timed.reduce((winner, result) => (result.profitPerDay > winner.profitPerDay ? result : winner))
+    : null;
 
   return {
     results: results.map((result) => ({
@@ -571,8 +603,15 @@ export function compareChannels(channels, shared = {}) {
         : includeReturns
           ? result.priceForExpectedProfit(best.expectedProfit)
           : result.priceForProfit(best.profit),
+      // Item price this channel needs to keep the seller's own target,
+      // holding shipping charged constant. Solved on the sold-sale price
+      // equation (not the after-returns one) so the number answers "if it
+      // sells here, what would I have to charge" — the same question the
+      // seller is asking, independent of the returns overlay.
+      priceForTargetProfit: targetProfit === null ? null : result.priceForProfit(targetProfit),
     })),
     ranked: ranked.map((result) => result.label),
+    rankBy,
     includeReturns,
     best: {
       id: best.id,
@@ -582,6 +621,22 @@ export function compareChannels(channels, shared = {}) {
       expectedProfit: best.expectedProfit,
       margin: includeReturns ? best.expectedMargin : best.margin,
     },
+    // Null when no active channel has a holding period to divide by.
+    fastestReturn: fastestReturn && {
+      id: fastestReturn.id,
+      label: fastestReturn.label,
+      profit: fastestReturn.profit,
+      daysToSell: fastestReturn.daysToSell,
+      profitPerDay: fastestReturn.profitPerDay,
+      cashTurnsPerYear: fastestReturn.cashTurnsPerYear,
+    },
+    // True only when the extra column changes the answer — the one moment this
+    // feature is worth a seller's attention. It also requires the profit winner
+    // to have a holding period of its own: "sells faster than" is not a
+    // comparison that can be made against an unknown, and claiming it would
+    // rank a channel the seller never timed.
+    speedChangesTheAnswer:
+      Boolean(fastestReturn) && fastestReturn.id !== best.id && best.profitPerDay !== null,
     bestMonthly: {
       id: bestMonthly.id,
       label: bestMonthly.label,

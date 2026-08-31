@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Moving Company Bid Calculator | Price Stairs and Long Carry, Not Bedrooms</title>
+  <title>Moving Company Bid Calculator — Stairs and Long Carry</title>
   <meta name="description" content="Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote.">
   <meta property="og:title" content="Moving Company Bid Calculator">
   <meta property="og:description" content="Bid the walk, not the bedroom count. See how stairs and a long carry change the hours — and the price — before you send the quote.">
@@ -28,7 +28,7 @@
     .item-row select, .item-row input { padding: 10px 7px; }
     .item-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     .item-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
@@ -261,6 +261,16 @@
        the only thing on the page when it prints. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
+
+  <h2>Common questions</h2>
+  <h3>How do movers price a local job?</h3>
+  <p>From clock hours: load and unload time for the inventory, plus extra hours for stairs and a long carry that scale with cubic feet, plus packing and drive time. Hours times crew size times loaded wage, then truck, fuel, materials, overhead, and margin.</p>
+  <h3>Why can't I bid a move by bedroom count?</h3>
+  <p>Two 3-bedroom houses can be a first-floor short carry or a third-floor walk-up with an 80-foot carry. Bedroom count cannot see the extra trips. That is how a Saturday that looked like $900 becomes a loss.</p>
+  <h3>How much extra should stairs add to a moving quote?</h3>
+  <p>Stairs add trips, so the extra hours should scale with how much you are moving, not a flat surcharge. This tool starts from minutes per flight per 200 cubic feet and lets you replace that with a time from your own crew.</p>
+  <h3>Is this the price I should charge?</h3>
+  <p>No. The output is arithmetic on the numbers you entered. It is not a recommended price, a tariff, or a guarantee. Verify every figure against your own payroll, insurance, and times before sending a bid.</p>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>

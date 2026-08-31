@@ -9,6 +9,7 @@ Free, no signup, and nothing you type leaves the browser.
 - `index.html` — the comparison
 - `which-marketplace-has-the-lowest-fees.html` — the worked explainer
 - `calc.mjs` — the fee models and the ranking
+- `share.mjs` — allowlisted encode/decode for the "Copy share link" URL fragment
 - `usage.mjs` — anonymous, local, opt-out event counting
 
 ## Why this exists
@@ -71,13 +72,26 @@ also sends you no buyers. When it wins, the page names the best channel that
 *does* bring demand and the gap between them, and calls that gap the
 advertising budget.
 
+## Sharing a comparison
+
+"Copy share link" encodes the item, category, orders-per-month, and any rate
+overrides into the page's own URL, after a `#`. A browser never sends the
+part of a URL after a `#` to a server, so this carries no price, cost, or
+volume data anywhere it wasn't already — it's a private link, not a hosted
+save. Opening the link pre-fills the form with the sender's inputs and
+recomputes the same ranking, before the first (uncounted) paint. `share.mjs`
+allowlists the exact fields it carries on both encode and decode, so a link
+that predates a future field degrades to that field's default rather than
+throwing, and an unrecognized key in a hand-edited fragment is dropped rather
+than trusted.
+
 ## Usage measurement
 
-Two anonymous counters in the visitor's own `localStorage`
-(`marketplace-fee-compare-usage`): `comparison_run` and `comparison_copied`.
-No prices, costs, categories, volumes, identities, IPs, or cookies — and
-nothing leaves the device. Counting honors Do Not Track and Global Privacy
-Control, and the page carries an opt-out checkbox.
+Three anonymous counters in the visitor's own `localStorage`
+(`marketplace-fee-compare-usage`): `comparison_run`, `comparison_copied`, and
+`share_link_copied`. No prices, costs, categories, volumes, identities, IPs,
+or cookies — and nothing leaves the device. Counting honors Do Not Track and
+Global Privacy Control, and the page carries an opt-out checkbox.
 
 The first render on page load is deliberately **not** counted, and keystroke
 bursts settle into one event after 800 ms, so a visit that bounces off the
@@ -90,10 +104,16 @@ three.
 node --test "ventures/marketplace-fee-compare/*.test.mjs"
 ```
 
-51 tests across four files: the fee arithmetic and ranking (`calc.test.mjs`),
-the usage counter's privacy guarantees (`usage.test.mjs`), the page's structure
+64 tests across five files: the fee arithmetic and ranking (`calc.test.mjs`),
+the usage counter's privacy guarantees (`usage.test.mjs`), the share link's
+round-trip and allowlist guarantees (`share.test.mjs`), the page's structure
 and wiring (`page.test.mjs`), and the explainer article's worked numbers pinned
 to the model so the two cannot drift apart (`article.test.mjs`).
+
+The primary sharing journey was also exercised in headless Chromium: editing
+the item, category, and an eBay rate override, copying the share link, opening
+it as a fresh page, and confirming the recipient's form and verdict match the
+sender's exactly, with no console errors on either page.
 
 The primary customer journey was also exercised in headless Chromium: first
 paint counts nothing, a category change re-ranks the table, a keystroke burst

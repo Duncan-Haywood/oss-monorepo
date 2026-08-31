@@ -4,7 +4,9 @@ import { readFileSync } from "node:fs";
 import {
   applyFeePreset,
   breakEvenPrice,
+  bundleDiscountNote,
   calculateOrder,
+  compareBundleDiscount,
   compareFeeSchedules,
   compareFreeShipping,
   compareOrganicVsAffiliate,
@@ -205,6 +207,46 @@ test("max buy cost is the COGS that drives expected profit to zero", () => {
   near(at.expectedProfit, 0, "max buy");
   const over = calculateOrder({ ...sample(), cogs: buy + 0.05 });
   assert.ok(over.expectedProfit < 0, "a penny more loses money");
+});
+
+test("max buy cost is null when even free goods lose money", () => {
+  // Fulfilment plus ads exceed what the item can ever keep, so no COGS clears.
+  const neverClears = {
+    ...sample(),
+    itemPrice: 8,
+    cogs: 2,
+    fulfillmentCost: 6.5,
+    adSpend: 3,
+  };
+
+  // Establish the premise from calculateOrder directly, not from the function
+  // under test: a free unit is still a loss here.
+  const free = calculateOrder({ ...neverClears, cogs: 0 });
+  assert.ok(free.expectedProfit < 0, "premise: free goods already lose money");
+
+  assert.equal(maxBuyCost(neverClears), null);
+
+  // The pre-fix value was 0, which read as "pay up to $0.00 and you break
+  // even". Guard the actual falsehood, not just the sentinel.
+  assert.ok(
+    calculateOrder({ ...neverClears, cogs: 0 }).expectedProfit < 0,
+    "0 would have been a false ceiling",
+  );
+});
+
+test("max buy cost of exactly zero stays 0, not null", () => {
+  // A SKU that breaks even precisely at free goods has a real $0.00 ceiling.
+  // It must stay distinguishable from "no cost clears this".
+  const atZero = { ...sample(), cogs: 0 };
+  const tuned = {
+    ...atZero,
+    fulfillmentCost: atZero.fulfillmentCost + calculateOrder(atZero).expectedProfit,
+  };
+  near(calculateOrder(tuned).expectedProfit, 0, "premise: breaks even at zero COGS");
+
+  const buy = maxBuyCost(tuned);
+  assert.notEqual(buy, null, "a genuine zero ceiling is not 'unreachable'");
+  near(buy, 0, "ceiling is $0.00");
 });
 
 test("a 100% return rate with unsellable goods and kept affiliate is a loss", () => {
@@ -418,4 +460,67 @@ test("every preset carries a short label for the comparison table", () => {
     assert.equal(typeof preset.short, "string", `${id} has no short label`);
     assert.ok(preset.short.length > 0 && preset.short.length <= 32, `${id}: ${preset.short}`);
   }
+});
+
+// --- bundling N units into one discounted order -------------------------
+
+test("at zero discount, bundling saves exactly the per-order costs paid once instead of twice", () => {
+  // With no returns, every fee that scales with quantity (referral, payment
+  // percentage, facilitation, affiliate, COGS, fulfillment, ads) cancels out
+  // of the bundle-vs-separate difference exactly, leaving only the two costs
+  // `calculateOrder` charges once per order regardless of quantity:
+  // `paymentFixed` and `otherPerOrder`.
+  const input = { ...sample(), returnRate: 0, paymentRate: 2, paymentFixed: 0.3 };
+  const comparison = compareBundleDiscount({ ...input, bundleQuantity: 2, bundleDiscountPct: 0 });
+  near(comparison.bundleGain, input.paymentFixed + input.otherPerOrder, "saved fixed costs");
+  assert.equal(comparison.winner, "bundle");
+});
+
+test("a steep discount can flip the bundle behind separate orders", () => {
+  const comparison = compareBundleDiscount({
+    ...sample(),
+    bundleQuantity: 2,
+    bundleDiscountPct: 40,
+  });
+  assert.equal(comparison.winner, "separate");
+  assert.ok(comparison.bundleGain < 0);
+  assert.ok(comparison.breakEvenDiscountPct !== null);
+  assert.ok(
+    comparison.breakEvenDiscountPct < 40,
+    "the discount that matches separate orders must be shallower than a losing one",
+  );
+  assert.match(bundleDiscountNote(comparison), /Dropping the discount to about/);
+});
+
+test("bundle-discount note names the winner in both directions", () => {
+  const winning = compareBundleDiscount({ ...sample(), bundleQuantity: 2, bundleDiscountPct: 1 });
+  assert.equal(winning.winner, "bundle");
+  assert.match(bundleDiscountNote(winning), /keeps .* more than 2 separate full-price orders/);
+
+  const losing = compareBundleDiscount({ ...sample(), bundleQuantity: 2, bundleDiscountPct: 40 });
+  assert.match(bundleDiscountNote(losing), /keeps .* less than 2 separate full-price orders/);
+});
+
+test("bundle quantity below 2 is rejected", () => {
+  assert.throws(
+    () => compareBundleDiscount({ ...sample(), bundleQuantity: 1 }),
+    /Bundle quantity must be at least 2/,
+  );
+});
+
+test("a discount of 100% or more is rejected", () => {
+  assert.throws(
+    () => compareBundleDiscount({ ...sample(), bundleDiscountPct: 100 }),
+    /Bundle discount must be less than 100%/,
+  );
+});
+
+test("break-even discount matches the point where bundling stops winning", () => {
+  const comparison = compareBundleDiscount({ ...sample(), bundleQuantity: 2, bundleDiscountPct: 40 });
+  const atBreakEven = compareBundleDiscount({
+    ...sample(),
+    bundleQuantity: 2,
+    bundleDiscountPct: comparison.breakEvenDiscountPct,
+  });
+  near(atBreakEven.bundle.expectedProfit, atBreakEven.separateTotal, "break-even ties the two paths");
 });

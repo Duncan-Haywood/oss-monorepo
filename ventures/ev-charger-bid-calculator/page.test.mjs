@@ -7,9 +7,13 @@ const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
 
 test('the landing page names the search phrase and refuses a code opinion', () => {
   assert.match(html, /EV Charger Installation Bid Calculator/);
-  assert.match(html, /How Much to Charge to Install a Level 2 EVSE/);
+  assert.match(html, /Level 2 EVSE/);
   assert.match(html, /application\/ld\+json/);
-  assert.match(html, /FAQPage/);
+  // FAQPage schema is derived by platform/pages/build.mjs from these visible
+  // <details><summary> pairs at build time, not authored in this source file
+  // -- a hand-written block here would drift from the copy it describes.
+  assert.match(html, /<section class="faq">/);
+  assert.match(html, /<details>\s*<summary>/);
   assert.match(html, /not electrical, engineering, code/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /usageOptOut/);

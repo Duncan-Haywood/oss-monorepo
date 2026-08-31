@@ -89,9 +89,17 @@ export function maxAffordableOffsiteRate(input, minProfit = 0) {
   const floor = Number(minProfit);
   if (!Number.isFinite(floor)) throw new Error('Minimum profit must be a number');
   const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
-  if (organic.revenue <= 0) return 0;
+  // Already under the floor before a single ad fee is charged, so no rate
+  // reaches it — not even 0%. Clamping to 0 here claimed 0% was affordable
+  // when it is not, and the caller then printed "stays at or above $0.00
+  // until Offsite Ads reach about 0.0%" directly beneath a row showing the
+  // order already below $0.00 at 0%. null is "no rate qualifies".
+  if (organic.profit < floor) return null;
+  // No revenue for a percentage fee to sit on, so the rate cannot move
+  // profit at all. The floor is already met above, so every rate clears it.
+  if (organic.revenue <= 0) return Infinity;
   const rate = (organic.profit - floor) / organic.revenue * 100;
-  if (!Number.isFinite(rate)) return 0;
+  if (!Number.isFinite(rate)) return null;
   return Math.max(0, rate);
 }
 
@@ -112,9 +120,11 @@ export function offsiteAdsNote(rows, maxRate) {
     const ahead = row.profitVsOrganic >= 0 ? 'more' : 'less';
     return ` ${row.label} take ${money(row.offsiteAdFee)} and leave ${money(row.profit)} — ${gap} ${ahead}.`;
   }).join('');
-  const cap = Number.isFinite(maxRate)
-    ? ` The order stays at or above $0.00 leftover until Offsite Ads reach about ${maxRate.toFixed(1)}%.`
-    : '';
+  const cap = maxRate === null
+    ? ' No Offsite Ads rate keeps this order at or above $0.00 — it is already below that before any ad fee.'
+    : Number.isFinite(maxRate)
+      ? ` The order stays at or above $0.00 leftover until Offsite Ads reach about ${maxRate.toFixed(1)}%.`
+      : '';
   return `${organicLine}${others}${cap}`;
 }
 
@@ -579,6 +589,33 @@ function rateAtMost100(value, name, fallback) {
   return result;
 }
 
+// Solve rate/100 * profitAtFullRate = targetExpected for a sell-through rate
+// in [0, 100]. profitAtFullRate is the packed-sale profit that rate scales
+// (it can be negative — a discounted or badge-chasing path can lose money on
+// every packed sale, not just cost more). The straight ratio is correct
+// whatever the sign of profitAtFullRate: a negative profitAtFullRate paired
+// with a negative targetExpected still has a real, positive crossing rate
+// (both examples below cross at 100%, not 0% — the old code returned 0%
+// here because it treated "profit <= 0" as "already broke even", which
+// silently understates how much conversion lift a losing discount needs).
+//   sale:  $10 item, $12 materials, 90% off -> $1 price, packed loss -$11.
+//          Full price at 50% sell-through expects -$1. -$1 / -$11 * 100 =
+//          9.09%, not the 0% the old branch produced.
+//   Star Seller: same order, $5 postage -> packed loss -$7. Unsigned at 50%
+//          sell-through expects -$1. -$1 / -$7 * 100 = 14.29%, not 0%.
+// A ratio outside [0, 100] means no reachable sell-through ties the two
+// paths (the discounted/badge path can never close the gap, or already
+// leads at every rate), so it maps to Infinity rather than a rate no seller
+// can actually type.
+function breakEvenSellThroughRate(targetExpected, profitAtFullRate) {
+  if (Math.abs(profitAtFullRate) <= 1e-12) {
+    return Math.abs(targetExpected) <= 1e-12 ? 0 : Infinity;
+  }
+  const rate = (targetExpected / profitAtFullRate) * 100;
+  if (rate < -1e-9 || rate > 100 + 1e-9) return Infinity;
+  return roundMoney(Math.max(0, rate));
+}
+
 function monthlyWinner(youMonthly, partnerMonthly, hybridMonthly, hybridYouUnits, hybridPartnerUnits) {
   const best = Math.max(youMonthly, partnerMonthly, hybridMonthly);
   const hits = [];
@@ -848,9 +885,7 @@ export function compareStarSeller(input = {}) {
   const extraExpected = roundMoney(starExpected - unsignedExpected);
   const extraAcrossListings = roundMoney(extraExpected * starSellerListings);
 
-  const breakEvenSellThroughPct = starOrder.profit <= 1e-12
-    ? (unsignedExpected <= 1e-12 ? 0 : Infinity)
-    : roundMoney((unsignedExpected / starOrder.profit) * 100);
+  const breakEvenSellThroughPct = breakEvenSellThroughRate(unsignedExpected, starOrder.profit);
 
   // Total Star Seller postage that still matches unsigned expected keep,
   // after message time and the typed Star Seller sell-through.
@@ -1047,12 +1082,8 @@ export function compareShopSale(input = {}) {
   const percentExtraExpected = roundMoney(percentExpected - listedExpected);
   const dollarExtraExpected = roundMoney(dollarExpected - listedExpected);
 
-  const breakEvenPercentSellThroughPct = percentProfitRaw <= 1e-12
-    ? (listedExpected <= 1e-12 ? 0 : Infinity)
-    : roundMoney((listedExpected / percentProfitRaw) * 100);
-  const breakEvenDollarSellThroughPct = dollarProfitRaw <= 1e-12
-    ? (listedExpected <= 1e-12 ? 0 : Infinity)
-    : roundMoney((listedExpected / dollarProfitRaw) * 100);
+  const breakEvenPercentSellThroughPct = breakEvenSellThroughRate(listedExpected, percentProfitRaw);
+  const breakEvenDollarSellThroughPct = breakEvenSellThroughRate(listedExpected, dollarProfitRaw);
 
   const neededProfitAtSaleRate = saleRate <= 1e-12
     ? (listedExpected <= 1e-12 ? listedProfitRaw : Infinity)

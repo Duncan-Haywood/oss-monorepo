@@ -57,8 +57,34 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
-    - ports:
+    # This used to be `ports: [{443}]` with no `to:` — which, in NetworkPolicy
+    # semantics, means "any destination on 443", not the "no kube-api for
+    # workers" the file's own top comment and the line this replaced both
+    # claimed. 10.43.0.1 (the k3s default `kubernetes` Service, kube-apiserver)
+    # listens on :443 and sat inside that unrestricted range the whole time —
+    # a worker pod could open a TCP connection to the API server. It could not
+    # authenticate anything over that connection
+    # (automountServiceAccountToken: false on the codex-worker ServiceAccount
+    # is the credential half of the wall), but the network half was never
+    # actually built, only described. Same `except` list
+    # gitops/ci/networkpolicy.yaml already uses for the identical problem on
+    # the actions-runner pods.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # k3s pod / service CIDRs — excludes 10.43.0.1 (kube-apiserver).
+              - 10.42.0.0/16
+              - 10.43.0.0/16
+              # RFC1918 ranges the two nodes themselves sit on.
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              # Link-local, where cloud metadata services live.
+              - 169.254.0.0/16
+      ports:
         - protocol: TCP
           port: 443
-    # Explicitly no 10.43.0.1 — workers must not reach kube-apiserver.
-    # automountServiceAccountToken: false is the other half of that wall.
+    # 10.43.0.1 is inside the 10.43.0.0/16 exclusion above, so this policy now
+    # actually blocks it rather than merely saying so.
+    # automountServiceAccountToken: false is the other half of the wall: even
+    # a route that did reach the API server would carry no credential to use.

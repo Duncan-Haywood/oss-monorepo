@@ -11,6 +11,7 @@
 <meta property="og:title" content="Quote Margin Check — free effective hourly rate calculator" />
 <meta property="og:description" content="See your real effective hourly rate before you send a quote. Free, private, and runs entirely in your browser — no signup." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="." />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -457,6 +458,20 @@
     </p>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>How do I calculate my effective hourly rate on a fixed-price quote?</h3>
+  <p>Add up every hour the project will actually take you — delivery work, admin, and revisions — then subtract any direct costs (overhead, subcontractors) from the price, and divide what's left by the total hours. That is your effective hourly rate: what you're really being paid per hour once every task is counted, not just the billable delivery hours.</p>
+  <h3>Why does a quote that looks profitable still underpay me?</h3>
+  <p>Fixed-price quotes usually price only the visible delivery work. Admin time (calls, invoicing, project management), revision rounds, and subcontractor or tool costs quietly eat into the same fixed price, so the effective hourly rate ends up well below the rate you meant to charge.</p>
+  <h3>What if materials or a subcontractor quote go up after I send a fixed price?</h3>
+  <p>Keep the quoted price and hours fixed and raise only overhead plus subcontractor cost. The calculator shows the new effective hourly rate and the price that would still hit your target rate at +10%, +25%, and +50%. That is arithmetic on your inputs, not a forecast of supplier prices.</p>
+  <h3>What if the client asks for 10% off a fixed-price quote?</h3>
+  <p>Keep hours and direct costs fixed and lower only the quoted price. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), 10% off is $2,160 and $48.00/hour. Holding $75/hour would take cutting 12.60 hours of scope. That is arithmetic on your inputs, not a negotiation script.</p>
+  <h3>Should I send a fixed-price quote or bill hourly?</h3>
+  <p>Compare the same hours and direct costs both ways. A fixed quote stays the same if the work runs long; hourly bills those hours at your target rate plus the same costs. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), hourly at planned hours would bill $3,105 — $705 more than the fixed quote. That is arithmetic on your inputs, not a recommendation of which to send.</p>
+  <h3>Should I take a kill fee or finish the remaining hours?</h3>
+  <p>Compare cash kept if you finish, cash kept if you take the kill fee, and cash kept if you walk with only what is already paid. On the calculator example ($2,400, 35 hours, $480 of costs, 14 hours already spent, $1,200 already paid, $360 kill fee, $180 sunk), finishing keeps $1,920.00 — $540.00 more cash than the kill fee. Booking the 21 freed hours at $75/hour would make the kill fee $1,035.00 ahead. That is arithmetic on your inputs, not advice to cancel or finish.</p>
+
   <footer>
     <h2>Disclaimer</h2>
     <p>
@@ -693,6 +708,7 @@
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
        decision.hidden = true;
+       sensitivity.querySelector("tbody").innerHTML = "";
        if (ladder) ladder.querySelector("tbody").innerHTML = "";
        costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
        costSpike.querySelector("tbody").innerHTML = "";

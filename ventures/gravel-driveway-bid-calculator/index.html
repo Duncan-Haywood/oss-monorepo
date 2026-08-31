@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gravel Driveway Bid Calculator | How Much to Charge for a Gravel Driveway</title>
+  <title>Gravel Driveway Bid Calculator — Price It by the Yard</title>
   <meta name="description" content="Price a gravel driveway from crusher-run, clean stone, recycled concrete, or pea gravel: compacted depth, whole truckloads, soil prep, fabric, and apron — plus the walk-away price a $4-a-foot special cannot see.">
   <meta property="og:title" content="Gravel Driveway Bid Calculator">
   <meta property="og:description" content="Bid gravel the way the trade does — trucks and compacted depth, not a published per-foot dump — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gravel Driveway Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Truck count from compacted depth and leftover tons, crusher-run vs clean stone vs recycled vs pea gravel comparison, ready-grade vs excavate-and-haul prep, quarry pickup vs delivery, fabric apron and culvert extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my tonnage never match the customer’s “length × width × depth” math?","acceptedAnswer":{"@type":"Answer","text":"Because loose stone settles, and a quarry sells weight, not volume. This page does the three steps a square-footage number skips: it works out loose cubic yards from the pad, adds compaction on top (25% on the crusher-run preset — stone you pay for and then compact away), converts to tons using the stone’s own density, and only then prices it. Crusher run runs about 1.5 tons a cubic yard, clean #57 and recycled about 1.4, pea gravel about 1.35, so the same pad in two different stones is two different tonnages before a single price differs."}},{"@type":"Question","name":"Why does the price jump when I add a few feet of driveway?","acceptedAnswer":{"@type":"Answer","text":"Trucks. Delivered stone is sold by the load, so tonnage rounds up to whole 16-ton trucks and the leftover tons on the last one are still on your invoice. Crossing from three loads to four adds a $145 truck trip and 0.6 hours whether you needed one ton more or fifteen. That step is the single most common reason a driveway bid built from a smooth per-foot rate loses money on a job only slightly bigger than the last one. Quarry pickup in your own truck has no per-load charge — that time is already in the trip hours."}},{"@type":"Question","name":"What does the stone choice actually change?","acceptedAnswer":{"@type":"Answer","text":"Price per ton, how fast it spreads, and how much of it you need. Recycled crushed concrete starts cheapest at $22 a ton, crusher run $28, clean #57 stone $36, pea gravel $42. Spread rate moves the other way: crusher run covers about 400 sq ft an hour, recycled 380, clean stone 350, and pea gravel only 280 because it will not lock up and has to be worked. Switching stone refills those starting rates and leaves the wages and margin you typed alone."}},{"@type":"Question","name":"Why is “prep” a bigger line than I expect?","acceptedAnswer":{"@type":"Answer","text":"Because it is the part the cheap special assumes away. A ready grade is zero dirt-work hours — the assumption behind every per-foot price you are being compared to. Machine grade and compact adds roughly one hour per 800 sq ft. Excavating the existing surface and hauling it off is double that, one hour per 400 sq ft, plus two $95 dump tickets by default. On a real driveway that is often the difference between the brochure number and the bid."}},{"@type":"Question","name":"Do I need fabric, an apron, or a culvert?","acceptedAnswer":{"@type":"Answer","text":"They are separate ticks because they depend on the site, not the size. Geotextile fabric is priced by the square yard with an overlap allowance on top (10%, or 12% under pea gravel) and is what stops a soft subgrade eating the stone you just placed. A street apron starts at 2.5 hours and $420, a culvert at 3 hours and $380. None of them scale with the driveway, which is why folding them into a per-foot rate misprices both the small job and the large one."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit, and a bid link you copy carries those same numbers in the page’s address rather than sending anything to a server. The optional usage counter records only which features were used and the day, never your dimensions, wages, or prices."}},{"@type":"Question","name":"What’s the difference between the bid price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The bid price already carries your target margin on top of labor, stone, trucking, and overhead. The walk-away price is the total cost underneath it — crew hours, ordered tons, truck loads, fabric, dump tickets, apron and culvert, travel and equipment — the point below which the driveway stops being profitable at all. Typing a number into “Price you’re considering” shows you the margin, or the loss, before you send it."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,7 +26,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -271,7 +272,63 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
-<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does my tonnage never match the customer&rsquo;s &ldquo;length &times; width &times; depth&rdquo; math?</h3>
+      <p>Because loose stone settles, and a quarry sells weight, not volume. This page does the three
+        steps a square-footage number skips: it works out loose cubic yards from the pad, adds compaction
+        on top (25% on the crusher-run preset &mdash; stone you pay for and then compact away), converts
+        to tons using the stone&rsquo;s own density, and only then prices it. Crusher run runs about 1.5
+        tons a cubic yard, clean #57 and recycled about 1.4, pea gravel about 1.35, so the same pad in
+        two different stones is two different tonnages before a single price differs.</p>
+
+      <h3>Why does the price jump when I add a few feet of driveway?</h3>
+      <p>Trucks. Delivered stone is sold by the load, so tonnage rounds up to whole 16-ton trucks and the
+        leftover tons on the last one are still on your invoice. Crossing from three loads to four adds a
+        $145 truck trip and 0.6 hours whether you needed one ton more or fifteen. That step is the single
+        most common reason a driveway bid built from a smooth per-foot rate loses money on a job only
+        slightly bigger than the last one. Quarry pickup in your own truck has no per-load charge &mdash;
+        that time is already in the trip hours.</p>
+
+      <h3>What does the stone choice actually change?</h3>
+      <p>Price per ton, how fast it spreads, and how much of it you need. Recycled crushed concrete starts
+        cheapest at $22 a ton, crusher run $28, clean #57 stone $36, pea gravel $42. Spread rate moves the
+        other way: crusher run covers about 400 sq ft an hour, recycled 380, clean stone 350, and pea
+        gravel only 280 because it will not lock up and has to be worked. Switching stone refills those
+        starting rates and leaves the wages and margin you typed alone.</p>
+
+      <h3>Why is &ldquo;prep&rdquo; a bigger line than I expect?</h3>
+      <p>Because it is the part the cheap special assumes away. A ready grade is zero dirt-work hours
+        &mdash; the assumption behind every per-foot price you are being compared to. Machine grade and
+        compact adds roughly one hour per 800 sq ft. Excavating the existing surface and hauling it off is
+        double that, one hour per 400 sq ft, plus two $95 dump tickets by default. On a real driveway
+        that is often the difference between the brochure number and the bid.</p>
+
+      <h3>Do I need fabric, an apron, or a culvert?</h3>
+      <p>They are separate ticks because they depend on the site, not the size. Geotextile fabric is
+        priced by the square yard with an overlap allowance on top (10%, or 12% under pea gravel) and is
+        what stops a soft subgrade eating the stone you just placed. A street apron starts at 2.5 hours
+        and $420, a culvert at 3 hours and $380. None of them scale with the driveway, which is why
+        folding them into a per-foot rate misprices both the small job and the large one.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit, and a bid link you
+        copy carries those same numbers in the page&rsquo;s address rather than sending anything to a
+        server. The optional usage counter records only which features were used and the day, never your
+        dimensions, wages, or prices.</p>
+
+      <h3>What&rsquo;s the difference between the bid price and the walk-away price?</h3>
+      <p>The bid price already carries your target margin on top of labor, stone, trucking, and overhead.
+        The walk-away price is the total cost underneath it &mdash; crew hours, ordered tons, truck loads,
+        fabric, dump tickets, apron and culvert, travel and equipment &mdash; the point below which the
+        driveway stops being profitable at all. Typing a number into &ldquo;Price you&rsquo;re
+        considering&rdquo; shows you the margin, or the loss, before you send it.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when it prints. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>

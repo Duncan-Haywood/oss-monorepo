@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Patio Door Bid Calculator | Price the Panels, the Glass, and the Opening — Not Just $1,800 Installed</title>
+  <title>Patio Door Bid Calculator — Panels, Glass, and Opening</title>
   <meta name="description" content="Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.">
   <meta property="og:title" content="Patio Door Bid Calculator">
   <meta property="og:description" content="A 6-foot vinyl 2-panel retrofit on the ground is not the same job as a 16-foot 4-panel impact-rated new-construction unit with a transom and a balcony. Bid the panels and the extras.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Patio Door Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "2-panel versus 3-panel versus 4-panel, vinyl versus aluminum versus fiberglass versus wood-clad, dual-pane versus triple versus impact glass, retrofit versus new-construction, ground patio versus balcony, rolling screen, transom, interior trim, sill pan, threshold rebuild, tear-out, walk-away price, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a balcony unit priced so much higher than the same door on a ground patio?","acceptedAnswer":{"@type":"Answer","text":"Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade."}},{"@type":"Question","name":"Does new-construction framing cost more than a retrofit, and why?","acceptedAnswer":{"@type":"Answer","text":"Yes — a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets a new sill pan and frame, and wraps and flashes it. Pick “New-construction (full frame + wrap)” only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid."}},{"@type":"Question","name":"What if I don't know exactly which extras (transom, sill pan, screen) apply?","acceptedAnswer":{"@type":"Answer","text":"Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged."}},{"@type":"Question","name":"Is this an engineering or code determination for impact glazing?","acceptedAnswer":{"@type":"Answer","text":"No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator — it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2834; background: #e4eaf0; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #7a8ea0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #7a8ea0; background: #eef3f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #7a8ea0; background: #eef3f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2834; }
     button:hover { background: #dce6ee; }
     .result { position: sticky; top: 15px; background: #1c2e42; color: #eef4f8; border-color: #1c2e42; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -88,6 +89,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -245,6 +258,8 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a door design &mdash; replace them with your own takeoff.</p>
     </section>
+
+    <section><h2>Common questions</h2><h3>Why is a balcony unit priced so much higher than the same door on a ground patio?</h3><p>Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade.</p><h3>Does new-construction framing cost more than a retrofit, and why?</h3><p>Yes &mdash; a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets a new sill pan and frame, and wraps and flashes it. Pick &ldquo;New-construction (full frame + wrap)&rdquo; only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid.</p><h3>What if I don't know exactly which extras (transom, sill pan, screen) apply?</h3><p>Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged.</p><h3>Is this an engineering or code determination for impact glazing?</h3><p>No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator &mdash; it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material.</p></section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">
         <h2>Hand the customer a proposal</h2>

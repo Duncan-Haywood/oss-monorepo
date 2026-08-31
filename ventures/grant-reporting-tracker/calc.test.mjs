@@ -23,6 +23,28 @@ test('escapes CSV values and preserves the review fields', () => {
   assert.match(csv, /"A ""Funder"""/);
 });
 
+test('CSV export carries every field the queue reads, not just what the table shows', () => {
+  // A CSV handed to a board member or a grant file is often the only copy of
+  // an award outside this browser. The on-page table shows five columns;
+  // the export used to match that table exactly and silently drop
+  // awardDate, intervalMonths, awardAmount, spentAmount, and
+  // daysUntilReport -- the figures a recipient needs to check *why* a report
+  // is due, not just that it is.
+  const row = reviewGrant(
+    { name: 'Community garden', funder: 'Local foundation', awardDate: '2026-01-01', intervalMonths: 6, awardAmount: 1000, spentAmount: 250 },
+    '2026-06-01',
+  );
+  const csv = toCsv([row]);
+  const [header, dataLine] = csv.split('\n');
+  assert.equal(
+    header,
+    'name,funder,awardDate,intervalMonths,nextReport,daysUntilReport,status,awardAmount,spentAmount,restrictedBalance',
+  );
+  for (const value of ['2026-01-01', '6', '2026-07-01', '750']) {
+    assert.ok(dataLine.includes(value), `CSV row is missing ${value}: ${dataLine}`);
+  }
+});
+
 test('does not mutate saved award data while reviewing', () => {
   const grant = { name: 'Annual award', awardDate: '2026-01-31', intervalMonths: '1', awardAmount: '500', spentAmount: '125' };
   const before = JSON.stringify(grant);

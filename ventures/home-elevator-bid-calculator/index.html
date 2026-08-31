@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Home Elevator Bid Calculator | How Much to Charge to Install a Home Elevator</title>
+  <title>Home Elevator Bid Calculator — Price to Install It</title>
   <meta name="description" content="Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.">
   <meta property="og:title" content="Home Elevator Bid Calculator">
   <meta property="og:description" content="Bid a home elevator the way the trade does — stops, drive, hoistway, and extras, not a published pneumatic dump — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Home Elevator Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Stops and travel feet, pneumatic vs winding-drum vs hydraulic vs traction-MRL comparison, through-floor vs existing-shaft vs new-wood vs masonry vs glass comparison, acrylic vs standard vs wood-panel vs glass cab comparison, weekday they-leave vs discharge-week expedite freight vs Saturday overtime plus weekend inspector, pit machine-closet feeder permit extras, owner-supplied vs contractor-supplied comparison, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my price so much higher than the advertised $18,995 pneumatic special?","acceptedAnswer":{"@type":"Answer","text":"That number is usually the cheapest combination this tool can price: a through-floor cut, an acrylic tube, no pit, no feeder, no permit. Adding a real hoistway, a hydraulic or traction drive, a pit, a 240 V feeder, or an inspection is exactly what the flat number leaves out. Use the “Same house, four drives” and “five hoistways” comparisons to see how much of the gap each upgrade accounts for."}},{"@type":"Question","name":"If the customer already bought their own unit, is the install free?","acceptedAnswer":{"@type":"Answer","text":"No. Zeroing the unit invoice removes only the equipment cost — setting a customer-supplied Stiltz or Savaria still takes the same crew hours, and an opening that does not match the unit is a second trip on your dime. See the “Same house, who bought the unit” comparison and the linked guide before quoting a customer-supplied job at parts cost alone."}},{"@type":"Question","name":"Does this include the state elevator inspection and permit fee?","acceptedAnswer":{"@type":"Answer","text":"Only if you check “Permit and inspection,” which adds the hours and dollar figure you set for it. The calculator does not look up your state or municipality's actual fee, inspector availability, or turnaround time — confirm those locally before you promise a date."}},{"@type":"Question","name":"Does the price change automatically for a rush job, like a hospital discharge?","acceptedAnswer":{"@type":"Answer","text":"Not on its own. The “Same house, when they need it” table shows how a weekday slot, discharge-week, and weekend access compare using a starting expedite-freight and rush-inspection assumption, but your quoted price still comes from the fields you set above it. If the job really is a rush, raise your own hours, travel, and other-cost inputs to match — the comparison table is a reference, not an automatic switch."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2833; background: #e8eef3; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -16,6 +17,16 @@
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2c4a6e; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    /* The FAQ and the customer-proposal section are the only direct children
+       of .layout besides the input column and the sticky .result sidebar.
+       Left to grid auto-placement they land in .result's own column, one row
+       down — and because .result's sticky box is tall enough to graze that
+       row, its own content (the "Cab" comparison table) can render on top of
+       the proposal section and swallow every click on "Print proposal",
+       including in a real browser, not just this repo's text-based checks.
+       Spanning the full width keeps column two clear below .result so there
+       is nothing there for it to cover. See platform/proposal/verify.mjs. */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
     section { background: #fff; border: 1px solid #c5d0db; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c28330d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #4d5d6d; margin: -6px 0 14px; }
@@ -25,7 +36,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8fa3b5; background: #eef3f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8fa3b5; background: #eef3f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2833; }
     button:hover { background: #e0e8ef; }
     .result { position: sticky; top: 15px; background: #1c2833; color: #eef3f7; border-color: #1c2833; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -276,6 +287,18 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+
+    <section>
+      <h2>Common questions</h2>
+      <h3>Why is my price so much higher than the advertised $18,995 pneumatic special?</h3>
+      <p>That number is usually the cheapest combination this tool can price: a through-floor cut, an acrylic tube, no pit, no feeder, no permit. Adding a real hoistway, a hydraulic or traction drive, a pit, a 240&nbsp;V feeder, or an inspection is exactly what the flat number leaves out. Use the &ldquo;Same house, four drives&rdquo; and &ldquo;five hoistways&rdquo; comparisons to see how much of the gap each upgrade accounts for.</p>
+      <h3>If the customer already bought their own unit, is the install free?</h3>
+      <p>No. Zeroing the unit invoice removes only the equipment cost &mdash; setting a customer-supplied Stiltz or Savaria still takes the same crew hours, and an opening that does not match the unit is a second trip on your dime. See the &ldquo;Same house, who bought the unit&rdquo; comparison and the linked guide before quoting a customer-supplied job at parts cost alone.</p>
+      <h3>Does this include the state elevator inspection and permit fee?</h3>
+      <p>Only if you check &ldquo;Permit and inspection,&rdquo; which adds the hours and dollar figure you set for it. The calculator does not look up your state or municipality's actual fee, inspector availability, or turnaround time &mdash; confirm those locally before you promise a date.</p>
+      <h3>Does the price change automatically for a rush job, like a hospital discharge?</h3>
+      <p>Not on its own. The &ldquo;Same house, when they need it&rdquo; table shows how a weekday slot, discharge-week, and weekend access compare using a starting expedite-freight and rush-inspection assumption, but your quoted price still comes from the fields you set above it. If the job really is a rush, raise your own hours, travel, and other-cost inputs to match &mdash; the comparison table is a reference, not an automatic switch.</p>
     </section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">

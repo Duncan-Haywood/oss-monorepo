@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Plantation Shutter Bid Calculator | How Much to Charge to Install Plantation Shutters</title>
+  <title>Plantation Shutter Bid Calculator — Price to Install It</title>
   <meta name="description" content="Price a residential plantation-shutter install from openings, inside versus outside mount, paint-grade versus stain-grade, hang versus measure versus template-and-custom, and extras — plus the walk-away price a $250-a-window special cannot see.">
   <meta property="og:title" content="Plantation Shutter Bid Calculator">
   <meta property="og:description" content="Bid a shutter install the way the trade does — openings, mount, and extras, not a published special — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Plantation Shutter Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Opening count and size, inside vs outside mount, paint-grade vs stain-grade, hang vs measure vs template-and-custom comparison, removal bypass café extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does “measure and install” cost so much more than a hang-only special?","acceptedAnswer":{"@type":"Answer","text":"A product-on-site hang assumes the shutters already exist and just get mounted; measure-and-install adds the trip to template every opening precisely, and template-and-custom mill adds custom sizing and fabrication on top of that. Use “Same openings, three scopes” to see the same job priced all three ways before you decide which scope you're actually quoting."}},{"@type":"Question","name":"Does outside mount always cost more than inside mount?","acceptedAnswer":{"@type":"Answer","text":"Not automatically — the calculator prices mount as its own choice because outside mount skips fitting into a jamb but often needs extra framing or filler strips on trim that isn’t flat. Toggle it to see the hour difference for your openings rather than assuming one is always cheaper."}},{"@type":"Question","name":"What does the “stories” input change?","acceptedAnswer":{"@type":"Answer","text":"Second-story and higher openings need ladder or lift work and slower, more careful handling, which this calculator adds as extra hours on top of the base install time. It does not add fall-protection compliance costs or determine what your jurisdiction requires for working at height — that's on you to price separately if it applies."}},{"@type":"Question","name":"Are the panel counts and hour estimates a manufacturer spec?","acceptedAnswer":{"@type":"Answer","text":"No. They're common ballpark figures for typical residential openings, not a shutter manufacturer's install guide or an industry standard. Time a job or two with your own crew and replace the defaults in calc.mjs so future bids reflect how your shop actually works."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2f36; background: #e8edf2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,7 +26,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8e9aaa; background: #f2f5f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8e9aaa; background: #f2f5f8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a2f36; }
     button:hover { background: #e4e9ef; }
     .result { position: sticky; top: 15px; background: #1f2a1c; color: #f4eee6; border-color: #1f2a1c; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -97,6 +98,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -241,6 +254,8 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
+
+    <section><h2>Common questions</h2><h3>Why does &ldquo;measure and install&rdquo; cost so much more than a hang-only special?</h3><p>A product-on-site hang assumes the shutters already exist and just get mounted; measure-and-install adds the trip to template every opening precisely, and template-and-custom mill adds custom sizing and fabrication on top of that. Use &ldquo;Same openings, three scopes&rdquo; to see the same job priced all three ways before you decide which scope you're actually quoting.</p><h3>Does outside mount always cost more than inside mount?</h3><p>Not automatically &mdash; the calculator prices mount as its own choice because outside mount skips fitting into a jamb but often needs extra framing or filler strips on trim that isn&rsquo;t flat. Toggle it to see the hour difference for your openings rather than assuming one is always cheaper.</p><h3>What does the &ldquo;stories&rdquo; input change?</h3><p>Second-story and higher openings need ladder or lift work and slower, more careful handling, which this calculator adds as extra hours on top of the base install time. It does not add fall-protection compliance costs or determine what your jurisdiction requires for working at height &mdash; that's on you to price separately if it applies.</p><h3>Are the panel counts and hour estimates a manufacturer spec?</h3><p>No. They're common ballpark figures for typical residential openings, not a shutter manufacturer's install guide or an industry standard. Time a job or two with your own crew and replace the defaults in <code>calc.mjs</code> so future bids reflect how your shop actually works.</p></section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">
         <h2>Hand the customer a proposal</h2>

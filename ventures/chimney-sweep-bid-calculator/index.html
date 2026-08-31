@@ -9,6 +9,7 @@
   <meta property="og:description" content="Bid a chimney the way the trade does — flue hours times height, then creosote, inspection, travel, and margin — and see the walk-away number before you send the quote.">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Chimney Sweep Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-flue labor hours, story and roof-access multipliers, creosote and Level 2 / camera time, animal and cap add-ons, travel round-trip, payroll burden, walk-away price, proposed-price margin check, private share link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this chimney sweep estimate include?","acceptedAnswer":{"@type":"Answer","text":"The price adds up sweep hours per flue — hours each × quantity × the story multiplier — then a roof-access percentage on top of the whole on-site stop, creosote, inspection, and animal-removal time per flue, any add-ons you enable (rain cap, damper, smoke test), setup/breakdown, and round-trip travel. Consumables, glazed-creosote chemical, add-on parts, and a trip fee are added as cost lines, then overhead and your target margin."}},{"@type":"Question","name":"Why do stories and roof access change the price differently?","acceptedAnswer":{"@type":"Answer","text":"The story multiplier (1.0 / 1.35 / 1.75) applies only to the base sweep hours per flue — climbing higher takes longer to sweep, but doesn't change how long the creosote, inspection, or animal-removal work takes once you're up there. Roof access (steep, snow/ice) instead adds a percentage on top of the whole accessed on-site total, because a steep or icy roof slows every minute of the stop, not just the climb."}},{"@type":"Question","name":"Why does the on-site total sometimes not match my hours?","acceptedAnswer":{"@type":"Answer","text":"A minimum on-site hours floor applies whenever there's at least one flue: if your calculated hours come in under that minimum, the tool bills the minimum instead and marks it “(minimum)” next to on-site hours — the same logic that protects a quick gas-fireplace sweep from being priced as if the truck, ladder, and drop cloths cost nothing to bring out."}},{"@type":"Question","name":"Why does glazed creosote add a chemical cost but light and moderate don't?","acceptedAnswer":{"@type":"Answer","text":"Creosote condition adds sweep time at every level (light adds none, moderate and glazed add more per flue), but the chemical-cleaner cost line only triggers at “glazed / stage 3” — that's the condition where a mechanical sweep alone typically isn't enough and a chemical treatment gets added to the job, not lighter creosote levels."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. This calculator doesn't save your quote between visits on its own; instead, “Copy share link” encodes only the allowlisted quote fields (flues, stories, access, creosote, add-ons, your rates, deposit and validity terms) into the page's own URL hash, which is never sent to a server — treat a link you copy like your rate sheet. Only your business name and contact details for the printed proposal are kept in this browser's local storage."}},{"@type":"Question","name":"Does this tell me if a chimney or flue is safe to use?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and cost figures are ballpark shop numbers you can edit, not a CSIA, NFPA 211, or insurance inspection, and a sweep plus visual inspection is not a guarantee the flue is free of defects — concealed damage can require further investigation. It is not a carbon-monoxide or gas-safety test either: a gas fireplace or furnace flue priced here still needs its own appliance and venting safety check from a qualified technician."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241812; background: #f4eee6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -26,7 +27,7 @@
     .flue-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .flue-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #7a6553; }
     .flue-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #c4b09a; background: #f6efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #c4b09a; background: #f6efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #241812; }
     button:hover { background: #efe4d6; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
@@ -266,7 +267,52 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
-<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+<!-- proposal:end -->
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this chimney sweep estimate include?</h3>
+      <p>The price adds up sweep hours per flue &mdash; hours each &times; quantity &times; the story
+        multiplier &mdash; then a roof-access percentage on top of the whole on-site stop, creosote,
+        inspection, and animal-removal time per flue, any add-ons you enable (rain cap, damper, smoke
+        test), setup/breakdown, and round-trip travel. Consumables, glazed-creosote chemical, add-on
+        parts, and a trip fee are added as cost lines, then overhead and your target margin.</p>
+
+      <h3>Why do stories and roof access change the price differently?</h3>
+      <p>The story multiplier (1.0 / 1.35 / 1.75) applies only to the base sweep hours per flue &mdash;
+        climbing higher takes longer to sweep, but doesn't change how long the creosote, inspection, or
+        animal-removal work takes once you're up there. Roof access (steep, snow/ice) instead adds a
+        percentage on top of the whole accessed on-site total, because a steep or icy roof slows every
+        minute of the stop, not just the climb.</p>
+
+      <h3>Why does the on-site total sometimes not match my hours?</h3>
+      <p>A minimum on-site hours floor applies whenever there's at least one flue: if your calculated hours
+        come in under that minimum, the tool bills the minimum instead and marks it &ldquo;(minimum)&rdquo;
+        next to on-site hours &mdash; the same logic that protects a quick gas-fireplace sweep from being
+        priced as if the truck, ladder, and drop cloths cost nothing to bring out.</p>
+
+      <h3>Why does glazed creosote add a chemical cost but light and moderate don't?</h3>
+      <p>Creosote condition adds sweep time at every level (light adds none, moderate and glazed add more
+        per flue), but the chemical-cleaner cost line only triggers at &ldquo;glazed / stage 3&rdquo;
+        &mdash; that's the condition where a mechanical sweep alone typically isn't enough and a chemical
+        treatment gets added to the job, not lighter creosote levels.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. This
+        calculator doesn't save your quote between visits on its own; instead, &ldquo;Copy share
+        link&rdquo; encodes only the allowlisted quote fields (flues, stories, access, creosote, add-ons,
+        your rates, deposit and validity terms) into the page's own URL hash, which is never sent to a
+        server &mdash; treat a link you copy like your rate sheet. Only your business name and contact
+        details for the printed proposal are kept in this browser's local storage.</p>
+
+      <h3>Does this tell me if a chimney or flue is safe to use?</h3>
+      <p>No. Hours and cost figures are ballpark shop numbers you can edit, not a CSIA, NFPA 211, or
+        insurance inspection, and a sweep plus visual inspection is not a guarantee the flue is free of
+        defects &mdash; concealed damage can require further investigation. It is not a carbon-monoxide or
+        gas-safety test either: a gas fireplace or furnace flue priced here still needs its own appliance
+        and venting safety check from a qualified technician.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when it prints. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>

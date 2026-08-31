@@ -35,6 +35,32 @@
 //
 // Not part of CI: it needs Playwright, which is not a dependency of this repo.
 // PLAYWRIGHT overrides the module path for a global install.
+//
+// ## Running it from a Claude-on-the-web session
+//
+// Which is currently the only place it *can* run: GitHub Actions has had no
+// runner since 2026-08-26, so since then the whole-site sweep has been the
+// portfolio's only end-to-end proof that its products still compute, and the
+// scheduled sessions are what have to produce it. Those sessions ship Chromium
+// at `/opt/pw-browsers` but no `playwright` module, and `npm i playwright`
+// pulls a version whose pinned build number does not match what is on disk:
+//
+//   browserType.launch: Executable doesn't exist at
+//   /opt/pw-browsers/chromium_headless_shell-1234/...
+//
+// That is a version mismatch, not a missing browser, and `npx playwright
+// install` is refused in that environment. Point `CHROME_PATH` at the build
+// that is actually there instead — the module and the binary do not have to
+// agree on a number for the sweep to drive it:
+//
+//   npm --prefix /tmp/pw install playwright
+//   node platform/pages/build.mjs --out=/tmp/site
+//   python3 -m http.server 8793 --directory /tmp/site &
+//   PLAYWRIGHT=/tmp/pw/node_modules/playwright/index.js \
+//     CHROME_PATH="$(echo /opt/pw-browsers/chromium-*/chrome-linux/chrome)" \
+//     node platform/pages/sweep.mjs
+//
+// Verified 2026-08-31: 169/169 tools answered with no errors.
 
 // Playwright ships CommonJS, so a PLAYWRIGHT that names its entry *file*
 // resolves the exports under `.default`, while a bare specifier on the

@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Solar PV Install Bid Calculator | Price Per Watt With Roof and Service Extras</title>
+  <title>Solar PV Install Bid Calculator — Price Per Watt</title>
   <meta name="description" content="Price a rooftop solar install from module count, roof difficulty, panel upgrades, permits, and margin — then see dollars per watt, crew hours, and the walk-away number a cheaper per-watt quote hides.">
   <meta property="og:title" content="Solar PV Install Bid Calculator">
   <meta property="og:description" content="Bid solar the way the job actually costs — watts, roof factor, and electrical extras — before you match a cheaper dollars-per-watt quote.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Solar PV Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Module-count system size, roof-difficulty labor factor, electrical extras, battery adder, permit and interconnection, dollars per watt, walk-away price, proposed-price margin check, copyable bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a dollars-per-watt quote go wrong?","acceptedAnswer":{"@type":"Answer","text":"Because only part of a solar job scales with watts. Modules, racking, and balance-of-system do. Roof difficulty and electrical work do not — and they are the two lines that decide whether the job made money. Two 10 kW installs priced at the same $/W can differ by thousands: one on a clean composition roof with room in a 200 A panel, the other on tile needing a 100 A → 200 A service upgrade. This tool prices watts as watts and prices the rest as its own hours and material."}},{"@type":"Question","name":"How much does the roof type actually change labor?","acceptedAnswer":{"@type":"Answer","text":"It multiplies array labor hours: composition at 4/12–6/12 is the 1.0 baseline, 7/12–9/12 is 1.18, 10/12 or steeper is 1.35, multiple arrays or hips and valleys 1.25, tile or slate 1.45 (hooks and flashings), and ground mount 1.4 (piers and trench). Metal standing seam is the one that goes down, to 0.95, because clamps beat penetrating and flashing. These are starting points for your own crew, not an industry standard — retime them from your last few jobs."}},{"@type":"Question","name":"Which electrical extras get forgotten most often?","acceptedAnswer":{"@type":"Answer","text":"The panel. A supply-side or load-side tap is about 4 h and $350; a 100 A → 200 A main-panel upgrade about 8 h and $1,800; a 200 A → 400 A service upgrade about 16 h and $4,500. A new subpanel or inverter feeder, 50+ extra feet of conduit, and a trench to a detached structure each carry their own hours and material. None of these move with system size, which is exactly why a per-watt price cannot carry them."}},{"@type":"Question","name":"Where do permits, interconnection, and design go?","acceptedAnswer":{"@type":"Answer","text":"They are their own flat lines — permit and interconnection, design and engineering, and travel/dumpster/lift — not a percentage of the system. Sizing, production estimates, shading analysis, incentive eligibility, and interconnection approval are all outside what this does: it is bid arithmetic on inputs you supply, not a PV design, a production model, or a claim about what any utility will approve."}},{"@type":"Question","name":"Does adding a battery just add its price?","acceptedAnswer":{"@type":"Answer","text":"No, and that is why battery hours and battery material are separate fields. The hardware is one cost; the mounting, the critical-loads panel, the commissioning, and the extra inspection are labor that lands on the same crew day. Entering only the equipment cost is the same mistake as the per-watt quote, one level down."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the customer's number reads and how your books read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or to profit. A $18,000 cost marked up 20% is $21,600, a 16.7% margin; a 20% target margin is $22,500. No account, no upload: every figure stays in this browser, and the optional local counter records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #f3efe6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -23,7 +24,7 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b8ad9a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b8ad9a; background: #f6f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b8ad9a; background: #f6f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2430; }
     button:hover { background: #ece4d4; }
     .result { position: sticky; top: 15px; background: #1d3a2f; color: #f4f8f4; border-color: #1d3a2f; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -227,6 +228,54 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Roof factors and electrical extras are common ballpark starting points, not an industry standard, a benchmark, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does a dollars-per-watt quote go wrong?</h3>
+      <p>Because only part of a solar job scales with watts. Modules, racking, and balance-of-system do.
+        Roof difficulty and electrical work do not &mdash; and they are the two lines that decide whether
+        the job made money. Two 10&nbsp;kW installs priced at the same $/W can differ by thousands: one on
+        a clean composition roof with room in a 200&nbsp;A panel, the other on tile needing a
+        100&nbsp;A&nbsp;&rarr;&nbsp;200&nbsp;A service upgrade. This tool prices watts as watts and prices
+        the rest as its own hours and material.</p>
+
+      <h3>How much does the roof type actually change labor?</h3>
+      <p>It multiplies array labor hours: composition at 4/12&ndash;6/12 is the 1.0 baseline, 7/12&ndash;9/12
+        is 1.18, 10/12 or steeper is 1.35, multiple arrays or hips and valleys 1.25, tile or slate 1.45
+        (hooks and flashings), and ground mount 1.4 (piers and trench). Metal standing seam is the one that
+        goes <em>down</em>, to 0.95, because clamps beat penetrating and flashing. These are starting points
+        for your own crew, not an industry standard &mdash; retime them from your last few jobs.</p>
+
+      <h3>Which electrical extras get forgotten most often?</h3>
+      <p>The panel. A supply-side or load-side tap is about 4&nbsp;h and $350; a
+        100&nbsp;A&nbsp;&rarr;&nbsp;200&nbsp;A main-panel upgrade about 8&nbsp;h and $1,800; a
+        200&nbsp;A&nbsp;&rarr;&nbsp;400&nbsp;A service upgrade about 16&nbsp;h and $4,500. A new subpanel or
+        inverter feeder, 50+ extra feet of conduit, and a trench to a detached structure each carry their
+        own hours and material. None of these move with system size, which is exactly why a per-watt price
+        cannot carry them.</p>
+
+      <h3>Where do permits, interconnection, and design go?</h3>
+      <p>They are their own flat lines &mdash; permit and interconnection, design and engineering, and
+        travel/dumpster/lift &mdash; not a percentage of the system. Sizing, production estimates, shading
+        analysis, incentive eligibility, and interconnection approval are all outside what this does: it is
+        bid arithmetic on inputs you supply, not a PV design, a production model, or a claim about what any
+        utility will approve.</p>
+
+      <h3>Does adding a battery just add its price?</h3>
+      <p>No, and that is why battery hours and battery material are separate fields. The hardware is one
+        cost; the mounting, the critical-loads panel, the commissioning, and the extra inspection are labor
+        that lands on the same crew day. Entering only the equipment cost is the same mistake as the
+        per-watt quote, one level down.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the customer's number reads and how your books
+        read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or
+        to profit. A $18,000 cost marked up 20% is $21,600, a 16.7% margin; a 20% target margin is $22,500.
+        No account, no upload: every figure stays in this browser, and the optional local counter records
+        only which features were used and the day.</p>
     </section>
   </main>
 

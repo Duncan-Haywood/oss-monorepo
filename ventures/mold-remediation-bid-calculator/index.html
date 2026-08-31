@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mold Remediation Bid Calculator | Price the Containment, the Demo, and the Clearance — Not Just a Mold Special</title>
+  <title>Mold Remediation Bid Calculator — Containment and Demo</title>
   <meta name="description" content="Price a mold remediation job from extra containment zones, demolition, HEPA and dehumidifier days, HVAC cleaning, dumpster, occupied-home access, and third-party clearance — not a published $999 mold special. See the walk-away number before you match a cheaper closet quote.">
   <meta property="og:title" content="Mold Remediation Bid Calculator">
   <meta property="og:description" content="An 80 sq ft closet with one zone is not the same job as a finished basement with two zones, four dry-out days, and a clearance. Bid the containment and the demo.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mold Remediation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Closet versus bedroom versus basement versus sewage job type, extra containment zones over the included closet, demolition square feet, HEPA and dehumidifier days, third-party clearance, HVAC cleaning, dumpster, occupied-home access, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How can anyone advertise a \"$999 mold special\"?","acceptedAnswer":{"@type":"Answer","text":"Because it is written for one small job, and that job is a preset here: an 80 sq ft closet, one containment zone, one equipment day, no demo, no clearance, no dumpster, unoccupied. At that scope the number is real. An 800 sq ft finished basement with two zones, four dry-out days, 240 sq ft of demo, HVAC cleaning, a dumpster, third-party clearance, and a family living in the house is a different job in eight separate places. Price both side by side and the conversation with the homeowner stops being about who is cheaper."}},{"@type":"Question","name":"Why is affected area charged \"past an included amount\" instead of per square foot?","acceptedAnswer":{"@type":"Answer","text":"Because a flat $/sq ft misprices both ends. A remediation has a fixed cost of showing up at all — set-up, the first containment, the first equipment day — that a per-foot rate has to smear across the job. Here the base setup and the first containment are their own lines, and only area past the included amount adds hours, per 100 sq ft. Extra containment zones work the same way and carry their own kit cost, because a second zone is a second poly build, not a bigger version of the first."}},{"@type":"Question","name":"Why is dry-out priced on the longer of HEPA days and dehumidifier days?","acceptedAnswer":{"@type":"Answer","text":"Because the crew's calendar is set by whichever piece of equipment is on site longest, not by the sum. Labor hours follow that longer figure. Equipment rental, though, is billed per unit per day, so HEPA days and dehumidifier days are each costed separately at their own daily rate. Adding the two for labor would double-count the same days on site; adding them for rental is correct, because two machines really are two rentals."}},{"@type":"Question","name":"What does an occupied home add?","acceptedAnswer":{"@type":"Answer","text":"Its own hours line. Working around a family means more protection, more moves, more re-explaining, and a shorter productive day inside containment. It is entered as a toggle with its own hours rather than folded into a rate, so you can see what it costs and decide whether to schedule around it. Clearance testing, HVAC cleaning, and a dumpster each work the same way — a toggle with its own hours and its own fee, because all three cost time as well as money."}},{"@type":"Question","name":"Is this a mold protocol or a health assessment?","acceptedAnswer":{"@type":"Answer","text":"No, and it must not be used as one. This is bid arithmetic on numbers you type. It is not a remediation protocol, an inspection, a health or safety determination, a clearance criterion, or an opinion on whether any particular growth is hazardous. Scope, containment design, and clearance standards come from your assessor, your jurisdiction, and the applicable standard of care — this page prices the work someone else has already scoped."}},{"@type":"Question","name":"Why isn't a 25% margin the same as adding 25% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = total cost ÷ (1 − margin) — which is how the quote reads to the customer and how your books read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or to profit. A $5,000 cost marked up 25% is $6,250, a 20% margin; a 25% target margin is $6,667. Everything stays in this browser: no account, no upload, \"Forget my business details\" clears the proposal details, and the optional local counter records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2418; background: #efe8dc; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a89873; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a89873; background: #f6efe0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a89873; background: #f6efe0; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a2418; }
     button:hover { background: #e9dcc4; }
     .result { position: sticky; top: 15px; background: #352816; color: #f8f2ee; border-color: #352816; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -88,6 +89,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -213,6 +226,55 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and kit rates are common ballpark figures, not an industry standard, a mold protocol, or a health determination &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How can anyone advertise a "$999 mold special"?</h3>
+      <p>Because it is written for one small job, and that job is a preset here: an 80&nbsp;sq&nbsp;ft
+        closet, one containment zone, one equipment day, no demo, no clearance, no dumpster, unoccupied.
+        At that scope the number is real. An 800&nbsp;sq&nbsp;ft finished basement with two zones, four
+        dry-out days, 240&nbsp;sq&nbsp;ft of demo, HVAC cleaning, a dumpster, third-party clearance, and a
+        family living in the house is a different job in eight separate places. Price both side by side and
+        the conversation with the homeowner stops being about who is cheaper.</p>
+
+      <h3>Why is affected area charged "past an included amount" instead of per square foot?</h3>
+      <p>Because a flat $/sq&nbsp;ft misprices both ends. A remediation has a fixed cost of showing up at all
+        &mdash; set-up, the first containment, the first equipment day &mdash; that a per-foot rate has to
+        smear across the job. Here the base setup and the first containment are their own lines, and only
+        area <em>past</em> the included amount adds hours, per 100&nbsp;sq&nbsp;ft. Extra containment zones
+        work the same way and carry their own kit cost, because a second zone is a second poly build, not a
+        bigger version of the first.</p>
+
+      <h3>Why is dry-out priced on the longer of HEPA days and dehumidifier days?</h3>
+      <p>Because the crew's calendar is set by whichever piece of equipment is on site longest, not by the
+        sum. Labor hours follow that longer figure. Equipment rental, though, is billed per unit per day, so
+        HEPA days and dehumidifier days are each costed separately at their own daily rate. Adding the two
+        for labor would double-count the same days on site; adding them for rental is correct, because two
+        machines really are two rentals.</p>
+
+      <h3>What does an occupied home add?</h3>
+      <p>Its own hours line. Working around a family means more protection, more moves, more re-explaining,
+        and a shorter productive day inside containment. It is entered as a toggle with its own hours rather
+        than folded into a rate, so you can see what it costs and decide whether to schedule around it.
+        Clearance testing, HVAC cleaning, and a dumpster each work the same way &mdash; a toggle with its own
+        hours <em>and</em> its own fee, because all three cost time as well as money.</p>
+
+      <h3>Is this a mold protocol or a health assessment?</h3>
+      <p>No, and it must not be used as one. This is bid arithmetic on numbers you type. It is not a
+        remediation protocol, an inspection, a health or safety determination, a clearance criterion, or an
+        opinion on whether any particular growth is hazardous. Scope, containment design, and clearance
+        standards come from your assessor, your jurisdiction, and the applicable standard of care &mdash;
+        this page prices the work someone else has already scoped.</p>
+
+      <h3>Why isn't a 25% margin the same as adding 25% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = total cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the quote reads to the customer and how your books
+        read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or
+        to profit. A $5,000 cost marked up 25% is $6,250, a 20% margin; a 25% target margin is $6,667.
+        Everything stays in this browser: no account, no upload, "Forget my business details" clears the
+        proposal details, and the optional local counter records only which features were used and the day.</p>
     </section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">

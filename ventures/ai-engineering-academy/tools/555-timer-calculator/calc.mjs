@@ -131,15 +131,24 @@ function astableWarnings({ r1, r2, capacitanceFarads, supplyVolts }) {
   }
 
   if (supplyVolts !== undefined && supplyVolts !== null) {
-    // The discharge transistor saturates at roughly 0.1–0.3 V; the worst case
-    // for peak current is the moment discharge begins, with the cap at 2/3 Vcc.
-    const dischargePeakAmps = ((2 / 3) * supplyVolts) / r1;
+    // The discharge transistor saturates at roughly 0.1–0.3 V, so at the
+    // instant discharge begins it pulls pin 7 to ~0 V. Two currents converge
+    // on that pin from there: the full supply across R1 (Vcc to pin 7), and
+    // the timing cap's charge — at its peak, 2/3 Vcc — draining back through
+    // R2 (pin 7 sits between R1 and R2 in the standard astable topology).
+    // An earlier version of this formula charged the cap's 2/3 Vcc through R1
+    // instead of the full supply, and dropped the R2 term outright — both
+    // errors made small, understating the true pin current and occasionally
+    // missing this warning entirely for a component pair that overloads the
+    // pin (e.g. R1 = 1 kΩ, R2 = 50 Ω, 15 V: reports 10 mA, actually 215 mA).
+    const dischargePeakAmps = supplyVolts / r1 + ((2 / 3) * supplyVolts) / r2;
     if (dischargePeakAmps > MAX_DISCHARGE_CURRENT_AMPS) {
       notes.push({
         severity: "error",
         message:
-          `At the instant discharge starts, R1 passes about ${display(dischargePeakAmps * 1000)} mA into the ` +
-          `discharge pin — above its ${MAX_DISCHARGE_CURRENT_AMPS * 1000} mA limit. Raise R1 or lower the supply.`,
+          `At the instant discharge starts, the discharge pin sinks about ${display(dischargePeakAmps * 1000)} mA ` +
+          `from R1 and R2 combined — above its ${MAX_DISCHARGE_CURRENT_AMPS * 1000} mA limit. Raise R1, raise R2, ` +
+          "or lower the supply.",
       });
     }
   }

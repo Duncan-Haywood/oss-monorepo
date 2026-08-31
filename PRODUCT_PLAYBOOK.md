@@ -202,6 +202,17 @@ This is a build task and it ships with v0, not later:
       sitemap, and a `robots.txt` that lets assistants crawl. AI assistants are
       a first-class discovery channel now, and they read pages.
 - [ ] Open Graph tags so a shared link renders.
+- [ ] A launch date, so the tool enters the portfolio's Atom feed — `node
+      platform/pages/launched.mjs --write`, then commit
+      `platform/pages/launched.json`. The feed at `/feed.xml` is the only
+      surface that answers "what is new" rather than "what exists", and it is
+      how readers, aggregators and a niche community's own moderators pick a
+      tool up without anyone publishing outward. One command, and it is the
+      one discoverability step nothing else in the artifact reveals: a tool
+      without a date has correct pages, a correct sitemap entry and a correct
+      `llms.txt` line, and is simply never announced. `check.mjs` and
+      `platform/pages/launched.test.mjs` both fail if you forget, so this is a
+      reminder rather than a trap.
 - [ ] Repo topics and a one-line description that reads like a search result.
 - [ ] Prepare the listing artifact (description, screenshots, category) for any
       free channel the product fits — but **publishing under the portfolio's

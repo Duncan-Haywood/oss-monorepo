@@ -84,6 +84,22 @@ test('user-facing rule text is escaped before it reaches innerHTML', () => {
   }
 });
 
+test('invalid input clears the stale quote and disarms Copy instead of leaving it next to a silent error', () => {
+  // Before this fix, generate()'s catch block already nulled `latest` (so
+  // Copy could not export stale data) but left #headline, #stats, #rows,
+  // and #report showing the previous quote. A visitor who missed the
+  // one-line error could read that stale quote as the answer for the
+  // invalid JSON just pasted in.
+  const catchMatch = scriptSource.match(/\} catch \(err\) \{([\s\S]*?)\n\s*\}\n\s*\}/);
+  assert.ok(catchMatch, "generate()'s catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /latest = null/, 'latest is not invalidated, so Copy could still export a stale quote');
+  assert.match(body, /headline\.textContent = /, '#headline keeps its stale quote instead of being cleared');
+  assert.match(body, /stats\.textContent = /, '#stats keeps its stale figures instead of being reset');
+  assert.match(body, /rows\.innerHTML = /, '#rows keeps its stale table instead of being cleared');
+  assert.match(body, /report\.textContent = /, '#report keeps its stale copyable quote instead of being reset');
+});
+
 test('every module the page imports exists and exports what it names', async () => {
   const imports = [...scriptSource.matchAll(/import\s*\{([^}]+)\}\s*from\s*'([^']+)'/g)];
   assert.ok(imports.length >= 1);

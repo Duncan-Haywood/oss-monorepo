@@ -12,6 +12,22 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: >-
+      A CLI-only tool has no public URL and no way to prove itself to a
+      stranger without a clone and a Python install; a browser front end
+      that runs the identical classification logic client-side (no upload)
+      removes that friction while keeping the same privacy posture.
+    status: supported
+    checked: 2026-08-30
+    evidence: in-repo
+    note: >-
+      evidence.js ports npm_deployment_evidence.py's classification rules
+      (declared-dependency, transitive-production, dev-only-nested,
+      multi-location version merge) and evidence.test.js pins the same
+      verdicts the CLI's tests/test_tool.py already covers, so the two
+      surfaces cannot silently diverge. 21/21 node --test passing;
+      platform/pages build+check picked it up as product 165/165 with no
+      dead links and full FAQPage coverage.
 
 economics:
   currency: USD

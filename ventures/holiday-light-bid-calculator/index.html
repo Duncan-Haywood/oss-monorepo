@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Holiday Light Bid Calculator | How Much to Charge to Hang Christmas Lights</title>
+  <title>Holiday Light Bid Calculator — Price to Hang the Lights</title>
   <meta name="description" content="Price Christmas lights from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $3 / LF hang special cannot see.">
   <meta property="og:title" content="Holiday Light Bid Calculator">
   <meta property="og:description" content="Bid holiday lights the way the trade does — hang, take-down, and extras, not a published hang dump — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Holiday Light Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Eave lineal feet, hang-only vs hang-and-takedown vs full-service comparison, 1-story vs 2-story vs 3-story access, C9 vs icicle vs commercial LED, peaks trees bushes columns extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a flyer advertise “$3 a foot, hang-only”?","acceptedAnswer":{"@type":"Answer","text":"Because that is a real number for a real, narrow job: the first preset here, a one-story ranch, 140 feet of C9 on clips, customer-owned lights, no take-down. Hang-only skips the 45% take-down ratio and the full-service 50% ratio entirely — there is simply no second trip to price. Add a January take-down, a second story, or icicle lights and the flyer’s number stops describing your job; the gap is not padding, it is the trip the flyer left out."}},{"@type":"Question","name":"Why does hang-and-takedown cost more than twice a hang-only special?","acceptedAnswer":{"@type":"Answer","text":"Because take-down is not half the hang labor, it is 45–50% of the hang-and-access hours billed as a second visit — a separate trip, separate travel, separate ladder-setting — on top of the original hang. Full service adds a third cost on top of that: contractor-owned lights at $2.60 a foot and a flat $95 off-season storage invoice, since nothing goes back to the customer’s garage."}},{"@type":"Question","name":"What does a second story actually add?","acceptedAnswer":{"@type":"Answer","text":"1.6 access hours and $0.014 per foot before a single extra light is hung, plus a $165 lift invoice the calculator bills as a flat material cost. Three-story or a lift-required roofline doubles the access hours to 3.2, the per-foot premium to $0.028, and the lift invoice to $390. That is ladder-setting and working off height, not lineal footage — which is why the same 180 feet costs more on a colonial than a ranch."}},{"@type":"Question","name":"What changes between C9, icicle, and commercial-grade lights?","acceptedAnswer":{"@type":"Answer","text":"C9 on clips is the base case: zero extra hours, zero extra material, because it is what the hang-hours-per-foot rate already assumes. Icicle adds 0.02 hours and $1.40 of material per foot for the denser clip-and-hook run. Commercial-grade LED C9 adds less labor — 0.008 hours per foot — but more material, $3.20 a foot, because the fixture itself costs more than the extra clipping time."}},{"@type":"Question","name":"How are peaks, trees, bushes, and columns priced?","acceptedAnswer":{"@type":"Answer","text":"Each is its own line, not folded into the per-foot rate: a peak or gable adds 0.35 hours and $18 of material, a tree wrap adds 0.9 hours and $42, a bush or shrub net adds 0.25 hours and $14, and a column wrap adds 0.2 hours and $12. A timer or photocell adds 0.35 hours and a $28 invoice, and a steep-pitch roof adds a flat 0.8 access hours on top of the story premium. None of these move with eave footage, so a small house with six trees can cost more than a long, plain roofline."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit. The optional usage counter records only which features were used and the day, never your footage, wages, or prices, and you can turn it off from the checkbox in the footer."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #24362c; background: #e8efe8; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,7 +26,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #9aaf9e; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9aaf9e; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #24362c; }
     button:hover { background: #dceae0; }
     .result { position: sticky; top: 15px; background: #1e3528; color: #eef6f0; border-color: #1e3528; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -273,6 +274,51 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can a flyer advertise &ldquo;$3 a foot, hang-only&rdquo;?</h3>
+      <p>Because that is a real number for a real, narrow job: the first preset here, a one-story ranch,
+        140 feet of C9 on clips, customer-owned lights, no take-down. Hang-only skips the 45% take-down
+        ratio and the full-service 50% ratio entirely &mdash; there is simply no second trip to price.
+        Add a January take-down, a second story, or icicle lights and the flyer&rsquo;s number stops
+        describing your job; the gap is not padding, it is the trip the flyer left out.</p>
+
+      <h3>Why does hang-and-takedown cost more than twice a hang-only special?</h3>
+      <p>Because take-down is not half the hang labor, it is 45&ndash;50% of the hang-and-access hours
+        billed as a second visit &mdash; a separate trip, separate travel, separate ladder-setting &mdash;
+        on top of the original hang. Full service adds a third cost on top of that: contractor-owned
+        lights at $2.60 a foot and a flat $95 off-season storage invoice, since nothing goes back to the
+        customer&rsquo;s garage.</p>
+
+      <h3>What does a second story actually add?</h3>
+      <p>1.6 access hours and $0.014 per foot before a single extra light is hung, plus a $165 lift
+        invoice the calculator bills as a flat material cost. Three-story or a lift-required roofline
+        doubles the access hours to 3.2, the per-foot premium to $0.028, and the lift invoice to $390.
+        That is ladder-setting and working off height, not lineal footage &mdash; which is why the same
+        180 feet costs more on a colonial than a ranch.</p>
+
+      <h3>What changes between C9, icicle, and commercial-grade lights?</h3>
+      <p>C9 on clips is the base case: zero extra hours, zero extra material, because it is what the
+        hang-hours-per-foot rate already assumes. Icicle adds 0.02 hours and $1.40 of material per foot
+        for the denser clip-and-hook run. Commercial-grade LED C9 adds less labor &mdash; 0.008 hours per
+        foot &mdash; but more material, $3.20 a foot, because the fixture itself costs more than the
+        extra clipping time.</p>
+
+      <h3>How are peaks, trees, bushes, and columns priced?</h3>
+      <p>Each is its own line, not folded into the per-foot rate: a peak or gable adds 0.35 hours and $18
+        of material, a tree wrap adds 0.9 hours and $42, a bush or shrub net adds 0.25 hours and $14, and
+        a column wrap adds 0.2 hours and $12. A timer or photocell adds 0.35 hours and a $28 invoice, and
+        a steep-pitch roof adds a flat 0.8 access hours on top of the story premium. None of these move
+        with eave footage, so a small house with six trees can cost more than a long, plain roofline.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit. The optional usage
+        counter records only which features were used and the day, never your footage, wages, or
+        prices, and you can turn it off from the checkbox in the footer.</p>
+    </section>
 <!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when it prints. -->
@@ -416,7 +462,7 @@
       el('price').className = 'hero-number';
       el('priceLabel').textContent = 'holiday-light price';
       el('area').textContent = `${result.eaveLf.toLocaleString('en-US')} LF`;
-      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('travel').textContent = `${result.travelMiles} mi · ${(result.hoursTravel + result.hoursTakedownTravel).toFixed(1)} h`;
       el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
       el('labor').textContent = money(result.laborCost);
       el('finishCost').textContent = money(result.finishMaterial);
@@ -441,6 +487,7 @@
         ['Timer', result.hourShares.timer],
         ['Steep pitch', result.hourShares.steep],
         ['Take-down', result.hourShares.takedown],
+        ['Take-down trip', result.hourShares.takedownTravel],
         ['Site', result.hourShares.site],
       ].filter(row => row[1] > 0);
       el('split').innerHTML = hourRows.length === 0

@@ -45,3 +45,27 @@ test("worked example on the page matches the locked comparison", () => {
   assert.match(html, /value="120"/);
   assert.match(html, /value="30"/);
 });
+
+test("an invalid input clears every stale field in both result panels, not just the two headlines", () => {
+  // Before this fix, update()'s catch block only overwrote #target and
+  // #replaceVerdict with the error sentence. floor, cost, hours, rate,
+  // parts, callback, the price-sensitivity #scenarios rows, and the
+  // #replaceRows comparison table all kept showing the last valid
+  // calculation. A visitor who missed the error message could easily read
+  // those stale figures as the answer for the invalid inputs now in the
+  // form.
+  const catchMatch = html.match(/\} catch \(error\) \{([\s\S]*?)\n {6}\}\n {4}\}/);
+  assert.ok(catchMatch, "update() catch block not found");
+  const body = catchMatch[1];
+  assert.match(body, /\$\('target'\)\.textContent = error\.message/, "the error message is never shown in #target");
+  assert.match(body, /\$\('replaceVerdict'\)\.textContent = error\.message/, "the error message is never shown in #replaceVerdict");
+  for (const id of ["floor", "cost", "hours", "rate", "parts", "callback"]) {
+    assert.match(
+      body,
+      new RegExp(`\\$\\('${id}'\\)\\.textContent = ''`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /\$\('scenarios'\)\.replaceChildren\(\)/, "the stale price-sensitivity rows are not cleared");
+  assert.match(body, /\$\('replaceRows'\)\.replaceChildren\(\)/, "the stale repair-vs-replace rows are not cleared");
+});

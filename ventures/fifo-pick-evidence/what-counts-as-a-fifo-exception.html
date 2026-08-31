@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Counts as a FIFO Exception?</title>
+<meta name="description" content="A worked pick log: an order that arrived later gets picked first while an older lot of the same SKU still sits waiting — the exact fixture the FIFO pick evidence report's own test suite runs to flag an exception.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/fifo-pick-evidence/what-counts-as-a-fifo-exception.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What counts as a FIFO exception?">
+<meta property="og:description" content="A worked pick log showing exactly which row gets flagged when a newer lot is picked ahead of an older one from the same SKU, and which rows do not.">
+<meta property="og:url" content="https://example.invalid/fifo-pick-evidence/what-counts-as-a-fifo-exception.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a FIFO exception in a pick log?","acceptedAnswer":{"@type":"Answer","text":"A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning a newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the flagged row and the older row it was picked ahead of, so the physical pick can be checked against the log."}},{"@type":"Question","name":"Does the older row also get flagged, since it was the one left waiting?","acceptedAnswer":{"@type":"Answer","text":"No. Only the row that jumped the queue is flagged, with a reference back to the older row it was picked ahead of. The older row's own line in the report stays clean unless it has a problem of its own, such as a missing field."}},{"@type":"Question","name":"Does picking two different SKUs out of order ever count as an exception?","acceptedAnswer":{"@type":"Answer","text":"No. The comparison only runs within rows sharing the same SKU, so ordinary variation in which SKU gets picked when never produces a fifo-exception observation."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#1a2420;background:#f2f1e9}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#3f6e52}.eyebrow{font-weight:700;letter-spacing:.04em;color:#3f6e52;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#1e332a}.lede{font-size:1.05rem;max-width:64ch;color:#4c584f}section{background:#fff;border:1px solid #d6d2c2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #1e332a12;margin:1rem 0}h2{margin-top:0;color:#1e332a}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4c584f;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #d6d2c2;padding:.5rem .45rem;text-align:left}td.flag{color:#a03a2c;font-weight:600}.fine{font-size:.88rem;color:#4c584f}footer{color:#4c584f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; FIFO Pick Evidence</a></p>
+<header>
+<h1>What counts as a FIFO exception?</h1>
+<p class="lede">A row is flagged only when an order that arrived earlier for the same SKU was still picked after it. The table below is the exact fixture the report's own test suite runs to confirm which row gets flagged, which one does not, and why.</p>
+</header>
+<section>
+<h2>Two orders, one SKU, one flagged row</h2>
+<div class="table-wrap">
+<table>
+<caption>Both rows are SKU A. The earlier-received order (row 2) is picked last, and the later-received order (row 3) is picked first -- so row 3 is flagged, referencing row 2 as the older lot it jumped ahead of.</caption>
+<thead>
+<tr><th scope="col">Row</th><th scope="col">Order</th><th scope="col">Received</th><th scope="col">Picked</th><th scope="col">Result</th></tr>
+</thead>
+<tbody>
+<tr><td>2</td><td>OLD-1</td><td>2026-01-01</td><td>2026-01-03</td><td>no observation</td></tr>
+<tr><td>3</td><td>NEW-1</td><td>2026-01-02</td><td>2026-01-02 12:00</td><td class="flag">fifo-exception — picked before older row 2</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Row 2 (OLD-1) arrived first but was not picked until the third of January. Row 3 (NEW-1) arrived a day later and was already picked by noon on the second — before OLD-1 ever left the shelf. NEW-1 is the row flagged, because it is the one that moved out of turn; OLD-1's own line stays clean.</p>
+<p>The check runs per SKU: it only compares rows that share the same <code>sku</code> value, so ordinary variation in which SKU gets picked first never produces an observation. A row is also never compared against itself, and a SKU with only one row can never trigger this check regardless of its dates.</p>
+<p><a href="./">Open the checker</a> and load the bundled worked example to see this exact case reported, or drop in your own pick log. Nothing you drop in leaves your browser.</p>
+<p class="fine">This page explains the check's arithmetic, not warehouse operations or audit standards. It does not replace investigating each observation against your own system's records.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>What counts as a FIFO exception in a pick log?</h3>
+<p>A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning a newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the flagged row and the older row it was picked ahead of, so the physical pick can be checked against the log.</p>
+<h3>Does the older row also get flagged, since it was the one left waiting?</h3>
+<p>No. Only the row that jumped the queue is flagged, with a reference back to the older row it was picked ahead of. The older row's own line in the report stays clean unless it has a problem of its own, such as a missing field.</p>
+<h3>Does picking two different SKUs out of order ever count as an exception?</h3>
+<p>No. The comparison only runs within rows sharing the same SKU, so ordinary variation in which SKU gets picked when never produces a fifo-exception observation.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+<p>Everything runs in your browser. Your pick log is never uploaded — there is no server to send it to. We count only anonymous local feature events, never pick-log contents, with an opt-out on the checker page. Counting also honors Do Not Track and Global Privacy Control.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+</footer>
+</main>
+</body></html>

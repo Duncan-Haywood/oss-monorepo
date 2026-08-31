@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pool Plaster Bid Calculator | Price the Walls, the Chip-Off, and the Finish — Not Just Length × Width</title>
+  <title>Pool Plaster Bid Calculator — Walls, Chip-Off, Finish</title>
   <meta name="description" content="Price a pool replaster from floor-plus-wall surface, finish (white plaster, quartz, pebble, glass), chip-out, spa, steps, waterline tile, and coping — not the homeowner's length × width. See the walk-away number before you match a cheaper water-surface quote.">
   <meta property="og:title" content="Pool Plaster / Resurfacing Bid Calculator">
   <meta property="og:description" content="A 16×32 rectangle is 512 square feet of water and about 1,064 square feet of plaster. Bid the walls, the finish, and the chip-out — not length × width.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pool Plaster Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Floor-plus-wall plaster takeoff versus water surface, white plaster versus quartz versus pebble versus glass, full versus partial chip-out, spa and steps, waterline tile and coping, drain-and-refill, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a 16×32 pool come out as 1,064 square feet of plaster?","acceptedAnswer":{"@type":"Answer","text":"Because you plaster the walls, not just the water surface. On the defaults the floor is 512 sq ft (16 × 32) and the walls add another 552 — the perimeter, 96 ft, times the average depth of 5.75 ft, which is the mean of the 3.5 ft shallow end and the 8 ft deep end. That is why a “512 square foot pool” buys a bit over twice that much finish material, and why quoting off water-surface area alone underbuys the job by roughly half."}},{"@type":"Question","name":"Why are there two different per-square-foot prices?","acceptedAnswer":{"@type":"Answer","text":"They divide the same price by two different areas. On the defaults the job prices at $7,825.99, which is $7.36 per plaster square foot (over all 1,064 sq ft of shell) but $15.29 per water square foot (over the 512 sq ft footprint a homeowner would measure). Neither is wrong; they answer different questions. Use the plaster figure to sanity-check your material and labor rates, and the water-surface figure only when you are comparing against a competitor who quoted that way."}},{"@type":"Question","name":"What is the drain-and-refill line actually costing me?","acceptedAnswer":{"@type":"Answer","text":"Two things, and the water is the larger one. The default pool holds about 22,023 gallons (512 sq ft × 5.75 ft average depth × 7.48 gallons per cubic foot), which at $0.012 per gallon is $264.27 of water, plus 3.5 hours of attended drain and refill time. Turning the option off removes both. If your district meters filling differently, or you are on a haul-in rate, that per-gallon field is the one to change."}},{"@type":"Question","name":"Why doesn’t a 26% target margin mean multiplying cost by 1.26?","acceptedAnswer":{"@type":"Answer","text":"Because margin is measured against the price, not against the cost. The default job costs $5,791.23 all in, and holding 26% of the price as profit means dividing by 0.74, not multiplying by 1.26: $5,791.23 ÷ 0.74 = $7,825.99. Marking cost up by 26% would give $7,296.95 and leave you at a 20.6% margin — the single most common way a bid that looked profitable on paper is not."}},{"@type":"Question","name":"Does the price include chip-out?","acceptedAnswer":{"@type":"Answer","text":"Not on the defaults. The chip-out selector starts at “none” — a bond-coat resurface over sound plaster — so the chip-out square footage and its hours are both zero. That is the brochure special most homeowners are comparing against. Switch to partial or full chip-out and both the demolition hours and the dumpster line become real, which is usually the difference between the advertised number and the one you can actually deliver."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #163044; background: #e8f1f6; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa4b6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8aa4b6; background: #eef5f9; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa4b6; background: #eef5f9; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #163044; }
     button:hover { background: #dceaf2; }
     .result { position: sticky; top: 15px; background: #123047; color: #eef6fb; border-color: #123047; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -263,7 +264,47 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
-<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Why does a 16&times;32 pool come out as 1,064 square feet of plaster?</h3>
+      <p>Because you plaster the walls, not just the water surface. On the defaults the floor is
+        512 sq ft (16 &times; 32) and the walls add another 552 &mdash; the perimeter, 96 ft, times the
+        average depth of 5.75 ft, which is the mean of the 3.5 ft shallow end and the 8 ft deep end.
+        That is why a &ldquo;512 square foot pool&rdquo; buys a bit over twice that much finish material,
+        and why quoting off water-surface area alone underbuys the job by roughly half.</p>
+
+      <h3>Why are there two different per-square-foot prices?</h3>
+      <p>They divide the same price by two different areas. On the defaults the job prices at
+        $7,825.99, which is $7.36 per plaster square foot (over all 1,064 sq ft of shell) but
+        $15.29 per water square foot (over the 512 sq ft footprint a homeowner would measure).
+        Neither is wrong; they answer different questions. Use the plaster figure to sanity-check
+        your material and labor rates, and the water-surface figure only when you are comparing
+        against a competitor who quoted that way.</p>
+
+      <h3>What is the drain-and-refill line actually costing me?</h3>
+      <p>Two things, and the water is the larger one. The default pool holds about 22,023 gallons
+        (512 sq ft &times; 5.75 ft average depth &times; 7.48 gallons per cubic foot), which at $0.012
+        per gallon is $264.27 of water, plus 3.5 hours of attended drain and refill time. Turning the
+        option off removes both. If your district meters filling differently, or you are on a haul-in
+        rate, that per-gallon field is the one to change.</p>
+
+      <h3>Why doesn&rsquo;t a 26% target margin mean multiplying cost by 1.26?</h3>
+      <p>Because margin is measured against the price, not against the cost. The default job costs
+        $5,791.23 all in, and holding 26% of the <em>price</em> as profit means dividing by 0.74, not
+        multiplying by 1.26: $5,791.23 &divide; 0.74 = $7,825.99. Marking cost up by 26% would give
+        $7,296.95 and leave you at a 20.6% margin &mdash; the single most common way a bid that looked
+        profitable on paper is not.</p>
+
+      <h3>Does the price include chip-out?</h3>
+      <p>Not on the defaults. The chip-out selector starts at &ldquo;none&rdquo; &mdash; a bond-coat
+        resurface over sound plaster &mdash; so the chip-out square footage and its hours are both
+        zero. That is the brochure special most homeowners are comparing against. Switch to partial or
+        full chip-out and both the demolition hours and the dumpster line become real, which is usually
+        the difference between the advertised number and the one you can actually deliver.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when it prints. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>

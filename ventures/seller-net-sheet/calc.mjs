@@ -300,21 +300,37 @@ export function formatNetSheetSummary(result, { offerLabel = "Offer" } = {}) {
 export function formatOfferComparison(comparison) {
   const money = (value) =>
     value.toLocaleString("en-US", { style: "currency", currency: "USD" });
-  const { a, b, delta, better, priceGap } = comparison;
+  const { a, b, better } = comparison;
   let verdict;
   if (better === "tie") {
     verdict = "Both offers leave the same net on these assumptions.";
-  } else if (better === "a") {
-    verdict =
-      priceGap > 0
-        ? `Offer A nets ${money(delta)} more. The extra price more than covers its extra concessions.`
-        : `Offer A nets ${money(delta)} more even though its price is ${money(-priceGap)} lower — the concessions on B cost more than the price gap.`;
   } else {
-    const gap = -delta;
-    verdict =
-      priceGap < 0
-        ? `Offer B nets ${money(gap)} more. The extra price more than covers its extra concessions.`
-        : `Offer B nets ${money(gap)} more even though its price is ${money(priceGap)} lower — the concessions on A cost more than the price gap.`;
+    // Ground the explanation in the two things that actually move net cash —
+    // price and total deductions (loan payoff + selling costs) — instead of
+    // inferring "extra concessions" from price direction alone. Net = price -
+    // payoff - selling costs, so net - net = priceDiff - deductionDiff exactly;
+    // a winner can have BOTH a higher price AND lower costs than the other
+    // offer, which the price-direction heuristic could not say.
+    const winner = better === "a" ? a : b;
+    const loser = better === "a" ? b : a;
+    const netDiff = winner.net - loser.net;
+    const priceDiff = winner.salePrice - loser.salePrice;
+    const deductionDiff = (winner.loanPayoff + winner.sellingCosts) - (loser.loanPayoff + loser.sellingCosts);
+    const winnerLabel = better === "a" ? "A" : "B";
+    const loserLabel = better === "a" ? "B" : "A";
+    const priceNote =
+      priceDiff > 0
+        ? `a ${money(priceDiff)} higher price`
+        : priceDiff < 0
+          ? `a ${money(-priceDiff)} lower price`
+          : "the same price";
+    const costNote =
+      deductionDiff < 0
+        ? `${money(-deductionDiff)} lower payoff and selling costs`
+        : deductionDiff > 0
+          ? `${money(deductionDiff)} higher payoff and selling costs`
+          : "the same payoff and selling costs";
+    verdict = `Offer ${winnerLabel} nets ${money(netDiff)} more, with ${priceNote} and ${costNote} than Offer ${loserLabel}.`;
   }
   return [
     "OFFER COMPARISON — CASH TO SELLER",

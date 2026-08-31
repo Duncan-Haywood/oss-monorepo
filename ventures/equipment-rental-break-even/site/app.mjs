@@ -1,4 +1,4 @@
-import { calculate } from "./model.mjs";
+import { calculate, buildSnapshotText } from "./model.mjs";
 const ids = ["currency", "booking", "rental_days", "delivery", "cleaning", "damage", "purchase", "life", "fixed_monthly", "available", "target_margin"];
 const $ = (id) => document.getElementById(id);
 const values = () => Object.fromEntries(ids.map((id) => [id, id === "currency" ? $(id).value.trim() || "units" : Number($(id).value)]));
@@ -10,7 +10,7 @@ function render(count = true) {
     const v = values();
     last = { v, r: calculate(v) };
     const { r } = last;
-    const daysShare = Number.isFinite(r.utilization) ? (r.utilization * v.rental_days) / v.available : Infinity;
+    const daysShare = r.daysShare;
     const rows = [
       ["Booking-specific costs", `${v.currency} ${r.bookingCosts.toFixed(2)}`],
       ["Ownership recovery per rental day", `${v.currency} ${r.ownershipPerDay.toFixed(2)}`],
@@ -56,7 +56,7 @@ function drafts() { try { return JSON.parse(localStorage.getItem(DRAFTS_KEY) || 
 function showDrafts() { const select = $("drafts"); select.replaceChildren(new Option("Choose a draft", "")); drafts().forEach((draft) => select.add(new Option(`${draft.name} (${draft.savedAt.slice(0, 10)})`, draft.id))); $("delete-draft").disabled = !select.value; }
 function applyDraft(draft) { ids.forEach((id) => { if (draft.values[id] !== undefined) $(id).value = draft.values[id]; }); render(false); }
 ids.forEach((id) => $(id).addEventListener("input", () => render(false)));
-$("export").addEventListener("click", () => { if (!last) return; const { v, r } = last; const text = `Equipment Rental Break-Even\nBooking price: ${v.currency} ${v.booking}\nMinimum price: ${v.currency} ${r.minimumPrice.toFixed(2)}\nTarget-margin price: ${v.currency} ${r.targetPrice.toFixed(2)}\nBreak-even utilization: ${Number.isFinite(r.utilization) ? (r.utilization * 100).toFixed(1) + "%" : "Not reached"}\nGenerated: ${new Date().toISOString()}`; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = "equipment-rental-price-snapshot.txt"; a.click(); URL.revokeObjectURL(a.href); usage("export"); });
+$("export").addEventListener("click", () => { if (!last) return; const { v, r } = last; const text = buildSnapshotText(v, r, new Date().toISOString()); const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = "equipment-rental-price-snapshot.txt"; a.click(); URL.revokeObjectURL(a.href); usage("export"); });
 $("save-draft").addEventListener("click", () => { if (!last) return; const name = window.prompt("Name this pricing draft:", "Untitled rental"); if (!name?.trim()) return; const saved = drafts().filter((draft) => draft.name !== name.trim()); saved.push({ id: crypto.randomUUID(), name: name.trim().slice(0, 80), savedAt: new Date().toISOString(), values: last.v }); localStorage.setItem(DRAFTS_KEY, JSON.stringify(saved.slice(-20))); showDrafts(); usage("draft_save"); });
 $("drafts").addEventListener("change", (event) => { const draft = drafts().find((item) => item.id === event.target.value); if (draft) { applyDraft(draft); usage("draft_load"); } $("delete-draft").disabled = !event.target.value; });
 $("delete-draft").addEventListener("click", () => { const id = $("drafts").value; if (!id) return; localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts().filter((draft) => draft.id !== id))); showDrafts(); usage("draft_delete"); });

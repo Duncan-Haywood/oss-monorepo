@@ -191,6 +191,14 @@
   ]
 }</pre>
   </section>
+  <h2>Common questions</h2>
+  <h3>How do I compare Shopify app permissions before and after a change?</h3>
+  <p>Export only app metadata (ids, granted scopes, webhook topics, authorization state, API version, source, and capture time) from a store you are authorized to administer. Paste the earlier export as Before and the later export as After. The page lists added and removed apps, scopes, and webhooks. It does not connect to Shopify or decide whether a change is allowed.</p>
+  <h3>Does this tool connect to my Shopify store?</h3>
+  <p>No. Comparison runs entirely in your browser from the two JSON exports you paste. There are no accounts, no Shopify API calls, and no upload.</p>
+  <h3>What if the after export is older than the before export?</h3>
+  <p>The record is marked inconclusive. A reversed capture order is never treated as an unchanged result.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

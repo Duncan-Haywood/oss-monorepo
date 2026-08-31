@@ -27,7 +27,7 @@ hardware the portfolio already pays for.
 
 ## The switch
 
-All 242 `runs-on` lines across 217 workflows now read:
+All 246 `runs-on` lines across 220 workflows now read:
 
 ```yaml
 runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -49,10 +49,15 @@ or change repository settings.
 
 1. **Seal the PAT.** Copy
    `secrets/actions-runner-token.template.yaml`, replace `CHANGE_ME`, seal it
-   with `kubeseal`, and commit the sealed output. Prefer a fine-grained PAT
-   scoped to this repository alone with **Administration: Read and write** —
-   that is the narrowest permission that can mint a runner registration token.
-   A classic PAT needs full `repo` scope, which is broader than necessary.
+   with `kubeseal --controller-namespace sealed-secrets --controller-name
+   sealed-secrets` (the `--controller-name` flag is required — kubeseal's
+   default `sealed-secrets-controller` does not match this cluster's actual
+   controller Service name; see the comment in
+   `gitops/prod/secrets/portfolio-repo-token.template.yaml` for why), and
+   commit the sealed output. Prefer a fine-grained PAT scoped to this
+   repository alone with **Administration: Read and write** — that is the
+   narrowest permission that can mint a runner registration token. A classic
+   PAT needs full `repo` scope, which is broader than necessary.
 
 2. **Set the repo variable.** Settings → Secrets and variables → Actions →
    Variables → New repository variable, `CI_RUNNER` = `self-hosted`.
@@ -73,6 +78,19 @@ Two replicas: a PR here typically triggers `Portfolio validate`, `Page
 integrity`, `Conflict markers` and the touched venture's own CI. One runner
 would serialise them.
 
+An ephemeral runner deregisters itself after its one job. The entrypoint's
+`cleanup` trap covers the other exit — the pod evicted, drained or rolled
+before a job ever arrives — because a runner left registered stays listed
+(offline) on the repository and GitHub keeps dispatching jobs to it, which then
+hang until someone prunes it by hand.
+
+**That trap did not work until 2026-08-30.** The entrypoint ended in
+`exec ./run.sh`, and `exec` replaces the shell, traps included — so the cleanup
+never ran on any exit path. `run.sh` is now a child process with SIGTERM
+forwarded to it, and `gitops/tests/test_runner_entrypoint.py` runs the
+entrypoint for real against a stubbed API to prove the deregistration happens,
+including in the eviction case. Those tests fail against the `exec` version.
+
 ## What it can and cannot reach
 
 CI runs whatever a workflow file says to run, on the same node as
@@ -92,15 +110,35 @@ but the blast radius is bounded anyway:
 
 ## No workflow needs anything from the base image
 
-All 217 are `actions/checkout` plus `actions/setup-node`/`setup-python`, which
-download their own toolchains. `hetzner-gitops-ci.yml` used to be the one
-exception — it installed `kustomize` and `kubeconform` with `sudo mv ...
-/usr/local/bin/` and `shellcheck` with `sudo apt-get`, and the official runner
-image ships neither `sudo` nor a package index. It now unpacks the two binaries
-into `$RUNNER_TEMP/bin` and takes `shellcheck` from the `shellcheck-py` wheel,
-which bundles the real binary. Both work unchanged on GitHub-hosted runners, so
-this is not a self-hosted-only code path that only gets exercised after the
-switch is flipped.
+Nearly all 220 are `actions/checkout` plus `actions/setup-node`/`setup-python`,
+which download their own toolchains, so nothing here depends on what the base
+image ships beyond `curl`, `jq`, `unzip` and `git` — confirmed against
+`actions/runner`'s own `images/Dockerfile`, which installs exactly that list
+and no interpreter.
+
+`hetzner-gitops-ci.yml` used to be an exception — it installed `kustomize` and
+`kubeconform` with `sudo mv ... /usr/local/bin/` and `shellcheck` with `sudo
+apt-get`, and the official runner image ships neither `sudo` nor a package
+index. It now unpacks the two binaries into `$RUNNER_TEMP/bin` and takes
+`shellcheck` from the `shellcheck-py` wheel, which bundles the real binary.
+Both work unchanged on GitHub-hosted runners, so this is not a
+self-hosted-only code path that only gets exercised after the switch is
+flipped.
+
+`garmin-world-traveler-watchface-ci.yml` was a second, undetected one: it ran
+bare `python3` with no `setup-python` step. GitHub-hosted `ubuntu-latest`
+ships Python by default, which is exactly why this went unnoticed — the job
+had never once run anywhere that lacked it. Fixed the same way as every other
+Python-only job here (`actions/setup-python@v5`) rather than assuming the base
+image any further.
+
+Three named workflows are not covered by the claim above, deliberately:
+`world-clock-widget-ci.yml` and `quick-pick-survey-ci.yml` are the
+`DOCKER_DEPENDENT_JOBS` exceptions pinned to `ubuntu-latest` in
+`gitops/tests/test_ci_runner.py`, so they never reach this runner regardless
+of what it ships; `claude-routine-trigger.yml` checks out nothing at all — it
+only calls `curl` against `api.anthropic.com` — so it needs no toolchain to
+begin with.
 
 ## Known limitations
 

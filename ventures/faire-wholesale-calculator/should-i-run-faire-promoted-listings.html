@@ -115,7 +115,7 @@
     <label>Wholesale unit price ($) <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
     <label>Units <input id="quantity" type="number" min="1" step="1" value="10"></label>
     <label>Unit cost of goods ($) <input id="unitCogs" type="number" min="0" step="0.01" value="8"></label>
-    <label>Everyday opening discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" value="0"></label>
+    <label>Everyday opening discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" max="99.9" value="0"></label>
     <label>Shipping reimbursement ($) <input id="shippingReimbursement" type="number" min="0" step="0.01" value="15"></label>
     <label>Shipping you pay ($) <input id="shippingCost" type="number" min="0" step="0.01" value="15"></label>
     <label>Everyday commission (%) <input id="commissionRate" type="number" min="0" step="0.1" value="15"></label>
@@ -162,6 +162,14 @@
     The calculator is arithmetic, not advice. It does not recommend
     turning a campaign on, raising the bid, or skipping ads.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I run Faire Promoted Listings?</h3>
+  <p>On the calculator defaults — four organic $20 × 10 first orders, one extra first order, a 15% promoted rate, and 40% last-click attribution on organic — skipping the campaign keeps $303.60 and running it keeps $301.50 (−$2.10). Ads match if the rate falls to about 14.6%, extra first orders rise to about 1.0, or last-click attribution on organic falls to about 38.3%. Two extra first orders flip the campaign to $347.40 (+$43.80). A 10% rate on the same extra order keeps $327.50. This page does the arithmetic from the rates you enter; it does not recommend turning a campaign on.</p>
+  <h3>Is Faire Promoted Listings the same as Faire Open House?</h3>
+  <p>No. Open House is a seasonal window when Faire typically waives marketplace commission and retailers expect a deeper opening discount. Promoted Listings is an extra percent on last-click billed first orders — including organic orders the campaign claims — in exchange for extra first orders you type. Faire Direct is a third path: 0% commission when you brought the retailer. This page holds those off the table so the comparison stays skip-versus-campaign.</p>
+  <h3>When does a Faire Promoted Listings campaign still beat skipping ads?</h3>
+  <p>When extra first orders cover the last-click tax on organic. On these defaults one extra order at 15% and 40% attribution loses $2.10 against skip. The campaign matches if the rate falls to about 14.6% or last-click organic falls to about 38.3%. Two extra first orders flip ahead by $43.80. Paste the promoted rate and attributed orders from the campaign preview on your account — this page does not publish Faire's live Promoted Listings schedule.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Faire Wholesale, Inc.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

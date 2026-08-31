@@ -23,6 +23,10 @@ class ReportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "same register"):
             build_report(snapshot([]), {**snapshot([]), "register": "other"})
 
+    def test_source_mismatch_rejected(self):
+        with self.assertRaisesRegex(ValueError, "same source_url"):
+            build_report(snapshot([]), {**snapshot([]), "source_url": "https://other.test/register"})
+
     def test_duplicate_and_unauthorized_inputs_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "snapshot.json"
@@ -49,8 +53,9 @@ class ReportTests(unittest.TestCase):
         self.assertIn("not a suitability or compliance determination", output)
 
     def test_markdown_escapes_untrusted_table_values(self):
-        before = snapshot([{"id": "a|b", "status": "active"}])
-        after = {**snapshot([]), "source_url": "https://example.test/register?q=[x]"}
+        tricky_url = "https://example.test/register?q=[x]"
+        before = {**snapshot([{"id": "a|b", "status": "active"}]), "source_url": tricky_url}
+        after = {**snapshot([]), "source_url": tricky_url}
         output = markdown_report(build_report(before, after))
         self.assertIn("a\\|b", output)
         self.assertNotIn("[x]", output)
