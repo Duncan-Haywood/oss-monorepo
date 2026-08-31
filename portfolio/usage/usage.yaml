@@ -2990,6 +2990,23 @@ products:
           onto current main. Public URL remains owner-gated; the
           local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-08-31
+        signals:
+          live_url_visitors: null
+          estimate_completed: 0
+          result_copied: 0
+          repack_target_copied: 0
+        note: >-
+          Restated the density gap as the two levers a shipper controls:
+          the packed height and the per-piece weight that reach the next
+          class down, and the height at which a carrier remeasure re-rates
+          the freight into the class above. New signal
+          `repack_target_copied` fires only when someone copies the repack
+          instruction, so acting on a lever is separable from reading the
+          class — the outcome measure for this feature rather than another
+          view count. Event name and day only, opt-out, DNT/GPC honoured,
+          never leaves the browser. Public URL still owner-gated, so this
+          stays a zero baseline.
 
   - slug: hvac-maintenance-contract-calculator
     surface: static-page-in-repo
