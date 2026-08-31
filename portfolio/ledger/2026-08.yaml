@@ -39210,3 +39210,43 @@ entries:
         route is already wired and preferred by `worker.sh`; nothing new was
         found there and no ask was added.
     mrr_end: null
+  - venture: junk-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2493: share.mjs, a "Copy share link" button,
+        and vendored proposal-terms.mjs, following the same pattern as
+        concrete-bid-calculator (#2483) and fence-bid-calculator (#2487)
+        earlier in this session. junk-removal-bid-calculator's load is a
+        list of piles the visitor grows at runtime, so
+        platform/pages/link.mjs's generic build-time share injector
+        deliberately skips it. This venture's proposal panel is generated
+        by platform/proposal/adopt.mjs (proposal:begin/proposal:end
+        markers), so the new imports and wiring were placed outside those
+        markers on purpose -- inside them would be silently discarded by
+        a future `adopt.mjs` regenerate.
+      - >-
+        Verified: node --test in the venture, 90/90. Portfolio-wide node
+        --test platform/proposal/{sync,term-ids,discoverability}.test.mjs
+        and platform/pages/link.test.mjs: 61/61. node
+        platform/pages/build.mjs + check.mjs: 169 products, 508 pages, no
+        dead links. Live Chromium round trip: priced a pile at quantity 9
+        with a 25% deposit and custom payment terms; the recipient's
+        price matched the sender's to the cent ($640.29) with every field
+        round-tripped. Merged (squash) as #2493.
+      - >-
+        Process note for the next session: mid-edit, a `git reset
+        <ref>` (mixed) followed by `git checkout HEAD -- .` to sync
+        unrelated files that had drifted behind a moving `main` also
+        silently reverted this venture's own uncommitted index.html edits
+        (a tracked file with a real working-tree diff), because `git
+        checkout HEAD -- .` restores every tracked path under `.`, not
+        only the ones that drifted. Caught immediately by re-running the
+        test suite rather than assuming the working tree still matched
+        intent, and the edits were redone from scratch. Sync only the
+        specific unrelated paths (`git checkout HEAD -- path1 path2`),
+        never a bare `.`, when uncommitted work sits alongside them --
+        or commit first and rebase instead, which is what the rest of
+        this session's realignments used without incident.
+    mrr_end: null
