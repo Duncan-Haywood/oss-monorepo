@@ -37281,3 +37281,53 @@ entries:
         no steps) rather than treating red as a real failure. Merged as
         #2393 on local verification.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Triaged the 10 PR-less branches
+        named by the session brief as small/likely-complete
+        (`pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator`,
+        `cursor/chargeback-evidence-packet-main` and its
+        `-launch-20260824` sibling, `cursor/3pl-quote-normalizer-compare-`
+        `20260825`/`-20260824`, `cursor/faire-wholesale-calculator-e3de`,
+        `cursor/amazon-fba-sourcing-check-20260824`,
+        `cursor/print-preflight-value-20260824`) at a function/feature
+        level, not just `git diff --stat` uniqueness. All 10 were already
+        superseded on `main`, usually by a substantially larger
+        implementation of the same venture (e.g. `where-to-sell-calculator`
+        and `3pl-quote-normalizer` on main both carry several more pages,
+        exports, and comparison/negotiation tooling than either branch;
+        `amazon-fba-calculator` on main already has the branch's
+        `buyCostCheck`/zero-profit-ceiling function verbatim). Zero PRs
+        opened, zero merges. This extends the prior session's 15-branch
+        triage (`bc74c6ed9`, 2026-08-29) rather than contradicting it --
+        none of these 10 branch names overlap that batch except by venture.
+      - >-
+        One branch, `cursor/chargeback-evidence-packet-main`, also carries
+        an anomalous commit (`2187af2fe`, 1325 files / +212,892 lines
+        against its own immediate parent, touching ventures unrelated to
+        chargebacks) -- the same defect flagged for
+        `cursor/saas-seat-true-up-20260824`'s `121b1fd0a` in the prior
+        triage. Second instance of the same defect shape; worth someone
+        checking whether one piece of branch-creation tooling produced
+        both. Left untouched, not force-pushed.
+      - >-
+        Extended the check past the named 10: scanned all 290 remote
+        branches for any `ventures/*/VENTURE.yaml` naming a venture slug
+        `main` does not have (main carries 184). Only two branches
+        qualified, both on one grab-bag CI-smoke-test branch
+        (`tmp/ssh-key-smoke`) bundling unrelated ventures -- one of which
+        (`mat-470-real-analysis`) embeds a copyrighted textbook PDF/EPUB
+        (Abbott, *Understanding Analysis*) in the tree, and neither
+        related to the branch's own SSH-smoke purpose. Not opened as a
+        PR: out of scope for this session and the embedded copyrighted
+        file needs a human call, not an agent one. No other branch in the
+        full 290 adds a venture `main` doesn't already have -- the
+        PR-less backlog is not an unmined vein for new-venture work
+        either, on top of not being one for the already-shipped-elsewhere
+        features the two triages above covered.
+    mrr_end: null
