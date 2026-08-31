@@ -3,6 +3,7 @@
 // RFC 4180-style quoting: commas, quotes, and line breaks stay in one cell.
 
 import { targetHoursBudget } from "./calc.mjs";
+import { formatDecimal } from "./format.mjs";
 
 /**
  * Neutralise a cell a spreadsheet would evaluate as a formula.
@@ -35,11 +36,11 @@ export function csvCell(value, { text = false } = {}) {
 }
 
 function money(n) {
-  return n.toFixed(2);
+  return formatDecimal(n);
 }
 
 function hours(n) {
-  return n.toFixed(2);
+  return formatDecimal(n);
 }
 
 /**
