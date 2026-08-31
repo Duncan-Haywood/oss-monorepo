@@ -22,6 +22,23 @@ WORKFLOWS = REPO / ".github" / "workflows"
 
 RUNS_ON = "${{ vars.CI_RUNNER || 'ubuntu-latest' }}"
 
+# Jobs that must stay off the switch: `container:` and `services:` both need a
+# Docker daemon to pull and run an image alongside the job, and the
+# self-hosted runner pod (gitops/ci/runner.yaml) has none -- no docker.sock
+# mount, no DinD sidecar, and a securityContext (allowPrivilegeEscalation:
+# false, capabilities.drop: ["ALL"]) that rules out running one inside that
+# pod too. Once an owner flips CI_RUNNER to self-hosted, a job that read the
+# switch here would not fail with the runner-starvation signature
+# (runner_id: 0) -- it would register on a real runner and then hang or error
+# for a reason CI_RUNNER never claimed to fix, which reads as a new,
+# unrelated break rather than what it is. These two are pinned to
+# ubuntu-latest instead, with a comment in the workflow file itself pointing
+# back here.
+DOCKER_DEPENDENT_JOBS = {
+    ("world-clock-widget-ci.yml", "test-core"),
+    ("quick-pick-survey-ci.yml", "verify"),
+}
+
 
 def _ci_docs() -> dict[str, dict]:
     docs: dict[str, dict] = {}
@@ -37,13 +54,36 @@ def test_every_workflow_reads_the_runner_switch() -> None:
     # is that moving between GitHub-hosted and self-hosted is a settings
     # change, not another 217-file commit. A workflow that hard-codes a runner
     # silently opts out of that and would keep burning metered minutes -- or
-    # keep failing -- after the switch is flipped.
+    # keep failing -- after the switch is flipped. DOCKER_DEPENDENT_JOBS is
+    # the one narrow, checked exception (see its comment and the paired test
+    # below), not a loophole: everything else must still read the switch.
     workflows = sorted(WORKFLOWS.glob("*.yml"))
     assert len(workflows) > 200, "expected the full workflow set"
     for path in workflows:
         spec = yaml.safe_load(path.read_text())
         for name, job in (spec.get("jobs") or {}).items():
+            if (path.name, name) in DOCKER_DEPENDENT_JOBS:
+                assert job.get("runs-on") == "ubuntu-latest", f"{path.name}:{name}"
+                continue
             assert job.get("runs-on") == RUNS_ON, f"{path.name}:{name}"
+
+
+def test_docker_dependent_exception_is_exactly_the_jobs_that_need_docker() -> None:
+    # DOCKER_DEPENDENT_JOBS is a claim ("these need a Docker daemon the
+    # self-hosted runner cannot provide"), not just a list to skip -- so pin
+    # it from both directions. Every named exception must actually declare
+    # `container:` or `services:` (if a future edit drops the need, the
+    # exception has to go too and the job goes back on the switch), and no
+    # *other* job anywhere in the workflow set may declare either without
+    # being added here (which would otherwise silently break the moment an
+    # owner flips CI_RUNNER, in a way this suite would not catch).
+    found: set[tuple[str, str]] = set()
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        spec = yaml.safe_load(path.read_text())
+        for name, job in (spec.get("jobs") or {}).items():
+            if "container" in job or "services" in job:
+                found.add((path.name, name))
+    assert found == DOCKER_DEPENDENT_JOBS, found ^ DOCKER_DEPENDENT_JOBS
 
 
 def test_the_switch_defaults_to_github_hosted() -> None:

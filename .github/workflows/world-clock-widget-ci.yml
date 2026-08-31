@@ -32,7 +32,19 @@ jobs:
     # Only WorldClockCore (pure Foundation) is covered here. WorldClockApp and
     # WorldClockWidgetExtension depend on SwiftUI/WidgetKit/AppIntents and need Xcode + a
     # simulator, so they still require a manual build via the XcodeGen project (see README.md).
-    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # NOT the CI_RUNNER switch (see gitops/README.md and gitops/ci/README.md).
+    # `container:` needs a Docker daemon to pull and run swift:5.9, and the
+    # self-hosted runner pod (gitops/ci/runner.yaml) has none: no docker.sock
+    # mount, no DinD sidecar, and its securityContext sets
+    # allowPrivilegeEscalation: false and capabilities.drop: ["ALL"], which
+    # rules out running one inside that pod too. Once an owner flips
+    # CI_RUNNER to self-hosted, a job that read the switch here would not
+    # fail with the runner-starvation signature (runner_id: 0) -- it would
+    # register on a real runner and then hang or error inside `container:`,
+    # which reads as a new, unrelated break. Staying on ubuntu-latest keeps
+    # this job on Docker-capable GitHub-hosted runners regardless of the
+    # switch. gitops/tests/test_ci_runner.py pins this as a named exception.
+    runs-on: ubuntu-latest
     # The official image rather than swift-actions/setup-swift@v2, which 404s fetching the
     # 5.9 toolchain and so failed this job before a single file was compiled.
     container: swift:5.9
