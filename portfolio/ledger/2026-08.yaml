@@ -37241,3 +37241,43 @@ entries:
         quota in the brief was moot rather than met. No branch carried
         unique unmerged work touching `gitops/agents/`.
     mrr_end: null
+  - venture: tree-service-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2393: `stumpGrindHours()` in `calc.mjs` was documented --
+        in its own code comment, in `README.md`, and in the live FAQ on
+        `index.html` -- as growing with the stump's cross-sectional area,
+        the same DBH-squared reasoning the file already applies to wood
+        volume a few lines above. The implementation was purely linear in
+        diameter (`0.2 + (diameter/12) * 0.4`), so a 36" stump (3x the
+        diameter of a 12" stump, 9x the face a grinder wheel actually
+        sweeps) was only priced at ~2.3x the 12" stump's hours --
+        underpricing exactly the large stumps this tool's own methodology
+        warns a linear "per inch" rule underprices for tree removal
+        itself. Third instance this stretch of the same bug class as
+        #2378 (555-timer) and #2381 (pole-barn): a formula whose own
+        comment describes correct behavior the code doesn't implement.
+        Made the formula quadratic (`0.2 + (diameter/12)**2 * 0.4`),
+        keeping the same setup term and 12"-stump reference (0.6 h) so
+        typical jobs price unchanged, and updated the worked examples in
+        the comment, README, and live FAQ so the product's own stated
+        numbers agree with the code (36" stump: 3.8 h, up from a stale
+        1.4 h). Added a test asserting the growth term scales ~4x/9x at
+        2x/3x diameter -- verifying area scaling, not merely "grows with
+        diameter," which the old linear formula and old test both also
+        satisfied.
+      - >-
+        Verified: `node --test` in the venture, 63/63 passing (was 62/62;
+        added one test, no regressions). Manually re-ran `calculateBid()`
+        end to end with a 24" stump to confirm the new grind hours (1.8 h,
+        up from 1.0 h) flow through to price. Grepped the venture for
+        other references to the old worked numbers (0.6/1.4) -- none
+        found outside what was updated; `page.test.mjs` and
+        `proposal.test.mjs` assertions were unrelated. CI came back red
+        on all eight checks (~3s each); confirmed starvation via
+        `platform/ci/ci_starvation.py --run 33370148114` (`runner_id: 0`,
+        no steps) rather than treating red as a real failure. Merged as
+        #2393 on local verification.
+    mrr_end: null
