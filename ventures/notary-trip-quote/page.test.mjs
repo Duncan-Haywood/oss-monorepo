@@ -42,4 +42,39 @@ test('a rejected figure hides the stale total and clears the breakdown instead o
   assert.match(body, /totalEl\.hidden\s*=\s*true/, 'the stale total is not hidden on a rejected input');
   assert.match(body, /getElementById\('breakdown'\)\.innerHTML\s*=\s*''/, '#breakdown keeps its stale value instead of being cleared');
   assert.match(body, /getElementById\('minimumNote'\)\.textContent\s*=\s*''/, '#minimumNote keeps its stale value instead of being cleared');
+  assert.match(body, /worthEl\.hidden\s*=\s*true/, 'the offer test keeps its stale figures next to the error');
+});
+
+test('every input the calculator reads is wired into the draft and the recalculation', () => {
+  // update() builds its input object from `ids`, so a field present in the
+  // markup but missing from that list silently reads as 0 forever -- the
+  // visitor types a page count and nothing moves. It is also the list the
+  // saved draft is keyed on, so a missing id is a field that never persists.
+  const idsMatch = html.match(/const ids=\[([^\]]*)\]/);
+  assert.ok(idsMatch, 'the ids list was not found');
+  const wired = new Set(idsMatch[1].split(',').map((s) => s.trim().replace(/^'|'$/g, '')));
+  const inputIds = [...html.matchAll(/<input id="([^"]+)" type="number"/g)].map((m) => m[1]);
+  assert.ok(inputIds.length > 0, 'no number inputs found');
+  for (const id of inputIds) {
+    assert.ok(wired.has(id), `#${id} is a form field the page never reads`);
+  }
+});
+
+test('the print and offer fields ship neutral so the guide page\'s worked example still holds', () => {
+  // how-much-to-charge-for-a-mobile-notary-appointment.html quotes $129 from
+  // the default form state. printSets and the two per-page rates ship
+  // non-zero because they are the realistic values a visitor wants already
+  // filled in -- they stay neutral only because pages default to 0, so that
+  // default is the one carrying the guarantee.
+  assert.match(html, /id="pagesPerSet"[^>]*value="0"/, 'pages must default to 0');
+  assert.match(html, /id="printMinutes"[^>]*value="0"/, 'print minutes must default to 0');
+  assert.match(html, /id="vehicleCostPerMile"[^>]*value="0"/, 'vehicle cost must default to 0');
+  assert.match(html, /id="offeredFee"[^>]*value="0"/, 'the offered fee must default to 0 (no offer on the table)');
+});
+
+test('the offer test has somewhere to render and a heading that says which fee it measured', () => {
+  assert.match(html, /id="worth"/);
+  assert.match(html, /id="hourly"/);
+  assert.match(html, /id="worthHeading"/);
+  assert.match(html, /q\.offerEvaluated\?'What the offer is worth per hour'/);
 });
