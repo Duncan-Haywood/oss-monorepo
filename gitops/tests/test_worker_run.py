@@ -340,3 +340,34 @@ def test_delivery_agent_is_never_reported_as_empty(world) -> None:
 
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert not marker.exists(), "a delivery:agent run was reported as empty"
+
+
+# --- The mandate must not forbid what the queue asks for -------------------
+
+
+def _mandate() -> str:
+    return (WORKER.parent / "mandate.md").read_text()
+
+
+def _queue_item(name: str) -> str:
+    return (WORKER.parents[1] / "queue" / name).read_text()
+
+
+def test_the_floor_does_not_forbid_the_merge_its_top_item_requires() -> None:
+    # mandate.md declares itself the winner over a queue item on floor
+    # questions. So a floor bullet reading "never merge a PR you did not open"
+    # does not just sit oddly beside `open-pr-repair-merge` -- it overrides its
+    # step 5, and the highest-priority item in the queue can then repair a PR
+    # but never land it. A fleet that only opens PRs has no drain, which is the
+    # exact failure that item was created to close.
+    mandate = _mandate()
+    assert "Never merge a PR you did not open" not in mandate
+    # The real constraint is authorisation, not authorship.
+    assert "Never merge a PR this run was not told to merge" in mandate
+
+
+def test_the_top_queue_item_still_asks_for_the_merge() -> None:
+    # The other half of the pair: if this item ever stops asking for a merge,
+    # the assertion above is guarding nothing.
+    item = _queue_item("open-pr-repair-merge.yaml")
+    assert "Merge it" in item
