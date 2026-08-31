@@ -39807,3 +39807,57 @@ entries:
         failure; verified entirely locally per the above. Merged (squash)
         as #2513.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the six stale `session/agent_*` branches carrying
+        `ventures/quote-margin-check/` work (7352713f, 7dfc3699, 9b7f61f8,
+        9f5c87bd, a75adf52, c14685e8). None had a PR. Re-checked every one
+        against current `main` with `supersede_check.py`: three exit 0 on
+        the identical-merge proof (copy decision summary, copy private
+        review summary, download private review JSON -- `main`'s
+        `summary.mjs` `formatReviewSummary()` and `report.mjs` are supersets
+        of all three), and the other three are RENAME SUSPECTED cases that
+        reading confirms: `main`'s `draft.mjs` is the same localStorage
+        draft feature the drafts branch proposed but with auto-save instead
+        of a button, `main`'s `clear-draft` "Reset to example" restores the
+        identical worked numbers the reset branch spelled as
+        `EXAMPLE_QUOTE`, and the rate-guide branch's page is a strict subset
+        of `main`'s.
+      - >-
+        The two summary branches shared a filename, which read as a
+        reconciliation problem. It was not: both predate `main`'s current
+        `summary.mjs`, which already carries the union of what they proposed
+        plus overrun rows and the next-step prompt. Merging either would
+        have replaced a live superset with an older subset. Merging the
+        drafts branch would have been worse -- `drafts.mjs` on `main` is a
+        *different* feature (portable draft files) that merely shares the
+        name with the localStorage one, so the merge would have destroyed it.
+      - >-
+        Shipped and merged #2515, from the one line the drain turned up plus
+        a live bug the cross-check found. The bug: `quoteCsv()` names every
+        row by hand, so an input added to `loadQuote()` reaches the exported
+        file only through whatever derived figure mentions it.
+        `buffered_target_price` was exported; `time_buffer_percent` (its
+        input) and `buffered_hours` were not, so the spreadsheet showed a
+        target price the recipient could not reproduce. `markdownReview()`'s
+        "Supplied inputs" list had the same hole. Same class as the
+        `share.mjs` field-allowlist bug in CLAUDE.md. Both fixed, with the
+        Markdown guard iterating `loadQuote()`'s own output rather than a
+        second hand-written list. Also added the `og:url` meta tag matching
+        the `<link rel="canonical">` the page already declared.
+      - >-
+        Audited the venture's other four payloads for the same drift and
+        found them safe: the JSON report passes whole objects,
+        `encodeQuote()` loops `FIELDS`, the draft modules serialise the
+        whole quote or loop `draftFields`, and `summary.mjs` is a
+        deliberate prose subset.
+      - >-
+        Verified: `node --test` in the venture 116/116 (was 113 -- three new
+        drift guards), `pytest ventures/quote-margin-check/tests` 33/33. CI
+        arrived red; `ci_starvation.py --run` on both runs reported
+        `runner_id: 0` on every job, so not a real result. Merged (squash)
+        as #2515.
+    mrr_end: null
