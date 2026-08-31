@@ -36941,3 +36941,47 @@ entries:
         no steps) rather than treating red as a real failure. Merged as
         #2374 on local verification.
     mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR/branch-drain phase: `list_pull_requests` showed zero open PRs, so
+        the three-PR quota was met by an empty queue. Also re-confirmed (this
+        session, independently) that the Hetzner deploy path
+        (`portfolio-site-hetzner-deploy`, #1999) and the Codex-on-Hetzner
+        governor pipeline (`codex-governor-enable`, #1996) are both complete
+        in code and blocked only on the owner sealing one secret each, per
+        `infra/OWNER_CHECKLIST.md` -- same conclusion a prior session recorded
+        two entries above this one; nothing new added there.
+      - >-
+        Shipped a correctness fix instead of a new venture, per
+        `DIRECTION.md`'s "deploy beats another build" note that the deploy
+        half is owner-gated and the productive unit of work is depth/
+        correctness on ventures already built. `amazon-fba-calculator`'s
+        sourcing-checkpoint feature clamped the break-even sourcing cost to
+        `Math.max(0, salePrice - fees - cashCosts)`; when fees and non-COGS
+        cash costs alone already exceed sale price (common on low-priced
+        items with FBA fulfillment/storage/inbound fees), the clamp silently
+        reported a $0.00 ceiling and `buyCostCheck` then read a $0 typed cost
+        as `"at_ceiling"` -- indistinguishable from a listing that genuinely
+        breaks even on a free unit, when it is actually a guaranteed loss at
+        any sourcing cost. Same bug class already fixed in this repo for the
+        eBay/Shopify/Faire/Etsy break-even solvers and
+        `tiktok-shop-fee-calculator`'s `maxBuyCost`; this instance hadn't
+        been caught. Added an unclamped `breakEvenBuyCostRaw` alongside the
+        existing clamped value and pointed `buyCostCheck` at it, purely
+        additively -- no other of the ~8 downstream consumers of
+        `breakEvenBuyCost` were touched. "Max buy cost" now reads "$0.00 --
+        loses money even at $0 cost" instead of a bare, misleading $0.00.
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 304/304 passing
+        (two new regression tests: one on the core `calc.mjs` logic, one on
+        the `page.test.mjs` display copy). Re-ran after merging latest
+        `main` into the branch (picked up 57 ledger lines added since this
+        branch's base, clean merge, no conflicts) -- still 304/304.
+      - >-
+        CI is the known account-wide starvation (dark since 2026-08-26, not
+        re-verified per-run this time since the signature is already
+        established and unchanged). Merged as #2376 on local verification.
+    mrr_end: null
