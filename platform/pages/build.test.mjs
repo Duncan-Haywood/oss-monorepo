@@ -1983,6 +1983,19 @@ test('a venture that authors its own FAQ schema is not given a second', () => {
   assert.equal(html.match(/FAQPage/g).length, 1, 'only the venture’s own block');
 });
 
+test('a comment mentioning FAQPage does not suppress derivation', () => {
+  // grant-deadline-tracker/index.html carried a comment explaining that its
+  // FAQPage schema is derived at build time rather than authored -- and the
+  // literal substring check this guards against read that explanation as an
+  // authored block, so the page shipped none. 2026-08-31.
+  const html = injectChrome(
+    '<html><head><!-- FAQPage schema is derived by build.mjs, not authored here --></head>' +
+      '<body><h2>Is this covered?</h2><p>Yes, once the comment is not mistaken for a schema block.</p></body></html>',
+    { slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true },
+  );
+  assert.ok(html.includes('"@type":"FAQPage"'), 'derivation still ran despite the comment');
+});
+
 test('the FAQ schema is injected on an entry page and escapes its copy', () => {
   const html = injectChrome(
     '<html><head></head><body><h2>Is a quote with &lt;/script&gt; in it safe?</h2>' +

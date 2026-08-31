@@ -3661,11 +3661,14 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       ],
     })}</script>`;
   }
-  if (isEntry && !html.includes('FAQPage')) {
+  if (isEntry && !html.replace(/<!--[\s\S]*?-->/g, '').includes('FAQPage')) {
     // Only where the venture wrote none of its own: two FAQPage blocks on one
     // page describe the same page twice, and a crawler is free to believe
     // whichever it reads first. 37 ventures author their own — those are left
-    // exactly as they are.
+    // exactly as they are. Comments are stripped before the check: a page
+    // whose only mention of "FAQPage" is a comment *documenting* that the
+    // schema is derived (not authoring one) was reading as already-covered
+    // and silently shipping none (grant-deadline-tracker, 2026-08-31).
     const faq = faqEntries(html);
     if (faq.length) {
       headExtras += `\n<script type="application/ld+json">${jsonLd({
