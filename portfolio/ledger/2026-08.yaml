@@ -35792,3 +35792,53 @@ entries:
         84/103 to 103/103 calculators handing the customer a sound proposal.
         Merged as #2321 (squash).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start, so the three-PR merge quota was
+        satisfied by an empty queue. Re-confirmed the deploy/CI-CD/Codex-CLI
+        asks are still fully built in code and blocked only on the same three
+        owner-only seals (`portfolio-repo-token`, the CI runner PAT +
+        `CI_RUNNER`, and `codex-secrets` + the governor flip) that #2307 and
+        prior entries already recorded -- added nothing new to the decision
+        queue since nothing had changed.
+      - >-
+        Shipped #2323: `gitops/prod/landing.yaml`'s Deployment (the
+        cluster-internal status page) was the only `prod`-namespace workload
+        with no `readinessProbe`/`livenessProbe`, unlike `portfolio-site.yaml`
+        and `site-usage.yaml` which both declare them -- a hung nginx master
+        would never have been restarted. Added both probes plus
+        `automountServiceAccountToken: false` to match the namespace's
+        existing posture, and a new pytest in `gitops/tests/test_manifests.py`
+        pinning the properties. Left `securityContext` untouched: the plain
+        `nginx:1.27-alpine` image needs `CAP_SETUID`/`CAP_SETGID` to drop
+        privilege on its own, and dropping capabilities without switching to
+        `nginx-unprivileged` (as `portfolio-site.yaml` does) risks a startup
+        break nobody has cluster access to verify from inside a session.
+        Verified: `python3 -m pytest gitops/tests -q` 130/130 (was 129);
+        `kustomize`/`kubeconform` unavailable locally, so relied on the
+        pytest suite plus manual schema review against the already-passing
+        shape in `portfolio-site.yaml`. CI came back red in 2-3s across all
+        jobs with `runner_id: 0` -- the confirmed starvation signature, not a
+        real failure. Merged (squash) after local verification.
+      - >-
+        Shipped #2324: `owner-operator-cpm-calculator`'s FAQ content sat at
+        the bare coverage floor (3 question-shaped headings, one of 18 pages
+        at that floor even though `faq-coverage.mjs` reported 168/168
+        "covered"). Added 4 new Q&A pairs (factoring cost, unreimbursed-lumper
+        handling, short-week fixed-cost-per-mile, loaded-miles-to-break-even)
+        with every number pulled from actually running `calc.mjs`'s
+        `calculateWeek()` against the page's own default inputs, and removed
+        the venture's stale hand-authored `FAQPage` JSON-LD block so
+        `build.mjs`'s `faqEntries()` derives the full 7-question schema from
+        visible copy instead -- avoiding the schema/page-drift bug class
+        `#2311` and `#2256` already hit once each. Verified:
+        `faq-coverage.mjs` and `faq-duplicate.mjs` clean; the venture's own
+        30-test suite green; the platform's `faq-visible`/`faq-duplicate`/
+        `faq-coverage`/`clauses`/`build` suites green (~136s); a full
+        `build.mjs --out=dist && check.mjs dist` came back clean across 168
+        products / 506 pages; confirmed the built page's derived JSON-LD
+        carries all 7 questions matching visible copy. Merged (squash).
+    mrr_end: null
