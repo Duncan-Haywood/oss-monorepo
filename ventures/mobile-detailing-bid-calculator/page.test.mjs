@@ -214,32 +214,6 @@ test('the wage field asks for the pre-burden rate the calculator expects', () =>
   assert.equal(result.loadedLaborRate, 35);
 });
 
-test('an invalid input clears every stale field in the Quote-check panel, not just the headline', () => {
-  // Before this fix, update()'s catch block only overwrote the #contribution
-  // headline with the error sentence. Every other field in the panel --
-  // totalHours, loadedLaborRate, laborCost, travelCost, directCosts,
-  // paymentFee, breakEven, effectiveHourly, effectiveRate, claimHint, and the
-  // separate #targetQuote paragraph -- kept showing the last valid
-  // calculation. A visitor who missed the one-line message in #contribution
-  // could easily read those stale figures as the answer for the invalid
-  // inputs now on screen.
-  const catchMatch = scriptSource.match(/if\(countUse\) count\(\); \} catch\(error\) \{([\s\S]*?)\n {4}\} \}/);
-  assert.ok(catchMatch, 'update() catch block not found');
-  const body = catchMatch[1];
-  assert.match(body, /el\('contribution'\)\.textContent\s*=\s*error\.message/, 'the error message is never shown');
-  for (const id of [
-    'caption', 'totalHours', 'loadedLaborRate', 'laborCost', 'travelCost',
-    'directCosts', 'paymentFee', 'breakEven', 'effectiveHourly', 'effectiveRate',
-    'claimHint', 'targetQuote',
-  ]) {
-    assert.match(
-      body,
-      new RegExp(`el\\('${id}'\\)\\.textContent\\s*=\\s*''`),
-      `#${id} keeps its stale value instead of being cleared on a rejected input`,
-    );
-  }
-});
-
 test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
   assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
   const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');

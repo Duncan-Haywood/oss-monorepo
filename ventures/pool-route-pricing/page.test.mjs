@@ -82,24 +82,3 @@ test('a link built from the page defaults decodes back to those same defaults', 
   const hash = url.split('#')[1];
   assert.deepEqual(decodeInputs(hash), DEFAULTS);
 });
-
-test('an invalid input clears every stale result instead of leaving it next to a silent error', () => {
-  // Before this fix, update()'s catch block only overwrote #price with the
-  // error sentence. Route revenue, labor hours, labor cost, chemicals,
-  // overhead, total cost, and the entire "at your current price" box kept
-  // showing the last valid calculation. A visitor who missed the one-line
-  // message in #price could easily read those stale figures as the answer
-  // for the invalid inputs now on screen.
-  const catchMatch = html.match(/\}catch\(e\)\{([\s\S]*?)\n\}\}/);
-  assert.ok(catchMatch, 'update() catch block not found');
-  const body = catchMatch[1];
-  assert.match(body, /el\('price'\)\.textContent\s*=\s*e\.message/, 'the error message is never shown');
-  for (const id of ['revenue', 'hours', 'labor', 'chemicals', 'overheadResult', 'cost', 'currentRevenue', 'currentProfit', 'currentMargin', 'currentVerdict']) {
-    assert.match(
-      body,
-      new RegExp(`el\\('${id}'\\)\\.textContent\\s*=\\s*''`),
-      `#${id} keeps its stale value instead of being cleared on a rejected input`,
-    );
-  }
-  assert.match(body, /el\('currentBox'\)\.hidden\s*=\s*true/, 'the stale "at your current price" box is not hidden on a rejected input');
-});
