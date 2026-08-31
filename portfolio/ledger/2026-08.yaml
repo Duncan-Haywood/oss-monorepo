@@ -35512,3 +35512,48 @@ entries:
         can take. No new decision-queue rows added; the existing ones
         already carry this framing.
     mrr_end: null
+  - venture: ev-charger-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start; branch-to-PR presumption satisfied
+        without new PRs -- the 19 no-PR `session/agent_*`/cleanup/tmp
+        branches surveyed all had their unique content already superseded
+        on `main` (spot-verified: target-profit, minimum-clearing-volume,
+        no-show-recovery-copy, and localStorage-draft-persistence patterns
+        already present across the relevant ventures).
+      - >-
+        Re-confirmed the CI/CD, Hetzner-deploy, and Codex-CLI-on-Hetzner
+        asks this run's brief asked to prioritize are the same three rows
+        #2307/#2308's sessions already logged as fully built and
+        owner-gated (`actions-runners-unavailable`, `deploy-settings` /
+        `portfolio-site-hetzner-deploy`, `codex-governor-enable`); nothing
+        new to add. Flagging one nuance for the owner: the brief's "set up
+        Codex CLI to use up the built-in quota" phrasing describes logging
+        an unattended worker into a personal subscription plan, which is
+        exactly the shape `codex-governor-enable`'s own design note warns
+        against by name (no dollar ceiling, competes with interactive use)
+        -- the already-built alternative is a metered project API key
+        under a separate org with a hard spend cap, gated behind the same
+        ask.
+      - >-
+        Shipped #2311: a subagent survey of ~30 ventures for a concrete,
+        mergeable defect found `ev-charger-bid-calculator`'s `FAQPage`
+        JSON-LD contradicting its own visible `<details>` FAQ (wrong price
+        example, a materially different breaker-sizing Q&A, and reworded
+        service-upgrade question) -- the same rich-result-breaking defect
+        class fixed elsewhere in `booth-rent-vs-commission` (#2256),
+        `retainage-cashflow-calculator` (#2219), and, merged concurrently
+        with this branch, `contractor-bid-readiness` /
+        `payment-reconciliation-workbench` (#2308, independently caught by
+        the same survey and dropped from this branch once #2308 landed
+        first, to avoid a duplicate diff). Rewrote the JSON-LD to the
+        page's literal FAQ text. Verified: JSON-LD parses;
+        `faq-coverage.mjs`, `faq-duplicate.mjs`, `clauses.mjs` clean for
+        the venture; venture's own 94 tests pass; full `platform/pages`
+        suite 777/777 pass on latest `main`; `run_workflow_locally.py
+        --for-changes` 6/7 (7th held back as write-granting, per
+        `AGENTS.md`). Merged squash after local verification, no reviewer
+        available (Actions has had no runner since 2026-08-26).
+    mrr_end: null
