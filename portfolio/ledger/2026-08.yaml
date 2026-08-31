@@ -39018,3 +39018,71 @@ entries:
         writeup is current and pushed the unblock to the owner instead,
         per this file's standing guidance against re-verifying settled
         findings.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Mined the 175 remote branches carrying commits ahead of main for
+        unmerged product work, per a session brief targeting 3+ merges from
+        that backlog. Checked roughly 115 of the 175: every branch with 2+
+        commits ahead via portfolio/ledger/supersede_check.py (both the
+        line-scan and identical-merge-proof paths, run against the branch
+        directly rather than a PR number -- it accepts either), plus manual
+        venture-directory diffs and feature-keyword greps for the
+        higher-count and descriptively-named ones the brief called out
+        (3pl-quote-normalizer, chargeback-evidence-packet,
+        invoice-payment-terms, quote-margin-check and its dozen-plus
+        incremental siblings, appointment-deposit, faire-wholesale,
+        amazon-fba, no-show-fee, einvoice-preflight, public-record-watch,
+        shopify-permission-drift, window-replacement, saas-seat-true-up,
+        fifo-pick-evidence, payment-reconciliation-workbench, and more).
+      - >-
+        Every one of those branches turned out to already be superseded --
+        confirmed via feature presence, not just line-overlap. All predate
+        2026-08-26; main has continued shipping the same ventures daily
+        since, usually under different function/variable names than the
+        orphaned branch used (textbook RENAME SUSPECTED cases: a branch's
+        `largestCostComponent` is main's `largestCostDriver`, a branch's
+        `buildReviewSummary` is main's `formatReviewSummary`, a branch's
+        root-level shopify-permission-drift/index.html is main's
+        restructured site/index.html -- same feature, already shipped,
+        usually with more depth than the orphaned version had). One commit
+        (rematch-1364) even says so explicitly in its own message:
+        "Salvage the unique leftover from #1364 onto current main." This
+        matches CLAUDE.md's own account of why supersede_check.py grew the
+        rename-detection pass, and confirms the backlog has already been
+        heavily mined by prior sessions using the same approach.
+      - >-
+        Found and shipped exactly one genuine gap: quote-margin-check's
+        Markdown review and CSV export both claim (in their own module
+        comments) to match the CLI's output byte-for-byte, but used
+        Number.prototype.toFixed(2) where the CLI's Python formats with
+        f"{x:.2f}" -- which rounds an exact half-cent to the nearest even
+        hundredth, not away from zero. (62.125).toFixed(2) is "62.13";
+        Python prints "62.12" for the identical double. An orphaned branch
+        (claude/funny-archimedes-895zx9) had already spotted this against
+        the venture's older report.mjs, but that file no longer exists
+        (superseded by the current markdown.mjs/export.mjs split), so
+        nothing to port cleanly -- reimplemented it against current main.
+        Rejected a naive Math.round(value * 100) fix after it disagreed
+        with Python on 44 of ~14k division-derived test values (the
+        multiplication itself introduces float error); shipped instead a
+        format.mjs that decomposes the IEEE-754 double into exact
+        mantissa/exponent and rounds in BigInt arithmetic, verified against
+        Python's f"{x:.2f}" on 220,000+ generated values (random floats,
+        common-divisor divisions, and exact half-cent ties) with zero
+        mismatches.
+      - >-
+        Verified: node --test ventures/quote-margin-check/site, 113/113
+        (new format.test.mjs included). python3 -m unittest discover -s
+        ventures/quote-margin-check/tests, 33/33, unaffected -- the Python
+        side was already correct. node platform/pages/clauses.mjs
+        quote-margin-check: no-warranty clause still on all 6 published
+        pages. Merged (squash) as #2486.
+      - >-
+        Did not open PRs for the superseded branches -- per this repo's own
+        rule, a branch that adds nothing over main gets skipped, not a
+        throwaway PR. Did not delete any branches.
+    mrr_end: null
