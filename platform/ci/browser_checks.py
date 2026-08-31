@@ -44,12 +44,32 @@ deployment, or a server you started yourself). There is no sentinel in
 that mode -- this cannot write into a tree it does not own -- so the
 report says the origin was taken on trust.
 
-What it does not do. It does not install Playwright. `PLAYWRIGHT` names the
-module when it is not resolvable from this repo (a global install:
-`PLAYWRIGHT=$(npm root -g)/playwright/index.js`), and a missing Playwright
-is reported as a skip with that instruction rather than as a failure,
-because "the browser is not installed here" and "the site is broken" are
-not the same result.
+**A check that could not run is not a check that failed.** All six exit
+`1` for a real defect and `2` for "nothing was verified" -- no Playwright,
+no axe-core, an empty page list, a `DIST` that is not there. This
+distinguishes the two everywhere it reports: a `2` prints as `skip`, never
+as `FAILED`, and the run's own exit code is `1` only when something
+actually failed, `2` when everything that ran passed but something did not
+run, and `0` when all six answered.
+
+That mattered because the one dependency that is not Playwright is
+`axe-core`, and it belongs to `contrast` -- the WCAG check, the only thing
+here that speaks for users who cannot read a low-contrast page. Without
+it, `contrast` exits 2 and this used to report `1 of 6 checks failed:
+contrast`. A missing npm package presented as an accessibility regression
+is read one of two ways, and both are wrong: as a defect that is chased
+and not found, or as a suite not worth running. This repo has three
+paragraphs in `CLAUDE.md` on absent CI not being failed CI; the same
+conflation was living in its own tooling.
+
+What it does not do. It does not install Playwright or axe-core.
+`PLAYWRIGHT` and `AXE` name those modules explicitly, and an explicit
+choice is always passed through untouched. When they are unset, this looks
+for each in the places a module is normally installed -- `NODE_PATH`, this
+repo, `platform/pages/`, and the global npm root -- so the usual
+`PLAYWRIGHT=$(npm root -g)/playwright/index.js` incantation is only needed
+where the answer is not discoverable. Nothing found means nothing changed,
+and the skip reports itself with the command that fixes it.
 
 Installing it is two commands, and worth knowing because several ledger
 entries record "no headless browser available in this environment" and
@@ -64,7 +84,8 @@ go in a scratch directory rather than this repo, which has no
     python3 platform/ci/browser_checks.py --dist=path/to/site
 
 `axe-core` is `contrast`'s dependency alone; without it that one check
-exits 2 and the other five still run. Do not run `npx playwright install`
+skips and the other five still run and still report. Do not run
+`npx playwright install`
 -- see the paragraph below on why the version pin does not matter here.
 Verified on 2026-08-31: all six checks ran this way against a
 `tools.marisstella.dev`-stamped artifact, and `journey`'s sitemap step
@@ -107,6 +128,49 @@ PAGES = os.path.join(REPO_ROOT, "platform", "pages")
 CHECKS = ("sideways", "presets", "roundtrip", "contrast", "sweep", "journey")
 
 SENTINEL_NAME = ".browser-checks-sentinel"
+
+# The exit-code contract every check in `platform/pages/` already follows:
+# 0 answered and passed, 1 found a real defect, 2 could not verify anything
+# (no Playwright, no axe-core, an empty page list, a DIST that is not there).
+# `journey.mjs`, `sweep.mjs`, `contrast.mjs`, `roundtrip.mjs`, `presets.mjs`
+# and `sideways.mjs` all reserve 2 for that; this is the reader that acts on
+# it rather than collapsing 1 and 2 into "non-zero".
+SKIP_EXIT = 2
+
+# A timeout is not the check's own verdict -- `run_check` invents 124 for it,
+# nothing in the tree exits it -- and it is a failure: the check was running
+# and did not finish, which is exactly the shape of a page that hangs.
+TIMEOUT_EXIT = 124
+
+SUMMARY_MARK = {"ok": "ok  ", "skip": "skip", "fail": "FAIL"}
+
+
+def classify(rc: int) -> str:
+    """One of "ok", "skip", "fail" for a check's exit code."""
+    if rc == 0:
+        return "ok"
+    if rc == SKIP_EXIT:
+        return "skip"
+    return "fail"
+
+
+def is_skip(rc: int) -> bool:
+    return classify(rc) == "skip"
+
+
+def is_failure(rc: int) -> bool:
+    return classify(rc) == "fail"
+
+
+def outcome_label(rc: int) -> str:
+    """How one check's result reads in the per-check banner."""
+    if rc == 0:
+        return "ok"
+    if rc == SKIP_EXIT:
+        return "did not run (exit 2) — nothing verified"
+    if rc == TIMEOUT_EXIT:
+        return f"FAILED (timed out, exit {rc})"
+    return f"FAILED (exit {rc})"
 
 
 def free_port() -> int:
@@ -190,6 +254,93 @@ def playwright_available(env) -> bool:
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )
     return proc.returncode == 0
+
+
+# `npm root -g` shells out, and both discoveries below want the same answer.
+# None is a real result here ("npm could not tell us"), so a sentinel object
+# distinguishes it from "not asked yet" and the subprocess runs at most once.
+_UNASKED = object()
+_npm_global_root_cache: object | str | None = _UNASKED
+
+
+def npm_global_root(env) -> str | None:
+    """Where a `npm install -g` puts its packages, or None if npm cannot say."""
+    global _npm_global_root_cache
+    if _npm_global_root_cache is not _UNASKED:
+        return _npm_global_root_cache  # type: ignore[return-value]
+    root = None
+    try:
+        proc = subprocess.run(
+            ["npm", "root", "-g"], env=env, timeout=30,
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+        )
+        candidate = proc.stdout.strip()
+        if proc.returncode == 0 and candidate and os.path.isdir(candidate):
+            root = candidate
+    except (OSError, subprocess.SubprocessError):
+        root = None  # no npm on PATH, or it hung -- neither is worth failing over
+    _npm_global_root_cache = root
+    return root
+
+
+def module_search_roots(env) -> list[str]:
+    """`node_modules` directories to look in, nearest first.
+
+    Deliberately not `npm ls` or a resolver: this only needs to find a file
+    that is either there or not, and shelling out per candidate would cost
+    more than the search saves.
+    """
+    roots = [
+        part
+        for part in (env.get("NODE_PATH") or "").split(os.pathsep)
+        if part
+    ]
+    roots.append(os.path.join(REPO_ROOT, "node_modules"))
+    roots.append(os.path.join(PAGES, "node_modules"))
+    global_root = npm_global_root(env)
+    if global_root:
+        roots.append(global_root)
+    return roots
+
+
+def discover_module(env, relpath: str) -> str | None:
+    """The first readable `<root>/<relpath>`, or None when nothing has it."""
+    for root in module_search_roots(env):
+        candidate = os.path.join(root, relpath)
+        if os.path.isfile(candidate) and os.access(candidate, os.R_OK):
+            return candidate
+    return None
+
+
+def discover_axe(env) -> str | None:
+    """axe-core's bundle, when `AXE` was not given.
+
+    `contrast.mjs` resolves `axe-core/axe.min.js` relative to itself, which
+    finds a copy installed into this repo and nothing else -- and this repo
+    has no `package.json` and should not grow one for a check that is not in
+    CI. So the usual install is a global one or a scratch directory, and
+    neither is on that path. Filling in `AXE` when the file is findable is
+    what keeps the WCAG check from skipping on a machine that already has it.
+
+    Returns None when the caller already chose, or when nothing was found --
+    both mean "change nothing".
+    """
+    if env.get("AXE"):
+        return None  # an explicit choice always wins
+    return discover_module(env, os.path.join("axe-core", "axe.min.js"))
+
+
+def discover_playwright(env) -> str | None:
+    """Playwright's entry point, when `PLAYWRIGHT` was not given.
+
+    Only consulted after a bare `import('playwright')` has already failed,
+    which is the common shape in a container that installs it globally:
+    the package is right there, and every check refuses to start because
+    node will not resolve a global module from this repo's cwd.
+    """
+    if env.get("PLAYWRIGHT"):
+        return None  # an explicit choice always wins
+    return discover_module(env, os.path.join("playwright", "index.js"))
 
 
 def discover_chrome(env) -> str | None:
@@ -291,6 +442,13 @@ def main(argv=None) -> int:
 
     env = dict(os.environ)
     if not playwright_available(env):
+        # A global install is the common case in this container, and node will
+        # not resolve one from this repo's cwd. Point at it before giving up.
+        found = discover_playwright(env)
+        if found:
+            env["PLAYWRIGHT"] = found
+            print(f"Using the Playwright already here: {found}")
+    if not playwright_available(env):
         spec = env.get("PLAYWRIGHT", "playwright")
         print(f"Playwright ({spec}) is not importable here, so the browser checks\n"
               "cannot run. This is a skip, not a failure — nothing was verified.\n"
@@ -303,6 +461,21 @@ def main(argv=None) -> int:
     if chrome:
         env["CHROME_PATH"] = chrome
         print(f"Using the Chromium already here: {chrome}")
+
+    # Only when `contrast` is actually being run: this is the one search that
+    # shells out to npm, and no other check reads AXE.
+    axe = discover_axe(env) if "contrast" in names else None
+    if axe:
+        env["AXE"] = axe
+        print(f"Using the axe-core already here: {axe}")
+    elif "contrast" in names and not env.get("AXE"):
+        # Said now rather than after a full build and a served tree, so the
+        # one-line fix arrives before the wait instead of after it.
+        print("Note: axe-core was not found, so `contrast` (the WCAG check) will\n"
+              "skip. The other checks are unaffected. To include it:\n"
+              '  cd "$SCRATCH" && npm install axe-core\n'
+              '  AXE="$SCRATCH/node_modules/axe-core/axe.min.js" ...',
+              file=sys.stderr)
 
     tmp = None
     httpd = None
@@ -362,16 +535,28 @@ def main(argv=None) -> int:
             results.append((name, rc))
             if tail:
                 print(tail)
-            print(f"--- {name}: {'ok' if rc == 0 else f'FAILED (exit {rc})'} ---\n",
-                  flush=True)
+            print(f"--- {name}: {outcome_label(rc)} ---\n", flush=True)
 
-        failed = [n for n, rc in results if rc != 0]
+        failed = [n for n, rc in results if is_failure(rc)]
+        skipped = [n for n, rc in results if is_skip(rc)]
         print("=" * 60)
         for name, rc in results:
-            print(f"  {'ok  ' if rc == 0 else 'FAIL'}  {name}")
+            print(f"  {SUMMARY_MARK[classify(rc)]}  {name}")
+
+        # Reported before the verdict: a skip is the quiet outcome, and
+        # burying it under "all checks passed" is how a gate stops being one.
+        if skipped:
+            print(f"\n{len(skipped)} of {len(results)} checks did NOT run: "
+                  f"{', '.join(skipped)}\n"
+                  "Nothing was verified for those — see each one's message above "
+                  "for the\nmissing dependency. This is a skip, not a failure.")
         if failed:
             print(f"\n{len(failed)} of {len(results)} checks failed: {', '.join(failed)}")
             return 1
+        if skipped:
+            ran = len(results) - len(skipped)
+            print(f"\nthe {ran} check(s) that ran passed against {base}")
+            return 2
         print(f"\nall {len(results)} browser checks passed against {base}")
         return 0
     finally:
