@@ -5,7 +5,7 @@ metered on this private, user-owned repository, and from 2026-08-26 every
 workflow run came back red within 3-6 seconds carrying `runner_id: 0`,
 `runner_name: ""` and zero steps -- a job that was never assigned a runner,
 not a job that ran and failed. These tests pin the two halves of the fix: a
-runner that runs on our own hardware, and a single switch that moves all 217
+runner that runs on our own hardware, and a single switch that moves all 220
 workflows onto it.
 """
 
@@ -50,9 +50,9 @@ def _ci_docs() -> dict[str, dict]:
 
 
 def test_every_workflow_reads_the_runner_switch() -> None:
-    # The point of routing all 242 `runs-on` lines through one repo variable
+    # The point of routing all 246 `runs-on` lines through one repo variable
     # is that moving between GitHub-hosted and self-hosted is a settings
-    # change, not another 217-file commit. A workflow that hard-codes a runner
+    # change, not another 220-file commit. A workflow that hard-codes a runner
     # silently opts out of that and would keep burning metered minutes -- or
     # keep failing -- after the switch is flipped. DOCKER_DEPENDENT_JOBS is
     # the one narrow, checked exception (see its comment and the paired test
