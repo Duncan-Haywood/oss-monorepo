@@ -15,6 +15,14 @@ on:
       # aggregator can still parse the URLs it emits. A layout change here is
       # exactly the regression that gate exists for, so it has to trigger it.
       - "platform/pages/build.mjs"
+      # test_manifests.py::test_portfolio_site_build_uses_flags_the_build_
+      # scripts_accept reads this file's own text to confirm it still parses
+      # the `--dist=` flag portfolio-site.yaml's build script passes it —
+      # the same cross-check build.mjs gets above, and for the same reason: a
+      # renamed flag would crash-loop the site the moment the owner seals the
+      # clone token. That check runs only when this workflow does, so a PR
+      # touching check.mjs alone has to trigger it too.
+      - "platform/pages/check.mjs"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   pull_request:
@@ -23,6 +31,7 @@ on:
       - "bootstrap/**"
       - "gitops/**"
       - "platform/pages/build.mjs"
+      - "platform/pages/check.mjs"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
