@@ -38633,3 +38633,37 @@ entries:
         Budget accordingly: the cheap finds are in the tooling and the
         cross-cutting layers now, not in another niche.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the `deploy-cicd-readiness` queue item's own task: a full pass
+        over `gitops/` looking for a wrong, stale, or non-applying manifest,
+        a workflow broken for a reason other than the known runner outage, or
+        a gap between `gitops/tests/` and the manifests. Found the delivery
+        path itself (manifests, RBAC, NetworkPolicies, workflows,
+        `governor.py`, `worker.sh`, `portfolio-site.yaml`) fully consistent —
+        `pytest gitops/tests -q` 176/176, `kustomize build` clean on all six
+        overlays, `kubeconform -strict` 65/65 valid, and
+        `platform/ci/validate_workflows.py` clean on all 220 workflow files.
+        Consistent with today's own heavy churn on this exact queue item
+        (PRs up through #2472 on `main` before this session started) already
+        having caught the manifest-level gaps.
+      - >-
+        Shipped #2473: `gitops/agents/queue/README.md` — the file prepended
+        to every Codex governor prompt against this queue — still said
+        `deploy-cicd-readiness` "sits second", stale since
+        `open-pr-repair-merge` was added above it and `branch-pr-drain`
+        (#2329) and took first place; by the file's own priority order
+        (6/5/4/3/2) it is third. The same paragraph also still listed "an
+        ACME contact" among the item's remaining owner-only steps, which
+        stopped being one on 2026-08-30 (#2156). Both corrected; no manifest,
+        test, or code path touched. Verified: `pytest gitops/tests -q`
+        176 passed; `kustomize build` + `kubeconform -strict` on all six
+        gitops overlays (65 resources, 0 invalid); `validate_workflows.py`
+        clean. CI showed the account-wide runner-starvation signature
+        (confirmed via `ci_starvation.py --run 33408193175`: 4 of 5 jobs
+        `runner_id: 0`), not a real failure. Merged (squash) as #2473,
+        `44e4c827b`.
+    mrr_end: null
