@@ -294,6 +294,21 @@ def test_prod_landing_has_no_marisstella_ingress() -> None:
     assert "marisstella.dev" in landing  # mentioned as do-not-hijack
 
 
+def test_prod_landing_has_probes_and_no_service_account_token() -> None:
+    # #1486 first adopted this namespace and shipped landing.yaml with
+    # neither probe -- the one workload in prod without them, unlike
+    # portfolio-site.yaml and site-usage.yaml which both declare both.
+    # Without a liveness probe a hung nginx master is never restarted; the
+    # kubelet has nothing telling it to.
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "landing.yaml").read_text()))
+    deployment = next(d for d in docs if d and d["kind"] == "Deployment")
+    pod = deployment["spec"]["template"]["spec"]
+    assert pod["automountServiceAccountToken"] is False
+    container = pod["containers"][0]
+    assert container["readinessProbe"]["httpGet"] == {"path": "/", "port": 80}
+    assert container["livenessProbe"]["httpGet"] == {"path": "/", "port": 80}
+
+
 def _portfolio_site() -> dict[str, dict]:
     docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()))
     return {d["kind"]: d for d in docs if d}
