@@ -235,6 +235,15 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
     parser.add_argument("--csv", dest="csv_path", type=Path, help="write a spreadsheet-friendly approval queue")
     parser.add_argument("--usage-log", type=Path)
+    parser.add_argument(
+        "--emit-snapshot",
+        action="store_true",
+        help=(
+            "print the snapshot itself to stdout and exit, writing no report or manifest; "
+            "this is the portable file the browser reviewer at index.html reads, so a "
+            "teammate without the checkout can review the same refs"
+        ),
+    )
     parser.add_argument("--format", choices=("text", "json", "csv"), default="text", help="print a human or machine-readable summary")
     parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when shared, moved-tip, or uncertain findings need review")
     args = parser.parse_args()
@@ -247,6 +256,13 @@ def main() -> int:
         if args.repo
         else json.loads(args.snapshot.read_text(encoding="utf-8"))
     )
+    # Emitting the snapshot is a read-only export, not a scan: it deliberately
+    # writes no report and no manifest, so redirecting stdout to a file cannot
+    # also leave two stale outputs beside it. `scan` still runs below for every
+    # other invocation.
+    if args.emit_snapshot:
+        print(json.dumps(snapshot, indent=2, sort_keys=True))
+        return 0
     findings = scan(snapshot)
     write_outputs(findings, args.report, args.manifest)
     if args.csv_path:
