@@ -130,9 +130,32 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(2);
   }
 
+  // A tool that seeds its rows in the DOM (a `STARTING_*` repeater) or fills a
+  // rate from a load-time kit throws here — this reproduces first load without a
+  // browser, and there is nothing to read a `<select>` or run `addRow` against.
+  // That is the honest failure this tool's header describes: its numbers should
+  // not be quoted. Catch it per-slug so one such page does not abort a batch,
+  // and point at the browser oracle that *can* ground it.
+  const ORACLE_HINT =
+    'builds its inputs in the DOM (a STARTING_* repeater or a load-time kit); ' +
+    'ground it with: node platform/pages/price-oracle.mjs --dist=<built site> ';
   const out = [];
+  let failed = 0;
   for (const slug of slugs) {
-    const g = await ground(slug);
+    let g;
+    try {
+      g = await ground(slug);
+    } catch (err) {
+      failed++;
+      if (json) {
+        out.push({ slug, error: err.message, groundWith: `price-oracle.mjs ${slug}` });
+      } else {
+        console.log(`\n########## ${slug} ##########`);
+        console.log(`!? cannot ground headlessly: ${err.message}`);
+        console.log(`   ${ORACLE_HINT}${slug}`);
+      }
+      continue;
+    }
     if (json) {
       out.push(g);
       continue;
@@ -145,4 +168,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.log(JSON.stringify(g.result, null, 1));
   }
   if (json) console.log(JSON.stringify(out, null, 2));
+  // A non-zero exit lets a caller tell "grounded everything" from "some pages
+  // need the browser oracle" without parsing output.
+  if (failed) process.exitCode = 1;
 }

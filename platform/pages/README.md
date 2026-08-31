@@ -39,6 +39,36 @@ Then serve it and click around:
 cd platform/pages/dist && python3 -m http.server 8899
 ```
 
+## Grounding the numbers a page quotes
+
+FAQ and landing copy has to quote the figure the calculator actually shows on
+first load — and because that copy becomes the `FAQPage` schema search engines
+and assistants read back, a wrong number there is wrong in two places. Two tools
+answer "what does this tool compute on first load?", and the split between them
+is about fidelity:
+
+```
+node platform/pages/venture-defaults.mjs <slug> [...]         # headless, exact where it works
+node platform/pages/price-oracle.mjs --dist=dist <slug> [...] # the rendered page, faithful for all
+```
+
+`venture-defaults.mjs` reproduces first load without a browser and is exact for
+the tools whose inputs live in the markup. It **cannot** be for a tool that
+builds its inputs in the DOM — a `STARTING_*` repeater whose rows carry their own
+`<select>` defaults, or a kit tool that fills a rate from JS on load — so it
+reports it cannot ground those and points here rather than inventing a number.
+Verified 2026-08-31: a headless seed reproduction diverged from the rendered
+price on `painting`, `siding`, `flooring`, `junk-removal`, `lawn-care` and
+`window-cleaning` while matching to the cent on `roofing`, `deck`, `concrete`,
+`janitorial` and `moving`. `price-oracle.mjs` sidesteps that by *being* the page:
+it loads the built site in a real browser and reads the headline figures back, so
+what it reports is what the visitor sees. Use it for a row- or kit-based tool, and
+as a check on `venture-defaults.mjs` for the rest. Like the coverage tools it is
+report-only — a default that legitimately changes moves these figures, and
+pinning them would fail on honest edits. It needs Playwright (not a repo
+dependency); the [Driving the customer journey](#driving-the-customer-journey)
+notes cover running it from a Claude-on-the-web session.
+
 ## Why this exists
 
 GitHub serves **one** Pages site per repository. Before this, the only workflow
