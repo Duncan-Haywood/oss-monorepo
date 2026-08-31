@@ -36571,3 +36571,84 @@ entries:
         the Actions jobs API directly since `gh` CLI is absent here and
         `ci_starvation.py` needs it) -- not a real failure. Merged as #2360.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed a silent, total failure mode in the portfolio's only metric.
+        `slug_for()` in `gitops/prod/usage/aggregate.py` decides which tool
+        every page view is credited to, but was only tested against paths a
+        human typed into its own test file -- and `platform/pages/build.mjs`,
+        which produces those paths, is a separate tree in a separate
+        language with nothing tying the two together. `slug_for` never
+        raises and never returns None for a page-shaped path; it returns the
+        first path segment. So a builder change putting products under a
+        shared prefix (`/tools/<slug>/`, a locale root) would have bucketed
+        all 169 tools into one row named after the prefix, with `check.mjs`
+        still green (the links all resolve) and the site still correct --
+        discovered only by whoever next read the ConfigMap. New test builds
+        a real site with the real builder and asserts the round-trip.
+        Proved it bites and that nothing else does: moving products to
+        `/tools/<slug>/` gives 1 failed / 10 passed, and a stray top-level
+        `/pricing.html` gives 1 failed / 10 passed ("would be counted as
+        'pricing'"); both restored, 11 passed. Also added
+        `platform/pages/build.mjs` to hetzner-gitops-ci's path filter (the
+        guarded regression would otherwise not trigger the workflow at all)
+        and an explicit `setup-node` (the test skips without node and the
+        self-hosted image has neither apt nor sudo). Merged as #2362.
+      - >-
+        Fixed a false green in the three `platform/pages` tools that take a
+        venture slug. All are deliberately reporting-only -- venture CI
+        passes a slug unconditionally, so a coverage number must never fail
+        a run -- but that made a mistyped slug indistinguishable from a real
+        CLI venture: `faq-coverage.mjs amazon-fba-calculater` printed
+        "nothing to measure" and exited 0. A slug naming no venture is a
+        usage error rather than a measurement, so it now exits non-zero;
+        "never a gate" is intact because what fails is the question, not the
+        answer. Matters most for the unattended Codex worker, whose prompt
+        tells it to verify what it touched and where a false green is worse
+        than an error. Audited every caller before pushing: 95 slug-passing
+        invocations across the workflow tree, all 95 naming a real venture,
+        so no workflow changes colour; all 6 real ventures with no browser
+        surface still exit 0 with their original message. Merged as #2363.
+      - >-
+        Correction to #2362's own follow-up note, recorded so it is not
+        chased: it said these tools give success-shaped output "when pointed
+        at a built dist/ rather than ventures/". They never accepted a
+        directory -- the argument is a slug, so a path just reads as a slug
+        matching nothing. The false green was real; the mechanism was the
+        typo case above.
+      - >-
+        Swept for user-facing defects and found none, which is the result
+        worth recording rather than a fix worth manufacturing. Fuzzed every
+        `calc*`/`compute*`/`estimate*`-shaped export across 184 ventures for
+        non-finite output on empty/zero form states: 2 hits, both guarded at
+        the UI and unreachable (`commercial-photo-license-calculator`'s
+        `perImage` NaN is blocked by `valid()` on the only `render()` call
+        site; `music-lesson-break-even`'s Infinity break-even is deliberate
+        and renders as an infinity sign via Intl, not as the "$0" bug #2341 fixed
+        elsewhere). Separately swept all 506 published content pages: no
+        missing, duplicate or oversized title/description/canonical, no
+        invalid ld+json, OG and Twitter tags everywhere but the never-shared
+        `offline.html`. 133 pages carry titles over 65 chars; deliberately
+        left alone, since the keyword sits before the `|` and survives SERP
+        truncation, so a rewrite across a third of the site would be
+        evidence-free churn.
+      - >-
+        Owner asked this run to prioritise CI/CD, Hetzner deployment and
+        Codex-on-included-quota. All three remain code-complete and blocked
+        only on owner actions; re-verified rather than re-derived, then
+        reported rather than re-diagnosed. Runner starvation is day 5 and
+        confirmed on this run's own PRs (`runner_id: 0`, `runner_name: ""`,
+        3-5s, on jobs that touch nothing in the diff). Deploy path measured
+        sound end to end: build 21s at 138 MiB peak RSS against a 1536Mi
+        limit, 33 MiB output against a 512Mi emptyDir, 112 MiB clone against
+        2Gi, `PAGES_BASE_URL` correctly wired to tools.marisstella.dev, and
+        the production-base build passes check.mjs. Drove the whole customer
+        journey in real Chromium against the production-configured build
+        (hub -> search -> calculator -> result -> 404): zero page errors,
+        zero failed requests. `seal-owner-secrets.sh --dry-run` fails
+        cleanly with install links for the two missing tools. Nothing here
+        needed a code change; the unblock is unchanged and owner-only.
+    mrr_end: null
