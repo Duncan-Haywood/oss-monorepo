@@ -37451,3 +37451,46 @@ entries:
         no steps ran) rather than treating red as a real failure. Merged
         as #2401 on local verification.
     mrr_end: null
+  - venture: gutter-guard-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Surveyed ventures/* for a real,
+        verifiable gap: ~50 bid calculators were still missing the
+        `share.mjs` save/restore/shareable-link mechanism most siblings
+        already carry (skylight-install, soffit-fascia, walmart-
+        marketplace, ltl-freight-class-estimator, cleaning-dilution).
+        gutter-guard-bid-calculator was the sharper case: its own FAQ
+        already claimed "your bid is saved in this browser's local
+        storage... and a bid link you copy carries those same numbers,"
+        with no save, restore, or share code anywhere on the page --
+        a false claim, not just a missing feature.
+      - >-
+        Shipped #2403: wired the existing generic `share.mjs` module in
+        (copied byte-identical from soffit-fascia-bid-calculator, confirmed
+        via diff). Every input, checkbox, and the system-type select now
+        round-trips through localStorage (autosave) and a `#`-fragment link
+        (never the query string, matching the page's "nothing leaves your
+        browser" claim). The already-adopted proposal-panel terms (deposit
+        %, hold days, payment terms, exclusions, notes) ride along via
+        withProposalTerms/readProposalTerms so a shared link reopens the
+        sender's actual deal, not the 30%/30-day defaults. Added
+        Copy-bid-link / Start-a-fresh-bid buttons, a restore-source note,
+        and the link-contents caution every sibling with this feature
+        carries. Renamed the page's SELECT_IDS to CHOICE_IDS so BID_SPEC
+        references it directly instead of a second hand-kept list.
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 115/115,
+        including 3 new page.test.mjs structural checks (share.mjs
+        imported, link built as a URL fragment not a query string, every
+        field readInput() reads is covered by BID_SPEC, the jobType select
+        is a validated choice) and the full copied share.test.mjs suite.
+        Extracted the page's `<script type="module">` and ran `node
+        --check` on it directly -- parses clean, no duplicate
+        declarations. No headless browser available in this environment.
+        CI came back red on all 7 checks (~4-6s each); confirmed
+        starvation via `platform/ci/ci_starvation.py --run 33377271038`
+        (`runner_id: 0`, no steps ran). Merged as #2403 on local
+        verification.
+    mrr_end: null
