@@ -40322,3 +40322,61 @@ entries:
         reachability of the three hostnames could not be checked from this
         session: the web-session proxy returns 403 on CONNECT to them.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `branch-pr-drain` queue item, given 5 pre-flagged branches with no
+        open PR: `session/cleanup-2026-08-24`,
+        `session/decision-queue-stale-prs-777-731`,
+        `session/remove-stale-local-site-studio-entry`, `tmp/ssh-key-smoke`,
+        `venture/vendor-change-watch`. Verified each with a real diff rather
+        than trusting the brief's summary; zero open PRs confirmed via the
+        GitHub API both before and after. None landed.
+      - >-
+        `venture/vendor-change-watch` and
+        `session/remove-stale-local-site-studio-entry`: `supersede_check.py`
+        exit 0, SUPERSEDED, no unique content.
+        `session/decision-queue-stale-prs-777-731`: 0 commits ahead of
+        `main`, nothing to check. `tmp/ssh-key-smoke`: merge-base 2026-07-29,
+        936 commits ahead / 4105 behind, its own long integration history
+        (`merge: integrate <feature> into main` commits) rather than one
+        focused change -- `supersede_check.py` timed out past 120s on the
+        diff size, and even a clean SUPERSEDED verdict would not make 936
+        divergent commits safe to land in one session. Matches the prior
+        session's same conclusion on this branch (2026-08-30 entry above,
+        f6f1bb341-adjacent).
+      - >-
+        `session/cleanup-2026-08-24` is the one worth recording precisely
+        because the tooling disagreed with itself. `supersede_check.py`
+        returned NOT SUPERSEDED (31/36 added lines in
+        `portfolio/ledger/2026-08.yaml` absent from `main`) -- normally the
+        signal to open a PR. Reading the 31 lines instead of trusting the
+        count: they are a 2026-08-24 session's own account of PR #777's
+        merge, closing 28 orphaned Dependabot PRs, and opening PR #783.
+        `main` already carries all of that, written by different sessions
+        closer to the event, in more entries, and more accurately -- notably
+        `main` correctly records #783 as closed unmerged on a stale premise
+        (superseded by #782/#784's in-place correction), where this branch's
+        own account frames #783 as the completing action. Same substance,
+        different wording, so the line-based diff found no match on either
+        side and reported the branch as carrying new content it does not.
+      - >-
+        This is the mirror image of the `RENAME SUSPECTED` case CLAUDE.md
+        already documents for code (two 93%-alike lines, one word apart,
+        that are actually different work): here two passages are almost
+        0%-alike by line yet describe the same event. `supersede_check.py`
+        has no prose-similarity pass to catch it -- it only pairs unmatched
+        lines that are close, and free-text ledger narration about the same
+        PR rarely comes out close. No code change proposed; flagging so the
+        next session reads NOT SUPERSEDED on a `portfolio/ledger/*.yaml`-only
+        branch as a reason to read the lines for substance, not just count
+        them as CLAUDE.md's RENAME SUSPECTED section already asks for code.
+      - >-
+        Net: nothing to merge from this batch. Left all 5 branches in place
+        (none deleted -- not confident enough of full redundancy on
+        `tmp/ssh-key-smoke` specifically to invoke the exceptional-closure
+        conditions, and the other 4 are harmless to leave since nothing
+        currently points at them as work to land).
+    mrr_end: null
