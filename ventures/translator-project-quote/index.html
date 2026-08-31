@@ -121,7 +121,7 @@ function update() {
     const q = loadQuote(inputs);
     const r = calculate(q);
     last = {q, r};
-    $("result").innerHTML = `<strong>Quote floor: ${money(r.minimum_price, q)}</strong><dl><dt>Weighted words</dt><dd>${r.weighted_words.toFixed(0)}</dd><dt>Translation time</dt><dd>${r.translation_hours.toFixed(1)} hours</dd><dt>Direct labor + add-ons</dt><dd>${money(r.direct_cost, q)}</dd><dt>Target-margin price</dt><dd>${money(r.target_price, q)}</dd></dl><p>These figures are modeled from your inputs. They are not a recommended quote.</p>`;
+    $("result").innerHTML = `<strong>Recommended quote: ${money(r.recommended_price, q)}</strong><dl><dt>Weighted words</dt><dd>${r.weighted_words.toFixed(0)}</dd><dt>Translation time</dt><dd>${r.translation_hours.toFixed(1)} hours</dd><dt>Direct labor + add-ons</dt><dd>${money(r.direct_cost, q)}</dd><dt>Quote floor (minimum vs. cost)</dt><dd>${money(r.minimum_price, q)}</dd><dt>Target-margin price</dt><dd>${money(r.target_price, q)}</dd></dl><p>The recommended quote is the larger of the quote floor and the target-margin price, so a stated margin target still applies once a job is big enough that the flat minimum no longer binds. This is a modeled starting point from your inputs, not a promise of profitability — review your own assumptions before sending it.</p>`;
     try { localStorage.setItem(storageKey, JSON.stringify(inputs)); } catch {}
     if (location.hash) history.replaceState(null, "", `${location.pathname}#${encodeInputs(inputs)}`);
   } catch (e) {
@@ -133,7 +133,7 @@ ids.forEach((id) => $(id).addEventListener("input", update));
 $("copy").onclick = async () => {
   if (!last) return;
   const {q, r} = last;
-  const text = `Translation quote review\nWeighted words: ${r.weighted_words.toFixed(0)}\nTranslation hours: ${r.translation_hours.toFixed(1)}\nMinimum / floor: ${money(r.minimum_price, q)}\nTarget-margin price: ${money(r.target_price, q)}\nArithmetic only; review your assumptions before relying on it.`;
+  const text = `Translation quote review\nWeighted words: ${r.weighted_words.toFixed(0)}\nTranslation hours: ${r.translation_hours.toFixed(1)}\nMinimum / floor: ${money(r.minimum_price, q)}\nTarget-margin price: ${money(r.target_price, q)}\nRecommended quote: ${money(r.recommended_price, q)}\nArithmetic only; review your assumptions before relying on it.`;
   try {
     await navigator.clipboard.writeText(text);
     $("status").textContent = "Copied locally.";
