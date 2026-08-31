@@ -35889,3 +35889,48 @@ entries:
         publishing under the portfolio's name stays owner-gated -- but ready
         to go live as-is.
     mrr_end: null
+  - venture: lawn-care-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start; the deploy/CI-CD asks are the same
+        owner-blocked items prior entries already recorded, so the run went
+        to deepening an existing product per `portfolio/DIRECTION.md`
+        rather than another undeployed candidate. `faq-coverage.mjs`
+        already reports 168/168, so targeted depth instead of coverage:
+        `lawn-care-bid-calculator` was one of 17 entry pages sitting at the
+        bare floor of 3 questions (the same class `owner-operator-cpm-
+        calculator` was fixed for in #2324).
+      - >-
+        Shipped #2332: added 4 real Q&A pairs -- why crew size changes only
+        clock-time-on-site and not price (labor is priced on total person-
+        hours regardless of how many people split it; verified crewSize 1
+        vs 2 leaves `monthlyPrice`/`monthlyLaborCost` unchanged while
+        `clockHoursOnSite` halves, 1.79h -> 0.90h), the difference between
+        "In-season monthly" ($459.73) and "Year-round monthly equivalent"
+        ($282.91), how much of the bid is travel rather than yard work
+        (0.6 of 2.39 billed hours, ~25%, on an 18-minute one-way drive),
+        and what the below-walk-away verdict shows (a $90/month quote
+        against a $344.80 walk-away flags a $254.80 monthly loss) -- every
+        number read straight from running `calc.mjs`'s `calculateBid()`
+        against the page's own starting figures, not invented. Removed the
+        venture's hand-authored 3-question `FAQPage` JSON-LD block so
+        `build.mjs`'s `faqEntries()` derives the full 7-question schema
+        from visible copy instead, avoiding the schema/page-drift bug
+        class `#2311` and `#2256` already hit once each.
+      - >-
+        Verified: `faq-coverage.mjs lawn-care-bid-calculator` -> 1 of 1;
+        `faq-coverage.mjs --quiet` -> 168 of 168 unchanged;
+        `faq-duplicate.mjs` clean; the venture's own 57-test suite green;
+        platform's `faq-duplicate`/`faq-coverage`/`clauses`/`build` suites
+        green; `faq-visible.test.mjs` has one pre-existing, unrelated
+        failure in `ai-engineering-academy/rc-time-calculator` that
+        reproduces identically on a clean checkout before this change; a
+        full `build.mjs --out=dist && check.mjs dist` came back clean
+        across 168 products / 506 pages; confirmed the built page's
+        derived JSON-LD carries all 7 questions matching visible copy.
+        Merged (squash) after local verification -- CI showed the
+        confirmed runner-starvation signature (`runner_id: 0`), not a real
+        failure.
+    mrr_end: null
