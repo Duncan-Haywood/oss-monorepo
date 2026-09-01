@@ -1022,3 +1022,56 @@ entries:
         kubeconfig access this session does not have. Did not duplicate that
         build; flagged the status back to the owner instead of re-describing
         already-recorded infrastructure.
+  - venture: chargeback-evidence-packet
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Separate concurrent session run, same standing directive (PR-quota
+        check, then deploy-cicd-readiness/marketing-distribution). Confirmed
+        independently: zero open PRs (`list_pull_requests` and
+        `search_pull_requests` both empty), and `deploy-cicd-readiness`
+        had no agent-actionable gap -- the two workflows still pinned off
+        the `CI_RUNNER` switch (`quick-pick-survey-ci.yml`,
+        `world-clock-widget-ci.yml`) are deliberate, documented, named
+        exceptions in `gitops/tests/test_ci_runner.py`, and
+        `infra/OWNER_CHECKLIST.md`'s remaining step (`portfolio-site-repo`
+        clone-token seal) is correctly owner-only. Reached the same Codex/
+        Hetzner conclusion as the entry above independently before seeing
+        it landed on `main`.
+      - >-
+        Shipped #2657: a `vs-chargeflow.html` comparison page against
+        Chargeflow, a named automated success-fee chargeback-dispute
+        incumbent -- `marketing-distribution`'s second candidate (priority
+        6). Chargeflow's positioning (processor/store integration,
+        automatic evidence pull, success-fee pricing, free to start) was
+        verified via a live web search of chargeflow.io and third-party
+        coverage before writing any claim; non-affiliation stated
+        explicitly in visible copy, meta description, and the FAQPage
+        JSON-LD. Checked all ~184 ventures for existing
+        `vs-*`/`compare*` pages first (this portfolio already ships
+        ~30, including the sibling `vs-airbnb-earnings-estimator.html`
+        and `vs-zylo.html` entries above); picked this one because it has
+        a genuine single well-known named incumbent, unlike most trade-bid
+        calculators.
+      - >-
+        Verified: venture suite 30/30 (was 27, three new tests added);
+        `clauses.mjs chargeback-evidence-packet` 3/3 pages carrying the
+        no-warranty clause (was 2); full `build.mjs` + `check.mjs` run,
+        519 pages (matching the count after #2654's `vs-airbnb...` page,
+        confirming no collision), no dead links, canonical/sitemap
+        correctly rewritten off `example.invalid` to the live base URL;
+        `pytest gitops/tests` 219/219 as a baseline sanity check. PR
+        showed zero check runs (the documented bot-token pattern, not a
+        failure) -- merged on the strength of the local verification
+        above, per the no-review-gate rule for product PRs. Re-fetched
+        `main` immediately before pushing and again before this ledger
+        entry; both times clean.
+      - >-
+        Found but did not touch: three separately-named, similarly-scoped
+        ventures already on `main` -- `vendor-watch` (Next.js),
+        `vendor-change-watch` (Python), `vendor-change-evidence` (JS) --
+        that read as possible unintentional feature duplication rather
+        than three distinct products. Left for a session with time to
+        read all three in full; flagging here rather than in a product PR
+        to avoid scope creep.
