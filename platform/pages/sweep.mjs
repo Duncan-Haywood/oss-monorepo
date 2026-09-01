@@ -67,7 +67,10 @@
 //     CHROME_PATH="$(echo /opt/pw-browsers/chromium-*/chrome-linux/chrome)" \
 //     node platform/pages/sweep.mjs
 //
-// Verified 2026-08-31: 169/169 tools answered with no errors.
+// Verified 2026-09-01: 175/175 tools answered with no errors — 169 from the
+// catalog plus the six electronics calculators nested under
+// `ai-engineering-academy`'s hub, which this sweep now follows into rather
+// than stopping at (see `discoverChildTools` below).
 
 // Playwright ships CommonJS, so a PLAYWRIGHT that names its entry *file*
 // resolves the exports under `.default`, while a bare specifier on the
@@ -296,8 +299,51 @@ async function pressPrimaryAction() {
 // cannot reach the API, so the sweep has no opinion on whether the tool works.
 const PASSING = new Set(['ok', 'links-only', 'needs-network']);
 
-const results = [];
-for (const slug of slugs) {
+/**
+ * Same-directory links a `links-only` page's own markup points at, one level
+ * deep — `ai-engineering-academy`'s hub links `resistor-calculator/`,
+ * `voltage-divider-calculator/`, and four more, each a real calculator this
+ * sweep otherwise never opens: the top-level catalog carries one `data-tool`
+ * entry for the whole venture (`ENTRY_OVERRIDES` in `build.mjs` points it at
+ * the hub), so `slugs` above never named them and nothing before this walked
+ * a link to find out what it led to.
+ *
+ * Scoped with `ownOnly` for the same reason as everywhere else in this file:
+ * the injected top nav and footer chrome link all over the site, and a link
+ * back to the site root or sideways to an unrelated tool is not a child of
+ * this hub. Restricted to one path segment past the hub's own, so a link
+ * that happens to reach three directories down (it does not, today, but
+ * nothing stops a future page) does not get walked as if it were a sibling
+ * tool.
+ */
+async function discoverChildTools(prefix) {
+  return page.$$eval(ownOnly('a[href]'), (nodes, prefix) => {
+    const out = new Set();
+    for (const node of nodes) {
+      let url;
+      try {
+        url = new URL(node.getAttribute('href') || '', location.href);
+      } catch {
+        continue;
+      }
+      if (url.origin !== location.origin || !url.pathname.startsWith(prefix)) continue;
+      const rest = url.pathname.slice(prefix.length).replace(/^\/+/, '');
+      const child = rest.split('/')[0];
+      if (child && child !== 'index.html') out.add(child);
+    }
+    return [...out];
+  }, prefix);
+}
+
+/**
+ * Loads one page and decides whether it works, whether it is a landing page
+ * doing its job, or whether it is dead. Pulled out of the sweep's main loop
+ * so the same judgment applies to a top-level tool and to a calculator only
+ * reachable through a hub's own links (see `discoverChildTools`) — a nested
+ * page is not exempt from being real product just because nothing on the
+ * catalog names it directly.
+ */
+async function sweepOne(url) {
   const errors = [];
   // A request to somewhere other than the site under test that could not be
   // made. Almost every tool here is offline by construction, but a couple call
@@ -324,7 +370,7 @@ for (const slug of slugs) {
   let filled = 0;
 
   try {
-    await page.goto(`${BASE}/${slug}/`, { waitUntil: 'load' });
+    await page.goto(url, { waitUntil: 'load' });
     await page.waitForTimeout(150);
 
     const before = await page.evaluate(() => document.body.innerText);
@@ -428,9 +474,29 @@ for (const slug of slugs) {
   page.off('console', onConsole);
   page.off('requestfailed', onRequestFailed);
 
-  results.push({ slug, verdict, detail });
+  return { verdict, detail };
+}
+
+function report(label, verdict, detail) {
+  results.push({ slug: label, verdict, detail });
   const flag = PASSING.has(verdict) ? '   ' : '>> ';
-  console.log(`${flag}${verdict.padEnd(12)} ${slug}${detail ? `  — ${detail}` : ''}`);
+  console.log(`${flag}${verdict.padEnd(12)} ${label}${detail ? `  — ${detail}` : ''}`);
+}
+
+const results = [];
+for (const slug of slugs) {
+  const { verdict, detail } = await sweepOne(`${BASE}/${slug}/`);
+  report(slug, verdict, detail);
+
+  // A hub that is only links is doing its job, and its job was to lead
+  // somewhere — follow it, the same way a visitor's next click would, rather
+  // than taking "renders" as the last word on pages this sweep never named.
+  if (verdict !== 'links-only') continue;
+  for (const child of await discoverChildTools(`/${slug}/`)) {
+    const label = `${slug}/${child}`;
+    const childResult = await sweepOne(`${BASE}/${slug}/${child}/`);
+    report(label, childResult.verdict, childResult.detail);
+  }
 }
 
 await browser.close();
