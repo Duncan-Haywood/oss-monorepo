@@ -277,10 +277,17 @@ seal_site() {
 }
 
 seal_ci() {
-  step "2/3  Self-hosted Actions runners — restores CI"
-  say "  Every workflow here has died in 3-6 seconds with runner_id: 0 since"
-  say "  2026-08-26: metered GitHub-hosted minutes, never a real failure."
-  say "  Self-hosted runners are not metered."
+  step "2/3  Self-hosted Actions runners — OPTIONAL since 2026-09-01"
+  say "  Nothing is blocked on this one. Every workflow died in 3-6 seconds"
+  say "  with runner_id: 0 from 2026-08-26, but runners were assigned again"
+  say "  from 2026-09-01T00:00:53Z and CI has been green on merit since."
+  say ""
+  say "  Seal it anyway for insurance: the recovery landed at midnight on the"
+  say "  1st, which is what a metered allowance resetting looks like, so the"
+  say "  ceiling likely cycles. Self-hosted runners are not metered."
+  say ""
+  say "  To skip it cleanly, re-run as: seal-owner-secrets.sh site agents"
+  say "  (Enter here also skips, but reports 'did not seal: ci' at the end.)"
   say ""
   say "  Mint: https://github.com/settings/personal-access-tokens/new"
   say "    Repository access : only $REPO_SLUG"

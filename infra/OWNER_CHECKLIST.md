@@ -17,15 +17,19 @@ They were spread across six files because each was written when it became
 true. From a laptop with a kubeconfig and `kubeseal`:
 
 ```bash
-./bootstrap/scripts/seal-owner-secrets.sh --dry-run       # preflight only
-./bootstrap/scripts/seal-owner-secrets.sh site agents     # the two that block
-./bootstrap/scripts/seal-owner-secrets.sh                 # all three, in order
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run site agents   # preflight
+./bootstrap/scripts/seal-owner-secrets.sh site agents             # do it
 ```
 
-The middle line is the short version of the short version: `site` is the
-live-site clone token and `agents` is the Codex credential. Adding `ci`
-(or passing nothing) also seals the runner PAT, which is the optional
-one.
+`site` is the live-site clone token; `agents` is the Codex credential.
+Naming both targets is deliberate — **passing no arguments seals all
+three**, which walks you through the optional runner PAT as well and
+reports `did not seal: ci` if you press Enter past it. Add the third
+later, on its own, if you want it:
+
+```bash
+./bootstrap/scripts/seal-owner-secrets.sh ci    # optional, see item 9
+```
 
 It prompts for each token with echo off, verifies against the GitHub API
 that the token can do the one thing its pod needs (a mis-scoped one is
@@ -193,15 +197,19 @@ codes as exit 42 and a rejected credential as exit 43.
    spend is predictable before you authorise it.
 9. ~~**Restore CI.**~~ **Not needed as of 2026-09-01 — optional.** Every
    workflow was red from 2026-08-26 with `runner_id: 0` and zero steps —
-   jobs never assigned a runner, because metered Actions minutes on this
-   private repo ran out. **That resolved itself**: GitHub started
-   assigning real runners again at 2026-09-01T00:00:53Z, and PRs have
-   been going green on merit since (#2601, #2603). CI works today with
-   nothing from you.
+   jobs never assigned a runner. Actions minutes on this private repo are
+   metered, so the ceiling was some account-level Actions condition, but
+   *which* one is not observable from here (exhausted included minutes, a
+   spending limit, a payment problem, or Actions switched off all look
+   identical); only your billing page settles it. **It resolved itself
+   either way**: GitHub started assigning real runners again at
+   2026-09-01T00:00:53Z, and PRs have been going green on merit since
+   (#2601, #2603). CI works today with nothing from you.
 
    What is left here is insurance, worth doing but **after** the two
    seals above and below that are actually blocking. Self-hosted runners
-   are not metered, so they make the next allowance cycle a non-event:
+   are not metered, so they make the next cycle a non-event whichever
+   sub-cause it was:
    seal `actions-runner-secrets` from
    `gitops/ci/secrets/actions-runner-token.template.yaml` (a
    fine-grained PAT for this repo with **Administration: Read and

@@ -1,12 +1,20 @@
 # Self-hosted GitHub Actions runners on the cpx52.
 #
 # Why this exists: this repository is private and owned by a user account, so
-# GitHub-hosted Actions minutes are metered. Since 2026-08-26 every workflow
-# run has come back red in 3-6 seconds with `runner_id: 0`, `runner_name: ""`
-# and zero steps -- the signature of a job that was never assigned a runner at
-# all, not of a job that ran and failed. Self-hosted runners are not metered,
-# so they restore CI whether the ceiling that was hit was the included-minutes
-# allowance or a spending limit.
+# GitHub-hosted Actions minutes are metered. From 2026-08-26 to 2026-09-01
+# every workflow run came back red in 3-6 seconds with `runner_id: 0`,
+# `runner_name: ""` and zero steps -- the signature of a job that was never
+# assigned a runner at all, not of a job that ran and failed.
+#
+# That window closed on its own: runners were assigned again from
+# 2026-09-01T00:00:53Z and CI has been green on merit since. This stack is
+# therefore insurance rather than a fix today. It is still worth deploying,
+# because the recovery arrived at midnight on the first of the month, which is
+# what a metered allowance resetting looks like -- so the ceiling appears to
+# cycle rather than to be gone. Self-hosted runners are not metered, so they
+# make the next cycle a non-event, whichever account-level condition it is
+# (the sub-cause is not observable from here; only the owner's billing page
+# settles it).
 #
 # Two replicas, not one: a PR here typically triggers a handful of workflows
 # (Portfolio validate, Page integrity, Conflict markers, the touched venture's

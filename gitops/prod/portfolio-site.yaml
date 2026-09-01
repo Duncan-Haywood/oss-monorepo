@@ -6,10 +6,12 @@
 # `platform/pages/build.mjs` assembles 169 finished tools into one static
 # site (hub, per-tool pages, sitemaps, robots.txt, social cards). Until now
 # the only way to publish it was `.github/workflows/portfolio-pages.yml` ->
-# GitHub Pages, which is blocked twice over: Pages is not enabled on the
-# repository (owner flip `deploy-settings`), and every GitHub Actions run
-# has failed without a runner since 2026-08-26, so the artifact is not even
-# being built in CI. Meanwhile this cluster already runs ingress-nginx,
+# GitHub Pages, which is still blocked: Pages is not enabled on the
+# repository (owner flip `deploy-settings`), and a private repo's Pages site
+# is not public on the free tier anyway. It was blocked a third way from
+# 2026-08-26 to 2026-09-01, when no GitHub Actions run got a runner and the
+# artifact was not even being built; runners returned on 2026-09-01, so that
+# one no longer applies. Meanwhile this cluster already runs ingress-nginx,
 # cert-manager and an auto-syncing `prod` Application with nothing in it but
 # a placeholder that says "add an Ingress when a product is ready".
 #

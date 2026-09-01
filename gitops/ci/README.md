@@ -3,9 +3,9 @@
 ## Why this exists
 
 This repository is private and owned by a user account, so GitHub-hosted
-Actions minutes are metered. From **2026-08-26** every workflow run came back
-red, including ones that touch nothing (`Conflict markers`, `Branch cleanup`).
-They were not failing — they were never starting:
+Actions minutes are metered. From **2026-08-26 to 2026-09-01** every workflow
+run came back red, including ones that touch nothing (`Conflict markers`,
+`Branch cleanup`). They were not failing — they were never starting:
 
 ```
 started_at  2026-08-29T21:20:55Z
@@ -24,6 +24,15 @@ anything else. `CLAUDE.md` documents the same signature.
 Self-hosted runners are not metered. They restore CI whether the ceiling that
 was hit was the included-minutes allowance or a spending limit, and they run on
 hardware the portfolio already pays for.
+
+**That window closed on its own (2026-09-01).** Runners were assigned again
+from 2026-09-01T00:00:53Z and CI has been green on merit since, so nothing
+here is currently blocking — this stack is insurance, not a repair. It is
+still worth deploying: the recovery arrived at midnight on the first of the
+month, which is what a metered allowance resetting looks like, so the ceiling
+appears to cycle rather than to be gone. Deploy it *after* the two seals that
+do block (`portfolio-site-repo` and `codex-secrets`), per
+`infra/OWNER_CHECKLIST.md`.
 
 ## The switch
 
