@@ -216,3 +216,86 @@ entries:
         Candidate 1 re-checked before picking and confirmed closed: build.mjs
         reports "Added an embed offer to 169 tool entry page(s)" against 169
         products, so no entry page is silently skipped.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Put the seven Playwright-backed checks in `platform/pages/` into CI
+        for the first time, via #2616 (`.github/workflows/browser-checks-ci.yml`).
+        `browser_checks.py`'s own docstring had recorded why nothing ran them
+        -- "they need Playwright, which is not a dependency of this repo, so
+        no workflow runs them" -- and that stayed true after runners came back
+        on 2026-09-01. They do not need to be a repository dependency: the
+        workflow installs them into `$RUNNER_TEMP`, outside the checkout, so
+        no root `package.json` appears to change what other workflows'
+        `node --test` globs see. Nightly plus `workflow_dispatch`, not
+        per-PR, and that is a measured decision rather than caution: a run is
+        the whole 510-page site (none of the seven has a subsetting knob) and
+        `platform/pages/` took 123 commits in the seven days to 2026-09-01,
+        so gating those would be hours of metered Actions minutes a day --
+        the same allowance whose exhaustion on 2026-08-26 took all 218
+        workflows dark for five days.
+      - >-
+        The suite earned itself on its first run: `sweep` failed at 168/169,
+        reporting `ai-engineering-academy` as `NO-CONTROLS -- 2 control(s) on
+        the page, none of them usable`. The page is fine. It is the hub
+        linking to six electronics calculators, and `sweep.mjs` already has a
+        `links-only` branch for exactly it, whose own comment names "the
+        nested academy hub". That branch is guarded on `interactive === 0`,
+        and `interactive` (sweep.mjs:362) was the only control count in the
+        file that did not go through `ownOnly()` -- the helper written to drop
+        the bands this build injects. `injectEmbedWidget` (#2561, merged
+        2026-08-31) adds a `<textarea>` and a "Copy embed code" `<button>`
+        inside `.pf-chrome` to every entry page, so on the one page owning no
+        controls of its own the count went 0 to 2, the branch stopped firing,
+        and a page doing its job was reported as a dead product. Sweep last
+        ran clean on 2026-08-31 -- the day the widget shipped -- and nothing
+        ran it in between, which is the argument for the workflow restated as
+        an incident.
+      - >-
+        Verified with a real browser (Playwright 1.56.0 against the
+        `chromium-1194` build at `/opt/pw-browsers`, the version pin
+        `sweep.mjs`'s header warns about) on a `tools.marisstella.dev`-stamped
+        build: before, 168/169 and sweep exit 1; after, 169/169 with
+        `ai-engineering-academy` reading `links-only`. All seven checks ran --
+        sideways, presets, roundtrip, highlight, contrast, sweep, journey --
+        with only sweep failing. Also `platform/pages` 838/838, gitops
+        197/197, `validate_workflows.py` 221/221, `publish_surface.py --check`
+        matching, and `test_browser_checks` 42/42. `embed.test.mjs` gains the
+        other half of the contract (every injected control stays inside
+        `.pf-chrome`), mutation-checked by dropping the class and watching it
+        fail.
+      - >-
+        Both of Copilot's findings on #2616 were real and were fixed rather
+        than answered: Playwright and axe-core are now pinned (1.56.0 /
+        4.13.0), which matters here because Playwright pins a browser *build
+        number* and a floating spec would change the browser under test with
+        no commit; and the second resolve, `npx --yes playwright install`,
+        was the sharper half -- it prefers a local binary but silently fetches
+        the latest when it does not find one, so it invokes the pinned CLI at
+        its path instead.
+      - >-
+        Queue state: one open PR at session start (#2609, a dependabot
+        browserslist dev-dependency bump), merged after its checks came back
+        green on real runners. Zero open PRs at session end. Not a
+        three-PR-quota run because three repairable PRs did not exist.
+      - >-
+        Not shipped, and worth a follow-up: the six calculators under
+        `/ai-engineering-academy/*/` are real products `sweep` never opens,
+        because the catalog carries one entry for the venture and sweep walks
+        the catalog. `contrast` and `check.mjs` do cover those pages; "does
+        the sub-calculator still compute in a browser" is covered by nothing.
+        Teaching the sweep to follow a hub into its children is a larger
+        change than the PR should have carried.
+      - >-
+        Deployment is still one owner action from live, unchanged by this
+        session and re-confirmed: `publish_surface.py --check` reports 0
+        hostnames serving content, with the apex and `www` answering on merge
+        but 301ing to `tools.marisstella.dev`, which waits on Secret
+        `portfolio-site-repo` (`./bootstrap/scripts/seal-owner-secrets.sh
+        site`). The Hetzner Codex fleet the owner asked about is likewise
+        built and inert: `worker.sh` implements the `CODEX_AUTH_JSON`
+        subscription path (the "built-in quota" shape), and it waits on
+        `codex-secrets` plus `policy.json` `enabled: true` and unsuspending
+        the governor CronJob.
