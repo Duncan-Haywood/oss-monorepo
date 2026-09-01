@@ -1187,3 +1187,50 @@ entries:
         Still open: whether the live cluster is actually broken by this
         today, or has avoided it by luck of flannel's actual subnet
         allocation -- that still needs a session with `HETZNERSSHKEY`.
+  - venture: npm-deployment-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, run manually (governor still
+        disabled). Checked all four candidates against a fresh
+        `build.mjs`/`check.mjs` run first: embed widget has full coverage
+        (169/169 entry pages), the 7 `/c/` category hubs and the `/about/`
+        press kit both check out clean against the live dist (verified the
+        one documented external-call exception -- Sponsor Ready ->
+        api.github.com -- really is the only fetch() in the built site by
+        grepping all 519 pages). Shipped #2664: a `vs-npm-audit.html`
+        comparison page for npm-deployment-evidence, whose niche (prod- vs
+        dev-only lockfile classification) had a genuine named incumbent
+        with no comparison page yet -- npm audit, already referenced
+        informally by this venture's own SEO article.
+      - >-
+        Environment finding for future marketing-distribution runs: general
+        `WebFetch` is blocked by this session's egress proxy (confirmed
+        against foundant.com, instrumentl.com, and even
+        en.wikipedia.org -- all rejected), which rules out fact-checking a
+        *new* external competitor's site the way earlier vs-pages
+        (vs-zylo, vs-instrumentl, vs-atbs) presumably did. `WebSearch`
+        still works (aggregator summaries, not primary sources).
+        `registry.npmjs.org` is allowlisted and reachable directly, and any
+        CLI already installed in the sandbox (here: `npm audit` itself,
+        version 10.9.7) is a usable, locally-reproducible primary source --
+        this page's every factual claim comes from running `npm audit
+        --json` against a real lockfile, not from memory or an unreachable
+        competitor site. A future comparison-page pick should prefer an
+        incumbent whose facts are locally verifiable (an installed CLI, a
+        registry API) unless egress to general web hosts is confirmed
+        open in that session.
+      - >-
+        Verified: venture's own `node --test` 21/21, `platform/pages` full
+        suite 838/838, `build.mjs`+`check.mjs` (169 products, 519 pages, no
+        dead links), the independent Python site builder
+        (`build_pages_site.py`+`check_pages_links.py`, 509 pages, no dead
+        links), browser `sideways` check (518 pages at 360px, none scroll
+        sideways), and `run_workflow_locally.py --for-changes` (6/7
+        selected workflows passed on merit; the 7th's setup step failed in
+        this sandbox before any of its 46 run: steps, all of which then ran
+        anyway from cached deps and passed). Real CI on the PR went green
+        (7/7 checks completed, 1 skipped as expected for the owner-gated
+        `deploy` job; run durations up to ~2.7 minutes ruled out the known
+        Actions-starvation signature). Merged as `0246a9b27`.
