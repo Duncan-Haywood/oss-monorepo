@@ -359,8 +359,18 @@ for (const slug of slugs) {
       }
     }
 
+    // Scoped the same way `touched`/`filled`/`pressed` are (`ownOnly`,
+    // `OWN_BUTTONS`): the platform's own chrome — the saved-bids band, the
+    // rates bar, the embed-code offer — carries real inputs and a real
+    // button that belong to no venture. Counting them here meant a page with
+    // no controls of its own except a landing-page's list of links (the
+    // nested `ai-engineering-academy` hub) still reported `interactive: 2`
+    // once every entry page started carrying the embed-code textarea and its
+    // "Copy embed code" button, which took the `interactive === 0` branch
+    // below off the table and reported the hub NO-CONTROLS — a false dead
+    // product on the one page that was already doing its job.
     const interactive = await page.$$eval(
-      'input, select, textarea, button',
+      ownOnly('input, select, textarea, button'),
       (nodes) => nodes.length,
     );
 
