@@ -201,10 +201,18 @@ jobs:
           # verification that goes green having verified nothing has no way
           # left to tell anyone it stopped running.
           if [ "$rc" = 2 ]; then
-            echo "::error::Nothing was verified. This is NOT a defect in a calculator --" \
-                 "a check could not run at all (no browser, no axe-core, an unknown name" \
-                 "in the checks input, or an empty page list). Read the skip reason above:" \
-                 "it names the check and the command that fixes it."
+            # Says "one or more", not "nothing". Exit 2 fires when some checks
+            # skipped and the rest passed, so the harness has just printed
+            # "N of 7 checks did NOT run" followed by "the M check(s) that ran
+            # passed". An annotation claiming nothing was verified would
+            # contradict its own summary on the same screen, and the reader
+            # believes whichever they read second.
+            echo "::error::One or more browser checks did not run, so this build is" \
+                 "not fully verified. This is NOT a defect in a calculator. The" \
+                 "harness summary above names which ones and why -- a missing" \
+                 "browser or axe-core, an empty page list, or an unknown name in" \
+                 "the checks input, which is corrected in the input rather than" \
+                 "by installing anything."
           fi
           exit "$rc"
 
