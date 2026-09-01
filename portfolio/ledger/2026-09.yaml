@@ -1131,3 +1131,59 @@ entries:
         no evidence surfaced that others remain, though the search was
         not exhaustive over all ~104 ventures with a `depositPercent`
         field.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Manual `deploy-cicd-readiness` tick (governor still disabled).
+        Closed the gap a prior session in this same file flagged and
+        deliberately left open: `infra/inventory.tf`'s Hetzner private
+        network CIDR (`10.42.0.0/16`, both nodes' advertise addresses
+        inside it) collides with k3s's own default `--cluster-cidr` (the
+        pod overlay network), which is the same `10.42.0.0/16` --
+        confirmed independently, and also confirmed already documented
+        in-repo: `gitops/ci/networkpolicy.yaml`'s own comment states "k3s
+        defaults: pods 10.42.0.0/16, services 10.43.0.0/16," and
+        `gitops/tests` hardcodes that block as "the pod CIDR" in every
+        NetworkPolicy egress exclusion -- two files each independently
+        claiming the same range, uncorrelated until now. A node's own
+        private address landing inside the block flannel hands its local
+        pods out of produces two routes for one prefix in the same
+        routing table; the kernel keeps only one. Not yet visible because
+        every workload with public consequence is pinned to the
+        control-plane node alone and the governor that would put Jobs on
+        the second node is still disabled, so no cross-node pod traffic
+        has had to cross it -- it would start mattering the day the
+        governor is enabled.
+      - >-
+        Shipped #2660, scoped to match the prior session's own caution
+        ("a wrong fix risks a real cluster networking migration"):
+        `bootstrap/install-k3s-server.sh` now pins `--cluster-cidr
+        10.244.0.0/16` (kubeadm's long-standing reference flannel
+        default) so a *future* fresh or disaster-recovery install cannot
+        recreate the collision. Deliberately does not touch the live
+        cluster or `infra/inventory.tf`'s actual CIDR values -- the
+        install script already refuses to re-run against an existing
+        install, so this changes nothing about a cluster already up, and
+        this session had no SSH/kubectl access to verify or migrate one
+        that is. `infra/tests/test_infra_layout.py` gained a regression
+        test (stdlib `ipaddress`, not a literal-string match) that parses
+        both CIDRs and asserts they do not overlap; confirmed it fails
+        with the right message when reverted to `10.42.0.0/16`.
+      - >-
+        Verified: `python3 -m pytest gitops/tests -q` 219/219 unaffected;
+        `python3 infra/tests/test_infra_layout.py` 12/12 including the new
+        test; `python3 infra/tests/test_hcloud_scope.py` 5/5; `shellcheck`
+        on every script `hetzner-gitops-ci.yml`'s `scripts` job checks,
+        0 findings; `tofu fmt -check -recursive` clean (`tofu
+        init`/`validate` could not run in this sandbox -- the egress
+        proxy blocks `registry.opentofu.org`); `kustomize build` on all
+        six `gitops/` overlays + `kubeconform -strict` against the
+        result, 52 valid/0 invalid, run to confirm nothing else regressed
+        while investigating. All 7 real PR checks went green on real
+        runners (`gitops` ran 60s -- the full 219-test suite plus
+        kustomize/kubeconform, not the 3-6s starvation signature); merged.
+        Still open: whether the live cluster is actually broken by this
+        today, or has avoided it by luck of flannel's actual subnet
+        allocation -- that still needs a session with `HETZNERSSHKEY`.
