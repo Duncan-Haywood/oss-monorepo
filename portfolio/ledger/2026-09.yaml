@@ -267,14 +267,37 @@ entries:
         `.pf-chrome`), mutation-checked by dropping the class and watching it
         fail.
       - >-
-        Both of Copilot's findings on #2616 were real and were fixed rather
-        than answered: Playwright and axe-core are now pinned (1.56.0 /
-        4.13.0), which matters here because Playwright pins a browser *build
-        number* and a floating spec would change the browser under test with
-        no commit; and the second resolve, `npx --yes playwright install`,
-        was the sharper half -- it prefers a local binary but silently fetches
-        the latest when it does not find one, so it invokes the pinned CLI at
-        its path instead.
+        Copilot left three findings on #2616. All three were real and all
+        three were fixed rather than answered. (1) Unpinned dependencies:
+        Playwright and axe-core now pin 1.56.0 / 4.13.0, which matters here
+        because Playwright pins a browser *build number*, so a floating spec
+        changes the browser under test with no commit. The same finding named
+        a second resolve, `npx --yes playwright install`, and that was its
+        sharper half -- `npx` prefers a local binary but silently fetches the
+        latest when it does not find one, so it now invokes the pinned CLI at
+        its path. (2) A comment that said the opposite of what it meant:
+        "GitHub-hosted `ubuntu-latest` has passwordless sudo and does not"
+        reads as "cannot install the dependencies", when passwordless sudo is
+        exactly why it can; it is the self-hosted runner that cannot.
+        Rewritten.
+      - >-
+        (3) The third was suppressed rather than posted as a review thread, so
+        it was not seen before #2616 merged, and it was the one that mattered
+        most: exiting 0 on the harness's exit 2 turned "nothing was verified"
+        into a green nightly run. Fixed forward -- an exit 2 now fails the
+        job and prints an `::error::` saying it is not a site defect.
+        The original reasoning cited CLAUDE.md's three paragraphs on absent
+        versus failed CI, and misapplied them: those are about how to read a
+        signal you were handed, not a licence for a scheduled verification to
+        go green having verified nothing. The concrete hole was total -- the
+        Chromium install step is `continue-on-error`, so a failed browser
+        install exited 2 and the workflow would have stayed green forever
+        while running no checks at all; an unknown name in the `checks` input
+        does the same. Nobody reads a `::warning::` on a green nightly. This
+        is the same failure shape this repo already has two scars from:
+        `highlight` written and left out of `CHECKS` so "the browser checks"
+        ran six of seven silently, and `supersede_check.py` exiting 1 on 65 of
+        66 PRs -- a gate that never opened and so nobody used.
       - >-
         Queue state: one open PR at session start (#2609, a dependabot
         browserslist dev-dependency bump), merged after its checks came back
