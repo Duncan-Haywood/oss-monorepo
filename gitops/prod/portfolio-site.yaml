@@ -181,8 +181,8 @@ data:
       # .mjs is NOT in nginx's mime.types. Without this it is served as
       # application/octet-stream, and a browser refuses to execute an ES
       # module with a non-JavaScript MIME type — `nosniff` below makes that
-      # refusal absolute rather than merely likely. The site ships 551 .mjs
-      # files loaded with <script type="module"> on 261 pages, including the
+      # refusal absolute rather than merely likely. The site ships 579 .mjs
+      # files loaded with <script type="module"> on 270 pages, including the
       # calc.mjs / share.mjs / usage.mjs behind every calculator, so getting
       # this wrong serves 200s for pages that render and then do nothing.
       # GitHub Pages types .mjs correctly, which is why it never showed there.
@@ -235,7 +235,7 @@ data:
       # atom+xml` is the registered type (RFC 4287), and the aggregators that
       # take a site URL and go looking for a feed match on it rather than
       # parsing every text/xml document they find. Scoped with `=` to the one
-      # file, because `~ \.xml$` would also catch the 170 sitemaps, which are
+      # file, because `~ \.xml$` would also catch the 171 sitemaps, which are
       # not Atom.
       location = /feed.xml {
         types { }
