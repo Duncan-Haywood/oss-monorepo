@@ -678,6 +678,83 @@ def test_portfolio_site_carries_no_token_and_reads_one_from_a_secret() -> None:
     assert "https://x-access-token:${GH_TOKEN}@" not in raw
 
 
+def _prod_networkpolicies() -> dict[str, dict]:
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "networkpolicy.yaml").read_text()))
+    return {d["metadata"]["name"]: d for d in docs if d}
+
+
+def test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy() -> None:
+    assert set(_prod_networkpolicies()) == {"portfolio-site-egress"}
+
+
+def test_networkpolicy_is_synced_by_prod() -> None:
+    kustomization = yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())
+    assert "networkpolicy.yaml" in kustomization["resources"]
+
+
+def test_portfolio_site_egress_targets_the_pod_that_holds_the_clone_token() -> None:
+    policy = _prod_networkpolicies()["portfolio-site-egress"]
+    assert policy["spec"]["podSelector"]["matchLabels"] == {"app": "portfolio-site"}
+    # This has to match the label the Deployment actually stamps on its pods,
+    # or the policy silently governs nothing.
+    assert (
+        _portfolio_site()["Deployment"]["spec"]["template"]["metadata"]["labels"]["app"]
+        == "portfolio-site"
+    )
+
+
+def test_portfolio_site_egress_policy_does_not_touch_ingress() -> None:
+    # Deliberately egress-only. ingress-nginx reaches this pod as a
+    # hostNetwork DaemonSet (gitops/apps/ingress-nginx.yaml), so its traffic
+    # is not attributable to a Pod/Namespace identity the way
+    # podSelector/namespaceSelector match -- an Ingress-side rule here would
+    # need an ipBlock naming the node itself, which no session can verify
+    # without cluster access. If this ever grows an Ingress rule it must be
+    # deliberate and reviewed against the live cluster, not a silent
+    # side-effect of some other edit -- see the comment at the top of
+    # networkpolicy.yaml.
+    policy = _prod_networkpolicies()["portfolio-site-egress"]
+    assert policy["spec"]["policyTypes"] == ["Egress"]
+    assert "ingress" not in policy["spec"]
+
+
+def test_portfolio_site_egress_dns_is_scoped_to_kube_system() -> None:
+    # Same regression class as test_agents_dns_egress_is_scoped_to_kube_
+    # system: an unscoped `to:` on port 53 is a DNS-tunneling exfiltration
+    # path independent of the HTTPS restriction below.
+    policy = _prod_networkpolicies()["portfolio-site-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    to = dns_rules[0].get("to")
+    assert to, "the DNS rule has no `to:` -- it allows port 53 to any destination"
+    assert to[0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+
+def test_portfolio_site_egress_cannot_reach_the_kube_apiserver() -> None:
+    # Same regression class as test_worker_egress_cannot_reach_the_kube_
+    # apiserver: a 443 rule with no `to:` is "port 443 to any destination",
+    # which includes 10.43.0.1 (the k3s default `kubernetes` Service, i.e.
+    # the API server) -- reachable by a pod that briefly holds a live GitHub
+    # clone token, with no automountServiceAccountToken guard to fall back on
+    # the way the Codex worker has (portfolio-site does not mount any
+    # ServiceAccount token either, but the network route existing at all is
+    # the thing this pins shut, the same way it is for the worker).
+    policy = _prod_networkpolicies()["portfolio-site-egress"]
+    https_rules = [r for r in policy["spec"]["egress"] if r.get("ports") == [{"protocol": "TCP", "port": 443}]]
+    assert len(https_rules) == 1, https_rules
+    to = https_rules[0].get("to")
+    assert to, "the 443 egress rule has no `to:` -- it allows any destination"
+    internet = to[0]["ipBlock"]
+    assert internet["cidr"] == "0.0.0.0/0"
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
+        assert blocked in internet["except"], blocked
+
+
 def test_portfolio_site_refresh_can_only_restart_the_site() -> None:
     role = _portfolio_site()["Role"]
     assert role["rules"] == [
