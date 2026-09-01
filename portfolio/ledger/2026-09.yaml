@@ -1234,3 +1234,111 @@ entries:
         (7/7 checks completed, 1 skipped as expected for the owner-gated
         `deploy` job; run durations up to ~2.7 minutes ruled out the known
         Actions-starvation signature). Merged as `0246a9b27`.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2659: `infra/inventory.tf`'s `private_network_cidr` was
+        `10.42.0.0/16` -- k3s's own default `--cluster-cidr` (the pod
+        network), address for address -- with both node IPs
+        (`10.42.0.10`/`.11`) inside it, and nothing in
+        `bootstrap/install-k3s-server.sh` overriding the k3s default. On the
+        next `tofu apply` flannel would put `cni0` on `10.42.0.1/24` while
+        the Hetzner private NIC carried `10.42.0.10/24` on the same box, and
+        because pod IPs come out of that same /24 a pod would eventually be
+        issued the address `--node-ip`, `--advertise-address`, `--tls-san`
+        and the agent's `SERVER_URL` all name. Moved to `10.10.0.0/16`,
+        clear of both k3s defaults, Docker's bridge pool and 192.168/16.
+      - >-
+        Why it was safe to act rather than wait: the 2026-09-01 ledger entry
+        flagged this and left it, reasoning that confirming the routing
+        needed live cluster access. That aimed at the wrong risk. The
+        network has never been created -- `infra/Makefile` refuses to apply,
+        the only Hetzner credential is `HETZNERREADAPIKEY` (read-only), and
+        `bootstrap/preflight.sh` still treats "10.42.0.10 not on the box
+        yet" as the expected state -- so there was nothing live to observe
+        and the fix was four strings. After an apply it would have been
+        renumbering a live cluster's node addresses on the box serving
+        marisstella.dev. Worth generalising: "we cannot confirm X" is only
+        load-bearing when X can actually happen yet.
+      - >-
+        The half that is easy to miss: `gitops/{prod,ci,agents}/networkpolicy.yaml`
+        were blocking the node addresses only as a *side effect* of
+        excepting the pod CIDR -- `gitops/ci/networkpolicy.yaml` said so in
+        a comment ("inside the pod CIDR already excluded here"), which was
+        true and was the bug. Moving the network without moving the
+        exception would have opened every runner and worker pod a route to
+        both kubelets on :10250. General rule for this repo: moving a CIDR
+        silently breaks every rule that named it for a different reason.
+      - >-
+        Concurrency, handled rather than fought: #2660 landed mid-run fixing
+        the same collision from the opposite end -- pinning `--cluster-cidr`
+        to `10.244.0.0/16` instead of moving the network. Both were kept,
+        because they cover different clusters: a pin takes effect at install
+        time and cannot help an already-running cluster (#2660 says so
+        itself), while moving the network protects the cluster that exists,
+        since what is being created is the network and not the cluster.
+        Integrating also surfaced a gap #2660 left -- moving the pod CIDR to
+        10.244.0.0/16 moved every pod address out of the 10.42.0.0/16
+        exclusion and into the allowed range, so on a fresh install a CI
+        runner or Codex worker would have had a route to every pod on :443.
+        Excepted in all three policies now, both ranges kept.
+      - >-
+        Verified: `pytest gitops/tests infra/tests -q` 238 passed. Both new
+        tests were proven to fail when their fix is reverted rather than
+        merely to pass -- the overlap test reports `private_network_cidr
+        10.42.0.0/16 overlaps k3s's default pod CIDR`, and removing the
+        10.244.0.0/16 line fails `test_runner_cannot_reach_the_cluster`.
+        Real CI 6/6 green on real runners (`gitops` job 59s, running
+        `kustomize build` + `kubeconform` + pytest).
+  - venture: npm-deployment-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2667: #2664's `vs-npm-audit.html` went green on all 8
+        checks with **nothing linking to it**. Established by grepping a
+        real build rather than by reading: the only file in
+        `platform/pages/dist` carrying an `href` to it was the page itself,
+        while the venture's sibling SEO article is linked from
+        `index.html`. `build.mjs` does list it in the regenerated sitemap so
+        it was not invisible to a crawler, but sitemap-only discovery is the
+        weak half -- an internal link is what carries ranking signal between
+        the pages and is the only way a visitor already using the tool
+        arrives at the comparison. Fixed forward (the PR merged while it was
+        being reviewed), matching the convention all four sibling
+        comparison pages already follow.
+      - >-
+        The generalisable finding, worth a check of its own if this recurs:
+        **no check in this repo catches an orphaned page.** Dead-link
+        scanning finds links pointing at missing pages, not pages nothing
+        points at, so `check.mjs`'s "no dead links" is silent on it. For the
+        `marketing-distribution` queue item specifically -- whose assets
+        exist to be found -- that is the failure mode that costs the most
+        and shows the least. A future run could add an inbound-link
+        assertion to `check.mjs` for venture subpages.
+      - >-
+        Verified: venture `node --test` 21/21; `platform/pages` `node
+        --test` 838/838; `build.mjs` + `check.mjs` 522 pages, no dead links;
+        re-ran the original grep and `index.html` now appears among the
+        files linking to the page. Real CI 7/7 green (`deploy` skipped off
+        `main` as expected).
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Standing blocker re-confirmed but NOT re-derived: the account
+        owner's three named priorities -- deployment/CI-CD, marketing
+        materials on the Hetzner boxes, and the Codex CLI on its built-in
+        plan quota -- are all already built, and all three wait on the same
+        two seals (`portfolio-site-repo`, `codex-secrets`) via
+        `./bootstrap/scripts/seal-owner-secrets.sh site agents`. The
+        `marketing-distribution` queue item had already been re-prioritised
+        4 -> 6 quoting the owner's sentence, and the seal script already
+        defaults to the plan-quota route on a bare Enter. No duplicate
+        decision-queue rows added. Recorded here so a future session
+        recognises this as settled rather than re-investigating it: the
+        useful sentence is which seals remain, not another survey of the
+        stack behind them.
