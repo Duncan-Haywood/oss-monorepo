@@ -557,8 +557,8 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     # `js` and nothing else), so .mjs falls through to
     # default_type application/octet-stream — and a browser refuses to
     # execute an ES module with a non-JavaScript MIME type, which the
-    # nosniff header below makes absolute. The site ships 551 .mjs files
-    # loaded with <script type="module"> on 261 pages, so without this the
+    # nosniff header below makes absolute. The site ships 579 .mjs files
+    # loaded with <script type="module"> on 270 pages, so without this the
     # calculators render and silently do not compute. GitHub Pages types
     # .mjs correctly, which is why this never showed on that host.
     conf = _portfolio_site()["ConfigMap"]["data"]["default.conf"]
@@ -590,7 +590,7 @@ def test_portfolio_site_types_the_feed_as_atom() -> None:
     # application/atom+xml rather than parsing every text/xml document.
     #
     # Scoped `=` rather than `~ \.xml$` on purpose: the site ships one Atom
-    # document and 170 sitemaps, which are not Atom and must keep their own
+    # document and 171 sitemaps, which are not Atom and must keep their own
     # type.
     conf = _portfolio_site()["ConfigMap"]["data"]["default.conf"]
     assert "location = /feed.xml {\n    types { }\n    default_type application/atom+xml;" in conf
