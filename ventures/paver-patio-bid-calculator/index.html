@@ -325,6 +325,8 @@
       forgetCompany,
       renderProposalHtml,
     } from './proposal.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const FIELD_IDS = [
       'lengthFeet','widthFeet','wastePct','patternLaborFactor','hoursPerFinishedSf','hoursPerEdgeLf',
@@ -451,11 +453,22 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      // The deposit split and how long the price is held are proposal terms,
+      // not part of the bid arithmetic -- see proposal-terms.mjs. Without
+      // them riding beside the payload, a recipient who opens a shared link
+      // reopens the venture's own defaults (30% / 30 days) under a headline
+      // price that still matches to the cent, so nothing on either screen
+      // says the deposit amount on the printed proposal has changed.
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await copyLink(url);
+      history.replaceState(null, '', `#${hash}`);
       count('share_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -673,7 +686,9 @@
     document.addEventListener('input', refreshProposal);
     document.addEventListener('change', refreshProposal);
 
-    applyShare(decodeShare(location.hash));
+    const incoming = splitTerms(location.hash);
+    applyShare(decodeShare(incoming.payload));
+    applyTerms(decodeTerms(incoming.terms), el);
     update();
     restoreCompany();
     refreshProposal();

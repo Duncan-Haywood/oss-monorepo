@@ -362,7 +362,7 @@ def test_worker_egress_cannot_reach_the_kube_apiserver() -> None:
     assert to, "the 443 egress rule has no `to:` -- it allows any destination"
     internet = to[0]["ipBlock"]
     assert internet["cidr"] == "0.0.0.0/0"
-    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.244.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
 
 
@@ -492,7 +492,7 @@ def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
     # stamped into every page's canonical link (see the PAGES_BASE_URL test
     # below). The apex and `www` reach the site through the 301 in
     # `prod/portfolio-apex.yaml`, so adding either here would put two
-    # uncanonical copies of all 508 pages in front of crawlers.
+    # uncanonical copies of all 518 pages in front of crawlers.
     ingress = _portfolio_site()["Ingress"]
     hosts = [rule["host"] for rule in ingress["spec"]["rules"]]
     assert hosts == ["tools.marisstella.dev"]
@@ -524,7 +524,7 @@ def test_portfolio_apex_claims_both_bare_and_www() -> None:
 
 def test_portfolio_apex_redirects_permanently_to_the_canonical_host() -> None:
     # A 301 to the canonical host, not a second copy of the site: build.mjs
-    # stamps one canonical base into all 508 pages, and serving those bytes
+    # stamps one canonical base into all 518 pages, and serving those bytes
     # under two more names would contradict it on every page.
     apex = _portfolio_apex()
     annotations = apex["metadata"]["annotations"]
@@ -775,7 +775,7 @@ def test_portfolio_site_egress_cannot_reach_the_kube_apiserver() -> None:
     assert to, "the 443 egress rule has no `to:` -- it allows any destination"
     internet = to[0]["ipBlock"]
     assert internet["cidr"] == "0.0.0.0/0"
-    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.244.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
 
 

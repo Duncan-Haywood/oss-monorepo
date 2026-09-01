@@ -53,6 +53,18 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /decodeShare/, 'share-link decoder is missing from the executable script');
 });
 
+// The deposit percentage and how long the price is held are proposal terms,
+// not bid inputs -- share.mjs's SHARE_FIELDS deliberately excludes them (see
+// the "carries no customer or business details" test below). Without this
+// wiring a copied link silently reopened the venture's defaults for both, so
+// a shared bid's headline price matched to the cent while the deposit amount
+// on the printed proposal did not. See proposal-terms.mjs.
+test('the deposit and price-hold terms travel with a shared link', () => {
+  assert.match(scriptSource, /from '\.\/proposal-terms\.mjs'/, 'proposal-terms.mjs is not imported');
+  assert.match(scriptSource, /withTerms\(encodeShare\(readInput\(\)\), terms\)/, 'copyShare does not fold the terms into the link it copies');
+  assert.match(scriptSource, /applyTerms\(decodeTerms\(incoming\.terms\), el\)/, 'a link opened on load does not restore the deposit and price-hold terms');
+});
+
 test('every element the script reaches for exists in the markup', () => {
   const wanted = new Set([
     ...[...scriptSource.matchAll(/el\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),

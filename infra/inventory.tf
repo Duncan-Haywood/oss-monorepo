@@ -64,6 +64,23 @@ locals {
   # those blocked the node IPs only as a side effect of excluding the pod
   # CIDR, so moving the network without moving the exception would open pods
   # a route to the kubelet. gitops/tests asserts the new range is there.
+  # #2660 fixed the same collision from the other end, concurrently with
+  # this: bootstrap/install-k3s-server.sh now pins `--cluster-cidr` to
+  # 10.244.0.0/16 so a fresh or DR install cannot recreate it. Both changes
+  # are kept, and they are not redundant -- they cover different clusters:
+  #
+  #   the pin  protects a cluster installed from now on, and cannot touch
+  #            one already running, whose --cluster-cidr was baked in at
+  #            install time. #2660 says so itself.
+  #   this     protects the cluster that exists. The thing being created
+  #            here is the *network*, not the cluster, so moving it to
+  #            10.10.0.0/16 lands clear of a live pod network still on
+  #            k3s's 10.42.0.0/16 default -- the case the pin explicitly
+  #            could not reach.
+  #
+  # Which is why the range below stays clear of BOTH 10.42/16 and
+  # 10.244/16: whichever pod CIDR a given cluster ended up with, this
+  # network does not overlap it.
   private_network_cidr = "10.10.0.0/16"
   private_subnet_cidr  = "10.10.0.0/24"
   control_plane_priv   = "10.10.0.10"

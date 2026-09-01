@@ -29,6 +29,16 @@ spec:
               # k3s defaults: pods 10.42.0.0/16, services 10.43.0.0/16.
               - 10.42.0.0/16
               - 10.43.0.0/16
+              # The pod CIDR a cluster installed from now on actually runs:
+              # bootstrap/install-k3s-server.sh pins --cluster-cidr here
+              # (#2660). Without this line that PR's own fix would have
+              # moved every pod address out of the 10.42.0.0/16 exclusion
+              # above and into the allowed range, handing a CI runner a
+              # route to every pod in the cluster on :443 -- the exact hole
+              # this `except:` list exists to close. Both ranges stay
+              # listed: the pin is baked in at install time, so an already
+              # installed cluster is still on 10.42.0.0/16.
+              - 10.244.0.0/16
               # The private network the two nodes join over, per
               # infra/inventory.tf. It needs its own line: this comment used
               # to say the node IPs were "inside the pod CIDR already
