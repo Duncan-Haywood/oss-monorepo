@@ -494,3 +494,47 @@ entries:
         Deployment status unchanged and not re-derived here: `main` still has
         no reachable content pending Secret `portfolio-site-repo`, per the
         Argo surface `publish_surface.py --check` already reports.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        One open PR at session start (#2629, a ledger correction) --
+        reviewed, verified locally (`pytest portfolio/ledger -q`: 161 passed
+        plus 3 `TestShallowClone` failures that reproduced as flaky on an
+        immediate retry, isolated to a `git commit` subprocess timing issue
+        in this sandbox and unrelated to the YAML-only diff), confirmed CI
+        green (`check`, `test`, `copilot-pull-request-reviewer` all
+        success), and merged. Zero open PRs remained afterward.
+      - >-
+        Shipped #2630: `ebay-fee-calculator/vs-ebay-fee-calculator.html`, a
+        comparison page naming eBay's own two free Seller Center tools (Fee
+        Calculator, Fee Illustrator) and stating only their structural scope
+        -- no eBay dollar or percentage figure anywhere on the page, since
+        `ebay.com` is blocked by this session's egress proxy and could not be
+        fetched to verify one. Facts (two named free tools; Fee Illustrator
+        recommends a Store tier) came from web search of eBay's own Seller
+        Center and Seller Fees FAQ pages instead.
+      - >-
+        First push (34eef3941) broke `platform/pages/faq-visible.test.mjs`
+        ("every authored FAQPage question and answer is visible on its
+        page") -- the new page's JSON-LD used `--` where the matching
+        visible prose used an em dash, so the two didn't compare equal.
+        `node --test platform/pages/*.test.mjs` (838 tests, ~145s) caught it
+        locally before the PR's own CI did; both later went green on the
+        fixed commit (d0e860fd5). Worth remembering that the full
+        `platform/pages` suite, not just the touched venture's own tests, is
+        what catches this exact class of mismatch on a new comparison page.
+      - >-
+        Also confirmed (no change made -- already fully built and unchanged
+        from prior sessions' write-ups): the self-hosted CI runner stack
+        (`gitops/ci/`), the site's live-deploy clone token
+        (`gitops/prod/secrets/`), and the Codex worker set up to spend a
+        ChatGPT plan's built-in quota rather than bill per token
+        (`gitops/agents/workers/`, `gitops/agents/secrets/`) are all
+        code-complete. None of the three sealed secrets exist yet (only
+        `*.template.yaml` files in each secrets directory), the governor
+        cronjob is still `suspend: true`, and its `policy.json` still reads
+        `"enabled": false`. All three items are owner-only laptop actions
+        (`kubeseal` against the cluster) per `infra/OWNER_CHECKLIST.md` --
+        nothing code-side remains for an agent on any of the three.
