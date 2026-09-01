@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate that every .github/workflows file is a well-formed GitHub workflow.
 
-Three invariants:
+Four invariants:
 
 1. Parseability. An unparseable workflow file fails silently: GitHub registers
    it with its `name` set to its own path, then emits a zero-job
@@ -23,6 +23,16 @@ Three invariants:
    runs with the repository's default token scope, broader than any
    checkout/build/lint/test step needs. Every workflow on `main` already pins a
    scope; this check keeps a newly-added one from silently regressing that.
+
+4. A `name:` unique across the repository. GitHub groups the PR checks list by
+   workflow name, not by filename, so two files sharing a name produce two
+   identically-labelled rows with no way to tell which is which without
+   opening each one -- the exact anti-pattern `conflict-markers-ci.yml` and
+   `duplicate-symbols-ci.yml` were each named to avoid (their own headers say
+   so: "a red result should name its own cause without opening it"). Found by
+   this check itself: `print-atelier-ci.yml`, `quick-pick-survey-ci.yml` and
+   `retail-pilot-intel-ci.yml` all carried the generic `name: CI`, unlike every
+   other venture workflow's `"<slug> CI"`.
 
 Usage: python3 platform/ci/validate_workflows.py
 """
@@ -118,6 +128,41 @@ def check(path, errors):
             )
 
 
+def check_unique_names(paths):
+    """Every workflow's `name:` must be unique across the whole directory.
+
+    Takes the real list of paths rather than being folded into check(), which
+    tests one synthetic file in isolation (platform/ci/test_validate_workflows.py)
+    and has no notion of its siblings. A file that fails to parse, or has no
+    `name:` at all, is reported by check() already and is skipped here rather
+    than counted as a match against every other unnamed file.
+    """
+    names = {}
+    for path in paths:
+        try:
+            data = yaml.safe_load(path.read_text())
+        except yaml.YAMLError:
+            continue
+        if not isinstance(data, dict):
+            continue
+        name = data.get("name")
+        if not name:
+            continue
+        names.setdefault(name, []).append(path)
+
+    errors = []
+    for name, owners in sorted(names.items()):
+        if len(owners) < 2:
+            continue
+        rel = ", ".join(str(p.relative_to(REPO_ROOT)) for p in owners)
+        errors.append(
+            f"{len(owners)} workflows share the name {name!r}, so the PR checks "
+            f"list cannot tell them apart without opening each one -- give each "
+            f"a distinct name (e.g. \"<venture> CI\"): {rel}"
+        )
+    return errors
+
+
 def main():
     if not WORKFLOWS_DIR.is_dir():
         print(f"No {WORKFLOWS_DIR.relative_to(REPO_ROOT)} directory; nothing to check.")
@@ -129,6 +174,7 @@ def main():
     errors = []
     for path in paths:
         check(path, errors)
+    errors.extend(check_unique_names(paths))
 
     if errors:
         print(f"{len(errors)} problem(s) found:\n", file=sys.stderr)
