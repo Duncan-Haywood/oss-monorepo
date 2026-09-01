@@ -710,7 +710,7 @@ spec:
 # issue #1925.
 #
 # The host below stays `tools.` anyway, because it is the canonical host
-# stamped into all 508 pages' canonical links, og:urls and sitemap entries
+# stamped into all 518 pages' canonical links, og:urls and sitemap entries
 # via PAGES_BASE_URL. The apex and `www` are handled next door in
 # `portfolio-apex.yaml`, which 301s them here rather than serving a second
 # uncanonical copy. Keep this Ingress single-host: the test in

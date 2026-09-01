@@ -72,7 +72,7 @@ usual during those five days.
 A subdomain, because `tools.marisstella.dev` is the canonical host
 stamped into every page's canonical link, og:url and sitemap entry. The
 apex and `www` are served by `prod/portfolio-apex.yaml`, which 301s them
-here rather than putting two uncanonical copies of all 508 pages in front
+here rather than putting two uncanonical copies of all 518 pages in front
 of crawlers.
 
 This used to say the apex was left alone because it "already resolves to
@@ -110,11 +110,16 @@ PAGES_BASE_URL=https://tools.marisstella.dev/ \
   node platform/pages/check.mjs --dist=/tmp/site
 ```
 
-Both exit 0 on `main`: 169 products, 7 category pages, 517 pages, no dead
+Both exit 0 on `main`: 169 products, 7 category pages, 518 pages, no dead
 links. `build.mjs` reads the committed `launched.json` rather than shelling
 out to `git log` (see the comment at its line ~4648), so the `--depth 1`
 clone the `fetch` container does costs it nothing — the depth-1 checkout and
 a full one produce the same site.
+
+Re-verified same-day against a later `main`: the page count moved 517 → 518
+between the two runs (another venture merged in between; the product count
+held at 169). Expect this figure to keep moving by a page or two per session
+— it is not the property this check exists to pin, "still exits 0" is.
 
 This says the seal will land on a working build; it does not confirm
 anything about the cluster. Certificate issuance and public reachability
@@ -216,7 +221,10 @@ both Ingresses **and** the test — never one without the others.
 Pods build from `main` at start-up, so a merged venture does not appear
 until something restarts them — and Argo will not, because this manifest
 does not change when a venture does. The `portfolio-site-refresh`
-CronJob does a `rollout restart` nightly at 04:17 UTC. Its Role is
+CronJob does a `rollout restart` nightly at 01:00 UTC, after the usage
+aggregator has read the day's log (see `portfolio/usage/README.md`) — moved
+there in #2330 so the restart's pod churn stops deleting nginx access logs
+the aggregator hasn't read yet. Its Role is
 namespaced and narrowed by resource name: it can restart this one
 Deployment and touch nothing else in `prod`.
 

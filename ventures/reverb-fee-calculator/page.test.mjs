@@ -23,6 +23,7 @@ const safeShippingSeo = readFileSync(new URL('./should-i-buy-reverb-safe-shippin
 const consignmentSeo = readFileSync(new URL('./should-i-consign-this-reverb-listing.html', import.meta.url), 'utf8');
 const bumpSeo = readFileSync(new URL('./should-i-bump-this-reverb-listing.html', import.meta.url), 'utf8');
 const returnSeo = readFileSync(new URL('./should-i-take-the-return-or-refund-on-reverb.html', import.meta.url), 'utf8');
+const vsSeo = readFileSync(new URL('./vs-reverbs-selling-fees-page.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -188,10 +189,37 @@ test('the return/refund SEO page uses the same worked example the calculator def
 // should-i-eat-the-shipping-on-reverb.html, should-i-take-the-return-or-
 // refund-on-reverb.html, and should-i-take-this-reverb-offer.html shipped
 // without them; the last of those was also missing robots/canonical entirely.
+test('the incumbent-comparison page links back, names Reverb\'s own resources honestly, and cross-links to real anchors', () => {
+  assert.match(html, /vs-reverbs-selling-fees-page\.html/);
+  assert.match(vsSeo, /<a href="\.\/">/);
+  // Names Reverb's own domain and help center so a reader can check the
+  // source directly, and states the published rate figures Reverb itself
+  // publishes (a schedule, not a black-box calculator's output) rather than
+  // guessing at anything only Reverb's live systems could confirm.
+  assert.match(vsSeo, /reverb\.com\/selling\/selling-fees/);
+  assert.match(vsSeo, /help\.reverb\.com/);
+  assert.match(vsSeo, /5% selling fee/);
+  assert.match(vsSeo, /3\.19% \+ \$0\.49/);
+  assert.match(vsSeo, /2\.99% \+ \$0\.49/);
+  assert.match(vsSeo, /Preferred Seller/);
+  assert.match(vsSeo, /Earnings/);
+  assert.match(vsSeo, /not affiliated with, endorsed by, or sponsored by Reverb/i);
+  assert.match(vsSeo, /trademarks of Reverb\.com, Inc\./i);
+  assert.match(vsSeo, /No warranty/);
+  assert.match(vsSeo, /no SLA/i);
+  // Every cross-link this page makes back into the calculator must resolve
+  // to an id that actually exists there, or a reader following it lands
+  // nowhere useful.
+  for (const anchor of ['offer-compare', 'shipping-compare', 'safe-shipping-compare', 'consignment-compare', 'bump-compare', 'return-compare']) {
+    assert.match(vsSeo, new RegExp(`#${anchor}"`), `vs-page should link to #${anchor}`);
+    assert.match(html, new RegExp(`id="${anchor}"`), `index.html should have id="${anchor}"`);
+  }
+});
+
 test('every published page carries Open Graph tags', () => {
   const dir = new URL('./', import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
-  assert.ok(pages.length >= 8, 'expected at least the 8 known pages in this venture');
+  assert.ok(pages.length >= 9, 'expected at least the 9 known pages in this venture');
   for (const page of pages) {
     const source = readFileSync(new URL(page, dir), 'utf8');
     assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
