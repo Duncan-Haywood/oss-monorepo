@@ -560,3 +560,21 @@ entries:
         (finish existing work before new, deployment/CI-CD counts as product
         work, verify before claiming, never merge or seal on your own
         authority) and needs no edit today.
+      - >-
+        A second, concurrent scheduled run against the same owner
+        instruction landed one open PR the checks above missed (#2629, a
+        ledger correction opened after this run's own zero-open-PR check) --
+        reviewed, verified locally (`pytest portfolio/ledger -q`: 161 passed
+        plus 3 `TestShallowClone` failures that reproduced as flaky on an
+        immediate retry, unrelated to the YAML-only diff), confirmed CI
+        green, and merged. It then shipped #2630
+        (`ebay-fee-calculator/vs-ebay-fee-calculator.html`, a comparison page
+        naming eBay's own two free Seller Center tools -- Fee Calculator,
+        Fee Illustrator -- with no eBay dollar or percentage figure anywhere
+        on the page, since `ebay.com` is blocked by egress and facts came
+        from web search instead), self-caught and fixed an
+        em-dash/double-hyphen mismatch the first push introduced
+        (`platform/pages/faq-visible.test.mjs`, 838-test suite run locally
+        before the PR's own CI caught it too), and reached the same
+        owner-blocked conclusion above independently before merging this
+        entry.
