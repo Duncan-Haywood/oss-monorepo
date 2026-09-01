@@ -41235,3 +41235,40 @@ entries:
         `portfolio-site-repo` read-only clone token; the `codex-secrets`
         credential + two suspend/enabled flips) -- same conclusion as
         #2307/#2308 hours earlier, added nothing new to the decision queue.
+  - venture: moving-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2600: a shareable bid link and saved draft, the one gap
+        this venture had against 55 sibling `*-bid-calculator` tools --
+        found by an Explore pass over ventures not in that session's own
+        active-work list, then confirmed by grep (no `share.mjs`, and
+        `index.html` only ever persisted the proposal's company fields,
+        never the priced job itself). A mover who lost a multi-room
+        inventory to an accidental reload had to retype the whole job, and
+        had no way to send a dispatcher a link that reopened the exact
+        bid.
+      - >-
+        Found and worked around a real latent bug in the shared
+        `share.mjs` module along the way: the 36-venture copy (e.g.
+        `kitchen-tile-backsplash-bid-calculator`) has no `kind: 'text'`
+        branch in `encodeCell()`, so a `rows` field of that kind silently
+        encodes to an empty string. `platform/pages/roundtrip.mjs
+        moving-bid-calculator` caught it immediately -- the inventory
+        item's name came back as "Item 1" instead of the sender's actual
+        room/item type. `janitorial-bid-calculator`'s copy has the fix;
+        used that one instead. Checked all 36 ventures on the older copy
+        directly (`grep -l "kind: 'text'"`) -- none use a text-kind row
+        field today, so this is latent there, not active. Left as a
+        finding for a future session rather than fixing 36 files in a PR
+        about one venture.
+      - >-
+        Verified: node --test in the venture (109/109, including 7 new
+        structural guards pinning the link to a URL fragment and every
+        field to `BID_SPEC`), a fresh `platform/pages/build.mjs` (169
+        tools, shareable link count 151->152), and
+        `platform/pages/roundtrip.mjs moving-bid-calculator` against the
+        served build (36 fields round-trip clean, including the
+        inventory row) -- this is what caught the share.mjs bug above
+        before merge, not after.
