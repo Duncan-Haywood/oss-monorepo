@@ -6,9 +6,15 @@
 # `runner_name: ""` and zero steps -- the signature of a job that was never
 # assigned a runner at all, not of a job that ran and failed.
 #
-# That window closed on its own: runners were assigned again from
-# 2026-09-01T00:00:53Z and CI has been green on merit since. This stack is
-# therefore insurance rather than a fix today. It is still worth deploying,
+# That window closed on its own: runner *assignment* resumed from
+# 2026-09-01T00:00:53Z, and the PRs that have run since went green on merit
+# (#2601, #2603, #2605 -- real runner ids, real steps). That is the claim the
+# evidence supports; it is not "every workflow is green". Runs still fail here
+# for their own reasons -- `Claude routine trigger`, for one, fails on its
+# first step on every fire because `CLAUDETRIGGERAPIKEY` is unset, which is
+# the intended safe state pending decision-queue item `routine-trigger-
+# cadence`, not a runner problem. This stack is therefore insurance rather
+# than a fix today. It is still worth deploying,
 # because the recovery arrived at midnight on the first of the month, which is
 # what a metered allowance resetting looks like -- so the ceiling appears to
 # cycle rather than to be gone. Self-hosted runners are not metered, so they

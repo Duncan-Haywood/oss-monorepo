@@ -279,8 +279,9 @@ seal_site() {
 seal_ci() {
   step "2/3  Self-hosted Actions runners — OPTIONAL since 2026-09-01"
   say "  Nothing is blocked on this one. Every workflow died in 3-6 seconds"
-  say "  with runner_id: 0 from 2026-08-26, but runners were assigned again"
-  say "  from 2026-09-01T00:00:53Z and CI has been green on merit since."
+  say "  with runner_id: 0 from 2026-08-26, but runner assignment resumed on"
+  say "  2026-09-01 and the PRs run since have passed on merit (#2601, #2603,"
+  say "  #2605). Individual workflows can still fail on their own merits."
   say ""
   say "  Seal it anyway for insurance: the recovery landed at midnight on the"
   say "  1st, which is what a metered allowance resetting looks like, so the"

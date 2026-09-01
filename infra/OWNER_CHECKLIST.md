@@ -9,8 +9,8 @@ identities. Nothing here applies itself.
 own.** Two sealed secrets are what the live site and the Codex worker are
 waiting on — items 8 and "Publish `tools.marisstella.dev`" below. The
 third, item 9's runner PAT, is no longer blocking anything: GitHub
-resumed assigning runners at 2026-09-01T00:00:53Z and CI has been green
-on merit since. Seal it too if you want insurance against the next
+resumed assigning runners at 2026-09-01T00:00:53Z, and the PRs run since
+have passed on merit. Seal it too if you want insurance against the next
 allowance cycle, but do it last.
 
 They were spread across six files because each was written when it became
@@ -203,8 +203,17 @@ codes as exit 42 and a rejected credential as exit 43.
    spending limit, a payment problem, or Actions switched off all look
    identical); only your billing page settles it. **It resolved itself
    either way**: GitHub started assigning real runners again at
-   2026-09-01T00:00:53Z, and PRs have been going green on merit since
-   (#2601, #2603). CI works today with nothing from you.
+   2026-09-01T00:00:53Z, and the PRs run since have passed on merit
+   (#2601, #2603, #2605). Runner availability is back with nothing from
+   you.
+
+   That is narrower than "everything is green", deliberately. Individual
+   workflows still fail on their own merits — `Claude routine trigger`
+   fails on its first step on every fire because `CLAUDETRIGGERAPIKEY` is
+   unset, which is the intended safe state pending the
+   `routine-trigger-cadence` row in your decision queue, and is not a
+   runner problem. A red check here is now worth reading rather than
+   discounting.
 
    What is left here is insurance, worth doing but **after** the two
    seals above and below that are actually blocking. Self-hosted runners
