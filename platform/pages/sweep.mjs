@@ -42,13 +42,19 @@
 // above work on any machine with Playwright, and `platform/pages/README.md`
 // documents the global, `NODE_PATH` and in-repo installs for exactly that.
 //
-// The real limitation is that **no CI workflow runs this sweep at all** — it
-// needs Playwright, which is not a dependency of this repo. That was true
-// before GitHub Actions lost its runners (2026-08-26 to 2026-09-01) and is
-// still true now that they are back, so the recovery changed nothing here.
-// The whole-site sweep therefore remains the portfolio's only end-to-end
-// proof that its products still compute, and in practice the scheduled
-// sessions are what produce it. Those sessions ship Chromium
+// This used to say **no CI workflow runs this sweep at all**, on the reasoning
+// that it needs Playwright and Playwright is not a dependency of this repo.
+// The second half is still true; the conclusion stopped being true on
+// 2026-09-01, when `.github/workflows/browser-checks-ci.yml` (#2616) began
+// running it nightly at 04:20 UTC, plus `workflow_dispatch`. It installs
+// Playwright into `$RUNNER_TEMP`, outside the checkout, so the sweep gained CI
+// coverage without the repo gaining a dependency.
+//
+// Nightly is not per-PR, though, and that is deliberate — a run is the whole
+// site, and `platform/pages/` takes enough commits a day that gating on it
+// would cost hours of metered Actions minutes. So the sweep still catches a
+// break the morning after it lands rather than before, and running it by hand
+// in a session is still worth doing. Those sessions ship Chromium
 // at `/opt/pw-browsers` but no `playwright` module, and `npm i playwright`
 // pulls a version whose pinned build number does not match what is on disk:
 //
