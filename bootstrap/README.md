@@ -14,7 +14,7 @@ Laptop helpers (read-only until you decide):
 
 Order:
 
-1. OpenTofu has imported the servers and (ideally) attached `10.42.0.0/24`.
+1. OpenTofu has imported the servers and (ideally) attached `10.10.0.0/24`.
 2. `install-k3s-server.sh` on `ubuntu-24gb-hel1-1` (89.167.29.39).
 3. `install-k3s-agent.sh` on `ubuntu-4gb-hel1-1` (157.180.80.188) with
    `K3S_TOKEN` from the server's `/var/lib/rancher/k3s/server/node-token`.
@@ -52,7 +52,7 @@ to commit.
 
 If the private NIC is not up yet, rerun the server script with
 `ADVERTISE_IP=89.167.29.39` so k3s binds the public address, then move
-it to `10.42.0.10` once Tofu has attached the network.
+it to `10.10.0.10` once Tofu has attached the network.
 
 If k3s is **already** running on the cpx52 (the firewall name suggests
 it might be), do not re-run the installer. The script exits 0 when it

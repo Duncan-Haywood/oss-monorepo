@@ -80,6 +80,19 @@ spec:
             except:
               - 10.42.0.0/16
               - 10.43.0.0/16
+              # The pod CIDR a cluster installed from now on runs:
+              # bootstrap/install-k3s-server.sh pins --cluster-cidr here
+              # (#2660). Both ranges stay listed -- the pin takes effect at
+              # install time, so an already installed cluster is still on
+              # 10.42.0.0/16 and neither line is safe to drop.
+              - 10.244.0.0/16
+              # The nodes' private network (infra/inventory.tf). Listed
+              # separately since 2026-09-01: it used to be 10.42.0.10/11,
+              # inside the pod CIDR above, so nothing had to name it. That
+              # overlap was a defect, not a design -- 10.42.0.0/16 is k3s's
+              # own default pod network -- and correcting it there would have
+              # silently opened this rule if the exception did not move too.
+              - 10.10.0.0/16
               - 172.16.0.0/12
               - 192.168.0.0/16
               - 169.254.0.0/16

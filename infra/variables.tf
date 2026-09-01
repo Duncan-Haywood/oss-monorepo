@@ -24,7 +24,7 @@ variable "k3s_channel" {
 
 variable "expose_k3s_api_publicly" {
   type        = bool
-  description = "Keep TCP/6443 open to the world, matching the current k3s-cluster-firewall. Set false only after the private network is up and both nodes join over 10.42.0.10."
+  description = "Keep TCP/6443 open to the world, matching the current k3s-cluster-firewall. Set false only after the private network is up and both nodes join over 10.10.0.10."
   default     = true
 }
 

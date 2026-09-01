@@ -34,29 +34,57 @@ locals {
   # Private fabric for k3s join traffic so 6443 does not have to stay
   # world-open. Created by this stack; servers are attached in place.
   #
-  # This range is NOT free to pick without checking k3s: 10.42.0.0/16 is
-  # k3s's own default --cluster-cidr (the pod overlay network), a fact this
-  # repo's own gitops/ci/networkpolicy.yaml comment states outright ("k3s
-  # defaults: pods 10.42.0.0/16, services 10.43.0.0/16"). This physical
-  # private network claims the exact same block, with both nodes' advertise
-  # addresses sitting inside it — a node's own address landing inside the
-  # range flannel hands out to its local pods produces two routes for one
-  # prefix in the same table, and the kernel keeps only one.
+  # NOT 10.42.0.0/16, which is what this block said until 2026-09-01.
   #
-  # bootstrap/install-k3s-server.sh now pins --cluster-cidr away from this
-  # block so a *future* fresh/DR install cannot recreate the collision;
-  # infra/tests/test_infra_layout.py pins the two do not overlap. It cannot
-  # fix a cluster already running with k3s's default cluster-cidr baked in
-  # from its original install — that needs a full k3s reinstall or SSH-level
-  # surgery this repo's automation has no access to. It has not shown up as
-  # a visible failure yet because every workload with public consequence is
-  # pinned to the control-plane node alone (see priority-classes.yaml) and
-  # the governor that would put Jobs on the second node is still disabled,
-  # so no cross-node pod traffic has ever had to cross it.
-  private_network_cidr = "10.42.0.0/16"
-  private_subnet_cidr  = "10.42.0.0/24"
-  control_plane_priv   = "10.42.0.10"
-  agent_priv           = "10.42.0.11"
+  # 10.42.0.0/16 is k3s's *default `--cluster-cidr`* -- the pod network --
+  # and nothing in bootstrap/install-k3s-server.sh overrides it. So the
+  # planned private network was the pod network, address for address, and
+  # the two node IPs sat inside it:
+  #
+  #   flannel gives the first node the pod subnet 10.42.0.0/24 and puts
+  #   10.42.0.1/24 on cni0. The private NIC would have carried
+  #   10.42.0.10/24 on the same box -- two interfaces, one subnet, two
+  #   routes. Worse, pod IPs are handed out of that same /24, so the first
+  #   dozen pods scheduled on the control plane would eventually be issued
+  #   10.42.0.10 and 10.42.0.11: the addresses `--node-ip`,
+  #   `--advertise-address`, `--tls-san` and the agent's `SERVER_URL` all
+  #   name. A pod would answer to the API server's address.
+  #
+  # This was never applied -- `create_private_network` defaults to true but
+  # `infra/Makefile` refuses to apply, and the only Hetzner token in the
+  # repo is read-only, so no `hcloud_network` exists to migrate. The cost of
+  # fixing it is this comment and four strings. The cost of fixing it after
+  # a `tofu apply` is renumbering a live cluster's node addresses on the box
+  # that serves marisstella.dev.
+  #
+  # 10.10.0.0/16 is clear of both k3s defaults (pods 10.42/16, services
+  # 10.43/16), of Docker's default bridge pool (172.17-172.31), and of the
+  # 192.168/16 a laptop on a home LAN sits in. Changing it means also adding
+  # the new range to the `except:` lists in gitops/*/networkpolicy.yaml --
+  # those blocked the node IPs only as a side effect of excluding the pod
+  # CIDR, so moving the network without moving the exception would open pods
+  # a route to the kubelet. gitops/tests asserts the new range is there.
+  # #2660 fixed the same collision from the other end, concurrently with
+  # this: bootstrap/install-k3s-server.sh now pins `--cluster-cidr` to
+  # 10.244.0.0/16 so a fresh or DR install cannot recreate it. Both changes
+  # are kept, and they are not redundant -- they cover different clusters:
+  #
+  #   the pin  protects a cluster installed from now on, and cannot touch
+  #            one already running, whose --cluster-cidr was baked in at
+  #            install time. #2660 says so itself.
+  #   this     protects the cluster that exists. The thing being created
+  #            here is the *network*, not the cluster, so moving it to
+  #            10.10.0.0/16 lands clear of a live pod network still on
+  #            k3s's 10.42.0.0/16 default -- the case the pin explicitly
+  #            could not reach.
+  #
+  # Which is why the range below stays clear of BOTH 10.42/16 and
+  # 10.244/16: whichever pod CIDR a given cluster ended up with, this
+  # network does not overlap it.
+  private_network_cidr = "10.10.0.0/16"
+  private_subnet_cidr  = "10.10.0.0/24"
+  control_plane_priv   = "10.10.0.10"
+  agent_priv           = "10.10.0.11"
 
   gitops_repo     = var.gitops_repo_url
   gitops_revision = var.gitops_revision
