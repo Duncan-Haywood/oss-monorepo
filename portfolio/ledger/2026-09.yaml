@@ -712,3 +712,38 @@ entries:
         markers) before this session ended; not a claim about `main`
         after this merge, since the run started before it and was not
         re-run against the new build.
+  - venture: roofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable quote link, merged as #2641. Was one of 72 (of
+        145) `calc.mjs` ventures with no `share.mjs` at all before this --
+        a contractor pricing a reroof had no way to
+        hand the same numbers to a partner or the office without retyping
+        every section's footprint, pitch, and tear-off layers, unlike
+        sibling trades (`deck-bid-calculator`, `concrete-bid-calculator`,
+        `flooring-bid-calculator`) that already had the feature.
+      - >-
+        Shipped `share.mjs` (allowlisted hash encoder/decoder for sections
+        and cost fields) together with `proposal-terms.mjs`, vendored
+        verbatim from `platform/proposal/terms.mjs`, from the start --
+        not as a follow-up. That module exists because a share link
+        carrying the bid but dropping the deposit/validity/payment terms
+        is not cosmetic: this file's own history records a recipient's
+        printed proposal asking for a different amount on acceptance than
+        the sender's screen showed, under a headline price that matched
+        to the cent. `platform/proposal/term-ids.test.mjs`, the repo-wide
+        regression test written for that exact bug, passes for this
+        venture now.
+      - >-
+        Verified locally, no browser available in this session: venture
+        suite 95/95 (was 84, +11 new: `share.test.mjs`,
+        `proposal-terms.test.mjs`), `node --test
+        platform/proposal/term-ids.test.mjs` 3/3, `node --test
+        'platform/proposal/*.test.mjs'` 89/89, `node --check` on the
+        extracted module script clean. PR #2641 triggered real CI on push
+        (`build`, `site-test`, `check`, `link-contrast`, `page-integrity`,
+        `validate` all green; `deploy` skipped as expected off `main`) --
+        confirmed real runners per the standing rule before merging on
+        that basis rather than the local run alone.
