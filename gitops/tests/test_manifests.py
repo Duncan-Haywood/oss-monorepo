@@ -162,6 +162,30 @@ def test_governor_runs_unprivileged_and_read_only() -> None:
     ), f"GOVERNOR_STATE ({state_path}) is not under any writable mount: {mount_paths}"
 
 
+def test_agents_job_count_quota_covers_governor_history_retention() -> None:
+    # The governor CronJob creates a Job every tick (`*/5 * * * *`) and keeps
+    # `successfulJobsHistoryLimit` + `failedJobsHistoryLimit` of them around as
+    # ordinary steady state, regardless of whether any Codex worker Job ever
+    # runs. `count/jobs.batch` and `pods` are namespace-wide object-count
+    # quotas, so if either is smaller than that floor, the API server starts
+    # rejecting the CronJob's own routine ticks with "exceeded quota" within
+    # about an hour of the owner enabling it -- governor.py never even gets to
+    # look at the queue. This was true of the "4"/"6" this quota used to carry:
+    # `successfulJobsHistoryLimit: 6` + `failedJobsHistoryLimit: 6` + 1
+    # possibly-running already floors at 13.
+    cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
+    spec = cron["spec"]
+    floor = spec["successfulJobsHistoryLimit"] + spec["failedJobsHistoryLimit"] + 1
+
+    quota = [
+        d
+        for d in yaml.safe_load_all((AGENTS / "quota.yaml").read_text())
+        if d and d["kind"] == "ResourceQuota"
+    ][0]["spec"]["hard"]
+    assert int(quota["count/jobs.batch"]) >= floor
+    assert int(quota["pods"]) >= floor
+
+
 def test_worker_script_never_merges() -> None:
     text = (AGENTS / "workers" / "worker.sh").read_text()
     assert "gh pr merge" not in text
