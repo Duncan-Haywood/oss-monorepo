@@ -137,8 +137,13 @@ test('the ATBS incumbent-comparison page links back, names the incumbent honestl
   // -- this page must never state a dollar figure for ATBS's service that
   // only ATBS's own current pricing page could confirm.
   assert.match(vsAtbs, /atbs\.com\/pricing/);
-  assert.doesNotMatch(vsAtbs, /ATBS[^.]*\$\d/i);
-  assert.doesNotMatch(vsAtbs, /\$\d+\s*\/\s*(month|mo|year|yr)/i);
+  // Blanket, not scoped to a sentence or a month/year suffix: this page has
+  // no legitimate reason to print a dollar figure at all, so the earlier,
+  // narrower regexes here missed a plain "$20/week" (they only matched a
+  // dollar immediately followed by month/year, or one in the same sentence
+  // as the literal string "ATBS"). Same pattern cloud-egress-calculator's
+  // own comparison-page test already uses.
+  assert.doesNotMatch(vsAtbs, /\$\d/);
   assert.match(vsAtbs, /not affiliated with, endorsed by, or sponsored by ATBS/i);
   assert.match(vsAtbs, /No warranty/);
   assert.match(vsAtbs, /Best-effort hosting, no SLA/);
