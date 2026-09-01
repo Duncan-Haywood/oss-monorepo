@@ -9,7 +9,7 @@
   <meta property="og:title" content="SaaS seat true-up calculator">
   <meta property="og:description" content="Find unused subscription seats before renewal with a private, browser-local calculator.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SaaS Seat True-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a “used” seat?","acceptedAnswer":{"@type":"Answer","text":"Whatever your own review decides, and the definition is the whole game. A seat assigned to someone who left, a seat held for a contractor whose project ended, a seat that has not seen a login in ninety days — all of them are provisioned and billed, and none of them are used in any sense your finance team would recognise. Most vendor admin consoles will export last-login per user; that export, not the assigned-seat count, is the number to type here."}},{"@type":"Question","name":"Why does it show both a remaining-term figure and an annual one?","acceptedAnswer":{"@type":"Answer","text":"Because they answer different questions. The remaining-term figure is what the current contract still commits you to — on the worked example, 6 unused seats at $18 with 4 months left is $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if you renew at the same count. The first is usually sunk; the second is the one you can actually act on, and it is why a seat review is worth doing before the renewal conversation rather than after it."}},{"@type":"Question","name":"What if we are over the purchased count instead of under?","acceptedAnswer":{"@type":"Answer","text":"Then the tool prices the overage rather than the saving, and that is often the more urgent number. Overage is commonly billed at list plus a contracted premium, so there is a field for that premium — leave it at 0% if your agreement charges plain list. Being over is not necessarily bad; it can mean the product is working. It just should not be a surprise on the true-up invoice."}},{"@type":"Question","name":"Does this tell me what to do at renewal?","acceptedAnswer":{"@type":"Answer","text":"No. It sizes the number so you can decide. Cutting seats has real costs it cannot see: seat minimums and step pricing mean dropping from 20 to 14 may not save 30%, tier discounts can be tied to volume, and a seat released today may have to be re-bought at a worse rate in six months. Read your own agreement for minimums, true-up timing, and whether reductions are permitted mid-term at all — many contracts allow additions any time and reductions only at renewal."}},{"@type":"Question","name":"Can I use this across several tools at once?","acceptedAnswer":{"@type":"Answer","text":"Run them one at a time and add up the annual figures. Each subscription has its own price, term, and overage treatment, so averaging them together hides the one that matters. In practice a handful of tools usually account for most of the waste, and doing them individually is what makes that visible."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculation runs entirely in your browser. A saved scenario stores only the totals you typed and stays in this browser; reset deletes it. There are no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned off below. Seat counts and prices are commercially sensitive, which is exactly why none of this leaves the page."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a “used” seat?","acceptedAnswer":{"@type":"Answer","text":"Whatever your own review decides, and the definition is the whole game. A seat assigned to someone who left, a seat held for a contractor whose project ended, a seat that has not seen a login in ninety days — all of them are provisioned and billed, and none of them are used in any sense your finance team would recognise. Most vendor admin consoles will export last-login per user; that export, not the assigned-seat count, is the number to type here."}},{"@type":"Question","name":"Why does it show both a remaining-term figure and an annual one?","acceptedAnswer":{"@type":"Answer","text":"Because they answer different questions. The remaining-term figure is what the current contract still commits you to — on the worked example, 6 unused seats at $18 with 4 months left is $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if you renew at the same count. The first is usually sunk; the second is the one you can actually act on, and it is why a seat review is worth doing before the renewal conversation rather than after it."}},{"@type":"Question","name":"What if we are over the purchased count instead of under?","acceptedAnswer":{"@type":"Answer","text":"Then the tool prices the overage rather than the saving, and that is often the more urgent number. Overage is commonly billed at list plus a contracted premium, so there is a field for that premium — leave it at 0% if your agreement charges plain list. Being over is not necessarily bad; it can mean the product is working. It just should not be a surprise on the true-up invoice."}},{"@type":"Question","name":"Does this tell me what to do at renewal?","acceptedAnswer":{"@type":"Answer","text":"No. It sizes the number so you can decide, and a contracted seat minimum — enter it in the field above — is already subtracted from what counts as droppable, so it will not tell you to cut below a floor your agreement enforces. It still cannot see step pricing: dropping from 20 to 14 may not save what the per-seat math implies if it crosses a volume pricing tier, and a seat released today may have to be re-bought at a worse rate in six months. Read your own agreement for true-up timing and whether reductions are permitted mid-term at all — many contracts allow additions any time and reductions only at renewal."}},{"@type":"Question","name":"What does the contract seat minimum field do?","acceptedAnswer":{"@type":"Answer","text":"It caps how many of the unused seats the tool treats as actually droppable. Some agreements will not let the seat count fall below a floor at renewal no matter how low usage is — enter that floor and the avoidable figures shrink to match what you can really cut. On 20 purchased, 14 used, and a 17-seat minimum, the tool still reports 6 unused seats but only 3 as droppable, because the other 3 are locked in by the minimum regardless of usage. Leave it at 0 if your agreement has no floor."}},{"@type":"Question","name":"Can I use this across several tools at once?","acceptedAnswer":{"@type":"Answer","text":"Run them one at a time and add up the annual figures. Each subscription has its own price, term, and overage treatment, so averaging them together hides the one that matters. In practice a handful of tools usually account for most of the waste, and doing them individually is what makes that visible."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculation runs entirely in your browser. A saved scenario stores only the totals you typed and stays in this browser; reset deletes it. There are no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned off below. Seat counts and prices are commercially sensitive, which is exactly why none of this leaves the page."}}]}</script>
   <style>
     :root { color-scheme: light; --ink:#18252b; --muted:#5e6c70; --paper:#f7f3eb; --accent:#af5331; --line:#d9d0c2; }
     * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
@@ -41,6 +41,8 @@
       <label for="months">Months remaining in current term</label><input id="months" type="number" min="0" value="4" required>
       <label for="overageRate">Overage premium above list price (%)</label><input id="overageRate" type="number" min="0" step="0.1" value="0">
       <p class="status">Leave at 0% when extra seats bill at the same price. Enter the contracted premium when the vendor charges more for unpurchased seats.</p>
+      <label for="seatMinimum">Contract seat minimum (optional)</label><input id="seatMinimum" type="number" min="0" value="0">
+      <p class="status">Some contracts will not let you renew below a minimum seat count. Enter it here so the avoidable figures reflect what you can actually drop, not the full unused count.</p>
       <div class="actions">
         <button type="submit">Calculate true-up</button>
         <button type="button" class="secondary" id="save">Save scenario</button>
@@ -80,12 +82,21 @@
       invoice.</p>
 
     <h3>Does this tell me what to do at renewal?</h3>
-    <p>No. It sizes the number so you can decide. Cutting seats has real costs it cannot see: seat
-      minimums and step pricing mean dropping from 20 to 14 may not save 30%, tier discounts can be tied
-      to volume, and a seat released today may have to be re-bought at a worse rate in six months.
-      Read your own agreement for minimums, true-up timing, and whether reductions are permitted
-      mid-term at all &mdash; many contracts allow additions any time and reductions only at
-      renewal.</p>
+    <p>No. It sizes the number so you can decide, and a contracted seat minimum &mdash; enter it in the
+      field above &mdash; is already subtracted from what counts as droppable, so it will not tell you to
+      cut below a floor your agreement enforces. It still cannot see step pricing: dropping from 20 to
+      14 may not save what the per-seat math implies if it crosses a volume pricing tier, and a seat
+      released today may have to be re-bought at a worse rate in six months. Read your own agreement for
+      true-up timing and whether reductions are permitted mid-term at all &mdash; many contracts allow
+      additions any time and reductions only at renewal.</p>
+
+    <h3>What does the contract seat minimum field do?</h3>
+    <p>It caps how many of the unused seats the tool treats as actually droppable. Some agreements will
+      not let the seat count fall below a floor at renewal no matter how low usage is &mdash; enter that
+      floor and the avoidable figures shrink to match what you can really cut. On 20 purchased, 14 used,
+      and a 17-seat minimum, the tool still reports 6 unused seats but only 3 as droppable, because the
+      other 3 are locked in by the minimum regardless of usage. Leave it at 0 if your agreement has no
+      floor.</p>
 
     <h3>Can I use this across several tools at once?</h3>
     <p>Run them one at a time and add up the annual figures. Each subscription has its own price, term,
@@ -106,14 +117,14 @@
   import { calculateTrueUp, formatMoney, reviewMessage } from './calc.mjs';
   import { recordEvent, disableUsage, saveScenario, loadScenario, clearScenario } from './usage.mjs';
   const form = document.querySelector('#form');
-  const ids = ['purchased', 'used', 'price', 'months', 'overageRate'];
-  const example = [20, 14, 18, 4, 0];
+  const ids = ['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum'];
+  const example = [20, 14, 18, 4, 0, 0];
   const read = id => document.querySelector(`#${id}`).value;
   const values = () => Object.fromEntries(ids.map(id => [id, read(id)]));
   const status = text => { document.querySelector('#status').textContent = text; };
   function render(count = false) {
     try {
-      const result = calculateTrueUp({ seatsPurchased:read('purchased'), seatsUsed:read('used'), monthlyPrice:read('price'), monthsRemaining:read('months'), overageRatePct:read('overageRate') });
+      const result = calculateTrueUp({ seatsPurchased:read('purchased'), seatsUsed:read('used'), monthlyPrice:read('price'), monthsRemaining:read('months'), overageRatePct:read('overageRate'), seatMinimum:read('seatMinimum') });
       const over = result.extra > 0;
       document.querySelector('#unused').textContent = over ? result.extra : result.unused;
       document.querySelector('#unusedLabel').textContent = over ? 'seats over purchased' : 'unused seats';
