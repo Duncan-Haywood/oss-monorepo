@@ -156,13 +156,38 @@ decisions:
     Actions), accepting the spend below; or **no**, delete the workflow file,
     which no session may do on its own because the owner requested it.
 
-    This is no longer merely noisy. The schedule is `*/20 * * * *` with
-    `FIRES_PER_RUN=5`, so ~360 fires a day are each making a real API call on
-    a real runner and getting 401 -- burning Actions minutes on the metered
-    allowance whose exhaustion caused the 2026-08-26 starvation window. It is
-    still safe (nothing fires), but it is not free, and it is the standing
-    counter-example to "CI is green": a red check here that is red on its own
-    merits.
+    **Magnitude corrected 2026-09-01 (second correction, measured).** This
+    row said "~360 fires a day are each making a real API call on a real
+    runner and getting 401 -- burning Actions minutes on the metered
+    allowance whose exhaustion caused the 2026-08-26 starvation window". The
+    direction is right and the cost is real, but both figures were about 5x
+    and 17x too high, because they assume the run loops. It does not. On 401
+    `fire()` returns 2, and the loop's `case` does `2) exit 1` on that value
+    (workflow lines ~157-170), so the run aborts on its *first* fire and
+    never reaches the four remaining slots or their 240s sleeps.
+
+    Measured, not inferred: five consecutive runs (33553452882, 33551039615,
+    33549288450, 33547527610, 33545549251) each ran a single `fire` job for
+    **2-3 seconds** on a real runner, `ci_starvation.py --run` exit 0 on
+    each. A 5-fire loop would occupy ~16 minutes. So the standing waste is
+    **72 API calls a day, not 360** (one per run at `*/20`), and **~72 billed
+    Actions minutes a day** (GitHub rounds each job up to the minute) --
+    roughly 2,200 minutes, on the order of **$17** a month, against the
+    ~37,000 minutes / ~$300 the `unlocks` figure below quotes. That figure is
+    not wrong; it describes the *working* state, which is what a fresh token
+    would buy. Nothing fires today, so the Claude-side spend and the daily
+    routine-run cap are both untouched at zero.
+
+    What survives the correction: it is not free, and it is the standing
+    counter-example to "CI is green" -- every scheduled run has been red on
+    its own merits since the token was revoked, with no exception yet
+    (a fixed run count is not recorded here on purpose: this row is meant to
+    stay accurate as the count keeps climbing, not to be re-edited every time
+    it does). What does not survive: any reading of this row as an
+    urgent drain on the allowance whose exhaustion went dark on 2026-08-26.
+    At ~$17/month it is affordable to leave red while the owner decides,
+    which is the difference between "delete this today" and "answer it when
+    you get to it".
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,

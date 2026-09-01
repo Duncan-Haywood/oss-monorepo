@@ -365,6 +365,63 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Measured what the red `claude-routine-trigger` workflow actually
+        costs, and corrected the `routine-trigger-cadence` row in
+        `asks.yaml`, which was overstating it ~5x on fire count and ~17x on
+        Actions spend. Both figures assumed the run loops; it does not. On
+        401 `fire()` returns 2 and the loop's `case` does `2) exit 1`, so a
+        run aborts on its first fire and never reaches the four remaining
+        slots or their 240s sleeps. Five consecutive runs (33553452882,
+        33551039615, 33549288450, 33547527610, 33545549251) each ran one
+        `fire` job for 2-3 seconds on a real runner, `ci_starvation.py
+        --run` exit 0 on each; a 5-fire loop would occupy ~16 minutes. So
+        the standing waste is 72 API calls a day rather than 360, and ~72
+        billed Actions minutes a day -- on the order of $17/month against
+        the ~$300 the row's `unlocks` figure quotes for the *working*
+        state. Nothing fires, so Claude-side spend and the daily
+        routine-run cap sit at zero.
+      - >-
+        Why the magnitude was worth a commit rather than a note: the row
+        read as an urgent drain on the same metered allowance whose
+        exhaustion took all 218 workflows dark on 2026-08-26, which argues
+        for deleting a file the owner explicitly asked for. At ~$17/month
+        it is affordable to leave red while the owner decides. What
+        survives the correction is the part that was never about money --
+        424 runs, every scheduled one red on its own merits, are the
+        standing counter-example to "CI is green".
+      - >-
+        Queue state: one open PR at session start (#2618, the
+        `agent-permission-harness-ci` path filter for
+        `IMPROVEMENT-PLAN.md`). Verified its premise locally -- no
+        root-level file, one `ventures/**` file, and `harness.py` does walk
+        every one -- confirmed `validate`/`test`/`check` green on real
+        runners, merged. Not a three-PR-quota run because three repairable
+        PRs did not exist.
+      - >-
+        Branch sweep: of the branches carrying commits not on `main`,
+        almost all are squash-merge residue. Three had real diffs and only
+        one had work `main` lacks -- `cursor/amazon-fba-sourcing-check`, a
+        regression test for the FBA sourcing-check feature (`buyCostStatus`,
+        `buyCostCheck`, `sourcing_check_used`) that is live on `main` with
+        nothing locking it. Merged. The other two are superseded originals
+        and were left rather than closed: `main`'s
+        `invoice-payment-terms-calculator` has 17 files to the branch's 9
+        (including four SEO landing pages and `schedule.mjs`), and
+        `fix/governor-rbac-configmap-scope`'s two tests are already on
+        `main` with richer comments plus two networkpolicy tests the branch
+        lacks. Merging either would have added a weaker second copy.
+      - >-
+        Also corrected the owner-facing tool count in the two places the
+        publish procedure quotes it -- `seal-owner-secrets.sh` and
+        `OWNER_CHECKLIST.md` both said 164. A clean `build.mjs` +
+        `check.mjs` today reports 169 products / 513 pages / no dead links,
+        exit 0. The other "164" mentions under `platform/pages/` are dated
+        measurements about hub composition, a different claim, left alone.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Independently found the exact `sweep.mjs` NO-CONTROLS regression on
         `ai-engineering-academy` that #2616/#2617 had already fixed on `main`
         a few hours earlier -- opened #2622 with an identical `ownOnly()`

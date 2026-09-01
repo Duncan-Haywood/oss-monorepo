@@ -53,6 +53,18 @@ name: Claude routine trigger
 # oversight. The `*/5` single-fire variant above costs roughly a quarter as
 # much in Actions minutes.
 #
+# That paragraph describes a run that *fires*. A run whose token is rejected
+# costs far less, and the difference is worth stating because this workflow
+# has been in the rejected state since the token was revoked: a 401 makes
+# `fire` return 2, and the loop's `case` exits on that (`2) exit 1`) without
+# reaching the four remaining slots or their sleeps. Measured 2026-09-01
+# across runs 33553452882, 33551039615, 33549288450, 33547527610 and
+# 33545549251: a single `fire` job, 2-3 seconds, on a real runner each time.
+# So while the token is bad this bills ~1 minute per run -- ~72 minutes a
+# day, on the order of $17 a month -- and starts no Claude session at all,
+# rather than the ~17 minutes and five sessions a firing run costs. Do not
+# read the $300 figure as what a red run is costing right now.
+#
 # Scheduled workflows run only from the default branch, so this does nothing
 # until it is merged to `main`. Disable it from the Actions tab, or by setting
 # the schedule block aside, rather than by leaving it to fail.

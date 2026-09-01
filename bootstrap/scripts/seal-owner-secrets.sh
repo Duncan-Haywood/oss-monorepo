@@ -249,7 +249,7 @@ PY
 
 seal_site() {
   step "1/3  Public product site — tools.marisstella.dev"
-  say "  Serves 164 finished tools. The site pod's 'fetch' init container"
+  say "  Serves 169 finished tools. The site pod's 'fetch' init container"
   say "  clones this private repo, so it cannot be anonymous."
   say ""
   say "  Mint: https://github.com/settings/personal-access-tokens/new"
