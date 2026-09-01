@@ -165,3 +165,54 @@ entries:
         egress-policy ask. Site re-verified green and unchanged along the way:
         build.mjs 169 tools / 498 pages, check.mjs "169 products, 7 category
         pages, 509 pages, no dead links".
+  - venture: cloud-egress-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the marketing-distribution queue item's candidate 2 again, on
+        the venture two prior sessions could not serve: a new
+        vs-google-cloud-pricing-calculator.html naming the Google Cloud
+        Pricing Calculator as the authoritative source for a Google Cloud
+        number, and positioning this tool for the thing Google's is not built
+        around -- two providers' price sheets on one workload, the outbound-GB
+        crossover, and the CDN / replica / storage-class follow-ons. The
+        venture's own README had already written the thesis ("existing provider
+        calculators are vendor-specific") without ever putting it on a page a
+        searcher could land on.
+      - >-
+        This resolves the blocker the two entries above hit rather than
+        repeating it. Both dropped a comparison page because the proxy blocks
+        egress to the incumbent's domain (etsy.com, ebay.com, amazon.com,
+        reverb.com and tiktok.com are all 403 on CONNECT) and the item forbids
+        estimating a competitor's numbers. cloud.google.com answers, so every
+        claim on this page is a quotation read from Google's own pages on
+        2026-09-01 and linked to them: the estimate disclaimer ("This tool
+        creates cost estimates based on assumptions that you provide. These
+        estimates may not accurately reflect the final costs on your monthly
+        Google Cloud bill."), the calculator's own "Add and configure products
+        to get a cost estimate to share with your team", the storage price
+        list's pointer to it, its three network-charge cases, and its
+        definition of outbound data transfer. No dollar figure is asserted for
+        Google anywhere -- a test asserts the page contains no `$` followed by
+        a digit at all, so a later edit cannot quietly add one.
+      - >-
+        Verified locally: venture `node --test` 62/62 (3 new, and the FAQ
+        visibility assertion was mutation-checked -- deleting one <h3> fails
+        exactly one test), `node platform/pages/clauses.mjs
+        cloud-egress-calculator` (5 pages carry the no-warranty clause, exit
+        0), full `PAGES_BASE_URL=... node platform/pages/build.mjs` +
+        `check.mjs` ("169 products, 7 category pages, 511 pages, no dead
+        links", up from 510), `platform/pages` suite 837/837, and
+        `python3 portfolio/router/validate.py` (182/182). No new third-party
+        script, font, CDN, or network call: the built page's only script src is
+        the site's own local pf-site.js, which is also what supplies the
+        page's usage counting (local-only tool_viewed event, DNT/GPC and
+        opt-out respected).
+      - >-
+        Two open PRs at session start (#2606, #2607), neither touching this
+        venture or any comparison page, and no branch or commit carried a
+        vs-google-cloud-pricing-calculator.html -- new work, not a duplicate.
+        Candidate 1 re-checked before picking and confirmed closed: build.mjs
+        reports "Added an embed offer to 169 tool entry page(s)" against 169
+        products, so no entry page is silently skipped.
