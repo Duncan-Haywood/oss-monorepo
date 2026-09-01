@@ -67,25 +67,34 @@ decisions:
   exposure: credential
   opened: "2026-08-26"
   action: >-
-    Two independent unblocks now exist; either clears this row. (a) Check
-    Settings → Billing → Spending limit for Actions (and that the payment
-    method is current) — the metered GitHub-hosted allowance this repo has
-    used since 2026-08-26. (b) Cheaper and does not touch billing: run the
-    self-hosted-runner path #2021/#2022 already shipped on hardware you
-    already pay for — seal `actions-runner-secrets` (a fine-grained PAT,
-    Administration: Read and write) per
+    **Nothing is blocked on you here as of 2026-09-01 — this row is now
+    optional.** GitHub started assigning real runners again at
+    2026-09-01T00:00:53Z, ending the starvation that opened this row on
+    2026-08-26. Verified directly rather than assumed: recent runs carry
+    runner ids in the `1000040xxx` range, and #2601 that evening was the
+    first PR in five days to go green on merit (`gitops` executed
+    `kustomize build`, `kubeconform` and 193 pytest cases). So option (a)
+    below — checking Settings → Billing → Spending limit for Actions — has
+    resolved itself, most likely a monthly allowance reset, and CI is
+    working today with no action from you. If you want to spend two
+    minutes on it anyway, confirming the payment method is current is the
+    thing that keeps the next cycle from happening. Option (b) is the one
+    still worth doing eventually, and it is now insurance rather than a
+    fix: the self-hosted-runner path #2021/#2022 already shipped on
+    hardware you already pay for — seal `actions-runner-secrets` (a
+    fine-grained PAT, Administration: Read and write) per
     `gitops/ci/secrets/actions-runner-token.template.yaml`, then set repo
-    variable `CI_RUNNER=self-hosted`. Typed out as owner-checklist item 9
-    in `infra/OWNER_CHECKLIST.md`; details in `gitops/ci/README.md`. Since
-    roughly 22:10–23:25 UTC on 2026-08-26 every workflow using the default
-    `ubuntu-latest` label dies in 3–6 seconds with `runner_id: 0`, an empty
-    check-run output and a 404 on log download — confirmed still true as of
-    2026-08-29T21:51Z (`Portfolio validate` on `main`, job 99165691846, 4s,
-    `ubuntu-latest`). No agent can grant either unblock; both are
-    account-level actions (billing access or a sealed secret).
+    variable `CI_RUNNER=self-hosted`. Self-hosted runners are not metered,
+    so that makes the next allowance cycle a non-event. Typed out as
+    owner-checklist item 9 in `infra/OWNER_CHECKLIST.md`; details in
+    `gitops/ci/README.md`. **Do this after the two seals that are actually
+    blocking** (`portfolio-site-repo` and `codex-secrets`), not before —
+    while CI was dark this row was told to sessions as the thing to
+    escalate, and it was competing for your attention with the seal that
+    stands between the portfolio and a live site.
   unlocks:
-    - "**Verification for the whole fleet.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build are the guards that stop a stale branch reverting newer work or re-declaring an existing export. All of them are dark, so every merge is landing on local verification alone."
-    - "The Pages build that `deploy-settings` would publish. That flip cannot produce a site while no runner will build one, so this ask now gates that one in practice."
+    - "**Durability of the fleet's verification, not its existence.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build all run again as of 2026-09-01, so merges are no longer landing on local verification alone. What this row still buys is that they keep running through the next allowance cycle instead of going dark again."
+    - "The Pages build that `deploy-settings` would publish. This ask no longer gates that one in practice — a runner will build the artifact today. (It did gate it from 2026-08-26 to 2026-09-01.)"
   blocked_by: []
   note: >-
     Recorded as a queue item on 2026-08-27, having been reported only on
@@ -727,7 +736,9 @@ decisions:
       build.mjs`'s output inside the k3s cluster and serves it through
       ingress-nginx and cert-manager that are already running on the paid-
       for cpx52 box. This path depends on neither GitHub Actions (dark
-      since 2026-08-26, see `actions-runners-unavailable`) nor GitHub
+      2026-08-26 to 2026-09-01 and working again since, see
+      `actions-runners-unavailable` — this path never needed it either
+      way) nor GitHub
       Pages (not enabled, and would not serve a private repo's Pages site
       publicly even if it were -- see `deploy-settings`'s note). Of the
       two live deploy asks, this is the cheaper one to grant: no billing
@@ -739,8 +750,9 @@ decisions:
     2026-08-19). That ask is now known to be insufficient on its own --
     `portfolio/hosting/README.md`'s 2026-08-29 amendment records three
     stacked blockers on the Pages route (not enabled, repo is private so
-    Pages would not go public on the free tier, and no Actions runner to
-    build the artifact since 2026-08-26). This row is the separate Hetzner
+    Pages would not go public on the free tier, and — from 2026-08-26 to
+    2026-09-01, no longer true — no Actions runner to build the artifact).
+    Two of those three still stand. This row is the separate Hetzner
     path merged in #1999, which shares none of those three blockers and
     was not represented in this file before. Until any of these four steps
     land, Argo syncs the manifests and the pods crash-loop on the missing

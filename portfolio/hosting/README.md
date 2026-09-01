@@ -33,12 +33,16 @@ It is not:
   serve a public site on the free tier, so the flip alone would not have
   put these tools in front of strangers. This was not accounted for when
   the row above was written.
-- **Nothing is building the artifact.** Every GitHub Actions run in this
-  repo has failed without a runner since 2026-08-26 (`runner_id: 0`,
-  3-second jobs), so `portfolio-pages.yml` has not produced a deployable
-  artifact in days, and would not on the day Pages was switched on.
+- ~~**Nothing is building the artifact.**~~ **Resolved 2026-09-01.** From
+  2026-08-26 every GitHub Actions run in this repo failed without a runner
+  (`runner_id: 0`, 3-second jobs), so `portfolio-pages.yml` produced no
+  deployable artifact for five days. Runners came back at
+  2026-09-01T00:00:53Z and `portfolio-pages.yml` would build again today.
+  The account-level ceiling looks like it cycles rather than being gone, so
+  treat this as "not currently blocking" rather than "cannot recur".
 
-The Hetzner path shares none of those three blockers: Argo syncs the
+The two blockers that remain are the first two, and the Hetzner path shares
+none of the three: Argo syncs the
 manifest from `main` and the site is built inside the cluster, so it needs
 neither Actions nor Pages. The box is already paid for and already runs
 ingress-nginx and cert-manager. Its own remaining step is now **one**: a
