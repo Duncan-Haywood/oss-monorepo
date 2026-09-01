@@ -654,3 +654,61 @@ entries:
         before the PR's own CI caught it too), and reached the same
         owner-blocked conclusion above independently before merging this
         entry.
+  - venture: 3pl-quote-normalizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2639: wired `negotiationLines()` into the calculator
+        itself. Avoided the marketing-comparison-page lane (several
+        concurrent sessions were already grinding on
+        etsy/cloud-egress/owner-operator-cpm vs-competitor pages when this
+        session started) and instead swept for the pattern that produced
+        seller-net-sheet's #2626 -- a `calc.mjs` export unit-tested since
+        the venture shipped but never called from any page. Wrote a
+        heuristic (exported function, called nowhere else in `calc.mjs`,
+        not referenced in any `.html`/`.mjs`/`.js` in the venture) across
+        every `ventures/*/calc.mjs`; 82 raw hits, all but ~13 false
+        positives (wrapper functions, or genuinely used from a sibling
+        landing page my first pass didn't check). Of those 13,
+        `negotiationLines` was the only one that was a real missing
+        feature rather than harmless dead code (four `ebay-fee-calculator`
+        `*Summary` functions turned out to be literal one-line aliases of
+        an already-used `*Note` function, `fence-bid-calculator`'s
+        `presetById` a test-only convenience wrapper around an internal
+        helper -- left alone, not worth a PR).
+      - >-
+        `negotiationLines(result)` is not a duplicate of the already-wired
+        `summary()`: confirmed by running both against the same `calculate()`
+        result -- `summary()` includes the in-house estimate and break-even
+        volume (the sender's own competitive numbers), `negotiationLines()`
+        deliberately omits both while keeping the itemized line costs, the
+        largest cost driver, and the minimum-clearing volume. That is the
+        real feature gap: `negotiation.html`, the venture's only
+        negotiation-brief page, is a separate simpler tool
+        (`compare.mjs`/`negotiationBrief`) that only knows two typed-in
+        monthly totals and produces a generic ask with no itemized detail,
+        because it never had access to the itemized data the main
+        calculator already computes.
+      - >-
+        Verified with a real browser (Playwright 1.56, chromium-1194)
+        serving the venture directly (not `file://`, which silently fails
+        ES module imports under Chromium's CORS rules -- worth remembering
+        for any future single-venture browser check): brief renders on
+        load, updates live on input, copy button works, output differs
+        from `summary()` exactly as designed. Venture suite 102/102 (was
+        100), `platform/pages` suite 838/838, `check.mjs` clean (169
+        products, 515 pages, no dead links), `check_input_bounds` /
+        `check_money_sign` / `check_form_defaults` / `clauses.mjs` all
+        clean. PR opened with 0 CI checks triggered (the documented
+        `GITHUB_TOKEN`-push pattern), verified locally per the standing
+        rule, merged.
+      - >-
+        Also ran the full local seven-check browser suite
+        (`platform/ci/browser_checks.py`) against a pre-change build as a
+        side effect of installing Playwright/axe-core for the above:
+        sideways, presets, roundtrip, and highlight all came back clean
+        (514 pages / 65 pickers / 137 share links / 103 rejected-input
+        markers) before this session ended; not a claim about `main`
+        after this merge, since the run started before it and was not
+        re-run against the new build.
