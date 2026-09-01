@@ -90,3 +90,78 @@ entries:
         next session to confirm before continuing to treat every red or
         absent check as the known outage; do not re-run the CI_RUNNER
         seal ask on the strength of this one PR alone.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked up the handoff the previous entry left ("flagging for the next
+        session to confirm before continuing to treat every red or absent
+        check as the known outage") and closed it. Confirmed independently:
+        recent runs carry runner ids in the 1000040xxx range, and #2601 went
+        green on merit -- its `gitops` job executed `kustomize build`,
+        `kubeconform` and 193 pytest cases rather than dying in 4s. So the
+        recovery is real and held for at least the ~19 hours from
+        2026-09-01T00:00:53Z. Acted on it rather than re-flagging: #2603
+        rewrites the falsified guidance in CLAUDE.md ("this is not an outage
+        and it will not pass on its own" -- it did), AGENTS.md ("a red check
+        is not a failed check right now") and gitops/agents/workers/mandate.md,
+        which the Codex fleet reads on every run. The dangerous error has
+        inverted -- it used to be "fixing" green code, it is now waving a real
+        failure through as a ghost of the outage -- and three of the repo's
+        most-read files were encouraging the new one. Deliberately not
+        overcorrected to "fixed forever": the recovery landed at 00:00:53Z on
+        the 1st, which is what a metered allowance reset looks like, so the
+        text says the ceiling cycles and keeps the full signature and
+        ci_starvation.py for when it returns.
+      - >-
+        Same PR clears `actions-runners-unavailable` from the owner's decision
+        queue as a live blocker. It still read "every workflow ... dies in 3-6
+        seconds with runner_id: 0 -- confirmed still true as of 2026-08-29",
+        i.e. asking the owner to act on a problem that had resolved itself,
+        from a `gates deployment` slot competing for attention with the
+        `portfolio-site-repo` seal that actually is blocking. asks.yaml has no
+        resolved/closed field, so the row's text was rewritten rather than a
+        schema state invented or the owner's decision deleted for them; the
+        self-hosted-runner path stays as the optional insurance it now is
+        (not metered, so it makes the next cycle a non-event), explicitly
+        ordered after the two blocking seals. Also corrected two stale
+        cross-references that read the old state as permanent
+        (portfolio-site-hetzner-deploy's "dark since 2026-08-26" and
+        portfolio/hosting/README.md's third stacked Pages blocker, now
+        resolved -- two of that list's three still stand). Owner-blocking
+        count therefore drops from three seals to two.
+      - >-
+        Shipped #2601: reordered the Codex queue to match the account owner's
+        standing direction for these scheduled runs ("deployment and cicd is
+        a priority and building and deploying marketing materials"). Was
+        open-pr-repair-merge (7), branch-pr-drain (6), deploy-cicd-readiness
+        (5), marketing-distribution (4); now deploy 7, marketing 6, open-pr 5,
+        branch-drain 4. Deployment and marketing take 45.4% of the plan quota
+        between them instead of 30.3%. The two demoted items held the top
+        slots from when the PR/branch backlog was the bottleneck; it is not --
+        the repo had zero open PRs, so they were holding 13/25ths of the
+        weight over provably empty work, and pick_item's noops damping only
+        learns that after spending the runs. Deliberately a demotion and not a
+        disabling: at 5 and 4 they keep 11/33 of the queue, every real item
+        merges its own PR (delivery: agent) so the ordinary run needs no
+        separate drain, and open-pr-repair-merge is the safety net for a run
+        whose verification did not come out clean. test_governor.py pins the
+        new ordering plus a floor under that item's share; verified the
+        assertion is non-vacuous (fails `assert 5 > 6` on the old priorities).
+        Also recorded the owner's stated preference for the built-in-quota
+        Codex credential (CODEX_AUTH_JSON) in OWNER_CHECKLIST.md item 8,
+        which had been presenting it as an open binary. No secret sealed and
+        no governor flip made.
+      - >-
+        Zero open PRs at session start and again before pushing, so the
+        three-merge quota in the standing prompt did not apply. Considered and
+        dropped a comparison page for etsy-profit-calculator (the strongest
+        remaining marketing-distribution candidate): egress to etsy.com is
+        blocked by the proxy and that item forbids estimating a competitor's
+        numbers. The 2026-09 entry above had already established the stronger
+        reason -- Etsy publishes no single official calculator a seller would
+        search for by name -- so this is settled, not merely blocked on the
+        egress-policy ask. Site re-verified green and unchanged along the way:
+        build.mjs 169 tools / 498 pages, check.mjs "169 products, 7 category
+        pages, 509 pages, no dead links".
