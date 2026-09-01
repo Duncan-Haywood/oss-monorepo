@@ -42,6 +42,15 @@ jobs:
           python-version: "3.12"
       - run: pip install ruff==0.15.8
       - run: ruff check .
+      # The self-hosted runner image ships no Node (curl, jq, unzip and git
+      # only -- see gitops/ci/README.md). The clauses.mjs step below runs
+      # bare `node`, which exists on GitHub-hosted ubuntu-latest by default
+      # but not there, so flipping CI_RUNNER to self-hosted would turn this
+      # job red on that step alone. Same class of gap already found and
+      # fixed once in garmin-world-traveler-watchface-ci.yml.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
       # page, and it is the half build.mjs cannot inject: what a tool is not
       # advice *about* is written in the venture's own voice. So it stays the
