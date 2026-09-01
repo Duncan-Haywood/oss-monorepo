@@ -41194,3 +41194,44 @@ entries:
         misreads). sideways initially failed on this new page alone (a raw
         Amazon URL used as anchor text overflowed at 360px); fixed with
         overflow-wrap: anywhere and reran clean. Merged as #2590.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Checked the 5 PR-less branches from
+        `git branch -r` for unique work per CLAUDE.md's branch-presumption
+        rule: `session/cleanup-2026-08-24` and
+        `session/remove-stale-local-site-studio-entry` are both already
+        superseded (the #777 ledger row and the asks.yaml removal they each
+        carry are already on `main`, the latter via #786/#787);
+        `venture/vendor-change-watch`'s single commit is an empty diff
+        against its own parent (nothing to merge); `tmp/ssh-key-smoke`'s only
+        unique content (a one-shot HETZNERSSHKEY format-probe workflow) is
+        superseded by the permanent "SSH preflight (read-only)" step already
+        in `.github/workflows/hetzner-gitops-ci.yml` on `main`. No PRs opened;
+        none needed one.
+      - >-
+        New finding, not previously recorded: GitHub Actions **got a real
+        runner again** starting 2026-09-01T00:00:53Z, right at what looks
+        like a day boundary. `platform/ci/ci_starvation.py --run
+        33453037361` (and the two more recent `main` pushes after it) show
+        `runner_id: 1000040393`/`1000040408`, 113-137s, real steps -- not the
+        `runner_id: 0`, 3s stub this file has recorded dozens of times since
+        2026-08-26. The run immediately before it, 21s earlier
+        (33452945145, 23:59:33Z), was still starved. Every prior entry in
+        this file treating the account-level ceiling as a standing outage
+        was correct at the time; this is the first evidence it cycles
+        (consistent with a daily included-minutes or spend-limit reset
+        rather than Actions being switched off outright). Not yet known
+        whether it holds through the day or the ceiling gets hit again on
+        the next burst of pushes -- next session should re-check with
+        `ci_starvation.py` rather than assume either the outage or the
+        recovery.
+      - >-
+        Confirmed CI/CD, the Hetzner portfolio-site deploy, and the
+        Codex-on-Hetzner governor are each still exactly one owner action
+        from live (self-hosted-runner PAT + `CI_RUNNER` repo var; the
+        `portfolio-site-repo` read-only clone token; the `codex-secrets`
+        credential + two suspend/enabled flips) -- same conclusion as
+        #2307/#2308 hours earlier, added nothing new to the decision queue.
