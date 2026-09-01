@@ -23,14 +23,22 @@ AUTH_EXIT="${CODEX_AUTH_EXIT:-43}"
 # reads for limit errors — so the Job still shows as Succeeded and an operator
 # reading `kubectl get jobs` is not told a clean run failed.
 NOOP_MARKER="codex-noop"
+# Same channel, for the credential the API refused. The exit code alone would
+# be enough for the governor, but the marker is what shows up in `kubectl
+# describe job` and `kubectl get pod -o yaml` without anyone having to look up
+# what 43 means or find logs from a Job that has since been TTL'd away.
+AUTH_MARKER="codex-auth-rejected"
 # Overridable so the test suite can run this script outside a container and
 # still assert the marker was written; in the Job it is the real path.
 NOOP_LOG="${CODEX_TERMINATION_LOG:-/dev/termination-log}"
-report_noop() {
-  echo "worker: $1"
+report_marker() {
   # Absent (a plain `bash worker.sh`) or unwritable — the marker is best-effort
   # and never worth failing a good run over.
-  printf '%s: %s\n' "$NOOP_MARKER" "$1" > "$NOOP_LOG" 2>/dev/null || true
+  printf '%s: %s\n' "$1" "$2" > "$NOOP_LOG" 2>/dev/null || true
+}
+report_noop() {
+  echo "worker: $1"
+  report_marker "$NOOP_MARKER" "$1"
 }
 
 export PATH="/usr/local/bin:$HOME/.npm-global/bin:$PATH"
@@ -162,6 +170,7 @@ gitops/agents/secrets/README.md.
 CODEX_ACCESS_TOKEN on its own is not usable: the CLI reads a whole auth.json,
 not a bare access token.
 MSG
+  report_marker "$AUTH_MARKER" "no Codex credential is mounted in codex-secrets"
   exit "$AUTH_EXIT"
 }
 
@@ -298,6 +307,7 @@ if [[ "$STATUS" -ne 0 ]] && hit_auth_failure "$OUTPUT"; then
   if [[ "$AUTH_MODE" == "subscription" ]]; then
     echo "worker: re-run \`codex login\` and re-seal CODEX_AUTH_JSON — a rotated refresh token cannot be recovered here." >&2
   fi
+  report_marker "$AUTH_MARKER" "credential rejected (mode: ${AUTH_MODE}); re-seal codex-secrets"
   exit "$AUTH_EXIT"
 fi
 

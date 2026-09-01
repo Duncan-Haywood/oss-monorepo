@@ -1044,3 +1044,162 @@ def test_a_crashed_run_neither_damps_nor_clears() -> None:
                         duration_seconds=5.0, item="branch-pr-drain", noop=False)
     state = g.absorb_finished_jobs(state, [crashed], NOW)
     assert state.noops_by_item == {"branch-pr-drain": 3}
+
+
+# --- A rejected credential is not a quota limit ----------------------------
+#
+# worker.sh has exited 43 for a refused credential since the subscription route
+# was wired, and agents/secrets/README.md states the contract: "Backing off for
+# an hour does not fix an expired login, and the two should not be read as the
+# same event." Nothing here honoured it. The governor branched on EXIT_LIMIT and
+# on the no-op marker; 43 fell through to "ordinary failure", so the next tick
+# five minutes later started the next item, which failed identically. ~288 Jobs
+# a day, each one apt-getting gh and npm-installing the Codex CLI on the 4 GB
+# cpx22 before finding out, and none of them able to succeed -- no amount of
+# retrying re-runs `codex login` on the owner's laptop.
+
+
+def test_a_rejected_credential_is_read_off_the_exit_code() -> None:
+    job = {
+        "metadata": {"uid": "a1", "name": "codex-a-1", "labels": {"governor.item": "a"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-a-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {"exitCode": g.EXIT_AUTH, "message": ""}}}
+        ]},
+    }]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.auth_failed is True
+    assert view.limit_hit is False
+    assert view.noop is False
+
+
+def test_a_rejected_credential_is_read_off_the_termination_marker() -> None:
+    # The Job's logs are gone once ttlSecondsAfterFinished expires; the
+    # terminated message is not, so the marker is what an operator reads.
+    job = {
+        "metadata": {"uid": "a2", "name": "codex-b-1", "labels": {"governor.item": "b"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-b-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {
+                "exitCode": 1,
+                "message": "codex-auth-rejected: credential rejected (mode: subscription)",
+            }}}
+        ]},
+    }]
+    assert g.job_view_from_k8s(job, pods).auth_failed is True
+
+
+def test_a_401_in_the_message_does_not_become_a_limit_cooldown() -> None:
+    # `parse_limit_error` scans the same free text, and "usage limit" is a
+    # phrase away from what an auth error prints. Whichever signal the pod
+    # carried, the credential verdict has to win: an hour's limit cooldown is
+    # the wrong remedy for a login that expired, and after that hour the fleet
+    # would retry the same dead credential.
+    job = {
+        "metadata": {"uid": "a3", "name": "codex-c-1", "labels": {"governor.item": "c"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-c-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {
+                "exitCode": g.EXIT_AUTH,
+                "message": "codex-auth-rejected: 401; usage limit language in the transcript",
+            }}}
+        ]},
+    }]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.auth_failed is True
+    assert view.limit_hit is False
+
+
+def test_a_rejected_credential_holds_the_queue_and_names_the_remedy() -> None:
+    state = _state()
+    job = g.JobView(uid="job-401", failed=True, duration_seconds=40, auth_failed=True)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    assert state.last_auth_failure_at == NOW
+
+    decision = g.decide(_policy(), state, 0, [_item()], NOW)
+    assert decision.action == "hold"
+    # The reason is the only place an operator learns what to do about it.
+    assert "codex login" in decision.reason
+    assert "re-seal" in decision.reason
+    assert decision.sleep_seconds > 0
+
+
+def test_the_auth_hold_is_a_cooldown_not_a_latch() -> None:
+    # It must expire on its own. The governor cannot see `codex-secrets` --
+    # its Role grants no Secret access, and widening that to notice a re-seal
+    # would trade bounded churn for unbounded blast radius. So the release is
+    # time: worker.sh re-seeds the PVC when the sealed fingerprint changes, and
+    # the first Job after the sleep picks up whatever the owner re-sealed.
+    policy = _policy(cooldown_on_auth_failure_seconds=6 * 3600)
+    state = _state(last_auth_failure_at=NOW - 6 * 3600 - 1)
+    decision = g.decide(policy, state, 0, [_item()], NOW)
+    assert decision.action == "start"
+
+
+def test_the_auth_hold_outlives_a_window_rollover() -> None:
+    # A credential the API rejected at 12:00 is still rejected when the 5-hour
+    # window rolls at 13:00. Clearing it with the window would restore exactly
+    # the every-five-minutes churn this exists to stop.
+    policy = _policy()
+    state = _state(
+        last_auth_failure_at=NOW - 60,
+        window_started_at=NOW - policy.window_seconds - 1,
+    )
+    rolled = g.rollover(state, NOW, policy)
+    assert rolled.last_auth_failure_at == NOW - 60
+    assert g.decide(policy, state, 0, [_item()], NOW).action == "hold"
+
+
+def test_the_auth_failure_timestamp_round_trips_through_the_state_configmap() -> None:
+    # `governor-state` is the only thing that survives a Job, so a cooldown
+    # that does not serialise is a cooldown that resets every five minutes.
+    state = _state(last_auth_failure_at=NOW - 120)
+    restored = g.state_from_dict(json.loads(json.dumps(g.state_to_dict(state))), NOW)
+    assert restored.last_auth_failure_at == NOW - 120
+
+
+def test_a_limit_still_reports_as_a_limit_when_both_could_apply() -> None:
+    # The other direction. A 429 clears itself when the window rolls, so
+    # nothing about this change may turn an ordinary rate limit into a
+    # six-hour sleep.
+    state = _state()
+    job = g.JobView(uid="job-429b", failed=True, duration_seconds=90, limit_hit=True)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    assert state.last_auth_failure_at is None
+    decision = g.decide(_policy(), state, 0, [_item()], NOW)
+    assert decision.action == "hold"
+    assert "cooldown" in decision.reason
+
+
+def test_the_worker_and_the_governor_agree_on_the_auth_exit_code() -> None:
+    # The two drifted apart precisely because the number lived in two places
+    # and neither side stated the other's. The Job env is where they meet now.
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    env = {
+        e["name"]: e["value"]
+        for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]
+    }
+    assert env["CODEX_AUTH_EXIT"] == str(g.EXIT_AUTH)
+
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert 'AUTH_EXIT="${CODEX_AUTH_EXIT:-43}"' in worker
+    assert g.EXIT_AUTH == 43
+    assert g.AUTH_MARKER in worker
+
+
+def test_the_shipped_policy_sets_an_auth_cooldown() -> None:
+    policy = g.policy_from_dict(
+        json.loads((AGENTS / "governor" / "policy.json").read_text())
+    )
+    # Longer than the limit cooldown: a 429 clears on its own, an expired
+    # login does not.
+    assert policy.cooldown_on_auth_failure_seconds > policy.cooldown_on_limit_seconds

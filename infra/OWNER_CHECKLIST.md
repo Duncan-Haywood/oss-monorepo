@@ -31,6 +31,10 @@ later, on its own, if you want it:
 ./bootstrap/scripts/seal-owner-secrets.sh ci    # optional, see item 9
 ```
 
+Its one branching question — which Codex credential — now defaults to the
+plan-quota route on a bare Enter, because item 8 below records that you have
+already chosen it. Typing `2` still seals the metered key.
+
 It prompts for each token with echo off, verifies against the GitHub API
 that the token can do the one thing its pod needs (a mis-scoped one is
 rejected before it becomes a CrashLoopBackOff), seals it, and wires it

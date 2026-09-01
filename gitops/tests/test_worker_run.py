@@ -554,3 +554,89 @@ def test_the_top_queue_item_still_asks_for_the_merge() -> None:
     # the assertion above is guarding nothing.
     item = _queue_item("open-pr-repair-merge.yaml")
     assert "Merge it" in item
+
+
+# --- Reporting a rejected credential ---------------------------------------
+#
+# The sibling of the no-op marker above, and the one that costs more when it is
+# missing. `worker.sh` has always exited 43 for a credential the API refused --
+# deliberately distinct from the 42 a quota limit exits with, because backing
+# off for an hour does not re-run `codex login`. But the exit code was the only
+# carrier, and the governor never read it, so a rejected credential looked like
+# an ordinary crash and the CronJob kept firing every five minutes.
+#
+# The marker goes to the same /dev/termination-log the no-op marker uses, which
+# Kubernetes surfaces as terminated.message -- readable from `kubectl describe`
+# long after the Job's logs have been TTL'd away.
+
+
+def test_a_rejected_credential_reports_the_auth_marker_and_exits_43(world) -> None:
+    # A 401 from the API, mid-run: the credential was mounted and looked fine,
+    # and the CLI got as far as a call that came back unauthorized. This is
+    # what an expired or rotated CODEX_AUTH_JSON actually looks like -- the
+    # route the owner chose, and the one Codex rotates on use.
+    _codex_stub(
+        world["bin"],
+        script="true",
+        status=1,
+        output="stream error: 401 Unauthorized (invalid_grant)",
+    )
+    marker = world["tmp"] / "termination-log"
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-auth"},
+        env_extra={"CODEX_TERMINATION_LOG": str(marker)},
+    )
+
+    assert proc.returncode == 43, proc.stdout + proc.stderr
+    assert marker.exists(), "no termination marker:\n" + proc.stdout + proc.stderr
+    assert marker.read_text().startswith("codex-auth-rejected:"), marker.read_text()
+    # Not a quota limit. Reporting it as one would put the fleet to sleep for
+    # cooldownOnLimitSeconds and then retry a credential that is still dead.
+    assert "codex-noop" not in marker.read_text()
+    assert not world["pr"].exists()
+
+
+def test_no_credential_mounted_reports_the_auth_marker_before_spending_anything(
+    world,
+) -> None:
+    # The fail-closed state before the owner seals `codex-secrets`. It is worth
+    # a marker of its own: without one, an operator who enables the governor
+    # with nothing sealed sees 288 crashed Jobs a day and no stated reason.
+    _codex_stub(world["bin"], script="true")
+    marker = world["tmp"] / "termination-log"
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-nocred"},
+        # Empty rather than absent: worker.sh tests with `-n`, so this is the
+        # same as never having been in the Secret.
+        env_extra={"CODEX_TERMINATION_LOG": str(marker), "OPENAI_API_KEY": ""},
+    )
+
+    assert proc.returncode == 43, proc.stdout + proc.stderr
+    assert marker.exists(), "no termination marker:\n" + proc.stdout + proc.stderr
+    assert marker.read_text().startswith("codex-auth-rejected:"), marker.read_text()
+
+
+def test_a_real_quota_limit_is_still_42_not_43(world) -> None:
+    # The pair that keeps the two signals apart. If the auth matcher ever
+    # widened enough to swallow a 429, the fleet would sleep for six hours on
+    # an outage that clears in one.
+    _codex_stub(
+        world["bin"],
+        script="true",
+        status=1,
+        output="429 rate limit reached for gpt-5",
+    )
+    marker = world["tmp"] / "termination-log"
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-429"},
+        env_extra={"CODEX_TERMINATION_LOG": str(marker)},
+    )
+
+    assert proc.returncode == 42, proc.stdout + proc.stderr
+    assert not marker.exists() or "codex-auth-rejected" not in marker.read_text()
