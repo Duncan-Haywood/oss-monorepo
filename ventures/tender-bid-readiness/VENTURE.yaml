@@ -11,6 +11,23 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: check.mjs's signals cover every readiness category the venture's own guide page (should-i-bid-on-this-tender.html) tells a bidder to verify.
+    status: supported
+    checked: 2026-09-01
+    evidence: in-repo
+    note: >-
+      The guide page's own checklist names a mandatory pre-bid meeting or
+      site visit as something that can silently disqualify a bid ("a
+      mandatory pre-bid visit that has already taken place cannot be
+      recovered"), but check.mjs had no signal for it -- a solicitation
+      with a mandatory site visit could score 100% readiness while that
+      requirement went undetected. Added a dedicated site-visit signal
+      (mandatory pre-bid meeting/conference, or a plain "site visit"
+      mention) alongside the existing six, and updated the FAQ copy and
+      its matching JSON-LD from "six" to "seven" in index.html. Verified
+      with node --test in this venture (4/4, 1 new, covering both the
+      "mandatory pre-bid meeting" and "site visit is mandatory" phrasings
+      and the negative case).
 economics:
   currency: USD
   mrr: null
