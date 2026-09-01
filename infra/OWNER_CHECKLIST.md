@@ -17,9 +17,15 @@ They were spread across six files because each was written when it became
 true. From a laptop with a kubeconfig and `kubeseal`:
 
 ```bash
-./bootstrap/scripts/seal-owner-secrets.sh --dry-run   # preflight only
-./bootstrap/scripts/seal-owner-secrets.sh             # all three, in order
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run       # preflight only
+./bootstrap/scripts/seal-owner-secrets.sh site agents     # the two that block
+./bootstrap/scripts/seal-owner-secrets.sh                 # all three, in order
 ```
+
+The middle line is the short version of the short version: `site` is the
+live-site clone token and `agents` is the Codex credential. Adding `ci`
+(or passing nothing) also seals the runner PAT, which is the optional
+one.
 
 It prompts for each token with echo off, verifies against the GitHub API
 that the token can do the one thing its pod needs (a mis-scoped one is
