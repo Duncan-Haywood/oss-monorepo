@@ -41134,3 +41134,63 @@ entries:
         CI version) exit 0, kubeconform -strict against the built manifest
         (16/16 valid, 0 errors). No behaviour change for legitimate traffic
         -- pods already resolve via the ClusterDNS Service in kube-system.
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, candidate 2 (a comparison page vs
+        a well-known incumbent). A prior run on this same item logged that it
+        declined this candidate because WebFetch to the one competitor domain
+        it tried (sell.amazon.com) was blocked. Confirmed the same block goes
+        wider than that: every external domain tried in this session --
+        sell.amazon.com, sellercentral.amazon.com, www.ebay.com,
+        docs.aws.amazon.com, even en.wikipedia.org -- returned
+        connect_rejected (organization policy) from the egress proxy on both
+        the WebFetch tool and a direct curl. WebSearch still works (routed
+        differently) but only returns synthesized snippets, some from
+        low-reliability SEO-farm sites that disagreed with each other on
+        feature specifics (whether Amazon's calculator has guest access, a
+        compare column).
+      - >-
+        Shipped anyway, by narrowing what the page claims rather than
+        skipping it: #2590,
+        ventures/amazon-fba-calculator/vs-amazon-revenue-calculator.html.
+        Names Amazon's official FBA Revenue Calculator honestly, links its
+        two public pages so a reader can verify directly, and states zero fee
+        numbers or percentages for it anywhere -- the comparison rests on one
+        structural fact that needs no live fetch to be true (it is Amazon's
+        own live, authoritative per-listing lookup) plus this repo's own
+        already-shipped, tested features (FBA vs FBM on one screen, max buy
+        cost, saved scenarios, a shareable link, ~15 chained follow-on
+        decisions). Carries a "not affiliated with Amazon" trademark notice.
+        A new test pins that no `Amazon charges/costs $...`-shaped sentence
+        exists on the page.
+      - >-
+        Also confirmed, before picking, that this item's other three
+        candidates already had a shipped baseline as of this session's start
+        (embed widget #2561/#2567, /c/ hub intros via CATEGORY_PAGE_COPY,
+        /about/ press-kit section) -- consistent with the prior session's own
+        finding, re-checked directly against a fresh build.mjs + check.mjs
+        rather than trusted secondhand.
+      - >-
+        Verified: node --test in ventures/amazon-fba-calculator (305/305,
+        13 new), PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs + check.mjs (169 products, 7 category pages,
+        509 pages, no dead links), node platform/pages/faq-visible.test.mjs
+        (4/4, this page's FAQPage JSON-LD matches its visible copy exactly),
+        node --test in platform/pages (836/836), python3 platform/ci/
+        run_workflow_locally.py --for-changes (6/7 selected workflows' own
+        run: steps clean, including portfolio-validate.yml 46/46; pages.yml's
+        one FAIL was its own "Build the site" step being unrunnable locally
+        -- a ${{ }} expression -- not a real regression, and
+        portfolio-pages.yml's real build+check covered the same ground and
+        passed), and a full PLAYWRIGHT browser_checks.py pass (sideways,
+        presets, roundtrip, highlight, journey all clean; contrast skipped,
+        axe-core not installed in this sandbox; sweep's one failure,
+        ai-engineering-academy: NO-CONTROLS, is a pre-existing, untouched-by-
+        this-PR finding already explained by guide-coverage.mjs's own
+        comments as a docs-and-tools hub sweep.mjs's single-button heuristic
+        misreads). sideways initially failed on this new page alone (a raw
+        Amazon URL used as anchor text overflowed at 360px); fixed with
+        overflow-wrap: anywhere and reran clean. Merged as #2590.
