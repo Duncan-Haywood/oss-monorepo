@@ -110,6 +110,19 @@ spec:
             defaultMode: 0555
         # emptyDir, not a PVC: a job's checkout is garbage the moment the job
         # ends, and an ephemeral runner must not inherit the last one's tree.
+        #
+        # emptyDir is not by itself enough to get that second half. An
+        # ephemeral runner exits after one job, and because a Deployment's pods
+        # may only set `restartPolicy: Always`, the kubelet restarts the
+        # container inside this same pod rather than the Deployment creating a
+        # new one. A container restart rebuilds the container filesystem from
+        # the image but explicitly does NOT clear an emptyDir -- surviving
+        # container restarts is the guarantee emptyDir is documented to give.
+        # So every job after the first inherited the previous one's `_work`.
+        # `runner-entrypoint.sh` empties this volume before it registers, which
+        # is where the ephemerality is actually enforced;
+        # `gitops/tests/test_runner_entrypoint.py` runs the entrypoint against
+        # a seeded work tree to prove it.
         - name: work
           emptyDir:
             sizeLimit: 8Gi
