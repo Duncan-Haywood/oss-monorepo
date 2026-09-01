@@ -49,6 +49,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+  assert.match(scriptSource, /encodeShare/, 'share-link encoder is missing from the executable script');
+  assert.match(scriptSource, /decodeShare/, 'share-link decoder is missing from the executable script');
 });
 
 test('every element the script reaches for exists in the markup', () => {
@@ -65,7 +67,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'lengthFeet', 'widthFeet', 'patternId', 'useId', 'wastePct', 'baseDepthIn',
     'haulAway', 'hourlyWage', 'targetMargin', 'proposedPrice', 'price',
-    'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'breakEven', 'copySummary', 'copyShare', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -126,4 +128,30 @@ test('printing sends the customer sheet and hides the contractor\u2019s own numb
 test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
+});
+
+// The two features touch the same page from opposite directions: the share
+// link deliberately carries the contractor's own rates, and the proposal
+// deliberately carries the customer's name and address. Neither may pick up
+// the other's payload -- a share link that quietly included the homeowner's
+// address would be a third party's personal data pasted into a URL and
+// whatever chat app it gets sent through.
+test('a shared bid link carries no customer or business details', () => {
+  const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
+  const spec = /export const SHARE_FIELDS = Object\.freeze\(\[[\s\S]*?\]\);/.exec(share);
+  assert.ok(spec, 'SHARE_FIELDS not found; the share wiring changed shape');
+  for (const field of [
+    'clientName', 'clientAddress',
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'proposalScope', 'proposalNotes', 'proposalExclusions', 'paymentTerms',
+    'depositPercent', 'validDays',
+  ]) {
+    assert.doesNotMatch(spec[0], new RegExp(`\\b${field}\\b`),
+      `${field} would be written into the shareable link`);
+  }
+});
+
+test('a share link is offered and the privacy claim names it', () => {
+  assert.match(html, /Copy share link/);
+  assert.match(markup, /share link encodes only the quote fields/i);
 });
