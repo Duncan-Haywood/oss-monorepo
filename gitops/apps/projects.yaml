@@ -129,8 +129,22 @@ spec:
       kind: "*"
     - group: policy
       kind: "*"
+    # Named explicitly rather than "*", matching the `prod` AppProject just
+    # above: rbac.authorization.k8s.io is the one whitelist group that should
+    # not be wider than the resources it actually needs to admit. `agents/`
+    # ships exactly one RBAC manifest -- governor/rbac.yaml -- and it is a
+    # namespaced ServiceAccount + Role + RoleBinding, nothing cluster-scoped
+    # (which `clusterResourceWhitelist: []` above blocks anyway). A wildcard
+    # here let Argo sync a ClusterRole or ClusterRoleBinding dropped into this
+    # namespace's directory by a future commit without the AppProject ever
+    # objecting -- the one place in the repo where "no cluster-scoped RBAC
+    # from agents" was a stated design intent (this AppProject's own
+    # description: "Cannot dest prod or touch cluster-scoped objects") but not
+    # an enforced one.
     - group: rbac.authorization.k8s.io
-      kind: "*"
+      kind: Role
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
     - group: bitnami.com
       kind: SealedSecret
 ---
