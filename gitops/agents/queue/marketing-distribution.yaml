@@ -3,11 +3,22 @@
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
 #
-# Priority 4: below deploy-cicd-readiness (5), because a distribution asset
-# for a site nobody can reach yet is worth less than the path that makes it
-# reachable; above seo-discoverability-audit (3), because that item now
-# reports full coverage on both of its backlogs (169/169 FAQ, 169/169 guide
-# pages on 2026-08-31) and has been reduced to depth work.
+# Priority 6. **Changed 2026-09-01**, from 4, on the account owner's own
+# direction: "I want to make sure deployment and cicd is a priority and
+# building and deploying marketing materials on the hetzner vms". This item
+# is the "building and deploying marketing materials" half of that sentence,
+# so it now sits second, directly below deploy-cicd-readiness (7).
+#
+# It stays *below* deploy-cicd-readiness for the reason it always did: a
+# distribution asset for a site nobody can reach yet is worth less than the
+# path that makes it reachable, and the owner named deployment first in the
+# same sentence. It stays above seo-discoverability-audit (3), because that
+# item now reports full coverage on both of its backlogs (169/169 FAQ,
+# 169/169 guide pages on 2026-08-31) and has been reduced to depth work.
+#
+# What moved is what it overtook: the two backlog items (open-pr-repair-merge,
+# branch-pr-drain) that used to hold the top two slots. See
+# deploy-cicd-readiness.yaml's header for the full reasoning.
 #
 # All four candidates below had a baseline shipped by 2026-08-31 (embed
 # widget #2561, several venture compare pages, the /c/ hub copy, and the
@@ -27,7 +38,7 @@ repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: deep
-priority: 4
+priority: 6
 enabled: true
 # This item's prompt opens its own PR and merges it, so worker.sh must not
 # fold the tree into one commit and open a second one.

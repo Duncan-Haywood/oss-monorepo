@@ -3,9 +3,14 @@
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
 #
+# Priority 4. **Changed 2026-09-01**, from 6, on the account owner's
+# direction that deployment/CI-CD and marketing come first -- see
+# deploy-cicd-readiness.yaml's header for the reasoning and the measurement
+# behind it.
+#
 # Scope note: this item deliberately skips any branch that already has an
 # open PR. That used to be a hole -- nothing else picked those up either --
-# and is now a division of labour: `open-pr-repair-merge` (priority 6) owns
+# and is now a division of labour: `open-pr-repair-merge` (priority 5) owns
 # every branch that has a PR, this one owns every branch that does not.
 # Neither should widen into the other's half; two items racing on the same
 # PR is how duplicate work gets opened here.
@@ -14,7 +19,7 @@ repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: chore
-priority: 6
+priority: 4
 enabled: true
 # This item's prompt opens its own PR and merges it, so worker.sh must not
 # fold the tree into one commit and open a second one.

@@ -412,29 +412,38 @@ def test_governor_queue_configmap_includes_all_real_items() -> None:
         assert entry in kustomization
 
 
-def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_then_features() -> None:
-    # pick_item weights `(priority + 1) / (runs + 1)`, so this ordering is
-    # what sets how often each item runs relative to the others (roughly
-    # 7:6:5:4:3) and which one opens each window. It used to be far more
-    # load-bearing than that: pick_item took the single highest-priority item
-    # every tick, so only `branch-pr-drain` could ever run and the other three
-    # were unreachable. Landing existing branch/PR work still comes first --
-    # it opens every window; deploy-cicd-readiness.yaml's own header comment
-    # puts it "below branch-pr-drain (6), because landing work that already
-    # exists still comes first, and above the three content and distribution
-    # items" -- fixing discoverability metadata, shipping a distribution
-    # asset, and open-ended feature work are all cheaper and more bounded
-    # than keeping the delivery path code-complete, so they must stay behind
-    # it. `open-pr-repair-merge` then sits above even branch-pr-drain: a
-    # branch that already has an open PR is further along than one without,
-    # so it is the cheaper thing to finish, and it is the only kind of work
-    # that gets more expensive by being left alone.
+def test_real_queue_items_are_priority_ordered_deploy_then_marketing_then_drain() -> None:
+    # pick_item weights `(priority + 1) / ((runs + 1) * (noops + 1))`, so this
+    # ordering is what sets how often each item runs relative to the others
+    # (roughly 8:7:6:5:4:3) and which one opens each window.
     #
-    # `marketing-distribution` slots between delivery and SEO: a distribution
-    # asset for a site nobody can reach yet is worth less than the path that
-    # makes it reachable, but worth more than another metadata pass over
-    # backlogs that both report full coverage. This pins that six-way
-    # ordering against an accidental priority edit to any one item.
+    # **Reordered 2026-09-01** on the account owner's direction: "I want to
+    # make sure deployment and cicd is a priority and building and deploying
+    # marketing materials on the hetzner vms". `deploy-cicd-readiness` and
+    # `marketing-distribution` took the top two slots from
+    # `open-pr-repair-merge` and `branch-pr-drain`, which held them while the
+    # PR/branch backlog was the bottleneck.
+    #
+    # It is not the bottleneck now -- the repo had zero open PRs on the day
+    # this changed -- so those two were holding 13/25ths of the weight over
+    # provably empty work. The `noops` damping corrects that eventually, but
+    # only after spending the runs that discover it, and the first window
+    # after an owner flips the governor on is the most valuable quota this
+    # fleet will ever spend.
+    #
+    # The demotion is not a disabling: at 5 and 4 the two backlog items still
+    # take 11/33 of the queue between them, and every item here opens and
+    # merges its own PR (`delivery: agent`), so `open-pr-repair-merge` is the
+    # safety net for a run whose verification did not come out clean rather
+    # than the ordinary drain. Deployment stays above marketing for the
+    # reason marketing-distribution.yaml always gave -- a distribution asset
+    # for a site nobody can reach is worth less than the path that makes it
+    # reachable -- and both stay above the two content items, whose backlogs
+    # each report full coverage.
+    #
+    # This pins that six-way ordering against an accidental priority edit to
+    # any one item. A deliberate reordering should change this assertion and
+    # say, here, whose direction it came from.
     items = {
         raw["id"]: raw["priority"]
         for raw in (
@@ -450,13 +459,17 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
         )
     }
     assert (
-        items["open-pr-repair-merge"]
-        > items["branch-pr-drain"]
-        > items["deploy-cicd-readiness"]
+        items["deploy-cicd-readiness"]
         > items["marketing-distribution"]
+        > items["open-pr-repair-merge"]
+        > items["branch-pr-drain"]
         > items["seo-discoverability-audit"]
         > items["product-feature-improvement"]
     )
+    # The demotion must stay a demotion and not become a disabling: at these
+    # weights `open-pr-repair-merge` still opens roughly one run in five, which
+    # is what keeps the drain a real safety net rather than a dead item.
+    assert (items["open-pr-repair-merge"] + 1) / sum(p + 1 for p in items.values()) > 0.15
 
 
 def test_effective_window_budget_leaves_interactive_slack() -> None:
