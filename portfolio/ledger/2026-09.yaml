@@ -399,17 +399,41 @@ entries:
         PRs did not exist.
       - >-
         Branch sweep: of the branches carrying commits not on `main`,
-        almost all are squash-merge residue. Three had real diffs and only
-        one had work `main` lacks -- `cursor/amazon-fba-sourcing-check`, a
-        regression test for the FBA sourcing-check feature (`buyCostStatus`,
-        `buyCostCheck`, `sourcing_check_used`) that is live on `main` with
-        nothing locking it. Merged. The other two are superseded originals
+        almost all are squash-merge residue. Three had real diffs and
+        **none had work `main` lacked** -- corrected below; this entry
+        first claimed one did. The other two are superseded originals
         and were left rather than closed: `main`'s
         `invoice-payment-terms-calculator` has 17 files to the branch's 9
         (including four SEO landing pages and `schedule.mjs`), and
         `fix/governor-rbac-configmap-scope`'s two tests are already on
         `main` with richer comments plus two networkpolicy tests the branch
         lacks. Merging either would have added a weaker second copy.
+      - >-
+        **Correction to the line above, same session.** It said
+        `cursor/amazon-fba-sourcing-check` carried "a regression test for
+        the FBA sourcing-check feature ... that is live on `main` with
+        nothing locking it". The feature was live on `main`; the test was
+        too, *twice* -- byte-identical copies at `page.test.mjs:642` and
+        `:648` as of f0136a00c. Merging the branch added a third. Copilot
+        caught it on #2623 and 35c4ef3 deduplicated all three to one, so
+        the net effect of that merge was to remove two pre-existing
+        duplicates rather than to add coverage -- a real if small
+        improvement, and the opposite of what was claimed.
+
+
+        The mistake is worth naming because the check that produced it
+        looked like diligence: `grep` on `index.html` confirmed
+        `buyCostStatus` / `buyCostCheck` / `sourcing_check_used` were
+        present, which establishes the *feature* ships and says nothing
+        about whether a test already covers it. "Is this on `main`?" has to
+        be asked of the artifact the branch actually adds. `git show
+        <base>:<path>` answers it in one command and was not run.
+
+
+        So the honest read of the branch backlog is that it contained no
+        unlanded work at all: all three candidates were superseded, and the
+        squash-merge residue that makes ~600 branches look unmerged hides
+        nothing.
       - >-
         Also corrected the owner-facing tool count in the two places the
         publish procedure quotes it -- `seal-owner-secrets.sh` and
