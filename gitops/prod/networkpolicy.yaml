@@ -1,0 +1,88 @@
+# Egress-only. Nothing in this namespace has needed a NetworkPolicy until
+# now, because nothing else in `prod` holds a live external credential --
+# that changed the moment `portfolio-site.yaml`'s `fetch` init container
+# started mounting Secret `portfolio-site-repo` (a GitHub read-only clone
+# token, live only for the seconds that init container runs, in the same pod
+# network namespace as the long-running `nginx` container). `gitops/ci/
+# networkpolicy.yaml` and `gitops/agents/networkpolicy.yaml` got this exact
+# treatment -- default-deny plus scoped DNS and HTTPS egress -- the day their
+# own credentialed workload was added (actions-runner-secrets on the CI
+# runner, codex-secrets on the worker). This namespace's own credentialed
+# workload has carried completely unrestricted egress since it was written
+# (#2444) -- able to open a connection to any host on any port, including
+# 10.43.0.1 (the kube-apiserver) -- with nothing to stop the token from being
+# sent anywhere if the `fetch` container's image, or `main` at the commit it
+# clones, were ever compromised.
+#
+# `test_portfolio_site_build_uses_flags_the_build_scripts_accept` in
+# `gitops/tests/test_manifests.py` has said, since before this file existed,
+# that adding an `npm install` step to the build container "would need
+# network egress the NetworkPolicy does not grant this pod" -- a policy that
+# did not exist. This file is what makes that sentence describe something
+# real instead of something aspirational.
+#
+# Deliberately Egress-only: `policyTypes` below has no `Ingress`. The public
+# path into this pod runs through ingress-nginx's DaemonSet, which sets
+# `hostNetwork: true` (`gitops/apps/ingress-nginx.yaml`) precisely so it can
+# own :80/:443 on the node directly. A hostNetwork controller's connections
+# to a backend Pod are not attributable to a Pod/Namespace identity the way
+# NetworkPolicy's `podSelector`/`namespaceSelector` match against -- that
+# traffic is evaluated against the *node's* address, not the controller's own
+# pod -- so an Ingress-side rule here would need an `ipBlock` naming the
+# control-plane node's address rather than a selector, and a session that
+# cannot reach the cluster has no way to get that right or notice getting it
+# wrong: the failure mode is the site going dark for every visitor the moment
+# the owner seals the clone token, with the pods still Running and Ready and
+# nothing in git saying why. Egress is the side of this pod that actually
+# holds the credential this file exists to protect, it is the side the CI
+# runner and the Codex worker are already restricted on for the identical
+# reason, and closing it needs no claim at all about how ingress traffic
+# arrives -- so it is the only side worth touching without cluster access to
+# verify against.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: portfolio-site-egress
+spec:
+  podSelector:
+    matchLabels:
+      app: portfolio-site
+  policyTypes:
+    - Egress
+  egress:
+    # CoreDNS, scoped to kube-system the same way gitops/ci/networkpolicy.yaml
+    # and gitops/agents/networkpolicy.yaml already scope theirs. An unscoped
+    # `to:` on port 53 is a DNS-tunneling exfiltration path in its own right,
+    # independent of the HTTPS restriction below --
+    # test_agents_dns_egress_is_scoped_to_kube_system is the regression that
+    # class of mistake already has a name for in this repo.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # HTTPS to the internet, for the `fetch` init container's shallow clone of
+    # github.com. Excludes the ranges the clone token must never be able to
+    # reach: the k3s pod and service CIDRs (10.43.0.1, the kube-apiserver, is
+    # inside the service CIDR excluded here), the RFC1918 ranges the two nodes
+    # themselves sit on, and link-local 169.254.0.0/16, where cloud metadata
+    # services live. Same `except` list as gitops/ci/networkpolicy.yaml and
+    # gitops/agents/networkpolicy.yaml, for the identical reason --
+    # test_worker_egress_cannot_reach_the_kube_apiserver is that regression's
+    # name.
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              - 10.42.0.0/16
+              - 10.43.0.0/16
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              - 169.254.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443

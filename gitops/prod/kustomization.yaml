@@ -3,6 +3,7 @@ kind: Kustomization
 namespace: prod
 resources:
   - quota.yaml
+  - networkpolicy.yaml
   - landing.yaml
   - portfolio-site.yaml
   - portfolio-apex.yaml
