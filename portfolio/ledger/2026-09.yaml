@@ -494,3 +494,69 @@ entries:
         Deployment status unchanged and not re-derived here: `main` still has
         no reachable content pending Secret `portfolio-site-repo`, per the
         Argo surface `publish_surface.py --check` already reports.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run against an owner instruction to prioritise
+        deployment/CI-CD, ship marketing materials on the Hetzner boxes, and
+        get the Codex CLI running unattended dev work there on its own
+        subscription quota. Nothing shipped -- everything asked for was
+        already built and current, most of it merged in the two hours before
+        this session started (#2616-#2628). Recording what was verified so a
+        future run does not re-derive it.
+      - >-
+        Zero open PRs at session start (`list_pull_requests` and
+        `search_pull_requests` both empty); the 15 PRs closed in the prior two
+        hours were re-checked individually via `pull_request_read` rather than
+        trusted from `list_pull_requests`, whose `merged` field is not
+        populated on list responses and read as `false` on all 15 --
+        14 were `merged: true`, and the 15th (#2622) was a properly-verified
+        duplicate close per its own linked ledger entry (#2627). No PR needed
+        reopening.
+      - >-
+        88 remote branches carry commits not on `main`. Ran
+        `supersede_check.py --no-fetch` against a sample of 19 before the loop
+        became too slow to finish in-session (each check is a full merge
+        replay); every one came back SUPERSEDED, except two `NOT SUPERSEDED`
+        false-negatives (`claude/festive-mccarthy-xrn3ua`,
+        `claude/festive-mccarthy-4rzjtb`) that this ledger's own August
+        entries already trace to more-evolved same-feature ventures under
+        different names (`vendor-watch`, `repository-branch-hygiene`) and
+        explicitly flag as safe to skip re-deriving. Three more
+        `claude/funny-archimedes-*` branches also came back `NOT SUPERSEDED`
+        and are likewise already named in this ledger's August entries as
+        known duplicates (PR #971 and the false-positive noted against
+        #2155). Both adjective-noun families account for most of the 88; no
+        branch in the sample needs a new PR.
+      - >-
+        Hetzner site deploy: `publish_surface.py --check` confirms the only
+        gap is still the single owner-only seal (`portfolio-site-repo`) --
+        build, DNS, and TLS are already done. Marketing-on-Hetzner: the
+        `marketing-distribution` governor queue item (priority 6, reordered
+        2026-09-01 to sit under `deploy-cicd-readiness` per this exact
+        instruction) already exists and deploys with the same site build;
+        spot-checked its own claims against a fresh local `build.mjs` run
+        (169 tools) -- the `/about` page's "no CDN, no third-party script"
+        claim holds (the one `cdn.` string in the built output is placeholder
+        example JSON in `consent-change-record`, not a loaded script) and the
+        `/c/marketplace` hub copy's named platforms (eBay, Etsy, Amazon,
+        Shopify, Walmart, TikTok Shop, Faire, Reverb) all match ventures that
+        exist. No drift found to fix.
+      - >-
+        Codex-on-Hetzner: the governor, worker, RBAC, and all six queue items
+        are fully built under `gitops/agents/`, not scaffolding -- gated on
+        exactly two owner actions (seal `codex-secrets`, then flip
+        `policy.json "enabled"` and unsuspend `cronjob.yaml`), both already
+        tracked as decision-queue rows (`codex-governor-enable` #1996,
+        `portfolio-site-hetzner-deploy` #1999) that this entry does not
+        duplicate. `worker.sh` already prefers `CODEX_AUTH_JSON` (subscription
+        quota) over `OPENAI_API_KEY` (metered), matching the owner's stated
+        preference to spend the built-in quota rather than pay per token. The
+        standing prompt this fleet would run under,
+        `gitops/agents/workers/mandate.md`, is not owner-gated and was read in
+        full: it already mirrors this session's own product-first mandate
+        (finish existing work before new, deployment/CI-CD counts as product
+        work, verify before claiming, never merge or seal on your own
+        authority) and needs no edit today.
