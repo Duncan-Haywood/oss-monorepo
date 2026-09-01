@@ -356,9 +356,22 @@ open_pr() {
 # the one state this repository's rules say a branch with real work must never
 # be left in. `gitops/tests/test_worker_run.py` reproduces it.
 #
-# `ls-remote` rather than a remote-tracking ref: the clone is shallow and
-# single-branch, so `git branch -r` only ever knows about $REF. Match on the
-# SHA rather than the branch name, because an agent that pushed
+# `ls-remote` rather than a remote-tracking ref, because this asks about the
+# remote as it is *now*. The branch we are looking for is one the agent pushed
+# during this run — minutes after the clone — so no remote-tracking ref can
+# know about it. `git branch -r` answers from the refs the last fetch wrote,
+# which is a snapshot from before the push happened.
+#
+# This comment used to give a different reason: that the clone was "shallow and
+# single-branch, so `git branch -r` only ever knows about $REF". That stopped
+# being true when the `--depth` was deliberately removed above (see the long
+# note on the `gh repo clone` line), and `test_worker_run.py` now asserts
+# `git rev-parse --is-shallow-repository` is false. Left as it was, the stale
+# reason invited exactly the wrong cleanup: a future reader who noticed the
+# clone is full would "simplify" this to `git branch -r` and silently break the
+# check, because the real reason is staleness, not clone depth.
+#
+# Match on the SHA rather than the branch name, because an agent that pushed
 # `HEAD:refs/heads/something-else` delivered the same commit under a name this
 # script never chose.
 #

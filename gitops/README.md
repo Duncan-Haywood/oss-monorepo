@@ -97,6 +97,32 @@ which is the intended fail-closed state.
    add it to `prod/kustomization.yaml` — full instructions in
    `prod/secrets/portfolio-repo-token.template.yaml`.
 
+**The build behind that token is verified green (2026-09-01).** The one
+failure mode the cache cannot cover is a *first-ever* start: with no cached
+site to fall back on, a commit that fails `check.mjs` leaves the pod with
+nothing to serve. So the seal is only worth spending if `main` builds
+clean, and until now no session had run the pod's own command to find out.
+Run outside the cluster, with the same base URL the Deployment sets:
+
+```
+PAGES_BASE_URL=https://tools.marisstella.dev/ \
+  node platform/pages/build.mjs --out=/tmp/site && \
+  node platform/pages/check.mjs --dist=/tmp/site
+```
+
+Both exit 0 on `main`: 169 products, 7 category pages, 517 pages, no dead
+links. `build.mjs` reads the committed `launched.json` rather than shelling
+out to `git log` (see the comment at its line ~4648), so the `--depth 1`
+clone the `fetch` container does costs it nothing — the depth-1 checkout and
+a full one produce the same site.
+
+This says the seal will land on a working build; it does not confirm
+anything about the cluster. Certificate issuance and public reachability
+remain unverified from a session — see the note at the end of this section —
+because these sandboxes cannot route to `89.167.29.39` (the egress proxy
+returns 403 for both hostnames, which is a sandbox limit, not a fault on
+the box).
+
 ### After it is live: what happens when that token expires
 
 A fine-grained PAT expires — 90 days is the recommended setting in
