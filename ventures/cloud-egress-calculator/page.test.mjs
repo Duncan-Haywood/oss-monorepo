@@ -5,6 +5,7 @@ import { compareScenarios } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+const vsGoogle = readFileSync(new URL("./vs-google-cloud-pricing-calculator.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -65,10 +66,67 @@ test("index links the CDN extra and the sitemap lists both pages", () => {
   assert.match(html, /does-a-cdn-cut-s3-egress\.html/);
   assert.match(html, /does-a-replica-beat-cross-region-pull\.html/);
   assert.match(html, /does-infrequent-access-still-beat-standard\.html/);
+  assert.match(html, /vs-google-cloud-pricing-calculator\.html/);
   assert.match(sitemap, /does-a-cdn-cut-s3-egress\.html/);
   assert.match(sitemap, /does-a-replica-beat-cross-region-pull\.html/);
   assert.match(sitemap, /does-infrequent-access-still-beat-standard\.html/);
+  assert.match(sitemap, /vs-google-cloud-pricing-calculator\.html/);
   assert.match(sitemap, /\.\//);
+});
+
+// The comparison page's whole value is that a reader can check it. Every claim
+// it makes about Google's tool is a quotation from a Google page it links to,
+// so these tests pin the two things that would quietly turn it into marketing:
+// a number invented on Google's behalf, and a lost link to the primary source.
+test("the incumbent-comparison page links back, cites Google's own pages, and invents no Google numbers", () => {
+  assert.match(vsGoogle, /<a href="\.\/">/);
+  assert.match(vsGoogle, /cloud\.google\.com\/products\/calculator/);
+  assert.match(vsGoogle, /cloud\.google\.com\/storage\/pricing/);
+  // Verbatim from cloud.google.com/products/calculator, read 2026-09-01. The
+  // quotation is wrapped across source lines, so compare on collapsed
+  // whitespace rather than on the raw markup.
+  const flowed = vsGoogle.replace(/\s+/g, " ");
+  assert.ok(
+    flowed.includes(
+      "This tool creates cost estimates based on assumptions that you provide. These estimates may not accurately reflect the final costs on your monthly Google Cloud bill.",
+    ),
+    "Google's own estimate disclaimer is no longer quoted verbatim",
+  );
+  // No price, rate, or fee may ever be asserted for Google here: only Google's
+  // own live schedule can confirm one, and this site publishes nobody's rates.
+  assert.doesNotMatch(vsGoogle, /Google('s)? (charges|rate is|price is|fee is|costs?) \$/i);
+  assert.doesNotMatch(vsGoogle, /\$\d/);
+  assert.match(vsGoogle, /not affiliated with, endorsed by, or sponsored by Google LLC/i);
+  assert.match(vsGoogle, /trademarks of Google LLC/i);
+});
+
+test("the incumbent-comparison page carries the disclaimer, no-SLA clause, and optional sponsor link", () => {
+  assert.match(vsGoogle, /No warranty/);
+  assert.match(vsGoogle, /Best-effort hosting, no SLA/);
+  assert.match(vsGoogle, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("the comparison page's FAQ schema is visible copy, and it routes readers to the sibling pages", () => {
+  const block = vsGoogle.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(block, "no FAQPage JSON-LD found on the comparison page");
+  const faq = JSON.parse(block[1]);
+  assert.equal(faq["@type"], "FAQPage");
+  assert.ok(faq.mainEntity.length >= 3);
+  const visible = vsGoogle.replace(/<script[\s\S]*?<\/script>/g, "");
+  for (const entry of faq.mainEntity) {
+    assert.match(visible, new RegExp(`<h3>${entry.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
+    // A sentence long enough to be distinctive, so the schema cannot drift
+    // away from the copy a visitor actually reads.
+    const firstSentence = entry.acceptedAnswer.text.split(". ")[0];
+    assert.ok(visible.includes(firstSentence), `answer to "${entry.name}" is in the schema but not on the page`);
+  }
+  for (const sibling of [
+    "does-a-cdn-cut-s3-egress.html",
+    "does-a-replica-beat-cross-region-pull.html",
+    "does-infrequent-access-still-beat-standard.html",
+  ]) {
+    assert.ok(vsGoogle.includes(sibling), `${sibling} is not reachable from the comparison page`);
+  }
 });
 
 test("disclaimer, no-SLA, and optional sponsors are visible", () => {
