@@ -99,13 +99,29 @@ jobs:
       # in CI" -- putting the check in CI does not change that argument, and a
       # `package.json` at the root would change what every other workflow's
       # `node --test` glob sees.
+      #
+      # Both pinned exactly, and that matters more here than in an ordinary
+      # install. Playwright pins a *browser build number* and refuses to launch
+      # anything else, so the version resolved here decides which Chromium the
+      # next step downloads; a floating spec means the browser under test can
+      # change overnight with no commit. And these seven checks read a real
+      # rendered page, so a Playwright or axe-core release can move a verdict
+      # on its own -- a suite whose findings change without a repository change
+      # is one nobody can act on. Bump them deliberately, in a pull request
+      # that says a run was clean on the new pair.
       - name: Install Playwright and axe-core outside the checkout
+        env:
+          # Verified together on 2026-09-01: all seven checks answered against
+          # a 510-page build on this pair.
+          PLAYWRIGHT_VERSION: "1.56.0"
+          AXE_VERSION: "4.13.0"
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/browser-checks"
           cd "$RUNNER_TEMP/browser-checks"
           npm init -y >/dev/null
-          npm install --no-audit --no-fund playwright axe-core
+          npm install --no-audit --no-fund \
+            "playwright@$PLAYWRIGHT_VERSION" "axe-core@$AXE_VERSION"
 
       # Separate from the npm install so a browser-download failure names
       # itself. This is the step most likely to fail for a reason that has
@@ -114,21 +130,29 @@ jobs:
       # exact conflation the exit-2 handling below exists to prevent.
       #
       # `--with-deps` apt-installs Chromium's shared libraries and therefore
-      # needs root. GitHub-hosted `ubuntu-latest` has passwordless sudo and
-      # does not; the self-hosted runner this repo can be switched to with
-      # `vars.CI_RUNNER` runs as its image's own unprivileged user
+      # needs root. GitHub-hosted `ubuntu-latest` has passwordless sudo, so
+      # there it works. The self-hosted runner this repo can be switched to
+      # with `vars.CI_RUNNER` runs as its image's own unprivileged user
       # (`gitops/tests/test_ci_runner.py` pins that), so there it cannot.
       # Falling back to the plain install rather than failing is what keeps
       # flipping that variable from turning this red -- the same class of gap
       # #2608 fixed in three other workflows. If the libraries turn out to be
       # missing too, the launch fails, `browser_checks.py` exits 2, and the
       # step below reports a skip rather than inventing a site defect.
+      #
+      # The CLI is invoked at its path in the pinned install, not through
+      # `npx`. `npx --yes` prefers a local binary but silently fetches the
+      # latest when it does not find one, which would download a browser for a
+      # different Playwright than the one the checks then run -- exactly the
+      # build-number mismatch `sweep.mjs`'s header documents, arrived at by a
+      # route no version pin above would catch.
       - name: Install the Chromium build this Playwright pins
         continue-on-error: true
         run: |
           set -uo pipefail
-          npx --yes playwright install --with-deps chromium \
-            || npx --yes playwright install chromium \
+          pw=./node_modules/.bin/playwright
+          "$pw" install --with-deps chromium \
+            || "$pw" install chromium \
             || echo "::warning::Could not install Chromium; the checks below will report a skip."
         working-directory: ${{ runner.temp }}/browser-checks
 
