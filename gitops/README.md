@@ -216,7 +216,10 @@ both Ingresses **and** the test — never one without the others.
 Pods build from `main` at start-up, so a merged venture does not appear
 until something restarts them — and Argo will not, because this manifest
 does not change when a venture does. The `portfolio-site-refresh`
-CronJob does a `rollout restart` nightly at 04:17 UTC. Its Role is
+CronJob does a `rollout restart` nightly at 01:00 UTC, after the usage
+aggregator has read the day's log (see `portfolio/usage/README.md`) — moved
+there in #2330 so the restart's pod churn stops deleting nginx access logs
+the aggregator hasn't read yet. Its Role is
 namespaced and narrowed by resource name: it can restart this one
 Deployment and touch nothing else in `prod`.
 
