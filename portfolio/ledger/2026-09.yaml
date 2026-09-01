@@ -789,3 +789,56 @@ entries:
         build: 169 products, 517 pages, no dead links. PR opened with 0 CI
         checks triggered (`GITHUB_TOKEN`-push, the documented pattern);
         verified locally per the standing rule, merged.
+  - venture: retail-pilot-intel
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run received the standing owner instruction to prioritise
+        deployment/CI-CD, ship marketing on the Hetzner boxes, and get Codex
+        CLI running unattended dev work there. That exact ask had already
+        been fully verified minutes earlier by #2633: everything is built,
+        and the remaining gaps (`portfolio-site-repo`, `codex-secrets`) are
+        owner-only seals already tracked as #1996/#1999. Re-deriving that
+        again would have only duplicated #2633, so this session did the
+        mandate's next-priority thing instead: improve an existing product.
+        Zero open PRs at every check during this session (confirmed
+        repeatedly via both `list_pull_requests` and `search_pull_requests`
+        against the fast-moving fleet), so no PR-drain quota work was
+        available to do first.
+      - >-
+        Found and fixed a real data-integrity bug in
+        `ventures/retail-pilot-intel` (shipped as #2644): the `--sample`
+        stub CLIs in `packages/edge`/`packages/pos` tag their synthetic
+        events (`metadata.model: "stub"` / `pos_vendor: "stub"`) so the
+        pipeline can be smoke-tested without a camera or POS connection,
+        but `packages/analytics` never read that tag -- it lived only
+        inside a JSON payload blob, not a queryable column. A stub event
+        landing in a real store's data path (e.g. `--sample` run to verify
+        a newly-configured store's directories) would have silently
+        inflated that store's conversion-rate and revenue-per-entrant KPIs
+        with no way to filter it back out short of parsing every row's
+        payload by hand -- a correctness bug that undercuts the product's
+        entire pitch (a trustworthy KPI report for a paying store owner).
+      - >-
+        Added a `synthetic` column (backed by `isSyntheticAggregate` /
+        `isSyntheticSale`) to both analytics tables, excluded it from
+        `dailySummary` and `latestDayWithActivity`, and migrated existing
+        `pilot.db` files predating the column (SQLite's `CREATE TABLE IF
+        NOT EXISTS` doesn't add columns to an already-existing table).
+        Separately, `packages/edge` had zero tests -- its stub-event logic
+        ran as an unguarded top-level script with a side-effecting file
+        write at import time, unlike `packages/pos`'s already-testable
+        split of `importer.ts` from `cli.ts`. Extracted the same split into
+        a new `packages/edge/src/sample.ts` and added its first tests.
+      - >-
+        Verified: `pnpm run typecheck` and `pnpm run lint` clean across all
+        6 workspace packages; `pnpm run test` 32/32 in `packages/analytics`
+        (26 pre-existing + 6 new) and 4/4 in `packages/edge` (0
+        pre-existing, all new); `pnpm run bootstrap` end-to-end after `rm
+        -rf data` -- the sample edge+POS events sync into a fresh
+        `pilot.db`, and the printed report now correctly shows `entries: 0,
+        purchases: 0, revenue_cents: 0` instead of counting the stub sale.
+        PR #2644 triggered real CI (`build` x3, `check`) which went green;
+        merged after confirming rather than merging on local verification
+        alone, since checks were actually running this time.
