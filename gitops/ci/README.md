@@ -25,9 +25,19 @@ Self-hosted runners are not metered. They restore CI whether the ceiling that
 was hit was the included-minutes allowance or a spending limit, and they run on
 hardware the portfolio already pays for.
 
-**That window closed on its own (2026-09-01).** Runners were assigned again
-from 2026-09-01T00:00:53Z and CI has been green on merit since, so nothing
-here is currently blocking — this stack is insurance, not a repair. It is
+**That window closed on its own (2026-09-01).** Runner *assignment* resumed
+from 2026-09-01T00:00:53Z, and the PRs that have run since went green on
+merit (#2601, #2603, #2605 — real runner ids, real steps). That is what the
+evidence establishes, and it is narrower than "all CI is green": runs still
+fail here for their own reasons. `Claude routine trigger` is the standing
+example — it gets a real runner, reaches the API, and comes back
+`HTTP 401 … "OAuth access token has been revoked"` (run 33547527610). Its
+`CLAUDETRIGGERAPIKEY` secret *is* set; the token behind it is revoked. That
+is the `routine-trigger-cadence` decision, not a runner problem. Read a red
+check on its merits; `ci_starvation.py` is what separates the two causes.
+
+Nothing here is currently blocking, so this stack is insurance, not a
+repair. It is
 still worth deploying: the recovery arrived at midnight on the first of the
 month, which is what a metered allowance resetting looks like, so the ceiling
 appears to cycle rather than to be gone. Deploy it *after* the two seals that

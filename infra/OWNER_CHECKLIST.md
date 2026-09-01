@@ -9,8 +9,8 @@ identities. Nothing here applies itself.
 own.** Two sealed secrets are what the live site and the Codex worker are
 waiting on — items 8 and "Publish `tools.marisstella.dev`" below. The
 third, item 9's runner PAT, is no longer blocking anything: GitHub
-resumed assigning runners at 2026-09-01T00:00:53Z and CI has been green
-on merit since. Seal it too if you want insurance against the next
+resumed assigning runners at 2026-09-01T00:00:53Z, and the PRs run since
+have passed on merit. Seal it too if you want insurance against the next
 allowance cycle, but do it last.
 
 They were spread across six files because each was written when it became
@@ -203,8 +203,22 @@ codes as exit 42 and a rejected credential as exit 43.
    spending limit, a payment problem, or Actions switched off all look
    identical); only your billing page settles it. **It resolved itself
    either way**: GitHub started assigning real runners again at
-   2026-09-01T00:00:53Z, and PRs have been going green on merit since
-   (#2601, #2603). CI works today with nothing from you.
+   2026-09-01T00:00:53Z, and the PRs run since have passed on merit
+   (#2601, #2603, #2605). Runner availability is back with nothing from
+   you.
+
+   That is narrower than "everything is green", deliberately. Individual
+   workflows still fail on their own merits, and one of them is worth
+   your attention: **`Claude routine trigger` is failing 401 on a live
+   token, not on a missing one.** Its `CLAUDETRIGGERAPIKEY` secret is
+   set, and the API returns *"OAuth access token has been revoked"*
+   (run 33547527610). With `*/20` scheduling and 5 fires per run that is
+   ~360 real API calls a day on real runners, all failing — safe, but
+   burning the same metered Actions allowance whose exhaustion caused the
+   2026-08-26 starvation. Mint a fresh token at
+   <https://claude.ai/code/routines> and update the secret, or delete the
+   workflow; it is the `routine-trigger-cadence` row in your decision
+   queue. A red check here is now worth reading rather than discounting.
 
    What is left here is insurance, worth doing but **after** the two
    seals above and below that are actually blocking. Self-hosted runners
