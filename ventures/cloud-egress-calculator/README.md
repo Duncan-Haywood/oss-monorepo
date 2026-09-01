@@ -15,6 +15,7 @@ Open `index.html` directly, or serve this directory with any static HTTP server.
 - Compares origin-only egress against a CDN on the same download volume (`does-a-cdn-cut-s3-egress.html`), including miss-fetch cost and the hit-rate floor.
 - Compares keep-pulling a dataset across regions against copying it once (`does-a-replica-beat-cross-region-pull.html`), including the seed, change-sync, payback months, and the pull volume where they match.
 - Compares keeping a bucket on the standard class against infrequent / archive storage after retrieve fees (`does-infrequent-access-still-beat-standard.html`), including the restore-GB ceiling.
+- Says which tool to open for which question against the obvious named incumbent, the Google Cloud Pricing Calculator (`vs-google-cloud-pricing-calculator.html`): Google's own tool prices Google Cloud products on Google's schedule, this one puts two providers' price sheets on one workload and solves the outbound-GB crossover. Every claim about Google's tool is quoted from Google's own pages and linked to them; no dollar figure is asserted on Google's behalf. Not affiliated with Google.
 - Runs without an account, API key, network call, or paid dependency.
 - Includes crawler-readable metadata, JSON-LD, sitemap, and `robots.txt`.
 

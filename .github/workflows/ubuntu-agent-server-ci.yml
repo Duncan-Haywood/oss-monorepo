@@ -71,6 +71,16 @@ jobs:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
+      # The self-hosted runner image ships no Python (curl, jq, unzip and git
+      # only -- see gitops/ci/README.md). This step used to run bare
+      # `python3`, which exists on GitHub-hosted ubuntu-latest by default but
+      # not there, so flipping CI_RUNNER to self-hosted would turn this job
+      # red on its own first step regardless of what config/repos.yml says.
+      # Same class of gap already found and fixed once in
+      # garmin-world-traveler-watchface-ci.yml.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: config/repos.yml parses and has the expected shape
         run: |
           python3 -c "

@@ -11,6 +11,7 @@ workflows onto it.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import yaml
@@ -84,6 +85,76 @@ def test_docker_dependent_exception_is_exactly_the_jobs_that_need_docker() -> No
             if "container" in job or "services" in job:
                 found.add((path.name, name))
     assert found == DOCKER_DEPENDENT_JOBS, found ^ DOCKER_DEPENDENT_JOBS
+
+
+_PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
+_NODE_NEEDLE = re.compile(r"\b(node|npm|npx)\b")
+
+
+def _run_code_lines(step: dict) -> list[str]:
+    # A comment can mention "python3" or "node" while explaining why a step
+    # *doesn't* need them (this file has several such comments after this
+    # test was added) -- only executable lines should trip the check.
+    run = step.get("run") or ""
+    return [
+        line
+        for line in run.splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+
+def test_every_job_that_runs_python_or_node_sets_it_up() -> None:
+    # Regression, generalizing a bug already found and fixed once by hand in
+    # garmin-world-traveler-watchface-ci.yml: a `run:` step invoking bare
+    # `python3`/`pip` or `node`/`npm`/`npx` works today because GitHub-hosted
+    # ubuntu-latest ships both interpreters -- but the self-hosted runner
+    # image (gitops/ci/runner.yaml, upstream ghcr.io/actions/actions-runner)
+    # ships neither (confirmed against actions/runner's own images/Dockerfile:
+    # curl, jq, unzip and git, no interpreter). A job like that passes every
+    # check today and turns red on its own first Python/Node line the moment
+    # an owner flips CI_RUNNER to self-hosted -- a break with nothing to do
+    # with which venture it belongs to.
+    #
+    # The garmin fix's own comment claimed "every other Python-only job in
+    # this repo already downloads its own interpreter this way" -- untested,
+    # so it went unnoticed when the same gap existed in three more places
+    # (portfolio-pages.yml's `deploy` job, ubuntu-agent-server-ci.yml's
+    # `yaml-sanity` job, both bare python3; backup-verification-evidence-ci
+    # .yml's `lint` job, bare node) until this test was written to scan all
+    # 220 files at once instead of relying on a claim nothing checked.
+    #
+    # DOCKER_DEPENDENT_JOBS and any job with `container:`/`services:` run
+    # inside their own image regardless of CI_RUNNER (see the docstring on
+    # that set above) and are exempt for the same reason they are exempt from
+    # the runner-switch test.
+    failures: list[str] = []
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        spec = yaml.safe_load(path.read_text())
+        for name, job in (spec.get("jobs") or {}).items():
+            if (path.name, name) in DOCKER_DEPENDENT_JOBS:
+                continue
+            if "container" in job or "services" in job:
+                continue
+            steps = job.get("steps") or []
+            has_setup_python = any(
+                (s.get("uses") or "").startswith("actions/setup-python") for s in steps
+            )
+            has_setup_node = any(
+                (s.get("uses") or "").startswith("actions/setup-node") for s in steps
+            )
+            needs_python = any(
+                _PYTHON_NEEDLE.search(line)
+                for s in steps
+                for line in _run_code_lines(s)
+            )
+            needs_node = any(
+                _NODE_NEEDLE.search(line) for s in steps for line in _run_code_lines(s)
+            )
+            if needs_python and not has_setup_python:
+                failures.append(f"{path.name}:{name} runs python3/pip with no actions/setup-python step")
+            if needs_node and not has_setup_node:
+                failures.append(f"{path.name}:{name} runs node/npm/npx with no actions/setup-node step")
+    assert not failures, "\n".join(failures)
 
 
 def test_the_switch_defaults_to_github_hosted() -> None:
