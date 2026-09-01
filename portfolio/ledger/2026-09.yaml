@@ -883,3 +883,101 @@ entries:
         merging on that basis. Re-fetched `main` immediately before and
         after merge; no collision (concurrent PR #2644 touched
         `retail-pilot-intel`, unrelated).
+  - venture: saas-seat-true-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2650: a `vs-zylo.html` comparison page against Zylo, a
+        named enterprise SaaS spend-management incumbent. Picked after
+        checking `reverb-fee-calculator` and `tiktok-shop-fee-calculator`
+        first (the marketing-distribution work order's next two
+        candidates) and finding neither has a single canonical *official*
+        competitor calculator to compare against. All claims are
+        qualitative and corroborated across three independent public
+        sources (Vendr, GetApp, Capterra); no unverifiable numbers, no
+        disparagement, matches the `vs-atbs.html`/`vs-instrumentl.html`
+        pattern already proven in this repo.
+      - >-
+        Verified: venture suite 24/24; `clauses.mjs` 3/3 pages carrying
+        the no-warranty clause (was 2); full `platform/pages` suite
+        838/838 including `faq-visible.test.mjs` and
+        `secondary-schema.test.mjs`; `build.mjs` + `check.mjs` 518 pages
+        (was 517), no dead links; real CI on the PR went 8/8 green. Merged
+        as `004ba7108`.
+      - >-
+        Operational note: this PR's working tree was shared (no worktree
+        isolation) with a concurrent session's unrelated
+        `platform/ci` fix (#2649) mid-task -- the other session's commit
+        landed directly in this checkout while verifying. Recovered by
+        backing up the diff externally, resetting cleanly onto fresh
+        `origin/main`, and reapplying before committing; no work lost,
+        both PRs landed separately and cleanly (#2649, #2650). Worth
+        fixing at the harness level (spawn concurrent agents into isolated
+        worktrees) rather than relying on every session to notice and
+        recover.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2649: `platform/ci/validate_workflows.py` (run by
+        `portfolio-validate.yml` on every push/PR) checked every workflow
+        for parseability, duplicate keys, and least-privilege permissions,
+        but never checked that `name:` was unique. Three files had
+        drifted onto the generic `name: CI` --
+        `print-atelier-ci.yml`, `quick-pick-survey-ci.yml`,
+        `retail-pilot-intel-ci.yml` -- unlike the other 218 which follow
+        `"<slug> CI"`. Produced three identically-labelled rows in the PR
+        checks list, the exact ambiguity `duplicate-symbols-ci.yml` and
+        `conflict-markers-ci.yml` exist to prevent elsewhere.
+      - >-
+        Renamed the three workflows to match convention and added
+        `check_unique_names()` to `validate_workflows.py` plus 5 new unit
+        tests (including a standing regression test against the real
+        `.github/workflows` tree) so the collision can't silently
+        recur. Verified: `validate_workflows.py` 221/221 valid (was
+        reporting the collision before the fix), `test_validate_workflows.py`
+        16/16, full `platform/ci` suite 380/380, `gitops/tests` 219/219
+        unaffected. Real CI on the PR went green (7/7 checks); merged as
+        `19d44ed98`.
+      - >-
+        Found but did not touch: `infra/inventory.tf`'s Hetzner private
+        network CIDR (`10.42.0.0/16`) collides with k3s's default pod
+        network CIDR, and neither `bootstrap/install-k3s-server.sh` nor
+        `install-k3s-agent.sh` overrides it. Left unfixed deliberately --
+        confirming actual routing behaviour needs live cluster access
+        (SSH/kubectl) this session did not have, and a wrong fix risks a
+        real cluster networking migration. Flagging for a session with
+        `HETZNERSSHKEY`-based cluster access to verify whether this is
+        live or already mitigated (e.g. k3s auto-detects and re-ranges on
+        conflict) before deciding whether it needs a code change.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `branch-pr-drain` queue item run manually (governor still
+        disabled): audited essentially the entire remote-branch backlog
+        rather than picking one branch blind -- all ~213 branches surveyed
+        by `git diff --shortstat origin/main...origin/<branch>` (~127 zero-
+        diff), and ~55 non-trivial branches individually inspected in
+        depth, including running `portfolio/ledger/supersede_check.py`
+        against several as a cross-check. Every branch with a real diff
+        was either an empty-commit artifact or genuinely already shipped
+        on `main`, in several cases under a renamed function
+        (`profitPerDay`/`rankBy` vs. the branch's own naming) -- the
+        "RENAME SUSPECTED, tool can't always catch it" case CLAUDE.md's
+        Duplicate-PRs section warns about. No branch was opened as a PR
+        this run; forcing one would have shipped a duplicate button, a
+        weaker copy of a live function, or reopened an already-fixed bug.
+      - >-
+        Conclusion for future sessions: this repo's branch backlog is
+        close to exhausted of recoverable value -- the fleet has been
+        draining it continuously and what remains is mostly drained
+        detritus, not unmerged work. The next unit of value here is more
+        likely deleting the now-confirmed-superseded stale branches (the
+        other half of `branch-pr-drain`'s presumed job) than continuing to
+        search them, though a session with time to spare could still
+        spot-check the remainder of the ~132 zero/low-diff `claude/*`
+        branches this run didn't open individually.
