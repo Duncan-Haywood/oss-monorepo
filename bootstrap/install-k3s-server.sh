@@ -4,7 +4,7 @@
 set -euo pipefail
 
 K3S_CHANNEL="${K3S_CHANNEL:-stable}"
-ADVERTISE_IP="${ADVERTISE_IP:-10.42.0.10}"
+ADVERTISE_IP="${ADVERTISE_IP:-10.10.0.10}"
 PUBLIC_IP="${PUBLIC_IP:-89.167.29.39}"
 VOLUME_MOUNT="${VOLUME_MOUNT:-/var/lib/rancher}"
 
@@ -51,7 +51,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL="$K3S_CHANNEL" sh -s - \
 # NIC is not up yet — fall back to the public IP once, then stop.
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 if ! kubectl wait --for=condition=Ready node --all --timeout=180s; then
-  echo "k3s API not ready. If this host has no 10.42.0.10 yet, attach the" >&2
+  echo "k3s API not ready. If this host has no 10.10.0.10 yet, attach the" >&2
   echo "private network (tofu apply) and re-run, or set ADVERTISE_IP=$PUBLIC_IP" >&2
   exit 1
 fi

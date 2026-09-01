@@ -362,7 +362,7 @@ def test_worker_egress_cannot_reach_the_kube_apiserver() -> None:
     assert to, "the 443 egress rule has no `to:` -- it allows any destination"
     internet = to[0]["ipBlock"]
     assert internet["cidr"] == "0.0.0.0/0"
-    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
 
 
@@ -775,7 +775,7 @@ def test_portfolio_site_egress_cannot_reach_the_kube_apiserver() -> None:
     assert to, "the 443 egress rule has no `to:` -- it allows any destination"
     internet = to[0]["ipBlock"]
     assert internet["cidr"] == "0.0.0.0/0"
-    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
 
 

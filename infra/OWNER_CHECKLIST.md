@@ -335,7 +335,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
 
 ## You decide (not blocking the scaffold)
 
-- Keep 6443 world-open until the private net (`10.42.0.10`) works, then
+- Keep 6443 world-open until the private net (`10.10.0.10`) works, then
   flip `expose_k3s_api_publicly = false`.
 - ~~What keeps serving on `marisstella.dev`. This stack will not steal it.~~
   Resolved: nothing was serving it. ingress-nginx runs `hostNetwork: true`

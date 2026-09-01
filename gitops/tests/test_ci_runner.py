@@ -221,7 +221,7 @@ def test_runner_cannot_reach_the_cluster() -> None:
     assert policy["ingress"] == []
     internet = policy["egress"][0]["to"][0]["ipBlock"]
     assert internet["cidr"] == "0.0.0.0/0"
-    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "169.254.0.0/16"):
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.10.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
 
     deployment = _ci_docs()["Deployment"]

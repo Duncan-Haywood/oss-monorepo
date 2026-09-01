@@ -33,10 +33,10 @@ else
 fi
 
 echo
-echo "== private NIC 10.42.0.10 =="
-if ssh -o BatchMode=yes -o ConnectTimeout=8 "$CP" 'ip -4 addr show | grep -q 10.42.0.10' 2>/dev/null; then
+echo "== private NIC 10.10.0.10 =="
+if ssh -o BatchMode=yes -o ConnectTimeout=8 "$CP" 'ip -4 addr show | grep -q 10.10.0.10' 2>/dev/null; then
   echo "private address is up"
 else
-  echo "10.42.0.10 not on the box yet — tofu apply the hel1-k3s network first,"
+  echo "10.10.0.10 not on the box yet — tofu apply the hel1-k3s network first,"
   echo "or install k3s with ADVERTISE_IP=89.167.29.39 as a temporary bind"
 fi

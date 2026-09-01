@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from ipaddress import ip_address, ip_network
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,8 +38,76 @@ def test_public_k3s_api_is_opt_out_not_silent_default_close() -> None:
 
 
 def test_private_network_addresses_are_stable() -> None:
-    assert "10.42.0.10" in TEXT
-    assert "10.42.0.11" in TEXT
+    assert "10.10.0.10" in TEXT
+    assert "10.10.0.11" in TEXT
+
+
+# k3s's defaults, not ours. `k3s server` uses these unless --cluster-cidr /
+# --service-cidr say otherwise, and bootstrap/install-k3s-server.sh passes
+# neither, so they are what this cluster runs.
+K3S_POD_CIDR = "10.42.0.0/16"
+K3S_SERVICE_CIDR = "10.43.0.0/16"
+
+
+def _private_net_locals() -> dict[str, str]:
+    """The four private-fabric strings, read out of inventory.tf as applied."""
+    found = {}
+    for key in ("private_network_cidr", "private_subnet_cidr", "control_plane_priv", "agent_priv"):
+        m = re.search(r'%s\s*=\s*"([^"]+)"' % key, TEXT)
+        assert m, "%s is not set in the .tf tree" % key
+        found[key] = m.group(1)
+    return found
+
+
+def test_private_network_does_not_overlap_the_k3s_pod_or_service_cidr() -> None:
+    # The defect this test exists for, found 2026-09-01 and never applied:
+    # private_network_cidr was 10.42.0.0/16 -- k3s's *own default pod
+    # network*, address for address -- with the node IPs at 10.42.0.10 and
+    # 10.42.0.11 inside it.
+    #
+    # flannel gives the first node the pod subnet 10.42.0.0/24 and puts
+    # 10.42.0.1/24 on cni0, so the private NIC and the pod bridge would have
+    # claimed one subnet on one box. And because pod IPs come out of that
+    # same /24, flannel would eventually hand a pod 10.42.0.10 -- the address
+    # --node-ip, --advertise-address, --tls-san and the agent's SERVER_URL
+    # all name. A pod would answer to the API server's address.
+    #
+    # Nothing catches this at plan time: `tofu plan` has no idea what CIDR
+    # k3s uses, and the k3s installer has no idea what CIDR Hetzner handed
+    # the NIC. Each half is individually valid. This test is the only place
+    # the two facts meet.
+    nets = _private_net_locals()
+    private = ip_network(nets["private_network_cidr"])
+    for name, reserved in (("pod", K3S_POD_CIDR), ("service", K3S_SERVICE_CIDR)):
+        assert not private.overlaps(ip_network(reserved)), (
+            "private_network_cidr %s overlaps k3s's default %s CIDR %s. "
+            "Pick a range clear of both, and add it to the except: lists in "
+            "gitops/*/networkpolicy.yaml." % (private, name, reserved)
+        )
+
+    subnet = ip_network(nets["private_subnet_cidr"])
+    assert subnet.subnet_of(private), "%s is not inside %s" % (subnet, private)
+    for key in ("control_plane_priv", "agent_priv"):
+        assert ip_address(nets[key]) in subnet, "%s (%s) is not in %s" % (key, nets[key], subnet)
+
+
+def test_gitops_networkpolicies_block_the_private_network() -> None:
+    # The exceptions in gitops/{prod,ci,agents}/networkpolicy.yaml stop pods
+    # reaching the nodes themselves. While the private range sat inside
+    # 10.42.0.0/16 they did that for free, as a side effect of excluding the
+    # pod CIDR -- so moving it anywhere correct silently opens a route to
+    # both kubelets on :10250 unless the exception moves with it.
+    #
+    # Asserted from infra/'s side on purpose: whoever renumbers the network
+    # edits inventory.tf, and this is the test that fires in their face.
+    cidr = _private_net_locals()["private_network_cidr"]
+    gitops = ROOT.parent / "gitops"
+    for ns in ("prod", "ci", "agents"):
+        policy = (gitops / ns / "networkpolicy.yaml").read_text()
+        assert cidr in policy, (
+            "gitops/%s/networkpolicy.yaml does not except %s, so pods there "
+            "can reach the nodes' private addresses." % (ns, cidr)
+        )
 
 
 def test_run_bootstrap_defaults_off() -> None:
