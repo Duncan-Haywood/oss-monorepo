@@ -346,3 +346,32 @@ def test_the_templates_are_never_written_to(sandbox: dict) -> None:
     for path, content in before.items():
         assert path.read_bytes() == content, f"{path} was modified by a seal run"
         assert b"CHANGE_ME" in content, f"{path} lost its placeholder"
+
+
+def test_enter_seals_the_plan_quota_route_the_owner_asked_for(sandbox: dict) -> None:
+    # The one owner action blocking the whole Codex fleet is this seal, and the
+    # route is not actually an open question: the account owner asked for the
+    # built-in plan quota, and infra/OWNER_CHECKLIST.md item 8 records it as
+    # settled. Making Enter mean that removes a keystroke's worth of doubt from
+    # the prompt without removing the choice -- "2" still seals the metered key.
+    auth_json = '{"tokens":{"access_token":"stub"},"last_refresh":"2026-09-02"}'
+    gh = "github_pat_agents_TESTVALUE"
+    result = _run(sandbox, ["agents", "--no-probe"], stdin=f"\n{auth_json}\n{gh}\n")
+    assert result.returncode == 0, result.stderr
+
+    manifest = sandbox["capture"].read_text()
+    assert f"CODEX_AUTH_JSON: {base64.b64encode(auth_json.encode()).decode()}" in manifest
+    assert "OPENAI_API_KEY" not in manifest
+
+
+def test_the_metered_route_is_still_reachable(sandbox: dict) -> None:
+    # The pair. A default that could not be overridden would be a decision
+    # taken from the owner rather than one recorded for them.
+    key = "sk-proj-TESTVALUE"
+    gh = "github_pat_agents_TESTVALUE"
+    result = _run(sandbox, ["agents", "--no-probe"], stdin=f"2\n{key}\n{gh}\n")
+    assert result.returncode == 0, result.stderr
+
+    manifest = sandbox["capture"].read_text()
+    assert f"OPENAI_API_KEY: {base64.b64encode(key.encode()).decode()}" in manifest
+    assert "CODEX_AUTH_JSON" not in manifest

@@ -87,6 +87,29 @@ A rejected credential exits **43**, distinct from the **42** a quota limit
 exits with. Backing off for an hour does not fix an expired login, and the two
 should not be read as the same event.
 
+**Wired on the governor side 2026-09-02.** Until then only the worker knew
+that: `governor.py` branched on 42 and on the no-op marker and read 43 as an
+ordinary crash, so the CronJob went on firing every five minutes and each Job
+`apt-get`ed `gh` and `npm install -g`ed the Codex CLI on the 4 GB cpx22 before
+discovering the same dead credential — around 288 of them a day, none of which
+could ever succeed, because no amount of retrying re-runs `codex login` on
+your laptop. That mattered most on this page's *plan* route: an
+`OPENAI_API_KEY` is static, but `CODEX_AUTH_JSON` is the one Codex rotates on
+use, so a wedged credential is its ordinary failure mode rather than a
+hypothetical.
+
+Now the worker also writes a `codex-auth-rejected:` marker to
+`/dev/termination-log` (so `kubectl describe job` states the reason after the
+Job's logs have been TTL'd away), and the governor holds the queue for
+`cooldownOnAuthFailureSeconds` — 6 h in `policy.json`, deliberately longer than
+the 1 h limit cooldown, because the limit clears itself and this does not.
+
+It is a cooldown, not a latch. The governor's Role grants no access to
+`codex-secrets`, so it cannot watch for your re-seal, and widening it to watch
+a credential it must never read would be a bad trade. Instead the hold simply
+expires: re-run `codex login`, re-seal, and the first Job after the sleep
+re-seeds the volume from the new fingerprint on its own. Nothing to flip.
+
 ## Not in this namespace
 
 Do not store a Hetzner token (Read or Write), an OpenAI Admin key, the

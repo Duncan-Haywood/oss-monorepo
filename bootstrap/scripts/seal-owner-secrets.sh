@@ -337,9 +337,16 @@ seal_agents() {
   say "                         with a dashboard hard spend limit. Costs money,"
   say "                         with a ceiling. Never an Admin key."
   say ""
+  # Default to 1 on a bare Enter. Not a guess: the account owner asked for
+  # this route in as many words -- "I also want the codex cli to be set up to
+  # use up the built in quota for dev work" -- and infra/OWNER_CHECKLIST.md
+  # item 8 already records that as settled. The prompt still lists both,
+  # because a default is a shortcut through a decision already made, not a
+  # replacement for making it: typing 2 still seals the metered key.
   local choice
-  printf '  Which [1/2]: '
+  printf '  Which [1/2, Enter = 1]: '
   read -r choice
+  choice="${choice:-1}"
 
   local codex_key codex_val prompt
   case "$choice" in
