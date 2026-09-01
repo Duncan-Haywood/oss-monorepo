@@ -3,18 +3,29 @@
 An agent can write this tree. It cannot mint accounts, money, or
 identities. Nothing here applies itself.
 
-## The short version: three seals, one command
+## The short version: two seals, one command
 
-Three sealed secrets are what the live site, working CI, and the Codex
-worker are each waiting on. They are items 8, 9 and "Publish
-`tools.marisstella.dev`" below, and they were spread across six files
-because each was written when it became true. From a laptop with a
-kubeconfig and `kubeseal`:
+**Changed 2026-09-01: this was "three seals" until CI came back on its
+own.** Two sealed secrets are what the live site and the Codex worker are
+waiting on — items 8 and "Publish `tools.marisstella.dev`" below. The
+third, item 9's runner PAT, is no longer blocking anything: GitHub
+resumed assigning runners at 2026-09-01T00:00:53Z and CI has been green
+on merit since. Seal it too if you want insurance against the next
+allowance cycle, but do it last.
+
+They were spread across six files because each was written when it became
+true. From a laptop with a kubeconfig and `kubeseal`:
 
 ```bash
-./bootstrap/scripts/seal-owner-secrets.sh --dry-run   # preflight only
-./bootstrap/scripts/seal-owner-secrets.sh             # all three, in order
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run       # preflight only
+./bootstrap/scripts/seal-owner-secrets.sh site agents     # the two that block
+./bootstrap/scripts/seal-owner-secrets.sh                 # all three, in order
 ```
+
+The middle line is the short version of the short version: `site` is the
+live-site clone token and `agents` is the Codex credential. Adding `ci`
+(or passing nothing) also seals the runner PAT, which is the optional
+one.
 
 It prompts for each token with echo off, verifies against the GitHub API
 that the token can do the one thing its pod needs (a mis-scoped one is
@@ -180,17 +191,24 @@ codes as exit 42 and a rejected credential as exit 43.
    instruction — deployment/CI-CD first, then marketing and distribution.
    Nothing about the queue needs your input; it is listed here only so the
    spend is predictable before you authorise it.
-9. **Restore CI.** Every workflow has been red since 2026-08-26 with
-   `runner_id: 0` and zero steps — jobs that were never assigned a
-   runner, because metered Actions minutes on this private repo ran out.
-   Two steps bring it back on hardware you already pay for:
+9. ~~**Restore CI.**~~ **Not needed as of 2026-09-01 — optional.** Every
+   workflow was red from 2026-08-26 with `runner_id: 0` and zero steps —
+   jobs never assigned a runner, because metered Actions minutes on this
+   private repo ran out. **That resolved itself**: GitHub started
+   assigning real runners again at 2026-09-01T00:00:53Z, and PRs have
+   been going green on merit since (#2601, #2603). CI works today with
+   nothing from you.
+
+   What is left here is insurance, worth doing but **after** the two
+   seals above and below that are actually blocking. Self-hosted runners
+   are not metered, so they make the next allowance cycle a non-event:
    seal `actions-runner-secrets` from
    `gitops/ci/secrets/actions-runner-token.template.yaml` (a
    fine-grained PAT for this repo with **Administration: Read and
    write**), then set the repository variable `CI_RUNNER` =
    `self-hosted`. Clearing that variable moves all 217 workflows back to
-   GitHub-hosted runners when your minutes reset. Details and the
-   security posture: `gitops/ci/README.md`.
+   GitHub-hosted runners. Details and the security posture:
+   `gitops/ci/README.md`.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 
@@ -206,7 +224,8 @@ platform/pages/build.mjs --out=… && node platform/pages/check.mjs
 products, 508 pages, no dead links**, and no `duncan-haywood.github.io`
 URL surviving anywhere in the output. (The 2026-08-29 run said 164 and
 446; the difference is ventures merged since, not a regression.) Nothing
-about it depends on GitHub Actions (no runner since 2026-08-26) or on
+about it depends on GitHub Actions (starved 2026-08-26 to 2026-09-01,
+working again since — and this path never needed it either way) or on
 GitHub Pages (not enabled, and a private repo's Pages site is not public
 on the free tier anyway).
 

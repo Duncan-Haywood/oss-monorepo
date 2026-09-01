@@ -9,10 +9,11 @@ compute), `contrast.mjs` (can every page be read and reached),
 `highlight.mjs` (does a rejected input get pointed at) and
 `sideways.mjs` (does any page scroll sideways on a phone). They need
 Playwright, which is not a dependency of this repo, so no workflow runs
-them. Since 2026-08-26 no workflow runs at all, which makes them the only
-thing standing between a merge and a page that renders perfectly and does
-nothing -- the failure `sweep.mjs`'s own header says this repo has shipped
-before.
+them -- and that is still true now that Actions runners are back (they
+returned 2026-09-01, after being starved from 2026-08-26). No CI check
+covers this ground either way, which makes these the only thing standing
+between a merge and a page that renders perfectly and does nothing -- the
+failure `sweep.mjs`'s own header says this repo has shipped before.
 
 Nothing orchestrates them. `platform/pages/README.md` hands you seven
 commands plus a server you start yourself, and both `journey.mjs` and

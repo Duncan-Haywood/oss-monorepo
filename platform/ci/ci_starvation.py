@@ -5,11 +5,19 @@
     python3 platform/ci/ci_starvation.py --run 33343422573  # every job in a run
     python3 platform/ci/ci_starvation.py --run <id> --json
 
-Since 2026-08-26 every workflow in this repository comes back red without
-having run: GitHub assigns no runner, the job ends in 3-6 seconds, and the
-check reports a failure with an empty body. `CLAUDE.md` documents the
-signature, and sessions have been re-deriving it by hand ever since with two
-`gh api` one-liners pasted out of that file.
+From 2026-08-26 to 2026-09-01 every workflow in this repository came back red
+without having run: GitHub assigned no runner, the job ended in 3-6 seconds,
+and the check reported a failure with an empty body. `CLAUDE.md` documents the
+signature, and sessions re-derived it by hand throughout with two `gh api`
+one-liners pasted out of that file.
+
+Runners returned on 2026-09-01, which makes this tool *more* useful, not
+less. While every check was starved its answer was a foregone conclusion; now
+that real failures and starved ones can both occur, it is the thing that tells
+them apart -- and the mistake it prevents has inverted, from "fixing" green
+code to waving a genuine failure through as a ghost of the outage. The
+account-level ceiling looks like it cycles rather than being gone, so expect
+to need both answers.
 
 Doing it by hand is where it goes wrong. The two mistakes both cost a session:
 
