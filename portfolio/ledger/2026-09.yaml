@@ -842,3 +842,44 @@ entries:
         PR #2644 triggered real CI (`build` x3, `check`) which went green;
         merged after confirming rather than merging on local verification
         alone, since checks were actually running this time.
+  - venture: saas-seat-true-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2643: a contracted seat minimum field. The venture's own
+        FAQ already warned that "seat minimums and step pricing mean
+        dropping from 20 to 14 may not save 30%," but the calculator
+        priced every unused seat as droppable regardless -- the tool
+        named its own gap without letting a user close it. Picked this
+        after both the FAQ- and comparison-page lanes read as saturated:
+        `faq-coverage.mjs`/`guide-coverage.mjs` both 169/169, and
+        recent `main` history showed several concurrent sessions already
+        shipping vs-competitor pages (ebay, etsy, cloud-egress x2,
+        owner-operator-cpm, grant-deadline-tracker) and share-link
+        rollouts (roofing, paver-patio) in the hours before this session
+        started. `saas-seat-true-up` had no branch or PR touching it and
+        no commit in over a week.
+      - >-
+        `calculateTrueUp()` now returns `droppableSeats` (unused seats
+        actually removable at renewal, floored at the contracted
+        minimum) and `lockedByMinimum` (unused seats the floor still
+        forces you to keep paying for) alongside the existing `unused`
+        count; the avoidable-spend figures are computed from
+        `droppableSeats` instead. Default `seatMinimum: 0` keeps every
+        existing worksheet and the exact-shape scenario save/load format
+        unchanged -- verified with explicit backward-compat tests for
+        both the 4-field (pre-overage) and 5-field (pre-minimum) saved
+        scenario shapes.
+      - >-
+        Verified locally: venture suite 24/24 (was 9 in the touched
+        files), `node platform/pages/build.mjs` + `check.mjs` clean (169
+        products, 517 pages, no dead links), `node --test
+        platform/pages/*.test.mjs` 838/838, `faq-coverage.mjs` /
+        `guide-coverage.mjs` unchanged at 169/169. PR #2643 triggered
+        real CI (`build` x2, `test`, `check`, `link-contrast`,
+        `page-integrity`, `validate` all green, `deploy` skipped as
+        expected off `main`) -- confirmed real runner assignment before
+        merging on that basis. Re-fetched `main` immediately before and
+        after merge; no collision (concurrent PR #2644 touched
+        `retail-pilot-intel`, unrelated).
