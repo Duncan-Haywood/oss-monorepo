@@ -1075,3 +1075,59 @@ entries:
         than three distinct products. Left for a session with time to
         read all three in full; flagging here rather than in a product PR
         to avoid scope creep.
+  - venture: paver-patio-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped PR #2656 (merged `ff0b9672e`): its "Copy share link" only
+        encoded `share.mjs`'s bid-math `SHARE_FIELDS`, silently dropping
+        the deposit % and hold-price-days proposal terms -- a client
+        opening the link would see the venture's default deposit/validity
+        instead of what the contractor actually offered, with the
+        headline price still matching to the cent so nothing on either
+        screen flagged the mismatch. Fixed by vendoring the existing
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` pattern (used
+        as-is, byte-identical, from `ventures/deck-bid-calculator`) and
+        wiring it into `copyShare` and page-load restore. Verified:
+        venture's own `node --test` 100/100, repo-wide
+        `platform/proposal/*.test.mjs` cross-check 89/89, manual
+        round-trip, GitHub Actions ran and passed on the PR (real runner
+        IDs, confirmed via `ci_starvation.py`).
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Chased whether the paver-patio bug (above) was systemic across
+        other bid-calculator ventures, and it mostly is not -- recording
+        this so a future session does not re-run the same search. Two
+        successive grep heuristics both overcounted badly: (1) "has
+        `share.mjs` but no vendored `proposal-terms.mjs`" flagged ~55
+        ventures; (2) tightened to "has an `id=\"depositPercent\"` field
+        but neither a vendored `proposal-terms.mjs` nor `withProposalTerms`
+        exported from its own `share.mjs`" still flagged 46. Three agent
+        batches (12 ventures total, sampled from list (1)) each came back
+        100% false positives: those ventures already carry the terms
+        correctly through a *different*, broader mechanism --
+        `share.mjs`'s own `withProposalTerms(BID_SPEC)`, added repo-wide
+        in commit `19941308b` (PR #1985, "on all 48 tools") -- which
+        neither heuristic's grep pattern recognised. A manual spot-check
+        of list (2) then found `furnace-bid-calculator`, despite having a
+        `depositPercent` field, has no URL-based share link at all (local
+        print/copy only via a third, unrelated `proposal.mjs` pattern), so
+        the bug class cannot apply there regardless of wiring -- meaning
+        list (2) also conflates at least three distinct
+        venture architectures.
+      - >-
+        Net effect: the codebase has three-plus independent
+        proposal/share-terms mechanisms (vendored module, shared-spec
+        `withProposalTerms`, and non-URL local proposal/print flows like
+        `furnace-bid-calculator`'s), and no static grep reliably tells
+        them apart. Confirming a venture actually has this bug requires
+        reading its `index.html` wiring or round-tripping a link by hand,
+        not pattern-matching field IDs. Only one genuine instance
+        (paver-patio-bid-calculator, above) was found and fixed this run;
+        no evidence surfaced that others remain, though the search was
+        not exhaustive over all ~104 ventures with a `depositPercent`
+        field.
