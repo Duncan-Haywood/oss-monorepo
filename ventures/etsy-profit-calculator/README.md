@@ -277,6 +277,13 @@ default $30 listing the current leftover is $21.23; the item price that
 keeps $20 is $28.65, $10 is $17.60, and $30 is $39.70. The page does
 not recommend a list price.
 
+[This calculator vs. Etsy's own Profit Calculator](vs-etsys-listing-form-calculator.html)
+says which of the two to open for which question — Etsy's own tool, built
+into the listing form, is a quick single-listing check right where you
+price it; this one is the whole shop's fee stack, the repricer, and the
+nine follow-on decisions built from your own numbers. Not affiliated
+with Etsy.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 
