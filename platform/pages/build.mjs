@@ -1033,6 +1033,80 @@ async function countPages(sourceDir) {
 }
 
 /**
+ * Hostnames a venture's own shipped JavaScript sends a `fetch()` request to,
+ * other than a same-origin path (loading an `examples/*.json` fixture, say —
+ * several ventures do that and it does not count). Empty for the great
+ * majority of tools, which make none.
+ *
+ * This feeds the site's privacy claims ("nothing you type leaves your
+ * browser"), which are true for every tool except the ones this finds — a
+ * tool whose whole job is checking a live public API (`sponsor-ready` sends
+ * the repo you paste to `api.github.com`, because that is what checking it
+ * means) would make those claims quietly false without this, the same
+ * silent-drift failure the hand-typed catalogue counts elsewhere in this file
+ * already guard against.
+ *
+ * Heuristic, not a JS parser: it recognises a `const NAME = "https://...";`
+ * style declaration and a `fetch()` call whose target is a literal URL or
+ * one of those constants — every shape this codebase currently uses. A
+ * fetch target built some other way (concatenation, a computed URL) would
+ * not be caught, which is why callers should read an empty result as "none
+ * found", not as a verified guarantee that none exist.
+ */
+export async function surfaceExternalFetchHosts(dir) {
+  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js'));
+  const hosts = new Set();
+
+  for (const file of files) {
+    const src = await fs.readFile(file, 'utf8');
+    const urlConsts = new Map();
+    for (const m of src.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*["'`](https?:\/\/[^"'`]+)["'`]/g)) {
+      urlConsts.set(m[1], m[2]);
+    }
+    const targets = [
+      ...[...src.matchAll(/fetch\(\s*[`'"](https?:\/\/[^`'"]+)[`'"]/g)].map((m) => m[1]),
+      ...[...src.matchAll(/fetch\(\s*`\$\{([A-Za-z_$][\w$]*)\}/g)]
+        .map((m) => urlConsts.get(m[1]))
+        .filter(Boolean),
+      ...[...src.matchAll(/fetch\(\s*([A-Za-z_$][\w$]*)\s*[+,)]/g)]
+        .map((m) => urlConsts.get(m[1]))
+        .filter(Boolean),
+    ];
+    for (const url of targets) {
+      try {
+        hosts.add(new URL(url).host);
+      } catch {
+        // Not a resolvable absolute URL — skip rather than guess.
+      }
+    }
+  }
+
+  return [...hosts].sort();
+}
+
+/**
+ * The surfaces flagged by `surfaceExternalFetchHosts`, as the shape the
+ * privacy copy below needs: which tool, what it is called, and where it
+ * sends what you type. Surfaces built without that field (a hand-written
+ * test fixture, say) are silently treated as having none, so this is safe to
+ * call on any surface list.
+ */
+export function externalCallExceptions(surfaces) {
+  return surfaces
+    .filter((s) => s.externalFetchHosts && s.externalFetchHosts.length)
+    .map((s) => ({ slug: s.slug, title: s.title, hosts: s.externalFetchHosts }))
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/** "A", "A and B", or "A, B, and C" — used to read an exception list as prose. */
+export function listProse(items) {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
+/**
  * Every `.html` file published under `dir`, as paths relative to it.
  *
  * This reads the built output rather than the sources, so it sees exactly what
@@ -1217,7 +1291,33 @@ const escapeHtml = (value) =>
 const jsonLd = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
-const DISCLAIMER_HTML = `
+/**
+ * The shared "No warranty / no SLA / Privacy" footer block that ships on the
+ * hub, every category page, and the About page's own footer.
+ *
+ * The Privacy paragraph makes one absolute claim — no server ever receives
+ * what a visitor types — which `externalCallExceptions` can now disprove for
+ * a specific tool. Rather than let that make the paragraph silently false,
+ * `surfaces` (the same list every caller already has in scope) is checked on
+ * every render and an accurate exception clause is appended only when one is
+ * needed, naming the tool and where it sends what you type.
+ *
+ * The name is plain text, not a link to the tool: this block is rendered on
+ * the hub too, whose own listing already links every slug exactly once, and
+ * a second `href="<slug>/"` here would read as a second listing of the same
+ * tool. The About page's own, separate privacy panel makes the same point
+ * with a working link — this one points there instead.
+ */
+function disclaimerHtml(toRoot, surfaces = []) {
+  const exceptions = externalCallExceptions(surfaces);
+  const exceptionNote = exceptions.length
+    ? ` Except ${listProse(
+        exceptions.map((x) => escapeHtml(x.title)),
+      )} — each of which checks a live public API as its whole job, so what you paste there to look up goes to ${listProse(
+        [...new Set(exceptions.flatMap((x) => x.hosts))],
+      )} and nowhere else. <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
+    : '';
+  return `
       <h2>No warranty</h2>
       <p>
         These tools are provided free and as-is, without warranty of any kind,
@@ -1240,12 +1340,13 @@ const DISCLAIMER_HTML = `
       <p>
         Everything runs in your browser. What you type is never uploaded: there
         is no account system, no tracking cookie, no analytics vendor, and no
-        server that could receive it. We count anonymous, aggregate events —
+        server that could receive it.${exceptionNote} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage. Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>`;
+}
 
 /**
  * The category sections, in the order the hub shows them, with empty ones
@@ -1465,7 +1566,7 @@ ${siblings}
       </ul>
     </section>
 
-    <footer>${DISCLAIMER_HTML}
+    <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
       <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
@@ -1541,10 +1642,25 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const title = 'About these tools';
   const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
 
+  // The one absolute claim below — nothing typed ever leaves the browser —
+  // is true for every tool except one this checks for: a tool whose whole
+  // job is checking a live public API. Computed from what actually shipped
+  // rather than remembered by hand, so a future tool built the same way
+  // cannot make this page quietly false the way the old, unconditional
+  // wording would have.
+  const exceptions = externalCallExceptions(surfaces);
+  const exceptionNames = listProse(
+    exceptions.map((x) => `<a href="${escapeHtml(`${toRoot}${x.slug}/`)}">${escapeHtml(x.title)}</a>`),
+  );
+  const exceptionHosts = listProse([...new Set(exceptions.flatMap((x) => x.hosts))]);
+
   // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
   // it cannot drift from the catalogue the way hand-written marketing copy does.
   const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
-  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, no upload, and no third-party analytics — the numbers a user types never leave their device, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+  const deviceClaim = exceptions.length
+    ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => x.title))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
+    : `the numbers a user types never leave their device`;
+  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
 
   // A stand-in slug, not a real one: naming an actual tool here would go stale
   // the day that tool is renamed, and every real snippet is already generated,
@@ -1628,7 +1744,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>What happens to what you type</h2>
       <div class="panel">
-        <h3>Nothing. There is no server that could receive it.</h3>
+        <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read — use <em>View Source</em>,
@@ -1638,10 +1754,10 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>Nothing you enter is transmitted.</strong> These pages make no network request with your input — no form post, no background beacon.</li>
-          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. The only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>${exceptions.length ? 'Nothing you enter is transmitted, with one documented exception.' : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call ${exceptionNames} makes, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>
-          <li><strong>It works offline.</strong> Once a tool has loaded, it keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are.</li>
+          <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
         </ul>
       </div>
       <p>
@@ -1693,7 +1809,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <h3>The facts, if you would rather write your own</h3>
       <ul>
         <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
-        <li><strong>Runs client-side.</strong> Static pages; no account, no upload, no third-party analytics; works offline once opened.</li>
+        <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
         <li><strong>Open source</strong> under the MIT licence — <a href="https://github.com/Duncan-Haywood/monorepo-projects">github.com/Duncan-Haywood/monorepo-projects</a>.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
@@ -1745,7 +1861,7 @@ ${categoryLinks}
       </ul>
     </section>
 
-    <footer>${DISCLAIMER_HTML}
+    <footer>${disclaimerHtml(toRoot, surfaces)}
       <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
@@ -2242,7 +2358,7 @@ ${OFFLINE_WIDGET_HTML}
     </div>
 
     <footer>
-${DISCLAIMER_HTML}
+${disclaimerHtml('', surfaces)}
       <p class="optout">
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
@@ -3677,7 +3793,7 @@ export function faqEntries(html) {
     .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
@@ -3761,7 +3877,10 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
     <h2>More free tools</h2>
-    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p>${externalCallHosts.length
+      ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
+      : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
+    }</p>
 ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
@@ -3871,6 +3990,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         title: surface.title,
         canonical,
         isEntry: url === `${surface.slug}/index.html`,
+        externalCallHosts: surface.externalFetchHosts,
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
@@ -4211,6 +4331,9 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  */
 export function renderLlmsTxt(surfaces, baseUrl) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  // Same fact the About page states in full; see `disclaimerHtml` for why it
+  // is derived rather than hand-typed.
+  const exceptions = externalCallExceptions(surfaces);
 
   const bullet = (surface) =>
     `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
@@ -4243,7 +4366,7 @@ export function renderLlmsTxt(surfaces, baseUrl) {
   const optional = [
     '## Optional',
     '',
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
@@ -4253,7 +4376,7 @@ export function renderLlmsTxt(surfaces, baseUrl) {
 
   return `# Free calculators and checks for people who run a small business
 
-> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => x.title))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -4464,6 +4587,7 @@ export async function buildSite({
       ]),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
+      externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
   }
