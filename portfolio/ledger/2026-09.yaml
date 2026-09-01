@@ -360,7 +360,6 @@ entries:
         that would have gone green while running nothing. Absent CI not being
         failed CI is about reading a signal, never about a gate being allowed
         to stay quiet.
-
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
@@ -418,3 +417,56 @@ entries:
         `check.mjs` today reports 169 products / 513 pages / no dead links,
         exit 0. The other "164" mentions under `platform/pages/` are dated
         measurements about hub composition, a different claim, left alone.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Independently found the exact `sweep.mjs` NO-CONTROLS regression on
+        `ai-engineering-academy` that #2616/#2617 had already fixed on `main`
+        a few hours earlier -- opened #2622 with an identical `ownOnly()`
+        scoping fix before pulling latest `main`, caught it with
+        `python3 portfolio/ledger/supersede_check.py 2622` (identical-merge
+        proof), and closed it pointing at #2616 rather than merging a
+        no-op. Two sessions reaching the same one-line fix from the same
+        comment ("the nested academy hub") in the same day is expected
+        overlap on a monorepo this size, not a process failure -- recorded so
+        a third session doesn't spend time on it too.
+      - >-
+        Shipped #2625 instead: the follow-up #2616/#2617's own ledger entry
+        flagged and explicitly did not carry -- "the six calculators under
+        `/ai-engineering-academy/*/` are real products sweep never opens...
+        'does the sub-calculator still compute in a browser' is covered by
+        nothing." `sweep.mjs` discovered tools from the top-level catalog's
+        `[data-tool]` entries only, one per venture; `ai-engineering-academy`
+        is one such entry pointed at a links-only hub to six real published
+        calculators (resistor, LED-resistor, voltage-divider, 555-timer,
+        RC-filter, RC-time), so a hub reporting `links-only` correctly was
+        also the reason none of its six children were ever opened by a
+        browser.
+      - >-
+        Pulled the per-page load/interact/verdict logic into a `sweepOne(url)`
+        function and added `discoverChildTools(prefix)`: when a page comes
+        back `links-only`, read its own links (through the existing
+        `ownOnly()` chrome filter) and sweep one level of same-directory
+        children the same way, reported as `<hub>/<child>`. Structural rather
+        than a special case named after this one venture -- any future
+        nested-hub gets followed with no further code change.
+      - >-
+        Verified with a real browser (Playwright 1.56 against the
+        `chromium-1194` build at `/opt/pw-browsers`) against a locally built
+        and served `platform/pages/dist`: before, 169/169 (the hub counted,
+        its six children never opened); after, 175/175, each of the six now
+        getting its own `ok` verdict from a real perturbed-input,
+        output-changed interaction. Also `platform/pages` suite 838/838 and
+        `build.mjs` + `check.mjs` clean ("169 products, 7 category pages, 514
+        pages, no dead links"). No CI ran on either PR (`GITHUB_TOKEN`-pushed
+        branches do not trigger Actions, per CLAUDE.md) -- confirmed absent
+        rather than red via `actions_list list_workflow_runs` on each branch
+        (0 runs) before merging on the strength of local verification.
+      - >-
+        Zero open PRs at session start; one unrelated open PR (#2623, ledger
+        + FBA test work) at merge time, not touching `platform/pages/`.
+        Deployment status unchanged and not re-derived here: `main` still has
+        no reachable content pending Secret `portfolio-site-repo`, per the
+        Argo surface `publish_surface.py --check` already reports.
