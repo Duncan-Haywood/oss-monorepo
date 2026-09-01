@@ -62,7 +62,11 @@ homeowner's unit is from theirs), effective hourly billing rate, the labor
 split across sections, and the **walk-away price** — total job cost, below
 which the job makes nothing. Entering a price already on the table scores it
 against the same cost base. **Copy bid summary** turns the result into a
-plain-text draft ready to paste into a proposal.
+plain-text draft ready to paste into a proposal. **Copy share link** puts an
+allowlisted hash of the sections, rates, and deposit terms in the page's own
+URL, so a partner or the office can open the identical bid — nothing is sent
+to a server. See [`share.mjs`](share.mjs) and
+[`proposal-terms.mjs`](proposal-terms.mjs).
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
@@ -80,12 +84,14 @@ changed.
 Nothing is uploaded. Every figure stays in the browser. The only thing stored
 is an anonymous local tally of which features were used and the current date,
 in `localStorage` under `roofing-bid-usage` — never the roof, wages, costs, or
-prices. It is opt-out from the footer, and it is skipped automatically when
-the browser sends Do Not Track or Global Privacy Control. See
-[`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
+prices. A share link encodes only the allowlisted quote fields in the page's
+own URL hash; it is never sent to us. It is opt-out from the footer, and it is
+skipped automatically when the browser sends Do Not Track or Global Privacy
+Control. See [`usage.mjs`](usage.mjs) and
+[`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `section_added`, `section_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `share_copied`.
 
 ## Limitations
 
