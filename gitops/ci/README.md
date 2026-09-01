@@ -77,11 +77,26 @@ Application shows Degraded before step 1.
 
 ## How a job runs
 
-Each pod registers one **ephemeral** runner, takes exactly one job, and exits;
-the Deployment starts a replacement. Nothing persists between jobs — no
-checkout, no `node_modules`, no environment. A long-lived runner would carry
-one job's leftovers into the next, which is the usual way self-hosted CI starts
-producing results that do not reproduce.
+Each pod registers one **ephemeral** runner, takes exactly one job, and exits.
+Nothing persists between jobs — no checkout, no `node_modules`, no environment.
+A long-lived runner would carry one job's leftovers into the next, which is the
+usual way self-hosted CI starts producing results that do not reproduce.
+
+This section used to say the Deployment starts a replacement pod, and that is
+not what happens. A Deployment's pods may only set `restartPolicy: Always`, so
+when the runner exits the kubelet restarts the container **inside the same
+pod**; the Deployment sees nothing to replace, because the pod never left
+`Running`. That restart rebuilds the container filesystem from the image but
+does not clear an emptyDir — surviving container restarts is precisely the
+guarantee emptyDir is documented to give — so `/home/runner/_work` came back
+carrying the previous job's checkout, `_temp` and `_tool` cache. Only the first
+job on a genuinely new pod ever saw a clean tree.
+
+**Fixed 2026-09-01.** `runner-entrypoint.sh` empties the work volume before it
+registers, and fails closed (no registration, no job) if it cannot. That is
+where the ephemerality above is actually enforced;
+`gitops/tests/test_runner_entrypoint.py` seeds a work tree and proves both that
+it is gone and that it was already gone when `config.sh` ran.
 
 Two replicas: a PR here typically triggers `Portfolio validate`, `Page
 integrity`, `Conflict markers` and the touched venture's own CI. One runner
