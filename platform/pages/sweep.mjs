@@ -359,8 +359,27 @@ for (const slug of slugs) {
       }
     }
 
+    // `ownOnly`, for the reason that helper exists: this number decides whether
+    // a page is a landing page or a broken tool, and a control this build
+    // injected is neither the tool nor the author's.
+    //
+    // It was the bare selector until it miscounted. `injectEmbedWidget`
+    // (#2561, 2026-08-31) puts a `<textarea>` and a "Copy embed code"
+    // `<button>` inside `.pf-chrome` on every entry page, so every page in the
+    // catalog gained two controls it does not own. On 168 of them that changed
+    // nothing -- they have controls of their own and never reach this branch.
+    // On `ai-engineering-academy`, which is a hub linking to six calculators
+    // and has none of its own, `interactive` went 0 to 2: the `links-only`
+    // branch below stopped firing and a page doing exactly its job was
+    // reported `NO-CONTROLS -- 2 control(s) on the page, none of them usable`,
+    // failing the whole sweep. That branch's own comment names this page.
+    //
+    // Which is the failure this file warns about twice in its own words -- "a
+    // sweep that cries wolf twice is a sweep whose real findings get skimmed
+    // past". The count has to mean what the verdicts read it as: controls the
+    // venture wrote.
     const interactive = await page.$$eval(
-      'input, select, textarea, button',
+      ownOnly('input, select, textarea, button'),
       (nodes) => nodes.length,
     );
 
