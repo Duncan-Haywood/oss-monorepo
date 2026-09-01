@@ -747,3 +747,45 @@ entries:
         `validate` all green; `deploy` skipped as expected off `main`) --
         confirmed real runners per the standing rule before merging on
         that basis rather than the local run alone.
+  - venture: paver-patio-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable quote link, merged as #2645. Same gap as
+        roofing-bid-calculator immediately above (#2641, discovered
+        independently, not coordinated): one of ~44 `*-bid-calculator`
+        ventures with a `calc.mjs` and no `share.mjs`, so a contractor had
+        a "Copy bid summary" text export but no way to hand the exact
+        quote *inputs* (pattern waste, base depth, excavation rate, edge
+        restraint, haul-away, cost rates, target margin) to a partner or a
+        second device without retyping every field.
+      - >-
+        Kept the plain-`share.mjs` shape rather than roofing's
+        `proposal-terms.mjs` addition -- deliberately, not by omission.
+        This venture's proposal (business name/address/phone, customer
+        name/address, deposit %, valid-days) is excluded from
+        `SHARE_FIELDS` entirely, covered by a new test asserting none of
+        those fields appear in the allowlist, so there is no
+        terms-drop-silently version of the bug `platform/proposal/
+        term-ids.test.mjs` exists for -- the recipient of a paver-patio
+        share link gets the same calculator inputs the sender saw and
+        fills in their own proposal terms, rather than receiving a partial
+        proposal that could read as complete.
+      - >-
+        Verified with a real browser (Playwright 1.56 via the global npm
+        install, chromium) serving the venture with `http-server`, not
+        `file://` (which silently breaks ES module imports under
+        Chromium): filled every field away from its default, clicked
+        "Copy share link", read the clipboard in a fresh browser context,
+        loaded a second page at that URL, and confirmed every field and
+        the displayed price ($12,088.05) matched what the sender saw.
+        Venture suite 78/78 (was 71, +7 new across `share.test.mjs` and
+        `page.test.mjs`); `node --test ventures/*/*.test.mjs` 12579/12579
+        repo-wide (was 12572). `platform/pages/clauses.mjs`,
+        `check_input_bounds.py`, `check_money_sign.py`,
+        `check_form_defaults.py`, `check_duplicate_symbols.py` all clean.
+        `platform/pages/build.mjs` + `check.mjs` against a full local
+        build: 169 products, 517 pages, no dead links. PR opened with 0 CI
+        checks triggered (`GITHUB_TOKEN`-push, the documented pattern);
+        verified locally per the standing rule, merged.
