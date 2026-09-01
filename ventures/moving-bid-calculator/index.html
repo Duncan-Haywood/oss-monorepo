@@ -211,9 +211,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your whole job &mdash; inventory, access, and your rates &mdash; so the page reopens exactly as you left it. Send it to yourself or your crew.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the day goes</strong></p>
       <ul class="split" id="split"></ul>
@@ -287,6 +291,9 @@
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
 // proposal:end
+    import {
+      encodeBid, saveBid, clearBid, restoreBid, withProposalTerms, readProposalTerms, overlongTermsNote,
+    } from './share.mjs';
     const COST_IDS = [
       'originFlights','destFlights','carryFeet','elevatorWaitMinutes',
       'minutesPerFlightPer200CuFt','minutesPer50ftCarryPer200CuFt',
@@ -389,6 +396,91 @@
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
       };
+    }
+
+    // Rows are a list the visitor grows (one per room or specialty item),
+    // so they ride under the `rows` spec rather than as a fixed field name —
+    // see share.mjs. The flat cost fields are the rest of COST_IDS.
+    const BID_SPEC = {
+      key: 'moving-bid',
+      numbers: COST_IDS,
+      flags: [],
+      choices: {},
+      rows: {
+        param: 'inventory',
+        fields: [
+          { key: 'name', kind: 'text' },
+          { key: 'cubicFeet', kind: 'number' },
+          { key: 'clockHours', kind: 'number' },
+        ],
+      },
+    };
+
+    // Restores the flat cost fields directly, and rebuilds the inventory rows
+    // through `addItemRow` (rather than setting `.value` on the container div)
+    // so each row gets its type dropdown, cubic feet, and clock hours wired up
+    // exactly as a hand-added row would. Returns whether any inventory rows
+    // were restored, so the caller knows whether to fall back to the starting
+    // sample job.
+    function applyValues(values) {
+      // Generic over every key in `values`, not just COST_IDS — the proposal
+      // panel's own terms (deposit %, valid days, payment terms, and so on)
+      // ride in the same object via `withProposalTerms`/`readProposalTerms`
+      // and must restore the same way, or a bid link would reopen the price
+      // right and the deposit wrong.
+      for (const [id, value] of Object.entries(values)) {
+        if (id === 'inventory') continue;
+        const field = el(id);
+        if (!field) continue;
+        field.value = value;
+        field.dataset.edited = '1';
+      }
+      if (!Array.isArray(values.inventory) || values.inventory.length === 0) return false;
+      inventoryHost.innerHTML = '';
+      for (const item of values.inventory) {
+        addItemRow({ name: item.name || '', cubicFeet: item.cubicFeet ?? 0, clockHours: item.clockHours ?? 0 });
+        // A restored cubic-feet/hours figure is the sender's own measured
+        // number, so a later change to the room type must not overwrite it.
+        const row = inventoryHost.lastElementChild;
+        row.querySelector('.i-cu').dataset.edited = '1';
+        row.querySelector('.i-hours').dataset.edited = '1';
+      }
+      return true;
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this job, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
     function update() {
@@ -503,8 +595,38 @@
 
     el('minutesPerFlightPer200CuFt').value = ACCESS_DEFAULTS.minutesPerFlightPer200CuFt;
     el('minutesPer50ftCarryPer200CuFt').value = ACCESS_DEFAULTS.minutesPer50ftCarryPer200CuFt;
-    STARTING_ITEMS.forEach(addItemRow);
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+    // Every input already calls `update()`; saving here means the job is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    const restoredInventory = applyValues(restored.values);
+    if (!restoredInventory) STARTING_ITEMS.forEach(addItemRow);
+
+    if (restored.source !== 'none') {
+      // Say which job is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a mover stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last job from this browser. “Start a fresh bid” clears it.';
+    }
+
     update();
+    persist();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------
     //
