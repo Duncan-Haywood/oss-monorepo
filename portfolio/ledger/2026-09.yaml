@@ -1,5 +1,81 @@
 period: 2026-09
 entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real gap in the Codex delivery path, shipped as #2635.
+        `worker.sh` has exited 43 for a Codex credential the API refused
+        since the subscription route was wired -- deliberately distinct from
+        the 42 a quota limit exits with, and `gitops/agents/secrets/README.md`
+        states the reason outright ("Backing off for an hour does not fix an
+        expired login"). Nothing on the governor side honoured it:
+        `governor.py` branched on EXIT_LIMIT and on the no-op marker and read
+        43 as an ordinary crash, so the next tick five minutes later started
+        the next item and it failed identically -- ~288 Jobs a day at the
+        CronJob's */5 schedule, each one `apt-get install`ing gh and
+        `npm install -g`ing the Codex CLI on the 4 GB cpx22 before finding
+        out, and none of them able to succeed, because retrying does not
+        re-run `codex login` on the owner's laptop. It mattered most on the
+        route the owner chose: an `OPENAI_API_KEY` is static, but
+        `CODEX_AUTH_JSON` -- the built-in plan quota -- is the one Codex
+        rotates on use, so a wedged credential is its ordinary failure mode
+        and it was the only failure mode of that route the control loop could
+        not report. The governor now reads exit 43 and a
+        `codex-auth-rejected:` termination marker, holds for
+        `cooldownOnAuthFailureSeconds` (6 h, deliberately longer than the 1 h
+        limit cooldown) with a reason naming the remedy, and passes
+        `CODEX_AUTH_EXIT` so the number is agreed in git rather than by
+        coincidence between two defaults. A credential verdict now beats a
+        limit verdict, because `parse_limit_error` scans the same free text
+        and an hour's cooldown is the wrong remedy for an expired login. A
+        cooldown and not a latch: the governor's Role grants no access to
+        `codex-secrets`, so it cannot watch for a re-seal, and widening that
+        to watch a credential it must never read would trade bounded churn
+        for unbounded blast radius -- instead the hold expires and
+        `worker.sh` re-seeds the PVC from the new fingerprint on the next
+        Job, so a re-seal recovers with no flip and a transient rejection
+        cannot wedge the fleet for good. `pytest gitops/tests -q`: 212
+        passed, 197 before; 12 of the 15 new tests fail against the
+        pre-change tree, confirmed by stashing the fix. CI green on real
+        runners (`gitops` 65s, `check`, `scripts`, `tofu`, `hcloud-scope`,
+        `duplicate-symbols`).
+      - >-
+        Also defaulted `seal-owner-secrets.sh`'s Codex-credential prompt to
+        the plan-quota route on a bare Enter (`Which [1/2, Enter = 1]`). Not
+        a guess -- `infra/OWNER_CHECKLIST.md` item 8 already records the owner
+        as having chosen it; typing 2 still seals the metered key. This is
+        the single owner action gating the whole fleet, so a keystroke's
+        worth of doubt removed from it is worth four lines.
+      - >-
+        Branch drain, for the record so the next run need not redo it: zero
+        open PRs at the start (both `list_pull_requests` and
+        `search_pull_requests` empty). 87 branch refs are unmerged by tip but
+        only 9 carry any diff against current `main`, and all 9 were verified
+        content-superseded rather than skipped on age --
+        `pr/fence-bid-share-preset-fix` (main carries the same fix better, as
+        `RUN_COST_KEYS`/`ownCosts`/`HOURS_KEYS`; the branch's `RUN_RATE_KEYS`
+        is exactly the RENAME SUSPECTED shape CLAUDE.md describes),
+        `cursor/amazon-fba-sourcing-check-20260824` (test at
+        `page.test.mjs:652`), `claude/fix-sweep-embed-chrome-false-positive`
+        (`ownOnly(...)` at `sweep.mjs:435`),
+        `fix/governor-rbac-configmap-scope` (both tests present),
+        `etsy-...-vs-listing-form-calculator`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator` (all present on main in fuller
+        form), plus two ledger-only branches. None closed or deleted; all 9
+        are also hundreds of commits behind `main`, so merging any as-is
+        would revert live work -- the salvage path is a cherry-pick and there
+        was nothing left to salvage.
+      - >-
+        Verified two go-live assumptions in `gitops/prod/portfolio-site.yaml`
+        that would only fail on the day the seal lands, and both hold:
+        `build.mjs` and its whole non-test import graph still reach for Node
+        builtins only (no npm install in the init container), and
+        `launched.mjs` still reads launch dates from a committed file rather
+        than `git log`, which is what makes the shallow in-cluster clone
+        sufficient. No fix needed.
   - venture: walmart-marketplace-calculator
     agent_spend_usd: null
     human_hours: 0
