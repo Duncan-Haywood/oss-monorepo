@@ -112,6 +112,17 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      # The self-hosted runner image ships no Python (curl, jq, unzip and git
+      # only -- see gitops/ci/README.md). The verification step below runs
+      # bare `python3`, which exists on GitHub-hosted ubuntu-latest by
+      # default but not there, so flipping CI_RUNNER to self-hosted would
+      # turn a successful deploy red on the verification step alone. Same
+      # class of gap already found and fixed once in
+      # garmin-world-traveler-watchface-ci.yml.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Verify the published site answers
         # A completed deploy step is not evidence that anything serves. Check
         # the front page, both sitemaps, robots, and one product through the
