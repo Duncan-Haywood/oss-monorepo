@@ -147,10 +147,14 @@ jobs:
           # after the deployment API reports success, hence the retries.
           curl --fail --silent --show-error --retry 5 --retry-delay 10 \
                --retry-all-errors "${base}/catalog.json" -o catalog.json
-          tools=$(python3 -c "import json;print(len(json.load(open('catalog.json'))['tools']))")
+          # jq, not python3: this job has no setup-python step, and the
+          # self-hosted runner image ships jq but no interpreter (see
+          # gitops/ci/README.md) -- ubuntu-latest happening to have python3
+          # available masked that until CI_RUNNER is flipped to self-hosted.
+          tools=$(jq '.tools | length' catalog.json)
           echo "Catalog lists ${tools} tool(s)"
           [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
-          slug=$(python3 -c "import json;print(json.load(open('catalog.json'))['tools'][0]['slug'])")
+          slug=$(jq -r '.tools[0].slug' catalog.json)
 
           for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/feed.xml" "/${slug}/"; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
