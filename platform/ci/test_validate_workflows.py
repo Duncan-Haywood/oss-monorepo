@@ -13,7 +13,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from validate_workflows import REPO_ROOT, check
+from validate_workflows import REPO_ROOT, check, check_unique_names
 
 
 def errors_for(text):
@@ -170,6 +170,55 @@ jobs:
     def test_non_mapping_top_level_is_flagged(self):
         errs = errors_for("- just\n- a\n- list\n")
         self.assertTrue(any("top level must be a mapping" in e for e in errs))
+
+
+class CheckUniqueNamesTest(unittest.TestCase):
+    def _write(self, tmp, filename, text):
+        path = Path(tmp) / filename
+        path.write_text(text)
+        return path
+
+    def test_two_files_sharing_a_name_are_flagged(self):
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            a = self._write(tmp, "a.yml", "name: CI\non: [push]\njobs: {build: {}}\n")
+            b = self._write(tmp, "b.yml", "name: CI\non: [push]\njobs: {build: {}}\n")
+            errs = check_unique_names([a, b])
+        self.assertEqual(len(errs), 1)
+        self.assertIn("CI", errs[0])
+        self.assertIn("a.yml", errs[0])
+        self.assertIn("b.yml", errs[0])
+
+    def test_distinct_names_are_not_flagged(self):
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            a = self._write(tmp, "a.yml", "name: a CI\non: [push]\njobs: {build: {}}\n")
+            b = self._write(tmp, "b.yml", "name: b CI\non: [push]\njobs: {build: {}}\n")
+            self.assertEqual(check_unique_names([a, b]), [])
+
+    def test_files_with_no_name_do_not_collide_with_each_other(self):
+        # check() already reports a missing `name:` on its own; two nameless
+        # files must not also be reported here as "sharing" an absent name.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            a = self._write(tmp, "a.yml", "on: [push]\njobs: {build: {}}\n")
+            b = self._write(tmp, "b.yml", "on: [push]\njobs: {build: {}}\n")
+            self.assertEqual(check_unique_names([a, b]), [])
+
+    def test_unparseable_file_is_skipped_rather_than_crashing(self):
+        # check() reports the parse failure on its own; this pass must not
+        # also raise trying to read a `name:` out of broken YAML.
+        with tempfile.TemporaryDirectory(dir=REPO_ROOT) as tmp:
+            a = self._write(tmp, "a.yml", "name: [unterminated\n")
+            b = self._write(tmp, "b.yml", "name: CI\non: [push]\njobs: {build: {}}\n")
+            self.assertEqual(check_unique_names([a, b]), [])
+
+    def test_the_real_workflow_tree_has_no_duplicate_names(self):
+        # Regression for the actual bug this check found: print-atelier-ci.yml,
+        # quick-pick-survey-ci.yml and retail-pilot-intel-ci.yml all carried the
+        # generic `name: CI` until this test was added.
+        workflows_dir = REPO_ROOT / ".github" / "workflows"
+        paths = sorted(
+            p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
+        )
+        self.assertEqual(check_unique_names(paths), [])
 
 
 if __name__ == "__main__":

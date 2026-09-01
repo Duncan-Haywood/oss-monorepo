@@ -1,4 +1,4 @@
-name: CI
+name: retail-pilot-intel CI
 
 on:
   push:
