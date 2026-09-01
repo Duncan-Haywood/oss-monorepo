@@ -1,0 +1,36 @@
+period: 2026-09
+entries:
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the marketing-distribution queue item's candidate 2
+        (comparison/alternatives page) via #2597: a new
+        vs-wfs-cost-estimator.html naming Walmart's own official WFS Cost
+        Estimator (seller.walmart.com/wfs/cost-calculator, documented at
+        marketplacelearn.walmart.com) as the authoritative live fee lookup,
+        while positioning this calculator for the WFS-vs-seller-fulfilled
+        decision, the price match, and the returns/inbound costs Walmart's
+        own tool documents that it excludes. Follows the
+        vs-amazon-revenue-calculator.html pattern #2590 shipped: no dollar
+        figure claimed for the incumbent's fees, only links to its own
+        domains. Measured before picking per the task's own instruction --
+        built the site (169 products, 510 pages, no dead links) and
+        confirmed the other three candidates (embed widget, /c/ hub copy,
+        /about/ press kit) are already fully covered with no real gap, so
+        none were re-picked. Also checked ebay-fee-calculator,
+        etsy-profit-calculator, reverb-fee-calculator, and
+        tiktok-shop-fee-calculator for the same candidate: none of those
+        four marketplaces publish a single obvious official calculator a
+        seller would search for by name (only third-party tools), so
+        Walmart was the one real remaining gap. Verified: venture
+        `node --test` 130/130, full `build.mjs`+`check.mjs`, and
+        `platform/pages` suite 837/837, all locally -- 0 check runs on the
+        PR (GITHUB_TOKEN-opened, absent CI per repo convention, not a
+        failure).
+      - >-
+        No PR was open on this asset at session start (checked `list_pull_requests`:
+        0 open) and no branch or commit already carried a
+        vs-wfs-cost-estimator.html or equivalent, so this was new work, not
+        a duplicate.
