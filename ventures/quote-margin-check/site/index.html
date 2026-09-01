@@ -515,7 +515,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, decodePanels, QUOTE_PRESETS } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -583,6 +583,49 @@
   const historyStatus = document.getElementById("history-status");
 
   let lastReport = null;
+
+  /**
+   * The panel inputs, by the id a link names them under.
+   *
+   * `extra-hours` and `extra-direct-costs` are kebab-case and live in their own
+   * consts above; the four kill-fee ids are snake_case and live in `el`. The
+   * link spells each exactly as the input is spelled, so nothing has to
+   * translate between the two conventions.
+   */
+  function readPanels() {
+    const panels = {};
+    const sources = {
+      "extra-hours": extraHours,
+      "extra-direct-costs": extraDirectCosts,
+      hours_done: el.hours_done,
+      already_paid: el.already_paid,
+      kill_fee: el.kill_fee,
+      sunk_costs: el.sunk_costs,
+    };
+    for (const [field, input] of Object.entries(sources)) {
+      if (!input) continue;
+      const value = Number(input.value);
+      if (input.value === "" || !Number.isFinite(value) || value < 0) continue;
+      panels[field] = value;
+    }
+    return panels;
+  }
+
+  /** Writes decoded panel values back into their inputs. Absent fields keep the page's defaults. */
+  function writePanels(panels) {
+    const targets = {
+      "extra-hours": extraHours,
+      "extra-direct-costs": extraDirectCosts,
+      hours_done: el.hours_done,
+      already_paid: el.already_paid,
+      kill_fee: el.kill_fee,
+      sunk_costs: el.sunk_costs,
+    };
+    for (const [field, input] of Object.entries(targets)) {
+      if (!input || panels[field] === undefined) continue;
+      input.value = String(panels[field]);
+    }
+  }
 
   function readInputs() {
     return {
@@ -752,6 +795,10 @@
     const sharedQuote = decodeQuote(window.location.hash) ?? decodeQuote(window.location.search);
     if (sharedQuote) {
       writeInputs(sharedQuote);
+      // Read from whichever of the two the quote came out of, so a link that
+      // predates the panel fields simply restores none of them.
+      writePanels(decodePanels(
+        decodeQuote(window.location.hash) ? window.location.hash : window.location.search));
       if (preset) preset.value = "custom";
       dismissExampleNote();
     } else {
@@ -1011,7 +1058,10 @@
     // Keep quote figures in the fragment so browsers do not send them in a
     // referrer header when a collaborator opens the link.
     url.search = "";
-    url.hash = encodeQuote(lastReport.quote);
+    // The scope-creep and kill-fee panels ride along with the quote. Read from
+    // the inputs rather than from `lastReport`, which holds only the `Quote`
+    // model those panels are deliberately not part of. See `PANEL_FIELDS`.
+    url.hash = encodeQuote(lastReport.quote, readPanels());
     try {
       await navigator.clipboard.writeText(url.href);
       copyStatus.textContent = "Share link copied — quote figures stay in the private URL fragment.";

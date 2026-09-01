@@ -76,11 +76,61 @@ export function calculate(quote) {
   };
 }
 
-/** Encodes validated inputs for a serverless, shareable URL. */
-export function encodeQuote(quote) {
+/**
+ * The panel inputs a link carries beside the quote itself.
+ *
+ * These are not part of `Quote`, deliberately. `FIELDS` mirrors
+ * `src/quote_margin.py`'s `load_quote()` field-for-field so the two
+ * implementations cannot disagree about what a quote is, and widening that
+ * model to carry browser-panel state would break the mirror for no gain.
+ *
+ * But they are still the visitor's numbers, and leaving them out of the link
+ * was a real defect: the "what if the scope grows" and "should I take the kill
+ * fee" panels both render an answer, and a recipient opening a shared link got
+ * the sender's quote underneath *the page's shipped defaults* for both. The
+ * page then told them, in as many words, whether to take a kill fee of 360 on
+ * 14 hours already spent — figures the sender never entered and never saw.
+ * Nothing on either screen said the two disagreed.
+ *
+ * The page already treats these as state worth keeping: `draftFields` in
+ * `index.html` is `[...ids, ...killIds]`, so a local draft has always restored
+ * them. It was only the link that did not, which is the same allowlist drift
+ * that dropped `quantity` on `where-to-sell-calculator` and two whole panels on
+ * `shopify-fee-calculator`.
+ *
+ * Kept as its own list rather than folded into `FIELDS` so the boundary stays
+ * legible: `FIELDS` is the shared model, this is the page's own surface.
+ */
+export const PANEL_FIELDS = [
+  "extra-hours",
+  "extra-direct-costs",
+  "hours_done",
+  "already_paid",
+  "kill_fee",
+  "sunk_costs",
+];
+
+/**
+ * Encodes validated inputs for a serverless, shareable URL.
+ *
+ * `panels` is optional so every existing caller — and every link already in
+ * somebody's inbox — keeps working unchanged.
+ */
+export function encodeQuote(quote, panels) {
   const params = new URLSearchParams();
   params.set("currency", quote.currency);
   for (const field of FIELDS) params.set(field, String(quote[field]));
+  if (panels && typeof panels === "object") {
+    for (const field of PANEL_FIELDS) {
+      const value = panels[field];
+      // Only real, sendable numbers. A blank or a NaN would arrive as the
+      // string "NaN" and land in a number input as an empty box, which reads
+      // to the recipient as a field the sender cleared rather than one that
+      // was never carried.
+      if (typeof value !== "number" || !Number.isFinite(value) || value < 0) continue;
+      params.set(field, String(value));
+    }
+  }
   return params.toString();
 }
 
@@ -95,6 +145,32 @@ export function decodeQuote(search) {
     if (params.has(field)) data[field] = Number(params.get(field));
   }
   return loadQuote(data);
+}
+
+/**
+ * The panel values out of a link, or `{}` when it carries none.
+ *
+ * Separate from `decodeQuote` because the two have different failure rules. A
+ * malformed quote is not openable at all and `decodeQuote` returns null; a
+ * malformed panel value is just one field this link cannot restore, and the
+ * rest of the bid is still worth showing. So this drops bad entries
+ * individually rather than refusing the link.
+ *
+ * Validated rather than trusted, for the reason `decodeQuote` is: a fragment is
+ * the one part of this page a stranger writes. Anything not a finite,
+ * non-negative number never reaches an input.
+ */
+export function decodePanels(search) {
+  const out = {};
+  if (typeof search !== "string") return out;
+  const params = new URLSearchParams(search.replace(/^[?#]/, ""));
+  for (const field of PANEL_FIELDS) {
+    if (!params.has(field)) continue;
+    const value = Number(params.get(field));
+    if (!Number.isFinite(value) || value < 0) continue;
+    out[field] = value;
+  }
+  return out;
 }
 
 /** Breaks the target price into the inputs that produced it. */
