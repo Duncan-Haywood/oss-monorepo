@@ -659,3 +659,9 @@ test("max buy cost display says so when the listing already loses money at $0 co
   assert.match(scriptSource, /breakEvenBuyCostRaw < 0/);
   assert.match(scriptSource, /loses money even at \$0 cost/);
 });
+
+test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
+  assert.match(html, /id="buyCostStatus"/);
+  assert.match(scriptSource, /buyCostCheck/);
+  assert.match(scriptSource, /sourcing_check_used/);
+});
