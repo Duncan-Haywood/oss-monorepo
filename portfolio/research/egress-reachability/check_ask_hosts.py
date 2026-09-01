@@ -86,7 +86,8 @@ _FALLBACK_FILENAMES = {
 # as a bare `auth.json` — host-shaped, alphabetic last label, and a file on the
 # owner's laptop rather than in this tree, so every test above accepted it as a
 # host. `Portfolio validate` went red on `main` and stayed red unseen, because
-# no Actions runner has picked up a job here since 2026-08-26.
+# no Actions runner picked up a job here between 2026-08-26 and the
+# 2026-09-01 recovery.
 #
 # The comment above explains why a blocklist of *file extensions* was rejected:
 # `.md` and `.sh` are real ccTLDs, so blocking them silently drops
@@ -115,9 +116,10 @@ _NOT_TLDS = frozenset({
 # allowlist entry to justify.
 #
 # Without this exemption the two deployment asks added on 2026-08-29 made
-# the check fail, and it has been failing on `main` ever since — invisibly,
-# because no GitHub Actions runner has picked up a job in this repository
-# since 2026-08-26 (`actions-runners-unavailable` in asks.yaml).
+# the check fail, and it failed on `main` unnoticed — invisibly, because no
+# GitHub Actions runner picked up a job in this repository between
+# 2026-08-26 and the 2026-09-01 recovery (`actions-runners-unavailable` in
+# asks.yaml).
 #
 # The fix the failure message proposes is actively wrong here. Probing
 # `tools.marisstella.dev` from a session records a denial for a name that is

@@ -63,9 +63,11 @@ cluster on a public name.
 It builds the site *in the cluster* — two init containers (shallow clone,
 then `platform/pages/build.mjs`) writing into an emptyDir that nginx
 serves. That is deliberate: it means publishing does not depend on GitHub
-Actions, which has failed without a runner on every workflow in this repo
-since 2026-08-26, nor on GitHub Pages, which is not enabled. Neither
-blocker sits in this path.
+Actions — which failed without a runner on every workflow in this repo
+from 2026-08-26 until runners returned on 2026-09-01, and which this path
+would not have needed either way — nor on GitHub Pages, which is not
+enabled. Neither blocker sits in this path, and that was worth more than
+usual during those five days.
 
 A subdomain, because `tools.marisstella.dev` is the canonical host
 stamped into every page's canonical link, og:url and sitemap entry. The

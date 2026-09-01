@@ -38,10 +38,13 @@
 //
 // ## Running it from a Claude-on-the-web session
 //
-// Which is currently the only place it *can* run: GitHub Actions has had no
-// runner since 2026-08-26, so since then the whole-site sweep has been the
-// portfolio's only end-to-end proof that its products still compute, and the
-// scheduled sessions are what have to produce it. Those sessions ship Chromium
+// Which is still the only place it *can* run, though no longer for the
+// original reason: from 2026-08-26 to 2026-09-01 GitHub Actions had no runner
+// at all. Runners came back on 2026-09-01, but no workflow runs this sweep
+// even now — it needs Playwright, which is not a dependency of this repo. So
+// the whole-site sweep remains the portfolio's only end-to-end proof that its
+// products still compute, and the scheduled sessions are what have to produce
+// it. Those sessions ship Chromium
 // at `/opt/pw-browsers` but no `playwright` module, and `npm i playwright`
 // pulls a version whose pinned build number does not match what is on disk:
 //
