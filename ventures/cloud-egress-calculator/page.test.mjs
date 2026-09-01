@@ -5,6 +5,7 @@ import { compareScenarios } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+const vsAwsSeo = readFileSync(new URL("./vs-aws-pricing-calculator.html", import.meta.url), "utf8");
 const vsGoogle = readFileSync(new URL("./vs-google-cloud-pricing-calculator.html", import.meta.url), "utf8");
 
 function parse(source) {
@@ -72,6 +73,27 @@ test("index links the CDN extra and the sitemap lists both pages", () => {
   assert.match(sitemap, /does-infrequent-access-still-beat-standard\.html/);
   assert.match(sitemap, /vs-google-cloud-pricing-calculator\.html/);
   assert.match(sitemap, /\.\//);
+});
+
+test("index links the AWS incumbent-comparison page and the sitemap lists it too", () => {
+  assert.match(html, /vs-aws-pricing-calculator\.html/);
+  assert.match(sitemap, /vs-aws-pricing-calculator\.html/);
+});
+
+test("the AWS incumbent-comparison page links back, names the incumbent honestly, and gives no unverifiable AWS numbers", () => {
+  assert.match(vsAwsSeo, /<a href="\.\/">/);
+  // Names AWS's own tool and links to AWS's own domains so a reader can check
+  // the source directly -- this page must never claim a number for AWS's
+  // calculator that only AWS's own live price list could confirm.
+  assert.match(vsAwsSeo, /calculator\.aws/);
+  assert.match(vsAwsSeo, /aws\.amazon\.com\/aws-cost-management\/aws-pricing-calculator\/faqs/);
+  assert.doesNotMatch(vsAwsSeo, /AWS('s)? (charges|costs?|prices?) \$/i);
+  assert.doesNotMatch(vsAwsSeo, /\$0\.\d+\s*\/\s*GB/i);
+  assert.match(vsAwsSeo, /not affiliated with, endorsed by, or sponsored by Amazon/i);
+  assert.match(vsAwsSeo, /trademarks of Amazon\.com/i);
+  assert.match(vsAwsSeo, /No warranty/);
+  assert.match(vsAwsSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsAwsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 // The comparison page's whole value is that a reader can check it. Every claim
