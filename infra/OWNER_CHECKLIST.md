@@ -234,7 +234,7 @@ codes as exit 42 and a rejected credential as exit 43.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 
-This is the shortest path from "164 finished tools nobody can reach" to a
+This is the shortest path from "169 finished tools nobody can reach" to a
 public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
