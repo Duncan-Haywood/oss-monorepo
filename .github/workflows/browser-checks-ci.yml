@@ -1,0 +1,169 @@
+name: Browser checks
+
+# Runs the seven checks in `platform/pages/` that need a real browser, so the
+# question "does every tool still compute" has an automated answer for the
+# first time.
+#
+# What this closes. `platform/ci/browser_checks.py` orchestrates
+# `sideways`, `presets`, `roundtrip`, `highlight`, `contrast`, `sweep` and
+# `journey` -- between them the only things that open a page, type into the
+# form and read the number back out. Its own docstring says why none of them
+# ran anywhere: "They need Playwright, which is not a dependency of this repo,
+# so no workflow runs them -- and that is still true now that Actions runners
+# are back." Everything CI did cover stops at the artifact: `check.mjs` proves
+# the links resolve and the MIME types are known, `node --test` proves each
+# venture's `calc.mjs` returns the right number in Node. Neither opens a
+# browser, so the failure `sweep.mjs`'s header names -- a page that renders
+# perfectly and does nothing -- has shipped here before and no check would
+# have said so.
+#
+# Playwright does not have to be a repository dependency for CI to run these.
+# It installs into a scratch directory outside the checkout, which is the same
+# thing `browser_checks.py` documents for a local run and the reason it reads
+# `PLAYWRIGHT` and `AXE` as explicit paths. Nothing is added to the tree.
+#
+# Why nightly and not on every pull request. A full run is the whole site --
+# 510 pages, no per-page or per-venture subsetting knob exists in any of the
+# seven -- and takes on the order of 20-30 minutes. `platform/pages/` took 123
+# commits in the seven days to 2026-09-01, about 18 a day; gating those on a
+# 20-minute browser run is roughly six hours of Actions minutes a day for a
+# suite whose findings are nearly always the same as yesterday's. Minutes here
+# are metered: this repository is private and user-owned, and on 2026-08-26 the
+# account-level allowance ran out and took all 218 workflows dark for five days
+# until it reset on 2026-09-01. Spending six hours a day to shorten the
+# feedback loop on this one suite is how that recurs, and a starved account
+# costs every other check in the repo, not just this one.
+#
+# So the trade is deliberate: a defect here is caught within a day rather than
+# at merge, for about 25 minutes a day rather than about six hours. That fits
+# the repository's own "merge when CI is green, fix forward" rule -- this is a
+# post-merge suite, not a gate, and it names its own cause when it goes red.
+# `workflow_dispatch` is there so anyone touching the shared layer can run it
+# against a branch before merging, which is the case where waiting a day is
+# actually too slow.
+#
+# A skip is not a failure. Every check reserves exit 2 for "nothing was
+# verified" and `browser_checks.py` exits 2 for the run in that case, distinct
+# from the 1 it exits when something actually failed -- the same distinction
+# CLAUDE.md draws three paragraphs over for absent versus red CI. This
+# workflow keeps them apart rather than collapsing both into a red tick: an
+# exit 2 is reported and the job still passes, because a browser that did not
+# launch is not a defect in a calculator.
+#
+# It publishes nothing, pushes nothing, and calls no paid API -- a test
+# runner, not the unattended-automation kind of workflow CLAUDE.md gates.
+
+on:
+  schedule:
+    # 04:20 UTC. Off the hour, because GitHub queues scheduled runs across all
+    # of Actions at :00 and a hosted runner can take tens of minutes to start
+    # there -- which on a suite this long reads as a hang.
+    - cron: "20 4 * * *"
+  workflow_dispatch:
+    inputs:
+      checks:
+        description: "Comma-separated subset to run (default: all seven)"
+        required: false
+        default: "sideways,presets,roundtrip,highlight,contrast,sweep,journey"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-checks:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Above the 20-30 minutes a clean run takes, and well under the 6 hours a
+    # job gets by default. A suite whose whole job is to catch a page that
+    # hangs must not itself hang for six hours: `browser_checks.py` gives each
+    # check its own timeout and reports 124 as a failure, and this is the
+    # backstop for the case where the harness itself is what wedged.
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Outside the checkout on purpose. `platform/ci/browser_checks.py` says
+      # the packages "go in a scratch directory rather than this repo, which
+      # has no `package.json` and should not grow one for a check that is not
+      # in CI" -- putting the check in CI does not change that argument, and a
+      # `package.json` at the root would change what every other workflow's
+      # `node --test` glob sees.
+      - name: Install Playwright and axe-core outside the checkout
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/browser-checks"
+          cd "$RUNNER_TEMP/browser-checks"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund playwright axe-core
+
+      # Separate from the npm install so a browser-download failure names
+      # itself. This is the step most likely to fail for a reason that has
+      # nothing to do with the site -- a CDN hiccup, a runner without the
+      # shared libraries -- and reading it as "the calculators broke" is the
+      # exact conflation the exit-2 handling below exists to prevent.
+      #
+      # `--with-deps` apt-installs Chromium's shared libraries and therefore
+      # needs root. GitHub-hosted `ubuntu-latest` has passwordless sudo and
+      # does not; the self-hosted runner this repo can be switched to with
+      # `vars.CI_RUNNER` runs as its image's own unprivileged user
+      # (`gitops/tests/test_ci_runner.py` pins that), so there it cannot.
+      # Falling back to the plain install rather than failing is what keeps
+      # flipping that variable from turning this red -- the same class of gap
+      # #2608 fixed in three other workflows. If the libraries turn out to be
+      # missing too, the launch fails, `browser_checks.py` exits 2, and the
+      # step below reports a skip rather than inventing a site defect.
+      - name: Install the Chromium build this Playwright pins
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          npx --yes playwright install --with-deps chromium \
+            || npx --yes playwright install chromium \
+            || echo "::warning::Could not install Chromium; the checks below will report a skip."
+        working-directory: ${{ runner.temp }}/browser-checks
+
+      - name: Run the browser checks
+        env:
+          # Named explicitly. `browser_checks.py` passes an explicit choice
+          # through untouched and only guesses when these are unset, and the
+          # scratch directory is not one of the places it would guess.
+          PLAYWRIGHT: ${{ runner.temp }}/browser-checks/node_modules/playwright/index.js
+          AXE: ${{ runner.temp }}/browser-checks/node_modules/axe-core/axe.min.js
+          # Stamped so `journey.mjs`'s canonical, sitemap and share-link steps
+          # check the origin the site is actually published under rather than
+          # the build's default. This is a string in the artifact, not a
+          # network call: nothing here fetches the live site.
+          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,sweep,journey' }}
+        run: |
+          set -euo pipefail
+          python3 platform/ci/browser_checks.py \
+            --checks "$CHECKS" \
+            --stamp-base-url https://tools.marisstella.dev/ \
+            && rc=0 || rc=$?
+          # 0 = all seven answered and passed. 2 = everything that ran passed
+          # but something did not run at all. Only 1 (and the 124 the harness
+          # invents for a timeout) is a defect in the site, and only that
+          # should turn this red -- see the header.
+          if [ "$rc" = 2 ]; then
+            echo "::warning::A browser check could not run. Nothing failed, but nothing verified it either -- read the skip reason above."
+            exit 0
+          fi
+          exit "$rc"
+
+      # The harness has its own unit tests, and a change to it is exactly the
+      # kind that makes this suite report a clean run it did not perform --
+      # the false-clean-report failure its sentinel exists to stop.
+      - name: Harness unit tests
+        if: always()
+        working-directory: platform/ci
+        run: python3 -m unittest test_browser_checks
