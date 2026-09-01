@@ -33,7 +33,8 @@
 //
 //   curl -s http://localhost:8793/<slug>/ | grep -c 'the thing you just added'
 //
-// Not part of CI: it needs Playwright, which is not a dependency of this repo.
+// Runs in CI nightly, not per-PR — see the CI note further down for why, and
+// for how it gets Playwright without this repo depending on it.
 // PLAYWRIGHT overrides the module path for a global install.
 //
 // ## Running it from a Claude-on-the-web session
