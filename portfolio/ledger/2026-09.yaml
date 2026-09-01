@@ -981,3 +981,44 @@ entries:
         search them, though a session with time to spare could still
         spot-check the remainder of the ~132 zero/low-diff `claude/*`
         branches this run didn't open individually.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session opened with zero open PRs (three-PR quota trivially met) and
+        a branch backlog already confirmed drained by a prior session, so
+        went straight to the top two `gitops/agents/queue` items the owner
+        reordered to first/second priority on 2026-09-01
+        (`deploy-cicd-readiness`, `marketing-distribution`).
+      - >-
+        Shipped #2653: `gitops/README.md` still documented the
+        `portfolio-site-refresh` CronJob as running "nightly at 04:17 UTC."
+        #2330 (2026-08-31) moved it to 01:00 UTC so the restart's pod churn
+        stops deleting nginx access logs before the 00:31 usage aggregator
+        reads them, and fixed the manifest and tests, but never touched this
+        README -- leaving a live trap next to the correct information.
+        Verified `python3 -m pytest gitops/tests -q` (219 passed); merged.
+      - >-
+        Shipped #2654: `ventures/str-host-payout-calculator` had two Airbnb
+        fee explainer pages but no "vs the platform's own calculator" page,
+        unlike four sibling ventures (eBay, Etsy, Amazon FBA, Walmart) that
+        already have one. Added `vs-airbnb-earnings-estimator.html`
+        contrasting Airbnb's single-channel, forward-looking earnings
+        estimator against this tool's actual-stay, three-channel comparison
+        and its restore-payout/direct-booking-break-even figures, which
+        Airbnb's tool has no equivalent for. Linked from the venture index
+        and sitemap. Verified: venture suite 33/33; full `platform/pages`
+        suite 838/838; `build.mjs` + `check.mjs` 169 products, 519 pages (was
+        518), no dead links. Merged.
+      - >-
+        Checked `infra/OWNER_CHECKLIST.md` item 8 and `gitops/agents/`
+        against this run's separate standing request to "set up the codex
+        cli to use up the built-in quota for dev work" on the Hetzner
+        agent box: this is already fully built (governor, worker,
+        `CODEX_AUTH_JSON` plan-quota path, `codex.sh` on
+        `ventures/ubuntu-agent-server`) and blocked purely on owner-only
+        steps -- a `codex login` session and sealing `codex-secrets` with
+        kubeconfig access this session does not have. Did not duplicate that
+        build; flagged the status back to the owner instead of re-describing
+        already-recorded infrastructure.
