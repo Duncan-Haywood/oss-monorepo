@@ -30,11 +30,11 @@ from 2026-09-01T00:00:53Z, and the PRs that have run since went green on
 merit (#2601, #2603, #2605 — real runner ids, real steps). That is what the
 evidence establishes, and it is narrower than "all CI is green": runs still
 fail here for their own reasons. `Claude routine trigger` is the standing
-example — it fails on its first step on every fire because
-`CLAUDETRIGGERAPIKEY` is unset, which is the intended safe state pending the
-`routine-trigger-cadence` decision, and has nothing to do with runners. Read
-a red check on its merits; `ci_starvation.py` is what separates the two
-causes.
+example — it gets a real runner, reaches the API, and comes back
+`HTTP 401 … "OAuth access token has been revoked"` (run 33547527610). Its
+`CLAUDETRIGGERAPIKEY` secret *is* set; the token behind it is revoked. That
+is the `routine-trigger-cadence` decision, not a runner problem. Read a red
+check on its merits; `ci_starvation.py` is what separates the two causes.
 
 Nothing here is currently blocking, so this stack is insurance, not a
 repair. It is

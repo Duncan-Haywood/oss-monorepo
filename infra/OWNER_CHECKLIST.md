@@ -208,12 +208,17 @@ codes as exit 42 and a rejected credential as exit 43.
    you.
 
    That is narrower than "everything is green", deliberately. Individual
-   workflows still fail on their own merits — `Claude routine trigger`
-   fails on its first step on every fire because `CLAUDETRIGGERAPIKEY` is
-   unset, which is the intended safe state pending the
-   `routine-trigger-cadence` row in your decision queue, and is not a
-   runner problem. A red check here is now worth reading rather than
-   discounting.
+   workflows still fail on their own merits, and one of them is worth
+   your attention: **`Claude routine trigger` is failing 401 on a live
+   token, not on a missing one.** Its `CLAUDETRIGGERAPIKEY` secret is
+   set, and the API returns *"OAuth access token has been revoked"*
+   (run 33547527610). With `*/20` scheduling and 5 fires per run that is
+   ~360 real API calls a day on real runners, all failing — safe, but
+   burning the same metered Actions allowance whose exhaustion caused the
+   2026-08-26 starvation. Mint a fresh token at
+   <https://claude.ai/code/routines> and update the secret, or delete the
+   workflow; it is the `routine-trigger-cadence` row in your decision
+   queue. A red check here is now worth reading rather than discounting.
 
    What is left here is insurance, worth doing but **after** the two
    seals above and below that are actually blocking. Self-hosted runners

@@ -137,13 +137,32 @@ decisions:
   action: >-
     Decide whether the 4-minute routine cadence runs, now that the merge half
     is already done: #788 landed on 2026-08-24 and
-    `.github/workflows/claude-routine-trigger.yml` is on `main` today. Yes
-    means creating the `CLAUDETRIGGERAPIKEY` repository secret (Settings ->
-    Secrets and variables -> Actions) and accepting the spend below; no means
-    deleting the workflow file, which no session may do on its own because
-    the owner requested it. Until one of those, the schedule fires and every
-    run fails on its first step for want of the secret -- the safe state, but
-    a noisy one.
+    `.github/workflows/claude-routine-trigger.yml` is on `main` today.
+
+    **Corrected 2026-09-01: the secret already exists, and its token is
+    revoked.** This row said until 2026-09-01 that the secret was unset and
+    every run "fails on its first step for want of the secret -- the safe
+    state, but a noisy one". That is not what is happening. Read from the job
+    log of run 33547527610 (job 99988623632): the step's env shows
+    `CLAUDE_TRIGGER_API_KEY: ***`, i.e. the secret is set and masked, and the
+    request reaches the API and comes back `HTTP 401 ...
+    {"type":"authentication_error","message":"OAuth access token has been
+    revoked."}`. An unset value would have exited at the workflow's own
+    preflight check (line ~100) before any request, and does not.
+
+    So the choice is now between: **yes**, mint a fresh token on the routine's
+    API trigger at https://claude.ai/code/routines and update the existing
+    `CLAUDETRIGGERAPIKEY` secret (Settings -> Secrets and variables ->
+    Actions), accepting the spend below; or **no**, delete the workflow file,
+    which no session may do on its own because the owner requested it.
+
+    This is no longer merely noisy. The schedule is `*/20 * * * *` with
+    `FIRES_PER_RUN=5`, so ~360 fires a day are each making a real API call on
+    a real runner and getting 401 -- burning Actions minutes on the metered
+    allowance whose exhaustion caused the 2026-08-26 starvation window. It is
+    still safe (nothing fires), but it is not free, and it is the standing
+    counter-example to "CI is green": a red check here that is red on its own
+    merits.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,
