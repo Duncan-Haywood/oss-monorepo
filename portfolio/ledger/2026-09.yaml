@@ -299,3 +299,64 @@ entries:
         subscription path (the "built-in quota" shape), and it waits on
         `codex-secrets` plus `policy.json` `enabled: true` and unsuspending
         the governor CronJob.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the `platform` entry above, appended rather than edited
+        per this file's own rule ("Append, do not edit -- rewriting history to
+        look better destroys the only signal the router has"). The first
+        attempt at this correction rewrote that entry's outcome in place, on
+        #2621; Copilot caught it against `portfolio/ledger/README.md:25-30`
+        and it was reverted. Worth recording that the rule bit the case it was
+        written for: the edit was to make a record of my own review round read
+        more accurately, which is exactly the shape of "rewriting history to
+        look better".
+      - >-
+        What that entry got wrong. It said "both of Copilot's findings on
+        #2616", described one finding's two parts (the floating package specs
+        and the `npx` resolve) as though they were the two findings, and so
+        omitted the second one entirely -- a comment that said the opposite of
+        what it meant, claiming GitHub-hosted `ubuntu-latest` could not
+        install Chromium's shared libraries when passwordless sudo is exactly
+        why it can. That was fixed on #2616 before merge; only the record of
+        it was wrong.
+      - >-
+        And there was a third finding the entry could not have known about:
+        Copilot raised it as a *suppressed* comment rather than a review
+        thread, so it never appeared as one and was not seen before #2616
+        merged. It was the most important of the three. The workflow exited 0
+        when `browser_checks.py` exits 2 ("something did not run"), which
+        turned a run that verified nothing into a green nightly. The header's
+        justification cited CLAUDE.md's three paragraphs on absent versus
+        failed CI and misapplied them: those are about how to *read* a signal
+        you were handed, not a licence for a scheduled verification to go
+        green having verified nothing. The hole was total rather than
+        theoretical -- the Chromium install step is `continue-on-error`, so a
+        failed browser install would have left this workflow green forever
+        while running no checks at all, and an unknown name in the `checks`
+        input does the same. Fixed forward on #2621: exit 2 now fails the job
+        and prints an `::error::` naming which checks did not run and that it
+        is not a defect in a calculator. Reproduced both ways before and
+        after (`--checks sweeep` and `PLAYWRIGHT=/nonexistent`: harness 2, old
+        shell job 0, new shell job 2).
+      - >-
+        Two further findings on #2621 itself, both verified against the source
+        before acting rather than taken on the bot's word. The `::error::`
+        first read "Nothing was verified", which contradicts the harness: exit
+        2 fires when *some* checks skipped and the rest passed
+        (`browser_checks.py` prints "N of 7 checks did NOT run" then "the M
+        check(s) that ran passed"), so the annotation now says one or more did
+        not run and names them. The remediation wording also assumed a command
+        fixes it, which is wrong for a typo'd `checks` input. The second was
+        the append-only violation this entry opens with.
+      - >-
+        The standing lesson, which is the same one three times now: this
+        repository's recurring defect is a check that cannot report its own
+        absence -- `highlight` written and left out of `CHECKS` so "the
+        browser checks" ran six of seven silently, `supersede_check.py`
+        exiting 1 on 65 of 66 PRs so nobody used it, and now a nightly suite
+        that would have gone green while running nothing. Absent CI not being
+        failed CI is about reading a signal, never about a gate being allowed
+        to stay quiet.

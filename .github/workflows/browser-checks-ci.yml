@@ -42,13 +42,29 @@ name: Browser checks
 # against a branch before merging, which is the case where waiting a day is
 # actually too slow.
 #
-# A skip is not a failure. Every check reserves exit 2 for "nothing was
-# verified" and `browser_checks.py` exits 2 for the run in that case, distinct
-# from the 1 it exits when something actually failed -- the same distinction
-# CLAUDE.md draws three paragraphs over for absent versus red CI. This
-# workflow keeps them apart rather than collapsing both into a red tick: an
-# exit 2 is reported and the job still passes, because a browser that did not
-# launch is not a defect in a calculator.
+# A skip is reported as a skip, and it still fails the job. Every check
+# reserves exit 2 for "nothing was verified", distinct from the 1 it exits when
+# something actually failed, and `browser_checks.py` carries that distinction
+# up to the run. This workflow keeps the two apart in what it *says* -- an
+# exit 2 prints that nothing was verified and that it is not a defect in a
+# calculator -- while failing the job either way.
+#
+# It passed the job on an exit 2 until 2026-09-01, on the reasoning that
+# CLAUDE.md spends three paragraphs separating absent CI from failed CI. That
+# reasoning was misapplied. Those paragraphs are about how to *read* a signal
+# you were handed: do not chase a defect that a starved runner invented. They
+# are not a licence for a scheduled verification to go green having verified
+# nothing, which is a different failure and the one this repository keeps
+# paying for -- `highlight` written and left out of `CHECKS` so "the browser
+# checks" ran six of seven and said nothing; `supersede_check.py` exiting 1 on
+# 65 of 66 PRs, a gate that never opened and so nobody used.
+#
+# Concretely: the Chromium install below is `continue-on-error`, so if it fails
+# the checks exit 2, and under the old handling this job went green forever
+# while running nothing at all. A typo in the `checks` input does the same --
+# the harness returns 2 for an unknown check name. Nobody reads a
+# `::warning::` on a green nightly. Red is the only thing anyone will notice,
+# and a suite that cannot say when it stopped running is not a suite.
 #
 # It publishes nothing, pushes nothing, and calls no paid API -- a test
 # runner, not the unattended-automation kind of workflow CLAUDE.md gates.
@@ -174,13 +190,29 @@ jobs:
             --checks "$CHECKS" \
             --stamp-base-url https://tools.marisstella.dev/ \
             && rc=0 || rc=$?
-          # 0 = all seven answered and passed. 2 = everything that ran passed
-          # but something did not run at all. Only 1 (and the 124 the harness
-          # invents for a timeout) is a defect in the site, and only that
-          # should turn this red -- see the header.
+          # 0 = all seven answered and passed. 1 = a real defect in the site
+          # (and 124, the timeout the harness invents, is one too). 2 =
+          # everything that ran passed, but something did not run at all.
+          #
+          # 2 fails the job as well, and says why it is not a site defect
+          # rather than being quietly green about it -- see the header. The
+          # distinction lives in this message and in the skip reason the
+          # harness already printed, not in the job's colour: a scheduled
+          # verification that goes green having verified nothing has no way
+          # left to tell anyone it stopped running.
           if [ "$rc" = 2 ]; then
-            echo "::warning::A browser check could not run. Nothing failed, but nothing verified it either -- read the skip reason above."
-            exit 0
+            # Says "one or more", not "nothing". Exit 2 fires when some checks
+            # skipped and the rest passed, so the harness has just printed
+            # "N of 7 checks did NOT run" followed by "the M check(s) that ran
+            # passed". An annotation claiming nothing was verified would
+            # contradict its own summary on the same screen, and the reader
+            # believes whichever they read second.
+            echo "::error::One or more browser checks did not run, so this build is" \
+                 "not fully verified. This is NOT a defect in a calculator. The" \
+                 "harness summary above names which ones and why -- a missing" \
+                 "browser or axe-core, an empty page list, or an unknown name in" \
+                 "the checks input, which is corrected in the input rather than" \
+                 "by installing anything."
           fi
           exit "$rc"
 
