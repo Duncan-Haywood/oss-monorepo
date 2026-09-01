@@ -1504,6 +1504,7 @@ const ABOUT_STYLE = `
     .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
               background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
               padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              overflow-wrap: anywhere;
               font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 `;
 
