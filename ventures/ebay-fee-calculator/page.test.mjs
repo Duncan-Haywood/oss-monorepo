@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { INPUT_FIELDS } from './calc.mjs';
 
 const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const vsSeo = readFileSync(new URL('./vs-ebay-fee-calculator.html', import.meta.url), 'utf8');
 const article = readFileSync(new URL('./do-ebay-returns-wipe-the-profit.html', import.meta.url), 'utf8');
 const formatArticle = readFileSync(new URL('./should-i-list-ebay-auction-or-buy-it-now.html', import.meta.url), 'utf8');
 
@@ -567,4 +568,31 @@ test('Download repricing CSV is wired to the calculated table', () => {
   assert.match(page, /repricingCsv/);
   assert.match(page, /repricing_csv_downloaded/);
   assert.match(page, /from '\.\/csv\.mjs'/);
+});
+
+test('the incumbent-comparison page links back, names eBay\'s own tools honestly, and gives no unverifiable eBay dollar figures', () => {
+  assert.match(page, /vs-ebay-fee-calculator\.html/);
+  assert.match(vsSeo, /<a href="\.\/">/);
+  // Names eBay's own tools and links to eBay's own domain so a reader can
+  // check the source directly -- this page must never claim a dollar or
+  // percentage figure for eBay's own Fee Calculator or Fee Illustrator that
+  // only eBay's live schedule could confirm.
+  assert.match(vsSeo, /ebay\.com\/sellercenter/);
+  assert.match(vsSeo, /Fee Illustrator/);
+  assert.doesNotMatch(vsSeo, /eBay('s)? (charges|fee is|costs?) \$/i);
+  assert.doesNotMatch(vsSeo, /eBay('s)? (own )?Fee Calculator[^.]*\d+(\.\d+)?%/i);
+  assert.match(vsSeo, /not affiliated with, endorsed by, or sponsored by eBay/i);
+  assert.match(vsSeo, /trademarks of eBay Inc\./i);
+  // Both cross-links this page makes into the main page must resolve to
+  // ids that actually exist there, or a reader following them lands nowhere.
+  assert.match(vsSeo, /#returns"/);
+  assert.match(page, /id="returns"/);
+  assert.match(vsSeo, /#storeTiers"/);
+  assert.match(page, /id="storeTiers"/);
+});
+
+test('the incumbent-comparison page carries the standard disclaimer and sponsor link', () => {
+  assert.match(vsSeo, /No warranty/);
+  assert.match(vsSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
