@@ -4,14 +4,36 @@ Each `*.yaml` file here is a job the governor may start. Argo syncs them
 into a ConfigMap. The governor does **not** keep eight Codex processes
 hot; it creates at most `maxConcurrent` Jobs (1 on the cpx22).
 
-`open-pr-repair-merge.yaml` (7), `branch-pr-drain.yaml` (6),
-`deploy-cicd-readiness.yaml` (5), `marketing-distribution.yaml` (4),
+`deploy-cicd-readiness.yaml` (7), `marketing-distribution.yaml` (6),
+`open-pr-repair-merge.yaml` (5), `branch-pr-drain.yaml` (4),
 `seo-discoverability-audit.yaml` (3), and
 `product-feature-improvement.yaml` (2) are the real, enabled items — the
-same priority order they're named in. Finish work that is already open
-first, then the branches that never got a PR, then the delivery path, then
-getting the thing in front of people, then metadata and content, then
-general feature work; raise or disable an item in git to change that order.
+same priority order they're named in. Make the thing reachable first, then
+get it in front of people, then drain whatever open PRs and orphan branches
+are left, then metadata and content, then general feature work; raise or
+disable an item in git to change that order.
+
+**Reordered 2026-09-01**, on the account owner's own direction: *"I want to
+make sure deployment and cicd is a priority and building and deploying
+marketing materials on the hetzner vms."* The top two slots had belonged to
+`open-pr-repair-merge` and `branch-pr-drain`, and the paragraphs below still
+argue for that — they were written while the PR/branch backlog was the
+bottleneck, which it no longer is. On the day this changed the repo had
+**zero open PRs**, so those two items were holding 13/25ths of the weight
+over provably empty work. The `noops` term (below) corrects that on its own,
+but only after spending the runs that discover it, and the first window
+after an owner flips the governor on is the most valuable quota this fleet
+will ever spend.
+
+The demotion is not a disabling, and the reasoning in those paragraphs still
+holds for what those items *do*. At 5 and 4 they still take 11/33 of the
+queue between them. What makes that safe is that every real item here opens
+**and merges** its own PR (`delivery: agent`), so the ordinary run needs no
+separate drain at all — `open-pr-repair-merge` is the safety net for the
+exception, a run whose verification did not come out clean and which
+therefore left a PR open. A safety net needs to fire reliably, not to sit at
+the top; `test_governor.py` pins both the new ordering and a floor under its
+share.
 
 `marketing-distribution` was added on 2026-08-31 and everything above it
 shifted up by one to make room. It covers the gap between "the page is
@@ -29,7 +51,8 @@ no publishing outward, no claim that is not true, and an asset that deploys
 rather than a campaign document. Building the asset is an agent's; putting
 the portfolio's name somewhere public is the owner's.
 
-`open-pr-repair-merge` sits first, because the items around it leave a hole
+`open-pr-repair-merge` sits third since the 2026-09-01 reorder above, and
+sat first before it, because the items around it leave a hole
 between them: every one of them *ends* by opening a pull
 request, and three actively steer around PRs that already exist —
 `branch-pr-drain` takes only branches "not already covered by an open pull
@@ -97,11 +120,11 @@ about whether the item has work, and the limit cooldown already handles it.
 Neither is a `delivery: agent` run, whose prompt owns the push and legitimately
 leaves this script an unchanged tree.
 
-`deploy-cicd-readiness` sits third on purpose, behind `open-pr-repair-merge`
-and `branch-pr-drain` (this used to say "second", from before
-`open-pr-repair-merge` was added above it). The portfolio has 169 finished
-tools and no public URL, so the delivery path is worth more per run than
-another metadata pass — but its remaining *owner* steps (a sealed clone
+`deploy-cicd-readiness` sits first since the 2026-09-01 reorder above (this
+has said "second" and then "third" in earlier revisions, as items were added
+above it; the owner's direction moved it to the top). The portfolio has 169
+finished tools and no public URL, so the delivery path is worth more per run
+than anything else here — but its remaining *owner* steps (a sealed clone
 token, `CI_RUNNER`, the governor flip) are not agent-actionable and are
 already queued. (A fourth step, an ACME contact, stopped being one on
 2026-08-30 — an ACME account contact is optional, so the issuers ship

@@ -139,21 +139,47 @@ codes as exit 42 and a rejected credential as exit 43.
 7. Merge this PR, then from the laptop with the **write** token:
    `tofu plan` (must not replace either server) → `tofu apply` → the
    three bootstrap scripts.
-8. **Codex credential.** Pick one of the two routes described under
-   "Codex" above — they are equally supported and the choice is yours:
-   - *Plan quota (no money spent).* `codex login` once, then seal
-     `codex-secrets` with `CODEX_AUTH_JSON` (the whole contents of
-     `~/.codex/auth.json`) + `GH_TOKEN`. No OpenAI org, no API key, no
-     billing change. This is the "use the built-in quota" route.
-   - *Metered (euro ceiling).* New OpenAI org + hard spend limit +
-     project API key; seal `codex-secrets` with `OPENAI_API_KEY` +
-     `GH_TOKEN`.
+8. **Codex credential.** Two routes are supported. **You have stated a
+   preference for the first** — recorded 2026-09-01, from the standing
+   instruction for these scheduled runs: *"I also want the codex cli to be
+   set up to use up the built in quota for dev work."* That settles the
+   binary this item used to open with ("the choice is yours"); the second
+   route is kept below because it is still supported, not because
+   anything is still waiting on you to choose.
+
+   - **Plan quota — the route you asked for; no money spent.**
+     `codex login` once on a laptop, then seal `codex-secrets` with
+     `CODEX_AUTH_JSON` (the whole contents of `~/.codex/auth.json`) +
+     `GH_TOKEN`. No OpenAI org, no API key, no billing change. If
+     `~/.codex/auth.json` does not exist after logging in, the CLI put the
+     credential in your OS keychain — put
+     `cli_auth_credentials_store = "file"` in `~/.codex/config.toml` and
+     log in again.
+
+     The one caveat worth knowing before you seal: a plan has **no euro
+     hard stop**, only 5-hour and weekly windows, and those windows are
+     shared with whoever is signed into that account. If you seal your
+     day-to-day ChatGPT login, the fleet competes with your own
+     interactive use for the same quota. A separate seat avoids that;
+     `policy.json`'s `reserveForInteractive` (0.1) and
+     `weeklyBudgetFraction` (0.85) are what soften it if you share one.
+
+   - *Metered (euro ceiling) — the alternative, unchanged.* New OpenAI org
+     + hard spend limit + project API key; seal `codex-secrets` with
+     `OPENAI_API_KEY` + `GH_TOKEN`. Worth it only if you want a hard
+     currency ceiling more than you want a tick to cost nothing.
 
    Seal both and the subscription wins — it is the one that does not
-   bill, and the worker logs which mode it used. Either way, seal in a
-   follow-up PR, and only then flip
+   bill, and the worker logs which mode it used on every run. Either way,
+   seal in a follow-up PR, and only then flip
    `gitops/agents/governor/cronjob.yaml` `suspend: false` and
    `policy.json` `"enabled": true`.
+
+   What that flip then runs is `gitops/agents/queue/*.yaml`, and since
+   2026-09-01 those are ordered to match the rest of that same standing
+   instruction — deployment/CI-CD first, then marketing and distribution.
+   Nothing about the queue needs your input; it is listed here only so the
+   spend is predictable before you authorise it.
 9. **Restore CI.** Every workflow has been red since 2026-08-26 with
    `runner_id: 0` and zero steps — jobs that were never assigned a
    runner, because metered Actions minutes on this private repo ran out.

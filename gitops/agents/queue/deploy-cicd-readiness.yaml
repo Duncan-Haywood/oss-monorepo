@@ -3,20 +3,34 @@
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
 #
-# Priority 5: below open-pr-repair-merge (7) and branch-pr-drain (6),
-# because landing work that already exists still comes first, and above the
-# three content and distribution items. The portfolio
-# has 169 finished tools and no public URL, so the delivery path is worth
-# more per run than another metadata pass -- but only the parts an agent
-# can actually finish. The credential steps are owner-only and already
-# queued; this item exists to keep the code half complete and correct so
-# that nothing but the flip is missing when it comes.
+# Priority 7, the highest of the real items. **Changed 2026-09-01**, from 5,
+# on the account owner's own direction: "I want to make sure deployment and
+# cicd is a priority and building and deploying marketing materials on the
+# hetzner vms". That is a statement about what the fleet is *for*, so it
+# outranks the ordering argument this comment used to carry (below
+# open-pr-repair-merge and branch-pr-drain, "because landing work that
+# already exists still comes first").
+#
+# That older argument was not wrong when it was written -- it was written
+# while the PR/branch backlog was the bottleneck. It is not the bottleneck
+# now: the repo has zero open PRs (verified twice on 2026-09-01), so the
+# two items that outranked this one were between them holding 13/25ths of
+# the weight over provably empty work. The `noops` damping in pick_item
+# corrects that, but only *after* spending the runs that discover it, and
+# the first window after an owner flips the governor on is the most
+# valuable quota this fleet will ever spend.
+#
+# The portfolio has 169 finished tools and no public URL, so the delivery
+# path is worth more per run than anything else here -- but only the parts
+# an agent can actually finish. The credential steps are owner-only and
+# already queued; this item exists to keep the code half complete and
+# correct so that nothing but the flip is missing when it comes.
 id: deploy-cicd-readiness
 repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: deep
-priority: 5
+priority: 7
 enabled: true
 # This item's prompt opens its own PR and merges it, so worker.sh must not
 # fold the tree into one commit and open a second one.
