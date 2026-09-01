@@ -179,8 +179,11 @@ decisions:
     routine-run cap are both untouched at zero.
 
     What survives the correction: it is not free, and it is the standing
-    counter-example to "CI is green" -- 424 runs, every scheduled one red on
-    its own merits. What does not survive: any reading of this row as an
+    counter-example to "CI is green" -- every scheduled run has been red on
+    its own merits since the token was revoked, with no exception yet
+    (a fixed run count is not recorded here on purpose: this row is meant to
+    stay accurate as the count keeps climbing, not to be re-edited every time
+    it does). What does not survive: any reading of this row as an
     urgent drain on the allowance whose exhaustion went dark on 2026-08-26.
     At ~$17/month it is affordable to leave red while the owner decides,
     which is the difference between "delete this today" and "answer it when

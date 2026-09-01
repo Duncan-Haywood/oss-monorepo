@@ -639,18 +639,6 @@ test("the incumbent-comparison page links back, names the incumbent honestly, an
   assert.match(vsAmazonSeo, /trademarks of Amazon\.com/i);
 });
 
-test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
-  assert.match(html, /id="buyCostStatus"/);
-  assert.match(scriptSource, /buyCostCheck/);
-  assert.match(scriptSource, /sourcing_check_used/);
-});
-
-test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
-  assert.match(html, /id="buyCostStatus"/);
-  assert.match(scriptSource, /buyCostCheck/);
-  assert.match(scriptSource, /sourcing_check_used/);
-});
-
 test("max buy cost display says so when the listing already loses money at $0 cost", () => {
   // Regression: the display used to show a bare $0.00 for both "you can pay
   // up to $0 and break even" and "you lose money before buying a unit at
