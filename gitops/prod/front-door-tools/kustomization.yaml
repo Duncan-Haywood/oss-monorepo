@@ -40,8 +40,8 @@
 #   portfolio-front-tools-4: 123 files, 556579 bytes
 #   portfolio-front-tools-5: 115 files, 555284 bytes
 #   portfolio-front-tools-6: 110 files, 553846 bytes
-#   portfolio-front-tools-7: 108 files, 553989 bytes
-#   portfolio-front-tools-8: 110 files, 543238 bytes
+#   portfolio-front-tools-7: 108 files, 551813 bytes
+#   portfolio-front-tools-8: 111 files, 549715 bytes
 #   portfolio-front-tools-9: 89 files, 436214 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1076,6 +1076,7 @@ configMapGenerator:
       - security-camera-bid-calculator__proposal.mjs.gz=security-camera-bid-calculator__proposal.mjs.gz
       - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
       - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
+      - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - septic-pumping-bid-calculator__LICENSE.gz=septic-pumping-bid-calculator__LICENSE.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
@@ -1118,12 +1119,12 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz=shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz
       - shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz=shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz
       - shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz=shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz
-      - shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz=shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz=shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz
       - shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz
       - shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz
       - shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz=shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz
