@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 154 files, 556455 bytes
 #   portfolio-front-tools-3: 114 files, 554735 bytes
 #   portfolio-front-tools-4: 119 files, 553416 bytes
-#   portfolio-front-tools-5: 115 files, 553006 bytes
+#   portfolio-front-tools-5: 116 files, 557040 bytes
 #   portfolio-front-tools-6: 120 files, 547656 bytes
 #   portfolio-front-tools-7: 114 files, 554239 bytes
 #   portfolio-front-tools-8: 103 files, 543645 bytes
@@ -830,6 +830,7 @@ configMapGenerator:
       - gutter-guard-bid-calculator__proposal.mjs.gz=gutter-guard-bid-calculator__proposal.mjs.gz
       - gutter-guard-bid-calculator__share.mjs.gz=gutter-guard-bid-calculator__share.mjs.gz
       - gutter-guard-bid-calculator__usage.mjs.gz=gutter-guard-bid-calculator__usage.mjs.gz
+      - gutter-guard-bid-calculator__vs-jobnimbus.html.gz=gutter-guard-bid-calculator__vs-jobnimbus.html.gz
       - gutter-install-bid-calculator__LICENSE.gz=gutter-install-bid-calculator__LICENSE.gz
       - gutter-install-bid-calculator__calc.mjs.gz=gutter-install-bid-calculator__calc.mjs.gz
       - gutter-install-bid-calculator__how-much-to-charge-to-install-gutters.html.gz=gutter-install-bid-calculator__how-much-to-charge-to-install-gutters.html.gz
