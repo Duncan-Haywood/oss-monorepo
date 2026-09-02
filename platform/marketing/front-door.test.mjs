@@ -5,11 +5,14 @@ import test from 'node:test';
 import path from 'node:path';
 
 import { ABOUT_PATH, ALL_CATEGORIES, FEED_FILE, SOCIAL_CARD_FILE, categoryPagePath } from '../pages/build.mjs';
+import { FEED_MAX_ENTRIES } from '../pages/launched.mjs';
 import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, renderSocialCard } from '../pages/offline.mjs';
 import {
+  EMPTY_FEED_UPDATED,
   FAVICON_FILE,
   FAVICON_OUTPUT_FILE,
   FAVICON_SVG,
+  FEED_OUTPUT_FILE,
   FRONT_DOOR_URL,
   OUTPUT_FILE,
   PROMISE,
@@ -27,9 +30,12 @@ import {
   categoryCounts,
   mirroredByCategory,
   orderedCategories,
+  feedEntryId,
   publishedSlugs,
   renderFrontDoor,
+  renderFrontDoorFeed,
   renderSitemap,
+  subtitleFor,
 } from './front-door.mjs';
 
 /** The nginx config that serves the page and the card, beside them both. */
@@ -266,7 +272,7 @@ test('uses the name the built site already gives itself', () => {
 
 test('the committed page matches what this generator produces', async () => {
   const committed = await fs.readFile(OUTPUT_FILE, 'utf8');
-  const fresh = await buildFrontDoor();
+  const { html: fresh } = await buildFrontDoor();
   assert.equal(
     committed,
     fresh,
@@ -368,7 +374,7 @@ test('declares a tab mark, so the browser stops asking for /favicon.ico', async 
   // blank default tab, because it declared no icon at all. Declaring one is
   // what fixes both: a `rel="icon"` link is also what stops the unprompted
   // `/favicon.ico` request being made.
-  const html = await buildFrontDoor();
+  const { html } = await buildFrontDoor();
   assert.match(html, new RegExp(`<link rel="icon" href="/${FAVICON_FILE}" type="image/svg\\+xml">`));
   // Declared as a root-absolute path, not a relative one: the catch-all in
   // default.conf answers a mistyped `/anything` with this same HTML, and a
@@ -541,4 +547,189 @@ test('nginx answers the crawler paths with the files rather than the page', asyn
   // host; `test_manifests.py` asserts the same thing about that config, and
   // the exact-match form above is what keeps this one clear of it.
   assert.ok(!/location ~ \\?\.xml\$/.test(conf));
+});
+
+/** Launch dates for the `MIRROR` fixture, newest last so ordering is worth asserting. */
+const MIRROR_DATES = {
+  'roofing-bid-calculator': '2026-08-10',
+  'deck-bid-calculator': '2026-08-22',
+  '3pl-quote-normalizer': '2026-08-25',
+};
+
+test('the feed lists the mirrored tools newest first, at links this host serves', () => {
+  const xml = renderFrontDoorFeed({ mirrored: MIRROR, launched: MIRROR_DATES });
+  assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(xml, /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
+  const links = [...xml.matchAll(/<link rel="alternate" type="text\/html" href="([^"]+)"\/>/g)].map(
+    (m) => m[1],
+  );
+  // The first is the feed's own alternate (the page); the rest are entries.
+  assert.deepEqual(links, [
+    FRONT_DOOR_URL,
+    `${FRONT_DOOR_URL}tools/3pl-quote-normalizer/`,
+    `${FRONT_DOOR_URL}tools/deck-bid-calculator/`,
+    `${FRONT_DOOR_URL}tools/roofing-bid-calculator/`,
+  ]);
+  // The defect this whole feature exists to fix: not one entry may point at
+  // the host that serves nothing until `portfolio-site-repo` is sealed.
+  assert.ok(
+    !xml.includes(`${TOOLS_URL}3pl`),
+    'entry links must be paths this host actually serves, not the dark catalogue host',
+  );
+});
+
+test('a feed entry id is the same one the tools host mints for that tool', async () => {
+  // The property that makes a second feed safe. `build.mjs`'s `renderFeed`
+  // keys entries on a slug-based RFC 4151 tag URI with a *fixed* authority,
+  // precisely so two hostnames serving one catalogue do not double a
+  // subscriber's feed. If these two ever drift, every reader subscribed here
+  // is re-notified about all 53 tools on the day the seal lands.
+  const { renderFeed } = await import('../pages/build.mjs');
+  const surfaces = MIRROR.map((tool) => ({ ...tool, description: 'x', fullDescription: 'x' }));
+  const theirs = renderFeed(surfaces, TOOLS_URL, MIRROR_DATES);
+  const ours = renderFrontDoorFeed({ mirrored: MIRROR, launched: MIRROR_DATES });
+  const ids = (xml) => [...xml.matchAll(/<id>(tag:[^<]*tool\/[^<]*)<\/id>/g)].map((m) => m[1]);
+  assert.deepEqual(ids(ours), ids(theirs));
+  assert.deepEqual(ids(ours).sort(), MIRROR.map((t) => feedEntryId(t.slug)).sort());
+});
+
+test('the feed states the number of tools served, not the number it lists', () => {
+  // `FEED_MAX_ENTRIES` caps the feed below the size of the mirror, so a
+  // subtitle written from the entry count claims this host serves 40 tools
+  // when it serves 53 — a false claim about the product, produced by an
+  // implementation detail of the feed. The first draft of `renderFrontDoorFeed`
+  // did exactly that.
+  assert.match(subtitleFor(53, 40), /The 53 free, browser-only tools served directly/);
+  assert.match(subtitleFor(53, 40), /the newest 40 of them listed here/);
+  // With the cap not biting there is no slice to describe, so the sentence
+  // does not invent one.
+  assert.match(subtitleFor(12, 12), /The 12 free, browser-only tools served directly/);
+  assert.ok(!subtitleFor(12, 12).includes('newest 12 of them listed'));
+});
+
+test('the feed is capped and undated tools are left out rather than dated wrongly', () => {
+  const many = Array.from({ length: FEED_MAX_ENTRIES + 5 }, (_, i) => ({
+    slug: `tool-${String(i).padStart(2, '0')}`,
+    title: `Tool ${i}`,
+    url: `/tools/tool-${String(i).padStart(2, '0')}/`,
+    description: 'A tool.',
+  }));
+  const launched = Object.fromEntries(many.map((t, i) => [t.slug, `2026-08-${String((i % 28) + 1).padStart(2, '0')}`]));
+  assert.equal(
+    (renderFrontDoorFeed({ mirrored: many, launched }).match(/<entry>/g) ?? []).length,
+    FEED_MAX_ENTRIES,
+  );
+  // An undated tool is dropped from the feed rather than published with a
+  // guessed date: `check.mjs` is what refuses to publish it at all, and a
+  // fabricated `<published>` would put it at the top of every subscriber's
+  // reader. `deck-bid-calculator` is the one left dated here.
+  const xml = renderFrontDoorFeed({
+    mirrored: MIRROR,
+    launched: { 'deck-bid-calculator': '2026-08-22' },
+  });
+  assert.equal((xml.match(/<entry>/g) ?? []).length, 1);
+  assert.match(xml, /<updated>2026-08-22T00:00:00Z<\/updated>/);
+});
+
+test('the feed carries no timestamp that moves when nothing changed', () => {
+  // `<updated>` is the newest entry's launch date, never the build clock. A
+  // clock here would tell every aggregator something changed on each pod
+  // restart, and would dirty the tree on a no-op `--write`, which is what the
+  // staleness test below depends on not happening.
+  const first = renderFrontDoorFeed({ mirrored: MIRROR, launched: MIRROR_DATES });
+  const second = renderFrontDoorFeed({ mirrored: MIRROR, launched: MIRROR_DATES });
+  assert.equal(first, second);
+  assert.match(first, /<updated>2026-08-25T00:00:00Z<\/updated>/);
+  // The empty case still has to be valid Atom — `<updated>` is required — and
+  // still must not read the clock.
+  assert.match(renderFrontDoorFeed({}), new RegExp(`<updated>${EMPTY_FEED_UPDATED}</updated>`));
+});
+
+test('the committed feed matches what this generator produces', async () => {
+  // Same contract as the page, the card and robots.txt: Argo CD delivers the
+  // file from git, so a stale commit ships stale bytes to real subscribers.
+  const { feed } = await buildFrontDoor();
+  assert.equal(
+    await fs.readFile(FEED_OUTPUT_FILE, 'utf8'),
+    feed,
+    'gitops/prod/front-door/feed.xml is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('every committed feed entry links to a page the mirror actually holds', async () => {
+  // The dead-link check `validateLinks` performs inside the mirror, applied to
+  // the one document that points into it from outside. A feed entry that 404s
+  // is worse than a missing entry: a reader who follows one concludes the
+  // project is abandoned.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { files } = await buildMirror();
+  const keys = new Set(files.map((f) => f.key));
+  const xml = await fs.readFile(FEED_OUTPUT_FILE, 'utf8');
+  const slugs = [...xml.matchAll(/href="https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/"/g)].map(
+    (m) => m[1],
+  );
+  assert.ok(slugs.length > 0, 'the committed feed should carry entries');
+  for (const slug of slugs) {
+    assert.ok(keys.has(`${slug}__index.html`), `feed links /tools/${slug}/, which the mirror lacks`);
+  }
+});
+
+test('the page declares the feed it serves, and its footer no longer points at the dark host', async () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // Discovery: an aggregator or AI crawler finds a feed by this tag, not by
+  // guessing `/feed.xml`.
+  assert.match(
+    html,
+    new RegExp(`<link rel="alternate" type="application/atom\\+xml" title="[^"]*" href="/${FEED_FILE}">`),
+  );
+  // The defect. Every footer link pointed at `tools.marisstella.dev`, which
+  // serves nothing, two screens below fine print saying so — the page
+  // contradicted itself and spent a visitor's click to prove it.
+  const footer = html.slice(html.indexOf('<footer>'));
+  const linkRow = footer.slice(0, footer.indexOf('</p>'));
+  assert.ok(
+    !linkRow.includes(TOOLS_URL),
+    'the footer link row must not send a visitor to the host that serves nothing',
+  );
+  assert.match(linkRow, new RegExp(`href="/${FEED_FILE}"`));
+  assert.match(linkRow, /href="#open-now"/);
+  assert.match(linkRow, new RegExp(`The ${MIRROR.length} tools on this host`));
+  // Without a mirror the row is unchanged — the state this page returns to
+  // when the seal lands, the mirror is deleted, and all three links are live.
+  const bare = renderFrontDoor({ slugs: SAMPLE });
+  const bareFooter = bare.slice(bare.indexOf('<footer>'));
+  assert.ok(bareFooter.includes(`${TOOLS_URL}${ABOUT_PATH}`));
+  assert.ok(!bare.includes('application/atom+xml'), 'no feed is served without a mirror');
+});
+
+test('nginx answers /feed.xml with the feed, typed as Atom', async () => {
+  // The catch-all `location /` returns `index.html` for every path, so without
+  // an explicit block a feed reader polling `/feed.xml` gets 21 KB of HTML
+  // with a 200 — unparseable, and invisible in any log.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(new RegExp(`location = /${escapeForRegExp(FEED_FILE)} \\{[\\s\\S]*?\\n {2}\\}`));
+  assert.ok(block, `front-door/default.conf must serve /${FEED_FILE} explicitly`);
+  // The type the page's `<link rel="alternate">` promises. Several aggregators
+  // dispatch on it before parsing, and nginx's stock mime.types maps `.xml` to
+  // `application/xml`, so this is load-bearing rather than belt-and-braces.
+  assert.match(block[0], /default_type application\/atom\+xml;/);
+  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(FEED_FILE)} =404;`));
+  // Never noindex: this is the apex's own document and the thing we most want
+  // an aggregator or AI crawler to read.
+  assert.ok(!/X-Robots-Tag/.test(block[0]), '/feed.xml must stay crawlable');
+  assert.ok(
+    conf.indexOf(`location = /${FEED_FILE}`) < conf.indexOf('location / {'),
+    'keep the /feed.xml block above the catch-all',
+  );
+});
+
+test('the feed rides in the ConfigMap that mounts at the document root', async () => {
+  // It has to sit beside index.html for `/feed.xml` to resolve, and two
+  // ConfigMaps cannot mount at one mountPath — the same constraint the card,
+  // the icon, robots.txt and the sitemap are in this generator for.
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(FEED_FILE)}=front-door/${escapeForRegExp(FEED_FILE)}`));
 });

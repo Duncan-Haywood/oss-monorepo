@@ -686,7 +686,15 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
       files.push({ slug, file, key: mirrorKey(slug, file), contents });
     }
     const entry = files.find((f) => f.slug === slug && f.file === 'index.html');
-    tools.push({ slug, why, title: pageTitle(entry.contents), url: mirrorUrl(slug, 'index.html') });
+    tools.push({
+      slug,
+      why,
+      title: pageTitle(entry.contents),
+      // The venture's own meta description, carried so `renderFrontDoorFeed`
+      // can summarise the entry without a second read of the same file.
+      description: pageDescription(entry.contents),
+      url: mirrorUrl(slug, 'index.html'),
+    });
   }
 
   const problems = validateLinks(files);
@@ -818,6 +826,30 @@ export function pageTitle(html) {
   const match = html.match(/<title>([^<]*)<\/title>/i);
   if (!match) throw new Error('a mirrored entry page has no <title>');
   return decodeCharacterReferences(match[1].split('|')[0]).trim();
+}
+
+/**
+ * The tool's own one-line summary, for the `<summary>` of its Atom entry.
+ *
+ * Taken from the venture's `<meta name="description">` — the same string
+ * `build.mjs` derives from the page's visible copy and stamps into the tools
+ * host's own feed — so a reader who subscribes here and a reader who subscribes
+ * after the seal are told the same thing about the same tool.
+ *
+ * Decoded for the reason `pageTitle` is: `renderFrontDoorFeed` escapes it again
+ * on the way into XML, and a description that arrives already encoded would
+ * reach a feed reader as visible `&amp;amp;`.
+ *
+ * Returns `''` rather than throwing when a page has no description. Unlike a
+ * missing `<title>`, which leaves a card with no name and is worth failing the
+ * build over, a missing description costs an entry its summary and nothing
+ * else — `check.mjs` is what refuses to publish an undescribed page, and
+ * failing here would take the whole front door down over a defect that surface
+ * already owns.
+ */
+export function pageDescription(html) {
+  const match = html.match(/<meta\s+name="description"\s+content="([^"]*)"/i);
+  return match ? decodeCharacterReferences(match[1]).replace(/\s+/g, ' ').trim() : '';
 }
 
 /**
