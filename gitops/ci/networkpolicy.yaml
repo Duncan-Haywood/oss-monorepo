@@ -8,6 +8,22 @@
 # not get, is the cluster's own network -- pod and service CIDRs and the
 # Kubernetes API are excluded from the allowed range, so a workflow cannot
 # reach prod's pods, the agents namespace, or the API server.
+#
+# PORT-SCOPED TO 443, FIXED 2026-09-02 -- this rule used to have no `ports:`
+# at all, which in NetworkPolicy semantics means "every port to any allowed
+# destination", not the HTTPS-only egress this file's own header always
+# claimed. `gitops/agents/networkpolicy.yaml`'s `worker-egress` and
+# `gitops/prod/networkpolicy.yaml`'s `portfolio-site-egress` each carry a
+# comment describing the identical bug -- an unscoped 443 rule that was
+# actually "any port" -- as already found and fixed, and both cite this file
+# as already scoped the same way. It never was: only the `except:` CIDR list
+# below (which both of those files also copy) had been fixed here;
+# `test_runner_cannot_reach_the_cluster` in `gitops/tests/test_ci_runner.py`
+# checked that list but never checked `ports`, so nothing caught the gap.
+# Concretely, this meant a workflow step -- arbitrary code from any PR this
+# repo's collaborators open -- could open an outbound TCP connection on any
+# port to any address on the internet (short of the excluded cluster/private/
+# metadata ranges), not just HTTPS.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -54,6 +70,9 @@ spec:
               - 192.168.0.0/16
               # Link-local, which is where cloud metadata services live.
               - 169.254.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
     # DNS still has to work, and CoreDNS is inside the service CIDR excluded
     # above, so it is allowed back in explicitly and only on port 53.
     - to:
@@ -65,3 +84,25 @@ spec:
           port: 53
         - protocol: TCP
           port: 53
+    # `hetzner-gitops-ci.yml`'s `preflight` job (workflow_dispatch only,
+    # never on a normal push or pull_request) SSHes to the two Hetzner boxes
+    # to run `bootstrap/preflight.sh` as a read-only health check. Its
+    # `runs-on` reads the same `vars.CI_RUNNER` switch as every other job, so
+    # once an owner flips that to `self-hosted` this pod is where that job
+    # runs -- and the 443-only rule above would otherwise silently strand
+    # it: connection-refused on :22, not the runner-starvation signature, so
+    # nothing here would say why. Scoped to exactly the two box addresses
+    # `bootstrap/preflight.sh` and this workflow both hardcode (89.167.29.39,
+    # the control-plane; 157.180.80.188, the agent node) and to port 22 only
+    # -- narrower than the 0.0.0.0/0:443 rule above, not an addition to its
+    # blast radius, the same way `gitops/agents/networkpolicy.yaml`'s
+    # `governor-egress` scopes its own apiserver rule to a single /32 rather
+    # than widening anything.
+    - to:
+        - ipBlock:
+            cidr: 89.167.29.39/32
+        - ipBlock:
+            cidr: 157.180.80.188/32
+      ports:
+        - protocol: TCP
+          port: 22
