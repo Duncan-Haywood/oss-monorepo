@@ -78,6 +78,11 @@ import {
   categoryPagePath,
 } from '../pages/build.mjs';
 
+// The share card is drawn, not copied: `renderSocialCard` is the same
+// dependency-free PNG encoder `build.mjs` uses for the hub's card, so the apex
+// and the tools host show one mark rather than two pictures that drift.
+import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, renderSocialCard } from '../pages/offline.mjs';
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
 
@@ -92,6 +97,35 @@ export const LAUNCHED_FILE = path.join(REPO_ROOT, 'platform', 'pages', 'launched
  * is consumed from means the manifest never reaches up out of `gitops/`.
  */
 export const OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'index.html');
+
+/**
+ * Where `--write` puts the share card, beside the page that references it.
+ *
+ * The apex has to serve this file itself, and that is the whole point of it
+ * existing here. Until 2026-09-02 the page's `og:image` pointed at
+ * `https://tools.marisstella.dev/social-card.png` — a file `build.mjs` does
+ * emit, on a host whose pods fail closed on the unsealed Secret
+ * `portfolio-site-repo`. So the one public surface this portfolio has was
+ * handing every link preview — Slack, LinkedIn, iMessage, a forum embed — an
+ * image URL that does not resolve, and `summary_large_image` degrades to a
+ * bare text row when the image is missing. That is a marketing defect on the
+ * only page anyone can reach, and it is invisible from the page itself: the
+ * front door renders perfectly for the person who typed the domain, and badly
+ * for everyone they then share it with.
+ *
+ * The card is ~6 KB against the same 1 MiB ConfigMap ceiling the 34 MB tool
+ * site cannot fit under, so serving it from the apex costs nothing the front
+ * door was not already paying. Unlike the tool mirror, this file does *not*
+ * become redundant when the clone token is sealed — the apex is its own
+ * canonical page with its own `og:url`, so it needs its own image regardless.
+ */
+export const SOCIAL_CARD_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  SOCIAL_CARD_FILE,
+);
 
 /** The apex itself — this page's own canonical URL. */
 export const FRONT_DOOR_URL = 'https://marisstella.dev/';
@@ -109,6 +143,21 @@ export const TOOLS_URL = 'https://tools.marisstella.dev/';
  * the bare domain — would be the first place a visitor met the discrepancy.
  */
 export const SITE_NAME = 'Free small-business calculators';
+
+/**
+ * What the share card actually shows, for a reader whose client announces the
+ * image but cannot render it — a screen reader on a Slack unfurl, or a mail
+ * client with images off.
+ *
+ * Written against `renderSocialCard()`'s no-headline branch specifically,
+ * which is the variant `--write` emits: the mark centred and alone on a plain
+ * field, with no text drawn anywhere on the card. Saying so is the point —
+ * alt text that promised a headline would send someone looking for words that
+ * are not there. `front-door.test.mjs` pins the two together so a later change
+ * to the card that adds a headline fails rather than silently lying here.
+ */
+export const SOCIAL_CARD_ALT =
+  'The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.';
 
 const escapeHtml = (value) =>
   String(value)
@@ -465,8 +514,13 @@ ${group.tools
 <meta property="og:title" content="${escapeHtml(SITE_NAME)} — ${total} tools for people who quote, sell and bill">
 <meta property="og:description" content="${escapeHtml(description)}">
 <meta property="og:url" content="${escapeHtml(canonical)}">
-<meta property="og:image" content="${escapeHtml(`${toolsUrl}${SOCIAL_CARD_FILE}`)}">
+<meta property="og:image" content="${escapeHtml(`${canonical}${SOCIAL_CARD_FILE}`)}">
+<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">
+<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">
+<meta property="og:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${escapeHtml(`${canonical}${SOCIAL_CARD_FILE}`)}">
+<meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
 <meta name="robots" content="index, follow">
 <style>${STYLE}</style>
 <script type="application/ld+json">
@@ -531,6 +585,12 @@ if (isMain) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
     console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_FILE)} (${html.length} bytes)`);
+    // Written on the same run as the page that points at it, so the two can
+    // never be committed out of step — the failure mode this replaces was an
+    // `og:image` naming a file that was never delivered anywhere.
+    const card = renderSocialCard();
+    await fs.writeFile(SOCIAL_CARD_OUTPUT_FILE, card);
+    console.log(`wrote ${path.relative(REPO_ROOT, SOCIAL_CARD_OUTPUT_FILE)} (${card.length} bytes)`);
   } else {
     process.stdout.write(html);
   }

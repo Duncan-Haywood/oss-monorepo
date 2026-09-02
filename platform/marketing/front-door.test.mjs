@@ -2,12 +2,17 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import test from 'node:test';
 
+import path from 'node:path';
+
 import { ABOUT_PATH, ALL_CATEGORIES, FEED_FILE, SOCIAL_CARD_FILE, categoryPagePath } from '../pages/build.mjs';
+import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, renderSocialCard } from '../pages/offline.mjs';
 import {
   FRONT_DOOR_URL,
   OUTPUT_FILE,
   PROMISE,
   SITE_NAME,
+  SOCIAL_CARD_ALT,
+  SOCIAL_CARD_OUTPUT_FILE,
   TOOLS_URL,
   buildFrontDoor,
   categoryAnchor,
@@ -17,6 +22,12 @@ import {
   publishedSlugs,
   renderFrontDoor,
 } from './front-door.mjs';
+
+/** The nginx config that serves the page and the card, beside them both. */
+const NGINX_CONF_FILE = path.join(path.dirname(OUTPUT_FILE), 'default.conf');
+
+/** Alt text carries an em dash and a full stop; neither is regex-safe. */
+const escapeForRegExp = (value) => value.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // Real slugs, so `categoryFor` classifies them the way it classifies the live
 // catalogue rather than falling to `more` for a made-up name.
@@ -260,6 +271,86 @@ test('the committed page fits a ConfigMap with room to spare', async () => {
   // door growing into the full catalogue listing, which measured 34 MB when a
   // prior session priced serving the whole site this way.
   assert.ok(bytes < 256 * 1024, `front door is ${bytes} bytes; keep it well under the 1 MiB ConfigMap ceiling`);
+});
+
+test('points og:image at a file this host serves, not at the dark tools host', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE });
+  const image = `${FRONT_DOOR_URL}${SOCIAL_CARD_FILE}`;
+  assert.match(html, new RegExp(`<meta property="og:image" content="${image}">`));
+  assert.match(html, new RegExp(`<meta name="twitter:image" content="${image}">`));
+  // The regression this exists to stop, stated as the thing it must never be
+  // again: `build.mjs` emits a `social-card.png` on the tools host too, and
+  // naming *that* one costs nothing on the page itself and breaks every link
+  // preview, because `portfolio-site.yaml` fails closed until the clone token
+  // is sealed. Assert the absence, not just the presence — a future edit that
+  // adds a second og:image would pass the two checks above.
+  assert.ok(
+    !html.includes(`${TOOLS_URL}${SOCIAL_CARD_FILE}`),
+    'og:image must not name the tools host, which serves nothing until portfolio-site-repo is sealed',
+  );
+});
+
+test('declares the share card dimensions and describes what it shows', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE });
+  // Slack and LinkedIn lay out the unfurl before the image finishes loading;
+  // without these two the large-image card reflows or falls back to a thumbnail.
+  assert.match(html, /<meta property="og:image:width" content="1200">/);
+  assert.match(html, /<meta property="og:image:height" content="630">/);
+  assert.match(html, new RegExp(`<meta property="og:image:alt" content="${escapeForRegExp(SOCIAL_CARD_ALT)}">`));
+  assert.match(html, new RegExp(`<meta name="twitter:image:alt" content="${escapeForRegExp(SOCIAL_CARD_ALT)}">`));
+});
+
+test('the committed share card matches what the encoder produces, at the declared size', async () => {
+  const committed = await fs.readFile(SOCIAL_CARD_OUTPUT_FILE);
+  assert.deepEqual(
+    committed,
+    renderSocialCard(),
+    'gitops/prod/front-door/social-card.png is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+  // A PNG signature, then the IHDR width/height as big-endian uint32s. Read
+  // from the bytes rather than trusted from the constants, because the
+  // og:image:width/height above are a promise to the scraper about *this file*
+  // and nothing else in the build would catch them drifting apart.
+  assert.deepEqual([...committed.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  assert.equal(committed.readUInt32BE(16), SOCIAL_CARD_WIDTH);
+  assert.equal(committed.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
+  // Well inside the ConfigMap ceiling even after base64 adds a third.
+  assert.ok(committed.length < 64 * 1024, `share card is ${committed.length} bytes`);
+});
+
+test('the alt text stays true of the card the write path actually draws', () => {
+  // `SOCIAL_CARD_ALT` says the card carries no text. That is a property of
+  // `renderSocialCard()`'s no-headline branch, and the branch is chosen by the
+  // absence of an argument — so a later change that starts passing a headline
+  // would leave the alt text describing a card that no longer exists. Compare
+  // the committed bytes against both branches: it must be the wordless one.
+  const wordless = renderSocialCard();
+  const headlined = renderSocialCard({ headline: SITE_NAME });
+  assert.ok(!wordless.equals(headlined), 'the two card layouts should differ, or this check proves nothing');
+  assert.match(SOCIAL_CARD_ALT, /carries no text/);
+});
+
+test('nginx answers the og:image path with the card rather than the page', async () => {
+  // The front door's catch-all `location /` returns `index.html` for every
+  // path, which is right for a mistyped URL and wrong for this one: before the
+  // exact-match block below existed, a scraper fetching `/social-card.png` got
+  // 200 + `text/html` + 16 KB of markup. That is worse than a 404, which at
+  // least tells the scraper to fall back to a text card.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(/location = \/social-card\.png \{[\s\S]*?\n {2}\}/);
+  assert.ok(block, 'front-door/default.conf must serve /social-card.png explicitly');
+  assert.match(block[0], /default_type image\/png;/);
+  assert.match(block[0], /try_files \/social-card\.png =404;/);
+  // Never noindex: this card is the apex's own, referenced from an indexable
+  // page. The tool mirror sets the header because those pages are copies.
+  assert.ok(!/X-Robots-Tag/.test(block[0]), 'the apex share card must stay indexable');
+  // An exact-match location outranks every prefix and regex location in nginx
+  // regardless of order, but keeping it above the catch-all keeps the file
+  // readable in the order requests resolve.
+  assert.ok(
+    conf.indexOf('location = /social-card.png') < conf.indexOf('location / {'),
+    'keep the card block above the catch-all',
+  );
 });
 
 test('the published slug list is the one check.mjs already pins', async () => {

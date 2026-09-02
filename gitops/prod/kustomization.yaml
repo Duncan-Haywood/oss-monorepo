@@ -43,6 +43,14 @@ configMapGenerator:
   - name: portfolio-front-html
     files:
       - index.html=front-door/index.html
+      # The page's own `og:image`. Not valid UTF-8, so kustomize puts it under
+      # `binaryData` rather than `data` and the kubelet writes the decoded
+      # bytes into the volume — the file nginx serves is the PNG, not its
+      # base64. It rides in this ConfigMap rather than a second one because
+      # two ConfigMaps cannot mount at one `mountPath`, and the card has to
+      # sit at the document root beside `index.html` for `/social-card.png`
+      # to resolve. ~6 KB base64'd against a 1 MiB object ceiling.
+      - social-card.png=front-door/social-card.png
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
