@@ -8,9 +8,20 @@ kind: Role
 metadata:
   name: governor
 rules:
+  # `_load_cluster_jobs` makes exactly one call against this resource: a GET
+  # on the collection endpoint with a labelSelector query string, which is
+  # the `list` verb, not `get` -- `get` authorizes GET on a *named* object
+  # (`/jobs/{name}`), and governor.py never builds that URL. `watch` was
+  # never used either: every tick is a one-shot poll, not a long-lived watch
+  # stream, and grep across this file confirms no caller ever asks for one.
+  # Both sat here ungranted-against by any code path, on the same
+  # ServiceAccount CLAUDE.md's own history flags as "the workload most worth
+  # narrowing" -- the one holding a live token with RBAC to create Jobs and
+  # patch a ConfigMap. `create` is the only verb besides `list` this rule's
+  # own code (`main()`'s POST to this same endpoint) actually calls.
   - apiGroups: ["batch"]
     resources: ["jobs"]
-    verbs: ["get", "list", "watch", "create"]
+    verbs: ["list", "create"]
   # The only ConfigMap the governor ever touches is governor-state. Normal
   # ticks GET then PUT/PATCH it by name -- `governor/state.yaml` seeds it in
   # git, mirroring `portfolio-site-usage`, precisely so that path is the
@@ -36,9 +47,13 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     verbs: ["create"]
+  # `_load_cluster_jobs` calls this resource once too, the same way: a bare
+  # GET on `/pods` with no name in the path, which is `list`. Nothing here
+  # ever fetches one pod by name, so `get` authorized a call this Role's own
+  # ServiceAccount never makes.
   - apiGroups: [""]
     resources: ["pods"]
-    verbs: ["get", "list"]
+    verbs: ["list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

@@ -321,6 +321,35 @@ def test_governor_role_reads_no_configmap_it_cannot_name() -> None:
         assert "*" not in rule.get("verbs", [])
 
 
+def test_governor_role_grants_no_verb_its_own_code_never_calls() -> None:
+    # Same class of gap as test_governor_role_reads_no_configmap_it_cannot_
+    # name, but for the batch/jobs and core/pods rules rather than
+    # configmaps: `_load_cluster_jobs` makes exactly one call against each --
+    # a bare GET on the collection endpoint (`/jobs?labelSelector=...` and
+    # `/pods`, both with no name in the path), which RBAC classifies as
+    # `list`, not `get`. `get` authorizes GET on a *named* object
+    # (`/jobs/{name}`, `/pods/{name}`) and governor.py never builds either
+    # URL. `watch` was never used at all -- every tick is a one-shot poll,
+    # not a long-lived watch stream. All three verbs used to be granted
+    # anyway, on the same ServiceAccount this repo's own history (CLAUDE.md)
+    # already singles out as "the workload most worth narrowing" -- the one
+    # holding a live token with RBAC to create Jobs and patch a ConfigMap.
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    jobs_rule = next(r for r in role["rules"] if r["resources"] == ["jobs"])
+    assert sorted(jobs_rule["verbs"]) == ["create", "list"]
+    pods_rule = next(r for r in role["rules"] if r["resources"] == ["pods"])
+    assert sorted(pods_rule["verbs"]) == ["list"]
+
+    # Neither endpoint is ever addressed with a trailing name segment -- a
+    # call like f"{...}/pods/{name}" or f"{...}/jobs/{name}" is the only
+    # thing that would justify `get` rather than `list` on either resource,
+    # and this repo has none.
+    source = (AGENTS / "governor" / "governor.py").read_text()
+    assert "/pods/" not in source
+    assert "/jobs/" not in source
+
+
 def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:
     # Pairs the manifest with the code: _save_state falls back to POSTing the
     # ConfigMap collection when _load_state found nothing to PUT. That call
