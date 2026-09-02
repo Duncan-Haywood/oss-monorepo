@@ -4621,3 +4621,34 @@ entries:
         answers 403 to CONNECT on all three hostnames, which is a network
         policy denial and not evidence about the site.
     mrr_end: null
+  - venture: furnace-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session on the standing "prioritize deployment/CI-CD and
+        marketing materials on Hetzner, and set up Codex CLI to spend its
+        quota" instruction. Found 0 open PRs and ~6 other concurrent sessions
+        active in the same window; re-verifying deploy-cicd-readiness or
+        marketing-distribution generically would have duplicated passes two
+        other sessions had completed minutes earlier (deploy-cicd clean pass,
+        #2846 comparison page). Confirmed rather than re-derived: the
+        Codex-on-Hetzner worker stack (`gitops/agents/`) and the site/CI
+        seals are exactly as `infra/OWNER_CHECKLIST.md` and
+        `decision_queue.py` rows 12-13 already state -- fully built and
+        tested, blocked solely on the owner sealing `codex-secrets` and
+        `portfolio-site-repo` via `kubeseal` from a laptop with the cluster's
+        kubeconfig, which no session can do remotely. Did not send a
+        duplicate owner notification since another concurrent session had
+        just done so.
+      - >-
+        Shipped and merged #2850: a `vs-servicetitan.html` comparison page
+        for `furnace-bid-calculator`, one of the tools still without a named-
+        incumbent comparison page. Checked for open PRs targeting the same
+        tool before and after starting (none). Verified: `node --test`
+        77/77 in the venture, `platform/pages/build.mjs` + `check.mjs`
+        clean (169 products, 560 pages, no dead links), all 7 GitHub Actions
+        checks green on real runners (`build`, `check`, `validate`,
+        `site-test`, `page-integrity`, `link-contrast`, `deploy`). Squash-
+        merged per this repo's no-review-gate rule for product PRs.
+    mrr_end: null
