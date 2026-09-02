@@ -1,5 +1,5 @@
 name: appointment-deposit-calculator
-description: Free browser calculator for small service businesses that sets an appointment deposit, shows cash secured and balance due, and drafts a clear deposit and cancellation policy.
+description: Free browser calculator for small service businesses that sets an appointment deposit, shows cash secured and balance due, compares a year of revenue with and without the deposit against their no-show rate to show whether it pays for itself and at what break-even booking rate, and drafts a clear deposit and cancellation policy.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -11,6 +11,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: in-repo
+  - claim: Owners deciding whether to require a deposit at all need a net-revenue comparison, not a cash-secured total — "secured cash" reads as new money when it is revenue moved earlier, so a tool that only reports it can talk someone into a policy that costs them bookings.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The break-even booking rate is the number owners act on, because it converts an unknowable judgement ("will a deposit put people off?") into one they can sanity-check against their own experience ("would I still keep 9 in 10 enquiries?").
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
