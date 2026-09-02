@@ -6456,3 +6456,28 @@ entries:
         than manufacturing a lower-value diff to hit a self-imposed count.
     mrr_end: null
     mrr_end: null
+  - venture: deck-staining-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a vs-Joist comparison/alternatives page, following the
+        established fact-discipline pattern (gutter-guard-bid-calculator's
+        vs-jobnimbus.html, sump-pump-bid-calculator's vs-servicetitan.html):
+        deck-staining-bid-calculator had zero vs-*.html pages. Joist
+        (estimating/invoicing/payment software for small contractors,
+        founded 2011, headquartered in Kelowna, BC, Canada, acquired by
+        ServiceTitan in 2021) was not yet used as a comparison target
+        anywhere in the repo. No dollar figure for Joist is invented since
+        its pricing page is not reachable from this session; the
+        no-warranty disclaimer and non-affiliation statement are both
+        present. Linked from index.html, added to sitemap.xml, and the
+        apex front-door tool mirror (`platform/marketing/front-door-tools.mjs
+        --write`) regenerated so the new page ships in the mirrored
+        venture directory. Verified locally: venture's full test suite
+        (76/76, node --test), `platform/pages/clauses.mjs
+        deck-staining-bid-calculator`, `portfolio/router/validate.py`
+        (182/182 VENTURE.yaml valid), `front-door-tools.test.mjs` (58/58),
+        and a full `platform/pages/build.mjs` + `check.mjs` pass against
+        the built dist (169 products, 590 pages, no dead links).
+    mrr_end: null

@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 152 files, 556238 bytes
 #   portfolio-front-tools-2: 154 files, 556431 bytes
 #   portfolio-front-tools-3: 113 files, 552835 bytes
-#   portfolio-front-tools-4: 121 files, 550122 bytes
+#   portfolio-front-tools-4: 122 files, 554168 bytes
 #   portfolio-front-tools-5: 114 files, 553993 bytes
 #   portfolio-front-tools-6: 119 files, 556163 bytes
 #   portfolio-front-tools-7: 119 files, 550536 bytes
@@ -682,6 +682,7 @@ configMapGenerator:
       - deck-staining-bid-calculator__index.html.gz=deck-staining-bid-calculator__index.html.gz
       - deck-staining-bid-calculator__proposal.mjs.gz=deck-staining-bid-calculator__proposal.mjs.gz
       - deck-staining-bid-calculator__usage.mjs.gz=deck-staining-bid-calculator__usage.mjs.gz
+      - deck-staining-bid-calculator__vs-joist.html.gz=deck-staining-bid-calculator__vs-joist.html.gz
       - dryer-vent-bid-calculator__LICENSE.gz=dryer-vent-bid-calculator__LICENSE.gz
       - dryer-vent-bid-calculator__calc.mjs.gz=dryer-vent-bid-calculator__calc.mjs.gz
       - dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz=dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz
