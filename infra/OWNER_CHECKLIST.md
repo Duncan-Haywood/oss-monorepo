@@ -251,6 +251,14 @@ public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
 
+**Note what this section is and is not about, since 2026-09-02.** The
+domain itself is no longer dark: `marisstella.dev` and `www` already serve
+a front door with no owner action (see the `marisstella.dev` bullet under
+"You decide" below), and it mirrors 14 of the 169 tools directly. Step 1
+below is what turns that front door into a working funnel for the other
+155 — every category card on it links into `tools.marisstella.dev`, which
+still serves nothing until the token is sealed.
+
 The build half is done and was rehearsed with the exact commands the pod
 runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
 platform/pages/build.mjs --out=… && node platform/pages/check.mjs
@@ -350,9 +358,20 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   on the cpx52, so it holds :80/:443 and no second listener could bind
   there; the apex resolved to the box and fell to the default backend,
   which is what issue #1925 reported. `gitops/prod/portfolio-apex.yaml`
-  now claims `marisstella.dev` and `www.marisstella.dev` and 301s both to
-  `tools.marisstella.dev`. No owner action — it goes live with the same
-  clone token the site itself waits on.
+  now claims `marisstella.dev` and `www.marisstella.dev`.
+
+  **Updated 2026-09-02 — it no longer redirects, and no longer waits on
+  the clone token.** Until then this bullet was accurate: the apex 301'd
+  both names to `tools.marisstella.dev`, which serves nothing until
+  `portfolio-site-repo` is sealed, so the redirect was live but led
+  nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
+  generated front-door page (positioning, one card per category, the
+  §5b clauses) plus a static mirror of 14 tools at `/tools/<slug>/`, both
+  held in kustomize ConfigMaps. Neither clones the repo at pod start, so
+  neither needs the token, a runner, or a Pages flip — a merge to `main`
+  is the deploy, same as everything else in this tree. No owner action;
+  it is already live. See `gitops/README.md`'s "The public product site"
+  section for the routing detail.
 - Whether `duncanhaywood.dev` should get an A record for a cluster
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise
