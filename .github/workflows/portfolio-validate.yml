@@ -61,10 +61,20 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
       # The apex tool mirror is generated from whole venture directories,
-      # so a venture's module or licence going stale in
+      # so a venture's module, script, stylesheet or licence going stale in
       # `gitops/prod/front-door-tools/` is exactly as invisible as a page
       # would be. The mirror-staleness step below is what reads them.
+      # `.css`/`.js` joined `.mjs` here on 2026-09-02: `front-door-tools.mjs`'s
+      # own SERVABLE_EXTENSIONS has mirrored all four since the mirror shipped
+      # (construction-evidence-log's app.js and style.css are in the mirror
+      # today), but neither extension had a path here or in
+      # hetzner-gitops-ci.yml, so an edit to either file triggered no workflow
+      # that runs the staleness check at all -- confirmed by editing
+      # ventures/construction-evidence-log/app.js locally and watching
+      # `front-door-tools.test.mjs` fail with the change unreverted.
       - "ventures/**/*.mjs"
+      - "ventures/**/*.css"
+      - "ventures/**/*.js"
       - "ventures/**/LICENSE"
       - "platform/marketing/**"
       - "platform/pages/**"
@@ -97,10 +107,13 @@ on:
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
       # The apex tool mirror is generated from whole venture directories,
-      # so a venture's module or licence going stale in
+      # so a venture's module, script, stylesheet or licence going stale in
       # `gitops/prod/front-door-tools/` is exactly as invisible as a page
-      # would be. The mirror-staleness step below is what reads them.
+      # would be. The mirror-staleness step below is what reads them. See the
+      # `push:` block above for why `.css`/`.js` are here too.
       - "ventures/**/*.mjs"
+      - "ventures/**/*.css"
+      - "ventures/**/*.js"
       - "ventures/**/LICENSE"
       - "platform/marketing/**"
       - "platform/pages/**"
