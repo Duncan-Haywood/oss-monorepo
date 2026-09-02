@@ -91,18 +91,46 @@ export const MIRROR_PREFIX = 'tools/';
 /**
  * The ceiling on the mirror's total bytes.
  *
- * A ConfigMap cannot exceed 1 MiB, and this one shares the pod with
- * `portfolio-front-html` (11 KB) rather than the whole budget. 640 KiB leaves
- * room for the YAML overhead kustomize adds around each key and for a few more
- * ventures before anyone has to think about it again. Exceeding it is a build
- * failure, not a warning: a ConfigMap that fails to apply takes the *front
- * door* down with it, which would trade a broken link for a broken page.
+ * Exceeding it is a build failure, not a warning: a ConfigMap that fails to
+ * apply takes the *front door* down with it, which would trade a broken link
+ * for a broken page.
  *
  * **1 MiB is not the first ceiling this hits, and that is why the generated
  * kustomization below asks Argo for server-side apply.** See
  * `CLIENT_SIDE_APPLY_CEILING`.
+ *
+ * **Raised from 640 KiB to 800 KiB on 2026-09-02, against a measurement.** The
+ * old figure came with the reasoning that the mirror "shares the pod with
+ * `portfolio-front-html` (11 KB) rather than the whole budget". That does not
+ * hold: those are two ConfigMaps, and etcd's 1 MiB cap is per object, so
+ * sharing a pod shares no budget at all. Nothing was wrong with erring low
+ * while the real constraint chain was unknown — #2746 is what established it —
+ * but the cost of erring this low had started to bite. The mirror stood at
+ * 643,465 bytes, 98% of the old ceiling, after one comparison page was added
+ * to one mirrored venture (#2745); the `marketing-distribution` queue item
+ * adds those continuously, and several of its targets are in `STARTER_SET`. So
+ * roughly two more marketing pages would have tripped a build failure whose
+ * message says to drop a venture from `STARTER_SET` — removing a working tool
+ * from the live front door to make room for a page about one. That is the
+ * wrong trade, and it would have been made by a session with no reason to
+ * question the number.
+ *
+ * What the new figure is derived from, measured on the built manifest rather
+ * than estimated: at 643,465 bytes of content the ConfigMap `kustomize build`
+ * produces serialises to 667,371 bytes — 3.7% overhead for the 95 keys and the
+ * JSON around them — which is 63.6% of the 1 MiB object cap. At 800 KiB of
+ * content the same object lands near 856 KB including a few KB of
+ * `managedFields` (server-side apply records one entry per key) and Argo's
+ * tracking label, leaving roughly 190 KB of margin under the cap.
+ *
+ * This number is still a proxy — it counts content, not the object that gets
+ * applied. The check on the real object is
+ * `test_generated_configmaps_stay_under_the_etcd_object_ceiling` in
+ * `gitops/tests/test_manifests.py`, which measures every generated ConfigMap
+ * in the tree after kustomize has built it. This one stays because it fails in
+ * the venture directory, seconds after a `--write`, rather than after a build.
  */
-export const BYTE_CEILING = 640 * 1024;
+export const BYTE_CEILING = 800 * 1024;
 
 /**
  * The size above which a resource cannot be delivered by a *client-side* apply.
