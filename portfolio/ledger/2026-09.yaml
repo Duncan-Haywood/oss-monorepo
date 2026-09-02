@@ -2740,3 +2740,53 @@ entries:
         returns `[]`). 5 PRs merged this run (4 directly, 1 concurrently).
         0 reopened -- all 5 non-merged closes in the audited window were
         legitimate.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same standing owner prompt (deploy/CI-CD priority,
+        marketing materials built and deployed on the Hetzner boxes, Codex
+        CLI spending its built-in plan quota there). Re-verified rather than
+        assumed and found no drift: #2735 (merged minutes before this
+        session started) had already confirmed `deploy-cicd-readiness`
+        (priority 7) and `marketing-distribution` (priority 6) are the top
+        two enabled queue items and that the Codex governor is code-complete
+        and correctly fail-closed pending the owner sealing `codex-secrets`.
+        Did not re-add anything to `decision_queue.py`.
+      - >-
+        0 open PRs at session start. Dispatched three parallel background
+        agents to triage 24 of the ~212 stale remote branches with commits
+        `main` doesn't have (`ahead-count`-ranked, top branches first) via
+        `supersede_check.py` rather than re-scanning the whole list a fifth
+        time. 23 of 24 confirmed genuinely superseded -- 15 via the
+        automated identical-merge/line-scan proof, 8 via manual line-by-line
+        reading behind an exit-1 or partial RENAME-SUSPECTED result, per
+        CLAUDE.md's "exit 1 does not license an unread close" rule. One real
+        gap survived scrutiny and shipped as #2740: `quote-margin-check-ci.yml`
+        was the one sibling venture missing a `ruff` lint job, and `ruff
+        check` was in fact currently failing on `main` (an unused f-string
+        placeholder, an E402 import-order issue) -- fixed and the job added,
+        33/33 Python tests and 120/120 node tests passing, all 10 checks
+        green on real runners before merging. A second agent converged on
+        the same gap from a sibling branch independently and correctly stood
+        down on seeing #2740 already merged rather than duplicating it.
+      - >-
+        Also ran the `deploy-cicd-readiness` and `marketing-distribution`
+        queue items by hand (both owner-blocked from running via the
+        governor). The former found and fixed #2746 (the apex tool mirror
+        ConfigMap exceeds the 262144-byte client-side-apply annotation cap
+        and would never have synced -- see the entry above for detail) plus
+        the `#2749` ledger record of it; the latter shipped #2750, a
+        vs-Acuity-Scheduling comparison page for `no-show-fee-calculator`
+        with zero competitor figures (every competitor domain returned
+        `EGRESS_BLOCKED` in-session, so per "leave the row out rather than
+        estimate it" none were used), 100/100 venture tests, all 7 checks
+        green. Both PRs were also independently re-verified and credited in
+        the concurrent session's entry above; no double-merge occurred.
+      - >-
+        4 PRs merged this run across the dispatched agents (#2740, #2746,
+        #2749, #2750). No new venture started -- branch-backlog triage plus
+        the two top-priority queued infra/marketing items were the
+        highest-value non-duplicative work available under an empty PR queue
+        and the owner-blocked Codex governor and site-repo seal.
