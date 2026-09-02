@@ -122,6 +122,18 @@ class BicIbanCountryTest(unittest.TestCase):
         findings = inspect_payment_bic({"payment": {"iban": "DE89", "bic": "COBADEFFXXX"}})
         self.assertEqual(findings, [])
 
+    def test_wrong_length_iban_still_gets_country_match(self):
+        # The IBAN is truncated (20 chars, DE needs 22) and gets its own
+        # INV-024 finding elsewhere, but its country prefix is still
+        # readable, and a mismatched BIC country is a second, independent
+        # typo the truncation does not excuse. This used to be silently
+        # skipped because looks_like_complete_iban read any wrong-length
+        # IBAN as "no IBAN here".
+        findings = inspect_payment_bic({
+            "payment": {"iban": "DE893704004405320130", "bic": "BARCGB22"},
+        })
+        self.assertEqual([item["rule"] for item in findings], ["INV-027"])
+
     def test_format_error_wins_over_country_match(self):
         findings = inspect_payment_bic({
             "payment": {"iban": "DE89370400440532013000", "bic": "US33"},
