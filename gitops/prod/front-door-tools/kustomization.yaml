@@ -127,3 +127,9 @@ configMapGenerator:
       - str-host-payout-calculator__share.mjs=str-host-payout-calculator__share.mjs
       - str-host-payout-calculator__usage.mjs=str-host-payout-calculator__usage.mjs
       - str-host-payout-calculator__vs-airbnb-earnings-estimator.html=str-host-payout-calculator__vs-airbnb-earnings-estimator.html
+      - translator-project-quote__LICENSE=translator-project-quote__LICENSE
+      - translator-project-quote__calc.mjs=translator-project-quote__calc.mjs
+      - translator-project-quote__how-to-quote-a-translation-project.html=translator-project-quote__how-to-quote-a-translation-project.html
+      - translator-project-quote__index.html=translator-project-quote__index.html
+      - translator-project-quote__share.mjs=translator-project-quote__share.mjs
+      - translator-project-quote__usage.mjs=translator-project-quote__usage.mjs

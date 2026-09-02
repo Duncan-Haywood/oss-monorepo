@@ -222,15 +222,23 @@ export const STARTER_SET = [
   { slug: 'owner-operator-cpm-calculator', why: 'logistics — a second logistics tool, weekly not per-delivery' },
   { slug: 'chargeback-evidence-packet', why: 'evidence — a third evidence tool, the seller-facing one' },
   { slug: 'str-host-payout-calculator', why: 'marketplace — the only self-contained tool in the category; ebay/amazon/shopify/etsy alone cost a fifth of the ceiling each' },
-  // translator-project-quote (services, a 4th services tool) traded out for the
-  // line above: adding both blew the ceiling (663,662 of 655,360 bytes), and
-  // marketplace had zero coverage while services already had three. This
-  // module's own priority — "the set spans as many of the front door's
-  // category cards as it can" — says breadth wins that trade. Re-add
-  // translator-project-quote once the ceiling has real headroom again (a
-  // venture drops out, or BYTE_CEILING is deliberately raised with a real
-  // `kustomize build` verifying the whole ConfigMap against etcd's 1 MiB cap —
-  // not verifiable in every sandbox this module runs in).
+  // Re-added 2026-09-02, on the condition #2744 set when it traded this entry
+  // out for the line above: "once the ceiling has real headroom again ... a
+  // real `kustomize build` verifying the whole ConfigMap against etcd's 1 MiB
+  // cap". That verification has now been done — the ConfigMap serialises to
+  // 667,371 bytes, 63.6% of the cap — and `BYTE_CEILING` was raised to 800 KiB
+  // against the measurement rather than against an estimate.
+  //
+  // Worth recording that the trade was also weaker than it looked, because the
+  // count behind it was wrong. #2744 read this entry as "a 4th services tool,
+  // services already had three", counting the appliance-repair, HVAC and
+  // cleaning entries above — whose `why` strings do say "services". But those
+  // strings are prose; `categoryFor` is what sorts a slug, and it puts all
+  // three under `trades`. So this was the *only* services tool, and dropping it
+  // moved the empty category card from marketplace to services rather than
+  // closing it. With both mirrored the set spans all seven cards for the first
+  // time, which is the breadth #2744 was reaching for.
+  { slug: 'translator-project-quote', why: 'services — the only tool in the category small and self-contained enough to mirror; without it that card has nothing behind it' },
 ];
 
 /**
