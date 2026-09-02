@@ -60,6 +60,39 @@ class QuoteMarginTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_quote(data)
 
+    def test_time_buffer_defaults_to_changing_nothing(self) -> None:
+        # The field was added to the CLI after the fact, so the thing most
+        # worth pinning is that a quote written before it existed still scores
+        # exactly as it did: buffered hours equal planned hours at the default.
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        result = calculate(quote)
+        self.assertEqual(quote.time_buffer_percent, 0)
+        self.assertEqual(result["buffered_hours"], result["total_hours"])
+        self.assertEqual(result["buffered_target_price"], result["target_price"])
+
+    def test_time_buffer_pads_hours_and_the_target_price(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75, "time_buffer_percent": 20})
+        result = calculate(quote)
+        self.assertEqual(result["total_hours"], 35)
+        self.assertEqual(result["buffered_hours"], 42)
+        # 42h at 75 plus the 480 of direct costs, which the buffer does not pad
+        # -- it buys time, not materials.
+        self.assertEqual(result["buffered_target_price"], 3630)
+        self.assertEqual(result["target_price"], 3105)
+
+    def test_rejects_a_negative_time_buffer(self) -> None:
+        with self.assertRaises(ValueError):
+            load_quote({"price": 1, "delivery_hours": 1, "target_hourly_rate": 1, "time_buffer_percent": -1})
+
+    def test_markdown_shows_the_buffer_only_when_one_is_asked_for(self) -> None:
+        base = {"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75}
+        without = markdown(load_quote(base), calculate(load_quote(base)))
+        self.assertNotIn("buffer", without)
+        buffered_quote = load_quote({**base, "time_buffer_percent": 20})
+        with_buffer = markdown(buffered_quote, calculate(buffered_quote))
+        self.assertIn("Planned hours plus a 20% buffer | 42.00", with_buffer)
+        self.assertIn("Price at target rate for buffered hours | units 3630.00", with_buffer)
+
     def test_rejects_boolean_as_number(self) -> None:
         with self.assertRaises(ValueError):
             load_quote({"price": True, "delivery_hours": 1, "target_hourly_rate": 1})
@@ -108,6 +141,11 @@ class QuoteMarginTests(unittest.TestCase):
                 "break_even_price,0.00,EUR",
                 "effective_hourly_rate,100.00,EUR/hour",
                 "target_price,1800.00,EUR",
+                # Present even at the default buffer of 0, so the column layout
+                # is the same for every quote in a batched folder.
+                "time_buffer_percent,0.00,percent",
+                "buffered_hours,24.00,hours",
+                "buffered_target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
                 "target_rate_hours,32.00,hours",
                 "hours_cushion,8.00,hours",

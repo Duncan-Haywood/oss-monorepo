@@ -51,6 +51,14 @@ jobs:
         working-directory: ventures/quote-margin-check/site
     steps:
       - uses: actions/checkout@v4
+      # parity.test.mjs shells out to the real CLI and requires byte-identical
+      # JSON, so this job needs both runtimes -- pinned to the same version
+      # cli-test uses, so the two jobs can never disagree about what "the CLI"
+      # is. Without this the parity test would silently run against whatever
+      # python3 the runner image happens to ship.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
