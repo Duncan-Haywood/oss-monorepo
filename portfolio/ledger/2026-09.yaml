@@ -2564,3 +2564,62 @@ entries:
         expansion was the highest-value work actually available under the
         empty PR queue and the owner-blocked state of both the full
         catalogue deploy and the Codex governor.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2746, working the `deploy-cicd-readiness` queue item by hand
+        (its worker is owner-blocked on `codex-secrets`): the apex tool mirror
+        `portfolio-front-tools`, added by #2739 and grown by #2741/#2744,
+        could not have been applied to the cluster at all. Argo CD applies
+        client-side by default (v3.5.1, per `bootstrap/install-argocd.sh`),
+        and a client-side `kubectl apply` stores a second copy of the whole
+        object in the `kubectl.kubernetes.io/last-applied-configuration`
+        annotation -- which the API server caps at 262144 bytes per object
+        (`TotalAnnotationSizeLimitB`). The generated ConfigMap serialises to
+        655,213 bytes, so every sync would have failed with
+        `metadata.annotations: Too long`, the hashed name
+        `portfolio-front.yaml` mounts would never have been created, the new
+        pods would have sat in ContainerCreating behind `maxUnavailable: 0`,
+        and `prod` would have sat Degraded while the old toolless front door
+        kept serving. Fixed by declaring
+        `argocd.argoproj.io/sync-options: ServerSideApply=true` on that one
+        generator (`options.annotations` in the machine-written
+        kustomization, so the change is in
+        `platform/marketing/front-door-tools.mjs`'s `renderKustomization`).
+      - >-
+        The learning worth carrying: **1 MiB is not the first size ceiling a
+        ConfigMap in this tree hits.** Every size comment written so far --
+        `BYTE_CEILING` (640 KiB), `portfolio-front.yaml`'s "It is 11 KB, so
+        the 1 MiB ConfigMap ceiling...", `platform/marketing/README.md`, the
+        mirror's own `stays under the ConfigMap ceiling` test -- reasons only
+        about etcd's 1 MiB. The 256 KiB annotation cap binds first under
+        Argo's default apply mode, and the mirror had been over it since
+        #2739 with nothing in the tree able to say so.
+        `test_a_configmap_too_large_for_client_side_apply_asks_for_server_side`
+        in `gitops/tests/test_manifests.py` now serialises *every* ConfigMap
+        any kustomization under `gitops/` generates and requires the sync
+        option above the cap, so the next generator that crosses it is caught
+        rather than this one only.
+      - >-
+        Verified before merging: `python3 -m pytest gitops/tests -q` (248, up
+        from 246), `node --test "platform/marketing/*.test.mjs"` (30/30),
+        `kustomize build` on all six overlays and `kubeconform -strict` over
+        the output (75 resources, 0 invalid) using the exact kustomize v5.6.0
+        / kubeconform v0.6.7 pins in `hetzner-gitops-ci.yml`, both downloaded
+        by hand since neither is preinstalled in a web session. Confirmed the
+        annotation does not disturb kustomize's content hash (same
+        `portfolio-front-tools-<hash>` with and without it), so this is a
+        delivery-mode change that does not roll the front-door pods. Both new
+        tests were checked to *fail* with the annotation stripped, not merely
+        to pass with it. All 8 GitHub Actions checks green on real runners
+        (`ci_starvation.py` exit 0 on runs 33599287098 and 33599287119).
+      - >-
+        Nothing here needed the owner, so no `decision_queue.py` row was
+        added; `portfolio-site-repo` remains the one seal that blocks the
+        169-tool catalogue and is already queued. Noted but deliberately not
+        fixed, to keep the PR to one defect: the `LICENSE` `location` block in
+        `gitops/prod/front-door/default.conf` is the only one of the mirror's
+        five that omits `X-Frame-Options: DENY`, which
+        `front-door-tools.mjs`'s header calls unconditional.
