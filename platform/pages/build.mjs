@@ -497,7 +497,7 @@ const CATEGORY_PAGE_COPY = {
   logistics: {
     title: 'Free freight, 3PL and cloud cost calculators',
     description:
-      'Free tools to normalise a 3PL quote, audit an LTL freight bill, price owner-operator miles, cost a cut list and size a cloud egress transfer before you sign.',
+      'Free tools to normalise a 3PL quote, audit a freight accessorial bill, class an LTL shipment, price owner-operator miles and size a cloud egress transfer.',
     intro:
       'Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.',
     audience: 'logistics and infrastructure buyers',
@@ -505,7 +505,7 @@ const CATEGORY_PAGE_COPY = {
   evidence: {
     title: 'Free compliance check and evidence record tools',
     description:
-      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, DNS evidence, accessibility, chargeback packets.',
+      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, permission drift, accessibility, chargeback packets.',
     intro:
       'The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.',
     audience: 'small teams preparing compliance evidence',
@@ -529,7 +529,7 @@ const CATEGORY_PAGE_COPY = {
   more: {
     title: 'More free small-business calculators',
     description:
-      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, logistics, compliance and back-office sections.',
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance and back-office sections.',
     intro:
       'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
     audience: 'small businesses',
