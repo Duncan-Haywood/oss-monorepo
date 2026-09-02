@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 150 files, 554280 bytes
 #   portfolio-front-tools-1: 152 files, 556254 bytes
 #   portfolio-front-tools-2: 154 files, 556455 bytes
-#   portfolio-front-tools-3: 114 files, 554797 bytes
-#   portfolio-front-tools-4: 119 files, 548054 bytes
+#   portfolio-front-tools-3: 112 files, 551619 bytes
+#   portfolio-front-tools-4: 122 files, 555519 bytes
 #   portfolio-front-tools-5: 116 files, 553286 bytes
 #   portfolio-front-tools-6: 120 files, 556896 bytes
 #   portfolio-front-tools-7: 113 files, 552373 bytes
@@ -593,6 +593,7 @@ configMapGenerator:
       - boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz=boiler-replacement-bid-calculator__should-i-patch-this-boiler-for-one-more-winter.html.gz
       - boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz=boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz
       - boiler-replacement-bid-calculator__usage.mjs.gz=boiler-replacement-bid-calculator__usage.mjs.gz
+      - boiler-replacement-bid-calculator__vs-servicetitan.html.gz=boiler-replacement-bid-calculator__vs-servicetitan.html.gz
       - cabinet-refinishing-bid-calculator__LICENSE.gz=cabinet-refinishing-bid-calculator__LICENSE.gz
       - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz
@@ -647,14 +648,14 @@ configMapGenerator:
       - crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz=crown-molding-bid-calculator__how-much-to-charge-to-install-crown-molding.html.gz
       - crown-molding-bid-calculator__index.html.gz=crown-molding-bid-calculator__index.html.gz
       - crown-molding-bid-calculator__proposal.mjs.gz=crown-molding-bid-calculator__proposal.mjs.gz
-      - crown-molding-bid-calculator__share.mjs.gz=crown-molding-bid-calculator__share.mjs.gz
-      - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
-      - cut-list-optimizer__LICENSE.gz=cut-list-optimizer__LICENSE.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - crown-molding-bid-calculator__share.mjs.gz=crown-molding-bid-calculator__share.mjs.gz
+      - crown-molding-bid-calculator__usage.mjs.gz=crown-molding-bid-calculator__usage.mjs.gz
+      - cut-list-optimizer__LICENSE.gz=cut-list-optimizer__LICENSE.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
       - cut-list-optimizer__draft.mjs.gz=cut-list-optimizer__draft.mjs.gz
