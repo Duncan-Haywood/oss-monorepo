@@ -473,6 +473,38 @@ test("zero restockable never recovers inventory so customer-keeps wins", () => {
   assert.match(returnDispositionSummary({ ...dispositionPage, restockableRate: 0 }), /At 0% restockable/);
 });
 
+test("a genuine three-way tie is reported as a tie, not mislabeled as destroy", () => {
+  // Zeroing unitCost, destroyFee, restockFee and storageUntilResale collapses
+  // all three paths' net cost to the same constant (returnLabelCost +
+  // returnFee) at every restockable rate and unit cost, so the sweep never
+  // resolves to a single cheapest path. returnDispositionFlip's "holds"
+  // result then carries path "tie", which the flip-line ternary used to have
+  // no branch for -- it fell through to the literal string "Destroy",
+  // falsely claiming destroy was cheapest when nothing was.
+  const tiedInput = {
+    returnLabelCost: 8,
+    returnFee: 3.5,
+    restockFee: 0,
+    destroyFee: 0,
+    storageUntilResale: 0,
+    restockableRate: 0,
+    unitCost: 0,
+    keepOffer: 11.5,
+  };
+  const comparison = compareReturnDisposition(tiedInput);
+  assert.equal(comparison.cheapestPath, "tie");
+  const restockableFlip = returnDispositionFlip(returnDispositionRestockableSweep(tiedInput), "restockableRate");
+  const unitCostFlip = returnDispositionFlip(returnDispositionUnitCostSweep(tiedInput), "unitCost");
+  assert.equal(restockableFlip.kind, "holds");
+  assert.equal(restockableFlip.path, "tie");
+  assert.equal(unitCostFlip.kind, "holds");
+  assert.equal(unitCostFlip.path, "tie");
+  const text = returnDispositionSummary(tiedInput);
+  assert.match(text, /A tie stays cheapest through 100% restockable/);
+  assert.match(text, /A tie stays cheapest through \$60\.00 unit cost/);
+  assert.doesNotMatch(text, /Destroy stays cheapest/);
+});
+
 test("a keep-the-item thank-you still beats bringing a cheap SKU back", () => {
   const cheapSku = compareReturnDisposition({ ...dispositionPage, unitCost: 12, keepOffer: 5 });
   assert.equal(cheapSku.keep.perReturn, 17);
