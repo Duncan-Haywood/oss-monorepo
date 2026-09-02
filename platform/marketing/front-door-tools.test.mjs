@@ -48,6 +48,8 @@ import {
   canonicalUrl,
   injectMirrorTags,
   injectMirrorNav,
+  blankScriptBodies,
+  dynamicLinks,
   NAV_CLASS,
   APEX_ROOT_PATHS,
   FAVICON_FILE,
@@ -642,6 +644,89 @@ test('a root-absolute link is checked against the apex root, not the mirror', ()
   ]);
   assert.equal(dead.length, 1);
   assert.match(dead[0], /apex document root serves only/);
+});
+
+test('an href built from a template string in a script is not a dead link', () => {
+  // The defect: `validateLinks` ran one regex over the whole document, so a
+  // page building hrefs in JS was judged on its unexpanded source. That is
+  // what held `marketplace-fee-compare` — a finished, linked-to comparison
+  // page — off the apex, for a link that resolves fine in a browser.
+  const page = {
+    slug: 'a',
+    file: 'index.html',
+    contents: '<script>el.innerHTML = `<a href="../${tool}/">go</a>`;</script>',
+  };
+  assert.deepEqual(validateLinks([page]), []);
+  // Not judged is not the same as unseen: it is still reported, advisorily.
+  assert.deepEqual(dynamicLinks([page]), ['a/index.html → "../${tool}/"']);
+});
+
+test('a fully literal href inside a script is still checked', () => {
+  // The detection the previous revision was protecting when it left the whole
+  // document in scope. Narrowing to skip script bodies wholesale would lose
+  // it; resolving the literal ones keeps it.
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<script>x = `<a href="../gone/">g</a>`;</script>' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /no gone\/index\.html in the mirror/);
+
+  // And the same literal resolves when the target is present.
+  assert.deepEqual(
+    validateLinks([
+      { slug: 'a', file: 'index.html', contents: '<script>x = `<a href="../b/">g</a>`;</script>' },
+      { slug: 'b', file: 'index.html', contents: '<p>b</p>' },
+    ]),
+    [],
+  );
+});
+
+test('a dead link in ordinary markup is still caught', () => {
+  // The regression guard that matters most: blanking script bodies must not
+  // blank anything else.
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<a href="missing.html">x</a>' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /no a\/missing\.html in the mirror/);
+});
+
+test('blanking a script body preserves the rest of the document and its length', () => {
+  const html = '<a href="keep.html">k</a><script>`<a href="../drop/">d</a>`</script><b>after</b>';
+  const blanked = blankScriptBodies(html);
+  assert.equal(blanked.length, html.length, 'byte offsets must not shift');
+  assert.ok(blanked.includes('href="keep.html"'));
+  assert.ok(!blanked.includes('../drop/'));
+  assert.ok(blanked.includes('<b>after</b>'), 'markup after the script survives');
+  assert.ok(blanked.includes('<script>') && blanked.includes('</script>'), 'tags survive');
+});
+
+test('a style body is blanked too', () => {
+  // `url(...)` in CSS is not an href/src attribute, but a stylesheet quoting
+  // one in a string would read as markup to the attribute scan.
+  const blanked = blankScriptBodies('<style>.a{background:url("../gone/x.png")}</style>');
+  assert.ok(!blanked.includes('../gone/x.png'));
+});
+
+test('marketplace-fee-compare is served by the mirror', async () => {
+  // The tool the fix above buys. Its seven `deepTool` links are what made
+  // admitting it correct rather than merely quieter, so assert those resolve
+  // in the mirror too — that is the property that would make serving the page
+  // a disservice if it broke.
+  const { files } = await buildMirror();
+  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
+  assert.ok(present.has('marketplace-fee-compare/index.html'));
+  for (const slug of [
+    'ebay-fee-calculator',
+    'etsy-profit-calculator',
+    'amazon-fba-calculator',
+    'walmart-marketplace-calculator',
+    'tiktok-shop-fee-calculator',
+    'shopify-fee-calculator',
+    'faire-wholesale-calculator',
+  ]) {
+    assert.ok(present.has(`${slug}/index.html`), `${slug} is linked at runtime but not mirrored`);
+  }
 });
 
 test('every mirrored page carries a way back to the front door', async () => {
