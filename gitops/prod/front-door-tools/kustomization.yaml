@@ -42,6 +42,7 @@ configMapGenerator:
       - subcontractor-cashflow-planner__how-much-cash-do-i-need-for-net-30-payment-terms.html=subcontractor-cashflow-planner__how-much-cash-do-i-need-for-net-30-payment-terms.html
       - subcontractor-cashflow-planner__index.html=subcontractor-cashflow-planner__index.html
       - subcontractor-cashflow-planner__usage.mjs=subcontractor-cashflow-planner__usage.mjs
+      - subcontractor-cashflow-planner__vs-billd.html=subcontractor-cashflow-planner__vs-billd.html
       - contractor-bid-readiness__LICENSE=contractor-bid-readiness__LICENSE
       - contractor-bid-readiness__does-a-bid-due-today-count-as-a-day-remaining.html=contractor-bid-readiness__does-a-bid-due-today-count-as-a-day-remaining.html
       - contractor-bid-readiness__index.html=contractor-bid-readiness__index.html
