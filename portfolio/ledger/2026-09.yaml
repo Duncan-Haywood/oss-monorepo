@@ -1602,3 +1602,47 @@ entries:
         `gitops/`, so `pytest gitops/tests` was not required and not run.
         No new third-party script, font, CDN, or network call; the
         `/about/` no-third-party-script promise is unchanged.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2683, closing the gap #2667's ledger entry named
+        explicitly: "no check in this repo catches an orphaned page."
+        `check.mjs` proved every link's *target* exists (dead-link
+        scanning) and that every page appears in a sitemap, but nothing
+        checked the reverse -- a comparison or SEO subpage can ship
+        correct, dead-link-free, and sitemap-listed while no `href`
+        anywhere on the site points at it, reachable only by a crawler
+        reading the sitemap directly. Added that check to `checkSite()`,
+        reusing the same href/src resolution the dead-link scan already
+        builds: every internal target that resolves is recorded, and
+        every non-`index.html` page inside a product directory must
+        appear in that set. Scoped to product subpages only --
+        `index.html`, `/c/`, and `/about/` already have their own
+        two-way hub-reachability checks.
+      - >-
+        Running the new check against a fresh build found a second live
+        instance of the same defect class immediately:
+        `marketplace-fee-compare/which-marketplace-has-the-lowest-fees.html`,
+        listed only in its own `sitemap.xml` and linked from nowhere
+        else on the site. Fixed forward with a "read the worked example"
+        link from the calculator's `index.html`, the same convention
+        #2667 used for the npm one. Read as a signal, not a one-off: this
+        is the second comparison/SEO page found orphaned by hand-checking
+        rather than by CI in as many weeks, which is what the new check
+        exists to stop.
+      - >-
+        Verified: `platform/pages` `node --test` 845/845 (842 prior + 3
+        new orphan-page tests); `marketplace-fee-compare` `node --test`
+        64/64; `build.mjs`+`check.mjs` clean (169 products, 524 pages, no
+        problems -- the orphan gone); independent Python builder
+        (`build_pages_site.py`+`check_pages_links.py`) 512 pages, no dead
+        links; browser checks (`browser_checks.py --checks
+        sweep,sideways`, real Playwright) 175/175 tools answered, 521
+        pages clean at 360px. Real CI on the PR went green on 12/13 check
+        runs (`deploy` skipped as expected off a non-`main` push);
+        `ci_starvation.py` confirmed the two long-running jobs
+        (`validate` 164s, `build` 167s) both landed on real runners before
+        merge. Did not touch `gitops/`, so `pytest gitops/tests` was not
+        run.
