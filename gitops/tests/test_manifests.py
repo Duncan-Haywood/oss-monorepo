@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import re
 from pathlib import Path
@@ -689,6 +690,45 @@ def _portfolio_front() -> dict[str, dict]:
     return {doc["kind"]: doc for doc in docs if doc}
 
 
+def test_front_door_ships_the_share_card_it_advertises() -> None:
+    # `front-door/index.html` names `https://marisstella.dev/social-card.png`
+    # in its `og:image`. That URL only resolves if three things stay true at
+    # once, and each lives in a different file, so nothing else in either
+    # suite fails when one of them is dropped:
+    #
+    #   1. the PNG is committed beside the page,
+    #   2. `kustomization.yaml` reads it into the ConfigMap the Deployment
+    #      mounts at the document root, and
+    #   3. `default.conf` answers that exact path with it.
+    #
+    # Miss (2) and the catch-all `location /` hands a scraper 16 KB of HTML
+    # with a 200 — reproduced against nginx 1.24 on 2026-09-02, and worse than
+    # a 404, because a 404 makes Slack fall back to a text card while a
+    # successful fetch of a non-image leaves the unfurl broken silently.
+    front_door = ROOT / "prod" / "front-door"
+    card = front_door / "social-card.png"
+    assert card.is_file(), "regenerate with: node platform/marketing/front-door.mjs --write"
+    assert card.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+
+    page = (front_door / "index.html").read_text()
+    assert '<meta property="og:image" content="https://marisstella.dev/social-card.png">' in page
+
+    generators = {
+        entry["name"]: entry
+        for entry in yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
+            "configMapGenerator"
+        ]
+    }
+    # The volume mounted at the document root, so the card lands beside
+    # `index.html` — a second ConfigMap could not, two of them cannot share one
+    # `mountPath`.
+    assert "social-card.png=front-door/social-card.png" in generators["portfolio-front-html"]["files"]
+
+    conf = (front_door / "default.conf").read_text()
+    assert "location = /social-card.png {" in conf
+    assert conf.index("location = /social-card.png") < conf.index("location / {")
+
+
 def test_portfolio_front_runs_unprivileged_and_read_only() -> None:
     # Same posture as every other workload in this tree. It is reachable from
     # the public internet on the portfolio's own domain, which makes it the
@@ -834,12 +874,22 @@ ETCD_OBJECT_CEILING = 1024 * 1024
 ETCD_OBJECT_BUDGET = int(ETCD_OBJECT_CEILING * 0.90)
 
 
-def _generated_configmaps() -> list[tuple[str, Path, dict[str, str], dict[str, str]]]:
-    """Every ConfigMap a kustomization in this tree generates, with its data.
+def _generated_configmaps() -> list[tuple[str, Path, bytes, dict[str, str]]]:
+    """Every ConfigMap a kustomization in this tree generates, as applied bytes.
 
-    Returns (name, kustomization path, data, annotations) so a caller can ask
-    about the size of the object that would actually be applied rather than
-    about the file list that produces it.
+    Returns (name, kustomization path, serialised object, annotations) so a
+    caller can ask about the size of the object that would actually be applied
+    rather than about the file list that produces it. All three ceiling checks
+    below want exactly that one number, so it is built here once.
+
+    A generator input that is not valid UTF-8 goes under `binaryData` as
+    base64, which is what kustomize does with it and the only faithful way to
+    size it: the front door's `social-card.png` is 5,984 bytes on disk and
+    7,980 in the object, and a check that measured the file would understate
+    every binary key by a third. Reading it as text is what the three ceiling
+    tests did until 2026-09-02, when the card was added and they stopped being
+    able to read the tree at all (`UnicodeDecodeError`) rather than quietly
+    under-measuring — the good direction for that bug to fail in.
     """
     found = []
     for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
@@ -847,11 +897,31 @@ def _generated_configmaps() -> list[tuple[str, Path, dict[str, str], dict[str, s
         shared = parsed.get("generatorOptions", {})
         for entry in parsed.get("configMapGenerator", []):
             options = {**shared, **entry.get("options", {})}
-            data = {}
+            data: dict[str, str] = {}
+            binary_data: dict[str, str] = {}
             for spec in entry.get("files", []):
                 key, _, rel = spec.partition("=")
-                data[key] = (kustomization.parent / (rel or key)).read_text()
-            found.append((entry["name"], kustomization, data, options.get("annotations", {})))
+                raw = (kustomization.parent / (rel or key)).read_bytes()
+                try:
+                    data[key] = raw.decode()
+                except UnicodeDecodeError:
+                    binary_data[key] = base64.b64encode(raw).decode("ascii")
+            body: dict[str, object] = {
+                "apiVersion": "v1",
+                "kind": "ConfigMap",
+                "metadata": {"name": entry["name"], "namespace": "prod"},
+                "data": data,
+            }
+            if binary_data:
+                body["binaryData"] = binary_data
+            found.append(
+                (
+                    entry["name"],
+                    kustomization,
+                    json.dumps(body).encode(),
+                    options.get("annotations", {}),
+                )
+            )
     return found
 
 
@@ -885,16 +955,8 @@ def test_a_configmap_too_large_for_client_side_apply_asks_for_server_side() -> N
     # tracking label and annotation on top, so this is a floor: a generator that
     # passes here by a few hundred bytes is not actually safe, which is the
     # direction an estimate should err in.
-    for name, kustomization, data, annotations in _generated_configmaps():
-        body = json.dumps(
-            {
-                "apiVersion": "v1",
-                "kind": "ConfigMap",
-                "metadata": {"name": name, "namespace": "prod"},
-                "data": data,
-            }
-        )
-        size = len(body.encode())
+    for name, kustomization, body, annotations in _generated_configmaps():
+        size = len(body)
         if size <= CLIENT_SIDE_APPLY_CEILING:
             continue
         assert annotations.get("argocd.argoproj.io/sync-options") == "ServerSideApply=true", (
@@ -914,23 +976,15 @@ def test_the_apex_tool_mirror_is_the_case_that_ceiling_is_about() -> None:
     # look like decoration to the next reader rather than the thing that made
     # #2739 deliverable at all.
     mirror = {
-        name: (data, annotations)
-        for name, _, data, annotations in _generated_configmaps()
+        name: (body, annotations)
+        for name, _, body, annotations in _generated_configmaps()
         if name == "portfolio-front-tools"
     }
-    data, annotations = mirror["portfolio-front-tools"]
-    body = json.dumps(
-        {
-            "apiVersion": "v1",
-            "kind": "ConfigMap",
-            "metadata": {"name": "portfolio-front-tools", "namespace": "prod"},
-            "data": data,
-        }
-    )
-    assert len(body.encode()) > CLIENT_SIDE_APPLY_CEILING
+    body, annotations = mirror["portfolio-front-tools"]
+    assert len(body) > CLIENT_SIDE_APPLY_CEILING
     assert annotations["argocd.argoproj.io/sync-options"] == "ServerSideApply=true"
     # And still inside the ceiling that comment tree already knew about.
-    assert len(body.encode()) < ETCD_OBJECT_CEILING
+    assert len(body) < ETCD_OBJECT_CEILING
 
 
 def test_generated_configmaps_stay_under_the_etcd_object_ceiling() -> None:
@@ -949,16 +1003,8 @@ def test_generated_configmaps_stay_under_the_etcd_object_ceiling() -> None:
     # hashed ConfigMap name `portfolio-front.yaml` mounts is never created, the
     # new pods sit in ContainerCreating, `maxUnavailable: 0` keeps the previous
     # front door serving, and `prod` stays Degraded.
-    for name, kustomization, data, _ in _generated_configmaps():
-        body = json.dumps(
-            {
-                "apiVersion": "v1",
-                "kind": "ConfigMap",
-                "metadata": {"name": name, "namespace": "prod"},
-                "data": data,
-            }
-        )
-        size = len(body.encode())
+    for name, kustomization, body, _ in _generated_configmaps():
+        size = len(body)
         assert size <= ETCD_OBJECT_BUDGET, (
             f"{name} (generated by {kustomization.relative_to(ROOT)}) serialises to {size} "
             f"bytes, over the {ETCD_OBJECT_BUDGET}-byte budget this suite allows under etcd's "
