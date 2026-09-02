@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 110 files, 556238 bytes
 #   portfolio-front-tools-7: 108 files, 553786 bytes
 #   portfolio-front-tools-8: 110 files, 550597 bytes
-#   portfolio-front-tools-9: 87 files, 418245 bytes
+#   portfolio-front-tools-9: 88 files, 422276 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1282,6 +1282,7 @@ configMapGenerator:
       - water-heater-bid-calculator__proposal.mjs.gz=water-heater-bid-calculator__proposal.mjs.gz
       - water-heater-bid-calculator__share.mjs.gz=water-heater-bid-calculator__share.mjs.gz
       - water-heater-bid-calculator__usage.mjs.gz=water-heater-bid-calculator__usage.mjs.gz
+      - water-heater-bid-calculator__vs-servicetitan.html.gz=water-heater-bid-calculator__vs-servicetitan.html.gz
       - water-softener-bid-calculator__LICENSE.gz=water-softener-bid-calculator__LICENSE.gz
       - water-softener-bid-calculator__calc.mjs.gz=water-softener-bid-calculator__calc.mjs.gz
       - water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz=water-softener-bid-calculator__how-much-to-charge-to-install-a-water-softener.html.gz
