@@ -1706,6 +1706,45 @@ entries:
         here), which is the population `decision-queue.py`'s
         `branch-cleanup-automation` item (#829) exists to stop re-deriving
         by hand each time.
+  - venture: lawn-care-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2691: a shareable quote link. This calculator builds its
+        per-service rows in script, which put it outside
+        `platform/pages/link.mjs`'s build-time auto-injected bid link (it
+        deliberately skips any page whose fields are not present in the
+        static form) -- so it had no way to hand a priced job to another
+        person as a link, unlike the ~58 other itemised trades that carry
+        a hand-written `share.mjs` for the same reason.
+      - >-
+        Added `share.mjs` (allowlisted JSON payload: every cost field
+        plus the service-row list, decoded back through the existing
+        `addServiceRow`/`readServices` path so a preset-matched or custom
+        row prices identically on both ends) and vendored
+        `proposal-terms.mjs` from `platform/proposal/terms.mjs`, which
+        `term-ids.test.mjs` requires of any venture carrying both the
+        proposal panel and its own share encoder -- without it the
+        deposit split, hold period, exclusions, payment terms and notes
+        would silently reopen at the page's defaults on the recipient's
+        side, the exact defect `platform/proposal/README.md` records
+        costing a sender's customer $1,094 on a different calculator
+        while the headline price matched to the cent.
+      - >-
+        Verified: `node --test` in the venture 85/85 (57 prior + 7 new
+        `share.test.mjs` + 21 new `proposal-terms.test.mjs`); repo-wide
+        `platform/proposal/sync.test.mjs`, `term-ids.test.mjs` and
+        `discoverability.test.mjs` all pass with this venture included.
+        End-to-end with `platform/pages/roundtrip.mjs` driving real
+        Chromium against a full `build.mjs` output: `ok
+        lawn-care-bid-calculator: 37 fields, headline $5,690.88` -- every
+        field and the headline price round-trip exactly through a copied
+        link opened cold in a fresh browser context. Real CI on the PR
+        went green on all 8 checks (`build` x2, `check`, `link-contrast`,
+        `page-integrity`, `site-test`, `validate`, `deploy` skipped as
+        expected off a non-`main` push); `ci_starvation.py` confirmed
+        `validate` (157s) landed on a real runner before merge.
   - venture: cut-list-optimizer
     agent_spend_usd: null
     human_hours: 0
