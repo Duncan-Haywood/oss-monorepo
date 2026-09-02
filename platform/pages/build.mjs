@@ -320,7 +320,13 @@ const CATEGORY_RULES = [
     // restoration & insulation" and an HVAC contractor reading "HVAC, plumbing
     // & electrical" never saw them. The tool existed, its audience was browsing
     // the right section, and it was not in it.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair)/.test(slug),
+    // `cut-list` is the one tool here that prices no job at all: it plans how a
+    // parts list falls onto sheet stock and boards. It is in this section
+    // anyway, because the section is defined by who is reading it, and the
+    // people who cut plywood for a living are the ones bidding the cabinet,
+    // countertop and molding work below. See the note in `logistics`, which is
+    // where it used to land.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list)/.test(slug),
   },
   {
     id: 'services',
@@ -343,7 +349,19 @@ const CATEGORY_RULES = [
     blurb: 'Normalise a quote, audit a bill, or size a transfer window before you sign for it.',
     // `ltl-`, `owner-operator-` and `medical-courier-` are freight arithmetic that
     // was landing in the catch-all only because the slug did not start with "3pl".
-    test: (slug) => /^(3pl|freight|cut-list|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
+    //
+    // `cut-list` used to be in this list and is not freight. It is a plywood and
+    // board cutting planner for "woodworkers, sign shops, and makers" — its own
+    // words — and the only thing it shares with this section is the word
+    // "optimizer". The cost of the mistake was not cosmetic: the four related
+    // tools at the foot of every cut-list page were a 3PL quote normaliser, a
+    // cloud egress calculator, a medical-courier route margin and an
+    // owner-operator CPM, none of which a cabinet maker has any use for, and the
+    // tool was listed on `/c/logistics/` where a freight buyer met it instead.
+    // It now sits in `trades` / `trades-interior`, beside the countertop,
+    // cabinet-refinishing, crown-molding and flooring bids sold by the same
+    // people who cut sheet goods.
+    test: (slug) => /^(3pl|freight|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
   },
   {
     id: 'evidence',
@@ -583,7 +601,11 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-interior',
       title: 'Interior finishes & remodels',
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert)/.test(slug),
+      // `cut-list` joins this group rather than any other: the parts it nests
+      // are cabinet doors, countertop substrate and molding stock, so the
+      // related-tool offer at the foot of its pages is work the same visitor
+      // sells.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list)/.test(slug),
     },
     {
       id: 'trades-site',
