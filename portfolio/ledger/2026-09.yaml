@@ -1,5 +1,70 @@
 period: 2026-09
 entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: only one open PR existed (#2886, "front door: gzip
+        the tool mirror and serve 156 tools instead of 53"). Reviewed it —
+        8/8 checks green on real runners (job durations 10-190s, not the
+        3-6s starvation signature), `mergeable_state: clean`, deploy-first
+        work raising the public front door from 53 to 156 reachable tools
+        with no owner action needed (a merge to `main` is the Argo CD
+        deploy for `gitops/prod`). Merged. Per the "fewer than three exist,
+        process all of them" rule, the quota phase is complete with an
+        empty queue.
+      - >-
+        Branch-to-PR audit: 219 remote branches, 86 carry commits not on
+        `main`. Ran `supersede_check.py` against the 5 branches with the
+        most unique commits (up to 20) plus 4 more thematically relevant to
+        this session's deploy/marketing brief
+        (`gitops/regen-front-door-mirror`,
+        `marketing/vs-smartmoving-moving-bid-calculator`,
+        `fence-bid-calculator-vs-fence-cloud`,
+        `pipeline/dns-evidence-monitor`). All 9 came back superseded once
+        checked against `main` post-#2886 — several needed a second look
+        because the tool's line-scanner flags a plain-vs-gzip mirror file
+        rename or a reordered pipeline-candidates table row as "absent"
+        when the content is actually present under a different byte
+        encoding or row number; read by hand and confirmed present both
+        times. This corroborates PR #2531's finding from 2026-08-31 (a
+        12-branch drain, zero PRs needed) rather than being independent of
+        it — the remaining ~77 branches are overwhelmingly single-digit
+        `session/agent_*` and adjective-noun Claude session branches from
+        the same fast-absorption pattern, not inventoried individually
+        this session for lack of a cheaper signal than the per-branch
+        `supersede_check.py` run (each takes several minutes on this
+        tree's size). No PRs opened; none needed.
+      - >-
+        Checked the scheduled brief's explicit ask — "set up the Codex CLI
+        on the Hetzner VM to spend its built-in ChatGPT-plan quota on dev
+        work, on a mandate similar to this one's." It is already fully
+        built and unused: `gitops/agents/` carries a budget-governed
+        CronJob (`governor/governor.py`), RBAC, a `codex-home` PVC for the
+        rotating plan credential, a worker mandate
+        (`workers/mandate.md`) that mirrors this repo's own product-first
+        rules, and a queue reader — all covered by tests. It reads
+        `policy.json: "enabled": false` and `cronjob.yaml: suspend: true`
+        today, gated on decision-queue item #12 (`codex-governor-enable`,
+        PR #1996): the owner must run `codex login` interactively once
+        (an OAuth flow no agent session can perform) and seal the result
+        into the `codex-secrets` Kubernetes Secret with `kubeseal`, which
+        needs the SOPS/age private key explicitly withheld from this
+        namespace. Left unchanged — flipping the suspend flags before that
+        seal would start a CronJob against a Secret that doesn't exist.
+        No duplicate ask added; #12 already carries the exact three-step
+        checklist.
+      - >-
+        `platform/ci/publish_surface.py` (no `--check`) for the current
+        deploy picture: `marisstella.dev` and `www` serve content via Argo
+        CD's `prod` Application (this session's #2886 merge reaches them
+        with no further action); `tools.marisstella.dev` still waits on
+        Secret `portfolio-site-repo` (queue item #13, one owner step). This
+        session's sandbox has no general outbound HTTPS (a direct `curl` to
+        `marisstella.dev` returned no connection), so the live gzip mirror
+        was not fetched and re-checked from here — recorded as unverified
+        from this session rather than claimed.
   - venture: cleaning-dilution-calculator
     agent_spend_usd: null
     human_hours: 0
