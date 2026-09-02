@@ -4296,3 +4296,85 @@ entries:
         suite (64/64) locally, pushed, all 8 checks went green on the
         second run, merged (squash).
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session, same standing prompt (deployment/CI-CD
+        first, marketing on the Hetzner VMs, Codex CLI on the plan quota).
+        Open-PR queue was one item, #2833, and a concurrent session merged
+        it mid-run while both of us were repairing the same
+        `faq-visible.test.mjs` failure on it -- theirs landed, so `main`
+        carries the visible-copy fix rather than my JSON-LD one. Confirmed
+        `main` green afterwards (`platform/pages` 856/856) rather than
+        assuming it. Two sessions independently diagnosing the same real
+        guard is worth noting as evidence that guard is well-aimed.
+      - >-
+        Concurrency cost worth recording: #2833's head branch was
+        auto-deleted on merge, and my repair push seconds later *recreated*
+        it, carrying one commit `main` does not have. The agents token
+        cannot delete branches (403 on the refs API), so I reset the ref to
+        `main`'s merge commit instead -- it now carries nothing unique. A
+        recreated branch is exactly the shape `CLAUDE.md`'s duplicate-PR
+        section warns about, and it is created by repairing a PR that merges
+        underneath you, which is routine here. `origin/claude/gha-branch-
+        cleanup-pajw2b` (6 commits, August, still no PR) implements the
+        deletion-on-merge mechanism whose absence makes this recoverable
+        rather than automatic.
+      - >-
+        Shipped #2838, the run's real deliverable and squarely the
+        deployment/CI-CD half of the standing instruction. `Claude routine
+        trigger` had failed **403 of its 472 runs**, every scheduled one
+        since its token was revoked ~9 days ago: a real runner, one POST,
+        `401 "OAuth access token has been revoked"`, exit on the loop's
+        `2) exit 1` arm. ~72 billed runner-minutes a day (~$17/month) on the
+        same metered allowance whose exhaustion starved all 218 workflows
+        from 2026-08-26 to 2026-09-01 -- and unfixable by retrying, since no
+        schedule re-mints a token. The workflow's own header had prescribed
+        the remedy ("Disable it ... rather than by leaving it to fail") and
+        was not followed for nine days.
+      - >-
+        The fix is a job-level `if:` on `vars.ROUTINE_TRIGGER_ENABLED`, with
+        `workflow_dispatch` bypassing it. The load-bearing property is that a
+        job skipped by a false `if:` is skipped *before a runner is
+        assigned* -- so the gate belongs on the job, not in a step, which has
+        already paid for the runner by the time it runs. Confirmed against
+        this repo's own `ci_starvation.py` (a skipped job has
+        `runner_id: None`), and then **in production**: the 14:45 scheduled
+        run, 33644084322, came back `skipped`, and `ci_starvation.py --run`
+        on it reports "0 job(s) that ran ... 1 skipped by the workflow". The
+        nine-day burn is over, verified on the live schedule rather than
+        argued from the manifest.
+      - >-
+        Deliberately did not answer the owner's `routine-trigger-cadence`
+        row -- the gate stops the spend while that decision waits, and gives
+        it a third, cost-free option it did not have (leave it gated). The
+        resume path is three ordered steps, written into the job comment,
+        `infra/OWNER_CHECKLIST.md` item 9 and the queue row: mint the token,
+        dispatch once to confirm `fired:`, *then* set the variable. Setting
+        the variable first restores the burn rather than the cadence, which
+        is why it is last.
+      - >-
+        Added the general invariant the gate depends on being real:
+        `validate_workflows.py` now fails any workflow referencing
+        `vars.GITHUB_*` / `secrets.GITHUB_*` (`secrets.GITHUB_TOKEN`
+        excepted). GitHub refuses to create such a name, so the reference is
+        permanently empty and fails *silently* -- a job skipped by a false
+        `if:` is a successful run. Not hypothetical: `portfolio-pages.yml`
+        gated the whole Pages deploy on `vars.GITHUB_PAGES_ENABLED`, so the
+        "one owner flip" that `DIRECTION.md`, `platform/pages/README.md` and
+        the decision queue all point at could never have published a page,
+        with nothing red. It parses expressions rather than file text, so
+        the workflow headers that discuss the trap by name are not flagged
+        for describing it. 6 new tests; 386 pass across `platform/ci`.
+      - >-
+        Checked, not re-derived: the front-door tool mirror is at 4,987,328
+        of its 5 MiB ceiling across 7 shards (6 of them 99-100% full), so
+        widening it past 53 of 169 tools is not an available path -- the
+        ceiling is deliberate and the real fix is the `portfolio-site-repo`
+        seal. The Codex-on-Hetzner stack (`gitops/agents/`, worker, governor,
+        mandate, queue ordering) is complete and blocked only on the owner
+        sealing `codex-secrets` with `CODEX_AUTH_JSON`. Neither is agent-
+        actionable; neither was re-analysed beyond confirming it.
+    mrr_end: null
