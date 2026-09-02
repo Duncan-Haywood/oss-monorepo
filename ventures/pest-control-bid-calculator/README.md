@@ -56,6 +56,14 @@ many later stops recover it. Entering a recurring price already on the table
 scores it against the same cost base. **Copy bid summary** turns the result
 into a plain-text draft ready to paste into a proposal.
 
+**Copy bid link** puts every rate, service row, and proposal term into a URL
+fragment (`#...`, never the query string) so the bid reopens exactly as
+priced — for the operator's own next visit, or sent to a partner pricing the
+same route. The bid is also saved to this browser automatically as it is
+typed, so closing the tab does not lose it; **Start a fresh bid** clears the
+saved copy. A bid link carries wage, burden, overhead, and target margin —
+it is the operator's own rate sheet, not something to hand a customer.
+
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
 [`calc.test.mjs`](calc.test.mjs).
@@ -70,16 +78,21 @@ service never overwrites a figure the operator has already changed.
 
 ## Privacy
 
-Nothing is uploaded. Every figure stays in the browser. The only thing stored
-is an anonymous local tally of which features were used and the current date,
-in `localStorage` under `pest-control-bid-usage` — never the address, station
-counts, wages, costs, or prices. It is opt-out from the footer, and it is
-skipped automatically when the browser sends Do Not Track or Global Privacy
-Control. See [`usage.mjs`](usage.mjs) and
+Nothing is uploaded. Every figure stays in the browser. The bid itself is
+saved locally under `pest-control-bid` so the current draft survives a closed
+tab; "Start a fresh bid" deletes it. A copied bid link carries the same
+figures in the URL fragment, which the browser never sends to a server. The
+only other thing stored is an anonymous local tally of which features were
+used and the current date, in `localStorage` under
+`pest-control-bid-usage` — never the address, station counts, wages, costs,
+or prices. It is opt-out from the footer, and it is skipped automatically
+when the browser sends Do Not Track or Global Privacy Control. See
+[`usage.mjs`](usage.mjs), [`share.mjs`](share.mjs), and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `service_added`, `service_removed`,
-`proposed_price_compared`, `waive_initial_toggled`, `summary_copied`.
+`proposed_price_compared`, `waive_initial_toggled`, `summary_copied`,
+`link_copied`, `proposal_printed`, `company_forgotten`.
 
 ## Limitations
 
