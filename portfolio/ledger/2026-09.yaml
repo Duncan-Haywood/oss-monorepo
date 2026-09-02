@@ -1928,3 +1928,78 @@ entries:
         Net: 0 shipped, 2 stale branches accounted for and closed rather
         than left open or merged as duplicates. No product code changed, so
         nothing to verify beyond the two supersede proofs above.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous-mandate run: the mandate's own three-PR quota
+        met the same wall the last several sessions have been hitting from a
+        different angle -- 0 open PRs, and the ~84 unmerged branches with
+        commits `main` lacks are almost entirely already-superseded
+        duplicates from the swarm-cadence pattern this ledger already names.
+        Checked 18 candidate branches directly (not a sample of the easy
+        ones -- deliberately spread across every naming cohort: `claude/*`,
+        `cursor/*`, `session/agent_*`, `decision-queue/*`, `agent/*`,
+        `gitops-*`, `rematch-*`, bare venture names) and found 17 of 18
+        already shipped on `main` under different filenames, wording, or PR
+        numbers. Two of those 17 (`claude/gha-branch-cleanup-pajw2b`,
+        `gitops-governor-rbac-narrow-jobs-pods-verbs`) looked completely
+        clean on every check available before opening a PR -- `git
+        merge-tree` reported no conflicts, and for the branch-cleanup one I
+        had already fixed a real time-dependent test bug in it -- and I
+        opened PRs #2704 and #2705 before running `supersede_check.py`
+        against them. Both came back SUPERSEDED (#829 and #2669
+        respectively, both already merged, one with the identical fix to
+        the same test bug). Closed both immediately with the exact
+        superseding commit named. **The lesson worth keeping: a
+        conflict-free `git merge-tree` and passing local tests are not
+        evidence a branch is unmerged work -- they are necessary, not
+        sufficient. `supersede_check.py` (or the equivalent direct
+        `git show origin/main:<path>` comparison for a branch too old to
+        have a PR yet) has to run before opening the PR, not just before
+        closing one, on any branch that predates today's `main`.**
+      - >-
+        One of the 18 was genuinely new and shipped: #2706, marking the
+        `vendor-change-evidence` pipeline candidate `verdict: graduated`
+        (it shipped as `ventures/vendor-change-watch`, #2002, on
+        2026-08-29, but the pipeline docs never caught up). The source
+        branch (`agent/software-evidence-provenance`) had instead deleted
+        the candidate row outright, which would have made it the only
+        graduated candidate missing from `candidates.yaml` -- inconsistent
+        with every other graduated entry in the same file (verdict +
+        `initiated_path`, never removed) and not something
+        `validate_candidates.py`/`validate_doc_consistency.py` would have
+        caught, since they check score agreement, not "should a graduated
+        venture still be listed." Resolved the merge conflict by following
+        the established convention instead of the branch's own approach.
+        Both validators pass on the result.
+      - >-
+        Checked the two things this run's brief named as priorities before
+        starting new product work, per the queue-drain-first mandate.
+        Deployment/CI-CD: `platform/ci/publish_surface.py --check` still
+        reports 0 hostnames serving content, sealing `portfolio-site-repo`
+        is still the only remaining step, and `gitops/tests` is 223/223
+        green -- unchanged since the last session recorded this, so not
+        re-litigated further. Codex CLI on the Hetzner VM: this run's brief
+        asked for exactly what `decision_queue` row `codex-governor-enable`
+        and `infra/OWNER_CHECKLIST.md` item 8 already fully specify, down
+        to quoting the same standing instruction verbatim as of 2026-09-01
+        -- a working, tested governor + worker pipeline
+        (`gitops/agents/governor/`) sits `enabled: false` / `suspend: true`
+        waiting on exactly one owner action (`codex login` + seal
+        `codex-secrets` with `CODEX_AUTH_JSON`). Nothing to build; the gap
+        is the owner's, not a missing implementation, and it was already
+        queued before this run started.
+      - >-
+        Found that `gitops/agents/queue/*.yaml` already encodes this same
+        run's exact brief as its own priority-7 and priority-6 items
+        (`deploy-cicd-readiness.yaml`, `marketing-distribution.yaml`),
+        quoting the owner's "deployment and cicd is a priority and building
+        and deploying marketing materials on the hetzner vms" verbatim as
+        the reason, dated 2026-09-01. Since the governor that would
+        normally run those items is still owner-gated, delegated both
+        prompts verbatim to two parallel background agents rather than
+        wait on the flip or re-derive new prompts. Their PRs are not yet
+        known at the time of this entry -- see the next session's entry or
+        the PR list for outcome.
