@@ -29,7 +29,7 @@
 #   portfolio-front-tools-3: 47 files, 715610 bytes
 #   portfolio-front-tools-4: 88 files, 714723 bytes
 #   portfolio-front-tools-5: 78 files, 705341 bytes
-#   portfolio-front-tools-6: 40 files, 516650 bytes
+#   portfolio-front-tools-6: 41 files, 527981 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -490,6 +490,7 @@ configMapGenerator:
       - concrete-bid-calculator__proposal.mjs=concrete-bid-calculator__proposal.mjs
       - concrete-bid-calculator__share.mjs=concrete-bid-calculator__share.mjs
       - concrete-bid-calculator__usage.mjs=concrete-bid-calculator__usage.mjs
+      - concrete-bid-calculator__vs-stack.html=concrete-bid-calculator__vs-stack.html
       - lawn-care-bid-calculator__LICENSE=lawn-care-bid-calculator__LICENSE
       - lawn-care-bid-calculator__calc.mjs=lawn-care-bid-calculator__calc.mjs
       - lawn-care-bid-calculator__how-to-price-lawn-mowing.html=lawn-care-bid-calculator__how-to-price-lawn-mowing.html
