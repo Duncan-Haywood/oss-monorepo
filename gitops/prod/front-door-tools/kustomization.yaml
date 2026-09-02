@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 150 files, 554280 bytes
 #   portfolio-front-tools-1: 152 files, 556254 bytes
 #   portfolio-front-tools-2: 154 files, 556455 bytes
-#   portfolio-front-tools-3: 112 files, 551619 bytes
+#   portfolio-front-tools-3: 113 files, 555456 bytes
 #   portfolio-front-tools-4: 122 files, 555519 bytes
 #   portfolio-front-tools-5: 116 files, 553286 bytes
 #   portfolio-front-tools-6: 120 files, 556896 bytes
@@ -623,6 +623,7 @@ configMapGenerator:
       - chimney-sweep-bid-calculator__proposal.mjs.gz=chimney-sweep-bid-calculator__proposal.mjs.gz
       - chimney-sweep-bid-calculator__share.mjs.gz=chimney-sweep-bid-calculator__share.mjs.gz
       - chimney-sweep-bid-calculator__usage.mjs.gz=chimney-sweep-bid-calculator__usage.mjs.gz
+      - chimney-sweep-bid-calculator__vs-jobber.html.gz=chimney-sweep-bid-calculator__vs-jobber.html.gz
       - concrete-lifting-bid-calculator__LICENSE.gz=concrete-lifting-bid-calculator__LICENSE.gz
       - concrete-lifting-bid-calculator__calc.mjs.gz=concrete-lifting-bid-calculator__calc.mjs.gz
       - concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz=concrete-lifting-bid-calculator__how-much-to-charge-for-concrete-lifting.html.gz
