@@ -746,7 +746,7 @@ export async function mirrorSet(venturesDir = VENTURES_DIR) {
  *
  * Measured 2026-09-02 over 28 excluded ventures:
  *
- * - **19 have no flat `index.html`** — `tender-radar`, `print-atelier`,
+ * - **21 have no flat `index.html`** — `tender-radar`, `print-atelier`,
  *   `ubuntu-agent-server`, `local-site-studio`, `quote-margin-check` and the
  *   rest are CLIs, servers, watch faces, or apps with a build step and a
  *   nested `site/` or `src/`. Not static pages, so not a gap the mirror can
