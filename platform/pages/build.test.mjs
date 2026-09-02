@@ -64,6 +64,9 @@ import {
   renderHubSitemap,
   renderLlmsTxt,
   renderCatalog,
+  externalCallExceptions,
+  CARD_FOOTER,
+  CARD_FOOTER_EXCEPTION,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -3498,6 +3501,101 @@ test('a category page counts its own visits without identifying anyone', async (
   assert.ok(/data-tool="[^"]+" data-pf-to="[^"]+"/.test(html));
 });
 
+test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
+  // A category's "nothing you type is uploaded" line is a privacy claim, not
+  // decoration -- and it is false for a category that files a tool like
+  // Sponsor Ready, whose whole job is a live lookup. This is computed from
+  // `externalCallExceptions`, the same function the About page already
+  // trusts for its own version of this claim, rather than hand-written per
+  // category, so a future exception cannot leave one category's copy stale.
+  const { surfaces } = await site();
+  const exceptionSlugs = externalCallExceptions(surfaces).map((x) => x.slug);
+  assert.ok(exceptionSlugs.length > 0, 'expected at least one externalCallExceptions entry to exercise this test');
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    const html = await read(CATEGORY_PATH_PREFIX, category.id, 'index.html');
+    const [, count] = html.match(/<p class="count">([^<]+)<\/p>/) ?? [];
+    assert.ok(count, `${category.id} has no .count paragraph to check`);
+    const exceptions = externalCallExceptions(items);
+    if (exceptions.length) {
+      assert.ok(
+        count.includes('except on'),
+        `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
+      );
+      for (const x of exceptions) {
+        assert.ok(count.includes(x.title), `${category.id}'s count line omits ${x.title}: "${count}"`);
+      }
+    } else {
+      assert.equal(
+        count,
+        `${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded`,
+        `${category.id} holds no exception, so its count line should make the unconditional claim`,
+      );
+    }
+  }
+});
+
+test('a tool or category with a documented external-call exception gets the exception footer on its share card', async () => {
+  // `CARD_FOOTER` ("nothing you type is uploaded") is baked into a raster
+  // image -- these are the two lines every share card carries besides its
+  // headline -- so a card for Sponsor Ready or for the category that files it
+  // must not draw that claim. Regression target: before this test existed,
+  // both cards silently carried the default footer.
+  const { outDir, surfaces } = await site();
+  const exceptions = externalCallExceptions(surfaces);
+  assert.ok(exceptions.length > 0, 'expected at least one externalCallExceptions entry to exercise this test');
+
+  for (const ex of exceptions) {
+    const surface = surfaces.find((s) => s.slug === ex.slug);
+    const withDefaultFooter = renderSocialCard({
+      color: categoryFor(surface.slug).accent,
+      headline: surface.title,
+      kicker: SITE_NAME,
+      footer: CARD_FOOTER,
+    });
+    const withExceptionFooter = renderSocialCard({
+      color: categoryFor(surface.slug).accent,
+      headline: surface.title,
+      kicker: SITE_NAME,
+      footer: CARD_FOOTER_EXCEPTION,
+    });
+    const actual = await fs.readFile(path.join(outDir, toolCardFileFor(surface.slug)));
+    assert.ok(
+      actual.equals(withExceptionFooter),
+      `${surface.slug}'s share card should carry the exception footer`,
+    );
+    assert.ok(
+      !actual.equals(withDefaultFooter),
+      `${surface.slug}'s share card must not claim "nothing you type is uploaded"`,
+    );
+  }
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    const expectedFooter = externalCallExceptions(items).length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER;
+    const expected = renderSocialCard({
+      color: category.accent,
+      headline: category.title,
+      kicker: SITE_NAME,
+      footer: expectedFooter,
+    });
+    const actual = await fs.readFile(path.join(outDir, socialCardFileFor(category.id)));
+    assert.ok(actual.equals(expected), `${category.id}'s share card footer does not match its exceptions`);
+  }
+});
+
+test('the manifest description matches whether the site has a documented external-call exception', async () => {
+  const { outDir, surfaces } = await site();
+  const manifest = JSON.parse(await fs.readFile(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
+  if (externalCallExceptions(surfaces).length) {
+    assert.ok(
+      !manifest.description.includes('nothing you type is uploaded'),
+      `manifest description makes the unconditional claim: "${manifest.description}"`,
+    );
+  } else {
+    assert.match(manifest.description, /nothing you type is uploaded/);
+  }
+});
+
 test('the hub links every category page, and the sitemap lists them', async () => {
   const { outDir, surfaces } = await site();
   const ids = groupByCategory(surfaces).map(({ category }) => category.id);
@@ -3559,6 +3657,27 @@ test('the About page ships, carries the disclaimer, and states the real catalogu
     about.includes(`<link rel="canonical" href="${BASE}about/">`),
     'About needs its own canonical, not the hub\'s',
   );
+});
+
+test('the About page lede states the device-privacy claim honestly, with any documented exception named', async () => {
+  // Every other privacy claim on this page (the "What data..." panel, the
+  // copy-paste boilerplate) already runs through `externalCallExceptions`.
+  // The lede paragraph -- the very first sentence a visitor reads -- used to
+  // make the unconditional claim regardless, which is the drift this guards.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+  const [, lede] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
+  assert.ok(lede, 'About page has no .lede paragraph to check');
+
+  const exceptions = externalCallExceptions(surfaces);
+  assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
+  if (exceptions.length) {
+    for (const x of exceptions) {
+      assert.ok(lede.includes(x.title), `lede has an exception but does not name ${x.title}: "${lede}"`);
+    }
+  } else {
+    assert.match(lede, /never leave their device/);
+  }
 });
 
 test('the About page is reachable from the hub, the categories and every tool page', async () => {
