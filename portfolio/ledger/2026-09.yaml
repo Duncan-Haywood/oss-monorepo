@@ -4786,3 +4786,61 @@ entries:
         PRs merged this run in total (#2853-2856); repo had 0 open PRs at
         both start and end.
     mrr_end: null
+  - venture: carpet-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session on the standing "prioritize deployment/CI-CD and
+        marketing materials on Hetzner, and set up Codex CLI to spend its
+        quota" instruction. Found 1 open PR (#2859, an RBAC least-privilege
+        narrowing on the governor Role). Ran
+        `portfolio/ledger/supersede_check.py 2859`: SUPERSEDED via
+        identical-merge proof — the same jobs/pods verb narrowing and an
+        equivalent test already landed on `main` (added by a prior PR,
+        `test_governor_role_grants_no_verb_its_own_code_never_calls`), just
+        under different comment wording. Closed with the proof and pointer
+        in the close comment; 0 open PRs remained (below the 3-PR quota, so
+        all repairable PRs were processed).
+      - >-
+        Independently confirmed two findings a concurrent/prior session had
+        just recorded two entries up, rather than re-deriving them from
+        scratch: (1) of 84 remote branches carrying commits not on `main`,
+        a sample of the largest (ssh-key-smoke at 936 commits ahead/4410
+        behind; several `claude/*` and `cursor/*` branches 1000+ commits
+        behind, some with their own commit messages noting the work was
+        already dropped "in favour of the merged" PR) showed the entire
+        backlog is stale churn already absorbed into `main`, not a
+        repairable queue — no branch converted to a PR. (2) The
+        Codex-on-Hetzner worker stack (`gitops/agents/`: governor, queue
+        items `deploy-cicd-readiness` priority 7 and
+        `marketing-distribution` priority 6, `workers/mandate.md` as the
+        standing product-first prompt) is fully built, tested (265/265
+        `gitops/tests` passing), and reordered to the top two queue slots
+        on 2026-09-01 on this exact owner instruction — but still
+        `enabled: false` / `suspend: true`, blocked solely on owner
+        `kubeseal` actions (`codex-secrets`, `portfolio-site-repo`) no
+        session can perform remotely. `platform/ci/publish_surface.py`
+        confirms the delivery-path state matches CLAUDE.md exactly: apex
+        and www serving via `gitops/prod/portfolio-front.yaml`,
+        `tools.marisstella.dev` still waiting on the site-repo seal. No
+        duplicate decision-queue row added.
+      - >-
+        Since the fleet isn't running yet, did the top-priority
+        `marketing-distribution` item's work by hand: 114+ ventures still
+        lacked a comparison ("vs-X") page. Shipped and merged #2861,
+        `carpet-cleaning-bid-calculator` vs-ServiceMonster — factual
+        comparison table, affiliation disclaimer, no-warranty footer,
+        FAQPage JSON-LD with visible-text parity, no invented competitor
+        price (a test asserts it). Reused the ServiceMonster identity facts
+        (2002 roots, Bellingham WA, 2023 Teamfront acquisition) a
+        concurrent session had already verified in
+        `window-cleaning-bid-calculator/vs-servicemonster.html` rather than
+        re-deriving them. Verified: venture `node --test` 69/69 (was 61),
+        `platform/marketing/*.test.mjs` 89/89, `build.mjs`+`check.mjs`
+        clean (169 products, 566 pages, no dead links), `clauses.mjs` and
+        `faq-duplicate.mjs` clean. All 6 real GitHub Actions checks green
+        before merge (`deploy` skipped as documented, gated on
+        `PAGES_ENABLED`). Repo had 0 open PRs at both start and end of this
+        run.
+    mrr_end: null
