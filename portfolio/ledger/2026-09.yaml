@@ -3146,3 +3146,58 @@ entries:
         the only queue item that moves the revenue ceiling off $0; nothing
         in this session's findings changes that.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Executed `deploy-cicd-readiness.yaml`'s own prompt directly (the
+        Codex fleet that would normally run this queue item is still
+        disabled pending owner credential sealing, and nothing about the
+        task needs it). Checked open PRs and this file's own recent entries
+        first: 0 open PRs, and a concurrent/prior 2026-09 session had already
+        run the same prompt and shipped a different fix under it (#2771,
+        `gitops/apps/projects.yaml`'s unused `policy` group) -- confirmed
+        that finding and mine do not overlap before starting.
+      - >-
+        Shipped and merged PR #2776. `gitops/prod/front-door-tools/` mirrors
+        whole venture directories, and `front-door-tools.mjs`'s own
+        `SERVABLE_EXTENSIONS` has mirrored `.html`, `.mjs`, `.css` and `.js`
+        since the mirror shipped (`construction-evidence-log`'s `app.js` and
+        `style.css` are in the committed mirror today) -- but
+        `portfolio-validate.yml`, the one workflow that runs the mirror's
+        staleness check on a venture edit, only triggered on `*.mjs`,
+        `*.html`, `VENTURE.yaml`, `NOT-A-VENTURE` and `LICENSE` under
+        `ventures/**`. `hetzner-gitops-ci.yml` doesn't watch `ventures/**` at
+        all -- by its own comment, venture-side edits are deliberately left
+        to `portfolio-validate.yml`. So an edit to a mirrored venture's `.js`
+        or `.css` file triggered no workflow that runs the staleness check
+        at all, and the mirror could go stale on `main` with every check
+        green. Confirmed by editing
+        `ventures/construction-evidence-log/app.js` directly and running
+        `front-door-tools.test.mjs` outside any workflow trigger -- 3 of 19
+        subtests failed -- then reverting and re-running clean. Fix adds
+        `ventures/**/*.css` and `ventures/**/*.js` to both trigger blocks,
+        matching `SERVABLE_EXTENSIONS` exactly. No `gitops/` manifest
+        touched. Verified: `pytest gitops/tests -q` (253 passed), `node
+        --test platform/marketing/*.test.mjs` (45 passed),
+        `run_workflow_locally.py portfolio-validate.yml` (47/47 run: steps
+        passed, including the mirror-staleness step).
+      - >-
+        Everything else checked in this pass came up clean rather than
+        agent-fixable: `kustomize build` + `kubeconform -strict` on all six
+        kustomizations (apps/platform/prod/staging/agents/ci, 75 resources,
+        0 invalid), the full `hetzner-gitops-ci.yml` step list run locally
+        (pytest, pyflakes, the front-door node suite, `infra/tests/`,
+        shellcheck on the 11 named scripts), every AppProject/Role/RoleBinding
+        against the resources they actually reference, every NetworkPolicy's
+        `egress` set against what its pod's own script calls, and a scan of
+        all 218 workflows for a hard-coded self-hosted-incompatible step
+        (`sudo`, `services:`, `container:` outside the two named Docker
+        exceptions) -- none found beyond what earlier sessions already fixed.
+        The repo's own gitops/CI surface is unusually well-covered by prior
+        agent work; this session's one finding was a real but narrow gap
+        that everything else missed because it required diffing a
+        generator's own extension set against a workflow's path filters
+        rather than reading either file in isolation.
+    mrr_end: null
