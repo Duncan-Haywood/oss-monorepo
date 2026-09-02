@@ -36,6 +36,7 @@ import {
   mirrorUrl,
   renderKustomization,
   validateLinks,
+  ventureFiles,
 } from './front-door-tools.mjs';
 import { renderFrontDoor } from './front-door.mjs';
 
@@ -264,6 +265,52 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   // the first matching regex location.
   assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('([A-Za-z0-9._-]+)$"'));
   assert.match(conf, /X-Robots-Tag "noindex"/);
+});
+
+test('the front door compresses every non-HTML type the mirror actually serves', async () => {
+  // `gzip_types` in `default.conf` is a hand-written list, so nothing forces
+  // it to grow when `STARTER_SET` starts mirroring a new file type — which is
+  // exactly how `text/css`, `application/javascript` and `LICENSE`'s
+  // `text/plain` went uncompressed for as long as they did (see the comment
+  // beside `gzip_types`). This derives the real extension set from the
+  // mirror itself, so a future venture bringing a `.json` or `.svg` file
+  // fails here instead of quietly shipping uncompressed.
+  const EXT_TO_MIME = {
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+    '.mjs': 'text/javascript',
+  };
+  // Matches the `default_type text/plain;` in the `LICENSE` `location` block
+  // below — `LICENSE` has no extension for `EXT_TO_MIME` to key off.
+  const NAME_TO_MIME = { LICENSE: 'text/plain' };
+
+  const mimeTypes = new Set();
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (file.endsWith('.html')) continue; // text/html — nginx always gzips it.
+      const mime = NAME_TO_MIME[file] ?? EXT_TO_MIME[path.extname(file)];
+      assert.ok(
+        mime,
+        `${slug}/${file}: no known MIME type for this test — add one before adding the file to STARTER_SET`,
+      );
+      mimeTypes.add(mime);
+    }
+  }
+  assert.ok(mimeTypes.size > 0, 'expected at least one non-HTML file across the mirror');
+
+  const conf = await fs.readFile(
+    path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
+    'utf8',
+  );
+  const gzipLine = conf.match(/^\s*gzip_types\s+([^;]+);/m);
+  assert.ok(gzipLine, 'default.conf has no gzip_types directive');
+  const gzipped = new Set(gzipLine[1].trim().split(/\s+/));
+  for (const mime of mimeTypes) {
+    assert.ok(
+      gzipped.has(mime),
+      `${mime} is served by the mirror but missing from default.conf's gzip_types`,
+    );
+  }
 });
 
 test('every why names the category categoryFor actually sorts the slug into', async () => {
