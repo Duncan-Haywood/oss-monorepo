@@ -197,24 +197,28 @@ def test_job_manifest_has_no_kube_token_and_pins_agent_node() -> None:
     assert json.loads(env["QUEUE_ITEM_JSON"])["id"] == "task-a"
 
 
-def test_job_narrows_what_it_can_without_breaking_apt_get() -> None:
+def test_job_drops_every_capability_now_that_nothing_runs_dpkg() -> None:
     # Every sibling workload in this repo (portfolio-site's containers, its
     # CronJobs, the governor CronJob itself, the CI runner) sets a
     # securityContext; this Job -- the one actually holding the Codex/GitHub
     # credentials from `codex-secrets` -- never did.
     #
-    # `capabilities.drop: ["ALL"]`, `runAsNonRoot` and `readOnlyRootFilesystem`
-    # are deliberately absent: `worker.sh`'s `install_tools()` runs
-    # `apt-get install` as root against the base `node:22-bookworm` image, and
-    # `npm install -g` plus the `mktemp -d` clone both write outside the two
-    # read-only mounts. This only pins the two fields that are safe regardless
-    # -- neither needs root or a writable filesystem to hold.
+    # `capabilities.drop: ["ALL"]` used to be absent, because `install_tools()`
+    # ran `apt-get install` and dpkg's maintainer scripts can need CAP_CHOWN or
+    # CAP_SETUID/CAP_SETGID. That apt path could never have run in this
+    # namespace at all -- `worker-egress` permits no port-80 egress and Debian's
+    # mirrors are plain HTTP -- so it was replaced by a checksum-pinned HTTPS
+    # download. curl, tar, `install(1)`, `npm install -g` and `git clone` need
+    # no capability between them, so the exception has no reason left.
     manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
     pod = manifest["spec"]["template"]["spec"]
     assert pod["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod["containers"][0]["securityContext"]["allowPrivilegeEscalation"] is False
-    # Not asserting these is not the same as never having thought about them.
-    assert "capabilities" not in pod["containers"][0]["securityContext"]
+    assert pod["containers"][0]["securityContext"]["capabilities"]["drop"] == ["ALL"]
+    # Still absent, and still deliberate: `npm install -g` and the `mktemp -d`
+    # clone both write outside the two read-only mounts, and the image starts
+    # as root with $HOME=/root rather than at a fixed non-root UID. Not
+    # asserting them is not the same as never having thought about them.
     assert "readOnlyRootFilesystem" not in pod["containers"][0]["securityContext"]
     assert "runAsNonRoot" not in pod["securityContext"]
 
