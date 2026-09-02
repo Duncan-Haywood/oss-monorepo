@@ -55,7 +55,7 @@ test('the FAQPage schema is valid JSON and matches the visible FAQ headings', ()
 });
 
 test('the comparison page is linked from the tool page, not orphaned', () => {
-  assert.match(indexHtml, /href="vs-servicetitan\.html"/);
+  assert.match(indexHtml, /href="\.?\/?vs-servicetitan\.html"/);
 });
 
 test('the comparison page is listed in the sitemap', () => {
