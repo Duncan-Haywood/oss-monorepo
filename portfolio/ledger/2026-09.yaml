@@ -5061,3 +5061,107 @@ entries:
         `platform/pages/*.test.mjs` suite (856/856). Shipped and merged
         #2872. Zero open PRs at session end.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, standing brief (deploy/CI-CD priority, marketing
+        materials built and deployed on the Hetzner VMs, Codex CLI spending
+        its built-in plan quota there). 0 open PRs at session start.
+        Dispatched 5 parallel worktree-isolated agents across the 25
+        highest-`ahead-count` branches of the standing stale-branch backlog
+        (`festive-mccarthy`, `3pl-quote-normalizer`/`vendor-change-watch`,
+        `chargeback-evidence-packet`/`amazon-fba-sourcing-check`,
+        `archimedes`/`gha-branch-cleanup`, the `product-first-development-mandate`
+        cluster and misc). All 25 independently confirmed superseded by
+        direct content diff against current `main`, consistent with this
+        month's prior sessions' findings on the same backlog (matching
+        detail down to `claude/sweet-archimedes-icmubl`'s
+        `GITHUB_PAGES_ENABLED` gate being confirmed broken, not merely
+        duplicated). One agent's run was lost to a mid-task container
+        restart; re-ran from scratch, found no leftover `work/*` branch, and
+        reached the identical conclusion. Zero PRs opened from the backlog.
+      - >-
+        Re-verified the Codex-on-Hetzner ask rather than trusting the
+        ledger's account: `gitops/agents/` (governor, worker.sh,
+        `codex-home.yaml`) is still code-complete and correctly fail-closed
+        (`governor/policy.json` `enabled: false`, `cronjob.yaml`
+        `suspend: true`), `deploy-cicd-readiness` (priority 7) and
+        `marketing-distribution` (priority 6) are still the top two enabled
+        queue items, and `CODEX_AUTH_JSON` support for spending a ChatGPT
+        plan's included quota (rather than metered billing) is still wired
+        on both the worker and governor sides. Still owner-blocked only on
+        sealing `codex-secrets` (`codex login` on a laptop, per
+        `infra/OWNER_CHECKLIST.md` item 8) and flipping `suspend: false`.
+        Already the right row in `decision_queue.py`; no duplicate added.
+        Since that fleet is dormant, ran its top two queue items directly
+        instead this session.
+      - >-
+        Shipped and merged #2734: `ventures/roofing-bid-calculator/vs-acculynx.html`,
+        a comparison page for AccuLynx, the roofing niche's obvious named
+        incumbent with no comparison page yet (checked against the full
+        existing `vs-*.html` set first). AccuLynx's own site and Capterra
+        were blocked by session egress and third-party pricing snippets
+        disagreed with each other, so the page carries zero dollar figures
+        by design (enforced by a test) rather than an unverifiable number.
+        104/104 `node --test` pass (13 new), full `build.mjs` + `check.mjs`
+        clean (169 products, 534 pages, no dead links).
+      - >-
+        Shipped and merged #2738, a real bug on the delivery path, not a
+        drill: `bootstrap/scripts/seal-owner-secrets.sh`'s
+        `probe_can_read_repo()` called `GET /repos/{owner}/{repo}`, which
+        only needs `Metadata: Read` -- a permission every fine-grained PAT
+        gets automatically -- so it reported "token can read" for a token
+        with zero real permissions, never checking `Contents: Read`, the
+        permission the site pod's clone init container actually needs. That
+        is the exact mistake the probe exists to catch, on the exact
+        pending owner action (`portfolio-site-repo`) this file's own
+        decision-queue rows call the single highest-value remaining owner
+        step. Repointed the probe at the `contents/README.md` endpoint;
+        added a metadata-only-token regression test (fails pre-fix, passes
+        post-fix) plus equivalent coverage for the previously-untested `ci`
+        registration-token probe. `pytest gitops/tests -q`: 237/237 pass
+        (234 existing + 3 new); `shellcheck`/`bash -n` clean; `kustomize
+        build` x6 + `kubeconform -strict`: 59/0 valid/invalid.
+      - >-
+        2 PRs merged this run (#2734, #2738). No new venture started --
+        confirming the branch backlog stayed empty and executing the
+        fleet's own top two dormant-queue items by hand was the
+        highest-value non-duplicative work available under an empty PR
+        queue and the owner-blocked Codex governor.
+    mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked up the `product-feature-improvement` queue item by hand
+        (governor not live; owner-only seal already tracked separately).
+        Read 15+ ventures' `calc.mjs`/equivalent plus tests before finding
+        a real, verifiable gap -- the rest were already heavily iterated
+        (extensive prior-bug-fix comment trails on retainage-cashflow,
+        cash-runway-planner, cut-list-optimizer/sheet.mjs, the 555-timer
+        and RC-filter calculators, grant-deadline-tracker, chargeback-evidence-packet,
+        vendor-rate-break-even and others; all already had test coverage
+        for exactly the edge case that would otherwise have been the
+        obvious fix). Found and fixed a real one in `tender-radar`:
+        `filterTenders`'s minimum-value filter read
+        `Number(row.value || 0) < min`, and `Number("£5,000")` is `NaN` --
+        `NaN < min` is always `false`, so the exclusion branch never fired
+        for a currency-formatted or comma-grouped value cell no matter how
+        far under the minimum the tender actually was. A real tender-portal
+        export almost never gives a bare integer, so a £5,000 job filtered
+        against a "£20,000 minimum" slipped straight into the shortlist --
+        the opposite of what the tool's one headline filter promises.
+        Added `parseValueNumber()` (strips thousands-separator commas,
+        reads the first signed number out of what remains) and wired
+        `filterTenders` to use it; a blank or truly unreadable cell still
+        reads as 0, unchanged from before. Shipped and merged #2875.
+        `node --test ventures/tender-radar/site/*.test.mjs`: 16/16 pass (3
+        new: `parseValueNumber`'s currency/thousands handling, a
+        currency-formatted low-value row correctly excluded from a
+        $20,000-minimum shortlist, blank/"TBD" cells still excluded).
+        Sitewide `build.mjs` + `check.mjs`: 169 products, 570 pages, no
+        dead links.
+    mrr_end: null
