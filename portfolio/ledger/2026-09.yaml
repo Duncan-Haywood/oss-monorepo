@@ -5131,3 +5131,293 @@ entries:
         highest-value non-duplicative work available under an empty PR
         queue and the owner-blocked Codex governor.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked up the `product-feature-improvement` queue item by hand
+        (governor not live; owner-only seal already tracked separately).
+        Read 15+ ventures' `calc.mjs`/equivalent plus tests before finding
+        a real, verifiable gap -- the rest were already heavily iterated
+        (extensive prior-bug-fix comment trails on retainage-cashflow,
+        cash-runway-planner, cut-list-optimizer/sheet.mjs, the 555-timer
+        and RC-filter calculators, grant-deadline-tracker, chargeback-evidence-packet,
+        vendor-rate-break-even and others; all already had test coverage
+        for exactly the edge case that would otherwise have been the
+        obvious fix). Found and fixed a real one in `tender-radar`:
+        `filterTenders`'s minimum-value filter read
+        `Number(row.value || 0) < min`, and `Number("£5,000")` is `NaN` --
+        `NaN < min` is always `false`, so the exclusion branch never fired
+        for a currency-formatted or comma-grouped value cell no matter how
+        far under the minimum the tender actually was. A real tender-portal
+        export almost never gives a bare integer, so a £5,000 job filtered
+        against a "£20,000 minimum" slipped straight into the shortlist --
+        the opposite of what the tool's one headline filter promises.
+        Added `parseValueNumber()` (strips thousands-separator commas,
+        reads the first signed number out of what remains) and wired
+        `filterTenders` to use it; a blank or truly unreadable cell still
+        reads as 0, unchanged from before. Shipped and merged #2875.
+        `node --test ventures/tender-radar/site/*.test.mjs`: 16/16 pass (3
+        new: `parseValueNumber`'s currency/thousands handling, a
+        currency-formatted low-value row correctly excluded from a
+        $20,000-minimum shortlist, blank/"TBD" cells still excluded).
+        Sitewide `build.mjs` + `check.mjs`: 169 products, 570 pages, no
+        dead links.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `deploy-cicd-readiness` by hand (governor not live yet). A
+        sibling session had already run this same item minutes earlier and
+        fixed the stale CLAUDE.md "bots don't trigger Actions" claim (#2868)
+        and the FAQPage JSON-LD drift regression (#2871/#2872), so this pass
+        needed a different gap. Validated the manifest surface directly
+        rather than trusting the last snapshot: installed `kustomize`
+        v5.6.0 and `kubeconform` v0.6.7 locally (the exact versions
+        `hetzner-gitops-ci.yml` pins) and ran `kustomize build` against all
+        six overlays (`gitops/{apps,platform,prod,staging,agents,ci}`)
+        piped into `kubeconform -strict -kubernetes-version 1.31.0
+        -ignore-missing-schemas` -- all six built cleanly, 66/66 resources
+        valid, 0 invalid, 0 errors. `python3 -m pytest gitops/tests -q`:
+        265/265, matching the queue item's own note. Read every RBAC
+        Role/RoleBinding, NetworkPolicy egress rule, AppProject whitelist,
+        ResourceQuota-vs-workload-request arithmetic and CronJob/Deployment
+        in `gitops/` end to end against what the code they authorize
+        actually calls; checked `hetzner-gitops-ci.yml`'s and
+        `portfolio-pages.yml`'s runs against current `main` HEAD via the
+        Actions API (real runner ids, all green, confirming no live
+        regression). None of that turned up a manifest defect, a
+        self-hosted-runner-incompatible workflow step, or a test/manifest
+        gap -- the tree is in genuinely good shape after the many recent
+        sessions' work in this lane.
+      - >-
+        Found and fixed one real, smaller gap instead:
+        `gitops/ci/runner-entrypoint.sh`'s two `RUNNER_TOKEN` diagnostic
+        messages (the unset-var guard and the "could not mint a
+        registration token" failure) both told the owner to check for a
+        classic-PAT `'repo'` scope. Every other doc in the same lane --
+        `gitops/ci/README.md`, `infra/OWNER_CHECKLIST.md`,
+        `gitops/ci/secrets/actions-runner-token.template.yaml`, and
+        `bootstrap/scripts/seal-owner-secrets.sh`'s own interactive prompt
+        -- has since standardized on a fine-grained PAT with
+        "Administration: Read and write" as the preferred (and, in the
+        script, only-offered) credential shape, which carries no OAuth
+        `'repo'` scope at all -- fine-grained PATs have permissions, not
+        scopes. An owner debugging a `CrashLoopBackOff` via the documented,
+        scripted path would have been pointed at a permission model that
+        does not apply to the token they actually minted. Repointed both
+        messages at `gitops/ci/README.md` (the real source of truth for how
+        to scope this token) so the two cannot drift apart again, and added
+        a comment naming both valid credential shapes. `shellcheck` clean;
+        `kustomize build gitops/ci | kubeconform -strict` still 5/5 valid
+        with the new script text correctly embedded in the
+        `actions-runner-script` ConfigMap; `pytest gitops/tests -q` still
+        265/265 (no test pinned the old wording). Shipped as #2879.
+      - >-
+        Caught and self-corrected a workspace hazard worth recording: this
+        session's working directory is shared with other concurrent
+        sessions rather than isolated, and a `git checkout -b` left the
+        tree exposed to a race -- a concurrent session checked out a
+        different local branch (`fix/tender-radar-currency-value-filter`)
+        between two of this session's commands, so this session's commit
+        landed on that branch instead of its own and sat underneath the
+        other session's subsequent commit. Neither branch had been pushed
+        yet, so nothing was lost or corrupted: recovered cleanly via `git
+        worktree add --detach <path> <this session's own commit sha>` to
+        get an isolated checkout, branched and pushed from there instead of
+        the shared directory, and left the other session's branch/commit
+        untouched (confirmed post-hoc via `git fetch` that it landed
+        separately and cleanly as #2875/#2878). One unused side effect: an
+        empty branch `agent/runner-token-error-message` (identical to
+        `main`, created before the race was noticed) is stranded on the
+        remote with no delete permission available to this session
+        (`git push --delete` returned HTTP 403; no MCP tool exposes branch
+        deletion) -- harmless since it carries no diff, but worth an owner
+        `git push origin --delete agent/runner-token-error-message` at some
+        point to tidy up. Next session sharing this workspace: prefer `git
+        worktree add` over `git checkout -b` in the main checkout for
+        exactly this reason.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `marketing-distribution` (queue item, owner priority second only
+        to deploy/CICD) by hand. Measured first: built the Pages site
+        (`PAGES_BASE_URL=... node platform/pages/build.mjs` +
+        `check.mjs` -- 169 products, 570 pages, no dead links, clean
+        baseline) before picking anything. Walked all four candidates:
+        embed widget (#2561) already covers all 169 entry pages, no skip
+        found; comparison/"alternatives" pages are far more complete than
+        the task's seed list implied -- every marketplace fee calculator
+        and most non-marketplace tools with a real named incumbent already
+        carry a `vs-<incumbent>.html` page (a prior same-day session had
+        already closed the one remaining gap, #2864's
+        `vs-JobNimbus` page for `siding-bid-calculator`); no tool with both
+        a genuine verifiable incumbent and no comparison page was found;
+        `/about/`'s press kit had no drifted claim on inspection.
+      - >-
+        The real gap was candidate 3, the category-hub depth pass: read all
+        seven `/c/` hubs' `CATEGORY_PAGE_COPY` against actual category
+        membership (`groupByCategory` output, not the source by eye) and
+        found two false claims and one omission, all in the meta
+        description / OG description / JSON-LD `CollectionPage.description`
+        that search engines and AI assistants quote directly.
+        `/c/evidence/` named "DNS evidence" as an example -- no DNS tool has
+        ever shipped as a browser surface (`dns-configuration-evidence` is
+        CLI-only, no `index.html`, never in `discoverSurfaces`), so the
+        claim was false since the category pages first shipped in #2060.
+        `/c/logistics/` named "cost a cut list" -- `cut-list-optimizer` was
+        deliberately moved out of `logistics` into `trades` by #2060 itself,
+        but the hub's own copy was never updated and kept advertising a
+        tool that left the category the same PR that wrote the sentence.
+        `/c/more/` omitted the `services` category (carved out of this
+        exact catch-all in the same #2060 PR) from its own "everything
+        outside ... sections" enumeration. Fixed all three with true,
+        verified replacements (`permission drift`, `class an LTL shipment`
+        / `audit a freight accessorial bill`, added `services`), each
+        checked against `groupByCategory` and kept under `check.mjs`'s
+        160-character `SNIPPET_MAX`. 3-line diff, `build.mjs` only. No
+        third-party script/font/CDN/network call added.
+      - >-
+        Verified in an isolated `git worktree` off `origin/main` (the shared
+        checkout had another agent's uncommitted `gitops/` changes sitting
+        dirty; left them untouched rather than risk clobbering parallel
+        work): build + check.mjs clean, `guide-coverage.mjs` and
+        `faq-coverage.mjs` 169/169, `faq-duplicate.mjs` 559 pages clean,
+        `node --test platform/pages/build.test.mjs platform/pages/check.test.mjs`
+        320/320 in the worktree, full `platform/pages/*.test.mjs` suite
+        856/856 (run against the same edit in a separate checkout). Grepped
+        the built `dist/`, `catalog.json`, `llms.txt` to confirm no leftover
+        "DNS evidence" / "cost a cut list" strings anywhere. CI on the PR
+        (#2882) ran on real runners (`ci_starvation.py` signature not
+        present -- jobs took 10s-3min with real conclusions, not the 3-6s
+        `runner_id: 0` pattern): all 7 non-skipped check runs (`build`,
+        `tofu`, `gitops`, `hcloud-scope`, `scripts`, `validate`, `check`)
+        passed. Shipped and merged #2882. Did not touch `gitops/` --
+        that stays with the parallel deploy/CI agent (open PR #2877 at
+        session start).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/optimistic-heisenberg-tozdl9`. Owner's own added direction,
+        same as the immediately preceding session: "make sure deployment
+        and cicd is a priority and building and deploying marketing
+        materials on the hetzner vms," plus a Codex-CLI-on-Hetzner ask.
+        PR queue at start: zero open PRs -- quota trivially satisfied per
+        the mandate's own "if none exist, start new work" clause. Confirmed
+        rather than assumed: `list_pull_requests` and
+        `search_pull_requests` both returned empty.
+      - >-
+        Re-confirmed the Codex-CLI-on-Hetzner ask needs no further building:
+        `infra/OWNER_CHECKLIST.md` already quotes this exact owner sentence
+        and the full governor/RBAC/queue pipeline
+        (`gitops/agents/governor/`) is already built and correct, gated
+        only on one interactive owner step (`codex login` producing
+        `CODEX_AUTH_JSON`) that no agent session can perform. Nothing to
+        add here; re-verifying it was cheap and confirmed no drift.
+      - >-
+        Confirmed deployment/CI-CD health directly rather than trusting the
+        prior session's read: recent `main`-branch workflow runs
+        (`Conflict markers`, `agent-permission-harness CI`) completed
+        green on real runners minutes before this session started.
+        `platform/ci/publish_surface.py` matches its pinned snapshot: the
+        `prod` Argo Application auto-syncs on every merge to `main` and
+        `marisstella.dev`/`www.marisstella.dev` serve content live with no
+        owner action needed; only `tools.marisstella.dev` remains blocked,
+        purely on the already-queued `portfolio-site-repo` secret seal.
+      - >-
+        Checked four unmerged branches touching marketing/gitops
+        (`marketing/vs-smartmoving-moving-bid-calculator`,
+        `fence-bid-calculator-vs-fence-cloud`,
+        `gitops/regen-front-door-mirror`,
+        `gitops-governor-rbac-narrow-jobs-pods-verbs`) for unique value per
+        the branch-to-PR presumption. All four were already superseded by
+        newer or equivalent work independently landed on `main` (verified
+        by diffing each branch's changed files against `main`'s current
+        versions, not by title alone) -- correctly left without a PR opened
+        rather than adding duplicate/stale work to an already-fast-moving
+        queue.
+      - >-
+        Ran the two highest-priority `gitops/agents/queue/*.yaml` items by
+        hand (the governor that would normally run them is still
+        owner-blocked, see above), via two parallel subagents:
+        `deploy-cicd-readiness` found and fixed a real gap --
+        `gitops/ci/runner-entrypoint.sh`'s two RUNNER_TOKEN diagnostic
+        messages pointed the owner at a classic-PAT `'repo'` OAuth scope,
+        while every other doc in the same lane (`gitops/ci/README.md`,
+        `infra/OWNER_CHECKLIST.md`, the secret template, the seal script's
+        own interactive prompt) had already standardized on a fine-grained
+        PAT with `Administration: Read and write`, which carries no
+        `'repo'` scope at all -- an owner debugging a crash-looping runner
+        via the documented path would have chased the wrong permission
+        model. Repointed both messages at the real source of truth.
+        Verified: `shellcheck` clean, `kustomize build | kubeconform
+        -strict` 66/66 valid before and after, `pytest gitops/tests -q`
+        265/265 before and after, and PR #2879's own Actions checks
+        (`gitops`, `check`, `hcloud-scope`, `scripts`, `tofu`) all green on
+        real runners. Shipped and merged #2879, ledger record #2880.
+        `product-feature-improvement` found and fixed a real product bug
+        in `tender-radar`: its minimum-value filter read `Number(row.value
+        || 0) < min`, and `Number("£5,000")` is `NaN`, so the exclusion
+        branch never fired for any currency-formatted value cell -- a
+        £5,000 job slipped past a £20,000 minimum filter, the opposite of
+        the tool's one headline promise. Added `parseValueNumber()` and
+        verified `node --test` 16/16 (3 new cases), sitewide `build.mjs` +
+        `check.mjs` clean (169 products, 570 pages, no dead links), and
+        this repo's local CI reproduction (`run_workflow_locally.py`) 49/49
+        run steps passing across both touched workflows. Shipped and
+        merged #2875, ledger record #2878.
+      - >-
+        Directly reviewed and merged a third PR this session, #2877
+        ("narrow agents AppProject's unused apps wildcard, generalize the
+        test"), opened by a separate concurrent session working the same
+        `deploy-cicd-readiness` lane independently. `supersede_check.py
+        2877` returned NOT SUPERSEDED (58 unique lines) even though
+        `main` had already absorbed the same manifest fix under a
+        different framing (#2876, merged moments earlier by yet another
+        session) -- #2877's real remaining value was a generalized
+        regression test
+        (`test_appproject_whitelist_carries_no_group_its_own_namespace_never_ships`)
+        covering all four venture namespaces (prod/staging/agents/ci)
+        rather than #2876's `agents`-only version, so this was genuine
+        unique work, not a duplicate to close. The PR's branch had a merge
+        conflict against `main` in `gitops/apps/projects.yaml` (both sides
+        made the same manifest edit under different comments); resolved it
+        in an isolated `git worktree` and found the PR's own author agent
+        had independently pushed the identical resolution seconds earlier,
+        including dropping the now-fully-redundant
+        `test_agents_appproject_whitelist_carries_no_dead_group` #2876 had
+        added (the generalized test is a strict superset of it). Verified
+        the remote's resolution directly: `pytest gitops/tests -q` 265/265,
+        no conflict markers, `mergeable_state: clean`. Merged #2877.
+      - >-
+        Three-PR quota met this session (#2875, #2877, #2879, all
+        reviewed/repaired/merged; #2879 and #2875 delivered via
+        subagents this session directed and verified). Zero open PRs
+        touched by this session were left unmerged. Three new PRs
+        (#2881-#2883) opened by other concurrent sessions in the final
+        minutes of this run were left for the fleet's own fast cadence
+        rather than chased, given the queue is being actively drained
+        elsewhere in real time (five PRs opened and merged by other
+        sessions during this session's own runtime).
+      - >-
+        Notable environment finding, corroborated independently by both
+        subagents this session ran: the working directory these scheduled
+        sessions share is a single non-isolated git checkout, not one
+        worktree per session. Both subagents hit a live collision (a
+        concurrent `git checkout` swapping branches mid-edit); both
+        self-recovered via `git worktree add`, and no work was lost this
+        time, but it is a repeatable hazard for the concurrent-session
+        cadence this repo now runs at. Worth the owner's attention if it
+        starts destroying uncommitted work rather than just requiring
+        recovery.
+    mrr_end: null
