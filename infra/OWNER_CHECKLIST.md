@@ -216,10 +216,18 @@ codes as exit 42 and a rejected credential as exit 43.
    your attention: **`Claude routine trigger` is failing 401 on a live
    token, not on a missing one.** Its `CLAUDETRIGGERAPIKEY` secret is
    set, and the API returns *"OAuth access token has been revoked"*
-   (run 33547527610). With `*/20` scheduling and 5 fires per run that is
-   ~360 real API calls a day on real runners, all failing — safe, but
-   burning the same metered Actions allowance whose exhaustion caused the
-   2026-08-26 starvation. Mint a fresh token at
+   (run 33547527610). With `*/20` scheduling that is 72 runs a day, and
+   **measured, not the ~360/day this line used to say**: on a 401
+   `fire()` returns 2 and the workflow's own `case` exits on that value
+   (lines ~157-170) rather than trying the four remaining slots, so five
+   consecutive runs (33553452882, 33551039615, 33549288450, 33547527610,
+   33545549251) each occupied a real runner for 2-3 seconds, not the
+   ~16 minutes a full 5-fire loop would take. That is **72 real API
+   calls a day**, ~72 billed Actions minutes (~$17/month), not the
+   larger figures this line and `routine-trigger-cadence` in your
+   decision queue used to carry — safe, but still burning the same
+   metered Actions allowance whose exhaustion caused the 2026-08-26
+   starvation. Mint a fresh token at
    <https://claude.ai/code/routines> and update the secret, or delete the
    workflow; it is the `routine-trigger-cadence` row in your decision
    queue. A red check here is now worth reading rather than discounting.
