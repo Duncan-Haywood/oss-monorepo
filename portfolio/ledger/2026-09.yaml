@@ -1467,3 +1467,87 @@ entries:
         way it would a calculator change. Did not touch `gitops/` or
         `.github/workflows/`, staying clear of the concurrent
         deploy/CI-CD session sharing this working tree.
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2671: `scheduleOutcome()` sorted its milestones array by
+        `paidDay` (when cash clears) rather than `invoiceDay` (when it is
+        issued), and `scheduleCopy()` renders that same array verbatim as
+        the client-facing contract text. A deposit invoiced at kickoff but
+        slow to collect could clear after a later milestone's invoice,
+        printing "Balance on completion" before "Deposit" -- a contract
+        telling the client to pay for finished work before the kickoff
+        deposit it was supposed to precede, and a document a user could
+        copy straight into a real proposal. Found via a targeted
+        correctness review of this venture's date/schedule arithmetic (no
+        other issues found in the pay-run date logic or peak-exposure
+        formula, both verified numerically sound).
+      - >-
+        Fix: sort by `invoiceDay` instead; `fullyPaidDay` no longer follows
+        from array order so it is now computed via `Math.max(...)`. Added a
+        regression test reproducing the exact scenario, confirmed it fails
+        against the old sort and passes against the fix. 80/80 venture
+        tests pass (was 79). Real CI went green (`check`, `test`, `build`
+        x2) before merge.
+  - venture: 3pl-quote-normalizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2678: `returnDispositionSummary()`'s flip-line ternary had
+        no branch for `cheapestPath`/`path` value `"tie"`, so when a
+        restockable-rate or unit-cost sweep never resolves to a single
+        cheapest disposition path, the report falsely stated "Destroy stays
+        cheapest" through the whole sweep -- a wrong claim in a report used
+        to negotiate 3PL return-disposition policy. `kittingSummary()`
+        already handles the analogous tie case correctly, confirming this
+        was an omission rather than intended behaviour. Found in the same
+        review pass as the invoice-terms fix above, scoped to this
+        venture's sweep/flip functions (`returnsFlip`, `agedStorageFlip`,
+        `returnDispositionFlip`, `kittingFlip`); no crash-level bugs found
+        in any of the four.
+      - >-
+        Fix: added the missing "tie" branch to both flip-line ternaries.
+        Added a regression test with inputs that collapse all three
+        disposition paths to the same net cost at every swept value;
+        confirmed it fails against the old ternary and passes against the
+        fix. 103/103 venture tests pass (was 102).
+      - >-
+        Not fixed, flagged in the PR body instead of bundled in:
+        `agedStorageFlip` assumes 3PL cost only rises with
+        `leftoverPallets`, which can be false if a user enters a discounted
+        long-term storage rate below the standard rate -- a genuine second
+        finding from the same review, but one needing a design decision
+        (detect the reversal vs. constrain the input) rather than a
+        one-line fix.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This run's own PR/branch-drain check (0 open PRs, a sample of 8
+        stale branches all verified superseded) reached the same negative
+        verdict the concurrent, more rigorous entry above already records
+        (an identical-merge proof over all 88 branches) -- not repeated here
+        to avoid duplicating that finding. What follows is what that entry
+        does not cover.
+      - >-
+        Verified the owner's two explicitly-requested priorities
+        (deployment/CI-CD, and Codex-on-Hetzner "use the built-in quota")
+        are both already fully built in code, per `gitops/agents/` and
+        `infra/OWNER_CHECKLIST.md`, and are already the top two enabled
+        items in `gitops/agents/queue/` (`deploy-cicd-readiness` priority
+        7, `marketing-distribution` priority 6, both explicitly re-prioritized
+        2026-09-01 on this same owner instruction). Both remain blocked
+        purely on owner-only sealed-secret actions (`portfolio-site-repo`,
+        `codex-secrets`) that need a laptop holding the Sealed Secrets key
+        -- nothing an agent session can do. Did not duplicate these
+        already-queued asks. Ran `python3 -m pytest gitops/tests -q`
+        (219/219), `kustomize build` + `kubeconform -strict` across all 6
+        overlays (clean), and `platform/ci/publish_surface.py --check`
+        (still 0 hostnames serving content, unchanged) rather than find a
+        new gitops defect to report -- none surfaced despite a genuine
+        search, which this entry records so a future session does not
+        re-run the same search expecting a different answer.
