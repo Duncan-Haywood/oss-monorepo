@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/sponsor-ready/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/sponsor-ready/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>.fd-back{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}@media print{.fd-back{display:none!important}}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sponsor Ready — free GitHub Sponsors readiness checklist</title>
   <meta name="description" content="Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first." />
@@ -11,7 +11,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sponsor Ready","applicationCategory":"DeveloperApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a high score mean GitHub will approve me for Sponsors?","acceptedAnswer":{"@type":"Answer","text":"No. This checklist has nothing to do with GitHub's own Sponsors program eligibility review — it scores publicly documented signals (a FUNDING.yml, a substantial README, recent activity, a license, and similar) that tend to correlate with a repo looking sponsor-ready to a human visitor. It never tells you to enable Sponsors and is not affiliated with GitHub. See all 10 signals ranked by weight, with the one-line fix for each."}},{"@type":"Question","name":"Why did my scan fail with a rate-limit error?","acceptedAnswer":{"@type":"Answer","text":"Every check calls GitHub's public API directly from your browser, unauthenticated, which GitHub caps at 60 requests per hour per visitor IP. If you or others on the same network have scanned several repos recently, wait a few minutes and try again — there is no server-side proxy here to work around the limit."}},{"@type":"Question","name":"Can I check a private repository?","acceptedAnswer":{"@type":"Answer","text":"No. The tool only calls GitHub's public, unauthenticated API, so it can only see what an anonymous visitor to your repo page could see. A private repo returns a 404 and the checklist has no way to read it."}},{"@type":"Question","name":"Does it store or send the name of the repo I scanned anywhere?","acceptedAnswer":{"@type":"Answer","text":"Your repo target is sent only to api.github.com, the same request your own browser would make visiting the repo page. This site has no server and stores nothing about which repos you check; only anonymous, aggregate usage counts like \"a scan happened\" may be recorded locally, with an opt-out below."}}]}</script>
 </head>
-<body>
+<body><a class="fd-back" href="/">&#8592; All 53 free tools on this site</a>
   <main class="page">
     <header class="hero">
       <h1>Sponsor Ready</h1>

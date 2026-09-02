@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/vendor-change-evidence/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/vendor-change-evidence/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>.fd-back{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}@media print{.fd-back{display:none!important}}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Vendor Change Evidence — free vendor policy diff checker</title>
   <meta name="description" content="Free, no-signup, no-upload tool that compares two dated vendor policy snapshots (privacy, terms, subprocessors, security) in your browser and reports what changed. Runs entirely client-side." />
@@ -11,7 +11,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vendor Change Evidence","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this fetch the vendor's page for me?","acceptedAnswer":{"@type":"Answer","text":"No. This tool never makes a network request to a vendor. You supply both snapshots — however you captured them — and this only compares the two. That keeps it usable for internal, access-controlled, or authenticated pages a public fetcher could never reach."}},{"@type":"Question","name":"What counts as a valid snapshot?","acceptedAnswer":{"@type":"Answer","text":"A JSON object with four string fields: url (the page you captured), captured_at (an ISO 8601 timestamp), fetch_status (\"ok\" if the capture succeeded, anything else if it didn't), and text (the page content or a normalized extract of it)."}},{"@type":"Question","name":"Why \"inconclusive\" instead of \"unchanged\"?","acceptedAnswer":{"@type":"Answer","text":"If either capture failed (a non-\"ok\" fetch status) or the \"after\" timestamp is earlier than \"before\", the tool cannot honestly claim the page is stable — a failed fetch could be hiding a real change. It reports inconclusive rather than a false negative."}},{"@type":"Question","name":"Is my snapshot text uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Comparison happens with JavaScript running in your own browser tab. This page makes no network request with your pasted content — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a comparison was run\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same comparison logic ships as a local Python CLI (src/vendor_change.py) in this tool's repository, for scripted or scheduled use. See the README for its usage."}}]}</script>
 </head>
-<body>
+<body><a class="fd-back" href="/">&#8592; All 53 free tools on this site</a>
   <main class="page">
     <header class="hero">
       <h1>Vendor Change Evidence</h1>

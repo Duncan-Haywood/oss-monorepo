@@ -149,8 +149,20 @@ export const MIRROR_PREFIX = 'tools/';
  * refuses that shape. 6 KiB of the ~300 KB documented headroom closes the
  * gap and repacks to 7 full shards, with room to spare before the next
  * fragment.
+ *
+ * Raised again on 2026-09-02, from 706 KiB to 736 KiB, when the return link
+ * `injectMirrorNav` adds to every page grew the mirror by 60,320 bytes and
+ * first-fit opened an 8th shard. 736 KiB is not another 6-KiB patch of the
+ * same kind: `7 * 736 KiB` is 5,275,648 bytes, which is more than
+ * `MIRROR_BYTE_CEILING` itself, so seven shards can now hold any mirror this
+ * module is allowed to build and the next byte of growth stops at the total
+ * ceiling — where the decision belongs — instead of silently changing how many
+ * ConfigMaps `gitops/prod/portfolio-front.yaml` has to mount. The cost is
+ * headroom under the 1 MiB object cap: 753,664 content bytes serialise to
+ * roughly 781 KB at the measured 3.7% overhead, leaving ~267 KB rather than
+ * ~296 KB for Argo's tracking metadata and server-side apply's `managedFields`.
  */
-export const SHARD_BYTE_CEILING = 706 * 1024;
+export const SHARD_BYTE_CEILING = 736 * 1024;
 
 /**
  * The ceiling on the mirror's total bytes, across every shard.
@@ -608,7 +620,8 @@ export function injectMirrorTags(html, { slug, file }) {
   const tags =
     `<meta name="robots" content="noindex,follow">` +
     `<link rel="canonical" href="${canonicalUrl(slug, file)}">` +
-    `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">`;
+    `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">` +
+    NAV_STYLE;
   const stripped = html
     .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '')
     .replace(/<link\b[^>]*\brel=["']icon["'][^>]*>/gi, '')
@@ -619,6 +632,92 @@ export function injectMirrorTags(html, { slug, file }) {
     return stripped.slice(0, at) + tags + stripped.slice(at);
   }
   return stripped.replace(/<head\b[^>]*>/i, (open) => open + tags);
+}
+
+/**
+ * The class the return link and its rule share.
+ *
+ * Prefixed rather than named something a venture might already use. The rule
+ * below lands near the top of `<head>`, *before* the venture's own `<style>`,
+ * so on a collision the venture would win and the return link would inherit
+ * whatever that class means to it — a silently unreadable link rather than a
+ * visible break. A test asserts no mirrored page's source already uses it.
+ */
+export const NAV_CLASS = 'fd-back';
+
+/**
+ * The rule for the return link, injected into every mirrored page's head.
+ *
+ * Inline `style` on the anchor would cost about the same and lose the
+ * `@media print` rule, which is not optional here: every mirrored venture's
+ * print stylesheet hides `header, main, footer` with `!important` so that
+ * printing yields the customer proposal and nothing else. An unhidden bar
+ * would put "All 53 free tools" across the top of a contractor's printed bid,
+ * which is the one page of this portfolio that a stranger's customer sees.
+ *
+ * The colour is `front-door.mjs`'s `--cta-bg`/`--cta-fg` pair, stated
+ * literally because the venture pages do not define those custom properties.
+ * It is a fixed dark blue in both schemes: the venture pages carry their own
+ * light and dark palettes, and a bar that inverted with them would need each
+ * venture's variables rather than the front door's.
+ */
+export const NAV_STYLE =
+  `<style>.${NAV_CLASS}{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;` +
+  `color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}` +
+  `@media print{.${NAV_CLASS}{display:none!important}}</style>`;
+
+/**
+ * Give every mirrored page a way back to the front door.
+ *
+ * ## The defect this fixes
+ *
+ * The module header explains that the front door's cards used to hand every
+ * visitor a dead host, and that this mirror is what fixed it. It fixed the
+ * hop *into* a tool and left the hop *out* of one missing, which is the same
+ * defect one level down: a mirrored page's only links are its own siblings,
+ * its `LICENSE`, and a canonical to the host that still serves nothing. So a
+ * visitor who opens the fence calculator — from the front door, a bookmark, or
+ * a link someone sent them — has no route to the other 52 tools and no way to
+ * learn they exist. Every tool the apex serves is a cul-de-sac, and the
+ * portfolio's one working funnel is one page deep.
+ *
+ * A returning visitor is the cheapest adoption this portfolio can get: the
+ * tools share an audience (a contractor who bids fences also bids concrete),
+ * they cost nothing to serve, and the front door already groups them by
+ * category. The link is what makes that grouping reachable from where people
+ * actually land.
+ *
+ * ## Why one link, at the top, rather than a related-tools block
+ *
+ * Bytes are the mirror's binding constraint — see `MIRROR_BYTE_CEILING` — and
+ * a per-page block of siblings would cost several times this and go stale
+ * against `STARTER_SET`. One link to the front door reaches all of them,
+ * because the front door is already the catalogue.
+ *
+ * It goes immediately after `<body>` rather than in the footer because a
+ * calculator page is long: a footer link is below a form nobody scrolls past
+ * once they have their number. It is a plain anchor with a class, not a fixed
+ * or sticky bar, so it cannot overlap a venture's own layout — checked against
+ * the mirrored ventures' stylesheets, none of which style `body > *`.
+ *
+ * The count is passed in rather than read from `STARTER_SET` so that a test
+ * fixture, and any future partial build, states a number that is true of the
+ * mirror it is actually building.
+ */
+export function injectMirrorNav(html, { toolCount }) {
+  const nav =
+    `<a class="${NAV_CLASS}" href="/">` +
+    `&#8592; All ${toolCount} free tools on this site</a>`;
+  const body = html.match(/<body\b[^>]*>/i);
+  // A page with no <body> tag is not one the mirror should be inventing
+  // markup around; `validateLinks` and the noindex tests all assume a
+  // well-formed document, and silently prepending to the file would put the
+  // anchor outside <html>.
+  if (!body) {
+    throw new Error('a mirrored page has no <body> tag, so the return link has nowhere to go');
+  }
+  const at = html.indexOf(body[0]) + body[0].length;
+  return html.slice(0, at) + nav + html.slice(at);
 }
 
 /**
@@ -693,7 +792,9 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
         );
       }
       const raw = await fs.readFile(path.join(venturesDir, slug, file), 'utf8');
-      const contents = file.endsWith('.html') ? injectMirrorTags(raw, { slug, file }) : raw;
+      const contents = file.endsWith('.html')
+        ? injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length })
+        : raw;
       files.push({ slug, file, key: mirrorKey(slug, file), contents });
     }
     const entry = files.find((f) => f.slug === slug && f.file === 'index.html');

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/public-record-watch/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/public-record-watch/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>.fd-back{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}@media print{.fd-back{display:none!important}}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Public-Record Watch — free public register change checker</title>
   <meta name="description" content="Free, no-signup, no-upload tool that compares two dated public-register snapshots (licenses, permits, registrations) in your browser and reports what changed. Runs entirely client-side." />
@@ -11,7 +11,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Public-Record Watch","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this fetch the register for me?","acceptedAnswer":{"@type":"Answer","text":"No. This tool never makes a network request to a register. You supply both snapshots — however you exported them — and this only compares the two. That keeps it usable for registers with no public API, a login wall, or a rate limit a general fetcher could never respect."}},{"@type":"Question","name":"What counts as a valid snapshot?","acceptedAnswer":{"@type":"Answer","text":"A JSON object with authorized: true (you attest you're authorized to hold this export), a register name, a source_url the report links back to, and a records list where every record has a unique id. All other record fields are compared as-is."}},{"@type":"Question","name":"Why doesn't a removed record mean the person lost their license?","acceptedAnswer":{"@type":"Answer","text":"A record missing from the \"after\" export could mean the license lapsed, the export was incomplete, or the register reorganized its ids. This tool reports the observation only; the reviewer opens the source URL and confirms what actually happened before relying on it."}},{"@type":"Question","name":"Is my export uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Comparison happens with JavaScript running in your own browser tab. This page makes no network request with your pasted content — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a comparison was run\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same comparison logic ships as a local Python CLI (src/public_record_watch/cli.py) in this tool's repository, for scripted use. See the README for its usage."}}]}</script>
 </head>
-<body>
+<body><a class="fd-back" href="/">&#8592; All 53 free tools on this site</a>
   <main class="page">
     <header class="hero">
       <h1>Public-Record Watch</h1>

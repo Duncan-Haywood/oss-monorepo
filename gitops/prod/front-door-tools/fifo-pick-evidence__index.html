@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/fifo-pick-evidence/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/fifo-pick-evidence/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>.fd-back{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}@media print{.fd-back{display:none!important}}</style>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FIFO Pick Evidence — Free Warehouse Pick-Log Report</title>
   <meta name="description" content="Free, no-signup, no-upload tool that reads a warehouse pick-log CSV in your browser and reports FIFO pick-order exceptions and missing or ill-formed timestamps before a customer audit. Runs entirely client-side." />
@@ -11,7 +11,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"FIFO Pick Evidence","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a FIFO exception?","acceptedAnswer":{"@type":"Answer","text":"A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log. See a worked example for the exact rows that do and do not get flagged."}},{"@type":"Question","name":"Why does a row show \"invalid timestamp\" instead of a time?","acceptedAnswer":{"@type":"Answer","text":"received_at and picked_at must be ISO 8601 with an explicit timezone, such as a trailing Z or a +00:00 offset. A bare local timestamp with no zone is reported as invalid rather than guessed at, because guessing a timezone would guess the very ordering this report exists to check."}},{"@type":"Question","name":"Is my pick log uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Parsing happens with JavaScript running in your own browser tab. This page makes no network request with your file's contents — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a report was generated\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same check ships as a local Python CLI (fifo_pick_evidence.py) in this tool's repository, for scheduled runs or CI. See the README for its usage."}}]}</script>
 </head>
-<body>
+<body><a class="fd-back" href="/">&#8592; All 53 free tools on this site</a>
   <main class="page">
     <header class="hero">
       <h1>FIFO Pick Evidence</h1>
