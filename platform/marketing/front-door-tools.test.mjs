@@ -165,7 +165,7 @@ test('the mirror asks for the apply mode its size actually requires', async () =
   // `kubectl.kubernetes.io/last-applied-configuration` annotation, and the API
   // server rejects any object whose annotations total more than 262144 bytes.
   //
-  // At ~460 KB the mirror is over that by a factor of nearly two, so without
+  // At ~600 KB the mirror is over that by more than a factor of two, so without
   // `ServerSideApply=true` the ConfigMap never applies at all — the front door
   // keeps serving its old, toolless pods and `prod` sits Degraded. That is the
   // whole point of the annotation, so pin both halves: that it is emitted, and

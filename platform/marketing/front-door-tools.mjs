@@ -117,9 +117,10 @@ export const BYTE_CEILING = 640 * 1024;
  *
  *   metadata.annotations: Too long: must have at most 262144 bytes
  *
- * The mirror is ~460 KB of tool source. That is comfortably under the 1 MiB
- * etcd ceiling every comment in this tree reasons about — and comfortably over
- * this one, which binds first and which nothing here had accounted for. The
+ * The mirror is ~600 KB of tool source and grows with `STARTER_SET`. That is
+ * under the 1 MiB etcd ceiling every comment in this tree reasons about — and
+ * more than twice this one, which binds first and which nothing here had
+ * accounted for. The
  * consequence is not a degraded mirror but no mirror at all: Argo's sync of the
  * ConfigMap fails, the hashed name the Deployment mounts is never created, the
  * new pods sit in `ContainerCreating`, and `maxUnavailable: 0` keeps the old
@@ -384,7 +385,7 @@ export function renderKustomization(files) {
 # decoration. Argo CD applies client-side by default, which copies the whole
 # object into the \`kubectl.kubernetes.io/last-applied-configuration\`
 # annotation, and the API server caps an object's annotations at 262144 bytes.
-# The mirror is ~460 KB, so a client-side apply of this ConfigMap fails with
+# This mirror is several times that, so a client-side apply of it fails with
 # \`metadata.annotations: Too long\` and the mirror never reaches the cluster at
 # all — see \`CLIENT_SIDE_APPLY_CEILING\` in \`front-door-tools.mjs\` for the whole
 # failure mode. Server-side apply writes no such annotation and is bounded only

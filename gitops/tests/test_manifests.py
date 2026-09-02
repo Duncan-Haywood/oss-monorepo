@@ -823,7 +823,8 @@ def test_a_configmap_too_large_for_client_side_apply_asks_for_server_side() -> N
     # the manifest, inside the object's own annotations, which the API server
     # caps at 262144 bytes in total.
     #
-    # `portfolio-front-tools` (the apex tool mirror, #2739) is ~460 KB. Every
+    # `portfolio-front-tools` (the apex tool mirror, #2739 and #2741) is ~600 KB
+    # and grows with STARTER_SET. Every
     # size comment in this tree reasons about etcd's 1 MiB ConfigMap ceiling,
     # which it is comfortably under — and nothing reasoned about this one, which
     # binds first and which it is comfortably over. The failure is not a

@@ -54,8 +54,8 @@ ceiling; the front door is 11 KB, and a test fails it past 256 KB.
 default, and `kubectl apply` records the object it sent in the
 `kubectl.kubernetes.io/last-applied-configuration` annotation — so the manifest
 is stored twice, and the API server caps one object's annotations at 262144
-bytes in total. `front-door-tools.mjs` mirrors ~460 KB of tool source into
-`portfolio-front-tools`: under 1 MiB, nearly double this. A ConfigMap in that
+bytes in total. `front-door-tools.mjs` mirrors ~600 KB of tool source into
+`portfolio-front-tools`: under 1 MiB, more than double this. A ConfigMap in that
 band applies as `metadata.annotations: Too long` and never reaches the cluster
 at all, so the generated kustomization declares
 `argocd.argoproj.io/sync-options: ServerSideApply=true`, which writes no such

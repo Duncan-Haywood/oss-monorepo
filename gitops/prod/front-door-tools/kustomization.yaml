@@ -19,7 +19,7 @@
 # decoration. Argo CD applies client-side by default, which copies the whole
 # object into the `kubectl.kubernetes.io/last-applied-configuration`
 # annotation, and the API server caps an object's annotations at 262144 bytes.
-# The mirror is ~460 KB, so a client-side apply of this ConfigMap fails with
+# This mirror is several times that, so a client-side apply of it fails with
 # `metadata.annotations: Too long` and the mirror never reaches the cluster at
 # all — see `CLIENT_SIDE_APPLY_CEILING` in `front-door-tools.mjs` for the whole
 # failure mode. Server-side apply writes no such annotation and is bounded only
