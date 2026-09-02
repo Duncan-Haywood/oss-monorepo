@@ -23,13 +23,13 @@
 # `front-door-tools.mjs` carries the reasoning and the measurements.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 104 files, 715048 bytes
-#   portfolio-front-tools-1: 30 files, 712599 bytes
-#   portfolio-front-tools-2: 38 files, 694232 bytes
-#   portfolio-front-tools-3: 47 files, 715610 bytes
-#   portfolio-front-tools-4: 88 files, 714723 bytes
-#   portfolio-front-tools-5: 67 files, 712911 bytes
-#   portfolio-front-tools-6: 64 files, 711201 bytes
+#   portfolio-front-tools-0: 107 files, 732296 bytes
+#   portfolio-front-tools-1: 28 files, 716261 bytes
+#   portfolio-front-tools-2: 37 files, 673322 bytes
+#   portfolio-front-tools-3: 50 files, 732221 bytes
+#   portfolio-front-tools-4: 89 files, 728170 bytes
+#   portfolio-front-tools-5: 68 files, 723858 bytes
+#   portfolio-front-tools-6: 60 files, 681200 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -156,14 +156,14 @@ configMapGenerator:
       - grant-reporting-tracker__LICENSE=grant-reporting-tracker__LICENSE
       - grant-reporting-tracker__calc.mjs=grant-reporting-tracker__calc.mjs
       - grant-reporting-tracker__index.html=grant-reporting-tracker__index.html
+      - grant-reporting-tracker__vs-granthub.html=grant-reporting-tracker__vs-granthub.html
+      - grant-reporting-tracker__when-is-my-grant-report-due.html=grant-reporting-tracker__when-is-my-grant-report-due.html
+      - translator-project-quote__LICENSE=translator-project-quote__LICENSE
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - grant-reporting-tracker__vs-granthub.html=grant-reporting-tracker__vs-granthub.html
-      - grant-reporting-tracker__when-is-my-grant-report-due.html=grant-reporting-tracker__when-is-my-grant-report-due.html
-      - translator-project-quote__LICENSE=translator-project-quote__LICENSE
       - translator-project-quote__calc.mjs=translator-project-quote__calc.mjs
       - translator-project-quote__how-to-quote-a-translation-project.html=translator-project-quote__how-to-quote-a-translation-project.html
       - translator-project-quote__index.html=translator-project-quote__index.html
@@ -191,12 +191,12 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html
       - ebay-fee-calculator__should-i-offer-an-ebay-coupon.html=ebay-fee-calculator__should-i-offer-an-ebay-coupon.html
       - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html
+      - ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html=ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html=ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html
       - ebay-fee-calculator__should-i-offer-ebay-local-pickup.html=ebay-fee-calculator__should-i-offer-ebay-local-pickup.html
       - ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html=ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html
       - ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html=ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html
@@ -286,14 +286,14 @@ configMapGenerator:
       - reverb-fee-calculator__should-i-consign-this-reverb-listing.html=reverb-fee-calculator__should-i-consign-this-reverb-listing.html
       - reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html=reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html
       - reverb-fee-calculator__should-i-include-shipping-on-reverb.html=reverb-fee-calculator__should-i-include-shipping-on-reverb.html
+      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html
+      - reverb-fee-calculator__should-i-take-this-reverb-offer.html=reverb-fee-calculator__should-i-take-this-reverb-offer.html
+      - reverb-fee-calculator__usage.mjs=reverb-fee-calculator__usage.mjs
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html
-      - reverb-fee-calculator__should-i-take-this-reverb-offer.html=reverb-fee-calculator__should-i-take-this-reverb-offer.html
-      - reverb-fee-calculator__usage.mjs=reverb-fee-calculator__usage.mjs
       - reverb-fee-calculator__vs-reverbs-selling-fees-page.html=reverb-fee-calculator__vs-reverbs-selling-fees-page.html
       - 3pl-quote-normalizer__LICENSE=3pl-quote-normalizer__LICENSE
       - 3pl-quote-normalizer__calc.mjs=3pl-quote-normalizer__calc.mjs
@@ -379,15 +379,15 @@ configMapGenerator:
       - npm-deployment-evidence__LICENSE=npm-deployment-evidence__LICENSE
       - npm-deployment-evidence__app.js=npm-deployment-evidence__app.js
       - npm-deployment-evidence__evidence.js=npm-deployment-evidence__evidence.js
+      - npm-deployment-evidence__index.html=npm-deployment-evidence__index.html
+      - npm-deployment-evidence__style.css=npm-deployment-evidence__style.css
+      - npm-deployment-evidence__usage.js=npm-deployment-evidence__usage.js
+      - npm-deployment-evidence__vs-npm-audit.html=npm-deployment-evidence__vs-npm-audit.html
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - npm-deployment-evidence__index.html=npm-deployment-evidence__index.html
-      - npm-deployment-evidence__style.css=npm-deployment-evidence__style.css
-      - npm-deployment-evidence__usage.js=npm-deployment-evidence__usage.js
-      - npm-deployment-evidence__vs-npm-audit.html=npm-deployment-evidence__vs-npm-audit.html
       - npm-deployment-evidence__which-npm-vulnerabilities-actually-reach-production.html=npm-deployment-evidence__which-npm-vulnerabilities-actually-reach-production.html
       - grant-deadline-tracker__LICENSE=grant-deadline-tracker__LICENSE
       - grant-deadline-tracker__calc.mjs=grant-deadline-tracker__calc.mjs
@@ -451,16 +451,16 @@ configMapGenerator:
       - commercial-photo-license-calculator__LICENSE=commercial-photo-license-calculator__LICENSE
       - commercial-photo-license-calculator__app.mjs=commercial-photo-license-calculator__app.mjs
       - commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html=commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html
-  - name: portfolio-front-tools-6
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - commercial-photo-license-calculator__index.html=commercial-photo-license-calculator__index.html
       - commercial-photo-license-calculator__style.css=commercial-photo-license-calculator__style.css
       - commercial-photo-license-calculator__vs-fotoquote.html=commercial-photo-license-calculator__vs-fotoquote.html
       - notary-trip-quote__LICENSE=notary-trip-quote__LICENSE
       - notary-trip-quote__calc.mjs=notary-trip-quote__calc.mjs
+  - name: portfolio-front-tools-6
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - notary-trip-quote__how-much-to-charge-for-a-mobile-notary-appointment.html=notary-trip-quote__how-much-to-charge-for-a-mobile-notary-appointment.html
       - notary-trip-quote__index.html=notary-trip-quote__index.html
       - notary-trip-quote__usage.mjs=notary-trip-quote__usage.mjs
@@ -520,3 +520,4 @@ configMapGenerator:
       - fence-bid-calculator__proposal.mjs=fence-bid-calculator__proposal.mjs
       - fence-bid-calculator__share.mjs=fence-bid-calculator__share.mjs
       - fence-bid-calculator__usage.mjs=fence-bid-calculator__usage.mjs
+      - fence-bid-calculator__vs-fence-cloud.html=fence-bid-calculator__vs-fence-cloud.html

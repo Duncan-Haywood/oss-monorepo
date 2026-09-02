@@ -125,13 +125,35 @@ export const MIRROR_PREFIX = 'tools/';
  * `volumes[].projected.sources[].configMap.name`, so a changed shard still
  * rolls the pods.
  *
- * 700 KiB rather than the old 800: with more than one shard there is no reason
- * to run any single one close to the cap, and the packer only needs the slack
- * to be larger than the biggest single file it must place (208 KB —
+ * 716 KiB (was 700, then 800): with more than one shard there is no reason to
+ * run any single one close to the cap, and the packer only needs the slack to
+ * be larger than the biggest single file it must place (208 KB —
  * `ebay-fee-calculator/calc.mjs`). Measured overhead is 3.7% for ~95 keys, so
- * 700 KiB of content serialises to roughly 745 KB, leaving ~300 KB under the
+ * 716 KiB of content serialises to roughly 743 KB, leaving ~280 KB under the
  * 1 MiB object cap for Argo's tracking metadata and server-side apply's
  * per-key `managedFields`.
+ *
+ * **Raised from 700 on 2026-09-02** (#2820 grew `fence-bid-calculator`, one
+ * of the mirrored ventures, by one comparison page) for a reason this
+ * ceiling's own history had not yet hit: `packShards` bins in declaration
+ * order with no rebalancing (see its own doc comment for why that trade is
+ * deliberate), so a mirrored venture's *existing* entry growing — not a new
+ * entry landing at a bad position, the case `faire-wholesale-calculator`'s
+ * comment above already covers — can by itself push the tail of the packing
+ * just past a shard boundary. The result was an 8th shard holding one 10,756
+ * byte file, 4% of `CLIENT_SIDE_APPLY_CEILING`: real ConfigMap churn (a new
+ * hashed name, new `ServerSideApply` annotation) to carry a single page,
+ * and — because `packShards` packs *files*, so which venture a fragment
+ * shard happens to land after is a property of total bytes, not of any one
+ * venture's position — reordering `STARTER_SET` cannot fix it. A tried
+ * exhaustive search over every position for `fence-bid-calculator` (53
+ * candidates) confirmed the fragment is invariant to where in the list that
+ * one venture's block sits, which is what the file-level packing this
+ * function's own doc comment describes predicts. Raising the ceiling by 16
+ * KiB — inside the "biggest single file" floor above and the headroom this
+ * comment already reasoned about — repacks the same content into 7 shards
+ * with no fragment, at 673,322-728,016 bytes each, still comfortably under
+ * `CLIENT_SIDE_APPLY_CEILING`'s next multiple.
  *
  * The check on the real objects is
  * `test_generated_configmaps_stay_under_the_etcd_object_ceiling` in
@@ -139,7 +161,7 @@ export const MIRROR_PREFIX = 'tools/';
  * in the tree after kustomize has built it. This one stays because it fails in
  * the venture directory, seconds after a `--write`, rather than after a build.
  */
-export const SHARD_BYTE_CEILING = 700 * 1024;
+export const SHARD_BYTE_CEILING = 716 * 1024;
 
 /**
  * The ceiling on the mirror's total bytes, across every shard.
