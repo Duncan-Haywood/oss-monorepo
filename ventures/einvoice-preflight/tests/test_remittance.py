@@ -83,6 +83,16 @@ class RemittanceRuleTest(unittest.TestCase):
         self.assertEqual(inspect_payment_remittance(_invoice()), [])
         self.assertEqual(inspect_payment_remittance({}), [])
 
+    def test_wrong_length_iban_without_remittance_is_still_inv_030(self):
+        # Truncated (20 chars, DE needs 22), but still an IBAN, not an
+        # internal account id -- a buyer still needs a remittance reference
+        # to quote on the transfer. This used to be silently skipped because
+        # looks_like_complete_iban read any wrong-length IBAN as "no IBAN
+        # here".
+        findings = inspect_payment_remittance(_invoice("DE893704004405320130"))
+        self.assertEqual([item["rule"] for item in findings], ["INV-030"])
+        self.assertEqual(findings[0]["path"], "/payment/remittance")
+
     def test_unstructured_and_valid_rf_pass(self):
         self.assertEqual(
             inspect_payment_remittance(_invoice("DE89370400440532013000", "INV-1001")),
