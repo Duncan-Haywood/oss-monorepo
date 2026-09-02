@@ -3281,3 +3281,41 @@ entries:
         (18 -> 20 tools, 92% of `BYTE_CEILING`, ~72% of the etcd cap that
         actually binds). Both merged to `main`, which is the Argo deploy.
     mrr_end: null
+  - venture: subcontractor-cashflow-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Executed `gitops/agents/queue/marketing-distribution.yaml` directly
+        (its target worker, Codex, is still disabled pending owner seal) --
+        candidate #2, a comparison page against a genuine named incumbent.
+        Checked open PRs first: none. ~70 `vs-*`/`compare*` pages already
+        exist across the portfolio (grep confirmed), so found the remaining
+        gap by diffing every venture directory against the set that already
+        has one: `subcontractor-cashflow-planner` was still uncovered and is
+        an unusually exact match -- it prices the same working-capital gap
+        Billd (a real construction material-financing company) actually
+        finances. WebFetch is blocked for commercial domains in this
+        environment (`billd.com` included, confirmed against
+        `servicetitan.com` too), so verified every comparative fact via
+        WebSearch instead, sourced to Billd's own pages (2.99%/month
+        standard fee, 2% purchase fee typically offset by a supplier
+        discount, up to 120-day terms, $100K+ revenue / 1+ year / 625+
+        credit-score eligibility) -- consistent with the discipline
+        `vs-servicetitan.html` used for the same WebFetch block. Shipped
+        `vs-billd.html`, linked it from `index.html` with a matching FAQ
+        entry, and a test asserting the page's illustrative dollar figures
+        against `calc.mjs` directly so they can't drift from the
+        calculator's own math. One reusable finding: editing a venture's
+        `index.html` or adding a page under it makes
+        `gitops/prod/front-door-tools/` stale, caught only by
+        `node --test "platform/marketing/*.test.mjs"` (the "apex tool
+        mirror" step of `portfolio-validate.yml`) -- `run_workflow_locally
+        --for-changes` reported that same step "ok" beforehand because the
+        workflow file only names it, not what it runs; it did fail
+        correctly once the actual PR reached real CI. Fixed with
+        `node platform/marketing/front-door-tools.mjs --write`, a second
+        commit, and a green re-run (253 gitops pytest cases too). Merged as
+        #2780 after all 13 check runs (11 success, 2 skipped: `deploy` and
+        `preflight`, both expected on a non-`main` push) came back green.
+    mrr_end: null
