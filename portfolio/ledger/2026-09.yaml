@@ -1814,3 +1814,35 @@ entries:
         content, `gitops/tests` is 222/222 green, and the only remaining
         step for the site is sealing `portfolio-site-repo`. Nothing in this
         run's diff touches that, and no new ask was added to the queue.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Assigned two named branches to process (`rematch-1172`,
+        `ledger-real-estate-photo-log-lead-474`), not a generic brief, so no
+        session-gate run. Both turned out to be stale duplicates of work
+        already on `main`, not new work: opened PRs #2694 and #2695 so there
+        was something concrete to close against, ran
+        `supersede_check.py` on each (both exit 0), and closed both with a
+        comment naming the exact commit already on `main`.
+      - >-
+        `rematch-1172` (#2695): its one commit, "mobile-detailing: count
+        whole-stop hours and loaded wage (#1172)", is already on `main` as
+        `3743e2afd2` -- same PR number, same title, `calc.mjs`/
+        `calc.test.mjs` byte-identical; `main` has since moved past it twice
+        more (#1824 unreachable-margin guard, #1825 fee/margin claim note),
+        which is what made the merge conflict rather than fast-forward.
+        `supersede_check.py 2695` returned the identical-merge proof (exit
+        0); the 3 `index.html` lines its line-scan couldn't match were the
+        superseded lede/copy text, confirmed by hand.
+      - >-
+        `ledger-real-estate-photo-log-lead-474` (#2694): its one commit is a
+        word-for-word duplicate of the `real-estate-agent-photo-app`
+        log-lead UTC-date-bug ledger entry already on `main` at `52416c5c57`
+        (`portfolio/ledger/2026-08.yaml`, PR #474). `supersede_check.py
+        2694` returned exit 0 (adds nothing `main` lacks).
+      - >-
+        Net: 0 shipped, 2 stale branches accounted for and closed rather
+        than left open or merged as duplicates. No product code changed, so
+        nothing to verify beyond the two supersede proofs above.
