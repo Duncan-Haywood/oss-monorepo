@@ -30,6 +30,7 @@ import {
   buildFrontDoor,
   categoryAnchor,
   categoryCounts,
+  extraTokens,
   mirroredByCategory,
   orderedCategories,
   feedEntryId,
@@ -234,6 +235,123 @@ test('every card fragment resolves to an id on the page', () => {
   for (const fragment of fragments) {
     assert.ok(ids.has(fragment), `#${fragment} is linked but nothing on the page carries that id`);
   }
+});
+
+test('ships the tool filter hidden, so a reader without script never meets a dead box', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // `hidden` in the markup and cleared by the script is the whole of the
+  // progressive-enhancement claim: a search box that silently does nothing is
+  // worse than no search box on a page whose promise is that it just works.
+  assert.match(html, /<div class="filter" id="tool-filter" hidden>/);
+  assert.match(html, /<p class="filter-empty" id="tool-filter-empty" hidden>/);
+  assert.match(html, /box\.hidden = false;/);
+  // A `display` declaration beats the UA default for `[hidden]`, and `.filter`
+  // sets one — without this rule the box is visible to a no-JS reader despite
+  // the attribute.
+  // Every element the filter hides needs its own rule: the UA sheet's
+  // `[hidden] { display: none }` loses to any author `display` declaration,
+  // and `.filter` and `.grid` both set `display: grid`. Measured in a browser
+  // before this rule existed: filtering to one trade left the six emptied
+  // category lists still rendering — invisible, because a grid with no visible
+  // items has no height, and read out by a screen reader as six empty lists.
+  assert.match(html, /\.filter\[hidden\], \.filter-empty\[hidden\], \.grid\[hidden\] \{ display: none; \}/);
+});
+
+test('the search field has a border a reader can actually see', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // WCAG 2.1 SC 1.4.11 wants 3:1 for the boundary of a UI component. `--rule`,
+  // which every card on this page borders with, measures 1.36:1 against
+  // `--paper` in light and 1.54:1 in dark — invisible. That is fine for a card,
+  // whose shape a reader gets from its fill and its content, and wrong for the
+  // one control on the page, where the boundary is what says "you can type
+  // here". Measured in a headless browser at 3.59:1 and 3.96:1 with
+  // `--field-edge`; this pins the field to that token rather than to `--rule`.
+  assert.match(html, /border: 1px solid var\(--field-edge\);/);
+  assert.match(html, /--field-edge: #8a8379;/);
+  assert.match(html, /--field-edge: #6f7780;/);
+  assert.ok(
+    !/\.filter input \{[^}]*var\(--rule\)/.test(html),
+    'the search field must not border with the card rule, which fails 1.4.11',
+  );
+});
+
+test('the filter box is labelled and announces its result count', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  assert.match(html, /<label for="tool-search">/);
+  assert.match(html, /<input id="tool-search"[^>]*aria-describedby="tool-filter-status"/);
+  // `role="status"` is what puts the count in front of a screen reader rather
+  // than only a sighted one; the script writes it only when it changes, so
+  // holding a key down does not queue one announcement per keystroke.
+  assert.match(html, /<p class="filter-status" id="tool-filter-status" role="status">/);
+  assert.match(html, /if \(message !== announced\)/);
+});
+
+test('marks the cards and the group pairs with different attributes', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // `data-group` marks the heading/list pair that hides together; `data-cat`
+  // marks which pair a card belongs to. Spelling both `data-group` would make
+  // the script's `querySelectorAll('[data-group]')` select every card too, and
+  // every card would then be hidden as an empty group.
+  assert.match(html, /<h3 class="group" id="open-trades" data-group="trades">/);
+  assert.match(html, /<ul class="grid" data-group="trades">/);
+  assert.match(html, /<li class="card" data-cat="trades"/);
+  assert.ok(!/<li class="card"[^>]*data-group=/.test(html), 'a card must not carry data-group');
+  // Every mirrored card is reachable by the script's own selector.
+  assert.equal((html.match(/<li class="card" data-cat="/g) ?? []).length, MIRROR.length);
+});
+
+test('writes search tokens only where the slug says something the title does not', () => {
+  // The haystack is built in the browser from what the page already displays —
+  // the card's own text and its category heading — so neither is repeated into
+  // an attribute. Only the leftover slug words are written out, which is what
+  // keeps this feature under 2 KB gzipped across 156 cards.
+  assert.equal(extraTokens({ slug: 'roofing-bid-calculator', title: 'Roofing Bid Calculator' }), '');
+  assert.equal(extraTokens({ slug: '3pl-quote-normalizer', title: 'Normalise a 3PL Quote' }), 'normalizer');
+  assert.equal(
+    extraTokens({ slug: 'where-to-sell-calculator', title: 'Where Should I Sell This?' }),
+    'to calculator',
+  );
+
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // MIRROR's titles are their slugs in title case, so no card needs one.
+  assert.ok(!html.includes('data-alt='), 'data-alt should be omitted when it would add nothing');
+  const withExtra = renderFrontDoor({
+    slugs: SAMPLE,
+    mirrored: [{ slug: '3pl-quote-normalizer', title: 'Normalise a 3PL Quote', url: '/tools/3pl-quote-normalizer/' }],
+  });
+  assert.match(withExtra, / data-alt="normalizer"/);
+});
+
+test('matches a term as a word prefix rather than as a bare substring', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // Each haystack is built with a leading space and every term is sought as
+  // `' ' + term`, so "roof" still finds "roofing" — a prefix is where people
+  // stop typing — while "roofing" no longer drags in "waterproofing", which a
+  // plain `indexOf` did: measured in a browser against the committed page,
+  // searching "roofing" returned the basement waterproofing calculator.
+  assert.match(html, /haystack\.indexOf\(' ' \+ terms\[t\]\)/);
+  assert.match(html, /hay\.push\(\s*' ' \+/);
+});
+
+test('the inline filter script cannot close its own element early', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  const script = html.slice(html.indexOf('<script>') + '<script>'.length);
+  const body = script.slice(0, script.indexOf('</script>'));
+  assert.ok(body.includes('tool-filter'), 'expected the filter script inline in the page');
+  // `</` anywhere inside would end the element at that point and dump the rest
+  // of the script into the document as text.
+  assert.ok(!body.includes('</'), 'the inline script must contain no `</` sequence');
+});
+
+test('with no mirror there is no filter and no script to run it', () => {
+  // Same reasoning as the test below: the mirror is deleted when
+  // portfolio-site-repo is sealed, and everything gated on it has to go with
+  // it rather than leaving a search box over a list that is no longer there.
+  const html = renderFrontDoor({ slugs: SAMPLE });
+  assert.ok(!html.includes('tool-filter'));
+  assert.ok(!html.includes('tool-search'));
+  assert.ok(!html.includes('data-cat='));
+  assert.ok(!html.includes('<script>'), 'the only script on a mirror-less page is the JSON-LD block');
 });
 
 test('with no mirror the page is exactly what it was before one existed', () => {
