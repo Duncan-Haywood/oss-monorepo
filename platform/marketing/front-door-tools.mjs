@@ -1158,6 +1158,11 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
     throw new Error(`the mirror would serve dead links:\n  ${problems.join('\n  ')}`);
   }
 
+  // Before the size and packing checks: a page with a conflict marker in it is
+  // not a page worth measuring, and this is the last point where it is still a
+  // candidate rather than something the apex serves.
+  assertNoConflictMarkers(files);
+
   const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
     throw new Error(
@@ -1272,6 +1277,44 @@ export function assertUniqueKeys(files) {
       );
     }
     seen.add(key);
+  }
+}
+
+/**
+ * Refuse to mirror a page carrying an unresolved merge-conflict marker.
+ *
+ * WHY THIS IS HERE AND NOT ONLY IN CI
+ *
+ * On 2026-09-02 the boiler calculator's `index.html` was committed to `main`
+ * with a conflict hunk still in its footer, and the next regeneration packed
+ * it into `boiler-replacement-bid-calculator__index.html.gz` — so the apex
+ * served `<<<<<<< HEAD`, the paragraph twice, and `>>>>>>> origin/main` to
+ * every visitor of that tool.
+ *
+ * Nothing caught it before the bytes shipped. The venture's own suite passed,
+ * because its assertions were `assert.match` against links that were present
+ * on both sides of the hunk. The repo-wide `Conflict markers` workflow does
+ * catch it, but it runs on a pull request, and the mirror is generated and
+ * committed by hand before one exists.
+ *
+ * So the check belongs in the generator too: this is the last point at which
+ * a page is still a candidate rather than a deployed artifact, and `--write`
+ * is the step that turns one into the other. A marker here is never
+ * legitimate content — these are static tool pages, not documentation about
+ * merge conflicts.
+ */
+export function assertNoConflictMarkers(files) {
+  // Anchored to the line start, which is where git writes them; a `>>>>>>>`
+  // mid-sentence in prose is not a conflict and must not fail the build.
+  const marker = /^(<{7}|={7}|>{7})(\s|$)/m;
+  for (const { key, contents } of files) {
+    if (typeof contents === 'string' && marker.test(contents)) {
+      const line = contents.split('\n').find((l) => marker.test(l));
+      throw new Error(
+        `${key} carries an unresolved merge-conflict marker (${line.trim()}) — ` +
+          `resolve it before regenerating, or the apex will serve it to visitors`,
+      );
+    }
   }
 }
 
@@ -1432,6 +1475,64 @@ ${generators}
 `;
 }
 
+/**
+ * The Deployment that mounts the mirror, whose `projected` volume has to name
+ * every shard this generator writes.
+ */
+export const FRONT_DOOR_DEPLOYMENT = path.join(REPO_ROOT, 'gitops', 'prod', 'portfolio-front.yaml');
+
+/**
+ * The `sources:` entries of the `tools` volume, at the indentation
+ * `portfolio-front.yaml` uses. Kept in one place so the writer below and the
+ * expectation in `front-door-tools.test.mjs` cannot drift apart.
+ */
+export const renderMountSources = (shards) =>
+  shards.map((s) => `              - configMap:\n                  name: ${s.name}\n`).join('');
+
+/**
+ * Rewrite the mirror's mount list in `portfolio-front.yaml` to match `shards`.
+ *
+ * WHY THIS IS AUTOMATED
+ *
+ * The shard count is a function of the catalogue: adding one comparison page
+ * to a mirrored venture can push the packer over `SHARD_BYTE_CEILING` and open
+ * a new shard. Until this function existed, `--write` regenerated the shards
+ * and left this file naming the old set, so the two disagreed in whichever
+ * direction the mirror had moved — and both directions are silent in the
+ * cluster:
+ *
+ *   generated but not mounted -> those tools are missing from the apex with
+ *       every manifest valid and every pod Ready;
+ *   mounted but not generated -> pods never leave ContainerCreating and
+ *       `maxUnavailable: 0` keeps serving the previous, stale mirror.
+ *
+ * `test_portfolio_front_mounts_every_generated_mirror_shard` catches both, but
+ * only in CI and only as a failure whose remedy was a hand-edit its own message
+ * had to spell out. The generator already knows the answer, so it writes it.
+ *
+ * Deliberately surgical: it replaces only the `- configMap:` entries of the
+ * `tools` volume's `projected.sources`, leaving the long comment above them —
+ * which explains why the volume is projected at all — untouched. A structural
+ * YAML round-trip would reflow that comment away.
+ */
+export async function writeMountList(shards, file = FRONT_DOOR_DEPLOYMENT) {
+  const original = await fs.readFile(file, 'utf8');
+  // Anchored on `projected:`/`sources:` so this can only ever match the tools
+  // volume; the trailing group is the run of shard entries to replace.
+  const block = /( {10}projected:\n {12}sources:\n)((?: {14}- configMap:\n {18}name: [^\n]*\n)+)/;
+  const match = original.match(block);
+  if (!match) {
+    throw new Error(
+      `could not find the tools volume's projected sources in ${path.relative(REPO_ROOT, file)} — ` +
+        `if the volume was restructured, update writeMountList in front-door-tools.mjs to match`,
+    );
+  }
+  const updated = original.replace(block, `$1${renderMountSources(shards)}`);
+  if (updated === original) return { file, changed: false };
+  await fs.writeFile(file, updated);
+  return { file, changed: true };
+}
+
 export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
   await fs.rm(outputDir, { recursive: true, force: true });
@@ -1440,6 +1541,10 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
     await fs.writeFile(path.join(outputDir, file.stored), file.bytes);
   }
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
+  // Same call, same commit: the shards and the Deployment that mounts them are
+  // one artifact, and a tree where only half of it was regenerated is exactly
+  // the state the pinning test exists to reject.
+  built.mountList = await writeMountList(built.shards);
   return built;
 }
 
@@ -1464,6 +1569,15 @@ if (isMain) {
   if (process.argv.includes('--write')) {
     const built = await writeMirror();
     console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    // Say so out loud: a changed mount list means the shard count moved, which
+    // is the one outcome of a regeneration that alters a file outside the
+    // mirror directory and so is easy to leave out of a commit.
+    console.log(
+      built.mountList.changed
+        ? `updated ${path.relative(REPO_ROOT, built.mountList.file)}: the shard count moved, ` +
+            `so its projected volume now mounts ${built.shards.length} shard(s) — commit it with the mirror`
+        : `${path.relative(REPO_ROOT, built.mountList.file)} already mounts these ${built.shards.length} shard(s)`,
+    );
   } else {
     const built = await buildMirror();
     for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
