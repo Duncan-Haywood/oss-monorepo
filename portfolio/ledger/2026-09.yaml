@@ -1,5 +1,60 @@
 period: 2026-09
 entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2702: itemised calculators rebuild their rows when a saved
+        bid is restored or a bid link is opened. Eight tools here build the
+        form in script (tree service by tree, carpet by room, window
+        cleaning by glass type, snow removal by stop, pest control by
+        service, hood cleaning by component, gutter cleaning by run,
+        portable restrooms by unit type) with ids like `t3-dbh` off a
+        counter that resets every page load, so both bid-handoff features
+        matched on ids that are an artefact of click order rather than a
+        fact about the job.
+      - >-
+        The user-visible cost of that: a six-room carpet bid saved fine and
+        never restored -- the atomic-or-refused rule correctly refused and
+        told the contractor to "add or remove rows until the form matches",
+        i.e. rebuild by hand the thing they saved to avoid rebuilding by
+        hand -- and `link.mjs` excluded these pages from the share control
+        outright, on sound reasoning for the matching rule it had.
+      - >-
+        Fix: a page opts in with `data-pf-repeat="<prefix>"` on the control
+        that appends a row; the runtime clicks that control until the group
+        holds as many rows as the record, then compares by position within
+        the group instead of by id. Clicking is the only way in, so the rows
+        stay the venture's own markup. Still atomic-or-refused and still
+        grow-only (no page declares a remove control), and a page declaring
+        nothing gets the identity key map -- which is what keeps this off
+        the other 161 tools.
+      - >-
+        Verified: `node --test` in `platform/pages` 853/853; the 8 ventures'
+        own suites 476/476; `build.mjs` shareable-bid-link count 151 -> 158;
+        `check.mjs` 169 products / 528 pages / no dead links; and a
+        Chromium+Playwright pass over the built `dist`, 12/12 -- a 4-tree
+        link opened in a fresh browser context rebuilt all 4 rows, carried
+        every DBH, and worked out the same $17,785.19 the sender saw, while
+        a 7-room + 2-upholstery carpet bid saved, reloaded and restored both
+        groups intact.
+      - >-
+        Concurrent work integrated rather than duplicated: #2699 gave
+        `pest-control-bid-calculator` its own `share.mjs` while this branch
+        was open. `main` was merged in and the existing gate handles it --
+        that page keeps its own control and takes no second button, so 7 of
+        the 8 gain the platform link and all 8 gain the saved-bid replay,
+        which `jobs.mjs` owns and no share module covers. A test pins the
+        7-of-8 split so a venture growing or dropping its own control
+        surfaces as a number rather than silently.
+      - >-
+        Queue state: one PR open at the start of the run (#2697, merged
+        after its checks went green on real runners), zero at the end
+        besides this run's own #2702, which also merged green. Delivery is
+        unchanged and still one owner seal from public --
+        `publish_surface.py --check` reports 0 hostnames serving content,
+        `portfolio-site-repo` is the step, and no new ask was added.
   - venture: pest-control-bid-calculator
     agent_spend_usd: null
     human_hours: 0
