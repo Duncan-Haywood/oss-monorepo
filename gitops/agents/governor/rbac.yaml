@@ -8,9 +8,19 @@ kind: Role
 metadata:
   name: governor
 rules:
+  # `_load_cluster_jobs` issues exactly one call against this resource: a GET
+  # on the collection endpoint (`/apis/batch/v1/namespaces/{ns}/jobs?labelSelector=...`),
+  # which RBAC authorizes via `list`, not `get` -- `get` only covers a GET on
+  # a *named* Job (`.../jobs/<name>`), and nothing in this file ever builds
+  # that URL. `build_job_manifest`'s own POST is the other call, needing
+  # `create`. Nothing here ever opens a watch: `_k8s` is a single
+  # `urllib.request` round trip with a 30s timeout, not a long-lived stream,
+  # so `watch` -- which would let this ServiceAccount hold open a live feed
+  # of every Job's status in the namespace -- was pure unused reach, the
+  # same class of gap the ConfigMap rule below was already cut down for.
   - apiGroups: ["batch"]
     resources: ["jobs"]
-    verbs: ["get", "list", "watch", "create"]
+    verbs: ["list", "create"]
   # The only ConfigMap the governor ever touches is governor-state. Normal
   # ticks GET then PUT/PATCH it by name -- `governor/state.yaml` seeds it in
   # git, mirroring `portfolio-site-usage`, precisely so that path is the
@@ -36,9 +46,13 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     verbs: ["create"]
+  # `_load_cluster_jobs` also GETs the pod collection, unfiltered, to match
+  # each Job's pod by its `job-name` label -- again a `list` call, never a
+  # GET on a named pod (`.../pods/<name>`), so `get` guarded nothing here
+  # either.
   - apiGroups: [""]
     resources: ["pods"]
-    verbs: ["get", "list"]
+    verbs: ["list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
