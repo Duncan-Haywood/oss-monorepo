@@ -136,8 +136,8 @@ def test_governor_runs_unprivileged_and_read_only() -> None:
     # refuses privilege escalation and runs a read-only root filesystem.
     # governor was the one exception -- despite being the single workload in
     # `agents` that holds a live ServiceAccount token with RBAC to create Jobs
-    # and patch a ConfigMap, which makes it the workload most worth narrowing,
-    # not the one to skip.
+    # and update a ConfigMap, which makes it the workload most worth
+    # narrowing, not the one to skip.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
     pod = cron["spec"]["jobTemplate"]["spec"]["template"]["spec"]
     assert pod["securityContext"]["runAsNonRoot"] is True
@@ -306,7 +306,12 @@ def test_governor_role_reads_no_configmap_it_cannot_name() -> None:
     named = [r for r in cm_rules if r.get("resourceNames")]
     assert len(named) == 1, named
     assert named[0]["resourceNames"] == ["governor-state"]
-    assert sorted(named[0]["verbs"]) == ["get", "patch", "update"]
+    # `patch` sat here too until it was trimmed: `_save_state` always PUTs the
+    # whole object (verb `update`), never a partial PATCH, and no other call
+    # in governor.py builds one either. See
+    # test_governor_role_grants_no_verb_its_own_code_never_calls for the
+    # jobs/pods siblings of the same gap.
+    assert sorted(named[0]["verbs"]) == ["get", "update"]
 
     # Any rule that does NOT name its objects must not be able to read them.
     # `create` returns the object it made, never one it did not, so it leaks
@@ -333,7 +338,7 @@ def test_governor_role_grants_no_verb_its_own_code_never_calls() -> None:
     # not a long-lived watch stream. All three verbs used to be granted
     # anyway, on the same ServiceAccount this repo's own history (CLAUDE.md)
     # already singles out as "the workload most worth narrowing" -- the one
-    # holding a live token with RBAC to create Jobs and patch a ConfigMap.
+    # holding a live token with RBAC to create Jobs and update a ConfigMap.
     docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
     role = next(d for d in docs if d and d["kind"] == "Role")
     jobs_rule = next(r for r in role["rules"] if r["resources"] == ["jobs"])
@@ -348,6 +353,15 @@ def test_governor_role_grants_no_verb_its_own_code_never_calls() -> None:
     source = (AGENTS / "governor" / "governor.py").read_text()
     assert "/pods/" not in source
     assert "/jobs/" not in source
+
+    # The named `configmaps` rule (test_governor_role_reads_no_configmap_it_
+    # cannot_name above) is the same gap by a third route: it granted `patch`
+    # alongside `get`/`update`, and no call anywhere in governor.py ever
+    # issues a PATCH -- `_save_state` always PUTs the whole object. `_k8s`'s
+    # `method` parameter is a plain string built at each call site, so every
+    # verb this Role's ServiceAccount can actually exercise is spelled out
+    # literally and greppable, not assembled or passed through a variable.
+    assert '"PATCH"' not in source
 
 
 def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:

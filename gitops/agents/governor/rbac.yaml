@@ -17,15 +17,22 @@ rules:
   # Both sat here ungranted-against by any code path, on the same
   # ServiceAccount CLAUDE.md's own history flags as "the workload most worth
   # narrowing" -- the one holding a live token with RBAC to create Jobs and
-  # patch a ConfigMap. `create` is the only verb besides `list` this rule's
+  # update a ConfigMap. `create` is the only verb besides `list` this rule's
   # own code (`main()`'s POST to this same endpoint) actually calls.
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["list", "create"]
   # The only ConfigMap the governor ever touches is governor-state. Normal
-  # ticks GET then PUT/PATCH it by name -- `governor/state.yaml` seeds it in
-  # git, mirroring `portfolio-site-usage`, precisely so that path is the
-  # common case. There used to be a second, namespace-wide `configmaps` rule
+  # ticks GET then PUT it by name -- `_save_state` always sends the whole
+  # object (RBAC verb `update`), never a partial PATCH -- `governor/state.yaml`
+  # seeds it in git, mirroring `portfolio-site-usage`, precisely so that path
+  # is the common case. `patch` sat granted here too until it was trimmed for
+  # the same reason #2669 trimmed `get`/`watch` off the jobs and pods rules
+  # below: no call in governor.py ever builds a PATCH request, on either this
+  # ConfigMap or anything else, so the verb authorized a write this Role's own
+  # ServiceAccount never makes.
+  #
+  # There used to be a second, namespace-wide `configmaps` rule
   # here (verbs get/list/create, no resourceNames) that granted read access
   # to every ConfigMap in `agents` -- governor-policy, governor-script,
   # governor-queue, codex-worker-script -- none of which governor.py ever
@@ -43,7 +50,7 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["governor-state"]
-    verbs: ["get", "update", "patch"]
+    verbs: ["get", "update"]
   - apiGroups: [""]
     resources: ["configmaps"]
     verbs: ["create"]
