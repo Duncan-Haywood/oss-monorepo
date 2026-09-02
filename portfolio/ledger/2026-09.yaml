@@ -3201,3 +3201,32 @@ entries:
         generator's own extension set against a workflow's path filters
         rather than reading either file in isolation.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged PR #2775 (this run's own `deploy-cicd-readiness`
+        pass, concurrent with the branch-drain and #2770-#2772 work another
+        entry in this file already records): the apex front-door nginx
+        config (`gitops/prod/front-door/default.conf`) declared `gzip_types
+        text/javascript;` on the claim that `.mjs` modules were the only
+        non-HTML text it serves. Already false for every mirrored venture's
+        `LICENSE` file (`text/plain`, over `gzip_min_length`), and false a
+        second way once `construction-evidence-log` started mirroring
+        `style.css`/`app.js` (#2739), served as `text/css`/
+        `application/javascript` by nginx's stock mime map -- none of the
+        three were being compressed, silently, with nothing in
+        `gitops/tests/` or `platform/marketing/*.test.mjs` catching it.
+        Added `text/css`, `application/javascript`, `text/plain` to
+        `gzip_types`, corrected the stale comment, and added a regression
+        test to `platform/marketing/front-door-tools.test.mjs` that derives
+        the mirror's real extension set from `STARTER_SET` each run instead
+        of trusting a fixed list, so a future venture serving a new type
+        fails the build rather than shipping uncompressed. Verified:
+        reverted the fix locally and confirmed the new test actually fails
+        before restoring it; `node --test platform/marketing/*.test.mjs`
+        (46 passed, was 45); `pytest gitops/tests` (253 passed); `kustomize
+        build` clean on all six overlays; `kubeconform -strict` (60 valid,
+        0 errors); all 7 CI checks green on real (non-starved) runners.
+    mrr_end: null
