@@ -225,7 +225,9 @@ spec:
           #     which `test_portfolio_front_mounts_every_generated_mirror_shard`
           #     enforces in both directions.
           #
-          # Regenerate the shards, and this list if the count changes, with:
+          # This list is generated. `--write` rewrites the shards and these
+          # entries in the same call, so the two files cannot be committed
+          # disagreeing; it prints whether the count moved. Do not hand-edit:
           #   node platform/marketing/front-door-tools.mjs --write
           projected:
             sources:
