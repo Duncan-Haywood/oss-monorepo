@@ -319,7 +319,7 @@ seal_ci() {
   say "  After this is pushed and Argo syncs, flip the switch:"
   say "    repo Settings -> Secrets and variables -> Actions -> Variables"
   say "    CI_RUNNER = self-hosted"
-  say "  That moves all 217 workflows at once. Clearing it moves them back."
+  say "  That moves every workflow at once. Clearing it moves them back."
 }
 
 seal_agents() {

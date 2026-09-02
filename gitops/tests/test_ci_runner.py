@@ -5,8 +5,8 @@ metered on this private, user-owned repository, and from 2026-08-26 every
 workflow run came back red within 3-6 seconds carrying `runner_id: 0`,
 `runner_name: ""` and zero steps -- a job that was never assigned a runner,
 not a job that ran and failed. These tests pin the two halves of the fix: a
-runner that runs on our own hardware, and a single switch that moves all 220
-workflows onto it.
+runner that runs on our own hardware, and a single switch that moves every
+workflow onto it.
 """
 
 from __future__ import annotations
@@ -51,9 +51,9 @@ def _ci_docs() -> dict[str, dict]:
 
 
 def test_every_workflow_reads_the_runner_switch() -> None:
-    # The point of routing all 246 `runs-on` lines through one repo variable
+    # The point of routing every `runs-on` line through one repo variable
     # is that moving between GitHub-hosted and self-hosted is a settings
-    # change, not another 220-file commit. A workflow that hard-codes a runner
+    # change, not another repo-wide commit. A workflow that hard-codes a runner
     # silently opts out of that and would keep burning metered minutes -- or
     # keep failing -- after the switch is flipped. DOCKER_DEPENDENT_JOBS is
     # the one narrow, checked exception (see its comment and the paired test
@@ -121,7 +121,7 @@ def test_every_job_that_runs_python_or_node_sets_it_up() -> None:
     # (portfolio-pages.yml's `deploy` job, ubuntu-agent-server-ci.yml's
     # `yaml-sanity` job, both bare python3; backup-verification-evidence-ci
     # .yml's `lint` job, bare node) until this test was written to scan all
-    # 220 files at once instead of relying on a claim nothing checked.
+    # every workflow file at once instead of relying on a claim nothing checked.
     #
     # DOCKER_DEPENDENT_JOBS and any job with `container:`/`services:` run
     # inside their own image regardless of CI_RUNNER (see the docstring on
