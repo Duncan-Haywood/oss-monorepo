@@ -5486,3 +5486,71 @@ entries:
         starts destroying uncommitted work rather than just requiring
         recovery.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed PR #2887 ("narrow the governor Role to the verbs it
+        actually calls") without merging: `supersede_check.py 2887`
+        returned an identical-merge proof against `main` (13/15 unmatched
+        lines, all confirmed no-content-lost by the merge replay) --
+        `main` already carried the same RBAC narrowing independently as
+        #2669/#2674, landed before this branch was created. Commented
+        naming the survivor, then closed. No content lost.
+      - >-
+        Ran the `deploy-cicd-readiness` and `marketing-distribution` queue
+        items directly via two subagents (the owner-blocked governor still
+        cannot run them itself). `deploy-cicd-readiness` found and fixed a
+        genuinely stale manifest comment in
+        `gitops/prod/portfolio-front.yaml`: it still cited #2886's
+        pre-merge mirror numbers (4.2 MB / 5 MiB ceiling, "roughly a
+        third") after #2886 had raised the ceiling to 8 MiB and grown the
+        mirror to 156 tools -- and the "roughly a third" framing had never
+        actually followed from either the old or new numbers (2.6% and
+        4.2% respectively). Rewrote the comment with verified current
+        figures and anchored the claim to the enforced invariant
+        (`test_portfolio_front_fits_the_prod_quota`'s `limit_mi >=
+        mirror_ceiling_mi * 2` floor) instead of an unverifiable
+        percentage. Verified: `pytest gitops/tests -q` 265/265,
+        `kustomize build` on all six root kustomizations clean, `kubeconform
+        -strict` 39/39 valid, and `front-door-tools.mjs --write` producing
+        no diff (confirming the new numbers rather than asserting them).
+        Shipped and merged #2889, all 6 checks green on real runners.
+      - >-
+        `marketing-distribution` shipped `ventures/water-heater-bid-calculator/vs-servicetitan.html`
+        -- a comparison page for a `*-bid-calculator` venture with no
+        `vs-*` page yet, naming ServiceTitan (already a verified incumbent
+        on three sibling ventures) as the competitor. Facts
+        independently re-confirmed via web search against Wikipedia and
+        ServiceTitan's own About page rather than copied from siblings; no
+        competitor price stated. PR #2891's first CI run failed for a real
+        reason: the front-door mirror (gzip-compressed, `gitops/prod/front-door-tools/`)
+        is committed output and the new page's venture is mirrored, so
+        `front-door-tools.test.mjs`'s drift checks failed until
+        regenerated -- fixed by running the generator and pushing. A
+        second, more interesting failure followed: `main` had advanced
+        with PR #2890, an *independent concurrent session* running the
+        same `marketing-distribution` item for a different venture
+        (snow-removal-bid-calculator vs-Aspire), which had regenerated the
+        exact same shared mirror files. Real merge conflict, not a flake --
+        resolved by merging `main` into the branch and re-running the
+        generator fresh (never hand-editing the generated output), which
+        correctly folded both concurrently-added pages into one
+        consistent 1,216-file mirror. Verified 40/40
+        `front-door-tools.test.mjs` cases pass post-merge. Shipped and
+        merged #2891, 13/13 checks green.
+      - >-
+        Net this session: 3 PRs merged (#2886, #2889, #2891), 1 correctly
+        closed as a proven duplicate (#2887), quota met and exceeded.
+        Reconfirmed rather than re-verified from scratch: the
+        Codex-CLI-on-Hetzner ask and the deploy-cicd/marketing-priority
+        reordering are already fully built and already the subject of
+        multiple recent ledger entries and decision-queue items #1996/#2000
+        -- no duplicate ask added, no re-litigation. A fourth PR (#2894,
+        another concurrent session's `metal-roof-bid-calculator`
+        comparison page) was still running its own CI when this session
+        ended and was left for its own author session rather than raced,
+        consistent with the fleet's fast independent-drain cadence
+        recorded in the immediately preceding entry.
+    mrr_end: null
