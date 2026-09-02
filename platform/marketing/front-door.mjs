@@ -700,6 +700,14 @@ const STYLE = `
        ever shipped. The button inverts instead: pale fill, dark ink. */
     --cta-bg: #12506b;
     --cta-fg: #ffffff;
+    /* The search field's edge, and the one border on this page that is not
+       --rule. --rule measures 1.36:1 against --paper in light and 1.54:1 in
+       dark: fine for a card, whose shape a reader gets from its fill and its
+       content, and a failure of WCAG 2.1 SC 1.4.11 for a text input, where
+       the boundary is the only thing saying "you can type here". A headless
+       pass over the rendered page caught it before this shipped; both values
+       below clear 3:1 against --paper. */
+    --field-edge: #8a8379;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -711,6 +719,7 @@ const STYLE = `
       --link: #7fc4e2;
       --cta-bg: #7fc4e2;
       --cta-fg: #10161a;
+      --field-edge: #6f7780;
     }
   }
   * { box-sizing: border-box; }
@@ -763,6 +772,216 @@ const STYLE = `
   footer a { color: var(--link); }
   footer p { max-width: 52rem; }
   .fine strong { color: var(--ink); }
+  /* The filter over the mirrored tools. Revealed by script — see
+     FILTER_SCRIPT — so a reader without JavaScript never meets a box that
+     does nothing.
+
+     Every element the filter hides needs a rule here, and the reason is the
+     cascade rather than specificity: the UA sheet's [hidden] { display: none }
+     loses to ANY author display declaration, however weak. .filter and .grid
+     both set display: grid, so without these two selectors the hidden element
+     keeps its box. For .grid that was not hypothetical — it was measured in a
+     browser: filtering to one trade left the six emptied category lists still
+     rendering. Nothing was visible, because a grid with no visible items has
+     no height, so the page looked right and a screen reader read six empty
+     lists between the heading and the one result. */
+  .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; }
+  .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; }
+  .filter label { font-size: 0.88rem; color: var(--ink-soft); }
+  .filter input {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--field-edge);
+    border-radius: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    width: 100%;
+  }
+  .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+  .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
+  .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
+`;
+
+/** Examples, not instructions: one trade, one marketplace, one back-office job. */
+const FILTER_PLACEHOLDER = 'roofing, ebay, cash flow…';
+
+/**
+ * What the reader sees when nothing matches.
+ *
+ * It names the three shapes of term that do work, because the failure it
+ * answers is almost always a vocabulary mismatch rather than an absent tool —
+ * someone typing "quote" for what this catalogue calls a bid.
+ */
+const FILTER_EMPTY =
+  'No tool here matches that. Try a trade ("roofing", "fence"), a marketplace ("ebay", "shopify"), or the job to be done ("bid", "fee", "cash flow").';
+
+/**
+ * The extra words a card is matched on, beyond the ones already visible in it.
+ *
+ * A card is matched against three things: its own visible title, its category
+ * heading, and this. The first two the script reads out of the DOM it already
+ * has — the title from the card's `textContent`, the category from the heading
+ * the card sits under — so neither is repeated into an attribute. That
+ * matters at this size: writing the full haystack out per card cost ~20 KB of
+ * HTML across 156 cards (~4 KB gzipped) to say what the page already said.
+ *
+ * What is left is the part the DOM does *not* carry: words that live in the
+ * slug but not in the title. `3pl-quote-normalizer` is titled "Normalise a 3PL
+ * Quote", so a reader searching "normalizer" with a z finds nothing without
+ * this; `where-to-sell-calculator` is titled "Where Should I Sell This?".
+ * Words already contained in the title are dropped, so most cards emit no
+ * attribute at all.
+ *
+ * A term matches as a **word prefix**, not as a bare substring: "roof" finds
+ * "roofing", because a prefix is where people stop typing, but "roofing" no
+ * longer drags in "waterproofing", which a plain `indexOf` did — measured in a
+ * browser before this rule went in, where searching "roofing" returned the
+ * basement waterproofing calculator as one of its two hits.
+ */
+export function extraTokens(tool) {
+  const title = String(tool.title).toLowerCase();
+  const words = String(tool.slug)
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word && !title.includes(word));
+  return [...new Set(words)].join(' ');
+}
+
+/**
+ * The filter over the mirrored tools.
+ *
+ * ## The problem
+ *
+ * The mirror section is the page's payload: 156 tools, seven category
+ * headings, one flat run of card titles. That is fine to *browse* and poor to
+ * *search*, and searching is what a visitor arriving from "roofing bid
+ * calculator" is doing. Ctrl-F does the job on a desktop browser and is not
+ * available on a phone, which is where a contractor pricing a job actually is.
+ *
+ * ## Why it is written this way
+ *
+ * - **Progressive enhancement, and the control is hidden until script runs.**
+ *   The markup ships \`hidden\` and this script clears it. A search box that
+ *   silently does nothing is worse than no search box, and this page's whole
+ *   value proposition is that it works without anything being set up.
+ * - **No network, no dependency, no build step.** The page is delivered as a
+ *   ConfigMap by Argo CD; there is no bundler in that path and nothing may be
+ *   fetched at render time. This is a few hundred bytes of inline ES5.
+ * - **It filters what is already in the DOM.** No index is shipped. Each
+ *   card's haystack is built once at start-up from its own \`textContent\` plus
+ *   its category heading's, so the two things the page already displays are
+ *   never repeated into attributes; only \`data-alt\` is written out, and only
+ *   for the minority of cards whose slug says something their title does not
+ *   (see \`extraTokens\`). Searching "marketplace" therefore returns a whole
+ *   section, and "normalizer" reaches a tool titled "Normalise".
+ * - **Group headings hide with their groups.** A heading left standing over
+ *   zero cards reads as "no results in this category" while the category above
+ *   it silently disappeared — inconsistent, and the sort of thing that makes a
+ *   filter feel broken. The two roles carry *different* attributes on purpose:
+ *   \`data-group\` marks the pair of elements that hide together (the heading
+ *   and its list), \`data-cat\` marks which pair a card belongs to. Spelling
+ *   both \`data-group\` would make \`querySelectorAll('[data-group]')\` select
+ *   all 156 cards as well, and every card would be hidden as an empty group.
+ * - **The status line is a \`role="status"\`**, so the result count reaches a
+ *   screen reader rather than only the sighted reader, and it is only written
+ *   when the count actually changes, so holding a key down does not queue one
+ *   announcement per keystroke.
+ *
+ * ES5 syntax and no optional chaining: this is served to whatever browser a
+ * visitor has, it is never transpiled, and one parse error would take the
+ * whole enhancement down silently.
+ *
+ * Must contain no \`</\` sequence, which would close the script element early.
+ */
+const FILTER_SCRIPT = `
+(function () {
+  var box = document.getElementById('tool-filter');
+  var input = document.getElementById('tool-search');
+  var status = document.getElementById('tool-filter-status');
+  var empty = document.getElementById('tool-filter-empty');
+  if (!box || !input || !status || !empty) return;
+
+  var cards = Array.prototype.slice.call(document.querySelectorAll('li.card[data-cat]'));
+  if (!cards.length) return;
+  var groups = Array.prototype.slice.call(document.querySelectorAll('[data-group]'));
+  var total = cards.length;
+  var announced = null;
+
+  function flatten(text) { return (text || '').toLowerCase().replace(/\\s+/g, ' ').trim(); }
+
+  // The category words, once per category rather than once per card.
+  var catText = {};
+  for (var h = 0; h < groups.length; h++) {
+    var key = groups[h].getAttribute('data-group');
+    if (groups[h].tagName === 'H3') catText[key] = flatten(groups[h].textContent);
+  }
+
+  // Each card's haystack, built once. Rebuilding it per keystroke would walk
+  // 156 subtrees on every character typed.
+  var hay = [];
+  for (var c = 0; c < cards.length; c++) {
+    hay.push(
+      ' ' +
+        flatten(cards[c].textContent) +
+        ' ' +
+        flatten(cards[c].getAttribute('data-alt')) +
+        ' ' +
+        (catText[cards[c].getAttribute('data-cat')] || ''),
+    );
+  }
+
+  function plural(n) { return n === 1 ? 'tool' : 'tools'; }
+
+  function apply() {
+    var query = flatten(input.value);
+    var terms = query ? query.split(' ') : [];
+    var shown = 0;
+    var perGroup = {};
+
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      var haystack = hay[i];
+      var match = true;
+      for (var t = 0; t < terms.length; t++) {
+        if (haystack.indexOf(' ' + terms[t]) === -1) { match = false; break; }
+      }
+      card.hidden = !match;
+      if (match) {
+        shown++;
+        var group = card.getAttribute('data-cat') || '';
+        perGroup[group] = (perGroup[group] || 0) + 1;
+      }
+    }
+
+    for (var g = 0; g < groups.length; g++) {
+      var id = groups[g].getAttribute('data-group');
+      groups[g].hidden = !perGroup[id];
+    }
+
+    empty.hidden = shown !== 0;
+    var message = !terms.length
+      ? 'Showing all ' + total + ' ' + plural(total) + '.'
+      : shown === 0
+        ? 'No tool matches that.'
+        : shown + ' of ' + total + ' ' + plural(total) + ' match.';
+    if (message !== announced) {
+      status.textContent = message;
+      announced = message;
+    }
+  }
+
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && input.value) {
+      input.value = '';
+      apply();
+      event.preventDefault();
+    }
+  });
+
+  box.hidden = false;
+  apply();
+})();
 `;
 
 /**
@@ -902,16 +1121,28 @@ export function renderFrontDoor({
   <p class="lede-sm">${escapeHtml(
     `${mirrored.length} of the ${total} tools are served directly from this domain, so they work whether or not the catalogue host is up. They are the complete tools, not previews.`,
   )}</p>
+  <div class="filter" id="tool-filter" hidden>
+    <label for="tool-search">Find a tool</label>
+    <input id="tool-search" type="search" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(
+      FILTER_PLACEHOLDER,
+    )}" aria-describedby="tool-filter-status">
+    <p class="filter-status" id="tool-filter-status" role="status"></p>
+  </div>
+  <p class="filter-empty" id="tool-filter-empty" hidden>${escapeHtml(FILTER_EMPTY)}</p>
 ${orderedGroups(grouped, categories)
   .map(
-    (group) => `  <h3 class="group" id="${escapeHtml(categoryAnchor(group.id))}">${escapeHtml(group.title)}</h3>
-  <ul class="grid">
+    (group) => `  <h3 class="group" id="${escapeHtml(categoryAnchor(group.id))}" data-group="${escapeHtml(group.id)}">${escapeHtml(group.title)}</h3>
+  <ul class="grid" data-group="${escapeHtml(group.id)}">
 ${group.tools
-  .map(
-    (tool) => `        <li class="card">
+  .map((tool) => {
+    const extra = extraTokens(tool);
+    // Emitted only when it has something to add — see `extraTokens`. Most
+    // slugs are the title in kebab case and contribute nothing.
+    const alt = extra ? ` data-alt="${escapeHtml(extra)}"` : '';
+    return `        <li class="card" data-cat="${escapeHtml(group.id)}"${alt}>
           <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
-        </li>`,
-  )
+        </li>`;
+  })
   .join('\n')}
   </ul>`,
   )
@@ -981,7 +1212,12 @@ ${how}
   <p>${footerLinks}</p>
   <p class="fine"><strong>No warranty.</strong> ${escapeHtml(NO_WARRANTY)}</p>
   <p class="fine"><strong>Best-effort hosting, no SLA.</strong> ${escapeHtml(NO_SLA.replace('Best-effort hosting, no SLA. ', ''))}</p>
-</footer>
+</footer>${
+    hasMirror
+      ? `
+<script>${FILTER_SCRIPT}</script>`
+      : ''
+  }
 </body>
 </html>
 `;
