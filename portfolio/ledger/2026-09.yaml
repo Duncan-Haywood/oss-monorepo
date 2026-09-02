@@ -2513,3 +2513,54 @@ entries:
         now checked essentially in full. `decision_queue.py` showed nothing
         new to flag; the one open item this run would have touched
         (`portfolio-site-repo`) is already queued.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session on the same standing prompt (deploy/CI-CD
+        priority, marketing materials on the Hetzner boxes, Codex-on-Hetzner
+        spending its ChatGPT-plan quota). 0 open PRs at session start, so the
+        merge quota's empty-queue branch applied; `git branch -r` still lists
+        ~212 stale remote branches, none re-audited here -- prior sessions
+        recorded on 2026-08-31/09-01 that this backlog was checked
+        essentially in full and nothing repairable remained, and nothing in
+        this session's own checks (`decision_queue.py`, zero open PRs)
+        contradicted that.
+      - >-
+        Re-verified the Codex-on-Hetzner ask against current repo state
+        rather than trusting the ledger's account of it: `gitops/agents/governor/`
+        (`policy.json` `enabled: false`, `cronjob.yaml` `suspend: true`) and
+        `gitops/agents/queue/*.yaml` (`deploy-cicd-readiness` priority 7,
+        `marketing-distribution` priority 6, both `enabled: true`) are
+        unchanged since the 2026-09-01 reordering, still code-complete,
+        still correctly fail-closed pending the owner sealing `codex-secrets`
+        per `infra/OWNER_CHECKLIST.md` item 8. No drift found; did not
+        duplicate the ask in `decision_queue.py`.
+      - >-
+        Shipped #2741: extended the apex tools mirror
+        (`gitops/prod/front-door-tools/`, built by
+        `platform/marketing/front-door-tools.mjs`) from 14 to 17 real,
+        working tools -- added `owner-operator-cpm-calculator` (logistics,
+        was down to one tool in that category), `chargeback-evidence-packet`
+        (evidence), and `translator-project-quote` (services), taking the
+        mirror to 606,618 of the 655,360-byte ConfigMap ceiling (93%).
+        Deploys via Argo CD straight to the paid-for Hetzner cpx52 on merge,
+        no owner action. Verified: `node --test
+        platform/marketing/front-door-tools.test.mjs
+        platform/marketing/front-door.test.mjs` (29/29), `python3 -m pytest
+        gitops/tests` (246/246), each added venture's own test suite, and
+        all 7 GitHub Actions checks green (confirmed real runners via
+        `ci_starvation.py`, not the outage signature) before merging.
+      - >-
+        Checked `platform/pages/faq-coverage.mjs` and `guide-coverage.mjs`
+        (the `seo-discoverability-audit` queue item's own measurement) --
+        both still report 169/169 full coverage, so no presence-level SEO
+        gap was available to fix this session; that item's remaining work is
+        depth, which needs a specific under-answered buyer question per
+        venture rather than a mechanical pass.
+      - >-
+        One PR merged (#2741). No new venture started -- the mirror
+        expansion was the highest-value work actually available under the
+        empty PR queue and the owner-blocked state of both the full
+        catalogue deploy and the Codex governor.
