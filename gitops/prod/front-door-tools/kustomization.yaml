@@ -23,9 +23,9 @@
 # `front-door-tools.mjs` carries the reasoning and the measurements.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 104 files, 717293 bytes
-#   portfolio-front-tools-1: 30 files, 712599 bytes
-#   portfolio-front-tools-2: 38 files, 694232 bytes
+#   portfolio-front-tools-0: 104 files, 718109 bytes
+#   portfolio-front-tools-1: 30 files, 703389 bytes
+#   portfolio-front-tools-2: 39 files, 716497 bytes
 #   portfolio-front-tools-3: 47 files, 715610 bytes
 #   portfolio-front-tools-4: 88 files, 714723 bytes
 #   portfolio-front-tools-5: 67 files, 712911 bytes
@@ -109,6 +109,7 @@ configMapGenerator:
       - appliance-repair-quote-calculator__index.html=appliance-repair-quote-calculator__index.html
       - appliance-repair-quote-calculator__should-i-repair-or-replace-this-appliance.html=appliance-repair-quote-calculator__should-i-repair-or-replace-this-appliance.html
       - appliance-repair-quote-calculator__usage.mjs=appliance-repair-quote-calculator__usage.mjs
+      - appliance-repair-quote-calculator__vs-housecall-pro.html=appliance-repair-quote-calculator__vs-housecall-pro.html
       - hvac-maintenance-contract-calculator__LICENSE=hvac-maintenance-contract-calculator__LICENSE
       - hvac-maintenance-contract-calculator__calc.mjs=hvac-maintenance-contract-calculator__calc.mjs
       - hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html=hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html
@@ -155,12 +156,12 @@ configMapGenerator:
       - pool-route-pricing__vs-skimmer.html=pool-route-pricing__vs-skimmer.html
       - grant-reporting-tracker__LICENSE=grant-reporting-tracker__LICENSE
       - grant-reporting-tracker__calc.mjs=grant-reporting-tracker__calc.mjs
-      - grant-reporting-tracker__index.html=grant-reporting-tracker__index.html
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - grant-reporting-tracker__index.html=grant-reporting-tracker__index.html
       - grant-reporting-tracker__vs-granthub.html=grant-reporting-tracker__vs-granthub.html
       - grant-reporting-tracker__when-is-my-grant-report-due.html=grant-reporting-tracker__when-is-my-grant-report-due.html
       - translator-project-quote__LICENSE=translator-project-quote__LICENSE
@@ -190,12 +191,12 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html=ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html
       - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html
       - ebay-fee-calculator__should-i-offer-an-ebay-coupon.html=ebay-fee-calculator__should-i-offer-an-ebay-coupon.html
-      - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html
       - ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html=ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html
       - ebay-fee-calculator__should-i-offer-ebay-local-pickup.html=ebay-fee-calculator__should-i-offer-ebay-local-pickup.html
       - ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html=ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html
