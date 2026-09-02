@@ -6481,3 +6481,72 @@ entries:
         and a full `platform/pages/build.mjs` + `check.mjs` pass against
         the built dist (169 products, 590 pages, no dead links).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Apex front door now serves 162 of the 169 tools, up from 160. Two
+        finished, tested, free static tools were being held off
+        marisstella.dev not because anything was wrong with them but
+        because `front-door-tools.mjs` could not express what their pages
+        linked to. `explainIneligible` reported both, and both are fixed at
+        the generator rather than by editing the ventures.
+        (1) `einvoice-preflight` carries `<link rel="sitemap"
+        href="sitemap.xml">`; `sitemap.xml` is deliberately not mirrored
+        (it describes the tools host's URLs), so `validateLinks` called it
+        a dead link and `discoverEligible` dropped the venture — but
+        `injectMirrorTags` deletes that element, so no browser ever
+        resolves the href. The stripped rels are now one exported set
+        (`STRIPPED_LINK_RELS`) that both the injector and the validator
+        derive from, so the two cannot drift again; `sitemap` joins
+        `canonical` and `icon` on it.
+        (2) `consent-change-record` keeps a second tool (a HAR
+        before/after diff) in `tool/`, and the mirror was flat-only. It now
+        walks exactly one level down, into subdirectories that hold their
+        own `index.html` — a rule that admits that page and, measured
+        across all 184 ventures, nothing else, because no `src/`, `tests/`
+        or `examples/` tree carries one. Keys encode the separator the same
+        way (`consent-change-record__tool__index.html`) and
+        `front-door/default.conf` grew four matching `location` blocks.
+        `validateLinks` now resolves a relative href against the linking
+        file's own directory rather than the venture root, which is what
+        makes `../LICENSE` from a sub-page correct in both directions.
+        The third held-out venture, `delivery-app-margin-calculator`, is
+        not fixable here: it links to `../quote-margin-check/`, a venture
+        with no flat index.html, so the mirror genuinely cannot serve its
+        target.
+        Verified locally: `front-door-tools.test.mjs` and
+        `front-door.test.mjs` (131/131, including six new cases), 267
+        gitops pytest cases, `portfolio/router/validate.py` (182/182),
+        `platform/pages/*.test.mjs` (856/856), both admitted ventures' own
+        suites (33/33), and a full `build.mjs` + `check.mjs` pass (169
+        products, 591 pages, no dead links). `publish_surface.py --check`
+        matches its snapshot.
+      - >-
+        Added a routing simulation over the real `default.conf`. nginx is
+        never executed by this tree and `nginx -t` is unavailable in the
+        sessions that change the file, so every previous assertion about
+        routing compared the config's *text* against a pattern — which
+        catches a typo and misses the failure that actually matters: two
+        `location` regexes that overlap, so a request is answered by the
+        wrong block. The new case parses the blocks in file order, applies
+        nginx's first-match-wins rule to every URL the mirror really
+        produces, and asserts each lands on the block that reconstructs its
+        stored key with the right content type. Confirmed it fails on two
+        deliberate mutations (broadening the nested `.mjs` pattern so the
+        general rule shadows it; dropping `__index.html` from the
+        directory-index rewrite) before restoring the file.
+      - >-
+        Corrected three stale hand-written counts that
+        `test_mirrored_tool_count_matches_what_the_docs_claim` pins
+        (`OWNER_CHECKLIST.md`, `usage/aggregate.py`, `CLAUDE.md`), and
+        removed from `OWNER_CHECKLIST.md` the same wrong claim CLAUDE.md
+        already corrects — that "every category card links into
+        tools.marisstella.dev, which still serves nothing", so the seal is
+        what turns the front door into a working funnel. It is not: the
+        cards link to same-page anchors, the primary CTA opens a mirrored
+        tool on the apex, and the single reference to the tools host is
+        fine print labelled as not yet live. The seal is worth doing and
+        buys 7 tools plus the canonical hostname.
+    mrr_end: null

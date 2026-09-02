@@ -89,7 +89,7 @@ candidate list. Either:
 
 (1) comes first while a product on `main` still has no public route at all. As
 of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
-one still waiting on `portfolio-site-repo` — but the apex serves 160 of the
+one still waiting on `portfolio-site-repo` — but the apex serves 162 of the
 169 tools itself, so "the catalogue is dark" is not the right reading. See the
 correction below before ranking the seal against shipping.
 
@@ -122,7 +122,7 @@ So the standing reading has two halves now, and they differ:
 
 - **The portfolio has a public surface.** A stranger typing the domain gets
   positioning, one card per category, and the §5b clauses.
-- **9 of the 169 tools, and the canonical host, are one seal away**:
+- **7 of the 169 tools, and the canonical host, are one seal away**:
   `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
   It is queued.
 
@@ -133,17 +133,17 @@ is not what the manifests do, and a session reading it mis-ranks its whole
 run. What is actually served today:
 
 - `portfolio-front.yaml` mounts the tool mirror into the apex pods as a
-  projected volume of ten ConfigMap shards, and
+  projected volume of eleven ConfigMap shards, and
   `gitops/prod/front-door/default.conf` routes `^/tools/<slug>/` at it. So
   `https://marisstella.dev/tools/<slug>/` serves the tool itself.
-- `front-door/index.html` carries **160 user-facing `/tools/…` links** and
+- `front-door/index.html` carries **162 user-facing `/tools/…` links** and
   exactly **one** href to `tools.marisstella.dev` — in fine print, honestly
   labelled "goes live when its access token is sealed". Its primary CTA is
-  "Open one of the 160 tools running here now". The category cards link to
+  "Open one of the 162 tools running here now". The category cards link to
   same-page anchors, not to the dark host.
 
 So the front door is already a working funnel, and the seal buys the
-remaining 9 tools plus the canonical hostname — worth doing, but it is not
+remaining 7 tools plus the canonical hostname — worth doing, but it is not
 the difference between a dead end and a product. Do not describe the
 catalogue as dark, and do not rank the seal above shipping.
 

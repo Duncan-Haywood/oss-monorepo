@@ -274,10 +274,17 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 160 of the 169 tools directly. Step 1
-below is what turns that front door into a working funnel for the other
-9 — every category card on it links into `tools.marisstella.dev`, which
-still serves nothing until the token is sealed.
+"You decide" below), and it mirrors 162 of the 169 tools directly. Step 1
+below is what publishes the remaining 7 tools, plus the canonical hostname.
+
+**Corrected 2026-09-02.** This paragraph used to end "every category card on
+it links into `tools.marisstella.dev`, which still serves nothing until the
+token is sealed" — the same wrong reading `CLAUDE.md` corrects at length.
+The front door's category cards link to same-page anchors, its primary
+call to action opens a mirrored tool on this domain, and its single
+reference to the tools host is fine print honestly labelled as not yet
+live. So the seal is worth doing and is not the difference between a dead
+end and a working product.
 
 That ratio moved a long way on 2026-09-02, and it changes what Step 1 is
 worth. The mirror used to hold 53 tools because a ConfigMap-delivered
@@ -396,7 +403,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 160 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 162 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
