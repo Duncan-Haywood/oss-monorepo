@@ -304,7 +304,7 @@ test('writes search tokens only where the slug says something the title does not
   // The haystack is built in the browser from what the page already displays —
   // the card's own text and its category heading — so neither is repeated into
   // an attribute. Only the leftover slug words are written out, which is what
-  // keeps this feature under 2 KB gzipped across 156 cards.
+  // keeps this feature under 2 KB gzipped across 159 cards.
   assert.equal(extraTokens({ slug: 'roofing-bid-calculator', title: 'Roofing Bid Calculator' }), '');
   assert.equal(extraTokens({ slug: '3pl-quote-normalizer', title: 'Normalise a 3PL Quote' }), 'normalizer');
   assert.equal(
