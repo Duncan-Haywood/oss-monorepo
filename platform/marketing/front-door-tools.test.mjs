@@ -39,6 +39,7 @@ import {
   FRONT_DOOR_DEPLOYMENT,
   renderMountSources,
   writeMountList,
+  assertNoConflictMarkers,
   STARTER_SET,
   WHY_CATEGORY_WORD,
   claimedCategory,
@@ -861,4 +862,44 @@ test('the committed Deployment already mounts exactly the committed shards', asy
     'gitops/prod/portfolio-front.yaml does not mount exactly the committed shards — ' +
       'regenerate with `node platform/marketing/front-door-tools.mjs --write`',
   );
+});
+
+// --- conflict markers -------------------------------------------------------
+
+test('a page carrying a conflict marker is refused, not mirrored', () => {
+  // The regression this exists for: on 2026-09-02 a conflict hunk reached
+  // main in a venture's index.html and the next regeneration packed it into
+  // the shard the apex serves, so visitors saw `<<<<<<< HEAD` and the
+  // paragraph twice. The venture's own suite passed throughout, because its
+  // assertions matched links present on both sides of the hunk.
+  const files = [{ key: 'demo__index.html', contents: '<p>a</p>\n<<<<<<< HEAD\n<p>b</p>\n' }];
+  assert.throws(() => assertNoConflictMarkers(files), /unresolved merge-conflict marker/);
+});
+
+test('each conflict marker git writes is caught', () => {
+  for (const marker of ['<<<<<<< HEAD', '=======', '>>>>>>> origin/main']) {
+    assert.throws(
+      () => assertNoConflictMarkers([{ key: 'demo__index.html', contents: `<p>a</p>\n${marker}\n` }]),
+      /unresolved merge-conflict marker/,
+      `${marker} was not caught`,
+    );
+  }
+});
+
+test('prose that merely contains angle brackets is not a conflict', () => {
+  // The check is anchored to the line start. A page explaining a diff, or one
+  // with `=======` inside a sentence, is legitimate content and must build.
+  const files = [
+    { key: 'demo__index.html', contents: '<p>compare a &gt;&gt;&gt;&gt;&gt;&gt;&gt; b</p>\n' },
+    { key: 'demo__faq.html', contents: '<p>the ======= rule is a horizontal one</p>\n' },
+  ];
+  assert.doesNotThrow(() => assertNoConflictMarkers(files));
+});
+
+test('no committed mirror page carries a conflict marker', async () => {
+  // The end-to-end form, over what is actually committed. `buildMirror` itself
+  // now throws on one, so this asserts the committed tree is clean rather than
+  // just that the guard exists.
+  const { files } = await buildMirror();
+  assert.doesNotThrow(() => assertNoConflictMarkers(files));
 });

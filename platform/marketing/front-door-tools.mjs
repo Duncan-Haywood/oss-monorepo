@@ -1158,6 +1158,11 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
     throw new Error(`the mirror would serve dead links:\n  ${problems.join('\n  ')}`);
   }
 
+  // Before the size and packing checks: a page with a conflict marker in it is
+  // not a page worth measuring, and this is the last point where it is still a
+  // candidate rather than something the apex serves.
+  assertNoConflictMarkers(files);
+
   const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
     throw new Error(
@@ -1272,6 +1277,44 @@ export function assertUniqueKeys(files) {
       );
     }
     seen.add(key);
+  }
+}
+
+/**
+ * Refuse to mirror a page carrying an unresolved merge-conflict marker.
+ *
+ * WHY THIS IS HERE AND NOT ONLY IN CI
+ *
+ * On 2026-09-02 the boiler calculator's `index.html` was committed to `main`
+ * with a conflict hunk still in its footer, and the next regeneration packed
+ * it into `boiler-replacement-bid-calculator__index.html.gz` — so the apex
+ * served `<<<<<<< HEAD`, the paragraph twice, and `>>>>>>> origin/main` to
+ * every visitor of that tool.
+ *
+ * Nothing caught it before the bytes shipped. The venture's own suite passed,
+ * because its assertions were `assert.match` against links that were present
+ * on both sides of the hunk. The repo-wide `Conflict markers` workflow does
+ * catch it, but it runs on a pull request, and the mirror is generated and
+ * committed by hand before one exists.
+ *
+ * So the check belongs in the generator too: this is the last point at which
+ * a page is still a candidate rather than a deployed artifact, and `--write`
+ * is the step that turns one into the other. A marker here is never
+ * legitimate content — these are static tool pages, not documentation about
+ * merge conflicts.
+ */
+export function assertNoConflictMarkers(files) {
+  // Anchored to the line start, which is where git writes them; a `>>>>>>>`
+  // mid-sentence in prose is not a conflict and must not fail the build.
+  const marker = /^(<{7}|={7}|>{7})(\s|$)/m;
+  for (const { key, contents } of files) {
+    if (typeof contents === 'string' && marker.test(contents)) {
+      const line = contents.split('\n').find((l) => marker.test(l));
+      throw new Error(
+        `${key} carries an unresolved merge-conflict marker (${line.trim()}) — ` +
+          `resolve it before regenerating, or the apex will serve it to visitors`,
+      );
+    }
   }
 }
 
