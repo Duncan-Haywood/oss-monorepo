@@ -1003,8 +1003,8 @@ def test_portfolio_front_mounts_every_generated_mirror_shard() -> None:
     assert mounted == generated, (
         f"portfolio-front.yaml mounts {mounted} but front-door-tools/kustomization.yaml "
         f"generates {generated}. Regenerate with `node "
-        "platform/marketing/front-door-tools.mjs --write` and update the projected "
-        "volume's source list to match."
+        "platform/marketing/front-door-tools.mjs --write`, which rewrites both files "
+        "in the same call, and commit the result."
     )
     # Named by index from zero, with no gaps: the generator's `shardName`, and
     # what makes a missing shard obvious to a human scanning either file.
