@@ -2120,3 +2120,69 @@ entries:
         findings were exhausted -- the mandate's quota targets a real
         backlog, and this run confirmed for the second time this cycle that
         none exists.
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2717: the calculator now answers whether requiring a deposit
+        actually leaves the owner with more money. Its headline was "expected
+        secured cash per year" ($21,762 on the defaults), but a deposit is
+        applied to the service total rather than added to it, so that figure
+        is revenue the business would have billed anyway, collected earlier.
+        It could argue for a deposit and never against one, because the cost
+        side -- bookings never made because a deposit was asked for -- never
+        entered the number. The page's own FAQ already conceded the gap
+        ("it changes who books, not just who shows"), collected the estimate
+        as `bookingRate`, and then never spent it on that question.
+      - >-
+        Two new inputs (no-show rate with and without a deposit) drive a year
+        of revenue each way -- today's bookings minus today's no-shows at full
+        price, against the bookings kept under a deposit at full price when
+        they show and the forfeited deposit when they do not -- reported as
+        two columns, a difference, and a break-even booking rate. Defaults:
+        $79,560 vs $83,783.70, +$4,223.70, break-even 88.3%. At a 60% booking
+        rate it reads -$25,506.00.
+      - >-
+        Finding worth keeping: break-even is normally BELOW 100%. As long as a
+        deposit does not make no-shows worse, it pays for itself at full
+        retention even with no behaviour change at all, because the no-shows
+        that remain forfeit a deposit instead of paying nothing -- so the
+        entire cost of a deposit policy is the bookings it turns away. This
+        was got backwards while writing it: the first test asserted that no
+        no-show improvement means break-even above 100%, and the code came
+        back 97.3% and was right. A draft FAQ paragraph blaming "too small a
+        gap between the two no-show rates" was corrected before merge in both
+        the visible copy and the JSON-LD. Above 100% is reachable only when
+        the user enters a higher no-show rate WITH a deposit than without.
+      - >-
+        Second finding, narrower: `annual` keeps its original left-associated
+        expression. Folding it into the new `annualBookings` term is
+        algebraically identical and a different double (21762 vs
+        21762.000000000004), and the figure is displayed to the cent. Caught
+        by the pre-existing test and now commented at the site so it is not
+        "simplified" back.
+      - >-
+        Verified: 33 venture tests (was 20); `clauses.mjs`; 855 platform/pages
+        tests; `build.mjs` + `check.mjs` (169 products, 530 pages, no dead
+        links); and a headless Chromium pass over the real page -- defaults,
+        the loss case, the validation guard and its recovery, gain/loss
+        contrast at 7.13:1 and 6.97:1 on the result tile, no horizontal
+        overflow at 375px. All 9 CI checks green on real runners before merge.
+      - >-
+        Deploy note, measured so the next run does not re-derive it: seeding
+        the site from a ConfigMap so `portfolio-site.yaml`'s build init
+        container stops failing closed on a first start with no token and no
+        cache is NOT viable as a full-site fallback. The built site is 34 MB,
+        14.4 MB gzipped, against a 1 MiB ConfigMap limit; the hub index.html
+        alone is 298 KB raw. A curated subset fits but means ~500 KB of
+        generated HTML duplicated into git plus a drift check, and becomes
+        dead weight the moment `portfolio-site-repo` is sealed. Not built.
+        `publish_surface.py --check` still reports 0 hostnames serving.
+      - >-
+        Queue state this run: exactly one open PR existed at the start
+        (#2708, vs-Baremetrics comparison page) -- reviewed, verified locally
+        (28 venture + 853 platform tests), CI green on real runners, merged.
+        That is the third consecutive session to find no repairable backlog,
+        so the mandate's three-PR quota resolved on its "fewer than three
+        exist, process all of them" branch rather than being missed.
