@@ -143,6 +143,9 @@ export const STARTER_SET = [
   { slug: 'hvac-maintenance-contract-calculator', why: 'services — contract pricing, repeat visits' },
   { slug: 'cleaning-dilution-calculator', why: 'services — used on the job, not before it' },
   { slug: 'medical-courier-route-margin', why: 'logistics — the only category card otherwise unrepresented' },
+  { slug: 'owner-operator-cpm-calculator', why: 'logistics — a second logistics tool, weekly not per-delivery' },
+  { slug: 'chargeback-evidence-packet', why: 'evidence — a third evidence tool, the seller-facing one' },
+  { slug: 'translator-project-quote', why: 'services — a fourth services tool, project-based not contract-based' },
 ];
 
 /**
