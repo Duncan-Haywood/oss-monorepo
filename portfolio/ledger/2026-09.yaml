@@ -3230,3 +3230,54 @@ entries:
         build` clean on all six overlays; `kubeconform -strict` (60 valid,
         0 errors); all 7 CI checks green on real (non-starved) runners.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2774 and #2779. The PR queue was empty at the
+        start of the run, so the merge quota fell to the branch backlog, and
+        the reusable finding is its size: running the identical-merge
+        supersession proof (replay each branch on `main` with `main` winning
+        every conflict; tree equal to `main` means superseded) across all 84
+        remote branches carrying unique commits shows 62 of them -- 74% --
+        are fully superseded already. Of the 22 that are not, most of the
+        "unique" content is an artifact of the replay itself: the branch
+        re-adds a function `main` already has under a different name, so a
+        naive merge would ship a duplicate. Three were checked and correctly
+        NOT merged for exactly that reason -- `funny-archimedes-7qv0f4`'s
+        `csvRows()` duplicated `main`'s `quoteCsv()` and was the weaker one
+        (no CSV formula-injection guard, so merging it was a security
+        regression); `optimistic-heisenberg-v07yn7` would have added a
+        second, narrower Synder FAQ beside a better one; and
+        `no-show-fee-scenarios-20260824`'s `compareFeeScenarios` work is
+        already on `main`. Future sessions should run the proof before
+        reading a branch backlog as work waiting to be done.
+      - >-
+        `quote-margin-check` shipped the same arithmetic twice --
+        `src/quote_margin.py` for the CLI, `site/calc.mjs` for the browser --
+        with nothing checking the two agree: every test pinned one side
+        against numbers hand-copied into it, so a change to either left the
+        other's tests green. Added `site/parity.test.mjs`, which runs the
+        real CLI over every committed example plus four awkward quotes and
+        requires the browser port to reproduce its JSON payload exactly. It
+        found a real divergence on the first run: all five sensitivity
+        tables and every shared field matched, but the browser had offered a
+        time buffer since it shipped and the CLI never had the field at all,
+        so anyone scoring a folder of quotes from a script got a strictly
+        smaller answer than someone using the page. Fixed by giving the CLI
+        the feature (`time_buffer_percent`, defaulting to 0 so older quote
+        files score identically), not by loosening the test.
+      - >-
+        The apex answered `/favicon.ico` with a 404 on every single visit and
+        showed a blank tab, because it declared no icon at all -- on the
+        portfolio's one reachable page. Added a 309-byte SVG mark drawn from
+        `THEME_COLOR` (so apex and tools host share one identity), the
+        `theme-color` meta the tools host always had, and an exact-match
+        nginx block; a browser now requests `/favicon.svg` and gets it, with
+        zero failing requests across four pages in Chromium. Also mirrored
+        `pool-route-pricing` and `grant-reporting-tracker` into the front
+        door, taking `services` and `evidence` off one working tool each
+        (18 -> 20 tools, 92% of `BYTE_CEILING`, ~72% of the etcd cap that
+        actually binds). Both merged to `main`, which is the Argo deploy.
+    mrr_end: null
