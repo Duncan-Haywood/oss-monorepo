@@ -28,7 +28,8 @@
 #   portfolio-front-tools-2: 38 files, 694232 bytes
 #   portfolio-front-tools-3: 47 files, 715610 bytes
 #   portfolio-front-tools-4: 88 files, 714723 bytes
-#   portfolio-front-tools-5: 75 files, 688767 bytes
+#   portfolio-front-tools-5: 78 files, 705341 bytes
+#   portfolio-front-tools-6: 40 files, 516650 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -458,3 +459,51 @@ configMapGenerator:
       - sponsor-ready__scoring.js=sponsor-ready__scoring.js
       - sponsor-ready__style.css=sponsor-ready__style.css
       - sponsor-ready__usage.js=sponsor-ready__usage.js
+      - roofing-bid-calculator__LICENSE=roofing-bid-calculator__LICENSE
+      - roofing-bid-calculator__calc.mjs=roofing-bid-calculator__calc.mjs
+      - roofing-bid-calculator__how-to-price-a-roof-by-the-square.html=roofing-bid-calculator__how-to-price-a-roof-by-the-square.html
+  - name: portfolio-front-tools-6
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
+      - roofing-bid-calculator__index.html=roofing-bid-calculator__index.html
+      - roofing-bid-calculator__proposal-terms.mjs=roofing-bid-calculator__proposal-terms.mjs
+      - roofing-bid-calculator__proposal.mjs=roofing-bid-calculator__proposal.mjs
+      - roofing-bid-calculator__share.mjs=roofing-bid-calculator__share.mjs
+      - roofing-bid-calculator__usage.mjs=roofing-bid-calculator__usage.mjs
+      - roofing-bid-calculator__vs-acculynx.html=roofing-bid-calculator__vs-acculynx.html
+      - painting-bid-calculator__LICENSE=painting-bid-calculator__LICENSE
+      - painting-bid-calculator__calc.mjs=painting-bid-calculator__calc.mjs
+      - painting-bid-calculator__index.html=painting-bid-calculator__index.html
+      - painting-bid-calculator__interior-painting-price-per-square-foot.html=painting-bid-calculator__interior-painting-price-per-square-foot.html
+      - painting-bid-calculator__proposal-terms.mjs=painting-bid-calculator__proposal-terms.mjs
+      - painting-bid-calculator__proposal.mjs=painting-bid-calculator__proposal.mjs
+      - painting-bid-calculator__share.mjs=painting-bid-calculator__share.mjs
+      - painting-bid-calculator__usage.mjs=painting-bid-calculator__usage.mjs
+      - painting-bid-calculator__vs-paintscout.html=painting-bid-calculator__vs-paintscout.html
+      - concrete-bid-calculator__LICENSE=concrete-bid-calculator__LICENSE
+      - concrete-bid-calculator__calc.mjs=concrete-bid-calculator__calc.mjs
+      - concrete-bid-calculator__how-much-concrete-for-a-driveway.html=concrete-bid-calculator__how-much-concrete-for-a-driveway.html
+      - concrete-bid-calculator__index.html=concrete-bid-calculator__index.html
+      - concrete-bid-calculator__proposal-terms.mjs=concrete-bid-calculator__proposal-terms.mjs
+      - concrete-bid-calculator__proposal.mjs=concrete-bid-calculator__proposal.mjs
+      - concrete-bid-calculator__share.mjs=concrete-bid-calculator__share.mjs
+      - concrete-bid-calculator__usage.mjs=concrete-bid-calculator__usage.mjs
+      - lawn-care-bid-calculator__LICENSE=lawn-care-bid-calculator__LICENSE
+      - lawn-care-bid-calculator__calc.mjs=lawn-care-bid-calculator__calc.mjs
+      - lawn-care-bid-calculator__how-to-price-lawn-mowing.html=lawn-care-bid-calculator__how-to-price-lawn-mowing.html
+      - lawn-care-bid-calculator__index.html=lawn-care-bid-calculator__index.html
+      - lawn-care-bid-calculator__proposal-terms.mjs=lawn-care-bid-calculator__proposal-terms.mjs
+      - lawn-care-bid-calculator__proposal.mjs=lawn-care-bid-calculator__proposal.mjs
+      - lawn-care-bid-calculator__share.mjs=lawn-care-bid-calculator__share.mjs
+      - lawn-care-bid-calculator__usage.mjs=lawn-care-bid-calculator__usage.mjs
+      - lawn-care-bid-calculator__vs-lmn.html=lawn-care-bid-calculator__vs-lmn.html
+      - fence-bid-calculator__LICENSE=fence-bid-calculator__LICENSE
+      - fence-bid-calculator__calc.mjs=fence-bid-calculator__calc.mjs
+      - fence-bid-calculator__how-to-bid-a-fence-job.html=fence-bid-calculator__how-to-bid-a-fence-job.html
+      - fence-bid-calculator__index.html=fence-bid-calculator__index.html
+      - fence-bid-calculator__proposal-terms.mjs=fence-bid-calculator__proposal-terms.mjs
+      - fence-bid-calculator__proposal.mjs=fence-bid-calculator__proposal.mjs
+      - fence-bid-calculator__share.mjs=fence-bid-calculator__share.mjs
+      - fence-bid-calculator__usage.mjs=fence-bid-calculator__usage.mjs
