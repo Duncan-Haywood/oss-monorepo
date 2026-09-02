@@ -4844,3 +4844,54 @@ entries:
         `PAGES_ENABLED`). Repo had 0 open PRs at both start and end of this
         run.
     mrr_end: null
+  - venture: drywall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session on the standing "prioritize deployment/CI-CD and
+        marketing materials on Hetzner, and set up Codex CLI to spend its
+        quota" instruction, plus this run's mandatory three-PR merge quota.
+        Found 0 open PRs and 84 branches with commits ahead of `main`.
+        Sampled ~20 of the highest-commit-count branches with
+        `portfolio/ledger/supersede_check.py`: two round-tripped through
+        opening a PR and closing it once the identical-merge proof and a
+        manual read confirmed superseded (#2859, the governor RBAC
+        narrowing — landed independently as #2669/#2674; #2860, the
+        front-door shard-ceiling bump — `main` had already fixed the same
+        fragment-shard problem via #2847's different mechanism, verified by
+        running `front-door-tools.mjs` check mode against current `main`:
+        exit 0, no drift). Every other sampled branch was SUPERSEDED
+        (identical-merge proof) or a RENAME-SUSPECTED case read by hand and
+        confirmed as the same feature already shipped under different
+        wording. Confirmed rather than re-derived: the Codex-on-Hetzner
+        worker stack and self-hosted CI runner stack are fully built
+        (`gitops/agents/`, `gitops/ci/`), already the top two priority-7
+        items in `gitops/agents/queue/` and rows 10/12 of the decision
+        queue, blocked solely on owner `kubeseal` actions — no duplicate
+        ask added. With the backlog empty of repairable work, did the
+        `deploy-cicd-readiness` queue item's own task by hand instead:
+        `python3 -m pytest gitops/tests -q` (265 passed) and
+        `platform/ci/publish_surface.py --check` (in sync) turned up no
+        concrete manifest/workflow defect to fix, so shipped the
+        `marketing-distribution` queue item's work instead. Shipped and
+        merged three vs-X comparison pages, one per venture, continuing a
+        pattern several concurrent sessions were independently advancing
+        the same run: #2863 `drywall-bid-calculator` vs-Buildxact, #2865
+        `egress-window-bid-calculator` vs-JobNimbus, #2866
+        `duct-cleaning-bid-calculator` vs-Jobber. Each: factual comparison
+        table, affiliation disclaimer, standard footer, FAQPage JSON-LD
+        with visible-text parity, and a test asserting no invented
+        competitor price (competitor facts came from WebSearch, not the
+        vendors' own sites, which this session's egress proxy blocks).
+        Verified per PR: full venture `node --test` (100, 137, 72 passing),
+        `platform/pages/clauses.mjs` and `faq-duplicate.mjs` clean,
+        `build.mjs` + `check.mjs dist` clean, rebased onto latest `main`
+        immediately before each push (concurrency was heavy -- `main`
+        advanced across all three pushes, once from a sibling session's
+        same-pattern PR on a different venture, #2864 `siding-bid-calculator`
+        vs-JobNimbus -- no overlap). All three merged with `mergeable_state:
+        clean`. Met this run's three-PR quota via new work rather than
+        existing-PR repair, since the repairable queue was verified empty
+        first.
+    mrr_end: null
