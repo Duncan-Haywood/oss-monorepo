@@ -3854,3 +3854,63 @@ entries:
         33625997857` (runner 1000043682, not the starvation signature).
         Merged (squash) as #2804.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner asked (again) to prioritize deployment/CI-CD and marketing
+        materials on the Hetzner VMs. The obvious owner-gated paths
+        (tools.marisstella.dev via `portfolio-site-repo`, the self-hosted
+        runner PAT, the agent-fleet Codex credential) are already built and
+        queued, so this session used the one live no-seal deploy path
+        instead: `gitops/prod/front-door-tools/` (a curated static mirror
+        of complete ventures served at marisstella.dev/tools/<slug>/, no
+        Actions run, no Pages flip -- a merge to `main` is the deploy via
+        Argo CD) and its generator, `platform/marketing/front-door-tools.mjs`.
+      - >-
+        Confirmed the generator is not stale (all 28 of its own tests
+        passed against the committed output before any change) and its
+        `STARTER_SET` comments already describe a "mirror every eligible
+        venture" mechanical sweep that had closed the coverage gap in every
+        category but `trades` (deliberately sampled, not exhaustive).
+        Cross-checked all 169 launched ventures against that set and found
+        one genuine miss: `faire-wholesale-calculator` (marketplace)
+        shipped 2026-08-26 (#1707), before the sweep, and was never
+        re-checked against it, despite being flat, self-contained, tested
+        (107 passing cases) and disclaimer-complete
+        (`clauses.mjs` finds the §5b no-warranty clause on all 8 pages).
+      - >-
+        Added it to `STARTER_SET`. `packShards` bins by declaration order
+        with no rebalancing; inserting beside the rest of the marketplace
+        block, then at the end of the array, each left a near-empty
+        trailing ConfigMap shard (3,750 and 11,987 bytes) under
+        `CLIENT_SIDE_APPLY_CEILING`, which
+        `front-door-tools.test.mjs`'s apply-mode test correctly rejected.
+        Scanned all 53 insertion points programmatically; the slot between
+        the evidence and back-office blocks is the only one that does not
+        fragment the packing (still 7 shards). Regenerated both
+        `gitops/prod/front-door-tools/` and `gitops/prod/front-door/index.html`
+        (tool counts 52->53, marketplace 7->8) so the front door's own
+        claims stay accurate.
+      - >-
+        Verified: `node --test platform/marketing/*.test.mjs` (65/65);
+        `python3 -m pytest gitops/tests/test_manifests.py` (77/77); a real
+        `kustomize build gitops/prod` (v5.6.0, the version
+        `hetzner-gitops-ci.yml` installs) -- exit 0, largest generated
+        ConfigMap shard 718,358 bytes (68.5% of etcd's 1 MiB cap); a
+        `python3 -m http.server` smoke test of the new mirrored pages (200s).
+        Opened as #2808; all 7 CI checks came back green on real runners
+        (`check`, `gitops`, `hcloud-scope`, `scripts`, `tofu`, `validate`,
+        `preflight` skipped as expected), confirmed with
+        `ci_starvation.py --run 33629552985` and `--run 33629552960`
+        (runners in the 1000043716-1000043721 range, not the starvation
+        signature). Merged (squash) as #2808.
+      - >-
+        Budget note left in the code and PR for future sessions: the
+        mirror is now 4,976,324 bytes, 95% of `MIRROR_BYTE_CEILING` (5
+        MiB) -- ~266 KB of headroom left, down from ~460 KB, against a
+        `marketing-distribution` queue item that keeps adding 7-18 KB
+        comparison/FAQ pages to mirrored ventures. Next addition here
+        should re-measure that margin first.
+    mrr_end: null
