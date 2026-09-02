@@ -289,7 +289,12 @@ decisions:
   opened: "2026-08-19"
   action: >-
     Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
-    Actions", and set repository variable `GITHUB_PAGES_ENABLED=true`.
+    Actions", and set repository variable `PAGES_ENABLED=true`. (Not
+    `GITHUB_PAGES_ENABLED` — that name is unsettable, and until this row
+    was corrected this ask could never actually have been completed as
+    written: GitHub rejects any Actions configuration-variable name
+    starting with `GITHUB_`, case-insensitive, at creation time. See
+    `portfolio/hosting/README.md`.)
     That is the remaining flip for static products. The host is already
     decided (GitHub Pages + existing Hetzner boxes; see
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel

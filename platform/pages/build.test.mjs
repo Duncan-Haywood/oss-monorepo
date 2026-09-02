@@ -356,7 +356,7 @@ test('every published page carries both liability clauses, not just the hub', as
   // clause on every hosted surface. Until this site existed the second one was
   // arguably moot -- nothing was hosted -- and eighteen pages across nine
   // ventures shipped without any availability statement at all. The moment the
-  // owner flips `GITHUB_PAGES_ENABLED` all of them are hosted surfaces, so the
+  // owner flips `PAGES_ENABLED` all of them are hosted surfaces, so the
   // clause is checked here, where a new landing page cannot slip past it.
   //
   // Matched loosely on purpose: several ventures word the clause in their own

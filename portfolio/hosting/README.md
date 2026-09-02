@@ -110,7 +110,10 @@ the live site is whichever finished last.
 
 That happened on 2026-08-26: `pages.yml` and `portfolio-pages.yml` were written
 within the hour from the same reasoning, neither pull request could see the
-other, and both merged deploying under `GITHUB_PAGES_ENABLED`.
+other, and both merged deploying under the same owner-set variable — spelled
+`GITHUB_PAGES_ENABLED` at the time, since renamed to `PAGES_ENABLED` (see
+below): GitHub rejects any Actions configuration-variable name starting with
+`GITHUB_`, so the original spelling could never actually have been set.
 
 `.github/workflows/pages.yml` still exists and still runs
 `platform/ci/build_pages_site.py`, but **it no longer deploys**. It is kept as an
@@ -151,7 +154,18 @@ python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages
-(`GITHUB_PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
+(`PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
 second platform ask. Until that variable is set, the build still runs on
 every push and the artifact is still uploaded; only the publish step is
 skipped. Flipping it publishes everything at once.
+
+**Not `GITHUB_PAGES_ENABLED`, which this section named until it was found
+to be unsettable.** GitHub rejects any Actions configuration-variable name
+starting with `GITHUB_` (case-insensitive) at creation time — reserved for
+GitHub's own use, per
+[the naming rules](https://docs.github.com/en/actions/learn-github-actions/variables#naming-conventions-for-configuration-variables)
+— so the owner could never have set it through Settings → Variables →
+Actions, and `.github/workflows/portfolio-pages.yml`'s `deploy` job would
+have stayed permanently skipped. The variable is `PAGES_ENABLED` now; the
+workflow, `platform/ci/publish_surface.py`, and the decision queue all read
+that name.

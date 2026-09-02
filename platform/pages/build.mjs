@@ -6,7 +6,9 @@
 // ---------------
 // GitHub serves exactly one Pages site per repository. Before this script the
 // only workflow that could publish one built `retail-pilot-intel`'s
-// passcode-gated docs app — so the owner's single `GITHUB_PAGES_ENABLED` flip
+// passcode-gated docs app — so the owner's single Pages-enable flip
+// (`PAGES_ENABLED`; see `platform/pages/README.md` for why it is not spelled
+// `GITHUB_PAGES_ENABLED`)
 // would have put an internal docs site live and left ~30 finished, tested,
 // free calculators with no public URL at all. Deploy-first (portfolio/DIRECTION.md)
 // means the flip has to publish the products, so the site the flip publishes
