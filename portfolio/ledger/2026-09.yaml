@@ -5131,3 +5131,37 @@ entries:
         highest-value non-duplicative work available under an empty PR
         queue and the owner-blocked Codex governor.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked up the `product-feature-improvement` queue item by hand
+        (governor not live; owner-only seal already tracked separately).
+        Read 15+ ventures' `calc.mjs`/equivalent plus tests before finding
+        a real, verifiable gap -- the rest were already heavily iterated
+        (extensive prior-bug-fix comment trails on retainage-cashflow,
+        cash-runway-planner, cut-list-optimizer/sheet.mjs, the 555-timer
+        and RC-filter calculators, grant-deadline-tracker, chargeback-evidence-packet,
+        vendor-rate-break-even and others; all already had test coverage
+        for exactly the edge case that would otherwise have been the
+        obvious fix). Found and fixed a real one in `tender-radar`:
+        `filterTenders`'s minimum-value filter read
+        `Number(row.value || 0) < min`, and `Number("£5,000")` is `NaN` --
+        `NaN < min` is always `false`, so the exclusion branch never fired
+        for a currency-formatted or comma-grouped value cell no matter how
+        far under the minimum the tender actually was. A real tender-portal
+        export almost never gives a bare integer, so a £5,000 job filtered
+        against a "£20,000 minimum" slipped straight into the shortlist --
+        the opposite of what the tool's one headline filter promises.
+        Added `parseValueNumber()` (strips thousands-separator commas,
+        reads the first signed number out of what remains) and wired
+        `filterTenders` to use it; a blank or truly unreadable cell still
+        reads as 0, unchanged from before. Shipped and merged #2875.
+        `node --test ventures/tender-radar/site/*.test.mjs`: 16/16 pass (3
+        new: `parseValueNumber`'s currency/thousands handling, a
+        currency-formatted low-value row correctly excluded from a
+        $20,000-minimum shortlist, blank/"TBD" cells still excluded).
+        Sitewide `build.mjs` + `check.mjs`: 169 products, 570 pages, no
+        dead links.
+    mrr_end: null
