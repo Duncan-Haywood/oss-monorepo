@@ -3500,3 +3500,40 @@ entries:
         makes the interim surface worth 47 tools instead of 20 rather than
         changing that.
     mrr_end: null
+  - venture: pest-control-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, candidate #2 ("a tool with a
+        genuine named incumbent and no comparison page yet"). Shipped
+        `vs-pestpac.html` -- pest-control-bid-calculator had no vs-* page;
+        PestPac (WorkWave) is the field-service platform pest control
+        operators would search by name, matching the pattern already used
+        for ServiceTitan/HVAC, GorillaDesk/pressure-washing, LMN/lawn-care,
+        etc. Linked from `index.html` and listed in `sitemap.xml`, with a
+        9-test suite (vs-pestpac.test.mjs) mirroring the sibling comparison
+        pages: disclaimer present, no-affiliation claim, no unverifiable `$`
+        figure for PestPac, canonical tag, FAQ schema validity, not
+        orphaned, listed in the sitemap, links back to the calculator and
+        pricing walkthrough. PestPac's own site is unreachable from this
+        session (WebFetch to pestpac.com returned EGRESS_BLOCKED, and web
+        search results conflicted on its founding year and headquarters
+        city), so the page states only well-documented, non-numeric
+        identity facts and carries no dollar figure or contested date for
+        PestPac, same discipline vs-servicetitan.html and vs-gorilladesk.html
+        already use.
+      - >-
+        Verified: `node --test ventures/pest-control-bid-calculator/*.test.mjs`
+        (117 pass, 9 new), then a full `PAGES_BASE_URL=... node
+        platform/pages/build.mjs` + `node platform/pages/check.mjs` run
+        (169 products, 545 pages, no dead links). Opened as #2791; five of
+        six real CI checks (`build`, `check`, `page-integrity`,
+        `link-contrast`, `validate`, Portfolio Pages `build`) came back
+        green on real runners. The venture's own `site-test` job stayed
+        `queued` with no runner assigned for 6+ minutes -- not the known
+        runner_id:0 starvation signature (that job never finished, so
+        `ci_starvation.py` gave no verdict) but effectively the same
+        no-signal case, superseded by the identical local `node --test` run
+        that already passed. Merged (squash) on that basis.
+    mrr_end: null
