@@ -248,13 +248,13 @@ BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
 #
 # `--depth` implies `--single-branch`, so the clone came back with its refspec
 # pinned to `+refs/heads/$REF:refs/remotes/origin/$REF` and no merge base for
-# anything else. That breaks the queue's two highest-priority items outright:
+# anything else. That breaks two of the queue's real items outright:
 #
-#   open-pr-repair-merge (6)  resolves a conflict by merging $REF into a PR
+#   open-pr-repair-merge (5)  resolves a conflict by merging $REF into a PR
 #                             branch. In a depth-50 clone that fetch comes back
 #                             shallow and the merge aborts with
 #                             `fatal: refusing to merge unrelated histories`.
-#   branch-pr-drain (5)       enumerates branches with unique commits. Under the
+#   branch-pr-drain (4)       enumerates branches with unique commits. Under the
 #                             pinned refspec `git branch -r` knows only $REF, so
 #                             there is nothing to enumerate.
 #
@@ -262,8 +262,16 @@ BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
 # before closing a PR — `supersede_check.py` needs a merge base with `main`, and
 # CLAUDE.md's own note ("Your clone is shallow. `git fetch --unshallow` before
 # any of this") is written for exactly this failure. Nothing in the prompt told
-# the agent to unshallow, so between them those items are 11/25ths of the
+# the agent to unshallow, so between them those items are 11/33rds of the
 # governor's weight aimed at work the checkout cannot do.
+#
+# The two priority numbers above, and the 11/33 they feed, move whenever the
+# queue is reprioritised (`gitops/agents/queue/*.yaml`'s own `priority:`
+# fields are the source of truth) — they read 6 and 5 out of 11/25 here until
+# the 2026-09-01 reordering that put deploy-cicd-readiness and
+# marketing-distribution ahead of both. Re-derive rather than trust this
+# comment: weight is `priority + 1`, and the denominator is the sum of
+# `priority + 1` over every `enabled: true` item in `gitops/agents/queue/`.
 #
 # The pack is ~64 MiB. A few seconds and that much disk on the cpx22, once per
 # Job, is the whole cost of the fix.
