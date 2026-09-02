@@ -3537,3 +3537,58 @@ entries:
         no-signal case, superseded by the identical local `node --test` run
         that already passed. Merged (squash) on that basis.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same three-part brief as the entries above it
+        this month (deploy/CI-CD priority, Hetzner marketing, Codex
+        built-in-quota). Re-checked rather than trusted: 0 open PRs, the
+        `Claude routine trigger` workflow still failing on the already-queued
+        `routine-trigger-cadence` revoked-OAuth-token ask (6 consecutive
+        failures 09:31-11:06, ~$17/mo, owner decision pending, not a
+        regression), `portfolio-site-repo` and Codex `codex login` still the
+        only two live owner blockers. Wrote no duplicate finding for the
+        three-part brief itself since the entries above already cover it in
+        full this month.
+      - >-
+        New this session: dispatched a full sweep of the ~200-branch
+        backlog (209 remote branches, excluding `main`) that prior sessions
+        had only sampled a handful of at a time. Result: 133 with zero or
+        no-op diff vs. `main`, 74 confirmed duplicate/superseded by content
+        diff (not just `--stat`) -- every touched path already exists on
+        `main`, usually in a more developed form -- and exactly 1 branch
+        with genuine unique work, `cursor/agent-cross-review-f90e` (a
+        four-agent PR cross-review + auto-merge system). Not merged: it
+        rewrites `CLAUDE.md` to require human/agent review gates before
+        merge, which conflicts with the adopted "ship without review
+        ceremony" policy -- reads as an abandoned 2026-08-24 governance
+        direction the repo consciously moved away from. `tmp/ssh-key-smoke`
+        (936 commits ahead, alternate-history base) confirmed not worth a
+        PR either, beyond the one already-noted cherry-pickable commit.
+        Bottom line: the branch backlog is not a source of more mergeable
+        work: `main` has been absorbing this swarm's output continuously,
+        and it is safe to bulk-delete rather than keep mining.
+      - >-
+        Shipped: `ventures/concrete-bid-calculator/vs-stack.html` (#2794),
+        a comparison page against STACK (a cross-trade cloud takeoff/
+        estimating platform), following the `vs-singleops.html` pattern --
+        category-level non-numeric description, no invented STACK pricing
+        (its site is not reachable from this environment), FAQ schema, and
+        the venture's standard disclaimers. Picked this over another
+        comparison page some other concurrent session might already be
+        writing (11 ventures got one in the hour before this session
+        started) by choosing a venture with no PR history for it; 127
+        ventures with an `index.html` still lack a comparison page. First
+        push failed CI (`validate`, `platform/marketing/*.test.mjs`): the
+        new page needed `node platform/marketing/front-door-tools.mjs
+        --write` to regenerate the front-door ConfigMap mirror, fixed in a
+        second commit. Verified: `node --test
+        ventures/concrete-bid-calculator/*.test.mjs` (109/109, 9 new) and
+        `node --test platform/marketing/*.test.mjs` (59/59) locally before
+        each push; all 12 real CI checks (`build` x2, `check`,
+        `link-contrast`, `page-integrity`, `scripts`, `tofu`, `gitops`,
+        `hcloud-scope`, `validate`, `site-test`, Portfolio Pages) came back
+        green on real runners. Merged (squash) as #2794.
+    mrr_end: null
