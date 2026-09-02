@@ -274,10 +274,20 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 53 of the 169 tools directly. Step 1
+"You decide" below), and it mirrors 156 of the 169 tools directly. Step 1
 below is what turns that front door into a working funnel for the other
-116 — every category card on it links into `tools.marisstella.dev`, which
+13 — every category card on it links into `tools.marisstella.dev`, which
 still serves nothing until the token is sealed.
+
+That ratio moved a long way on 2026-09-02, and it changes what Step 1 is
+worth. The mirror used to hold 53 tools because a ConfigMap-delivered
+copy of the site was bounded by bytes; storing it gzipped returned 3.1x
+and the bound stopped binding, so the front door now serves nearly the
+whole catalogue itself. Sealing the token is still the right end state —
+it retires the mirror, serves the canonical host, and lets those pages be
+*indexed*, which the mirrored copies deliberately are not — but it is no
+longer the difference between a stranger reaching 53 tools and reaching
+169. It is now the difference between 156 and 169, plus search.
 
 The build half is done and was rehearsed with the exact commands the pod
 runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
@@ -386,7 +396,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 53 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 156 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;

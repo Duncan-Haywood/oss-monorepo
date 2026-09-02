@@ -1238,15 +1238,26 @@ def test_the_mirror_byte_ceiling_trips_before_this_one_does() -> None:
     # were ever raised past what this budget allows, the earlier and more useful
     # error would stop firing and the first sign of trouble would move to CI.
     #
-    # 1.05 is a deliberately generous stand-in for the serialisation overhead
-    # measured on the real object (3.7% for 95 keys: 643,465 bytes of content
-    # serialise to 667,371). Being generous here is the safe direction — it
-    # makes this test complain sooner, not later.
+    # 1.40 is a deliberately generous stand-in for the serialisation overhead,
+    # and the number changed by an order of magnitude on 2026-09-02.
+    #
+    # It was 1.05, standing in for the 3.7% measured on the real object (643,465
+    # bytes of content serialising to 667,371) — correct while the mirror was
+    # text under `data`, where the only overhead is JSON string escaping. The
+    # mirror is now gzipped, gzip output is not valid UTF-8, and kustomize puts
+    # a key it cannot decode under `binaryData` as base64. That is a 4/3
+    # expansion, so a 1.05 factor would have under-predicted the applied object
+    # by 27% and left this check passing on a ceiling that could not actually be
+    # delivered — a ceiling test that no longer predicts the thing it guards is
+    # worse than none, because it reads like coverage.
+    #
+    # 1.40 is 4/3 plus room for the JSON keys and the object envelope. Being
+    # generous here is the safe direction: it makes this test complain sooner.
     source = (REPO / "platform" / "marketing" / "front-door-tools.mjs").read_text()
     match = re.search(r"SHARD_BYTE_CEILING = (\d+) \* 1024", source)
     assert match, "front-door-tools.mjs no longer declares SHARD_BYTE_CEILING in KiB"
     byte_ceiling = int(match.group(1)) * 1024
-    assert byte_ceiling * 1.05 < ETCD_OBJECT_BUDGET, (
+    assert byte_ceiling * 1.40 < ETCD_OBJECT_BUDGET, (
         f"SHARD_BYTE_CEILING is {byte_ceiling} bytes of content, which could serialise past the "
         f"{ETCD_OBJECT_BUDGET}-byte budget here. Lower it, or lower it and raise this budget "
         "together — never leave the object check as the only one that fires."
