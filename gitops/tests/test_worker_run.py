@@ -816,6 +816,39 @@ def _stub_download(world, tarball: Path) -> None:
     curl.chmod(0o755)
 
 
+def _path_without_gh(world) -> str:
+    """A PATH carrying every tool the worker needs, and no `gh` at all.
+
+    Deleting the fixture's stub is not enough. GitHub's runner image ships a
+    real `gh` in /usr/bin, so `command -v gh` still succeeds there, `install_gh`
+    is never called, and the run goes on to use the runner's own gh against a
+    stub token — which 401s against the live API. That is exactly the shape of
+    the bug these tests exist for: a binary already on PATH hiding the code path
+    under test. It passed locally only because this machine has no gh.
+
+    Dropping the directory that holds gh is not an option either — git, tar and
+    sha256sum live in /usr/bin beside it. So mirror every executable on PATH
+    into one directory by symlink, skipping `gh`. First name wins, which
+    preserves the precedence the real PATH had.
+    """
+    farm = world["tmp"] / "pathfarm"
+    farm.mkdir(exist_ok=True)
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        source = Path(directory)
+        if not source.is_dir():
+            continue
+        for entry in source.iterdir():
+            link = farm / entry.name
+            if entry.name == "gh" or link.exists() or link.is_symlink():
+                continue
+            try:
+                link.symlink_to(entry)
+            except OSError:
+                pass
+    assert not (farm / "gh").exists(), "the PATH farm still resolves gh"
+    return f"{world['bin']}{os.pathsep}{farm}"
+
+
 def _trap_apt(world) -> None:
     """An `apt-get` that records the call and succeeds, so a use is visible."""
     apt = world["bin"] / "apt-get"
@@ -847,6 +880,7 @@ def test_install_tools_puts_a_working_gh_on_path_without_apt(world) -> None:
         env_extra={
             "GH_VERSION": version,
             f"GH_SHA256_{_ARCH.upper()}": digest,
+            "PATH": _path_without_gh(world),
         },
     )
 
@@ -856,6 +890,15 @@ def test_install_tools_puts_a_working_gh_on_path_without_apt(world) -> None:
     calls = world["log"].read_text()
     assert "apt-get" not in calls, f"install_tools still shelled out to apt:\n{calls}"
     assert "gh repo clone" in calls, calls
+    # Positive proof the installer ran, rather than an inference from `gh`
+    # being absent: the download happened, and the binary it produced is the
+    # one sitting where install_gh puts it. Without these the test would go
+    # quietly green again the day some other `gh` reappears on PATH.
+    assert "curl" in calls, f"install_gh never downloaded anything:\n{calls}"
+    installed = world["tmp"] / "home" / ".local" / "bin" / "gh"
+    assert installed.is_file() and os.access(installed, os.X_OK), (
+        f"no executable gh at {installed}"
+    )
 
 
 @pytest.mark.skipif(_ARCH is None, reason=f"no pinned gh build for {platform.machine()}")
@@ -876,6 +919,7 @@ def test_a_tampered_gh_tarball_is_refused_rather_than_installed(world) -> None:
         env_extra={
             "GH_VERSION": version,
             f"GH_SHA256_{_ARCH.upper()}": "0" * 64,
+            "PATH": _path_without_gh(world),
         },
     )
 
