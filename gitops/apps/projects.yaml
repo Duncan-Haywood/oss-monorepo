@@ -1,6 +1,21 @@
 # AppProjects are the hard wall. Agents can only dest namespace agents.
 # Prod cannot see agent Secrets. Argo itself uses project `default` only
 # for the root Application.
+#
+# Every `namespaceResourceWhitelist` entry below should name a group Argo
+# actually has to sync a resource from -- the same discipline `bitnami.com/
+# SealedSecret` and the two `rbac.authorization.k8s.io` kinds already get
+# (named explicitly rather than wildcarded, and added only once a manifest
+# needing them existed). `group: policy` sat wildcarded in prod, staging,
+# agents and ci since the namespace was first adopted (#1486) despite no
+# manifest in this tree ever shipping a `policy/v1` resource (no
+# PodDisruptionBudget, no PodSecurityPolicy) -- every other convenience
+# group here (`""`, `apps`, `networking.k8s.io`, `batch`) is exercised by a
+# real manifest and `policy` was the one that was not, so it is removed
+# rather than narrowed. `test_appproject_wildcard_groups_are_actually_used`
+# in gitops/tests/test_manifests.py pins this so an unused group cannot sit
+# wildcarded again unnoticed. Add it back, in whichever project needs it,
+# the same commit a PodDisruptionBudget lands.
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
@@ -55,8 +70,6 @@ spec:
       kind: "*"
     - group: networking.k8s.io
       kind: "*"
-    - group: policy
-      kind: "*"
     # prod/secrets/portfolio-repo-token.template.yaml is sealed and added to
     # prod/kustomization.yaml as the site's read-only clone token -- without
     # this, Argo refuses to sync that SealedSecret the moment it lands,
@@ -100,8 +113,6 @@ spec:
       kind: "*"
     - group: networking.k8s.io
       kind: "*"
-    - group: policy
-      kind: "*"
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
@@ -126,8 +137,6 @@ spec:
     - group: batch
       kind: "*"
     - group: networking.k8s.io
-      kind: "*"
-    - group: policy
       kind: "*"
     # Named explicitly rather than "*", matching the `prod` AppProject just
     # above: rbac.authorization.k8s.io is the one whitelist group that should
@@ -169,8 +178,6 @@ spec:
     - group: apps
       kind: "*"
     - group: networking.k8s.io
-      kind: "*"
-    - group: policy
       kind: "*"
     - group: bitnami.com
       kind: SealedSecret

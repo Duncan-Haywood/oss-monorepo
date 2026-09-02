@@ -115,6 +115,37 @@ def test_every_manifest_kind_is_on_its_appproject_whitelist() -> None:
                 )
 
 
+def test_appproject_whitelist_carries_no_group_this_tree_never_ships() -> None:
+    # `group: policy` sat wildcarded (`kind: "*"`) in the prod, staging,
+    # agents and ci AppProjects' namespaceResourceWhitelist since the
+    # namespace was first adopted (#1486), and no manifest anywhere under
+    # gitops/ has ever shipped a policy/v1 resource -- no
+    # PodDisruptionBudget, no PodSecurityPolicy. Every sibling convenience
+    # group in the same lists ("" for the core group, apps, networking.k8s.io,
+    # batch) is exercised by a real manifest (a ConfigMap or Service, a
+    # Deployment, an Ingress or NetworkPolicy, a CronJob); this was the one
+    # that was not. The specific-kind entries beside it -- bitnami.com/
+    # SealedSecret and the two rbac.authorization.k8s.io kinds -- already get
+    # this discipline: named explicitly, and only added in the commit that
+    # first shipped a manifest needing them (#2146, #2207, #2594). `policy`
+    # never got the equivalent narrowing, because nothing ever exercised it
+    # to notice.
+    #
+    # `platform` is exempt on purpose: its own AppProject wildcards both
+    # group and kind, because it syncs upstream Helm charts (ingress-nginx,
+    # cert-manager, sealed-secrets) whose resource kinds this repo does not
+    # enumerate and should not try to.
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    for doc in docs:
+        if not doc or doc["kind"] != "AppProject" or doc["metadata"]["name"] == "platform":
+            continue
+        groups = {e.get("group") for e in doc["spec"]["namespaceResourceWhitelist"]}
+        assert "policy" not in groups, (
+            f"{doc['metadata']['name']} AppProject still wildcards the policy group with "
+            "nothing in the tree that ships a policy/v1 resource"
+        )
+
+
 def test_agents_project_cannot_dest_prod() -> None:
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}
