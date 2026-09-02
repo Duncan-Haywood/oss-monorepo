@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/pool-route-pricing/"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pool Route Pricing Calculator — Price Weekly Accounts</title>
+<meta name="description" content="Price recurring pool service accounts after labor, drive time, chemicals, and overhead. Free private pool route pricing calculator for independent operators.">
+
+<meta property="og:title" content="Pool Service Route Pricing Calculator"><meta property="og:description" content="Stop pricing only the minutes at the pool. Calculate a minimum monthly account price with drive time, chemicals, labor, and route overhead."><meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pool Service Route Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local recurring pool service route pricing calculator."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does drive time between stops belong in the price?","acceptedAnswer":{"@type":"Answer","text":"Yes — drive minutes per visit is a required input, not an optional extra, because windshield time is paid time on a route even though no pool gets serviced during it. Skipping it or entering zero understates true monthly labor hours and produces a price that only covers time at the pool, not the route."}},{"@type":"Question","name":"Why is the result called a “minimum” price instead of a recommended price?","acceptedAnswer":{"@type":"Answer","text":"The number is the floor at which your entered labor, drive time, chemicals, and overhead hit your target margin — it is not what the market will bear or what competitors charge. It also does not add taxes, equipment replacement, bad debt, or seasonal work (algae season, filter cleans, closings/openings) unless you fold those into your overhead or chemical inputs yourself."}},{"@type":"Question","name":"What if visits per month vary by account (some weekly, some biweekly)?","acceptedAnswer":{"@type":"Answer","text":"Run the calculator per account group with different visit counts, or use a blended average across your route and treat the result as a route-wide floor rather than an exact account-by-account price. The tool prices one uniform account profile at a time; it does not segment a mixed route automatically."}},{"@type":"Question","name":"Does anything about my accounts or pricing get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every number stays in this browser's local storage as a private draft, and a shareable link encodes the same inputs directly in the URL hash rather than on a server. Usage counting only tallies anonymous feature events like estimate, share-link, and current-price-checked, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#102a43;background:#eaf6f8}body{max-width:960px;margin:auto;padding:28px 18px}header{max-width:700px}h1{font-size:clamp(2.2rem,7vw,4.5rem);line-height:.98;letter-spacing:-.06em;margin:.2rem 0 1rem}.lede{font-size:1.15rem}.layout{display:grid;grid-template-columns:1fr .8fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #b8dce2;border-radius:16px;padding:20px;box-shadow:0 8px 24px #174e5a12}h2{margin-top:0;font-size:1.15rem}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.86rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #8bb9c2;border-radius:8px;font:inherit;background:#fafdfe}.result{background:#0b5360;color:#fff;border-color:#0b5360;position:sticky;top:14px}.result a{color:inherit;text-decoration:underline}.big{font-size:3rem;font-weight:750;letter-spacing:-.05em}dl{display:grid;grid-template-columns:1fr auto;gap:8px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.84rem;color:#52717a}.result .note{color:#d5eef1}.err{color:#ffd9a6;font-weight:700}.privacy{margin-top:20px;font-size:.84rem}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #8bb9c2;background:#fff;cursor:pointer; color: #102a43; }footer{margin-top:24px;font-size:.85rem}#currentBox{margin-top:18px;padding-top:14px;border-top:1px solid #ffffff3a}#currentBox h3{margin:0 0 8px;font-size:1rem}@media(max-width:700px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body><header><p>FOR INDEPENDENT POOL SERVICE OPERATORS</p><h1>Price the route, not just the pool.</h1><p class="lede">See the minimum monthly account price after service labor, windshield time, chemicals, and route overhead. Built for recurring weekly pool service, not generic hourly guesses.</p><p><a href="./how-much-to-charge-for-pool-service.html">How much to charge for monthly pool service</a> &middot; <a href="./vs-skimmer.html">This calculator vs. Skimmer</a></p></header>
+<main class="layout"><section><h2>Route assumptions</h2><div class="fields">
+<label>Active accounts<input id="accounts" type="number" min="0" step="1" value="40"></label><label>Visits per account / month<input id="visits" type="number" min="0" step="1" value="4"></label><label>Service minutes / visit<input id="serviceMinutes" type="number" min="0" step="1" value="35"></label><label>Drive minutes / visit<input id="driveMinutes" type="number" min="0" step="1" value="12"></label><label>Labor cost / hour<input id="laborRate" type="number" min="0" step="0.01" value="28"></label><label>Chemicals / visit<input id="chemicalCost" type="number" min="0" step="0.01" value="18"></label><label>Overhead / account / month<input id="overhead" type="number" min="0" step="0.01" value="12"></label><label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99.9" step="0.1" value="35"></label></div><p class="note">Use your own averages. Drive time is the route's paid time even when no pool is being serviced. Your numbers are kept as a private local draft in this browser and restored the next time you open this page.</p>
+<div class="fields"><label>Price you currently charge per account / month (optional)<input id="currentPrice" type="number" min="0" step="0.01" placeholder="e.g. 95"></label></div><p class="note">Leave this blank to just see the minimum. Enter it to check an existing route against the target margin instead of pricing a new one.</p></section>
+<section class="result"><h2>Minimum route price</h2><p id="errors" class="err" role="alert" hidden></p><div id="price" class="big">$0.00</div><p>per account per month to hit the target margin</p><dl><dt>Monthly route revenue</dt><dd id="revenue"></dd><dt>True monthly labor hours</dt><dd id="hours"></dd><dt>Labor cost</dt><dd id="labor"></dd><dt>Chemicals</dt><dd id="chemicals"></dd><dt>Account overhead</dt><dd id="overheadResult"></dd><dt>Total monthly cost</dt><dd id="cost"></dd></dl><p class="note">This is a planning threshold, not a recommended price. Add taxes, equipment replacement, bad debt, and seasonal work if they apply to your operation.</p><p><button id="share" type="button">Copy shareable link</button> <span id="shareStatus" role="status"></span></p>
+<div id="currentBox" hidden><h3>At your current price</h3><dl><dt>Route revenue</dt><dd id="currentRevenue"></dd><dt>Route profit</dt><dd id="currentProfit"></dd><dt>Actual margin</dt><dd id="currentMargin"></dd></dl><p class="note" id="currentVerdict"></p></div>
+</section></main>
+<section><h2>Private by default</h2><p class="privacy">Everything runs in your browser. Your route assumptions are never uploaded, and there are no accounts, cookies, or analytics vendors. Your draft is saved only in this browser's local storage, and a shareable link puts the same numbers in the URL hash on the recipient's device — nothing is uploaded either way. We count only anonymous feature events in local storage (<code>estimate</code>, <code>share-link</code>, <code>current-price-checked</code>) to learn whether the calculator is used. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+<section><h2>Common questions</h2><h3>Does drive time between stops belong in the price?</h3><p>Yes &mdash; drive minutes per visit is a required input, not an optional extra, because windshield time is paid time on a route even though no pool gets serviced during it. Skipping it or entering zero understates true monthly labor hours and produces a price that only covers time at the pool, not the route.</p><h3>Why is the result called a &ldquo;minimum&rdquo; price instead of a recommended price?</h3><p>The number is the floor at which your entered labor, drive time, chemicals, and overhead hit your target margin &mdash; it is not what the market will bear or what competitors charge. It also does not add taxes, equipment replacement, bad debt, or seasonal work (algae season, filter cleans, closings/openings) unless you fold those into your overhead or chemical inputs yourself.</p><h3>What if visits per month vary by account (some weekly, some biweekly)?</h3><p>Run the calculator per account group with different visit counts, or use a blended average across your route and treat the result as a route-wide floor rather than an exact account-by-account price. The tool prices one uniform account profile at a time; it does not segment a mixed route automatically.</p><h3>Does anything about my accounts or pricing get uploaded?</h3><p>No. Every number stays in this browser's local storage as a private draft, and a shareable link encodes the same inputs directly in the URL hash rather than on a server. Usage counting only tallies anonymous feature events like <code>estimate</code>, <code>share-link</code>, and <code>current-price-checked</code>, and you can turn it off with the button above.</p></section>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>MIT licensed. This calculator provides arithmetic observations only; it does not determine profitability or replace your own operating records.</p></footer>
+<script type="module">import{calculate,DEFAULTS}from'./calc.mjs';import{recordEvent,toggleUsage,usageAllowed}from'./usage.mjs';import{decodeInputs,buildShareUrl,FIELD_IDS}from'./share.mjs';const ids=Object.keys(DEFAULTS),el=id=>document.getElementById(id),money=n=>`$${n.toFixed(2)}`;const DRAFT_KEY='pool-route-pricing-draft';let counted=false;
+
+function currentInputs(){return Object.fromEntries(FIELD_IDS.map(id=>[id,el(id).value]))}
+
+function loadDraft(){
+  try{
+    const raw=localStorage.getItem(DRAFT_KEY);
+    if(!raw)return{};
+    const parsed=JSON.parse(raw);
+    return parsed&&typeof parsed==='object'?parsed:{};
+  }catch{return{}}
+}
+
+function saveDraft(inputs){
+  try{localStorage.setItem(DRAFT_KEY,JSON.stringify(inputs))}catch{/* private browsing must not break the calculator */}
+}
+
+// A shared link wins over a saved draft, which wins over the page's own
+// defaults — so opening a link someone sent you shows their route, not
+// whatever you were last editing.
+const linked=decodeInputs(location.hash);
+const draft=loadDraft();
+const initial={...DEFAULTS,...draft,...linked};
+FIELD_IDS.forEach(id=>{if(initial[id]!==undefined)el(id).value=initial[id]});
+
+function update(count=false){try{
+  const inputs=currentInputs();
+  const r=calculate(inputs);
+  el('errors').hidden=true;el('errors').textContent='';el('price').hidden=false;
+  el('price').textContent=money(r.minimumMonthlyPrice);el('revenue').textContent=money(r.minimumRouteRevenue);el('hours').textContent=r.monthlyHours.toFixed(1);el('labor').textContent=money(r.labor);el('chemicals').textContent=money(r.variableCost);el('overheadResult').textContent=money(r.overheadCost);el('cost').textContent=money(r.totalCost);
+  const box=el('currentBox');
+  if(r.current){
+    box.hidden=false;
+    el('currentRevenue').textContent=money(r.current.routeRevenue);
+    el('currentProfit').textContent=money(r.current.profit);
+    el('currentMargin').textContent=`${r.current.margin.toFixed(1)}%`;
+    const verdict=r.current.belowBreakEven
+      ? `This route is losing ${money(Math.abs(r.current.profit))} a month at $${r.current.price.toFixed(2)}/account — below cost, not just below target margin.`
+      : r.current.meetsTarget
+        ? `This clears your ${r.targetMargin}% target margin, ${money(Math.abs(r.current.gapToMinimum))}/account above the ${money(r.minimumMonthlyPrice)} floor.`
+        : `This is ${money(r.current.gapToMinimum)}/account/month short of the ${money(r.minimumMonthlyPrice)} floor for your ${r.targetMargin}% target — ${money(r.current.gapToMinimum*r.accounts)}/month left on the table across ${r.accounts} accounts.`;
+    el('currentVerdict').textContent=verdict;
+    if(count&&!counted){recordEvent('current-price-checked')}
+  } else {
+    box.hidden=true;
+  }
+  saveDraft(inputs);
+  if(count&&!counted){recordEvent('estimate');counted=true}
+}catch(e){
+  // A rejected input (a negative number, non-numeric text) must not leave the
+  // last valid route price on screen next to a small error line -- that
+  // reads as if the stale revenue, labor, chemical, and overhead figures
+  // still answer the inputs now in the form. Hide the hero and clear every
+  // derived field, announcing the message in its own region instead of
+  // overwriting the dollar hero with a sentence.
+  el('errors').textContent=e.message;el('errors').hidden=false;el('price').hidden=true;el('revenue').textContent='';el('hours').textContent='';el('labor').textContent='';el('chemicals').textContent='';el('overheadResult').textContent='';el('cost').textContent='';el('currentBox').hidden=true;el('currentRevenue').textContent='';el('currentProfit').textContent='';el('currentMargin').textContent='';el('currentVerdict').textContent='';
+}}
+FIELD_IDS.forEach(id=>el(id).addEventListener('input',()=>update(true)));
+el('usage').addEventListener('click',()=>{toggleUsage(false);el('usageStatus').textContent=' Counting is off in this browser.'});
+if(!usageAllowed())el('usageStatus').textContent=' Counting is off in this browser.';
+el('share').addEventListener('click',async()=>{
+  const url=buildShareUrl(location.href,currentInputs());
+  try{await navigator.clipboard.writeText(url);el('shareStatus').textContent=' Link copied — nothing was uploaded.'}
+  catch{el('shareStatus').textContent=' '+url}
+  recordEvent('share-link');
+});
+update(false);</script></body></html>

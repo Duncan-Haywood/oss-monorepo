@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/grant-reporting-tracker/when-is-my-grant-report-due.html">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>When Is My Grant Report Due? | Nonprofit Reporting Guide</title>
+  <meta name="description" content="How small nonprofits should track grant reporting deadlines and restricted balances across multiple awards with different reporting intervals, with a worked example.">
+  <meta property="og:title" content="When Is My Grant Report Due?">
+  <meta property="og:description" content="A spreadsheet of award dates does not tell you which report is overdue. Here is how to build a review queue instead.">
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate when a grant report is due?","acceptedAnswer":{"@type":"Answer","text":"Add the reporting interval in months to the award date, clamped to the last day of a shorter month, to get the next report date. Compare that date to today: a report already past its date is overdue, one due within 30 days is due soon, and anything further out is on track."}},{"@type":"Question","name":"What is the restricted balance on a grant award?","acceptedAnswer":{"@type":"Answer","text":"It is the award amount minus what has been spent so far. A $15,000 award fully spent has a $0 restricted balance and is not itself a reporting problem — spending is one input to a report, not the trigger for one."}},{"@type":"Question","name":"How should I prioritize which grant to report on first when I manage several awards?","acceptedAnswer":{"@type":"Answer","text":"Sort by days until the next report, not by award size or funder importance. An overdue report on a small award is a live problem right now; a large award due in three months is not, and treating them as equally urgent means the actually-overdue one gets missed."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17251f; --muted:#5b6b63; --paper:#f5f1e8; --accent:#b44f2f; --line:#d9d2c4; }
+    * { box-sizing: border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+    h1 { font: 700 clamp(1.8rem,5vw,2.6rem)/1.05 Georgia,serif; letter-spacing:-.04em; color: var(--ink); }
+    h2 { font: 700 1.2rem Georgia,serif; margin-top: 1.8em; }
+    a { color: var(--accent); }
+    table { width: 100%; border-collapse: collapse; font-size: .95rem; margin: 1em 0; }
+    th, td { text-align: left; padding: .5rem .4rem; border-bottom: 1px solid var(--line); }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: #fff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: var(--muted); }
+  </style>
+</head>
+<body><main>
+  <p><a href="./">← Grant reporting tracker</a></p>
+  <h1>When is my grant report actually due?</h1>
+  <p>Managing a handful of awards in a spreadsheet works until two reporting intervals overlap and the one that is actually overdue gets buried under whichever row is at the top. A review queue sorted by days remaining, not by award size or funder name, is what tells you which report needs attention first.</p>
+  <p><a class="cta" href="./">Open the free grant reporting tracker</a></p>
+
+  <h2>What a plain award list does not show</h2>
+  <p><strong>The next report date is not the award date.</strong> A 6-month reporting interval on an award made in February means the next report is due in August, not on some fixed calendar date someone has to remember separately.</p>
+  <p><strong>Overdue, due soon, and on track are different problems.</strong> Treating every award the same hides the one that already missed its date behind two that still have months to go.</p>
+  <p><strong>A restricted balance is not a report status.</strong> An award can be fully spent and still not be due for a report for months, or barely touched and overdue right now — the two facts move independently.</p>
+
+  <h2>Worked example</h2>
+  <p>Three awards, reviewed the same day: a $24,000 community program award reporting every 6 months, a $48,000 literacy award reporting every 12 months, and a $15,000 capital award reporting every 3 months.</p>
+  <table>
+    <thead><tr><th>Award</th><th>Reporting interval</th><th>Restricted balance</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Community food program</td><td>Every 6 months</td><td>$15,500 of $24,000</td><td>Overdue — 21 days past due</td></tr>
+      <tr><td>After-school literacy</td><td>Every 12 months</td><td>$16,800 of $48,000</td><td>Due soon — 14 days out</td></tr>
+      <tr><td>Winter shelter capital</td><td>Every 3 months</td><td>$0 of $15,000 (fully spent)</td><td>On track — 96 days out</td></tr>
+    </tbody>
+  </table>
+  <p>Sorted by days remaining rather than award size, the smallest award is the one that needs attention first — the fully-spent capital award is not due for months and would be the wrong place to start. Load the sample grants in the tracker to see this exact queue rendered live.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do I calculate when a grant report is due?</h3>
+  <p>Add the reporting interval in months to the award date, clamped to the last day of a shorter month, to get the next report date. Compare that date to today: a report already past its date is overdue, one due within 30 days is due soon, and anything further out is on track.</p>
+  <h3>What is the restricted balance on a grant award?</h3>
+  <p>It is the award amount minus what has been spent so far. A $15,000 award fully spent has a $0 restricted balance and is not itself a reporting problem — spending is one input to a report, not the trigger for one.</p>
+  <h3>How should I prioritize which grant to report on first when I manage several awards?</h3>
+  <p>Sort by days until the next report, not by award size or funder importance. An overdue report on a small award is a live problem right now; a large award due in three months is not, and treating them as equally urgent means the actually-overdue one gets missed.</p>
+
+  <footer>
+    <strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.
+    <p><a href="./">Use the tracker</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+</main></body>
+</html>
