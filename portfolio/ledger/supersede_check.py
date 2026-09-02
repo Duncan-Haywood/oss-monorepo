@@ -488,9 +488,16 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
 
     merge_base = _find_merge_base(base, head, fetch=fetch)
 
-    paths = [p for p in _git(
-        "diff", "--name-only", f"{merge_base}..{head}"
-    ).splitlines() if p]
+    # --numstat reports "-\t-\tpath" for a binary file instead of line counts.
+    # Binary paths (generated mirror .gz blobs, mainly) have no line-level
+    # content to compare, and `git show` on one crashes _git()'s text=True
+    # decode the moment its bytes are not valid UTF-8 -- so they are excluded
+    # here rather than fed to the line-based analysis below.
+    paths = [
+        line.split("\t", 2)[2]
+        for line in _git("diff", "--numstat", f"{merge_base}..{head}").splitlines()
+        if line and not line.startswith("-\t-\t")
+    ]
 
     base_lines = base_tree_lines(base, paths)
     existing_paths = {
