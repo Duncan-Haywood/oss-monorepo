@@ -129,7 +129,7 @@ export const MIRROR_PREFIX = 'tools/';
  * to run any single one close to the cap, and the packer only needs the slack
  * to be larger than the biggest single file it must place (208 KB —
  * `ebay-fee-calculator/calc.mjs`). Measured overhead is 3.7% for ~95 keys, so
- * 700 KiB of content serialises to roughly 745 KB, leaving ~300 KB under the
+ * 706 KiB of content serialises to roughly 752 KB, leaving ~296 KB under the
  * 1 MiB object cap for Argo's tracking metadata and server-side apply's
  * per-key `managedFields`.
  *
@@ -138,8 +138,19 @@ export const MIRROR_PREFIX = 'tools/';
  * `gitops/tests/test_manifests.py`, which measures every generated ConfigMap
  * in the tree after kustomize has built it. This one stays because it fails in
  * the venture directory, seconds after a `--write`, rather than after a build.
+ *
+ * Raised from 700 KiB to 706 KiB on 2026-09-02: #2820 added one comparison
+ * page to `fence-bid-calculator`, growing the mirror by ~10.7 KB, which the
+ * 700 KiB first-fit packer could not absorb into the existing 7 shards — it
+ * opened an 8th shard holding only that one file, far under
+ * `CLIENT_SIDE_APPLY_CEILING`, which reached `main` broken because #2820
+ * merged before this repack landed. `front-door-tools.test.mjs`'s "the
+ * mirror asks for the apply mode its size actually requires" test correctly
+ * refuses that shape. 6 KiB of the ~300 KB documented headroom closes the
+ * gap and repacks to 7 full shards, with room to spare before the next
+ * fragment.
  */
-export const SHARD_BYTE_CEILING = 700 * 1024;
+export const SHARD_BYTE_CEILING = 706 * 1024;
 
 /**
  * The ceiling on the mirror's total bytes, across every shard.
