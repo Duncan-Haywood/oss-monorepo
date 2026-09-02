@@ -1551,3 +1551,54 @@ entries:
         new gitops defect to report -- none surfaced despite a genuine
         search, which this entry records so a future session does not
         re-run the same search expecting a different answer.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Executed `marketing-distribution` (priority 6,
+        `gitops/agents/queue/marketing-distribution.yaml`) manually,
+        standing in for the disabled Codex worker fleet. Measured before
+        picking: built the real site (`build.mjs` + `check.mjs`, 169
+        products, 523 pages, no dead links) and re-checked all four listed
+        candidates against it. Embed widget: still 169/169 tool entry
+        pages carry it, no gap. Comparison pages: the listed gap
+        (grant-reporting-tracker) had already landed as #2670 while this
+        session was starting, so it was not duplicated. Category hubs: all
+        7 `/c/` pages already carry real intro/audience copy per
+        `CATEGORY_PAGE_COPY`. The real remaining gap was candidate 4's own
+        prediction -- "a claim that has drifted from what the build
+        actually emits, not a missing section."
+      - >-
+        Shipped #2681: the About page's press-kit section already proves
+        its privacy claim through `externalCallExceptions()` -- the one
+        tool with a documented live lookup is Sponsor Ready (filed under
+        `/c/more/`, pastes a GitHub handle to `api.github.com`) -- but four
+        other places kept the older, unconditional "nothing you type is
+        uploaded" wording and were therefore false for that one tool: the
+        About page's own lede (the first sentence a visitor reads), every
+        category hub's count line (literally false on `/c/more/`), the
+        baked-in footer text on every social share-card PNG (`CARD_FOOTER`,
+        including Sponsor Ready's own card and the "more" category card --
+        these images are the site's actual distribution surface, since a
+        forum or group share renders as this picture), and the PWA install
+        manifest's description. Fix: all four now run through
+        `externalCallExceptions()`, via a new `CARD_FOOTER_EXCEPTION`
+        constant for the raster cards and a `hasExternalCallException` flag
+        threaded into `renderManifest()`. No new copy invented; every
+        exception branch names the real tool.
+      - >-
+        Verified: `node --test build.test.mjs` 243/243 (4 new regression
+        tests, keyed off `externalCallExceptions()` rather than hardcoding
+        "Sponsor Ready" so they hold if the exception set changes); `node
+        --test *.test.mjs` across `platform/pages/` 842/842; `node --test`
+        in `ventures/sponsor-ready` 40/40; `build.mjs`+`check.mjs` clean
+        (169 products, 523 pages, no dead links). Real CI on the PR went
+        green on all 8 checks (`check`, `build`, `gitops`, `scripts`,
+        `tofu`, `hcloud-scope`, `validate`, `preflight`/`deploy` skipped as
+        expected off a non-`main` push) with real runner durations (build
+        ~2m36s, validate ~2m25s, gitops ~66s), confirmed against
+        `ci_starvation.py`'s signature before merge. Did not touch
+        `gitops/`, so `pytest gitops/tests` was not required and not run.
+        No new third-party script, font, CDN, or network call; the
+        `/about/` no-third-party-script promise is unchanged.
