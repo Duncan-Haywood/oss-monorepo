@@ -2623,3 +2623,51 @@ entries:
         `gitops/prod/front-door/default.conf` is the only one of the mirror's
         five that omits `X-Frame-Options: DENY`, which
         `front-door-tools.mjs`'s header calls unconditional.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same three-part owner prompt as the entry above
+        (deployment/CI-CD priority, marketing materials built and deployed on
+        the Hetzner VMs, Codex CLI spending its built-in plan quota on the
+        Hetzner box). Re-verified rather than trusted: `gitops/agents/`
+        (governor, worker.sh, codex.sh in `ventures/ubuntu-agent-server`) is
+        still code-complete and still correctly fail-closed
+        (`governor/policy.json` `enabled: false`, `cronjob.yaml`
+        `suspend: true`) pending the owner sealing `codex-secrets`; both
+        `codex-governor-enable` (#1996) and `agent-runner-subscription-login`
+        (#2000) are already the right rows in `decision_queue.py`. No drift,
+        did not duplicate the ask.
+      - >-
+        0 open PRs at session start -- quota's empty-queue branch applied.
+      - >-
+        Shipped #2744: added `str-host-payout-calculator` to the apex tools
+        mirror (`platform/marketing/front-door-tools.mjs`), the only
+        marketplace-category venture that is both small enough for the 640
+        KiB ConfigMap ceiling and fully self-contained (every other
+        marketplace venture either costs a fifth of the ceiling alone --
+        `ebay-fee-calculator`, `amazon-fba-calculator`, `shopify-fee-calculator`
+        -- or links out to sibling marketplace ventures and fails
+        `validateLinks` -- `marketplace-fee-compare`,
+        `delivery-app-margin-calculator`). This was the one category card
+        (of 7) the mirror still had zero working coverage for. #2741 merged
+        concurrently onto the same file mid-session, taking the mirror to
+        93% of the ceiling; adding this tool on top overflowed it
+        (663,662 / 655,360 bytes). Resolved by swapping out
+        `translator-project-quote` (smallest of #2741's three additions, and
+        a fourth services-category tool where services already had three) --
+        the module's own doc comment states category breadth over depth as
+        the design priority, and did not raise `BYTE_CEILING` since no
+        `kustomize` binary was available in-session to verify the real
+        ConfigMap against etcd's 1 MiB cap. Net: 17 tools / 631,585 bytes
+        (96%), all 7 category cards now covered. Verified: `node --test
+        platform/marketing/front-door-tools.test.mjs
+        platform/marketing/front-door.test.mjs` (29/29, 45/45 including the
+        venture's own suite), `python3 -m pytest gitops/tests` (246/246), all
+        7 GitHub Actions checks green before merging.
+      - >-
+        One PR merged (#2744). No new venture started -- same reasoning as
+        the prior entry: the mirror's remaining headroom was the highest-
+        value non-duplicative work available under an empty PR queue and two
+        owner-blocked deploy paths (full catalogue, Codex governor).
