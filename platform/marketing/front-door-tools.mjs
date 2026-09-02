@@ -397,6 +397,58 @@ export const STARTER_SET = [
 
   // more — the second and last eligible venture behind that card.
   { slug: 'sponsor-ready', why: 'more — the only other venture that card can point at' },
+
+  // ---------------------------------------------------------------------
+  // trades, 8 -> 13. Added 2026-09-02, spending existing headroom only.
+  //
+  // The block above settles every category except this one by a mechanical
+  // rule — mirror every eligible venture — and measuring it confirms the rule
+  // holds: zero eligible non-trades ventures are outside the set. `trades` is
+  // the sole exception because it cannot be served, only sampled: 106 eligible
+  // ventures, ~10.5 MB, against a ceiling of 5 MiB.
+  //
+  // The comment above argues against extending it, and the argument it makes
+  // is still right about the thing it describes: "mirroring thirty more bid
+  // calculators would spend most of `MIRROR_BYTE_CEILING` to move that category
+  // from 'sampled' to 'sampled'." Thirty, chosen by size, would. These five are
+  // a different move, and the difference is the selection rule rather than the
+  // count.
+  //
+  // Every trades entry above was picked under the twenty-tool constraint, which
+  // meant picking *small* ventures first and useful ones second — the same
+  // apology `SHARD_BYTE_CEILING`'s comment makes for the original set. Sharding
+  // retired that constraint for the other six categories and nothing re-applied
+  // it here. So the live front door offers a trades visitor eight tools chosen
+  // substantially for their byte count, and none of them is roofing, painting,
+  // concrete, lawn care or fencing — the five highest-demand small-contractor
+  // trades in the market this portfolio targets. A roofer who types the domain
+  // today sees eight cards, none for roofing, and leaves.
+  //
+  // These five are therefore chosen by demand and by distinctness of trade, and
+  // they are mid-sized rather than small (~105 KB each) precisely because size
+  // is no longer the criterion. That takes the trades card from 8 of 116 to 13,
+  // and the whole mirror from 47 tools to 52.
+  //
+  // **The ceiling is not raised, and the headroom left is the point.** Its
+  // comment is right that raising it is the wrong trade and the seal is the
+  // right one, so this block stays inside the budget that already existed: the
+  // mirror goes to ~4.77 MB of the 5 MiB ceiling, leaving ~460 KB. That margin
+  // is load-bearing rather than incidental — `marketing-distribution` adds
+  // comparison and FAQ pages to mirrored ventures continuously (#2785, #2791
+  // landed while this change was being measured), each 7-18 KB, and the ceiling
+  // is a hard build failure whose message tells a future session to drop a
+  // working tool to make room for a page about one. ~460 KB is roughly 30-60
+  // such pages of runway. A session adding a seventh, eighth or ninth trade
+  // here should re-measure that margin first and not simply fill it.
+  //
+  // All five are deleted with the rest of this directory in one commit when
+  // `portfolio-site-repo` is sealed and all 169 tools serve from the hub. This
+  // is a stopgap that got wider, not a second copy of the site.
+  { slug: 'roofing-bid-calculator', why: 'trades — the highest-ticket exterior trade, and the one a homeowner gets three bids on' },
+  { slug: 'painting-bid-calculator', why: 'trades — the highest-frequency trade in the category, interior and exterior on the same estimate' },
+  { slug: 'concrete-bid-calculator', why: 'trades — flatwork priced by yardage and pour, a different arithmetic from every entry above' },
+  { slug: 'lawn-care-bid-calculator', why: 'trades — recurring route work rather than a one-off bid, the shape the trades set otherwise lacks' },
+  { slug: 'fence-bid-calculator', why: 'trades — priced per linear foot with gates and terrain as the variables people get wrong' },
 ];
 
 /**
