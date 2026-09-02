@@ -5006,3 +5006,58 @@ entries:
         JSON-LD) to match, per the test's own guidance in its failure
         message.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/clever-bohr-6xz1ng`. Owner's own added direction: "make sure
+        deployment and cicd is a priority and building and deploying
+        marketing materials on the hetzner vms," plus a Codex-CLI-on-Hetzner
+        ask. PR queue at start: one open PR, #2859 (RBAC verb-narrowing on
+        the governor Role). `supersede_check.py 2859` returned SUPERSEDED
+        (identical-merge proof): `main` already carried the identical verb
+        change under different comment wording. Closed without merge, no
+        content lost. Checked five branches without open PRs
+        (`session/cleanup-2026-08-24`, `session/decision-queue-stale-prs-
+        777-731`, `session/remove-stale-local-site-studio-entry`,
+        `tmp/ssh-key-smoke`, `venture/vendor-change-watch`); all either had
+        zero unique commits over `main` or their unique content was already
+        landed under different framing. None needed a PR opened.
+      - >-
+        Found `gitops/agents/queue/deploy-cicd-readiness.yaml` and
+        `marketing-distribution.yaml` already encode exactly the owner's
+        added direction, reprioritized 2026-09-01 on the owner's own quoted
+        words, and gated only on the `codex-secrets` seal +
+        `agent-runner-subscription-login` (#2000, already queued, no
+        duplicate ask added). Since the governor fleet that runs these
+        items is not yet live, ran both queue items' own prompts by hand in
+        this session instead of leaving them idle: `marketing-distribution`
+        shipped and merged #2864 (a `vs-JobNimbus` comparison page for
+        `siding-bid-calculator`, the one `*-bid-calculator` venture with no
+        comparison page yet at measurement time); `deploy-cicd-readiness`
+        shipped and merged #2868 (corrected CLAUDE.md's and
+        `clauses.mjs`'s stale "bots don't trigger Actions on agent PRs"
+        claim, falsified by #2856/#2868's own check runs) plus its ledger
+        record #2871.
+      - >-
+        Root-caused and fixed the regression #2871 recorded rather than
+        fixed: `duct-cleaning-bid-calculator/vs-jobber.html` and
+        `egress-window-bid-calculator/vs-jobnimbus.html` (both landed
+        2026-09-02 via concurrent sessions' `vs-*` comparison-page work)
+        had FAQPage JSON-LD answer text that had drifted from the visible
+        on-page prose -- caught because it turned #2868's own `build` check
+        red despite #2868 touching neither file.
+        `ci_starvation.py --run` confirmed a real runner, and reproducing
+        `node --test platform/pages/faq-visible.test.mjs` directly against
+        `origin/main` (no other changes) confirmed the regression was
+        already on `main`, not introduced by anything in this session.
+        Fixed per the test's own failure message ("the copy is already on
+        the page and it is the JSON-LD that needs correcting"): replaced
+        each page's stale JSON-LD clause with its already-correct visible
+        text, byte for byte. Verified `faq-visible.test.mjs` 4/4, the two
+        ventures' own suites (72/72, 137/137), and the full
+        `platform/pages/*.test.mjs` suite (856/856). Shipped and merged
+        #2872. Zero open PRs at session end.
+    mrr_end: null
