@@ -4253,3 +4253,96 @@ entries:
         it was a pre-existing, correctly-queued owner blocker, not a gap in
         the repo.
     mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `marketing-distribution` (queue priority 6, the owner's own
+        "building and deploying marketing materials on the Hetzner VMs"
+        instruction from 2026-09-01). Measured first rather than picking
+        blind: `build.mjs` (169 tools) and `check.mjs` (557 pages, no dead
+        links) both clean, then surveyed all ~90 existing `vs-*`/`compare*`
+        pages under `ventures/` to find a venture with a genuine named
+        incumbent and no comparison page yet, since that pattern (candidate
+        2 of 4 in the brief) is heavily worked by concurrent sessions --
+        roughly 35 ventures already carry one, ~90 files total.
+      - >-
+        Shipped `ventures/window-cleaning-bid-calculator/vs-servicemonster.html`:
+        ServiceMonster is field-service management software that markets
+        specifically to window cleaning, pressure washing, and carpet
+        cleaning businesses (roots to 2002, HQ Bellingham WA, acquired by
+        Teamfront in 2023 per industry coverage, own "trusted by thousands
+        of service pros" claim stated as a claim, not fact) -- verified via
+        WebSearch only, since WebFetch to www.servicemonster.com returned
+        EGRESS_BLOCKED. No dollar figure for ServiceMonster appears
+        anywhere on the page, matching the discipline every other `vs-*`
+        page in the repo already uses, even though third-party review
+        sites reported specific plan prices -- those aren't ServiceMonster's
+        own current page and can go stale. Linked from the venture's
+        `index.html` and `sitemap.xml`, carries the standard FAQPage
+        schema, no-warranty/no-affiliation disclaimers, and 9 new tests. No
+        new third-party script, font, CDN, or network call.
+      - >-
+        PR #2833. First CI pass failed one test:
+        `platform/pages/faq-visible.test.mjs` caught the visible
+        `<h3>`/`<p>` answer text diverging from the FAQPage JSON-LD
+        `acceptedAnswer.text` after 820 characters (paraphrased slightly
+        differently by hand) -- a real, working guard, not CI starvation
+        (all 8 check runs completed on real runner ids, e.g. `build` job
+        100285722439 ran 126s and 856 sub-tests before failing on merit).
+        Fixed by making the visible paragraph byte-identical to the JSON-LD
+        text; re-ran `faq-visible.test.mjs` (4/4) and the venture's own
+        suite (64/64) locally, pushed, all 8 checks went green on the
+        second run, merged (squash).
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, quota phase: 1 open PR at start (#2832,
+        `opencode-high-throughput`'s R5 least-privilege permissions gap --
+        a mechanical, already-verified `contents: read` file-level floor
+        with the three write scopes moved to the one job that needs them).
+        Reviewed, confirmed all 4 checks green, merged (squash). Met the
+        (trivial, since only one PR existed) merge quota; 0 open PRs
+        remained.
+      - >-
+        Ran `deploy-cicd-readiness` (queue priority 7, the owner's own
+        "deployment and cicd is a priority" instruction from 2026-09-01)
+        and found a real defect: `gitops/ci/networkpolicy.yaml`'s
+        internet-egress rule had no `ports:` field at all, which in
+        NetworkPolicy semantics means every port to any allowed
+        destination, not the HTTPS-only egress the file's own header
+        claimed. The sibling files (`gitops/agents/networkpolicy.yaml`'s
+        `worker-egress`, `gitops/prod/networkpolicy.yaml`'s
+        `portfolio-site-egress`) both already carry the `ports: [{TCP,
+        443}]` scoping and both cite this file as already fixed the same
+        way -- it never was; only the `except:` CIDR list had been. A CI
+        workflow step (arbitrary code from any PR) could open an outbound
+        TCP connection on any port to any internet address short of the
+        excluded cluster/private/metadata ranges. `test_runner_cannot_
+        reach_the_cluster` checked the CIDR list but never checked
+        `ports`, so nothing caught the gap.
+      - >-
+        Fixed: added the `ports: [{TCP, 443}]` scope, plus a narrow
+        `/32`-scoped port-22 carve-out for the two Hetzner boxes so a
+        future `CI_RUNNER=self-hosted` flip doesn't silently strand
+        `hetzner-gitops-ci.yml`'s `preflight` SSH health check behind the
+        new 443-only rule, and two regression tests pinning both
+        properties. Verified: `pytest gitops/tests -q` 265/265 (263 + 2
+        new), `kustomize build` + `kubeconform -strict` clean across all
+        six overlays, `shellcheck` clean. Opened and merged (squash) as
+        #2836, all 6 real checks green (`preflight` skipped as designed --
+        `workflow_dispatch`-only).
+      - >-
+        Checked the owner's explicit Codex-CLI-on-Hetzner ask against
+        current state before doing anything else: confirmed independently
+        (matches the entry above from earlier the same day) that the
+        Codex worker fleet under `gitops/agents/` is fully built and
+        tested, blocked only on `decision_queue.py` row 12
+        (`codex-governor-enable`, #1996) -- the owner sealing
+        `codex-secrets` and flipping the governor's suspend/enabled
+        switches. Did not rebuild or duplicate that ask.
+    mrr_end: null
