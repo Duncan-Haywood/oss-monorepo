@@ -405,6 +405,21 @@ test('nginx answers the icon path with the icon rather than the page', async () 
     conf.indexOf('location = /favicon.svg') < conf.indexOf('location / {'),
     'keep the icon block above the catch-all',
   );
+  // The rule this file keeps is that every content location repeats the
+  // headers rather than relying on inheritance, because nginx's `add_header`
+  // does not inherit across levels: a block that sets one header and expects
+  // the rest from above silently sends none of them.
+  for (const header of [
+    'X-Content-Type-Options nosniff',
+    'X-Frame-Options DENY',
+    'Referrer-Policy strict-origin-when-cross-origin',
+    'Cache-Control',
+  ]) {
+    assert.ok(block[0].includes(header), `the icon block must repeat ${header}`);
+  }
+  // An SVG served from this origin is a document, not an inert image like the
+  // PNG card, so this one block carries a CSP the card does not need.
+  assert.match(block[0], /Content-Security-Policy "default-src 'none'/);
 });
 
 test('the icon is delivered in the same ConfigMap as the page that names it', async () => {
