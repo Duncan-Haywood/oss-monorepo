@@ -253,7 +253,8 @@ spec:
           configMap:
             name: portfolio-front-nginx
         - name: tmp
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 64Mi
 ---
 apiVersion: v1
 kind: Service
