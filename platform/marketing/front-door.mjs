@@ -427,6 +427,98 @@ export const FRONT_DOOR_HOST = FRONT_DOOR_URL.replace(/^https:\/\//, '').replace
  */
 export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
 
+/** The well-known path a model fetches without having to discover it first. */
+export const LLMS_FILE = 'llms.txt';
+
+/** Where `--write` puts it, beside the page it describes. */
+export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
+
+/**
+ * `llms.txt` for the apex — the AI-discovery half of what the last change fixed
+ * for feed readers.
+ *
+ * ## Why this host needs its own
+ *
+ * `build.mjs` writes an `llms.txt` for the tools host, and its comment makes
+ * the case for the format: `llms.txt` is a well-known path (llmstxt.org), so a
+ * model fetches it *without having to discover it first* — which is the whole
+ * difference for a portfolio whose growth plan is organic search and AI
+ * discovery rather than ad spend. `portfolio/DIRECTION.md` says the same.
+ *
+ * That file is on a host that serves nothing until `portfolio-site-repo` is
+ * sealed. So the one hostname a model can actually reach has, until now,
+ * answered `/llms.txt` with 21 KB of HTML and a 200 — the apex already served
+ * `robots.txt` and `sitemap.xml` explicitly and had nothing for the channel
+ * `DIRECTION.md` names as half the growth plan.
+ *
+ * ## Why it lists only the mirrored tools
+ *
+ * Same reason `renderFrontDoorFeed` does, and it matters more here. A model
+ * that reads a bullet list of URLs will *cite* those URLs, and a citation is
+ * repeated to a user who then clicks it. Listing the other 116 would mint
+ * confident recommendations of a host that answers nothing — the dead end this
+ * page has been fixing one element at a time, at the one layer where it
+ * propagates outward instead of costing a single click.
+ *
+ * So the catalogue host appears in prose, describing what it will hold, and
+ * never as a bullet a model can lift as a link. That is also why `## Optional`
+ * lists this host's feed and sitemap and not `catalog.json`, which lives on the
+ * tools host and is not served here.
+ *
+ * ## Format
+ *
+ * Markdown with one bullet per tool under its category heading, because the
+ * file is read by a model rather than parsed by a client and a link list under
+ * a heading survives chunking into a context window in a way a nested object
+ * does not — `renderLlmsTxt`'s reasoning, kept.
+ *
+ * Descriptions are flattened to one line each, for the failure `renderLlmsTxt`
+ * names: a stray newline inside a bullet silently ends the list item, so a
+ * wrapped meta description would publish its second half as body prose.
+ */
+export function renderFrontDoorLlms({ mirrored = [], total = 0, categories = ALL_CATEGORIES } = {}) {
+  const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  const grouped = mirroredByCategory(mirrored);
+  const catalogue = TOOLS_URL.replace(/^https:\/\//, '').replace(/\/$/, '');
+
+  const bullet = (tool) =>
+    `- [${oneLine(tool.title)}](${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url})${
+      oneLine(tool.description) ? `: ${oneLine(tool.description)}` : ''
+    }`;
+
+  const sections = orderedGroups(grouped, categories).map(
+    (group) => `## ${group.title}\n\n${group.tools.map(bullet).join('\n')}\n`,
+  );
+
+  // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
+  // short of context. Both entries are paths this host actually serves; the
+  // tools host's `catalog.json` is deliberately absent for the reason above.
+  const optional = [
+    '## Optional',
+    '',
+    `- [Atom feed](${FRONT_DOOR_URL}${FEED_FILE}): these tools as they are published, newest first. Poll this rather than re-reading this file to find out what is new.`,
+    `- [Sitemap](${FRONT_DOOR_URL}${SITEMAP_FILE}): the indexable page on this host.`,
+    '',
+  ].join('\n');
+
+  return `# Free calculators and checks for people who run a small business
+
+> ${mirrored.length} free, browser-only tools served directly from ${FRONT_DOOR_HOST}, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+
+Each tool is a static page that works offline once opened, and is free with no
+gated features. They are estimates and records to act on, not professional
+advice or a determination made on anyone's behalf; each page carries its own
+limitations.
+
+Every tool listed below is linked at a URL this host serves. The wider
+collection runs to ${total} tools and will be published at ${catalogue}; that
+hostname is not serving yet, so it is named here for context and deliberately
+not linked — a link there would resolve to nothing today.
+
+${sections.join('\n')}
+${optional}`;
+}
+
 /**
  * What the collection calls itself.
  *
@@ -786,7 +878,7 @@ export function renderFrontDoor({
    * are live for real.
    */
   const footerLinks = hasMirror
-    ? `<a href="#open-now">The ${mirrored.length} tools on this host</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a>`
+    ? `<a href="#open-now">The ${mirrored.length} tools on this host</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a> · <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a>`
     : `<a href="${escapeHtml(toolsUrl)}">All ${total} tools</a> · <a href="${escapeHtml(`${toolsUrl}${ABOUT_PATH}`)}">About these tools</a> · <a href="${escapeHtml(`${toolsUrl}${FEED_FILE}`)}">New tools feed</a>`;
 
   const how = HOW_IT_WORKS.map(
@@ -923,16 +1015,25 @@ export async function buildFrontDoor() {
   const { buildMirror } = await import('./front-door-tools.mjs');
   const { tools } = await buildMirror();
   const launched = await launchedDates();
+  const slugs = await publishedSlugs();
   return {
-    html: renderFrontDoor({ slugs: await publishedSlugs(), mirrored: tools }),
+    html: renderFrontDoor({ slugs, mirrored: tools }),
     feed: renderFrontDoorFeed({ mirrored: tools, launched }),
+    // The same category ordering the page uses — biggest first — so a model
+    // reading llms.txt and a person reading the page meet the collection in
+    // one order rather than two.
+    llms: renderFrontDoorLlms({
+      mirrored: tools,
+      total: slugs.length,
+      categories: orderedCategories(categoryCounts(slugs)),
+    }),
   };
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const { html, feed } = await buildFrontDoor();
+  const { html, feed, llms } = await buildFrontDoor();
   if (process.argv.includes('--write')) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
@@ -964,6 +1065,11 @@ if (isMain) {
     // page without it would ship a document advertising a path nothing serves.
     await fs.writeFile(FEED_OUTPUT_FILE, feed);
     console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
+    // And once more: `llms.txt` lists the same mirrored tools the page and the
+    // feed do, so a run that wrote one without the others would publish three
+    // documents disagreeing about what this host serves.
+    await fs.writeFile(LLMS_OUTPUT_FILE, llms);
+    console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
   } else {
     process.stdout.write(html);
   }

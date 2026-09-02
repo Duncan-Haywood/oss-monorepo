@@ -70,6 +70,9 @@ configMapGenerator:
       # at one `mountPath`. Text, so it lands in `data`. A few kilobytes
       # against a 1 MiB object ceiling.
       - feed.xml=front-door/feed.xml
+      # `llms.txt`, the AI-discovery counterpart to the feed. Same reason again
+      # for riding here: a well-known path has to resolve at the document root.
+      - llms.txt=front-door/llms.txt
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
