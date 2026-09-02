@@ -2860,3 +2860,47 @@ entries:
         verified (kustomize build, the Deployment resolving to the new
         content-hashed ConfigMap). Worth knowing before a future session
         claims public verification it cannot actually perform.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start (a concurrent run had just drained the
+        queue to #2755). Per the branch-to-PR presumption, checked the five
+        remote branches with no open PR: `session/decision-queue-stale-prs-777-731`,
+        `venture/vendor-change-watch` and the diff `session/remove-stale-local-site-studio-entry`
+        proposed against `asks.yaml` were all empty vs. `main` (the last
+        because a later session already removed the `local-site-studio-subtree`
+        row under a different id, `local-site-studio-subtree-gate-crossing`) --
+        no PR needed for any of the three. `session/cleanup-2026-08-24` was
+        real: `supersede_check.py` returned NOT SUPERSEDED (31/36 lines absent
+        from `main`), a genuine 2026-08-24 session record of the #777
+        Dependabot-revert cleanup that never got a PR. Cherry-picked and
+        merged as #2757. `tmp/ssh-key-smoke` (merge-base 2026-07-29, 1000+
+        files behind) was left unresolved -- `supersede_check.py` did not
+        return a verdict inside this session's window on a diff that size;
+        named as a follow-up rather than force a call.
+      - >-
+        Answered this session's brief on three points without shipping new
+        infrastructure, because each was already built: (1) deployment/CI-CD
+        health -- `ci_starvation.py`-equivalent read of the last ~30 runs on
+        `main` shows 27/29 real successes; the only 2 failures are the
+        already-queued `routine-trigger-cadence` item (revoked OAuth token,
+        ~$17/mo, owner decision pending), not a regression. (2) marketing
+        materials on Hetzner -- the front-door/category-card work this brief
+        asked for is exactly what four concurrent sessions shipped in the
+        hour before this one (#2741-#2755); nothing distinct to add without
+        duplicating it, and a scan for ventures with a built `index.html` but
+        no `VENTURE.yaml`/`product_lines` routing (the actual remaining
+        marketing gap class) found none. (3) Codex CLI on the Hetzner
+        included-quota plan -- already fully engineered, not merely planned:
+        `gitops/agents/` (governor, worker, `codex.sh` explicitly drops
+        `OPENAI_API_KEY` unless `CODEX_USE_API_KEY=true` so a run defaults to
+        the ChatGPT plan's included usage), `codex-secrets`'s
+        `CODEX_AUTH_JSON` route, and a `mandate.md` prompt already mirroring
+        this repo's own operating rules. The CronJob is `suspend: true` and
+        the credential is unsealed -- `infra/OWNER_CHECKLIST.md` item 8, the
+        one remaining step (`codex login` against a real ChatGPT plan, then
+        `kubeseal`) needs a human's browser and account and cannot be done
+        from here. Confirmed it is already the queued ask, not a gap to fill
+        or duplicate.
