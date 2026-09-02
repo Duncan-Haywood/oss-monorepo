@@ -2,7 +2,7 @@
 
 Distribution surfaces that are **not** part of the assembled tools site.
 
-`platform/pages/` builds `tools.marisstella.dev` — 169 tools, 524 pages, its
+`platform/pages/` builds `tools.marisstella.dev` — 169 tools, 544 pages, its
 own hub, feed, sitemaps and social cards. Anything that belongs *on* that site
 goes there. This directory is for the surfaces that sit outside it and would be
 wrong to fold in.
@@ -40,7 +40,7 @@ page states.
 ### Why it does not list the tools
 
 `portfolio-apex.yaml` explains at length why two hostnames must not serve the
-same bytes: `build.mjs` stamps one canonical host into all 524 pages, and a
+same bytes: `build.mjs` stamps one canonical host into all 544 pages, and a
 second copy in front of a crawler undoes that consolidation. This page is a
 different document — positioning, one card per category, the two
 `PRODUCT_PLAYBOOK.md` §5b clauses — with its own canonical and no per-tool

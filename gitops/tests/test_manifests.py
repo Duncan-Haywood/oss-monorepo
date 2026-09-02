@@ -647,7 +647,7 @@ def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
     # stamped into every page's canonical link (see the PAGES_BASE_URL test
     # below). The apex and `www` reach the site through the 301 in
     # `prod/portfolio-apex.yaml`, so adding either here would put two
-    # uncanonical copies of all 524 pages in front of crawlers.
+    # uncanonical copies of all 544 pages in front of crawlers.
     ingress = _portfolio_site()["Ingress"]
     hosts = [rule["host"] for rule in ingress["spec"]["rules"]]
     assert hosts == ["tools.marisstella.dev"]
