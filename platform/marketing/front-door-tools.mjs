@@ -23,10 +23,18 @@
  *
  * ## Why a subset, and why complete ventures
  *
- * The whole site is ~34 MB against a 1 MiB ConfigMap ceiling, which is the
- * measured reason `portfolio-site.yaml` clones the repo in-cluster instead of
- * being delivered the way the front door is. A subset is therefore the only
- * shape available, and `BYTE_CEILING` keeps it one.
+ * The whole site is ~34 MB, which is the measured reason `portfolio-site.yaml`
+ * clones the repo in-cluster instead of being delivered the way the front door
+ * is. A subset is therefore the only shape available, and `MIRROR_BYTE_CEILING`
+ * keeps it one.
+ *
+ * It is no longer a subset of *twenty*, which is what a single ConfigMap and
+ * etcd's 1 MiB per-object cap allowed. The mirror is now sharded across
+ * several ConfigMaps merged into one `mountPath` by a projected volume, so the
+ * cap that binds is the one on the whole mirror rather than the one on a
+ * single object — see `SHARD_BYTE_CEILING`. Every category the front door
+ * shows except `trades` is served here in full; `trades` has 114 eligible
+ * ventures and can only ever be represented.
  *
  * The unit mirrored is a whole venture directory, never a lone `index.html`.
  * Every tool page here links to its own siblings — an FAQ page, a `vs-` page,
@@ -91,48 +99,80 @@ export const TOOLS_URL = 'https://tools.marisstella.dev/';
 export const MIRROR_PREFIX = 'tools/';
 
 /**
- * The ceiling on the mirror's total bytes.
+ * The ceiling on ONE ConfigMap shard's bytes.
  *
  * Exceeding it is a build failure, not a warning: a ConfigMap that fails to
  * apply takes the *front door* down with it, which would trade a broken link
  * for a broken page.
  *
- * **1 MiB is not the first ceiling this hits, and that is why the generated
- * kustomization below asks Argo for server-side apply.** See
- * `CLIENT_SIDE_APPLY_CEILING`.
+ * **This used to be the ceiling on the whole mirror, and that is the thing
+ * that changed.** etcd's 1 MiB cap is per stored object, so a mirror held in
+ * one ConfigMap could never exceed it however many tools were worth serving —
+ * and the mirror had reached 767,450 bytes, 93.7% of the 800 KiB the single
+ * object was allowed. The `marketing-distribution` queue item adds comparison
+ * pages to mirrored ventures continuously; two more of them would have tripped
+ * a build failure whose message said to drop a venture from `STARTER_SET`,
+ * i.e. to remove a working tool from the live front door to make room for a
+ * page about one.
  *
- * **Raised from 640 KiB to 800 KiB on 2026-09-02, against a measurement.** The
- * old figure came with the reasoning that the mirror "shares the pod with
- * `portfolio-front-html` (11 KB) rather than the whole budget". That does not
- * hold: those are two ConfigMaps, and etcd's 1 MiB cap is per object, so
- * sharing a pod shares no budget at all. Nothing was wrong with erring low
- * while the real constraint chain was unknown — #2746 is what established it —
- * but the cost of erring this low had started to bite. The mirror stood at
- * 643,465 bytes, 98% of the old ceiling, after one comparison page was added
- * to one mirrored venture (#2745); the `marketing-distribution` queue item
- * adds those continuously, and several of its targets are in `STARTER_SET`. So
- * roughly two more marketing pages would have tripped a build failure whose
- * message says to drop a venture from `STARTER_SET` — removing a working tool
- * from the live front door to make room for a page about one. That is the
- * wrong trade, and it would have been made by a session with no reason to
- * question the number.
+ * A projected volume removes the ceiling rather than raising it. Several
+ * ConfigMaps can be merged into a single `mountPath` — see the `tools` volume
+ * in `gitops/prod/portfolio-front.yaml` — so nginx still sees one flat
+ * directory of `slug__file` keys and `front-door/default.conf` is unchanged,
+ * while each shard is separately bounded by the per-object cap that binds.
+ * Verified against kustomize v5.6.0 (what `hetzner-gitops-ci.yml` runs): its
+ * name-reference transformer rewrites the content-hash suffix inside
+ * `volumes[].projected.sources[].configMap.name`, so a changed shard still
+ * rolls the pods.
  *
- * What the new figure is derived from, measured on the built manifest rather
- * than estimated: at 643,465 bytes of content the ConfigMap `kustomize build`
- * produces serialises to 667,371 bytes — 3.7% overhead for the 95 keys and the
- * JSON around them — which is 63.6% of the 1 MiB object cap. At 800 KiB of
- * content the same object lands near 856 KB including a few KB of
- * `managedFields` (server-side apply records one entry per key) and Argo's
- * tracking label, leaving roughly 190 KB of margin under the cap.
+ * 700 KiB rather than the old 800: with more than one shard there is no reason
+ * to run any single one close to the cap, and the packer only needs the slack
+ * to be larger than the biggest single file it must place (208 KB —
+ * `ebay-fee-calculator/calc.mjs`). Measured overhead is 3.7% for ~95 keys, so
+ * 700 KiB of content serialises to roughly 745 KB, leaving ~300 KB under the
+ * 1 MiB object cap for Argo's tracking metadata and server-side apply's
+ * per-key `managedFields`.
  *
- * This number is still a proxy — it counts content, not the object that gets
- * applied. The check on the real object is
+ * The check on the real objects is
  * `test_generated_configmaps_stay_under_the_etcd_object_ceiling` in
  * `gitops/tests/test_manifests.py`, which measures every generated ConfigMap
  * in the tree after kustomize has built it. This one stays because it fails in
  * the venture directory, seconds after a `--write`, rather than after a build.
  */
-export const BYTE_CEILING = 800 * 1024;
+export const SHARD_BYTE_CEILING = 700 * 1024;
+
+/**
+ * The ceiling on the mirror's total bytes, across every shard.
+ *
+ * Sharding removes the per-object cap as the binding constraint, and something
+ * still has to bind or the mirror grows without anyone deciding it should.
+ * Two things pay for a byte here, and neither is etcd:
+ *
+ * 1. **Pod memory.** A ConfigMap volume is tmpfs, charged to the pod's memory
+ *    cgroup. The whole mirror is resident in both `portfolio-front` replicas,
+ *    so its size comes straight off `resources.limits.memory`. That limit was
+ *    raised from 64Mi to 192Mi alongside this ceiling, which leaves the mirror
+ *    at roughly a third of it with nginx's own footprint an order of magnitude
+ *    smaller.
+ * 2. **The repository.** The mirror is committed, because Argo CD delivers the
+ *    files in git rather than running a build step — so every mirrored byte is
+ *    a byte of `ventures/` duplicated under `gitops/`. At this ceiling that is
+ *    ~5 MB against a 71 MB `.git`, which is a real cost and a bounded one.
+ *
+ * Both costs argue for the same thing: the mirror is a stopgap for the
+ * unsealed `portfolio-site-repo`, not a second copy of the site. Sealing that
+ * Secret serves all 169 tools from `tools.marisstella.dev` with no duplication
+ * at all and makes this directory deletable in one commit. Raising this number
+ * past the point where the stopgap costs more than the seal would is the wrong
+ * trade; the right one is the seal.
+ */
+export const MIRROR_BYTE_CEILING = 5 * 1024 * 1024;
+
+/** The name prefix every mirror shard's ConfigMap takes; `-0`, `-1`, ... follow. */
+export const SHARD_PREFIX = 'portfolio-front-tools';
+
+/** The ConfigMap name of shard `index`. */
+export const shardName = (index) => `${SHARD_PREFIX}-${index}`;
 
 /**
  * The size above which a resource cannot be delivered by a *client-side* apply.
@@ -282,6 +322,81 @@ export const STARTER_SET = [
   // closing it. With both mirrored the set spans all seven cards for the first
   // time, which is the breadth #2744 was reaching for.
   { slug: 'translator-project-quote', why: 'services — the only tool in the category small and self-contained enough to mirror; without it that card has nothing behind it' },
+
+  // ---------------------------------------------------------------------
+  // Added 2026-09-02, when sharding removed the reason the set stopped at
+  // twenty.
+  //
+  // Every entry above was chosen under a constraint that no longer exists:
+  // one ConfigMap, one 1 MiB etcd object, so twenty small self-contained
+  // ventures and no more. That is why the categories were represented rather
+  // than served — one or two tools behind a card that names a whole category,
+  // picked for being *small* first and useful second. `SHARD_BYTE_CEILING`
+  // documents what changed.
+  //
+  // The selection rule now is mechanical, and worth stating because it is
+  // what a future session should re-apply rather than re-derive: **mirror
+  // every eligible venture in every category except `trades`.** Eligible
+  // means what it always meant — flat, routable, and passing `validateLinks`
+  // (153 of 184 ventures qualify; the other 31 either have no `index.html`
+  // or link sideways into a venture outside the set).
+  //
+  // `trades` is excluded because it cannot be served, only sampled: 114 of
+  // the 153 eligible ventures are in it, ~10.5 MB, and its members are the
+  // largest in the repo. The eight above cover the shapes a trades visitor
+  // arrives with (pre-bid check, bid pricing, jobsite record, after-job
+  // review, one-off quote, contract pricing, on-the-job arithmetic), and the
+  // front door already says the mirror is a subset rather than implying
+  // otherwise. Mirroring thirty more bid calculators would spend most of
+  // `MIRROR_BYTE_CEILING` to move that category from "sampled" to "sampled",
+  // and every one of them is served in full the moment
+  // `portfolio-site-repo` is sealed.
+  //
+  // So the honest one-line description of the apex mirror is now: every
+  // category except trades, in full; trades, 8 of 114.
+
+  // marketplace — the category had exactly one tool, because the ones people
+  // actually search for are the biggest ventures in the repo
+  // (`ebay-fee-calculator` alone is 818,849 bytes, over a whole shard). Per
+  // *file* packing is what makes them mirrorable at all; see `packShards`.
+  { slug: 'ebay-fee-calculator', why: 'marketplace — the highest-search-intent tool in the portfolio, and the single largest venture; excluded until sharding, on size alone' },
+  { slug: 'amazon-fba-calculator', why: 'marketplace — FBA fee arithmetic is the category\'s other high-intent question, and the one with real money per answer' },
+  { slug: 'etsy-profit-calculator', why: 'marketplace — completes the big three; a seller comparing venues needs all of them, not one' },
+  { slug: 'walmart-marketplace-calculator', why: 'marketplace — the venue sellers move to from Amazon, and the one with the least good free tooling elsewhere' },
+  { slug: 'tiktok-shop-fee-calculator', why: 'marketplace — the newest venue here, so the fee structure is the least understood and the tool earns the most' },
+  { slug: 'reverb-fee-calculator', why: 'marketplace — a genuinely niche venue, which is the shape this portfolio is meant to serve' },
+
+  // logistics — four eligible ventures were sitting outside a card that had
+  // two tools behind it.
+  { slug: '3pl-quote-normalizer', why: 'logistics — comparing 3PL quotes on one basis, the category\'s highest-value job' },
+  { slug: 'freight-accessorial-auditor', why: 'logistics — the money leaks in accessorials, and nobody checks them by hand' },
+  { slug: 'ltl-freight-class-estimator', why: 'logistics — the lookup a shipper needs before any of the above' },
+  { slug: 'cloud-egress-calculator', why: 'logistics — moving bytes rather than pallets, same shape of question' },
+
+  // evidence — eight of the ten eligible were outside the mirror.
+  { slug: 'vendor-change-evidence', why: 'evidence — the record of what a vendor changed and when' },
+  { slug: 'public-record-watch', why: 'evidence — watching a public record for the change worth acting on' },
+  { slug: 'fifo-pick-evidence', why: 'evidence — warehouse pick order, the physical-inventory end of the category' },
+  { slug: 'backup-verification-evidence', why: 'evidence — proving a backup restores, which is the only claim about a backup worth making' },
+  { slug: 'repository-branch-hygiene', why: 'evidence — the state of a repository\'s branches, recorded rather than argued about' },
+  { slug: 'npm-deployment-evidence', why: 'evidence — what was published, from what commit' },
+  { slug: 'grant-deadline-tracker', why: 'evidence — pairs with grant-reporting-tracker: the deadlines, then the reports' },
+  { slug: 'shopify-a11y-evidence', why: 'evidence — an accessibility record a merchant can show, not a score' },
+
+  // back-office — the four eligible ventures the card was missing.
+  { slug: 'invoice-payment-terms-calculator', why: 'back-office — what a payment term actually costs, which is the question behind every net-30 argument' },
+  { slug: 'cash-runway-planner', why: 'back-office — the number a small business checks most often and models worst' },
+  { slug: 'vendor-rate-break-even', why: 'back-office — when a vendor rate change stops being worth absorbing' },
+  { slug: 'music-lesson-break-even', why: 'back-office — a genuinely small niche, and the arithmetic is nonetheless wrong by hand' },
+
+  // services — four eligible ventures, all previously outside the mirror.
+  { slug: 'portable-restroom-event-quote', why: 'services — event quoting, where the unit count is the whole job' },
+  { slug: 'commercial-photo-license-calculator', why: 'services — licensing rather than hours, which is the pricing model photographers get wrong' },
+  { slug: 'notary-trip-quote', why: 'services — per-trip pricing for a mobile service' },
+  { slug: 'booth-rent-vs-commission', why: 'services — the decision a stylist makes once and lives with for years' },
+
+  // more — the second and last eligible venture behind that card.
+  { slug: 'sponsor-ready', why: 'more — the only other venture that card can point at' },
 ];
 
 /**
@@ -317,9 +432,47 @@ export const mirrorUrl = (slug, file) =>
 export const canonicalUrl = (slug, file) =>
   `${TOOLS_URL}${slug}/${file === 'index.html' ? '' : file}`;
 
+/**
+ * A test file, by either convention this repository uses to name one.
+ *
+ * `.test.` catches `calc.test.mjs`, which is what most ventures write and what
+ * this check was originally written for. It does not catch a file called
+ * plainly `test.mjs`, and two ventures name theirs that way — so
+ * `cam-reconciliation-check__test.mjs` and
+ * `chargeback-evidence-packet__test.mjs` were both being published to the
+ * apex, 6,895 bytes of `node:test` source served to strangers out of a mirror
+ * that was 93.7% full and refusing new tools for want of room.
+ *
+ * Nothing links to them, so `validateLinks` had no reason to notice, and they
+ * are inert in a browser rather than a leak. The cost was the bytes and the
+ * noise, both of which this removes.
+ */
+/**
+ * The tab mark, and the other paths the front door's own document root serves.
+ *
+ * A mirrored page lives at `marisstella.dev/tools/<slug>/`, so a root-absolute
+ * href on it is answered by `front-door/`'s ConfigMap rather than by the
+ * mirror. `injectMirrorTags` adds `/favicon.svg` for the same reason
+ * `front-door.mjs` added it to the apex page: a document that declares no icon
+ * makes the browser request `/favicon.ico` unprompted, which nothing here
+ * serves, so every tool page showed a blank tab and logged a miss. The
+ * ventures declare no icon of their own — checked across all 47 mirrored
+ * entry pages — so this is an addition rather than an override, and the
+ * `rel="icon"` strip beside the canonical one keeps it that way if a venture
+ * later grows one.
+ *
+ * `validateLinks` needs the same list: it resolves relative hrefs inside the
+ * mirror, and a root-absolute href is not one of those. Before this it treated
+ * `/favicon.svg` as `<slug>/favicon.svg` and would have failed the build on the
+ * tag this module itself injects.
+ */
+export const FAVICON_FILE = 'favicon.svg';
+export const APEX_ROOT_PATHS = new Set(['/', `/${FAVICON_FILE}`, '/social-card.png', '/healthz']);
+
+const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);
+
 const isServable = (name) =>
-  (SERVABLE_EXTENSIONS.has(path.extname(name)) || SERVABLE_NAMES.has(name)) &&
-  !name.includes('.test.');
+  (SERVABLE_EXTENSIONS.has(path.extname(name)) || SERVABLE_NAMES.has(name)) && !isTestFile(name);
 
 /** The servable files of one venture, sorted so the output is deterministic. */
 export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
@@ -332,7 +485,8 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
 }
 
 /**
- * Add the two tags that keep this copy out of the index and pointed home.
+ * Add the tags that keep this copy out of the index, pointed home, and looking
+ * like part of the site it is actually served from.
  *
  * Inserted after the charset declaration rather than after `<head>`, because
  * the charset has to stay inside the first 1024 bytes for a browser to honour
@@ -365,9 +519,11 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
 export function injectMirrorTags(html, { slug, file }) {
   const tags =
     `<meta name="robots" content="noindex,follow">` +
-    `<link rel="canonical" href="${canonicalUrl(slug, file)}">`;
+    `<link rel="canonical" href="${canonicalUrl(slug, file)}">` +
+    `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">`;
   const stripped = html
     .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '')
+    .replace(/<link\b[^>]*\brel=["']icon["'][^>]*>/gi, '')
     .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '');
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
@@ -398,6 +554,18 @@ export function validateLinks(files) {
       if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(href) || href === '') continue;
       const target = href.split(/[?#]/)[0];
       if (target === '' || target === '.' || target === './') continue;
+      // A root-absolute href is answered by the front door's own document
+      // root, not by this mirror, so it is checked against what that root
+      // actually holds rather than resolved against the venture directory.
+      if (target.startsWith('/')) {
+        if (!APEX_ROOT_PATHS.has(target)) {
+          problems.push(
+            `${slug}/${file} → "${href}" (the apex document root serves only ` +
+              `${[...APEX_ROOT_PATHS].join(', ')})`,
+          );
+        }
+        continue;
+      }
       const resolved = path.posix.normalize(path.posix.join(slug, target));
       const candidate = resolved.endsWith('/') ? `${resolved}index.html` : resolved;
       if (!present.has(candidate)) {
@@ -450,14 +618,115 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
   }
 
   const bytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
-  if (bytes > BYTE_CEILING) {
+  if (bytes > MIRROR_BYTE_CEILING) {
     throw new Error(
-      `the mirror is ${bytes} bytes, over the ${BYTE_CEILING}-byte ceiling — ` +
+      `the mirror is ${bytes} bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling — ` +
         `drop a venture from STARTER_SET rather than raising it without reading its comment`,
     );
   }
 
-  return { files, tools, bytes };
+  return { files, tools, bytes, shards: packShards(files) };
+}
+
+/**
+ * Split the mirror into ConfigMap-sized shards.
+ *
+ * First-fit-decreasing would pack tighter; declaration order packs
+ * *predictably*, which matters more. Every shard carries a content hash that
+ * reaches the Deployment, so a packer that reshuffles on a size change would
+ * roll pods for shards whose files did not change. In declaration order,
+ * adding a venture at the end of `STARTER_SET` disturbs at most the last
+ * shard.
+ *
+ * Packing is per file, not per venture. Keeping a venture's files together
+ * would be tidier to read and would cap the mirror at whatever the largest
+ * single venture is (`ebay-fee-calculator`, 818,849 bytes — already over
+ * `SHARD_BYTE_CEILING`, so that rule would exclude the highest-search-intent
+ * tool in the portfolio). It buys nothing in exchange: the projected volume
+ * merges every shard into one directory, so which shard a file arrives in is
+ * invisible to nginx and to the browser.
+ *
+ * The one thing that must hold across shards is key uniqueness — a projected
+ * volume with the same key in two sources fails to mount, and
+ * `maxUnavailable: 0` would leave the previous front door serving while the
+ * new pods sat in `ContainerCreating`. `mirrorKey` makes collisions impossible
+ * within a set (one `slug__file` per file on disk); `assertUniqueKeys` proves
+ * it rather than assuming it, because the cost of being wrong is the apex
+ * freezing on a stale mirror with nothing failing loudly.
+ */
+export function packShards(files, ceiling = SHARD_BYTE_CEILING) {
+  assertUniqueKeys(files);
+  const shards = [];
+  let current = null;
+  for (const file of files) {
+    const size = Buffer.byteLength(file.contents);
+    if (size > ceiling) {
+      throw new Error(
+        `${file.key} is ${size} bytes, larger than the ${ceiling}-byte shard ceiling, ` +
+          `so no shard can hold it — raise SHARD_BYTE_CEILING (it has ~300 KB of ` +
+          `headroom under etcd's 1 MiB object cap) or drop the venture`,
+      );
+    }
+    if (!current || current.bytes + size > ceiling) {
+      current = { name: shardName(shards.length), files: [], bytes: 0 };
+      shards.push(current);
+    }
+    current.files.push(file);
+    current.bytes += size;
+  }
+  return shards;
+}
+
+/** Every ConfigMap key in the mirror is distinct, so the projected volume can mount. */
+export function assertUniqueKeys(files) {
+  const seen = new Set();
+  for (const { key } of files) {
+    if (seen.has(key)) {
+      throw new Error(
+        `${key} appears twice in the mirror — a projected volume rejects a duplicate key ` +
+          `and the pods would never leave ContainerCreating`,
+      );
+    }
+    seen.add(key);
+  }
+}
+
+/**
+ * The character references that can appear in a `<title>`, decoded.
+ *
+ * `pageTitle` returns *text*, and `front-door.mjs` escapes it again on the way
+ * into the card (`escapeHtml(tool.title)`). So a title that arrives already
+ * encoded is encoded twice and the card shows the markup: the first venture
+ * mirrored with an ampersand in its title, `notary-trip-quote`
+ * ("Mobile Notary &amp;amp; Loan Signing Fee Calculator"), would have rendered
+ * as `Mobile Notary &amp;amp; Loan Signing Fee Calculator` on the portfolio's
+ * one public page.
+ *
+ * Decoding here rather than teaching the renderer to skip escaping: the
+ * renderer is right, and every other string it is handed is plain text. A
+ * `<title>`'s content is parsed HTML text, so the encoded form is the odd one
+ * out and this is where it stops.
+ *
+ * The five named references below are the complete set HTML defines for text
+ * content, plus `&apos;`; numeric references are handled generically.
+ */
+const CHARACTER_REFERENCES = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+
+export function decodeCharacterReferences(text) {
+  return text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, body) => {
+    if (body[0] === '#') {
+      const code = body[1] === 'x' || body[1] === 'X' ? parseInt(body.slice(2), 16) : Number(body.slice(1));
+      return Number.isFinite(code) && code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : whole;
+    }
+    return CHARACTER_REFERENCES[body.toLowerCase()] ?? whole;
+  });
 }
 
 /**
@@ -471,12 +740,33 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
 export function pageTitle(html) {
   const match = html.match(/<title>([^<]*)<\/title>/i);
   if (!match) throw new Error('a mirrored entry page has no <title>');
-  return match[1].split('|')[0].trim();
+  return decodeCharacterReferences(match[1].split('|')[0]).trim();
 }
 
-/** The kustomization that reads the mirror into the ConfigMap the pod mounts. */
-export function renderKustomization(files) {
-  const list = files.map((f) => `      - ${f.key}=${f.key}`).join('\n');
+/**
+ * The kustomization that reads the mirror into the ConfigMaps the pod mounts.
+ *
+ * One `configMapGenerator` per shard. `gitops/prod/portfolio-front.yaml` names
+ * the same shards, in the same order, as the sources of its projected `tools`
+ * volume; `test_portfolio_front_mounts_every_generated_mirror_shard` fails if
+ * the two ever disagree, which is the failure mode that matters — a shard this
+ * file generates and that file does not mount is a set of tools silently
+ * missing from the apex, and a shard mounted but not generated leaves the pods
+ * in `ContainerCreating` behind `maxUnavailable: 0`.
+ */
+export function renderKustomization(shards) {
+  const generators = shards
+    .map(
+      (shard) =>
+        `  - name: ${shard.name}\n` +
+        `    options:\n` +
+        `      annotations:\n` +
+        `        ${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}\n` +
+        `    files:\n` +
+        shard.files.map((f) => `      - ${f.key}=${f.key}`).join('\n'),
+    )
+    .join('\n');
+  const sizes = shards.map((s) => `#   ${s.name}: ${s.files.length} files, ${s.bytes} bytes`).join('\n');
   return `# Generated by \`node platform/marketing/front-door-tools.mjs --write\`.
 # Do not hand-edit: \`platform/marketing/front-door-tools.test.mjs\` regenerates
 # this file and the mirrored pages beside it, and fails if the commit is stale.
@@ -485,60 +775,83 @@ export function renderKustomization(files) {
 # only because this file list is machine-written, one line per mirrored file;
 # there is no behavioural difference. In particular the content-hash suffix
 # still reaches the Deployment: kustomize accumulates this generator's output
-# before the parent runs its name-reference transformer, so \`portfolio-front.yaml\`
-# mounting \`portfolio-front-tools\` resolves to the hashed name. Verified by
-# \`test_portfolio_front_mounts_only_generated_configmaps\`, which reads both
+# before the parent runs its name-reference transformer, so the
+# \`projected\` \`tools\` volume in \`portfolio-front.yaml\` resolves each shard to
+# its hashed name. Verified against kustomize v5.6.0 — the version
+# \`hetzner-gitops-ci.yml\` installs — by
+# \`test_portfolio_front_mounts_every_generated_mirror_shard\`, which reads both
 # kustomizations, and by the hash test beside it.
 #
+# WHY THERE IS MORE THAN ONE
+#
+# etcd caps a stored object at 1 MiB, so a mirror held in a single ConfigMap
+# could never serve more than about twenty tools however many were worth
+# serving. Several ConfigMaps merged into one \`mountPath\` by a projected volume
+# have no such shared cap; nginx still sees one flat directory of \`slug__file\`
+# keys, and \`front-door/default.conf\` did not change. \`SHARD_BYTE_CEILING\` in
+# \`front-door-tools.mjs\` carries the reasoning and the measurements.
+#
+# Shards as generated:
+${sizes}
+#
 # The hash is deliberately left ON, matching \`portfolio-front-html\` and
-# \`portfolio-front-nginx\`: a Deployment mounts this, so the generated name has
+# \`portfolio-front-nginx\`: a Deployment mounts these, so a generated name has
 # to change with the content or a regenerated tool never reaches a running pod.
 #
 # The \`${SYNC_OPTIONS_ANNOTATION}\` option below is not optional
 # decoration. Argo CD applies client-side by default, which copies the whole
 # object into the \`kubectl.kubernetes.io/last-applied-configuration\`
 # annotation, and the API server caps an object's annotations at 262144 bytes.
-# This mirror is several times that, so a client-side apply of it fails with
+# A shard is several times that, so a client-side apply of it fails with
 # \`metadata.annotations: Too long\` and the mirror never reaches the cluster at
 # all — see \`CLIENT_SIDE_APPLY_CEILING\` in \`front-door-tools.mjs\` for the whole
 # failure mode. Server-side apply writes no such annotation and is bounded only
-# by etcd's 1 MiB, which \`BYTE_CEILING\` already keeps this well inside.
+# by etcd's 1 MiB, which \`SHARD_BYTE_CEILING\` keeps each shard well inside.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
-  - name: portfolio-front-tools
-    options:
-      annotations:
-        ${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}
-    files:
-${list}
+${generators}
 `;
 }
 
 export async function writeMirror(outputDir = OUTPUT_DIR) {
-  const { files, tools, bytes } = await buildMirror();
+  const built = await buildMirror();
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
-  for (const file of files) {
+  for (const file of built.files) {
     await fs.writeFile(path.join(outputDir, file.key), file.contents);
   }
-  await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(files));
-  return { files, tools, bytes };
+  await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
+  return built;
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
+/** One line per shard, so a `--write` says what the Deployment now has to mount. */
+const shardSummary = (shards) =>
+  shards
+    .map(
+      (s) =>
+        `  ${s.name}: ${String(s.files.length).padStart(3)} files, ${String(s.bytes).padStart(7)} bytes ` +
+        `(${Math.round((s.bytes / SHARD_BYTE_CEILING) * 100)}% of the shard ceiling)`,
+    )
+    .join('\n');
+
 if (isMain) {
   if (process.argv.includes('--write')) {
-    const { files, tools, bytes } = await writeMirror();
+    const { files, tools, bytes, shards } = await writeMirror();
     console.log(
       `wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ` +
         `${tools.length} tools, ${files.length} files, ${bytes} bytes ` +
-        `(${Math.round((bytes / BYTE_CEILING) * 100)}% of the ceiling)`,
+        `(${Math.round((bytes / MIRROR_BYTE_CEILING) * 100)}% of the mirror ceiling) ` +
+        `in ${shards.length} shards\n${shardSummary(shards)}`,
     );
   } else {
-    const { files, tools, bytes } = await buildMirror();
+    const { files, tools, bytes, shards } = await buildMirror();
     for (const tool of tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
-    console.log(`\n${tools.length} tools, ${files.length} files, ${bytes} bytes`);
+    console.log(
+      `\n${tools.length} tools, ${files.length} files, ${bytes} bytes in ` +
+        `${shards.length} shards\n${shardSummary(shards)}`,
+    );
   }
 }

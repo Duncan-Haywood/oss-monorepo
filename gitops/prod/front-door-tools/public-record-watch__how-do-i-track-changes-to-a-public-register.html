@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/public-record-watch/how-do-i-track-changes-to-a-public-register.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Do I Track Changes to a Public Licence Register?</title>
+  <meta name="description" content="Re-reading a register export row by row does not scale. Compare two dated, authorized snapshots and get a source-linked list of what was added, removed, or changed.">
+  <meta property="og:title" content="How Do I Track Changes to a Public Licence Register?">
+  <meta property="og:description" content="Compare two dated exports. A removed row is an observation to check at the source, not a conclusion about a person.">
+  
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I track changes to a public licence register?","acceptedAnswer":{"@type":"Answer","text":"Export the register on a regular cadence, keep each export as a dated snapshot, and compare consecutive snapshots rather than re-reading the current one. A comparison gives you the three things a manual review does not reliably produce: the records that appeared, the records that disappeared, and the fields that changed on records that stayed. Keep the source URL with each record so a reviewer can open the original entry instead of trusting the summary."}},{"@type":"Question","name":"Does a record disappearing mean a licence was revoked?","acceptedAnswer":{"@type":"Answer","text":"No, and treating it that way is the main risk in this workflow. A record can vanish from an export because the export was filtered differently, because the register was partially unavailable, because an identifier changed, or because of an ordinary administrative correction. A removal is an observation that tells you where to look. Open the source record and confirm before acting on it, and never let a diff become the basis of a decision about a person on its own."}},{"@type":"Question","name":"Does this build profiles of people?","acceptedAnswer":{"@type":"Answer","text":"No. It compares two snapshots that you are authorized to supply and reports what differs between them. It does not scrape registers, aggregate sources into profiles, rank or score people, judge suitability, or state that anyone is compliant, safe, or eligible. Each input must be marked as authorized and must carry the register name and source URL, so every reported change points back at a public record a reviewer can read."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2431; background: #f4f3ef; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.4rem); letter-spacing: -.03em; line-height: 1.08; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1.02rem; margin-top: 1.5em; }
+    a { color: #9a3412; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1c2431; color: #f6f5f1; text-decoration: none; font-weight: 650; }
+    code { background: #e7e5df; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    .caution { border-left: 3px solid #b45309; padding: 2px 0 2px 14px; margin: 1.4em 0; }
+    footer { margin-top: 2.5em; border-top: 1px solid #d8d5ce; padding-top: 16px; font-size: .85rem; color: #56606d; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Public-Record Watch</a></p>
+  <h1>How do I track changes to a public licence register?</h1>
+  <p>Credentialing teams and specialist recruiters have the same recurring job: a public register of licences, permits or registrations matters to their work, and it changes without telling anyone. The usual method is to re-read the current export and hope something looks different from last quarter, which finds additions occasionally and removals almost never.</p>
+  <p>Comparing two dated exports finds all three kinds of change, and produces a record of having looked.</p>
+  <p><a class="cta" href="./">Open Public-Record Watch</a></p>
+
+  <h2>What a comparison gives you that re-reading does not</h2>
+  <ul>
+    <li><strong>Added records</strong> — entries present now that were absent before.</li>
+    <li><strong>Removed records</strong> — the class a manual pass misses most, because nothing on the page draws attention to an absence.</li>
+    <li><strong>Changed fields</strong> — a status, a category, an expiry date, or a name that moved on a record that stayed put.</li>
+  </ul>
+  <p>Every record carries a stable <code>id</code> and the register's source URL, so each reported change points back at the original public entry rather than at a summary of it.</p>
+
+  <div class="caution">
+    <p><strong>A removal is a question, not an answer.</strong> A record can leave an export because the export was filtered differently, because the register was partially unavailable when it was taken, because an identifier changed, or because of a routine administrative correction. Open the source record and confirm before acting.</p>
+  </div>
+
+  <h2>The line this tool does not cross</h2>
+  <p>It compares snapshots the customer is authorized to supply — each input must declare <code>authorized: true</code>, a register name, and a source URL. It does not scrape registers, build profiles of people, aggregate sources, rank or score anyone, decide suitability, or assert that a person is compliant, safe, or eligible. A public register entry is a fact about a record; it is not a judgement about a person, and a diff of two exports must not be used as one.</p>
+
+  <h2>How to use it</h2>
+  <ol>
+    <li>Take an authorized export of the register and keep it as a dated snapshot. Take the next one on your review cadence.</li>
+    <li>Run the comparison over the before and after snapshots. It runs locally and offline — no account, API key, or hosted service.</li>
+    <li>Read the report in Markdown or JSON, and open the source URL for anything you intend to act on.</li>
+    <li>File the report with the date you reviewed it. That is the record that you looked.</li>
+  </ol>
+
+  <h2>Common questions</h2>
+  <h3>How do I track changes to a public licence register?</h3>
+  <p>Export the register on a regular cadence, keep each export as a dated snapshot, and compare consecutive snapshots rather than re-reading the current one. A comparison gives you the three things a manual review does not reliably produce: the records that appeared, the records that disappeared, and the fields that changed on records that stayed. Keep the source URL with each record so a reviewer can open the original entry instead of trusting the summary.</p>
+  <h3>Does a record disappearing mean a licence was revoked?</h3>
+  <p>No, and treating it that way is the main risk in this workflow. A record can vanish from an export because the export was filtered differently, because the register was partially unavailable, because an identifier changed, or because of an ordinary administrative correction. A removal is an observation that tells you where to look. Open the source record and confirm before acting on it, and never let a diff become the basis of a decision about a person on its own.</p>
+  <h3>Does this build profiles of people?</h3>
+  <p>No. It compares two snapshots that you are authorized to supply and reports what differs between them. It does not scrape registers, aggregate sources into profiles, rank or score people, judge suitability, or state that anyone is compliant, safe, or eligible. Each input must be marked as authorized and must carry the register name and source URL, so every reported change points back at a public record a reviewer can read.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, employment, credentialing, or compliance advice, and it does not determine whether any person or organisation is licensed, qualified, compliant, safe, or eligible. It reports differences between snapshots you supply, which may be incomplete or out of date. Verify every change against the original public record and take advice from a qualified professional before making any decision that affects a person. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p><a href="./">Use the tool</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+</body>
+</html>

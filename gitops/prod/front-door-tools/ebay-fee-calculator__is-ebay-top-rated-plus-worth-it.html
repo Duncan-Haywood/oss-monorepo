@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/ebay-fee-calculator/is-ebay-top-rated-plus-worth-it.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Is eBay Top Rated Plus worth it? | Free returns vs the fee discount</title>
+  <meta name="description" content="Compare staying on a standard eBay return policy versus Top Rated Plus. See the 10% final-value discount, free-return labels, 1-day handling, and the return rate that still ties staying standard.">
+  
+  
+  <meta property="og:title" content="Is eBay Top Rated Plus worth it?">
+  <meta property="og:description" content="See whether a 10% final-value discount still beats free returns and 1-day handling on a $40 sale — and when a high-ticket listing flips the table.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay Top Rated Plus vs stay standard",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Top Rated Plus vs stay standard after free returns, 1-day handling time cost, expected listing profit, break-even free-return rate"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is eBay Top Rated Plus worth it?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Top Rated Plus trades a typed final-value discount and a badge sell-through lift for seller-paid return labels, a higher return rate, and 1-day handling time. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% discount, 60% vs 75% sell-through, 8% buyer-paid returns vs 16% free returns, 8 minutes at $18/hour) staying standard expects $11.64 and Top Rated Plus expects $10.88. Top Rated Plus keeps $0.76 less. Free returns can rise to about 12.9% before the badge matches staying standard. That is arithmetic on your inputs, not advice to enroll."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does eBay Top Rated Plus beat staying standard?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the fee save is large enough to cover extra return labels. On a $180 item with $12 shipping, $70 cost, a $14 label, 6% buyer-paid returns versus 10% free returns, and 55% vs 72% sell-through, Top Rated Plus expects $49.19 against staying standard at $40.42 — $8.78 more."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the Top Rated discount apply to promoted listings and international fees too?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This page only discounts the final-value rate you type. Promoted-listings and international percentages stay on both paths. Enter the discount your account actually shows; this is not eBay’s live Top Rated schedule."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether the fee discount still covers free returns.</h1>
+    <p>
+      Top Rated Plus is not the same decision as a return rate or a
+      one-case concession. You take a typed final-value discount and a
+      badge sell-through lift, then pay seller-paid return labels, a
+      higher return rate, and 1-day handling time on every sale. The
+      table keeps the original sale, then drops the final-value rate
+      and multiplies by sell-through.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, fees and badge</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Top Rated FVF discount (%) <input id="trsDiscountPct" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Standard sell-through (%) <input id="standardSellThroughPct" type="number" min="0" max="100" step="1" value="60"></label>
+        <label>Top Rated sell-through (%) <input id="trsSellThroughPct" type="number" min="0" max="100" step="1" value="75"></label>
+        <label>Standard return rate (%) <input id="standardReturnRatePercent" type="number" min="0" max="100" step="0.1" value="8"></label>
+        <label>Top Rated return rate (%) <input id="trsReturnRatePercent" type="number" min="0" max="100" step="0.1" value="16"></label>
+        <label>Standard return shipping <input id="standardReturnShippingCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Top Rated return shipping <input id="trsReturnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>1-day handling minutes <input id="trsHandlingMinutes" type="number" min="0" step="1" value="8"></label>
+        <label>Handling hourly wage <input id="trsHandlingWage" type="number" min="0" step="0.01" value="18"></label>
+        <label>Top Rated listings per month <input id="monthlyTrsListings" type="number" min="0" step="1" value="40"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Top Rated Plus vs standard</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by Top Rated Plus versus staying standard</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Standard expected listing profit</dt><dd id="standardExpected"></dd>
+        <dt>Top Rated expected listing profit</dt><dd id="trsExpected"></dd>
+        <dt>Final-value save on a sale</dt><dd id="fvfSave"></dd>
+        <dt>1-day handling time</dt><dd id="handlingCost"></dd>
+        <dt>If every Top Rated sale completes</dt><dd id="trsIfSells"></dd>
+        <dt>Free-return rate that still ties standard</dt><dd id="breakEvenReturnRate"></dd>
+        <dt>Monthly gap vs staying standard</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, two return policies</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Sell-through</th>
+            <th scope="col">Return rate</th>
+            <th scope="col">Handling</th>
+            <th scope="col">If it sells</th>
+            <th scope="col">Expected after sell-through</th>
+            <th scope="col">vs standard</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">1-day handling is paid on every sale you pack, including the ones that later return. Completed-sale profit is only counted at the typed sell-through. Transparent arithmetic from your inputs — not eBay’s Top Rated schedule.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Resellers search “is eBay Top Rated Plus worth it” because the
+      10% final-value discount looks like free money. Seller-paid
+      return labels and 1-day handling can wipe the fee save you
+      thought you were capturing.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 shipping charged, 13.25% final
+      value fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack, a 10%
+      final-value discount, 60% standard sell-through vs 75% Top
+      Rated, 8% buyer-paid returns vs 16% free returns, $0 vs $5
+      return postage, 8 minutes at $18/hour — staying standard
+      expects $11.64 and Top Rated Plus expects $10.88. Top Rated
+      Plus keeps $0.76 less (−$0.76) on this listing and −$30.51
+      across 40 listings. Free returns can rise to about 12.9%, or
+      sell-through has to reach about 80.3%, before the badge matches
+      staying standard.
+    </p>
+    <p>
+      The high-ticket case flips. Keep a 10% discount and list a $180
+      item with $12 shipping, $70 cost, a $14 label, $3 pack, 6%
+      buyer-paid returns versus 10% free returns at a $12 return
+      label, and 55% vs 72% sell-through. Top Rated Plus expects
+      $49.19 against staying standard at $40.42 — $8.78 more.
+    </p>
+    <p>
+      It does not tell you to enroll or stay standard, and it is not
+      tax or financial advice. A return-<em>rate</em> mix on completed
+      orders, a one-case concession, Authenticity Guarantee, local
+      pickup, a lot versus singles, and listing format are different
+      questions. Compare
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      <a href="should-i-offer-a-partial-refund-on-ebay.html">a partial refund versus taking the return</a>,
+      <a href="is-ebay-authenticity-guarantee-worth-it.html">Authenticity Guarantee versus skip-AG</a>,
+      <a href="should-i-offer-ebay-local-pickup.html">local pickup versus the label</a>,
+      <a href="should-i-break-an-ebay-lot-into-individual-listings.html">a lot versus individual listings</a>,
+      <a href="is-ebay-standard-envelope-worth-it.html">Standard Envelope versus a tracked label</a>,
+      <a href="should-i-offer-an-ebay-coupon.html">a seller coupon versus staying listed</a>,
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Is eBay Top Rated Plus worth it?</h3>
+  <p>Top Rated Plus trades a typed final-value discount and a badge sell-through lift for seller-paid return labels, a higher return rate, and 1-day handling time. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% discount, 60% vs 75% sell-through, 8% buyer-paid returns vs 16% free returns, 8 minutes at $18/hour) staying standard expects $11.64 and Top Rated Plus expects $10.88. Top Rated Plus keeps $0.76 less. Free returns can rise to about 12.9% before the badge matches staying standard. That is arithmetic on your inputs, not advice to enroll.</p>
+  <h3>When does eBay Top Rated Plus beat staying standard?</h3>
+  <p>When the fee save is large enough to cover extra return labels. On a $180 item with $12 shipping, $70 cost, a $14 label, 6% buyer-paid returns versus 10% free returns, and 55% vs 72% sell-through, Top Rated Plus expects $49.19 against staying standard at $40.42 — $8.78 more.</p>
+  <h3>Does the Top Rated discount apply to promoted listings and international fees too?</h3>
+  <p>This page only discounts the final-value rate you type. Promoted-listings and international percentages stay on both paths. Enter the discount your account actually shows; this is not eBay’s live Top Rated schedule.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from offering free returns that the fee discount would not cover, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareTopRatedPlus, topRatedPlusNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "finalValueRate", "trsDiscountPct",
+      "fixedFee", "costOfGoods", "shippingCost", "packagingCost",
+      "standardSellThroughPct", "trsSellThroughPct",
+      "standardReturnRatePercent", "trsReturnRatePercent",
+      "standardReturnShippingCost", "trsReturnShippingCost",
+      "trsHandlingMinutes", "trsHandlingWage", "monthlyTrsListings",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareTopRatedPlus(readInput());
+        const extra = result.extraKeptOnTopRated;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by Top Rated Plus versus staying standard" :
+          extra < 0 ? "Top Rated Plus keeps less than staying standard" :
+          "Top Rated Plus and staying standard keep the same";
+        document.getElementById("summary").textContent = topRatedPlusNote(result);
+        document.getElementById("standardExpected").textContent = money(result.standard.expectedProfit);
+        document.getElementById("trsExpected").textContent = money(result.topRated.expectedProfit);
+        document.getElementById("fvfSave").textContent = money(result.fvfSave);
+        document.getElementById("handlingCost").textContent = money(result.handlingCost);
+        document.getElementById("trsIfSells").textContent = money(result.topRated.soldExpectedProfit);
+        document.getElementById("breakEvenReturnRate").textContent = Number.isFinite(result.breakEvenTrsReturnRate)
+          ? `${result.breakEvenTrsReturnRate.toFixed(1)}%`
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnTopRated >= 0
+            ? `${money(result.monthlyExtraOnTopRated)} more`
+            : `${money(-result.monthlyExtraOnTopRated)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${row.sellThroughPct}%</td><td>${row.returnRatePercent}%</td><td>${money(row.handlingCost)}</td><td>${money(row.soldExpectedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["standardExpected", "trsExpected", "fvfSave", "handlingCost", "trsIfSells", "breakEvenReturnRate", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "top_rated_plus_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

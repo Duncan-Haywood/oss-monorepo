@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/fifo-pick-evidence/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FIFO Pick Evidence — Free Warehouse Pick-Log Report</title>
+  <meta name="description" content="Free, no-signup, no-upload tool that reads a warehouse pick-log CSV in your browser and reports FIFO pick-order exceptions and missing or ill-formed timestamps before a customer audit. Runs entirely client-side." />
+  <meta property="og:title" content="FIFO Pick Evidence" />
+  <meta property="og:description" content="Drop in a pick-log CSV. See which picks broke first-in-first-out order, with the row-level evidence for each. Never leaves your browser." />
+  <link rel="stylesheet" href="style.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"FIFO Pick Evidence","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a FIFO exception?","acceptedAnswer":{"@type":"Answer","text":"A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log. See a worked example for the exact rows that do and do not get flagged."}},{"@type":"Question","name":"Why does a row show \"invalid timestamp\" instead of a time?","acceptedAnswer":{"@type":"Answer","text":"received_at and picked_at must be ISO 8601 with an explicit timezone, such as a trailing Z or a +00:00 offset. A bare local timestamp with no zone is reported as invalid rather than guessed at, because guessing a timezone would guess the very ordering this report exists to check."}},{"@type":"Question","name":"Is my pick log uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Parsing happens with JavaScript running in your own browser tab. This page makes no network request with your file's contents — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a report was generated\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same check ships as a local Python CLI (fifo_pick_evidence.py) in this tool's repository, for scheduled runs or CI. See the README for its usage."}}]}</script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>FIFO Pick Evidence</h1>
+      <p class="tagline">
+        Small 3PL warehouses can turn a pick-log CSV into a portable FIFO
+        exception report before a customer audit. Drop in a log and see
+        which picks left an older lot waiting, and which rows are missing or
+        have an ill-formed timestamp — entirely in your browser.
+      </p>
+    </header>
+
+    <div id="drop-zone" class="drop-zone">
+      <p>Drag a pick-log CSV here, or</p>
+      <label class="file-label">
+        Choose file
+        <input id="csv-input" type="file" accept=".csv,text/csv" />
+      </label>
+      <p class="or-line">— or paste its contents below —</p>
+      <textarea id="csv-paste" rows="6" placeholder="order_id,sku,lot,received_at,picked_at&#10;..." spellcheck="false" aria-label="Paste pick-log CSV contents"></textarea>
+      <button type="button" id="parse-pasted">Check pasted CSV</button>
+    </div>
+
+    <p class="example-line">
+      Don't have one handy?
+      <button type="button" id="load-example" class="link-button">Load a worked example</button>
+      — a small pick log with one deliberate FIFO exception, so you can see
+      the report shape before using your own.
+    </p>
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <div id="results" class="results" aria-live="polite"></div>
+
+    <section class="disclaimer">
+      <h2>What this is and isn't</h2>
+      <ul>
+        <li>
+          Everything runs in <em>your</em> browser. The pick log and report
+          are never uploaded — there is no server here to send them to.
+        </li>
+        <li>
+          The CSV needs <code>order_id</code>, <code>sku</code>,
+          <code>lot</code>, <code>received_at</code>, and
+          <code>picked_at</code> columns, with ISO 8601 timestamps that
+          include a timezone.
+        </li>
+        <li>
+          A report is an observation of the supplied rows, not an audit
+          conclusion, compliance determination, or chain-of-custody record.
+          Confirm your warehouse system's own semantics and investigate each
+          observation.
+        </li>
+        <li>
+          Only anonymous, aggregate usage counts (for example "a report was
+          generated") may be recorded locally — never the pick-log contents,
+          order IDs, or SKUs.
+        </li>
+      </ul>
+    </section>
+
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>What counts as a FIFO exception?</h3>
+      <p>A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log. See <a href="./what-counts-as-a-fifo-exception.html">a worked example</a> for the exact rows that do and do not get flagged.</p>
+      <h3>Why does a row show "invalid timestamp" instead of a time?</h3>
+      <p><code>received_at</code> and <code>picked_at</code> must be ISO 8601 with an explicit timezone, such as a trailing <code>Z</code> or a <code>+00:00</code> offset. A bare local timestamp with no zone is reported as invalid rather than guessed at, because guessing a timezone would guess the very ordering this report exists to check.</p>
+      <h3>Is my pick log uploaded anywhere?</h3>
+      <p>No. Parsing happens with JavaScript running in your own browser tab. This page makes no network request with your file's contents — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like "a report was generated" may be recorded locally, with an opt-out below.</p>
+      <h3>Is there a command-line version?</h3>
+      <p>Yes — the same check ships as a local Python CLI (<code>fifo_pick_evidence.py</code>) in this tool's repository, for scheduled runs or CI. See the README for its usage.</p>
+    </section>
+
+    <footer class="footer">
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a report needs to survive, keep the Markdown or JSON you download.</p>
+      <p>Parsing runs in your browser. Your pick log is never uploaded — there is no server to send it to. We count only anonymous local feature events, never people or pick-log contents, with an opt-out on this page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+      <p>
+        Part of the Free small-business calculators portfolio.
+      </p>
+    </footer>
+  </main>
+
+  <script src="evidence.js"></script>
+  <script src="usage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

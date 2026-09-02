@@ -6,28 +6,47 @@
 # only because this file list is machine-written, one line per mirrored file;
 # there is no behavioural difference. In particular the content-hash suffix
 # still reaches the Deployment: kustomize accumulates this generator's output
-# before the parent runs its name-reference transformer, so `portfolio-front.yaml`
-# mounting `portfolio-front-tools` resolves to the hashed name. Verified by
-# `test_portfolio_front_mounts_only_generated_configmaps`, which reads both
+# before the parent runs its name-reference transformer, so the
+# `projected` `tools` volume in `portfolio-front.yaml` resolves each shard to
+# its hashed name. Verified against kustomize v5.6.0 — the version
+# `hetzner-gitops-ci.yml` installs — by
+# `test_portfolio_front_mounts_every_generated_mirror_shard`, which reads both
 # kustomizations, and by the hash test beside it.
 #
+# WHY THERE IS MORE THAN ONE
+#
+# etcd caps a stored object at 1 MiB, so a mirror held in a single ConfigMap
+# could never serve more than about twenty tools however many were worth
+# serving. Several ConfigMaps merged into one `mountPath` by a projected volume
+# have no such shared cap; nginx still sees one flat directory of `slug__file`
+# keys, and `front-door/default.conf` did not change. `SHARD_BYTE_CEILING` in
+# `front-door-tools.mjs` carries the reasoning and the measurements.
+#
+# Shards as generated:
+#   portfolio-front-tools-0: 104 files, 715048 bytes
+#   portfolio-front-tools-1: 30 files, 712599 bytes
+#   portfolio-front-tools-2: 38 files, 694232 bytes
+#   portfolio-front-tools-3: 47 files, 715610 bytes
+#   portfolio-front-tools-4: 88 files, 714723 bytes
+#   portfolio-front-tools-5: 75 files, 688767 bytes
+#
 # The hash is deliberately left ON, matching `portfolio-front-html` and
-# `portfolio-front-nginx`: a Deployment mounts this, so the generated name has
+# `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
 # to change with the content or a regenerated tool never reaches a running pod.
 #
 # The `argocd.argoproj.io/sync-options` option below is not optional
 # decoration. Argo CD applies client-side by default, which copies the whole
 # object into the `kubectl.kubernetes.io/last-applied-configuration`
 # annotation, and the API server caps an object's annotations at 262144 bytes.
-# This mirror is several times that, so a client-side apply of it fails with
+# A shard is several times that, so a client-side apply of it fails with
 # `metadata.annotations: Too long` and the mirror never reaches the cluster at
 # all — see `CLIENT_SIDE_APPLY_CEILING` in `front-door-tools.mjs` for the whole
 # failure mode. Server-side apply writes no such annotation and is bounded only
-# by etcd's 1 MiB, which `BYTE_CEILING` already keeps this well inside.
+# by etcd's 1 MiB, which `SHARD_BYTE_CEILING` keeps each shard well inside.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
-  - name: portfolio-front-tools
+  - name: portfolio-front-tools-0
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
@@ -84,7 +103,6 @@ configMapGenerator:
       - cam-reconciliation-check__calc.mjs=cam-reconciliation-check__calc.mjs
       - cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html=cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html
       - cam-reconciliation-check__index.html=cam-reconciliation-check__index.html
-      - cam-reconciliation-check__test.mjs=cam-reconciliation-check__test.mjs
       - appliance-repair-quote-calculator__LICENSE=appliance-repair-quote-calculator__LICENSE
       - appliance-repair-quote-calculator__calc.mjs=appliance-repair-quote-calculator__calc.mjs
       - appliance-repair-quote-calculator__index.html=appliance-repair-quote-calculator__index.html
@@ -118,7 +136,6 @@ configMapGenerator:
       - chargeback-evidence-packet__how-to-respond-to-a-chargeback.html=chargeback-evidence-packet__how-to-respond-to-a-chargeback.html
       - chargeback-evidence-packet__index.html=chargeback-evidence-packet__index.html
       - chargeback-evidence-packet__packet.mjs=chargeback-evidence-packet__packet.mjs
-      - chargeback-evidence-packet__test.mjs=chargeback-evidence-packet__test.mjs
       - chargeback-evidence-packet__vs-chargeflow.html=chargeback-evidence-packet__vs-chargeflow.html
       - str-host-payout-calculator__LICENSE=str-host-payout-calculator__LICENSE
       - str-host-payout-calculator__airbnb-host-fee-2026.html=str-host-payout-calculator__airbnb-host-fee-2026.html
@@ -138,6 +155,11 @@ configMapGenerator:
       - grant-reporting-tracker__LICENSE=grant-reporting-tracker__LICENSE
       - grant-reporting-tracker__calc.mjs=grant-reporting-tracker__calc.mjs
       - grant-reporting-tracker__index.html=grant-reporting-tracker__index.html
+  - name: portfolio-front-tools-1
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - grant-reporting-tracker__vs-granthub.html=grant-reporting-tracker__vs-granthub.html
       - grant-reporting-tracker__when-is-my-grant-report-due.html=grant-reporting-tracker__when-is-my-grant-report-due.html
       - translator-project-quote__LICENSE=translator-project-quote__LICENSE
@@ -146,3 +168,293 @@ configMapGenerator:
       - translator-project-quote__index.html=translator-project-quote__index.html
       - translator-project-quote__share.mjs=translator-project-quote__share.mjs
       - translator-project-quote__usage.mjs=translator-project-quote__usage.mjs
+      - ebay-fee-calculator__LICENSE=ebay-fee-calculator__LICENSE
+      - ebay-fee-calculator__are-ebay-promoted-listings-advanced-worth-it.html=ebay-fee-calculator__are-ebay-promoted-listings-advanced-worth-it.html
+      - ebay-fee-calculator__are-ebay-promoted-listings-worth-it.html=ebay-fee-calculator__are-ebay-promoted-listings-worth-it.html
+      - ebay-fee-calculator__calc.mjs=ebay-fee-calculator__calc.mjs
+      - ebay-fee-calculator__csv.mjs=ebay-fee-calculator__csv.mjs
+      - ebay-fee-calculator__do-ebay-returns-wipe-the-profit.html=ebay-fee-calculator__do-ebay-returns-wipe-the-profit.html
+      - ebay-fee-calculator__index.html=ebay-fee-calculator__index.html
+      - ebay-fee-calculator__is-an-ebay-store-worth-it.html=ebay-fee-calculator__is-an-ebay-store-worth-it.html
+      - ebay-fee-calculator__is-ebay-authenticity-guarantee-worth-it.html=ebay-fee-calculator__is-ebay-authenticity-guarantee-worth-it.html
+      - ebay-fee-calculator__is-ebay-managed-returns-worth-it.html=ebay-fee-calculator__is-ebay-managed-returns-worth-it.html
+      - ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html=ebay-fee-calculator__is-ebay-promoted-offsite-worth-it.html
+      - ebay-fee-calculator__is-ebay-standard-envelope-worth-it.html=ebay-fee-calculator__is-ebay-standard-envelope-worth-it.html
+      - ebay-fee-calculator__is-ebay-top-rated-plus-worth-it.html=ebay-fee-calculator__is-ebay-top-rated-plus-worth-it.html
+      - ebay-fee-calculator__share.mjs=ebay-fee-calculator__share.mjs
+      - ebay-fee-calculator__should-i-accept-this-ebay-offer.html=ebay-fee-calculator__should-i-accept-this-ebay-offer.html
+      - ebay-fee-calculator__should-i-add-shipping-insurance-on-ebay.html=ebay-fee-calculator__should-i-add-shipping-insurance-on-ebay.html
+      - ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html=ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html
+      - ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html=ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html
+      - ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html=ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html
+      - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html
+      - ebay-fee-calculator__should-i-offer-an-ebay-coupon.html=ebay-fee-calculator__should-i-offer-an-ebay-coupon.html
+      - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html
+  - name: portfolio-front-tools-2
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
+      - ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html=ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html
+      - ebay-fee-calculator__should-i-offer-ebay-local-pickup.html=ebay-fee-calculator__should-i-offer-ebay-local-pickup.html
+      - ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html=ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html
+      - ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html=ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html
+      - ebay-fee-calculator__should-i-require-immediate-payment-on-ebay.html=ebay-fee-calculator__should-i-require-immediate-payment-on-ebay.html
+      - ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html=ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html
+      - ebay-fee-calculator__should-i-use-ebay-global-shipping-program.html=ebay-fee-calculator__should-i-use-ebay-global-shipping-program.html
+      - ebay-fee-calculator__usage.mjs=ebay-fee-calculator__usage.mjs
+      - ebay-fee-calculator__vs-ebay-fee-calculator.html=ebay-fee-calculator__vs-ebay-fee-calculator.html
+      - amazon-fba-calculator__LICENSE=amazon-fba-calculator__LICENSE
+      - amazon-fba-calculator__break-even-acos.html=amazon-fba-calculator__break-even-acos.html
+      - amazon-fba-calculator__calc.mjs=amazon-fba-calculator__calc.mjs
+      - amazon-fba-calculator__do-amazon-returns-wipe-the-profit.html=amazon-fba-calculator__do-amazon-returns-wipe-the-profit.html
+      - amazon-fba-calculator__does-smaller-box-cut-amazon-fba-fees.html=amazon-fba-calculator__does-smaller-box-cut-amazon-fba-fees.html
+      - amazon-fba-calculator__does-subscribe-and-save-still-pay.html=amazon-fba-calculator__does-subscribe-and-save-still-pay.html
+      - amazon-fba-calculator__does-this-amazon-coupon-still-pay.html=amazon-fba-calculator__does-this-amazon-coupon-still-pay.html
+      - amazon-fba-calculator__does-this-amazon-moq-still-pay.html=amazon-fba-calculator__does-this-amazon-moq-still-pay.html
+      - amazon-fba-calculator__fba-vs-fbm.html=amazon-fba-calculator__fba-vs-fbm.html
+      - amazon-fba-calculator__inbound-placement-fee.html=amazon-fba-calculator__inbound-placement-fee.html
+      - amazon-fba-calculator__index.html=amazon-fba-calculator__index.html
+      - amazon-fba-calculator__individual-vs-professional.html=amazon-fba-calculator__individual-vs-professional.html
+      - amazon-fba-calculator__is-amazon-vine-worth-it.html=amazon-fba-calculator__is-amazon-vine-worth-it.html
+      - amazon-fba-calculator__low-inventory-level-fee.html=amazon-fba-calculator__low-inventory-level-fee.html
+      - amazon-fba-calculator__peak-vs-off-peak-storage.html=amazon-fba-calculator__peak-vs-off-peak-storage.html
+      - amazon-fba-calculator__scenarios.mjs=amazon-fba-calculator__scenarios.mjs
+      - amazon-fba-calculator__share.mjs=amazon-fba-calculator__share.mjs
+      - amazon-fba-calculator__should-i-liquidate-aged-fba-inventory.html=amazon-fba-calculator__should-i-liquidate-aged-fba-inventory.html
+      - amazon-fba-calculator__should-i-pay-amazon-to-prep-inbound.html=amazon-fba-calculator__should-i-pay-amazon-to-prep-inbound.html
+      - amazon-fba-calculator__should-i-price-over-amazons-low-price-fba.html=amazon-fba-calculator__should-i-price-over-amazons-low-price-fba.html
+      - amazon-fba-calculator__should-i-remove-aged-amazon-inventory.html=amazon-fba-calculator__should-i-remove-aged-amazon-inventory.html
+      - amazon-fba-calculator__should-i-use-amazon-awd.html=amazon-fba-calculator__should-i-use-amazon-awd.html
+      - amazon-fba-calculator__should-i-use-amazon-mcf-for-website-orders.html=amazon-fba-calculator__should-i-use-amazon-mcf-for-website-orders.html
+      - amazon-fba-calculator__should-i-use-amazon-remote-fulfillment.html=amazon-fba-calculator__should-i-use-amazon-remote-fulfillment.html
+      - amazon-fba-calculator__should-i-use-seller-fulfilled-prime.html=amazon-fba-calculator__should-i-use-seller-fulfilled-prime.html
+      - amazon-fba-calculator__usage.mjs=amazon-fba-calculator__usage.mjs
+      - amazon-fba-calculator__vs-amazon-revenue-calculator.html=amazon-fba-calculator__vs-amazon-revenue-calculator.html
+      - etsy-profit-calculator__LICENSE=etsy-profit-calculator__LICENSE
+      - etsy-profit-calculator__are-etsy-offsite-ads-worth-it.html=etsy-profit-calculator__are-etsy-offsite-ads-worth-it.html
+  - name: portfolio-front-tools-3
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
+      - etsy-profit-calculator__calc.mjs=etsy-profit-calculator__calc.mjs
+      - etsy-profit-calculator__index.html=etsy-profit-calculator__index.html
+      - etsy-profit-calculator__is-etsy-ads-worth-it.html=etsy-profit-calculator__is-etsy-ads-worth-it.html
+      - etsy-profit-calculator__is-etsy-plus-worth-it.html=etsy-profit-calculator__is-etsy-plus-worth-it.html
+      - etsy-profit-calculator__is-etsy-star-seller-worth-it.html=etsy-profit-calculator__is-etsy-star-seller-worth-it.html
+      - etsy-profit-calculator__listing-renewal.html=etsy-profit-calculator__listing-renewal.html
+      - etsy-profit-calculator__share.mjs=etsy-profit-calculator__share.mjs
+      - etsy-profit-calculator__should-i-buy-etsy-shipping-labels.html=etsy-profit-calculator__should-i-buy-etsy-shipping-labels.html
+      - etsy-profit-calculator__should-i-charge-for-etsy-personalization.html=etsy-profit-calculator__should-i-charge-for-etsy-personalization.html
+      - etsy-profit-calculator__should-i-offer-free-shipping-on-etsy.html=etsy-profit-calculator__should-i-offer-free-shipping-on-etsy.html
+      - etsy-profit-calculator__should-i-put-my-etsy-shop-on-sale.html=etsy-profit-calculator__should-i-put-my-etsy-shop-on-sale.html
+      - etsy-profit-calculator__should-i-use-an-etsy-production-partner.html=etsy-profit-calculator__should-i-use-an-etsy-production-partner.html
+      - etsy-profit-calculator__summary.mjs=etsy-profit-calculator__summary.mjs
+      - etsy-profit-calculator__usage.mjs=etsy-profit-calculator__usage.mjs
+      - etsy-profit-calculator__vs-etsys-listing-form-calculator.html=etsy-profit-calculator__vs-etsys-listing-form-calculator.html
+      - etsy-profit-calculator__what-price-keeps-this-etsy-profit.html=etsy-profit-calculator__what-price-keeps-this-etsy-profit.html
+      - walmart-marketplace-calculator__LICENSE=walmart-marketplace-calculator__LICENSE
+      - walmart-marketplace-calculator__calc.mjs=walmart-marketplace-calculator__calc.mjs
+      - walmart-marketplace-calculator__does-a-smaller-box-cut-wfs-fees.html=walmart-marketplace-calculator__does-a-smaller-box-cut-wfs-fees.html
+      - walmart-marketplace-calculator__index.html=walmart-marketplace-calculator__index.html
+      - walmart-marketplace-calculator__share.mjs=walmart-marketplace-calculator__share.mjs
+      - walmart-marketplace-calculator__should-i-match-the-walmart-buy-box.html=walmart-marketplace-calculator__should-i-match-the-walmart-buy-box.html
+      - walmart-marketplace-calculator__should-i-offer-two-day-shipping-on-walmart.html=walmart-marketplace-calculator__should-i-offer-two-day-shipping-on-walmart.html
+      - walmart-marketplace-calculator__should-i-pull-aged-wfs-inventory.html=walmart-marketplace-calculator__should-i-pull-aged-wfs-inventory.html
+      - walmart-marketplace-calculator__should-i-run-walmart-connect-ads.html=walmart-marketplace-calculator__should-i-run-walmart-connect-ads.html
+      - walmart-marketplace-calculator__should-i-use-wfs-with-walmart-returns.html=walmart-marketplace-calculator__should-i-use-wfs-with-walmart-returns.html
+      - walmart-marketplace-calculator__usage.mjs=walmart-marketplace-calculator__usage.mjs
+      - walmart-marketplace-calculator__vs-wfs-cost-estimator.html=walmart-marketplace-calculator__vs-wfs-cost-estimator.html
+      - walmart-marketplace-calculator__wfs-vs-seller-fulfilled.html=walmart-marketplace-calculator__wfs-vs-seller-fulfilled.html
+      - tiktok-shop-fee-calculator__LICENSE=tiktok-shop-fee-calculator__LICENSE
+      - tiktok-shop-fee-calculator__affiliate-commission-on-returns.html=tiktok-shop-fee-calculator__affiliate-commission-on-returns.html
+      - tiktok-shop-fee-calculator__calc.mjs=tiktok-shop-fee-calculator__calc.mjs
+      - tiktok-shop-fee-calculator__index.html=tiktok-shop-fee-calculator__index.html
+      - tiktok-shop-fee-calculator__should-i-bundle-tiktok-shop-orders.html=tiktok-shop-fee-calculator__should-i-bundle-tiktok-shop-orders.html
+      - tiktok-shop-fee-calculator__should-i-offer-free-shipping-on-tiktok-shop.html=tiktok-shop-fee-calculator__should-i-offer-free-shipping-on-tiktok-shop.html
+      - tiktok-shop-fee-calculator__usage.mjs=tiktok-shop-fee-calculator__usage.mjs
+      - tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html=tiktok-shop-fee-calculator__vs-tiktok-shops-seller-university.html
+      - tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html=tiktok-shop-fee-calculator__what-will-the-tiktok-shop-fee-change-cost-me.html
+      - reverb-fee-calculator__LICENSE=reverb-fee-calculator__LICENSE
+      - reverb-fee-calculator__calc.mjs=reverb-fee-calculator__calc.mjs
+      - reverb-fee-calculator__index.html=reverb-fee-calculator__index.html
+      - reverb-fee-calculator__share.mjs=reverb-fee-calculator__share.mjs
+      - reverb-fee-calculator__should-i-bump-this-reverb-listing.html=reverb-fee-calculator__should-i-bump-this-reverb-listing.html
+      - reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html=reverb-fee-calculator__should-i-buy-reverb-safe-shipping.html
+      - reverb-fee-calculator__should-i-consign-this-reverb-listing.html=reverb-fee-calculator__should-i-consign-this-reverb-listing.html
+      - reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html=reverb-fee-calculator__should-i-eat-the-shipping-on-reverb.html
+      - reverb-fee-calculator__should-i-include-shipping-on-reverb.html=reverb-fee-calculator__should-i-include-shipping-on-reverb.html
+  - name: portfolio-front-tools-4
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
+      - reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html=reverb-fee-calculator__should-i-take-the-return-or-refund-on-reverb.html
+      - reverb-fee-calculator__should-i-take-this-reverb-offer.html=reverb-fee-calculator__should-i-take-this-reverb-offer.html
+      - reverb-fee-calculator__usage.mjs=reverb-fee-calculator__usage.mjs
+      - reverb-fee-calculator__vs-reverbs-selling-fees-page.html=reverb-fee-calculator__vs-reverbs-selling-fees-page.html
+      - 3pl-quote-normalizer__LICENSE=3pl-quote-normalizer__LICENSE
+      - 3pl-quote-normalizer__calc.mjs=3pl-quote-normalizer__calc.mjs
+      - 3pl-quote-normalizer__compare.html=3pl-quote-normalizer__compare.html
+      - 3pl-quote-normalizer__compare.mjs=3pl-quote-normalizer__compare.mjs
+      - 3pl-quote-normalizer__comparison-insights.mjs=3pl-quote-normalizer__comparison-insights.mjs
+      - 3pl-quote-normalizer__does-long-term-storage-flip-a-3pl-quote.html=3pl-quote-normalizer__does-long-term-storage-flip-a-3pl-quote.html
+      - 3pl-quote-normalizer__drivers.html=3pl-quote-normalizer__drivers.html
+      - 3pl-quote-normalizer__export-page.mjs=3pl-quote-normalizer__export-page.mjs
+      - 3pl-quote-normalizer__export.html=3pl-quote-normalizer__export.html
+      - 3pl-quote-normalizer__export.mjs=3pl-quote-normalizer__export.mjs
+      - 3pl-quote-normalizer__inbound.html=3pl-quote-normalizer__inbound.html
+      - 3pl-quote-normalizer__index.html=3pl-quote-normalizer__index.html
+      - 3pl-quote-normalizer__negotiation.html=3pl-quote-normalizer__negotiation.html
+      - 3pl-quote-normalizer__pallet-vs-carton-inbound.html=3pl-quote-normalizer__pallet-vs-carton-inbound.html
+      - 3pl-quote-normalizer__return-fields.js=3pl-quote-normalizer__return-fields.js
+      - 3pl-quote-normalizer__returns-sensitivity.html=3pl-quote-normalizer__returns-sensitivity.html
+      - 3pl-quote-normalizer__sensitivity.html=3pl-quote-normalizer__sensitivity.html
+      - 3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html=3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html
+      - 3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html=3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html
+      - 3pl-quote-normalizer__usage.mjs=3pl-quote-normalizer__usage.mjs
+      - 3pl-quote-normalizer__warnings-page.mjs=3pl-quote-normalizer__warnings-page.mjs
+      - freight-accessorial-auditor__LICENSE=freight-accessorial-auditor__LICENSE
+      - freight-accessorial-auditor__audit.mjs=freight-accessorial-auditor__audit.mjs
+      - freight-accessorial-auditor__does-this-fuel-surcharge-match-the-contract.html=freight-accessorial-auditor__does-this-fuel-surcharge-match-the-contract.html
+      - freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html=freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html
+      - freight-accessorial-auditor__import.mjs=freight-accessorial-auditor__import.mjs
+      - freight-accessorial-auditor__index.html=freight-accessorial-auditor__index.html
+      - freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html=freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html
+      - freight-accessorial-auditor__should-i-dispute-this-detention-charge.html=freight-accessorial-auditor__should-i-dispute-this-detention-charge.html
+      - freight-accessorial-auditor__usage.mjs=freight-accessorial-auditor__usage.mjs
+      - ltl-freight-class-estimator__LICENSE=ltl-freight-class-estimator__LICENSE
+      - ltl-freight-class-estimator__calc.mjs=ltl-freight-class-estimator__calc.mjs
+      - ltl-freight-class-estimator__how-to-calculate-freight-class.html=ltl-freight-class-estimator__how-to-calculate-freight-class.html
+      - ltl-freight-class-estimator__index.html=ltl-freight-class-estimator__index.html
+      - ltl-freight-class-estimator__levers.mjs=ltl-freight-class-estimator__levers.mjs
+      - ltl-freight-class-estimator__share.mjs=ltl-freight-class-estimator__share.mjs
+      - ltl-freight-class-estimator__usage.mjs=ltl-freight-class-estimator__usage.mjs
+      - ltl-freight-class-estimator__vs-smc3-fastclass.html=ltl-freight-class-estimator__vs-smc3-fastclass.html
+      - cloud-egress-calculator__LICENSE=cloud-egress-calculator__LICENSE
+      - cloud-egress-calculator__calc.mjs=cloud-egress-calculator__calc.mjs
+      - cloud-egress-calculator__does-a-cdn-cut-s3-egress.html=cloud-egress-calculator__does-a-cdn-cut-s3-egress.html
+      - cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html=cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html
+      - cloud-egress-calculator__does-infrequent-access-still-beat-standard.html=cloud-egress-calculator__does-infrequent-access-still-beat-standard.html
+      - cloud-egress-calculator__index.html=cloud-egress-calculator__index.html
+      - cloud-egress-calculator__usage.mjs=cloud-egress-calculator__usage.mjs
+      - cloud-egress-calculator__vs-aws-pricing-calculator.html=cloud-egress-calculator__vs-aws-pricing-calculator.html
+      - cloud-egress-calculator__vs-azure-pricing-calculator.html=cloud-egress-calculator__vs-azure-pricing-calculator.html
+      - cloud-egress-calculator__vs-google-cloud-pricing-calculator.html=cloud-egress-calculator__vs-google-cloud-pricing-calculator.html
+      - vendor-change-evidence__LICENSE=vendor-change-evidence__LICENSE
+      - vendor-change-evidence__app.js=vendor-change-evidence__app.js
+      - vendor-change-evidence__evidence.js=vendor-change-evidence__evidence.js
+      - vendor-change-evidence__how-do-i-track-vendor-policy-changes.html=vendor-change-evidence__how-do-i-track-vendor-policy-changes.html
+      - vendor-change-evidence__index.html=vendor-change-evidence__index.html
+      - vendor-change-evidence__style.css=vendor-change-evidence__style.css
+      - vendor-change-evidence__usage.js=vendor-change-evidence__usage.js
+      - public-record-watch__LICENSE=public-record-watch__LICENSE
+      - public-record-watch__app.js=public-record-watch__app.js
+      - public-record-watch__evidence.js=public-record-watch__evidence.js
+      - public-record-watch__how-do-i-track-changes-to-a-public-register.html=public-record-watch__how-do-i-track-changes-to-a-public-register.html
+      - public-record-watch__index.html=public-record-watch__index.html
+      - public-record-watch__style.css=public-record-watch__style.css
+      - public-record-watch__usage.js=public-record-watch__usage.js
+      - fifo-pick-evidence__LICENSE=fifo-pick-evidence__LICENSE
+      - fifo-pick-evidence__app.js=fifo-pick-evidence__app.js
+      - fifo-pick-evidence__evidence.js=fifo-pick-evidence__evidence.js
+      - fifo-pick-evidence__index.html=fifo-pick-evidence__index.html
+      - fifo-pick-evidence__style.css=fifo-pick-evidence__style.css
+      - fifo-pick-evidence__usage.js=fifo-pick-evidence__usage.js
+      - fifo-pick-evidence__what-counts-as-a-fifo-exception.html=fifo-pick-evidence__what-counts-as-a-fifo-exception.html
+      - backup-verification-evidence__LICENSE=backup-verification-evidence__LICENSE
+      - backup-verification-evidence__examples.mjs=backup-verification-evidence__examples.mjs
+      - backup-verification-evidence__index.html=backup-verification-evidence__index.html
+      - backup-verification-evidence__report.mjs=backup-verification-evidence__report.mjs
+      - backup-verification-evidence__shrinking.html=backup-verification-evidence__shrinking.html
+      - backup-verification-evidence__usage.mjs=backup-verification-evidence__usage.mjs
+      - repository-branch-hygiene__LICENSE=repository-branch-hygiene__LICENSE
+      - repository-branch-hygiene__examples.mjs=repository-branch-hygiene__examples.mjs
+      - repository-branch-hygiene__index.html=repository-branch-hygiene__index.html
+      - repository-branch-hygiene__is-it-safe-to-delete-this-branch.html=repository-branch-hygiene__is-it-safe-to-delete-this-branch.html
+      - repository-branch-hygiene__scan.mjs=repository-branch-hygiene__scan.mjs
+      - repository-branch-hygiene__usage.mjs=repository-branch-hygiene__usage.mjs
+      - npm-deployment-evidence__LICENSE=npm-deployment-evidence__LICENSE
+      - npm-deployment-evidence__app.js=npm-deployment-evidence__app.js
+      - npm-deployment-evidence__evidence.js=npm-deployment-evidence__evidence.js
+  - name: portfolio-front-tools-5
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
+      - npm-deployment-evidence__index.html=npm-deployment-evidence__index.html
+      - npm-deployment-evidence__style.css=npm-deployment-evidence__style.css
+      - npm-deployment-evidence__usage.js=npm-deployment-evidence__usage.js
+      - npm-deployment-evidence__vs-npm-audit.html=npm-deployment-evidence__vs-npm-audit.html
+      - npm-deployment-evidence__which-npm-vulnerabilities-actually-reach-production.html=npm-deployment-evidence__which-npm-vulnerabilities-actually-reach-production.html
+      - grant-deadline-tracker__LICENSE=grant-deadline-tracker__LICENSE
+      - grant-deadline-tracker__calc.mjs=grant-deadline-tracker__calc.mjs
+      - grant-deadline-tracker__index.html=grant-deadline-tracker__index.html
+      - grant-deadline-tracker__should-i-hire-a-grant-writer-to-file-this-report.html=grant-deadline-tracker__should-i-hire-a-grant-writer-to-file-this-report.html
+      - grant-deadline-tracker__usage.mjs=grant-deadline-tracker__usage.mjs
+      - grant-deadline-tracker__vs-instrumentl.html=grant-deadline-tracker__vs-instrumentl.html
+      - grant-deadline-tracker__when-is-my-next-grant-report-due.html=grant-deadline-tracker__when-is-my-next-grant-report-due.html
+      - shopify-a11y-evidence__LICENSE=shopify-a11y-evidence__LICENSE
+      - shopify-a11y-evidence__calc.mjs=shopify-a11y-evidence__calc.mjs
+      - shopify-a11y-evidence__index.html=shopify-a11y-evidence__index.html
+      - shopify-a11y-evidence__quote.html=shopify-a11y-evidence__quote.html
+      - shopify-a11y-evidence__quote.mjs=shopify-a11y-evidence__quote.mjs
+      - shopify-a11y-evidence__theme-areas.html=shopify-a11y-evidence__theme-areas.html
+      - shopify-a11y-evidence__theme-areas.mjs=shopify-a11y-evidence__theme-areas.mjs
+      - shopify-a11y-evidence__usage.mjs=shopify-a11y-evidence__usage.mjs
+      - shopify-a11y-evidence__what-changed-between-axe-scans.html=shopify-a11y-evidence__what-changed-between-axe-scans.html
+      - invoice-payment-terms-calculator__LICENSE=invoice-payment-terms-calculator__LICENSE
+      - invoice-payment-terms-calculator__calc.mjs=invoice-payment-terms-calculator__calc.mjs
+      - invoice-payment-terms-calculator__chasing-a-late-invoice.html=invoice-payment-terms-calculator__chasing-a-late-invoice.html
+      - invoice-payment-terms-calculator__index.html=invoice-payment-terms-calculator__index.html
+      - invoice-payment-terms-calculator__schedule.mjs=invoice-payment-terms-calculator__schedule.mjs
+      - invoice-payment-terms-calculator__should-i-ask-for-a-deposit.html=invoice-payment-terms-calculator__should-i-ask-for-a-deposit.html
+      - invoice-payment-terms-calculator__should-i-factor-this-invoice.html=invoice-payment-terms-calculator__should-i-factor-this-invoice.html
+      - invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html=invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html
+      - invoice-payment-terms-calculator__usage.mjs=invoice-payment-terms-calculator__usage.mjs
+      - cash-runway-planner__LICENSE=cash-runway-planner__LICENSE
+      - cash-runway-planner__app.mjs=cash-runway-planner__app.mjs
+      - cash-runway-planner__index.html=cash-runway-planner__index.html
+      - cash-runway-planner__vs-quickbooks-cash-flow-planner.html=cash-runway-planner__vs-quickbooks-cash-flow-planner.html
+      - cash-runway-planner__when-will-i-run-out-of-cash.html=cash-runway-planner__when-will-i-run-out-of-cash.html
+      - vendor-rate-break-even__LICENSE=vendor-rate-break-even__LICENSE
+      - vendor-rate-break-even__calc.mjs=vendor-rate-break-even__calc.mjs
+      - vendor-rate-break-even__index.html=vendor-rate-break-even__index.html
+      - vendor-rate-break-even__is-switching-vendors-worth-it.html=vendor-rate-break-even__is-switching-vendors-worth-it.html
+      - vendor-rate-break-even__share.mjs=vendor-rate-break-even__share.mjs
+      - vendor-rate-break-even__usage.mjs=vendor-rate-break-even__usage.mjs
+      - music-lesson-break-even__LICENSE=music-lesson-break-even__LICENSE
+      - music-lesson-break-even__calc.mjs=music-lesson-break-even__calc.mjs
+      - music-lesson-break-even__how-to-price-music-lessons.html=music-lesson-break-even__how-to-price-music-lessons.html
+      - music-lesson-break-even__index.html=music-lesson-break-even__index.html
+      - music-lesson-break-even__usage.mjs=music-lesson-break-even__usage.mjs
+      - portable-restroom-event-quote__LICENSE=portable-restroom-event-quote__LICENSE
+      - portable-restroom-event-quote__calc.mjs=portable-restroom-event-quote__calc.mjs
+      - portable-restroom-event-quote__how-many.html=portable-restroom-event-quote__how-many.html
+      - portable-restroom-event-quote__index.html=portable-restroom-event-quote__index.html
+      - portable-restroom-event-quote__proposal.mjs=portable-restroom-event-quote__proposal.mjs
+      - portable-restroom-event-quote__usage.mjs=portable-restroom-event-quote__usage.mjs
+      - commercial-photo-license-calculator__LICENSE=commercial-photo-license-calculator__LICENSE
+      - commercial-photo-license-calculator__app.mjs=commercial-photo-license-calculator__app.mjs
+      - commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html=commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html
+      - commercial-photo-license-calculator__index.html=commercial-photo-license-calculator__index.html
+      - commercial-photo-license-calculator__style.css=commercial-photo-license-calculator__style.css
+      - commercial-photo-license-calculator__vs-fotoquote.html=commercial-photo-license-calculator__vs-fotoquote.html
+      - notary-trip-quote__LICENSE=notary-trip-quote__LICENSE
+      - notary-trip-quote__calc.mjs=notary-trip-quote__calc.mjs
+      - notary-trip-quote__how-much-to-charge-for-a-mobile-notary-appointment.html=notary-trip-quote__how-much-to-charge-for-a-mobile-notary-appointment.html
+      - notary-trip-quote__index.html=notary-trip-quote__index.html
+      - notary-trip-quote__usage.mjs=notary-trip-quote__usage.mjs
+      - booth-rent-vs-commission__LICENSE=booth-rent-vs-commission__LICENSE
+      - booth-rent-vs-commission__calc.mjs=booth-rent-vs-commission__calc.mjs
+      - booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html=booth-rent-vs-commission__how-many-clients-does-booth-rent-need.html
+      - booth-rent-vs-commission__index.html=booth-rent-vs-commission__index.html
+      - booth-rent-vs-commission__usage.mjs=booth-rent-vs-commission__usage.mjs
+      - sponsor-ready__LICENSE=sponsor-ready__LICENSE
+      - sponsor-ready__app.js=sponsor-ready__app.js
+      - sponsor-ready__github-sponsors-readiness-checklist.html=sponsor-ready__github-sponsors-readiness-checklist.html
+      - sponsor-ready__index.html=sponsor-ready__index.html
+      - sponsor-ready__scoring.js=sponsor-ready__scoring.js
+      - sponsor-ready__style.css=sponsor-ready__style.css
+      - sponsor-ready__usage.js=sponsor-ready__usage.js

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/vendor-rate-break-even/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supplier Rate Break-Even Calculator | Cost Per Job</title>
+<meta name="description" content="Free supplier, subcontractor, and equipment rate break-even calculator. Compare fixed fees, per-job costs, savings, and payback volume.">
+<meta property="og:title" content="Vendor Rate Break-Even Calculator"><meta property="og:description" content="Find out whether a supplier discount or equipment lease really saves money at your job volume.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vendor Rate Break-Even Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does one scenario break even at zero jobs and another need four?","acceptedAnswer":{"@type":"Answer","text":"Break-even only exists when a scenario charges a fixed fee the baseline does not. In the built-in example, the bulk supplier adds a $100/month fee but drops the per-job cost from $120 to $90 — a $30/job saving, so it takes ceil($100 ÷ $30) = 4 jobs before that fee is paid back. The subcontractor scenario has no fixed fee at all, only a $5/job saving, so there is nothing to recoup and it shows as cheaper starting from job one."}},{"@type":"Question","name":"What does “Not cheaper” mean in the break-even column?","acceptedAnswer":{"@type":"Answer","text":"It means the scenario loses on both numbers: its per-job cost is higher than your current variable cost and its fixed cost is the same or higher, so no volume of jobs ever makes it win — there is no break-even point to reach, not just a distant one. Compare the “Cost / job” and “Savings / job” columns for that row: a negative savings figure is why."}},{"@type":"Question","name":"What does “Below N jobs/mo” mean?","acceptedAnswer":{"@type":"Answer","text":"The opposite trade from a fixed-fee break-even: this scenario has a lower fixed cost than your baseline but a higher per-job cost, so it wins at low volume on the fixed-cost saving alone and loses that lead once enough jobs push the higher per-job rate past it. It is cheaper only while your monthly job count stays below the number shown — run more jobs than that and the current operation (or a scenario with a lower per-job cost) wins instead. A no-minimum, pay-per-job vendor compared against a leased or subscription-priced one is the usual shape of this case."}},{"@type":"Question","name":"Why enter fixed cost and per-job cost separately instead of one blended rate?","acceptedAnswer":{"@type":"Answer","text":"Because they behave differently as volume changes. A monthly minimum or lease payment (fixed) gets cheaper per job the more jobs you run; a per-unit supplier price or mileage rate (variable) does not move with volume at all. Blending them into one number hides which lever actually changes if your job count changes next quarter."}},{"@type":"Question","name":"At the default 20 jobs/month, which option actually wins?","acceptedAnswer":{"@type":"Answer","text":"The bulk supplier: $1,900/month total versus the current $2,400, for a cost of $95 per job against a $120 baseline — a $25/job saving even after the $100 fixed fee. The subcontractor option is cheaper per job than today but not as cheap as the bulk supplier at this volume, which is exactly why the table ranks all three rather than only showing yes/no."}},{"@type":"Question","name":"Is my vendor pricing uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The comparison runs entirely in your browser; nothing is sent to a server. “Save draft” writes your scenarios to this browser's local storage and restores them the next time you open the page, “Copy share link” encodes the same fields into the page's URL fragment so you can hand the comparison to someone else, and the optional usage counter records only which buttons were used, never your rates or volumes."}}]}</script>
+<style>
+:root{font-family:Inter,system-ui,sans-serif;color:#17231c;background:#e8efe9}body{max-width:1050px;margin:auto;padding:28px 16px}h1{font-size:clamp(2.2rem,6vw,4.5rem);line-height:.95;letter-spacing:-.06em;max-width:700px;margin:8px 0 14px}p{line-height:1.5}.kicker{color:#16734b;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:.78rem}.grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}.card{background:#fff;border:1px solid #cbd9cf;border-radius:14px;padding:20px;box-shadow:0 8px 30px #12351b12}label{display:grid;gap:5px;font-weight:650;margin:12px 0}input{box-sizing:border-box;width:100%;padding:10px;border:1px solid #9db6a4;border-radius:7px;font:inherit}.scenario{border-top:1px solid #d9e4dc;margin-top:16px;padding-top:7px}.results{overflow:auto}table{border-collapse:collapse;width:100%;min-width:620px}th,td{text-align:right;padding:12px 8px;border-bottom:1px solid #d9e4dc}th:first-child,td:first-child{text-align:left}th{font-size:.78rem;text-transform:uppercase;color:#486454}.best{background:#e0f3e7;font-weight:750}.hero{background:#164b32;color:#effff4;border-radius:12px;padding:18px;margin-bottom:16px}.hero strong{font-size:2.2rem;display:block}.note{font-size:.88rem;color:#53685a}.hero .note{color:#c9ead5}.danger{color:#9a351d}.controls{display:flex;gap:12px;align-items:center;margin-top:18px}button{border:0;border-radius:7px;padding:10px 14px;background:#16734b;color:white;font:inherit;font-weight:750;cursor:pointer}@media(max-width:760px){.grid{grid-template-columns:1fr}body{padding:20px 12px}}
+
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style></head><body><header><div class="kicker">Decision tool for service operators</div><h1>Does the vendor rate actually save you money?</h1><p>Compare your current cost with supplier discounts, subcontractor rates, or equipment leases at the job volume you really expect.</p><p><a href="./is-switching-vendors-worth-it.html">Is switching vendors worth it?</a></p></header>
+<main class="grid"><section class="card"><h2>Your current operation</h2><label>Jobs per month<input id="jobs" type="number" min="1" step="1" value="20"></label><label>Revenue per job<input id="revenue" type="number" min="0" step="1" value="500"></label><label>Current fixed cost / month<input id="baseFixed" type="number" min="0" step="1" value="0"></label><label>Current variable cost / job<input id="baseVariable" type="number" min="0" step="1" value="120"></label><div id="scenarioInputs"></div><div class="controls"><button id="add" type="button">Add scenario</button><button id="save" type="button">Save draft</button><button id="copyShare" type="button">Copy share link</button><span id="shareStatus" class="note" role="status" aria-live="polite"></span></div><label class="note"><input id="optout" type="checkbox"> Do not count anonymous local usage events</label></section>
+<section class="card" aria-live="polite"><div class="hero"><span>Best at this volume</span><strong id="best">Enter costs below</strong><span id="bestNote" class="note"></span></div><div class="results"><table><thead><tr><th>Option</th><th>Monthly cost</th><th>Cost / job</th><th>Savings / job</th><th>Break-even</th></tr></thead><tbody id="results"></tbody></table></div><p class="note">Break-even is an estimate based only on the fixed and per-job costs you enter. Review contracts, taxes, fuel, minimums, and service quality separately.</p></section>
+
+<section id="faq">
+<h2>Common questions</h2>
+
+<h3>Why does one scenario break even at zero jobs and another need four?</h3>
+<p>Break-even only exists when a scenario charges a fixed fee the baseline does not. In the built-in example, the bulk supplier adds a $100/month fee but drops the per-job cost from $120 to $90 &mdash; a $30/job saving, so it takes ceil($100 &divide; $30) = 4 jobs before that fee is paid back. The subcontractor scenario has no fixed fee at all, only a $5/job saving, so there is nothing to recoup and it shows as cheaper starting from job one.</p>
+
+<h3>What does &ldquo;Not cheaper&rdquo; mean in the break-even column?</h3>
+<p>It means the scenario loses on both numbers: its per-job cost is higher than your current variable cost <em>and</em> its fixed cost is the same or higher, so no volume of jobs ever makes it win &mdash; there is no break-even point to reach, not just a distant one. Compare the &ldquo;Cost / job&rdquo; and &ldquo;Savings / job&rdquo; columns for that row: a negative savings figure is why.</p>
+
+<h3>What does &ldquo;Below N jobs/mo&rdquo; mean?</h3>
+<p>The opposite trade from a fixed-fee break-even: this scenario has a <em>lower</em> fixed cost than your baseline but a <em>higher</em> per-job cost, so it wins at low volume on the fixed-cost saving alone and loses that lead once enough jobs push the higher per-job rate past it. It is cheaper only while your monthly job count stays below the number shown &mdash; run more jobs than that and the current operation (or a scenario with a lower per-job cost) wins instead. A no-minimum, pay-per-job vendor compared against a leased or subscription-priced one is the usual shape of this case.</p>
+
+<h3>Why enter fixed cost and per-job cost separately instead of one blended rate?</h3>
+<p>Because they behave differently as volume changes. A monthly minimum or lease payment (fixed) gets cheaper per job the more jobs you run; a per-unit supplier price or mileage rate (variable) does not move with volume at all. Blending them into one number hides which lever actually changes if your job count changes next quarter.</p>
+
+<h3>At the default 20 jobs/month, which option actually wins?</h3>
+<p>The bulk supplier: $1,900/month total versus the current $2,400, for a cost of $95 per job against a $120 baseline &mdash; a $25/job saving even after the $100 fixed fee. The subcontractor option is cheaper per job than today but not as cheap as the bulk supplier at this volume, which is exactly why the table ranks all three rather than only showing yes/no.</p>
+
+<h3>Is my vendor pricing uploaded anywhere?</h3>
+<p>No. The comparison runs entirely in your browser; nothing is sent to a server. &ldquo;Save draft&rdquo; writes your scenarios to this browser's local storage and restores them the next time you open the page, &ldquo;Copy share link&rdquo; encodes the same fields into the page's URL fragment so you can hand the comparison to someone else, and the optional usage counter records only which buttons were used, never your rates or volumes.</p>
+</section>
+</main>
+<footer class="note">
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Your data stays in this browser; no inputs are uploaded. Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+import { compare } from './calc.mjs';
+import { recordUsage, setUsageOptOut } from './usage.mjs';
+import { encodeShare, decodeShare } from './share.mjs';
+
+const $ = (id) => document.getElementById(id);
+const money = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+const escapeHtml = (value) => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
+let scenarios = [['Bulk supplier', 100, 90], ['Subcontractor', 0, 115]];
+
+function renderInputs() {
+  $('scenarioInputs').innerHTML = scenarios.map((row, i) => `<div class="scenario"><label>Scenario ${i + 1} name<input data-i="${i}" data-k="name" value="${escapeHtml(row[0])}"></label><label>Fixed cost / month<input data-i="${i}" data-k="fixed" type="number" min="0" value="${row[1]}"></label><label>Variable cost / job<input data-i="${i}" data-k="variable" type="number" min="0" value="${row[2]}"></label></div>`).join('');
+  document.querySelectorAll('#scenarioInputs input').forEach((field) => {
+    field.addEventListener('input', () => {
+      const i = Number(field.dataset.i);
+      const key = field.dataset.k;
+      scenarios[i][key === 'name' ? 0 : key === 'fixed' ? 1 : 2] = key === 'name' ? field.value : Number(field.value);
+      update();
+    });
+  });
+}
+
+function update() {
+  try {
+    const result = compare({
+      jobsPerMonth: +$('jobs').value,
+      revenuePerJob: +$('revenue').value,
+      baseFixedMonthly: +$('baseFixed').value,
+      baseVariablePerJob: +$('baseVariable').value,
+      scenarios: scenarios.map((row) => ({ name: row[0], fixedMonthly: row[1], variablePerJob: row[2] })),
+    });
+    const rows = [{ name: 'Current operation', ...result.baseline, savingsPerJob: 0, breakEvenJobs: null, cheaperUpToJobs: null }, ...result.scenarios];
+    const best = rows.reduce((a, b) => (b.costPerJob < a.costPerJob ? b : a));
+    $('best').textContent = best.name;
+    $('bestNote').textContent = `${money(best.costPerJob)} per job at ${result.jobs} jobs/month`;
+    $('results').innerHTML = rows.map((row) => `<tr class="${row === best ? 'best' : ''}"><th>${escapeHtml(row.name)}</th><td>${money(row.monthlyCost)}</td><td>${money(row.costPerJob)}</td><td class="${row.savingsPerJob < 0 ? 'danger' : ''}">${money(row.savingsPerJob)}</td><td>${row.breakEvenJobs === 0 ? 'Already cheaper' : row.breakEvenJobs !== null ? `${row.breakEvenJobs} jobs/mo` : row.cheaperUpToJobs !== null ? `Below ${row.cheaperUpToJobs} jobs/mo` : 'Not cheaper'}</td></tr>`).join('');
+  } catch (error) {
+    $('best').textContent = error.message;
+    $('bestNote').textContent = '';
+    $('results').innerHTML = '';
+  }
+}
+
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand('copy');
+    fallback.remove();
+  }
+}
+
+function readShareInput() {
+  return {
+    jobs: $('jobs').value,
+    revenue: $('revenue').value,
+    baseFixed: $('baseFixed').value,
+    baseVariable: $('baseVariable').value,
+    scenarios,
+  };
+}
+
+// A restored value (from a share link or the saved draft) always replaces
+// the built-in demo scenarios rather than being appended to them -- the
+// visitor is looking at the sender's comparison, not the sender's rows
+// mixed into the sample data.
+function applyValues(values) {
+  if (typeof values.jobs !== 'undefined') $('jobs').value = values.jobs;
+  if (typeof values.revenue !== 'undefined') $('revenue').value = values.revenue;
+  if (typeof values.baseFixed !== 'undefined') $('baseFixed').value = values.baseFixed;
+  if (typeof values.baseVariable !== 'undefined') $('baseVariable').value = values.baseVariable;
+  if (Array.isArray(values.scenarios) && values.scenarios.length > 0) {
+    scenarios = values.scenarios.map((row) => [...row]);
+  }
+}
+
+function restoreDraft() {
+  // "Save draft" writes vendor-rate-break-even-draft on every click, but
+  // nothing ever read it back on load -- a returning user always saw the
+  // hardcoded demo scenarios instead of their own comparison. This reads it
+  // once, before the first render, so reopening the tool actually returns to
+  // where the user left off. A share link takes priority over this (see the
+  // load sequence below): opening a link someone sent means seeing the
+  // comparison they sent, not the visitor's own last draft.
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('vendor-rate-break-even-draft') || 'null'); } catch { saved = null; }
+  if (!saved || typeof saved !== 'object') return;
+  applyValues(saved);
+}
+
+async function copyShare() {
+  const hash = encodeShare(readShareInput());
+  const url = `${location.origin}${location.pathname}#${hash}`;
+  await writeClipboard(url);
+  history.replaceState(null, '', `#${hash}`);
+  recordUsage('share_copied');
+  $('shareStatus').textContent = 'Share link copied';
+  setTimeout(() => { $('shareStatus').textContent = ''; }, 2500);
+}
+
+['jobs', 'revenue', 'baseFixed', 'baseVariable'].forEach((id) => $(id).addEventListener('input', update));
+$('add').onclick = () => {
+  if (scenarios.length < 3) {
+    scenarios.push(['New scenario', 0, 0]);
+    renderInputs();
+    update();
+    recordUsage('scenario_added');
+  }
+};
+$('save').onclick = () => {
+  localStorage.setItem('vendor-rate-break-even-draft', JSON.stringify({
+    scenarios,
+    jobs: $('jobs').value,
+    revenue: $('revenue').value,
+    baseFixed: $('baseFixed').value,
+    baseVariable: $('baseVariable').value,
+  }));
+  recordUsage('draft_saved');
+  $('save').textContent = 'Saved';
+  setTimeout(() => { $('save').textContent = 'Save draft'; }, 1000);
+};
+$('copyShare').addEventListener('click', () => {
+  copyShare().catch(() => { $('shareStatus').textContent = 'Copy failed.'; });
+});
+$('optout').onchange = () => setUsageOptOut($('optout').checked);
+
+const shared = decodeShare(location.hash);
+if (shared) applyValues(shared);
+else restoreDraft();
+renderInputs();
+update();
+recordUsage('comparison_completed');
+</script></body></html>

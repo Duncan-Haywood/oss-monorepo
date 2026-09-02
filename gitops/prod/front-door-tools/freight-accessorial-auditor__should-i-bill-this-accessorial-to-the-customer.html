@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/freight-accessorial-auditor/should-i-bill-this-accessorial-to-the-customer.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I bill this accessorial to the customer? | Eat vs pass-through vs review</title>
+  <meta name="description" content="A $300 detention on $180 prepaid freight: eating it is −$120. Billing the customer keeps $180. A 1.5-hour review that recovers the $225 clock gap keeps $42 after $63 labor.">
+  
+  
+  <meta property="og:title" content="Should I bill this accessorial to the customer?">
+  <meta property="og:description" content="Compare eating a billed extra, invoicing the customer, or paying first and filing a review. Arithmetic on your invoice, not a claim.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight accessorial pass-through compare","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Eat vs bill-the-customer vs review-for-credit, AP labor on a typed hourly cost, hours the gap can buy"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I bill this accessorial to the customer?","acceptedAnswer":{"@type":"Answer","text":"On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim."}},{"@type":"Question","name":"When does reviewing a freight extra cost more than eating it?","acceptedAnswer":{"@type":"Answer","text":"When the gap is crumbs and the review is expensive. An $80 line against $30 supported is a $50 gap. Ten hours at $125/hr is $1,250.00 of labor. Eating that line on $80 already collected keeps $0.00. A credit still finishes $1,200.00 behind eating."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #f5f1e8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9a092; border-radius: 7px; padding: 10px; font: inherit; }
+    input:focus { outline: 3px solid #f0c19a; outline-offset: 2px; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d0c2; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .9rem; color: #445064; }
+    .error { color: #9a3412; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <p><a href="./">← Freight accessorial invoice auditor</a></p>
+  <h1>Should I bill this accessorial to the customer?</h1>
+  <p>
+    Shippers search this after the carrier invoices detention, a liftgate,
+    or a reweigh the quote never showed. AP can eat it, add a line on the
+    customer invoice, or pay first and ask for a credit. Those are
+    different cash.
+  </p>
+  <p>
+    On the default prepaid collect — <strong>$180.00 already collected</strong>,
+    a <strong>$300.00</strong> detention against <strong>$75.00 supported</strong>
+    — the gap is <strong>$225.00</strong>. Eating the line keeps
+    <strong>−$120.00</strong>. Billing the customer $300.00 keeps
+    <strong>$180.00</strong>. A 1.5-hour review at $42/hr ($63.00 labor)
+    that recovers the gap keeps <strong>$42.00</strong>. The same review
+    with no credit keeps <strong>−$183.00</strong>.
+  </p>
+  <p>
+    The $225.00 gap buys <strong>5.36 hours</strong> of review at that
+    rate. A $50 gap against ten hours at $125/hr ($1,250.00) finishes
+    $1,200.00 behind eating. Type the confirmation amount, not a portal
+    default.
+  </p>
+  <form id="passThroughForm" class="fields">
+    <label>Billed accessorial ($) <input id="billed" type="number" min="0" step="0.01" value="300"></label>
+    <label>Expected / supported ($) <input id="expected" type="number" min="0" step="0.01" value="75"></label>
+    <label>Freight already collected ($) <input id="collectedFreight" type="number" min="0" step="0.01" value="180"></label>
+    <label>Amount you would bill the customer ($) <input id="backCharge" type="number" min="0" step="0.01" value="300"></label>
+    <label>Review hours <input id="reviewHours" type="number" min="0" step="0.1" value="1.5"></label>
+    <label>Review hourly cost ($) <input id="reviewRate" type="number" min="0" step="0.01" value="42"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <p id="formError" class="error" hidden></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Customer pays extra</th>
+        <th scope="col">Review labor</th>
+        <th scope="col">Cash you keep</th>
+        <th scope="col">vs eat</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table>
+  <p class="note">
+    Complementary to the
+    <a href="./">multi-line accessorial auditor</a>,
+    the
+    <a href="should-i-dispute-this-detention-charge.html">detention clock</a>,
+    and
+    <a href="does-this-fuel-surcharge-match-the-contract.html">fuel percent versus linehaul</a>
+    (is the bill right?). This page is who holds the cash after you pay
+    the carrier. It does not invoice anyone or file a claim.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I bill this accessorial to the customer?</h3>
+  <p>On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim.</p>
+  <h3>When does reviewing a freight extra cost more than eating it?</h3>
+  <p>When the gap is crumbs and the review is expensive. An $80 line against $30 supported is a $50 gap. Ten hours at $125/hr is $1,250.00 of labor. Eating that line on $80 already collected keeps $0.00. A credit still finishes $1,200.00 behind eating.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { comparePassThrough, passThroughNote } from "./audit.mjs";
+    import { countUsage } from "./usage.mjs";
+
+    const ids = ["billed", "expected", "collectedFreight", "backCharge", "reviewHours", "reviewRate"];
+
+    function money(value) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+    }
+
+    function update() {
+      const error = document.getElementById("formError");
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = comparePassThrough(raw);
+        error.hidden = true;
+        error.textContent = "";
+        document.getElementById("summary").textContent = passThroughNote(result);
+        document.getElementById("verdict").textContent =
+          result.winnerId === "bill"
+            ? `Billing the customer keeps ${money(result.winnerKept)} on these inputs — ${money(result.vsEatBill)} more than eating`
+            : result.winnerId === "reviewCredit"
+              ? `A review that recovers the gap keeps ${money(result.winnerKept)} on these inputs — ${money(result.vsEatReviewCredit)} more than eating`
+              : result.winnerId === "eat"
+                ? `Eating the charge keeps ${money(result.winnerKept)} on these inputs — the other paths keep less`
+                : `A review with no credit keeps ${money(result.winnerKept)} on these inputs`;
+        const rows = result.paths.map((row) => [
+          row.label,
+          money(row.customerPays),
+          money(row.labor),
+          money(row.kept),
+          money(row.kept - result.eat),
+        ]);
+        document.getElementById("compare").innerHTML = rows.map((cells) => (
+          `<tr>${cells.map((cell, index) => `<t${index === 0 ? "h" : "d"}${index === 0 ? ' scope="row"' : ""}>${cell}</t${index === 0 ? "h" : "d"}>`).join("")}</tr>`
+        )).join("");
+      } catch (err) {
+        error.hidden = false;
+        error.textContent = err.message;
+        document.getElementById("summary").textContent = "";
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        countUsage("pass_through_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

@@ -874,23 +874,89 @@ def test_portfolio_front_mounts_only_generated_configmaps() -> None:
     # taken on the site's failure modes and the apex goes dark with it.
     pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
     assert "initContainers" not in pod
+    # `projected` joined this set when the tool mirror was sharded: several
+    # ConfigMaps merged into one mountPath is what lifted the apex past the
+    # ~20 tools a single 1 MiB object could hold. It carries no more capability
+    # than `configMap` does — no Secret, no PVC, no downward API — which is the
+    # property this assertion is really about.
     for volume in pod["volumes"]:
-        assert set(volume) <= {"name", "configMap", "emptyDir"}, volume
-    # Both kustomizations that can generate a ConfigMap into this namespace.
-    # `front-door-tools/` is a nested one (its file list is machine-written, one
-    # line per mirrored file, so it lives in its own directory rather than
-    # inflating `prod/kustomization.yaml`), and it is still a generator: what
-    # this assertion cares about is that nothing here is mounted from an object
-    # no kustomization in the tree produces.
+        assert set(volume) <= {"name", "configMap", "emptyDir", "projected"}, volume
+    for volume in pod["volumes"]:
+        for source in volume.get("projected", {}).get("sources", []):
+            assert set(source) <= {"configMap"}, source
+    mounted = _front_door_mounted_configmaps(pod)
+    generated = _front_door_generated_configmaps()
+    assert mounted <= generated, f"{mounted - generated} is mounted but not generated"
+
+
+# Both kustomizations that can generate a ConfigMap into this namespace.
+# `front-door-tools/` is a nested one (its file list is machine-written, one
+# line per mirrored file, so it lives in its own directory rather than
+# inflating `prod/kustomization.yaml`), and it is still a generator.
+_FRONT_DOOR_KUSTOMIZATIONS = (
+    ROOT / "prod" / "kustomization.yaml",
+    ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
+)
+
+
+def _front_door_generated_configmaps() -> set:
     generated = set()
-    for kustomization in (
-        ROOT / "prod" / "kustomization.yaml",
-        ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
-    ):
+    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
         parsed = yaml.safe_load(kustomization.read_text())
         generated |= {entry["name"] for entry in parsed.get("configMapGenerator", [])}
+    return generated
+
+
+def _front_door_mounted_configmaps(pod: dict) -> set:
     mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
-    assert mounted <= generated, f"{mounted - generated} is mounted but not generated"
+    for volume in pod["volumes"]:
+        for source in volume.get("projected", {}).get("sources", []):
+            mounted.add(source["configMap"]["name"])
+    return mounted
+
+
+def _mirror_shard_names() -> list:
+    """Shard ConfigMaps in the order `front-door-tools/kustomization.yaml` declares them."""
+    parsed = yaml.safe_load(
+        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+    )
+    return [entry["name"] for entry in parsed["configMapGenerator"]]
+
+
+def test_portfolio_front_mounts_every_generated_mirror_shard() -> None:
+    # The generator decides how many shards there are; this Deployment names
+    # them by hand. Both directions of a disagreement are silent, which is why
+    # they are pinned rather than trusted:
+    #
+    #   a shard generated but not mounted -> those tools are simply missing
+    #       from the apex, with every manifest valid and every pod Ready;
+    #   a shard mounted but not generated -> the pods never leave
+    #       ContainerCreating, and `maxUnavailable: 0` keeps the previous front
+    #       door serving a stale mirror while `prod` sits Degraded.
+    #
+    # Order matters too, though only for legibility: a reader comparing the two
+    # files should not have to sort them in their head.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    volume = next(v for v in pod["volumes"] if v["name"] == "tools")
+    mounted = [s["configMap"]["name"] for s in volume["projected"]["sources"]]
+    generated = _mirror_shard_names()
+    assert mounted == generated, (
+        f"portfolio-front.yaml mounts {mounted} but front-door-tools/kustomization.yaml "
+        f"generates {generated}. Regenerate with `node "
+        "platform/marketing/front-door-tools.mjs --write` and update the projected "
+        "volume's source list to match."
+    )
+    # Named by index from zero, with no gaps: the generator's `shardName`, and
+    # what makes a missing shard obvious to a human scanning either file.
+    assert generated == [f"portfolio-front-tools-{i}" for i in range(len(generated))]
+
+
+def test_the_mirror_is_sharded_because_one_object_could_not_hold_it() -> None:
+    # Pins that sharding has a subject. If a later change shrinks the mirror
+    # back to a single shard, this fails and asks for a decision rather than
+    # letting the projected volume and its long comment quietly become
+    # decoration that the next reader simplifies away.
+    assert len(_mirror_shard_names()) > 1
 
 
 def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
@@ -898,10 +964,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # content or a regenerated page never reaches a running pod. The usage
     # script is the deliberate exception: a CronJob names it directly.
     by_name = {}
-    for kustomization in (
-        ROOT / "prod" / "kustomization.yaml",
-        ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
-    ):
+    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
         parsed = yaml.safe_load(kustomization.read_text())
         # A nested kustomization can set the option globally rather than per
         # entry, so fold `generatorOptions` down onto each generator before
@@ -912,7 +975,7 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
             merged = dict(entry)
             merged["options"] = {**shared, **entry.get("options", {})}
             by_name[entry["name"]] = merged
-    for name in ("portfolio-front-html", "portfolio-front-nginx", "portfolio-front-tools"):
+    for name in ("portfolio-front-html", "portfolio-front-nginx", *_mirror_shard_names()):
         options = by_name[name].get("options", {})
         assert not options.get("disableNameSuffixHash"), (
             f"{name} is mounted by a Deployment; without the hash a content "
@@ -1047,16 +1110,22 @@ def test_the_apex_tool_mirror_is_the_case_that_ceiling_is_about() -> None:
     # only check on the delivery path — and the annotation left behind would
     # look like decoration to the next reader rather than the thing that made
     # #2739 deliverable at all.
+    shards = _mirror_shard_names()
     mirror = {
         name: (body, annotations)
         for name, _, body, annotations in _generated_configmaps()
-        if name == "portfolio-front-tools"
+        if name in shards
     }
-    body, annotations = mirror["portfolio-front-tools"]
-    assert len(body) > CLIENT_SIDE_APPLY_CEILING
-    assert annotations["argocd.argoproj.io/sync-options"] == "ServerSideApply=true"
-    # And still inside the ceiling that comment tree already knew about.
-    assert len(body) < ETCD_OBJECT_CEILING
+    assert sorted(mirror) == sorted(shards), f"{set(shards) - set(mirror)} did not build"
+    for name in shards:
+        body, annotations = mirror[name]
+        # Every shard, not just the first: an annotation present on shard 0 and
+        # missing on shard 3 is the same outage three shards later, and the
+        # failure would look like "some tools 404" rather than like a bad apply.
+        assert len(body) > CLIENT_SIDE_APPLY_CEILING, name
+        assert annotations["argocd.argoproj.io/sync-options"] == "ServerSideApply=true", name
+        # And still inside the ceiling that comment tree already knew about.
+        assert len(body) < ETCD_OBJECT_CEILING, name
 
 
 def test_generated_configmaps_stay_under_the_etcd_object_ceiling() -> None:
@@ -1100,11 +1169,11 @@ def test_the_mirror_byte_ceiling_trips_before_this_one_does() -> None:
     # serialise to 667,371). Being generous here is the safe direction — it
     # makes this test complain sooner, not later.
     source = (REPO / "platform" / "marketing" / "front-door-tools.mjs").read_text()
-    match = re.search(r"BYTE_CEILING = (\d+) \* 1024", source)
-    assert match, "front-door-tools.mjs no longer declares BYTE_CEILING in KiB"
+    match = re.search(r"SHARD_BYTE_CEILING = (\d+) \* 1024", source)
+    assert match, "front-door-tools.mjs no longer declares SHARD_BYTE_CEILING in KiB"
     byte_ceiling = int(match.group(1)) * 1024
     assert byte_ceiling * 1.05 < ETCD_OBJECT_BUDGET, (
-        f"BYTE_CEILING is {byte_ceiling} bytes of content, which could serialise past the "
+        f"SHARD_BYTE_CEILING is {byte_ceiling} bytes of content, which could serialise past the "
         f"{ETCD_OBJECT_BUDGET}-byte budget here. Lower it, or lower it and raise this budget "
         "together — never leave the object check as the only one that fires."
     )
@@ -1133,10 +1202,34 @@ def test_portfolio_front_fits_the_prod_quota() -> None:
     container = spec["template"]["spec"]["containers"][0]
     replicas = spec["replicas"]
     # Millicores and mebibytes, small enough that exact parsing is overkill.
-    assert container["resources"]["requests"]["cpu"] == "20m"
-    assert container["resources"]["requests"]["memory"] == "32Mi"
+    requests = container["resources"]["requests"]
+    limits = container["resources"]["limits"]
+    assert requests["cpu"] == "20m"
+    request_mi = int(requests["memory"].removesuffix("Mi"))
+    limit_mi = int(limits["memory"].removesuffix("Mi"))
     assert replicas * 20 < int(quota["requests.cpu"]) * 1000
-    assert replicas * 32 < int(quota["requests.memory"].removesuffix("Gi")) * 1024
+    assert replicas * request_mi < int(quota["requests.memory"].removesuffix("Gi")) * 1024
+    assert replicas * limit_mi < int(quota["limits.memory"].removesuffix("Gi")) * 1024
+
+    # The memory limit is sized by the mirror, not by nginx, and that is the
+    # part worth pinning. A ConfigMap volume is tmpfs, charged to the pod's
+    # memory cgroup, so the whole projected `tools` volume is resident in every
+    # replica. At `MIRROR_BYTE_CEILING` the mirror alone would have been ~10 MiB
+    # from OOMKilling both replicas under the old 64Mi limit — and the symptom
+    # of getting this wrong is not a slow page, it is the apex crash-looping
+    # some months after whoever raised the mirror ceiling has gone.
+    #
+    # Twice the ceiling, so nginx's own ~10 MiB and the page cache have room
+    # that does not have to be re-derived every time the mirror grows.
+    source = (REPO / "platform" / "marketing" / "front-door-tools.mjs").read_text()
+    match = re.search(r"MIRROR_BYTE_CEILING = (\d+) \* 1024 \* 1024", source)
+    assert match, "front-door-tools.mjs no longer declares MIRROR_BYTE_CEILING in MiB"
+    mirror_ceiling_mi = int(match.group(1))
+    assert limit_mi >= mirror_ceiling_mi * 2, (
+        f"the mirror may grow to {mirror_ceiling_mi}Mi of tmpfs in each replica, against a "
+        f"{limit_mi}Mi memory limit. Raise the limit or lower MIRROR_BYTE_CEILING — the pod "
+        "is OOMKilled, not throttled, when tmpfs and the process together cross it."
+    )
 
 
 def test_portfolio_apex_matches_the_site_certificate_issuer() -> None:
