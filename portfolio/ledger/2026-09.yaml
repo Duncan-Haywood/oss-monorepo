@@ -4953,3 +4953,56 @@ entries:
         `codex-secrets` is sealed and the governor unsuspended. No duplicate
         owner ask added.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `deploy-cicd-readiness` (queue priority 7) by hand. 0 open PRs at
+        start. `pytest gitops/tests -q` 265/265, `kustomize build` +
+        `kubeconform -strict` clean on all six overlays, `actionlint` 0
+        issues across all 221 workflows, `validate_workflows.py` 221/221,
+        `check_duplicate_symbols.py` clean, `publish_surface.py --check`
+        matching CLAUDE.md's own claimed state -- no manifest or workflow
+        defect found this pass (matches the earlier same-day "clean pass"
+        and #2862's confirmation). Picked candidate 4 instead: a documented
+        claim CLAUDE.md itself and #2856's ledger entry had already shown
+        false. "Absent CI is not failed CI" said bot/agent PRs here "do not
+        trigger Actions... most PRs here show zero checks," on #1006's
+        naming of `GITHUB_TOKEN` as the mechanism. Agent PRs authenticate
+        with the fine-grained PAT `GH_TOKEN`, not the in-workflow
+        `secrets.GITHUB_TOKEN` GitHub's no-recursion rule applies to, so the
+        restriction never held for them -- and this PR's own #2868 checks
+        (13 created, matching #2856) are a second confirmation, live.
+        `platform/pages/clauses.mjs` carried the identical premise as its
+        reason for running the no-warranty check from venture CI ("the only
+        place a PR that adds a venture reliably gets checked"), also false
+        independent of the token question: `portfolio-validate.yml`'s own
+        `pull_request.paths` already covers `ventures/**/*.html` and runs
+        the same check unscoped. Corrected both comments (no functional
+        change). Shipped and merged #2868.
+      - >-
+        Found, and am recording rather than fixing (out of this item's
+        scope): `main` at 90af6deeb has a live, currently-red regression in
+        `portfolio-pages.yml`'s `build` job, introduced by #2865/#2866
+        (landed minutes before this pass, both after this session's branch
+        point). `duct-cleaning-bid-calculator/vs-jobber.html` and
+        `egress-window-bid-calculator/vs-jobnimbus.html` each carry FAQPage
+        JSON-LD whose answer text has drifted from the visible `<p>` prose
+        on the page (verified directly: the JSON-LD enumerates "extra air
+        handlers, extra supply vents, extra returns" where the visible copy
+        now reads "extra systems, extra vents and returns" -- a real
+        divergence, not the punctuation-only case `faq-visible.test.mjs`
+        treats as already-fixed). `build`'s first step is the full
+        `platform/pages/*.test.mjs` suite before `build.mjs` even runs, so
+        this fails that job on every push to `main` and every PR touching
+        `ventures/**` until fixed -- confirmed via #2868's own PR checks,
+        which inherited the failure through the merge-test despite #2868
+        touching neither file. `check.mjs`/the in-cluster site build are
+        unaffected (this assertion lives only in the test suite), so the
+        live/would-be-live site content is not at risk, only the `build`
+        CI job. Next session on `marketing-distribution` or
+        `product-feature-improvement`: fix the two pages' visible prose (or
+        JSON-LD) to match, per the test's own guidance in its failure
+        message.
+    mrr_end: null
