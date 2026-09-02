@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate that every .github/workflows file is a well-formed GitHub workflow.
 
-Four invariants:
+Five invariants:
 
 1. Parseability. An unparseable workflow file fails silently: GitHub registers
    it with its `name` set to its own path, then emits a zero-job
@@ -34,8 +34,20 @@ Four invariants:
    `retail-pilot-intel-ci.yml` all carried the generic `name: CI`, unlike every
    other venture workflow's `"<slug> CI"`.
 
+5. No `vars.GITHUB_*` or `secrets.GITHUB_*` reference. GitHub reserves that
+   prefix and refuses to create a configuration variable or secret carrying it,
+   so such a reference resolves to the empty string forever -- and does it
+   silently, because a job skipped by a false `if:` is a *successful* run. This
+   is the one invariant here written from a bug that shipped:
+   `portfolio-pages.yml` gated the entire Pages deploy on
+   `vars.GITHUB_PAGES_ENABLED`, so the "one owner flip" that the decision
+   queue, `portfolio/DIRECTION.md` and `platform/pages/README.md` all pointed
+   at could never have published a page. Nothing was red; it was found by
+   reading the file. `secrets.GITHUB_TOKEN` is GitHub's own and is allowed.
+
 Usage: python3 platform/ci/validate_workflows.py
 """
+import re
 import sys
 from pathlib import Path
 
@@ -126,6 +138,67 @@ def check(path, errors):
                 f"(missing at top level and on job(s): {', '.join(jobs_without_scope)}) "
                 "-- add `permissions:` (e.g. `contents: read`) to pin least privilege"
             )
+
+    for expr in sorted(reserved_github_refs(data)):
+        err(
+            f"references `{expr}`, whose name GitHub reserves -- a configuration "
+            "variable or secret cannot be named with a `GITHUB_` prefix, so this "
+            "reads as permanently unset and any gate built on it can never be "
+            "switched on. Rename it without the prefix "
+            f"(e.g. `{expr.split('.', 1)[0]}.{expr.split('_', 1)[1]}`)"
+        )
+
+
+# `${{ ... }}` expression bodies, wherever they appear in a scalar.
+_EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.S)
+
+# A `vars.` / `secrets.` reference inside one. `secrets.GITHUB_TOKEN` is
+# GitHub's own built-in and is excluded below; every other `GITHUB_`-prefixed
+# name is one a human would have had to create, and GitHub refuses to create it.
+_GITHUB_PREFIXED = re.compile(r"\b(vars|secrets)\.(GITHUB_[A-Za-z0-9_]+)\b")
+
+
+def reserved_github_refs(node):
+    """Every `vars.GITHUB_*` / `secrets.GITHUB_*` an expression in `node` reads.
+
+    GitHub rejects any configuration variable or user-defined secret whose name
+    begins with `GITHUB_` (case-insensitively), reserving that prefix for its
+    own context -- see the naming-conventions section of the Actions variables
+    documentation. A workflow referencing one is therefore reading a value the
+    owner was never able to set, and it fails *open and silently*: the
+    expression resolves to the empty string, so a gate like
+    `if: vars.GITHUB_X == 'true'` is simply always false.
+
+    That is not hypothetical here. `portfolio-pages.yml` gated the whole Pages
+    deploy on `vars.GITHUB_PAGES_ENABLED`, and the "one owner flip" that the
+    decision queue, `portfolio/DIRECTION.md` and `platform/pages/README.md` all
+    pointed at could never have published anything. It was found by reading the
+    file, which is the part worth not repeating -- nothing turns red, because a
+    skipped job is a successful run.
+
+    Scans parsed YAML rather than the file's text on purpose: `GITHUB_`-prefixed
+    names are discussed in several workflow headers precisely because of that
+    bug, and a text scan would fail those files for describing the trap they
+    already avoid.
+
+    `secrets.GITHUB_TOKEN` is the one legitimate spelling -- GitHub injects it
+    and nobody creates it -- so it is excluded rather than reported.
+    """
+    found = set()
+    if isinstance(node, dict):
+        for key, value in node.items():
+            found |= reserved_github_refs(key)
+            found |= reserved_github_refs(value)
+    elif isinstance(node, list):
+        for item in node:
+            found |= reserved_github_refs(item)
+    elif isinstance(node, str):
+        for body in _EXPRESSION.findall(node):
+            for context, name in _GITHUB_PREFIXED.findall(body):
+                if (context, name) == ("secrets", "GITHUB_TOKEN"):
+                    continue
+                found.add(f"{context}.{name}")
+    return found
 
 
 def check_unique_names(paths):
