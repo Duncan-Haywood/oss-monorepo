@@ -5,6 +5,39 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Made the front door shipped earlier this session measurable, which it
+        deliberately was not at merge. `usage/aggregate.py` selected
+        `app=portfolio-site`, and `slug_for("/index.html")` returns the hub key
+        for the apex page and the catalogue's front page alike -- so folding
+        the new pod in would have added apex visits to `_hub`, answering "did
+        anyone find the portfolio" and "did anyone browse the catalogue" with
+        one number that nothing downstream could separate again. The selector
+        now covers both workloads and an `APP_KEYS` map routes each pod's lines
+        by its `app` label: the site keeps its existing keys unprefixed (the
+        stored history depends on those names), the front door gets `_front`.
+      - >-
+        One row rather than a per-path split, because the front door's nginx
+        does `try_files /index.html =404` and `$uri` is logged after
+        `try_files` resolves -- every request it counts logs the same URI, so a
+        breakdown would be fiction. `/healthz` sets `access_log off`, so probes
+        never reach the aggregator.
+      - >-
+        The routing came out of `main()` into `fold_for_app()` so the decision
+        that matters is testable without a cluster. Five tests added, including
+        one that pins the selector and the key map against each other and
+        against the Deployments in `gitops/prod` -- the drift that would
+        silently drop a workload's traffic (a pod selected but unkeyed is
+        counted nowhere; a key for an app never selected is a row that can
+        never appear) is invisible in production, so it is checked in git.
+      - >-
+        Verified: 299 Python tests (gitops + publish_surface), `kustomize build
+        gitops/prod` clean, pyflakes clean, and the set-based selector's URL
+        encoding round-trips.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Shipped the portfolio's first surface a stranger can reach.
         `marisstella.dev` and `www.marisstella.dev` have answered since
         2026-08-28, but only as annotation-only 301s into

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Turn the public site's nginx access log into a per-tool daily page count.
+"""Turn the public nginx access logs into a per-page daily count.
 
 Why this exists
 ---------------
@@ -17,6 +17,11 @@ already receives every request; the only question is what it is allowed to
 remember. `portfolio-site.yaml` narrows the access log to three fields — the
 timestamp, the status, and the resolved path — and this job reads those lines
 back and reduces them to one integer per tool per day.
+
+Since 2026-09-02 it reads two workloads, not one: the tools site, and the apex
+front door added by `portfolio-front.yaml`, whose nginx writes the same narrow
+format. The front door's visits land on their own key rather than on the hub's
+— see APP_KEYS for why conflating them would make both numbers unreadable.
 
 What it can and cannot see, by construction
 -------------------------------------------
@@ -82,6 +87,41 @@ PAGE_SUFFIX = re.compile(r"(/|\.html)$")
 # cannot collide with a venture directory -- `slug_for` returns no key
 # containing "/" except the category pages, which use `c/`.
 EMBED_PREFIX = "embed/"
+
+# The apex front door gets its own row rather than being added to the hub's.
+#
+# `gitops/prod/portfolio-front.yaml` (2026-09-02) serves marisstella.dev and
+# www.marisstella.dev — a different page, on a different hostname, from the
+# tools hub. Both resolve to `/index.html`, so `slug_for` returns HUB_KEY for
+# each of them and folding the two pods together would add apex visits to the
+# hub's row: two numbers that answer opposite questions ("did anyone find the
+# portfolio" vs "did anyone browse the catalogue") reported as one, with no way
+# to separate them afterwards. That is why the front door shipped unmeasured
+# rather than mismeasured, and this is the key that fixes it.
+#
+# One key for the whole pod, not a path breakdown, because there is only ever
+# one path: that pod's nginx does `try_files /index.html =404`, and `$uri` is
+# logged after `try_files` resolves, so every request it counts logs the same
+# URI. A per-path split would be fiction. `/healthz` sets `access_log off`, so
+# probes never reach this file at all.
+FRONT_KEY = "_front"
+
+# Which key a pod's counted lines belong to, chosen by its `app` label.
+#
+# `None` means "use `slug_for`'s own keys, unprefixed" — the tools site, whose
+# rows predate this map and must keep the names the stored history already
+# uses. A string means every counted line from that pod lands on that one key.
+# A pod whose label is in neither case is skipped rather than guessed at: the
+# selector below only matches these two, so an unknown app means someone
+# widened the selector without deciding what its lines mean.
+APP_KEYS: dict[str, str | None] = {
+    "portfolio-site": None,
+    "portfolio-front": FRONT_KEY,
+}
+
+# Both apps, in one API call. A set-based selector rather than two list calls
+# so there is one code path and one place a pod can go missing from.
+DEFAULT_SELECTOR = "app in (portfolio-site,portfolio-front)"
 
 # The value nginx's `$portfolio_embed_view` map writes for a framed view. Two
 # outcomes exist and this is the one that counts; anything else (including the
@@ -160,6 +200,27 @@ def count_lines(lines: object, day: str) -> dict[str, int]:
     return dict(sorted(counts.items()))
 
 
+def fold_for_app(counts: dict[str, int], app: str | None) -> dict[str, int]:
+    """The rows one pod's counts contribute to the day, given its `app` label.
+
+    Split out of `main` so the decision that matters is testable without a
+    cluster: `main`'s own body is API calls around this.
+
+    A pod whose app maps to `None` keeps `slug_for`'s keys. One that maps to a
+    string collapses onto that single key, because it serves a single page. An
+    unrecognised app contributes nothing — the caller reports it; guessing a
+    key would put an unexplained row in a file whose whole value is that every
+    row means something.
+    """
+    if app not in APP_KEYS:
+        return {}
+    key = APP_KEYS[app]
+    if key is None:
+        return dict(counts)
+    hits = sum(counts.values())
+    return {key: hits} if hits else {}
+
+
 def merge_days(existing: dict[str, Any], day: str, counts: dict[str, int]) -> dict[str, Any]:
     """Fold one day's counts into the stored history, newest-trimmed to RETAIN_DAYS.
 
@@ -172,9 +233,10 @@ def merge_days(existing: dict[str, Any], day: str, counts: dict[str, int]) -> di
     return {
         "schema": 1,
         "note": (
-            "Aggregate page views of the public tool site. No addresses, user "
-            "agents, referrers or query strings are logged upstream, so no "
-            "field here derives from one. See portfolio/usage/README.md."
+            "Aggregate page views of the public tool site, plus the apex "
+            "front door under the key _front. No addresses, user agents, "
+            "referrers or query strings are logged upstream, so no field "
+            "here derives from one. See portfolio/usage/README.md."
         ),
         "days": kept,
     }
@@ -213,7 +275,7 @@ def _k8s(method: str, path: str, body: dict[str, Any] | None = None, raw_text: b
 
 def main() -> int:
     namespace = os.environ.get("USAGE_NAMESPACE", "prod")
-    selector = os.environ.get("USAGE_SELECTOR", "app=portfolio-site")
+    selector = os.environ.get("USAGE_SELECTOR", DEFAULT_SELECTOR)
     container = os.environ.get("USAGE_CONTAINER", "nginx")
     cm_name = os.environ.get("USAGE_CONFIGMAP", "portfolio-site-usage")
 
@@ -229,16 +291,25 @@ def main() -> int:
         print(f"usage: cannot list pods ({status}): {pods}", file=sys.stderr)
         return 1
 
-    names = [p["metadata"]["name"] for p in pods.get("items", [])]
-    if not names:
+    # (pod name, its `app` label). The label is what decides which key the
+    # pod's lines land on — see APP_KEYS.
+    found = [
+        (p["metadata"]["name"], (p["metadata"].get("labels") or {}).get("app"))
+        for p in pods.get("items", [])
+    ]
+    if not found:
         print(f"usage: no pods match {selector} in {namespace}; nothing to count")
         return 0
 
-    # Both replicas serve the same site behind one Service, so a visitor's
-    # requests land on either. Summing the two is the site's total; there is no
-    # per-pod number worth keeping.
+    # Replicas of one app serve the same page behind one Service, so a
+    # visitor's requests land on either. Summing them is that app's total;
+    # there is no per-pod number worth keeping. Summing across *apps* is a
+    # different matter, which is what APP_KEYS is for.
     total: Counter[str] = Counter()
-    for name in names:
+    for name, app in found:
+        if app not in APP_KEYS:
+            print(f"usage: skipping {name}: app={app!r} has no key in APP_KEYS", file=sys.stderr)
+            continue
         log_status, text = _k8s(
             "GET",
             f"/api/v1/namespaces/{namespace}/pods/{name}/log"
@@ -250,7 +321,7 @@ def main() -> int:
             # the other's count. Say so and carry on with a partial day.
             print(f"usage: skipping {name}: log read returned {log_status}", file=sys.stderr)
             continue
-        total.update(count_lines(text.splitlines(), day))
+        total.update(fold_for_app(count_lines(text.splitlines(), day), app))
 
     cm_status, existing = _k8s("GET", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}")
     if cm_status != 200:
