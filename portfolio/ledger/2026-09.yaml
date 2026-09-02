@@ -3592,6 +3592,170 @@ entries:
         `hcloud-scope`, `validate`, `site-test`, Portfolio Pages) came back
         green on real runners. Merged (squash) as #2794.
     mrr_end: null
+  - venture: portfolio-gitops
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        deploy-cicd-readiness, run directly (governor still owner-gated).
+        Checked open PRs and the decision queue first: #2795 (already
+        merged by the time this session got there) had just fixed a
+        different stale-comment gap in the same queue item, so this pass
+        looked for a second, distinct defect rather than duplicating it.
+        Found one worth fixing after auditing RBAC, image tags, probes,
+        resource quotas, NetworkPolicy egress CIDRs and the self-hosted CI
+        stack and finding all of them already correct: `gitops/tests/
+        test_manifests.py`'s `_prod_networkpolicies()` helper only ever
+        read `gitops/prod/networkpolicy.yaml`, so
+        `test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy`
+        kept asserting an exact three-name set that was true when #2727
+        wrote it and stayed syntactically true after #2730 added a fourth
+        prod NetworkPolicy (`portfolio-front-egress`) inside
+        `portfolio-front.yaml` instead of the shared file -- the helper
+        never saw it, so the test's own name ("portfolio-site is the only
+        ... with a NetworkPolicy") had been false since that commit
+        without anything failing. Separately, no test anywhere pinned that
+        `portfolio-front-egress`'s podSelector actually matches the
+        Deployment's pod labels, the way the sibling site policy already
+        is.
+      - >-
+        Fix: `_prod_networkpolicies()` now scans every `gitops/prod/*.yaml`
+        file for `NetworkPolicy` documents instead of one hard-coded path,
+        so a policy written into its own workload's manifest is counted
+        the same way from now on. Renamed the stale-named test to state
+        what is still true (`landing` is the only prod workload *without*
+        one) and widened its assertion to the real four-policy set; added
+        a new test pinning `portfolio-front-egress`'s podSelector match
+        and its deny-all `egress: []`. No manifest changed -- only what an
+        existing test suite checks, so nothing sealed, relaxed, or flipped.
+      - >-
+        Verified: `python3 -m pytest gitops/tests -q` -- 258 passed (257
+        on `main`; net +1 from splitting one stale test into two).
+        `kustomize build gitops/{apps,platform,prod,staging,agents,ci}`
+        (v5.6.0) -- all six build clean, byte-identical to `main`'s output.
+        `kubeconform -strict -kubernetes-version 1.31.0
+        -ignore-missing-schemas` on all six -- 66 valid, 0 invalid, 0
+        errors. `pyflakes gitops/agents/governor/governor.py` clean;
+        `infra/tests/test_infra_layout.py` + `test_hcloud_scope.py` --
+        14 + 5 passed. Opened as #2801; all seven real CI checks (`check`,
+        `gitops`, `duplicate-symbols`, `scripts`, `hcloud-scope`, `tofu`,
+        `preflight` skipped as expected on a non-dispatch push) came back
+        green on real runners -- confirmed via each check-run's `runner_id`
+        rather than assumed, since a 3-6s runner_id:0 result would have
+        been the known starvation signature, not a regression. Merged
+        (squash) as #2801.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same three-part brief as the entries above it
+        this month (deploy/CI-CD priority, Hetzner marketing, Codex
+        built-in-quota) plus an explicit reminder of that same brief in the
+        firing prompt. Independently re-ran a full supersede-check sweep of
+        the ~81 remote branches carrying unique commits vs. `main` (subset
+        of the same ~200-branch backlog #2796 swept in parallel this run)
+        before seeing that PR; reached the identical conclusion by hand-
+        reading every "NOT SUPERSEDED" verdict rather than trusting the
+        line-diff heuristic alone -- confirmed `claude/festive-mccarthy-
+        xrn3ua` (vendor-watch), `claude/optimistic-heisenberg-v07yn7`
+        (payment-reconciliation-workbench/vs-synder.html) and `claude/
+        funny-archimedes-895zx9` (quote-margin-check share/markdown
+        export) each superseded in substance: `main`'s version of the same
+        file already has the feature, under different names or a later
+        rewrite, which the branch's own line-diff missed. Merged #2796
+        (the concurrent session's ledger record of the same finding)
+        rather than writing a duplicate entry.
+      - >-
+        Read `gitops/agents/queue/deploy-cicd-readiness.yaml` and spent
+        real effort looking for a fixable delivery-path gap per its own
+        candidate list (stale/wrong manifest, broken non-outage workflow
+        step, gitops/tests coverage gap, a follow-up whose precondition
+        has since been met). Found none this session: all `kustomization.yaml`
+        resource references resolve, `gitops/tests` passes 257/257,
+        `portfolio/router/validate.py` passes 182/182 VENTURE.yaml, and a
+        concurrent session merged the one live gap found in this window
+        (#2795, a stale Ingress count in a cert-manager comment) before
+        this session got to it. Both live owner blockers are unchanged and
+        already fully tracked: `portfolio-site-repo` (site clone token) and
+        the Codex credential (`codex login` plan quota or `OPENAI_API_KEY`)
+        per `infra/OWNER_CHECKLIST.md` -- the Codex-on-Hetzner governor,
+        worker, and priority-ordered work queue this session was separately
+        asked to "set up" already exist in full at the code level
+        (`gitops/agents/governor/`, `gitops/agents/workers/`,
+        `gitops/agents/queue/*.yaml`, reordered 2026-09-01 on the owner's
+        own direction to put `deploy-cicd-readiness` and
+        `marketing-distribution` first) and are owner-gated on exactly
+        those two seals, not on missing code.
+      - >-
+        Shipped: `ventures/gutter-cleaning-bid-calculator/vs-jobber.html`
+        (#2798), a comparison page against Jobber (field service
+        management platform used across home service trades), following
+        the `vs-singleops.html` pattern -- category-level non-numeric
+        description, no invented Jobber pricing, FAQ schema, standard
+        disclaimers. Picked a venture with no comparison page and an
+        incumbent not already named elsewhere in the repo, to stay
+        additive against the high concurrent volume of similar work this
+        session observed landing in real time (#2794, #2795, #2797 all
+        merged by other sessions during this run). Verified: `node --test`
+        in the venture directory (67/67, 11 new), `node
+        platform/webcheck/check_pages.mjs` (547 pages sound), `node
+        platform/pages/ink.mjs --strict` (no violation), `python3
+        portfolio/router/validate.py` (182/182). All 7 real CI checks
+        green on real runners. Merged (squash) as #2798.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped: the apex front door now serves a real `robots.txt` and
+        `sitemap.xml` (#2799). Found by reading `front-door/default.conf`
+        rather than by a report: the catch-all `location /` answers every
+        path with `index.html`, so `https://marisstella.dev/robots.txt`
+        returned 21,780 bytes of `text/html` with a `200`, and the host had
+        no sitemap at all. Reproduced both against the committed config by
+        running nginx 1.24 locally before changing anything, then again
+        after: 592 B `text/plain` and 167 B `application/xml`. This is the
+        `/social-card.png` defect already fixed in that file, on the one
+        file a crawler reads before it reads a single page -- and it sat on
+        the portfolio's only indexable surface, whose whole job is organic
+        discovery.
+      - >-
+        The decision worth remembering: `robots.txt` says `Allow: /` and
+        deliberately does NOT `Disallow: /tools/`, even though the mirrored
+        tools are copies whose canonical is on the tools host. robots.txt
+        governs crawling, not indexing -- a disallowed page is never
+        fetched, so the `noindex` meta and `X-Robots-Tag` that keep the
+        mirror out of search are never read, and the URLs can still be
+        indexed bare. Blocking the crawl would weaken the consolidation it
+        looks like it protects. The sitemap lists only the apex root for
+        the same reason, and carries no `<lastmod>` (the only build-time
+        value is the build clock, which would dirty the tree on every
+        regeneration). A test fails if a `Disallow` is ever added.
+      - >-
+        Verified: `nginx -t` passes; `/`, `/healthz`, `/favicon.svg`,
+        `/social-card.png`, `/tools/<slug>/` and an unknown path are
+        byte-for-byte unchanged and `/tools/` still carries `X-Robots-Tag:
+        noindex`; `kustomize build gitops/prod` puts both keys in the
+        ConfigMap `data` and rolls the Deployment onto a new content hash,
+        so config and files ship together. 65 node tests (6 new) and 257
+        pytest green locally; all 7 CI checks green on real runners
+        (`ci_starvation.py` not needed -- a starved job cannot succeed).
+        Merged (squash) as #2799.
+      - >-
+        Not done, and why: did not spend the tool mirror's remaining ~457 KB
+        of `MIRROR_BYTE_CEILING` headroom on 3-4 more ventures. It would put
+        a handful more of the 117 launched-but-unmirrored tools in front of
+        visitors, but it would leave the next session that adds a page to
+        any mirrored venture with a build failure telling it to drop a
+        venture from `STARTER_SET` -- and venture pages are being added
+        continuously by concurrent sessions (today's `concrete-bid-calculator`
+        vs-stack page grew the mirror 11 KB on its own). The headroom is
+        the buffer that keeps those builds passing; the fix for the other
+        117 is the `portfolio-site-repo` seal, not the last of the buffer.
+    mrr_end: null
   - venture: window-replacement-bid-calculator
     agent_spend_usd: null
     human_hours: 0
