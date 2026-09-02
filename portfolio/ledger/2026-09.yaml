@@ -4100,6 +4100,81 @@ entries:
       - >-
         Merged (squash) as #2820.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-quota phase: 1 open PR at session start (#2818,
+        flooring-bid-calculator vs-RFMS comparison page, well-tested,
+        CI clean). Reviewed and merged it. Checked the newest 6 remote
+        branches with unmerged commits (dated after the 2026-08-30
+        branch-backlog sweep recorded elsewhere in this ledger) against
+        current `main`: 5 of 6 were already independently superseded
+        (`claude/optimistic-heisenberg-v07yn7` — a vs-Synder page for
+        payment-reconciliation-workbench already shipped;
+        `claude/gha-branch-cleanup-pajw2b` — its one real fix (a missing
+        `now=NOW` test pin) reverts a CI_RUNNER var the branch predates and
+        the specific test it touches already passes 36/36 on `main`;
+        `claude/fix-sweep-embed-chrome-false-positive` and
+        `pr/where-to-sell-rank-by-profit-per-day` — both fixes already live
+        on `main` under independent commits;
+        `gitops-governor-rbac-narrow-jobs-pods-verbs` — the same RBAC
+        narrowing already landed as #2669). The 6th was #2818 itself. This
+        extends the swarm-cadence finding already in this ledger (2026-08-29,
+        2026-08-30): the PR-less branch backlog is still not an unmined vein,
+        now re-verified against branches created after the prior sweep
+        rather than just trusted from it.
+      - >-
+        Delegated a second marketing-distribution candidate to a subagent,
+        following the same pattern as #2818/#2820: `moving-bid-calculator`
+        vs SmartMoving (founded 2018 Dallas TX, all-in-one moving-industry
+        CRM/dispatch/estimating platform, no dollar figure stated since its
+        pricing isn't public). Verified 118/118 venture tests, 856/856
+        `platform/pages` tests, clean `build.mjs`/`check.mjs` (554 pages, no
+        dead links). Merged as #2823.
+      - >-
+        deploy-cicd-readiness item: delegated a scan for one concrete,
+        finishable gitops/CI defect. Found a real WCAG AA contrast failure
+        on `cut-list-optimizer/vs-opticutter-and-cutlist-optimizer.html`
+        (`#6b6f62` on `#f1eee6`, 4.44:1, confirmed on a real runner via
+        `ci_starvation.py`, not the known Actions-starvation signature).
+        Fixed by matching the same venture's other two pages, which already
+        use the compliant `#5c5b52` against the identical background.
+        Verified the WCAG relative-luminance math directly (4.444 before,
+        5.893 after) since a full-site axe-core browser scan ran unusually
+        slowly in this environment and was not worth blocking on given the
+        math already matched axe-core's own reported ratio for the
+        unmodified color exactly. 111/111 venture tests pass. Merged as
+        #2829.
+      - >-
+        While verifying, also found (via the moving-bid-calculator
+        subagent's PR notes) that `main` was red on
+        `platform/marketing/front-door-tools.test.mjs` — #2820's
+        fence-bid-calculator page wasn't mirrored into the committed
+        `gitops/prod/front-door-tools/` apex ConfigMap, and mirroring it
+        opened a new near-empty shard that broke a shard-annotation
+        invariant. Built a fix (regenerate the mirror, make the
+        `ServerSideApply` annotation conditional per shard); before pushing
+        it, found a concurrent session had already landed a different,
+        simpler fix for the same root cause on `main` (#2826, raise
+        `SHARD_BYTE_CEILING` so the mirror repacks into one fewer shard
+        instead). Dropped the redundant half of this branch and rebased
+        onto `main`'s version rather than shipping two competing fixes —
+        the PR-quota entry above already used this same swarm-cadence
+        pattern to skip stale branches; this is the same pattern showing up
+        mid-session instead of at the start.
+      - >-
+        Surveyed Hetzner deployment/CI-CD, marketing-distribution, and the
+        "Codex CLI on the Hetzner VM using its plan quota" ask from this
+        session's brief. All three are already fully built and queued for
+        the owner, not new findings: `portfolio-site-repo` (the
+        169-tool site secret) and the Codex governor's credential
+        (`codex-governor-enable`, #1996 — the plan-quota route the brief
+        asked for is exactly what that row's `CODEX_AUTH_JSON` option is)
+        are both owner-only seals already in `decision_queue.py`. No
+        duplicate ask added.
+    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
