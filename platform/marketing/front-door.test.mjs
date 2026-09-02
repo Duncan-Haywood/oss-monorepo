@@ -14,6 +14,8 @@ import {
   FAVICON_SVG,
   FEED_OUTPUT_FILE,
   FRONT_DOOR_URL,
+  LLMS_FILE,
+  LLMS_OUTPUT_FILE,
   OUTPUT_FILE,
   PROMISE,
   ROBOTS_FILE,
@@ -34,6 +36,7 @@ import {
   publishedSlugs,
   renderFrontDoor,
   renderFrontDoorFeed,
+  renderFrontDoorLlms,
   renderSitemap,
   subtitleFor,
 } from './front-door.mjs';
@@ -732,4 +735,136 @@ test('the feed rides in the ConfigMap that mounts at the document root', async (
     'utf8',
   );
   assert.match(kustomization, new RegExp(`- ${escapeForRegExp(FEED_FILE)}=front-door/${escapeForRegExp(FEED_FILE)}`));
+});
+
+test('llms.txt lists every mirrored tool at a URL this host serves', () => {
+  const txt = renderFrontDoorLlms({ mirrored: MIRROR, total: 169 });
+  assert.match(txt, /^# Free calculators and checks for people who run a small business$/m);
+  for (const tool of MIRROR) {
+    assert.match(txt, new RegExp(`\\[${escapeForRegExp(tool.title)}\\]\\(${escapeForRegExp(FRONT_DOOR_URL.replace(/\/$/, '') + tool.url)}\\)`));
+  }
+  // Grouped under the same category headings the page and the feed use, taken
+  // from `build.mjs` rather than typed here so a renamed category cannot leave
+  // this test asserting a heading the site no longer uses.
+  const titles = new Map(ALL_CATEGORIES.map((c) => [c.id, c.title]));
+  for (const id of ['trades', 'logistics']) {
+    assert.match(txt, new RegExp(`^## ${escapeForRegExp(titles.get(id))}$`, 'm'));
+  }
+});
+
+test('llms.txt names the catalogue host but never links it', () => {
+  // The load-bearing assertion. A model that reads a bullet list of URLs cites
+  // those URLs, and a citation is repeated to a user who then clicks it — so
+  // linking the 116 tools on a host that answers nothing would turn this
+  // page's one-click dead end into confident recommendations of it. The
+  // hostname appears in prose for context and in no link.
+  const txt = renderFrontDoorLlms({ mirrored: MIRROR, total: 169 });
+  assert.ok(txt.includes('tools.marisstella.dev'), 'the catalogue deserves a mention');
+  assert.ok(
+    !new RegExp(`\\]\\(${escapeForRegExp(TOOLS_URL)}`).test(txt),
+    'no markdown link may point at the host that serves nothing',
+  );
+  assert.ok(!txt.includes(`](https://tools.`), 'no link of any shape at the catalogue host');
+  // And it says why, rather than leaving a model to discover it by fetching.
+  assert.match(txt, /not serving yet/);
+  // The Optional section offers only paths this host actually serves.
+  assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + FEED_FILE)}\\)`));
+  assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + SITEMAP_FILE)}\\)`));
+  assert.ok(!txt.includes('catalog.json'), 'catalog.json lives on the tools host and is not served here');
+});
+
+test('llms.txt keeps each tool to one bullet line', () => {
+  // A stray newline inside a bullet silently ends the list item, so a tool
+  // whose meta description wrapped would publish its second half as body prose
+  // and a model would attribute it to nothing.
+  const wrapped = [
+    { slug: 'roofing-bid-calculator', title: 'Roofing\nBid Calculator', url: '/tools/roofing-bid-calculator/', description: 'First half.\n\nSecond half.' },
+  ];
+  const lines = renderFrontDoorLlms({ mirrored: wrapped, total: 1 }).split('\n');
+  const bullets = lines.filter((l) => l.startsWith('- ['));
+  assert.equal(bullets.length, 3, 'one tool bullet plus the two Optional entries');
+  assert.match(bullets[0], /^- \[Roofing Bid Calculator\]\(\S+\): First half\. Second half\.$/);
+});
+
+test('llms.txt states the real counts, and both come from the caller', () => {
+  const txt = renderFrontDoorLlms({ mirrored: MIRROR, total: 169 });
+  assert.match(txt, new RegExp(`> ${MIRROR.length} free, browser-only tools served directly`));
+  assert.match(txt, /collection runs to 169 tools/);
+  // No hard-coded catalogue size anywhere: the number moves every time a tool
+  // ships, and a marketing document stating a stale one is the defect this
+  // whole generator exists to prevent.
+  assert.ok(!renderFrontDoorLlms({ mirrored: MIRROR, total: 4 }).includes('169'));
+});
+
+test('the committed llms.txt matches what this generator produces', async () => {
+  const { llms } = await buildFrontDoor();
+  assert.equal(
+    await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'),
+    llms,
+    'gitops/prod/front-door/llms.txt is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('every link in the committed llms.txt resolves on this host', async () => {
+  // Same check the feed gets, and it matters more here: a model repeats a URL
+  // to a user rather than spending one click on it itself.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { files } = await buildMirror();
+  const keys = new Set(files.map((f) => f.key));
+  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const links = [...txt.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1]);
+  assert.ok(links.length > 10, 'the committed llms.txt should carry the mirrored tools');
+  const served = new Set([`${FRONT_DOOR_URL}${FEED_FILE}`, `${FRONT_DOOR_URL}${SITEMAP_FILE}`]);
+  for (const link of links) {
+    if (served.has(link)) continue;
+    const slug = link.match(/^https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/$/)?.[1];
+    assert.ok(slug, `${link} is not a path this host serves`);
+    assert.ok(keys.has(`${slug}__index.html`), `llms.txt links /tools/${slug}/, which the mirror lacks`);
+  }
+});
+
+test('nginx answers /llms.txt as markdown-ish text, with the encoding declared', async () => {
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(new RegExp(`location = /${escapeForRegExp(LLMS_FILE)} \\{[\\s\\S]*?\\n {2}\\}`));
+  assert.ok(block, `front-door/default.conf must serve /${LLMS_FILE} explicitly`);
+  assert.match(block[0], /default_type text\/plain;/);
+  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(LLMS_FILE)} =404;`));
+  // The one thing robots.txt does not need. That file is held to ASCII by a
+  // test; this one carries the ventures' own titles, 31 of whose bullets
+  // contain an em dash, and nginx defaults to `charset off` — so without this
+  // a client assuming Latin-1 renders every one as mojibake.
+  assert.match(block[0], /charset utf-8;/);
+  assert.ok(!/X-Robots-Tag/.test(block[0]), '/llms.txt exists to be read by crawlers');
+  assert.ok(
+    conf.indexOf(`location = /${LLMS_FILE}`) < conf.indexOf('location / {'),
+    'keep the /llms.txt block above the catch-all',
+  );
+});
+
+test('the committed llms.txt is the file that block promises to serve', async () => {
+  // The encoding claim above is only true if the bytes really are UTF-8, and
+  // the em-dash count is what makes the charset load-bearing rather than
+  // decorative — if a future edit made this file ASCII the directive would be
+  // harmless but the comment beside it would be wrong.
+  const bytes = await fs.readFile(LLMS_OUTPUT_FILE);
+  assert.equal(bytes.toString('utf8'), await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'));
+  const nonAscii = [...bytes.toString('utf8')].filter((c) => c.codePointAt(0) > 127);
+  assert.ok(nonAscii.length > 0, 'if this file is ever pure ASCII, drop the charset comment with it');
+});
+
+test('llms.txt rides in the ConfigMap that mounts at the document root', async () => {
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.match(kustomization, new RegExp(`- ${escapeForRegExp(LLMS_FILE)}=front-door/${escapeForRegExp(LLMS_FILE)}`));
+});
+
+test('the footer offers llms.txt only where this host serves one', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  const footer = html.slice(html.indexOf('<footer>'));
+  assert.match(footer.slice(0, footer.indexOf('</p>')), new RegExp(`href="/${LLMS_FILE}"`));
+  // With no mirror there is nothing to describe, and the footer returns to the
+  // shape it takes after the seal.
+  assert.ok(!renderFrontDoor({ slugs: SAMPLE }).includes(`href="/${LLMS_FILE}"`));
 });
