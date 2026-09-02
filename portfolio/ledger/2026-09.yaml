@@ -3705,3 +3705,41 @@ entries:
         portfolio/router/validate.py` (182/182). All 7 real CI checks
         green on real runners. Merged (squash) as #2798.
     mrr_end: null
+  - venture: countertop-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, candidate #2 ("a tool with a
+        genuine named incumbent and no comparison page yet"). Measured first:
+        `PAGES_BASE_URL=... node platform/pages/build.mjs` +
+        `node platform/pages/check.mjs` confirmed candidate #1 (embed widget)
+        already covers all 169 entry pages, and cross-referencing every
+        `*-bid-calculator` venture against every `vs-*`/`compare*` file in
+        the tree found ~90 bid-calculator ventures still with no comparison
+        page. Shipped `vs-moraware.html` for countertop-bid-calculator --
+        Moraware, via its CounterGo product, is drawing/quoting/cut-layout
+        software stone fabrication shops search by name, the same shape as
+        PestPac/pest-control, Aurora Solar/solar-pv, GorillaDesk/pressure-
+        washing, and STACK/concrete. Linked from `index.html`'s "Related:"
+        line and listed in `sitemap.xml`, with a 9-test suite
+        (vs-moraware.test.mjs). Moraware's own site is unreachable from this
+        session (WebFetch to www.moraware.com returned EGRESS_BLOCKED,
+        confirmed live); a web search surfaced third-party-aggregated
+        CounterGo pricing that conflicted between sources and one source
+        stated outright that Moraware does not publish pricing on its own
+        site, so no dollar figure for Moraware or CounterGo appears anywhere
+        on the page -- only well-documented, non-numeric identity facts.
+      - >-
+        Verified: `node --test` in the venture directory (78/78, 9 new);
+        `python3 platform/pages/clauses.mjs countertop-bid-calculator` (3
+        pages, all carry the no-warranty clause); a full `build.mjs` +
+        `check.mjs` run (169 products, 546 pages, no dead links, up from
+        545); `node --test` across all of `platform/pages` (856/856,
+        unaffected). Opened as #2804; all 7 real CI checks came back green
+        on real runners (`build` x2, `check`, `page-integrity`,
+        `link-contrast`, `site-test`, `validate`; `deploy` skipped as
+        expected on a PR), confirmed with `ci_starvation.py --run
+        33625997857` (runner 1000043682, not the starvation signature).
+        Merged (squash) as #2804.
+    mrr_end: null
