@@ -338,6 +338,34 @@ def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:
     assert grants_create, role["rules"]
 
 
+def test_governor_jobs_and_pods_rules_grant_only_the_verbs_the_code_calls() -> None:
+    # Same class of gap as test_governor_role_reads_no_configmap_it_cannot_name,
+    # for the two resources that rule's own comment doesn't cover: `jobs` and
+    # `pods`. `_load_cluster_jobs` is the only code that touches either one,
+    # and both calls are GETs on the *collection* endpoint (no name in the
+    # URL) -- which RBAC authorizes via `list`, never `get` (that verb is for
+    # `.../jobs/<name>` or `.../pods/<name>`, a shape this file never builds).
+    # `build_job_manifest`'s POST is the only other call, needing `create` on
+    # jobs alone. `_k8s` is a single `urllib.request` round trip with a fixed
+    # timeout, never a long-lived stream, so nothing here ever needs `watch`
+    # either. The Role used to carry get+watch on jobs and get on pods with
+    # nothing exercising any of the three -- caught by inspection, not by a
+    # test, because no test paired this rule with the code the way the
+    # ConfigMap rule already was.
+    source = (AGENTS / "governor" / "governor.py").read_text()
+    assert 'f"/apis/batch/v1/namespaces/{namespace}/jobs"' in source, "the jobs list call moved"
+    assert '_k8s("GET", f"/api/v1/namespaces/{namespace}/pods")' in source, "the pods list call moved"
+    assert "/jobs/{" not in source, "a per-name Job GET would need the `get` verb back"
+    assert "/pods/{" not in source, "a per-name Pod GET would need the `get` verb back"
+
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    jobs_rule = next(r for r in role["rules"] if r["resources"] == ["jobs"])
+    pods_rule = next(r for r in role["rules"] if r["resources"] == ["pods"])
+    assert sorted(jobs_rule["verbs"]) == ["create", "list"]
+    assert pods_rule["verbs"] == ["list"]
+
+
 def test_worker_egress_cannot_reach_the_kube_apiserver() -> None:
     # Regression: worker-egress's HTTPS rule used to be `ports: [{443}]` with
     # no `to:`, which in NetworkPolicy semantics means "port 443 to any
