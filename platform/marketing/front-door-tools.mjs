@@ -254,6 +254,17 @@ export const STARTER_SET = [
   { slug: 'owner-operator-cpm-calculator', why: 'logistics — a second logistics tool, weekly not per-delivery' },
   { slug: 'chargeback-evidence-packet', why: 'evidence — a third evidence tool, the seller-facing one' },
   { slug: 'str-host-payout-calculator', why: 'marketplace — the only self-contained tool in the category; ebay/amazon/shopify/etsy alone cost a fifth of the ceiling each' },
+  // Added 2026-09-02. `services` and `evidence` were the two categories left
+  // standing on a single mirrored tool each, so a visitor arriving on either
+  // card met one thing that worked and, if it was not their question, nothing
+  // else. These are the smallest ventures in those two categories that survive
+  // `validateLinks` -- most of the rest link sideways into ventures outside the
+  // set (`consent-change-record` into its own `tool/` subdirectory,
+  // `marketplace-fee-compare` and `delivery-app-margin-calculator` into sibling
+  // marketplace tools) and so cannot be mirrored without dragging their
+  // neighbours in.
+  { slug: 'pool-route-pricing', why: 'services — a second services tool, and the recurring-account pricing question rather than a per-job one' },
+  { slug: 'grant-reporting-tracker', why: 'evidence — a second evidence tool, deadline-tracking rather than dispute-packet' },
   // Re-added 2026-09-02, on the condition #2744 set when it traded this entry
   // out for the line above: "once the ceiling has real headroom again ... a
   // real `kustomize build` verifying the whole ConfigMap against etcd's 1 MiB

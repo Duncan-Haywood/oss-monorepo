@@ -51,6 +51,11 @@ configMapGenerator:
       # sit at the document root beside `index.html` for `/social-card.png`
       # to resolve. ~6 KB base64'd against a 1 MiB object ceiling.
       - social-card.png=front-door/social-card.png
+      # The tab mark the page declares with `rel="icon"`. Text, so it lands in
+      # `data` rather than `binaryData`, and a few hundred bytes either way.
+      # Same reason as the card for riding in this ConfigMap: it has to sit at
+      # the document root for `/favicon.svg` to resolve.
+      - favicon.svg=front-door/favicon.svg
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

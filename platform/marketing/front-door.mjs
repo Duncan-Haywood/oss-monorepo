@@ -81,7 +81,7 @@ import {
 // The share card is drawn, not copied: `renderSocialCard` is the same
 // dependency-free PNG encoder `build.mjs` uses for the hub's card, so the apex
 // and the tools host show one mark rather than two pictures that drift.
-import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, renderSocialCard } from '../pages/offline.mjs';
+import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, THEME_COLOR, renderSocialCard } from '../pages/offline.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -97,6 +97,40 @@ export const LAUNCHED_FILE = path.join(REPO_ROOT, 'platform', 'pages', 'launched
  * is consumed from means the manifest never reaches up out of `gitops/`.
  */
 export const OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'index.html');
+
+/** The file name the page points `rel="icon"` at, and nginx serves. */
+export const FAVICON_FILE = 'favicon.svg';
+
+/**
+ * The tab mark, and why it is SVG rather than a drawn PNG.
+ *
+ * Every browser requests `/favicon.ico` unprompted on the first view of an
+ * origin, and until this existed the apex answered that with a 404 on every
+ * single visit -- so the portfolio's one public page spent its whole life
+ * showing a blank default tab icon and logging a miss for each visitor. A
+ * declared `rel="icon"` is also what stops the unprompted `/favicon.ico`
+ * request being made at all, so this fixes the blank tab and the 404 together.
+ *
+ * SVG rather than the `renderSocialCard` PNG encoder used for the share card:
+ * at 16x16 a drawn raster of the wordmark is unreadable, the file is a few
+ * hundred bytes of text against a ConfigMap that stores it verbatim, and it
+ * stays sharp on any display. Modern browsers take `image/svg+xml` for an
+ * icon; the ones that do not simply fall back to no icon, which is what they
+ * had before, so there is no case this makes worse.
+ *
+ * The mark is the site's initial on `THEME_COLOR` -- the same constant
+ * `offline.mjs` gives the tools host -- so the apex and the tools host show
+ * one identity rather than two, for the same reason the share card is drawn
+ * from the shared encoder rather than copied.
+ */
+export const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Maris Stella">
+  <rect width="64" height="64" rx="12" fill="${THEME_COLOR}"/>
+  <text x="32" y="45" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
+</svg>
+`;
+
+/** Where `--write` puts the tab mark, beside the page that declares it. */
+export const FAVICON_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', FAVICON_FILE);
 
 /**
  * Where `--write` puts the share card, beside the page that references it.
@@ -508,6 +542,8 @@ ${group.tools
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${escapeHtml(SITE_NAME)} — ${total} tools for people who quote, sell and bill</title>
 <meta name="description" content="${escapeHtml(description)}">
+<link rel="icon" href="/${escapeHtml(FAVICON_FILE)}" type="image/svg+xml">
+<meta name="theme-color" content="${escapeHtml(THEME_COLOR)}">
 <link rel="canonical" href="${escapeHtml(canonical)}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
@@ -591,6 +627,11 @@ if (isMain) {
     const card = renderSocialCard();
     await fs.writeFile(SOCIAL_CARD_OUTPUT_FILE, card);
     console.log(`wrote ${path.relative(REPO_ROOT, SOCIAL_CARD_OUTPUT_FILE)} (${card.length} bytes)`);
+    // Same reason as the card above: the page declares `rel="icon"` at this
+    // path, so writing it on any run that writes the page keeps the two from
+    // being committed out of step.
+    await fs.writeFile(FAVICON_OUTPUT_FILE, FAVICON_SVG);
+    console.log(`wrote ${path.relative(REPO_ROOT, FAVICON_OUTPUT_FILE)} (${FAVICON_SVG.length} bytes)`);
   } else {
     process.stdout.write(html);
   }

@@ -7,6 +7,9 @@ import path from 'node:path';
 import { ABOUT_PATH, ALL_CATEGORIES, FEED_FILE, SOCIAL_CARD_FILE, categoryPagePath } from '../pages/build.mjs';
 import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, renderSocialCard } from '../pages/offline.mjs';
 import {
+  FAVICON_FILE,
+  FAVICON_OUTPUT_FILE,
+  FAVICON_SVG,
   FRONT_DOOR_URL,
   OUTPUT_FILE,
   PROMISE,
@@ -351,6 +354,67 @@ test('nginx answers the og:image path with the card rather than the page', async
     conf.indexOf('location = /social-card.png') < conf.indexOf('location / {'),
     'keep the card block above the catch-all',
   );
+});
+
+test('declares a tab mark, so the browser stops asking for /favicon.ico', async () => {
+  // Every browser requests `/favicon.ico` unprompted on the first view of an
+  // origin. The apex answered that with a 404 on every visit and showed a
+  // blank default tab, because it declared no icon at all. Declaring one is
+  // what fixes both: a `rel="icon"` link is also what stops the unprompted
+  // `/favicon.ico` request being made.
+  const html = await buildFrontDoor();
+  assert.match(html, new RegExp(`<link rel="icon" href="/${FAVICON_FILE}" type="image/svg\\+xml">`));
+  // Declared as a root-absolute path, not a relative one: the catch-all in
+  // default.conf answers a mistyped `/anything` with this same HTML, and a
+  // relative href would then resolve against that path and 404.
+  assert.ok(html.includes(`href="/${FAVICON_FILE}"`), 'the icon href must be root-absolute');
+});
+
+test('the committed tab mark matches what the generator holds', async () => {
+  const onDisk = await fs.readFile(FAVICON_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    onDisk,
+    FAVICON_SVG,
+    'gitops/prod/front-door/favicon.svg is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('the tab mark carries no script, since nginx serves it from this origin', () => {
+  // An SVG is a document. This one is generated from a constant and has no
+  // script in it; the test is here so that stays true if the mark is redrawn,
+  // because an SVG served from the apex shares its origin.
+  assert.ok(!/<script/i.test(FAVICON_SVG), 'the icon must not carry script');
+  assert.ok(!/\son\w+=/i.test(FAVICON_SVG), 'the icon must not carry event handlers');
+  assert.match(FAVICON_SVG, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/);
+});
+
+test('nginx answers the icon path with the icon rather than the page', async () => {
+  // Same failure the share card block exists to prevent: without an exact
+  // match the catch-all hands a browser 16 KB of HTML with a 200 where an
+  // image was promised, and the tab silently stays blank.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(/location = \/favicon\.svg \{[\s\S]*?\n {2}\}/);
+  assert.ok(block, 'front-door/default.conf must serve /favicon.svg explicitly');
+  // Load-bearing here in a way it is not for the card: `.svg` is not in
+  // nginx's stock type map on every build, and an icon sent as
+  // application/octet-stream is ignored.
+  assert.match(block[0], /default_type image\/svg\+xml;/);
+  assert.match(block[0], /try_files \/favicon\.svg =404;/);
+  assert.ok(!/X-Robots-Tag/.test(block[0]), 'the apex tab mark must stay indexable');
+  assert.ok(
+    conf.indexOf('location = /favicon.svg') < conf.indexOf('location / {'),
+    'keep the icon block above the catch-all',
+  );
+});
+
+test('the icon is delivered in the same ConfigMap as the page that names it', async () => {
+  // Two ConfigMaps cannot mount at one mountPath, and the icon has to sit at
+  // the document root beside index.html for `/favicon.svg` to resolve.
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.match(kustomization, /- favicon\.svg=front-door\/favicon\.svg/);
 });
 
 test('the published slug list is the one check.mjs already pins', async () => {
