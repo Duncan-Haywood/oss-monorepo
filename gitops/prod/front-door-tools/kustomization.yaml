@@ -14,10 +14,23 @@
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts this, so the generated name has
 # to change with the content or a regenerated tool never reaches a running pod.
+#
+# The `argocd.argoproj.io/sync-options` option below is not optional
+# decoration. Argo CD applies client-side by default, which copies the whole
+# object into the `kubectl.kubernetes.io/last-applied-configuration`
+# annotation, and the API server caps an object's annotations at 262144 bytes.
+# This mirror is several times that, so a client-side apply of it fails with
+# `metadata.annotations: Too long` and the mirror never reaches the cluster at
+# all — see `CLIENT_SIDE_APPLY_CEILING` in `front-door-tools.mjs` for the whole
+# failure mode. Server-side apply writes no such annotation and is bounded only
+# by etcd's 1 MiB, which `BYTE_CEILING` already keeps this well inside.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
   - name: portfolio-front-tools
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
       - change-order-margin-calculator__LICENSE=change-order-margin-calculator__LICENSE
       - change-order-margin-calculator__calc.mjs=change-order-margin-calculator__calc.mjs

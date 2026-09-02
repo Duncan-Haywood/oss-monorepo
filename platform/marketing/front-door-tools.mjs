@@ -97,8 +97,52 @@ export const MIRROR_PREFIX = 'tools/';
  * ventures before anyone has to think about it again. Exceeding it is a build
  * failure, not a warning: a ConfigMap that fails to apply takes the *front
  * door* down with it, which would trade a broken link for a broken page.
+ *
+ * **1 MiB is not the first ceiling this hits, and that is why the generated
+ * kustomization below asks Argo for server-side apply.** See
+ * `CLIENT_SIDE_APPLY_CEILING`.
  */
 export const BYTE_CEILING = 640 * 1024;
+
+/**
+ * The size above which a resource cannot be delivered by a *client-side* apply.
+ *
+ * `kubectl apply` — which is what Argo CD does by default, in v3.5.1 as in
+ * every version before it — records the object it sent in the annotation
+ * `kubectl.kubernetes.io/last-applied-configuration`, so the annotation holds a
+ * second full copy of the manifest. The API server caps an object's annotations
+ * at 256 KiB in total (`TotalAnnotationSizeLimitB` in
+ * `k8s.io/apimachinery/pkg/api/validation/objectmeta.go`) and rejects anything
+ * larger with:
+ *
+ *   metadata.annotations: Too long: must have at most 262144 bytes
+ *
+ * The mirror is ~600 KB of tool source and grows with `STARTER_SET`. That is
+ * under the 1 MiB etcd ceiling every comment in this tree reasons about — and
+ * more than twice this one, which binds first and which nothing here had
+ * accounted for. The
+ * consequence is not a degraded mirror but no mirror at all: Argo's sync of the
+ * ConfigMap fails, the hashed name the Deployment mounts is never created, the
+ * new pods sit in `ContainerCreating`, and `maxUnavailable: 0` keeps the old
+ * toolless front door serving while `prod` stays permanently Degraded.
+ *
+ * `SYNC_OPTIONS` is the documented remedy: server-side apply writes no such
+ * annotation, so the object is bounded only by etcd's 1 MiB. It is declared per
+ * resource rather than on the `prod` Application, so it changes the delivery of
+ * this one ConfigMap and nothing else in the namespace.
+ */
+export const CLIENT_SIDE_APPLY_CEILING = 256 * 1024;
+
+/**
+ * What the generated ConfigMap asks Argo CD for, and why.
+ *
+ * Kept beside the ceiling it exists to clear so the two cannot drift: if a
+ * later session shrinks `STARTER_SET` back under `CLIENT_SIDE_APPLY_CEILING`,
+ * this annotation becomes harmless rather than wrong, and if it grows, this is
+ * the only thing keeping the mirror deliverable at all.
+ */
+export const SYNC_OPTIONS_ANNOTATION = 'argocd.argoproj.io/sync-options';
+export const SYNC_OPTIONS = 'ServerSideApply=true';
 
 /**
  * Which extensions get mirrored.
@@ -349,10 +393,23 @@ export function renderKustomization(files) {
 # The hash is deliberately left ON, matching \`portfolio-front-html\` and
 # \`portfolio-front-nginx\`: a Deployment mounts this, so the generated name has
 # to change with the content or a regenerated tool never reaches a running pod.
+#
+# The \`${SYNC_OPTIONS_ANNOTATION}\` option below is not optional
+# decoration. Argo CD applies client-side by default, which copies the whole
+# object into the \`kubectl.kubernetes.io/last-applied-configuration\`
+# annotation, and the API server caps an object's annotations at 262144 bytes.
+# This mirror is several times that, so a client-side apply of it fails with
+# \`metadata.annotations: Too long\` and the mirror never reaches the cluster at
+# all — see \`CLIENT_SIDE_APPLY_CEILING\` in \`front-door-tools.mjs\` for the whole
+# failure mode. Server-side apply writes no such annotation and is bounded only
+# by etcd's 1 MiB, which \`BYTE_CEILING\` already keeps this well inside.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 configMapGenerator:
   - name: portfolio-front-tools
+    options:
+      annotations:
+        ${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}
     files:
 ${list}
 `;
