@@ -2904,3 +2904,60 @@ entries:
         `kubeseal`) needs a human's browser and account and cannot be done
         from here. Confirmed it is already the queued ask, not a gap to fill
         or duplicate.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine. Same brief as the two entries directly above
+        (deploy/CI-CD priority, Hetzner marketing, Codex built-in-quota) --
+        by the time this session reached the repo, the immediately prior
+        session had already re-verified all three against `main` and reached
+        the same conclusion (already built, owner-blocked on `codex login`
+        and the `portfolio-site-repo` clone token). Re-confirmed
+        independently rather than trusting the ledger: 0 open PRs, both
+        queue items (`deploy-cicd-readiness` priority 7,
+        `marketing-distribution` priority 6) still `enabled: true` /
+        governor still `suspend: true`, decision-queue rows 11-13 still the
+        only owner-blockers. Wrote no duplicate finding for this since the
+        prior entry already covers it in full.
+      - >-
+        Spent the session on verification the ledger had not yet recorded
+        today, plus the one loose thread the prior entry named and left
+        open. `gitops/tests/` -- 250/250 passing. `platform/ci/publish_surface.py
+        --check` -- matches its snapshot (6 Argo Applications, 2 hostnames
+        serving content). The full Playwright sweep documented in
+        `platform/pages/sweep.mjs` (build, serve, drive every tool in a real
+        Chromium via the `/opt/pw-browsers` + `/tmp/pw` workaround the file's
+        own comment describes) -- 175/175 tools answered with no console or
+        page errors, and `check.mjs --dist=` reported 169 products, 537
+        pages, no dead links. No regression found anywhere in the pipeline.
+      - >-
+        Resolved `tmp/ssh-key-smoke`, the branch the prior entry flagged as
+        unresolved because `supersede_check.py` did not return inside its
+        window on a 936-ahead/4314-behind diff. Read it directly instead of
+        re-running the line scan: its only unique content across those 936
+        commits is one commit, `4d27d4b5f` ("ci: classify HETZNERSSHKEY
+        format without printing the secret"), adding
+        `.github/workflows/ssh-key-smoke.yml` -- a `push: [tmp/ssh-key-smoke]`
+        -only diagnostic the owner wrote by hand on 2026-08-24 to debug why
+        `HETZNERSSHKEY` was not a recognizable private key, decode its
+        format, and test `ssh root@`/`ssh deploy@` against the new box. That
+        job has since been permanently absorbed: `hetzner-gitops-ci.yml`'s
+        `workflow_dispatch` `preflight` job (added afterward) does the same
+        read-only SSH check via `bootstrap/preflight.sh` and is what
+        `infra/OWNER_CHECKLIST.md` now points owners at. No PR needed --
+        the branch is a superseded scratch diagnostic, not unshipped work,
+        and it is the owner's own commit rather than an agent's, so left the
+        branch itself untouched rather than deleting it unasked. Saves a
+        future session from re-running `supersede_check.py` on the same
+        1000+-file diff.
+      - >-
+        No code shipped this session. Every automated check available came
+        back clean (gitops, publish surface, full browser sweep, dead-link
+        check), the two things the standing owner prompt asked to prioritize
+        were independently re-confirmed already-built-and-owner-blocked by
+        two sessions in a row now, and the one open follow-up resolved to
+        "no action needed." Did not force a marginal product PR into an area
+        four-plus concurrent sessions had already covered in the preceding
+        two hours to manufacture a shipped artifact.
