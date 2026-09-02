@@ -9,7 +9,7 @@
   <link rel="canonical" href="./">
   <meta property="og:title" content="Lawn Care Bid Calculator">
   <meta property="og:description" content="Bid the stop the way a crew actually runs it — turf, beds, and windshield time — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lawn Care Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-service production-rate hours, travel as loaded labor, fuel and dump per visit, in-season monthly price, honest annual at growing-season weeks, price per visit, effective hourly rate, break-even walk-away price, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lawn Care Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-service production-rate hours, travel as loaded labor, fuel and dump per visit, in-season monthly price, honest annual at growing-season weeks, price per visit, effective hourly rate, break-even walk-away price, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price lawn mowing for a residential yard?","acceptedAnswer":{"@type":"Answer","text":"Split the stop into services with their own rates — turf mowing, edging and blowing, beds — then add round-trip travel, fuel, and dump. Price from those hours plus overhead and the margin you intend to keep, not from lot size alone."}},{"@type":"Question","name":"Why is a price per acre a bad lawn care bid?","acceptedAnswer":{"@type":"Answer","text":"Two half-acre lots are not the same job. Beds, hedges, and an 18-minute drive each way often take more of the stop than the mow. A flat per-acre rule cannot see any of that."}},{"@type":"Question","name":"Should a lawn care contract be monthly times twelve?","acceptedAnswer":{"@type":"Answer","text":"Only if you actually service the property every month. Most growing-season routes run 28 to 36 weeks. Annual is the per-visit price times those weeks, not the in-season monthly times twelve."}},{"@type":"Question","name":"Why doesn’t adding a second crew member change the price?","acceptedAnswer":{"@type":"Answer","text":"Crew size only splits the clock time on site — how fast the stop gets done — not the cost. Labor is priced on total person-hours of work, and that total doesn’t shrink because two people share it. On the starting figures (10,000 sq ft turf, 25 minutes of edging, 350 sq ft of beds), one crew member clocks 1.79 hours on the property; a two-person crew clocks 0.90 hours to do the same work, but the bill stays $459.73 in-season monthly either way. A second person buys you a shorter stop and more stops per day, not a smaller number on this page — unless you also raise the wage field for a second body on the truck."}},{"@type":"Question","name":"What’s the difference between “In-season monthly” and “Year-round monthly equivalent”?","acceptedAnswer":{"@type":"Answer","text":"“In-season monthly” is what the stop actually bills during the weeks you show up — on the starting figures, $459.73 across the 32 growing-season weeks. “Year-round monthly equivalent” ($282.91 at those same figures) spreads the honest annual total evenly across all 12 months instead, which is the number to quote a customer who wants one flat payment in January and August alike. Both come from the same annual total; only the billing pattern differs."}},{"@type":"Question","name":"How much of the bid is travel time, not yard work?","acceptedAnswer":{"@type":"Answer","text":"Round-trip drive time counts as labor on every visit, and it can be a bigger share than any single service line. At an 18-minute one-way drive, travel is 0.6 hours of the 2.39-hour visit — about 25% of the billed time, more than either the edging or the bed-weeding line on the starting figures. A route with a short drive and a route with a long one doing identical yard work should not carry the same price; this field is why they don’t."}},{"@type":"Question","name":"What does the calculator say if I quote below the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"Type a number into “Monthly price you’re considering” and the verdict box compares it to the walk-away monthly (your cost with zero margin) and flags it red if it’s under. At the starting figures the walk-away is $344.80/month; a $90 quote shows a $254.80 monthly loss before the owner takes anything out of it — the field exists so that number shows up before the contract is signed, not after the season is half over."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a1c; background: #eef3e8; }
@@ -195,6 +195,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -264,13 +265,17 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, fuel, insurance, and dump costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your property, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your property, wages, costs, or prices. A share link encodes only the quote fields in the page&rsquo;s URL hash rather than sending anything to a server.</p>
     <p class="support">Free and open source. If it wins you a route, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, SERVICE_PRESETS, UNIT_LABELS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -463,9 +468,7 @@
       ].join('\n');
     }
 
-    async function copySummary() {
-      const result = calculateBid(readInput());
-      const text = summaryText(result);
+    async function writeClipboard(text) {
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -479,9 +482,47 @@
         document.execCommand('copy');
         fallback.remove();
       }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = summaryText(result);
+      await writeClipboard(text);
       count('summary_copied');
       el('summaryStatus').textContent = 'Copied to clipboard';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * A shared link must reconstruct the same quote the sender saw. Services
+     * go through `addServiceRow` unchanged from `readServices()`'s own
+     * shape — the same path a preset selection uses — so a decoded row
+     * prices identically whether it matched a service preset by name or
+     * arrived as a custom one.
+     */
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      FIELD_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (Array.isArray(payload.services) && payload.services.length) {
+        host.innerHTML = '';
+        payload.services.forEach(addServiceRow);
+      }
     }
 
     el('addService').addEventListener('click', () => {
@@ -502,8 +543,14 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the link from the address bar.'; });
+    });
 
-    STARTING_SERVICES.forEach(addServiceRow);
+    const incomingHash = splitTerms(location.hash);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    applyShare(decodeShare(incomingHash.payload));
+    if (host.children.length === 0) STARTING_SERVICES.forEach(addServiceRow);
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------
