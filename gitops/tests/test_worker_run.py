@@ -10,14 +10,18 @@
 # token, or needs a cluster.
 from __future__ import annotations
 
+import hashlib
 import json
 import os
+import platform
+import re
 import subprocess
 from pathlib import Path
 
 import pytest
 
 WORKER = Path(__file__).resolve().parents[1] / "agents" / "workers" / "worker.sh"
+WORKER_NETWORKPOLICY = Path(__file__).resolve().parents[1] / "agents" / "networkpolicy.yaml"
 
 
 def _run(cmd: list[str], cwd: Path, **kw: object) -> subprocess.CompletedProcess:
@@ -704,3 +708,177 @@ def test_a_real_quota_limit_is_still_42_not_43(world) -> None:
 
     assert proc.returncode == 42, proc.stdout + proc.stderr
     assert not marker.exists() or "codex-auth-rejected" not in marker.read_text()
+
+
+# ---------------------------------------------------------------------------
+# install_tools()
+#
+# This function had never run under test. The fixture above puts stub `gh` and
+# `codex` binaries on PATH, so both of `install_tools`'s `command -v` guards
+# short-circuited and every test in this file skipped straight past it — which
+# is how it shipped calling `apt-get` inside a namespace whose NetworkPolicy
+# allows no port-80 egress at all. In the cluster that is not a degraded
+# install, it is `set -euo pipefail` killing the Job before `codex exec` is
+# reached, identically for every queue item, from the first tick after the
+# owner seals `codex-secrets`.
+# ---------------------------------------------------------------------------
+
+_ARCH = {"x86_64": "amd64", "aarch64": "arm64"}.get(platform.machine())
+
+
+def _worker_code() -> str:
+    """worker.sh with its comment lines removed.
+
+    Both checks below are about what the script *does*. The comments explaining
+    why it no longer shells out to apt, and quoting the `http://` URL Debian's
+    sources.list declares, would otherwise match themselves — a test that fails
+    on its own rationale teaches the next reader to delete the rationale.
+    """
+    return "\n".join(
+        line for line in WORKER.read_text().splitlines()
+        if not line.lstrip().startswith("#")
+    )
+
+
+def _worker_egress_ports() -> set[int]:
+    """The TCP ports `worker-egress` actually permits, read from the manifest."""
+    yaml = pytest.importorskip("yaml")
+    docs = [d for d in yaml.safe_load_all(WORKER_NETWORKPOLICY.read_text()) if d]
+    policy = next(d for d in docs if d["metadata"]["name"] == "worker-egress")
+    return {
+        port["port"]
+        for rule in policy["spec"]["egress"]
+        for port in rule.get("ports", [])
+        if port.get("protocol", "TCP") == "TCP"
+    }
+
+
+def test_the_worker_never_speaks_plain_http_because_its_policy_forbids_it() -> None:
+    # Derived from the manifest rather than hardcoded, so that widening the
+    # policy and reaching for HTTP stays a deliberate two-file change and
+    # narrowing it fails this test instead of silently breaking the Job.
+    ports = _worker_egress_ports()
+    assert 80 not in ports, (
+        "worker-egress now permits port 80; if that is intended, this test and "
+        f"install_tools()'s comment both need revisiting. Ports: {sorted(ports)}"
+    )
+
+    http_urls = re.findall(r"http://[^\s\"'`]+", _worker_code())
+    assert not http_urls, f"worker.sh reaches for plain HTTP: {http_urls}"
+
+
+def test_the_worker_installs_nothing_through_a_package_manager() -> None:
+    # `apt-get update` against node:22-bookworm's own sources.list is a port-80
+    # request. Debian's mirrors are declared over plain HTTP, so no amount of
+    # retrying makes this work under `worker-egress` — the fix was to stop
+    # using apt, and this pins that it stays stopped.
+    code = _worker_code()
+    for forbidden in ("apt-get", "apt ", "dpkg", "add-apt-repository"):
+        assert forbidden not in code, (
+            f"worker.sh uses {forbidden!r}; Debian's mirrors are HTTP and this "
+            "pod has no port-80 egress"
+        )
+
+
+def _release_tarball(world, *, arch: str, version: str) -> tuple[Path, str]:
+    """Repackage the fixture's stub `gh` in the layout cli/cli actually ships.
+
+    Returns the tarball and its real sha256, so the test drives the same
+    download → verify → extract → install path the cluster does.
+    """
+    root = world["tmp"] / "ghsrc"
+    stage = root / f"gh_{version}_linux_{arch}" / "bin"
+    stage.mkdir(parents=True, exist_ok=True)
+    (stage / "gh").write_text((world["bin"] / "gh").read_text())
+    (stage / "gh").chmod(0o755)
+
+    tgz = world["tmp"] / "gh-release.tar.gz"
+    subprocess.run(
+        ["tar", "-czf", str(tgz), "-C", str(root), f"gh_{version}_linux_{arch}"],
+        check=True, capture_output=True,
+    )
+    return tgz, hashlib.sha256(tgz.read_bytes()).hexdigest()
+
+
+def _stub_download(world, tarball: Path) -> None:
+    """A `curl` that serves `tarball` to whatever `-o` names, ignoring the URL."""
+    curl = world["bin"] / "curl"
+    curl.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        f'echo "curl $*" >> "{world["log"]}"\n'
+        'out=""\n'
+        'while [[ $# -gt 0 ]]; do\n'
+        '  case "$1" in -o) out="$2"; shift 2 ;; *) shift ;; esac\n'
+        "done\n"
+        f'cp "{tarball}" "$out"\n'
+    )
+    curl.chmod(0o755)
+
+
+def _trap_apt(world) -> None:
+    """An `apt-get` that records the call and succeeds, so a use is visible."""
+    apt = world["bin"] / "apt-get"
+    apt.write_text(
+        "#!/usr/bin/env bash\n"
+        f'echo "apt-get $*" >> "{world["log"]}"\n'
+        "exit 0\n"
+    )
+    apt.chmod(0o755)
+
+
+@pytest.mark.skipif(_ARCH is None, reason=f"no pinned gh build for {platform.machine()}")
+def test_install_tools_puts_a_working_gh_on_path_without_apt(world) -> None:
+    # The end-to-end proof. `gh` is removed from the stub bin, so the run can
+    # only reach `gh repo clone` and `gh pr create` if install_gh genuinely
+    # downloaded, checksummed, extracted and installed one. A PR at the end
+    # means the installed binary was the one that did the work.
+    version = "9.9.9"
+    tarball, digest = _release_tarball(world, arch=_ARCH, version=version)
+    _stub_download(world, tarball)
+    _trap_apt(world)
+    (world["bin"] / "gh").unlink()
+
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "install-ok"},
+        env_extra={
+            "GH_VERSION": version,
+            f"GH_SHA256_{_ARCH.upper()}": digest,
+        },
+    )
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert world["pr"].exists(), "no PR was opened:\n" + proc.stdout + proc.stderr
+
+    calls = world["log"].read_text()
+    assert "apt-get" not in calls, f"install_tools still shelled out to apt:\n{calls}"
+    assert "gh repo clone" in calls, calls
+
+
+@pytest.mark.skipif(_ARCH is None, reason=f"no pinned gh build for {platform.machine()}")
+def test_a_tampered_gh_tarball_is_refused_rather_than_installed(world) -> None:
+    # The pin is only worth having if a mismatch stops the run. A worker that
+    # installed whatever the download returned would hand an unverified binary
+    # this Job's GitHub token.
+    version = "9.9.9"
+    tarball, _ = _release_tarball(world, arch=_ARCH, version=version)
+    _stub_download(world, tarball)
+    (world["bin"] / "gh").unlink()
+
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "install-tampered"},
+        env_extra={
+            "GH_VERSION": version,
+            f"GH_SHA256_{_ARCH.upper()}": "0" * 64,
+        },
+    )
+
+    assert proc.returncode != 0, proc.stdout + proc.stderr
+    assert "checksum mismatch" in (proc.stdout + proc.stderr)
+    assert not world["pr"].exists(), "a PR was opened with an unverified gh"
