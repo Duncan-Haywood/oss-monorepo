@@ -4100,3 +4100,81 @@ entries:
       - >-
         Merged (squash) as #2820.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session, quota phase. 1 open PR at start (#2820).
+        It was merged by a concurrent session before this session's own
+        review/fix could push, so it does not count toward the merge quota
+        directly -- but it left `main` broken, which became this session's
+        real finding. Corrects a claim in the #2820 ledger entry directly
+        above: that entry says the `validate` check's failure "fails
+        identically running front-door-tools.test.mjs locally on the
+        unmodified merge-base with origin/main" and reads it as
+        pre-existing. Reproduced independently and found the opposite:
+        `node --test platform/marketing/*.test.mjs` on unmodified `main`
+        (pre-#2820) passes 86/86 (28/28 for the single file in isolation,
+        which is likely what was actually run) -- the failure only appears
+        after adding `vs-fence-cloud.html`, because (1) the committed apex
+        mirror in `gitops/prod/front-door-tools/` was never regenerated for
+        the new page, and (2) the new page's ~10.7 KB pushes the
+        `packShards` first-fit packer from 7 shards to 8, the 8th holding
+        only that one file, far under `CLIENT_SIDE_APPLY_CEILING` -- a
+        shape `front-door-tools.test.mjs`'s apply-mode invariant correctly
+        refuses. So the failure was real and PR-caused, not pre-existing,
+        and it merged onto `main` anyway.
+      - >-
+        Fixed forward rather than reverted, since the page itself is sound.
+        Raised `SHARD_BYTE_CEILING` 700 -> 706 KiB (documented in the
+        constant's own comment, same convention as the existing
+        `faire-wholesale-calculator` precedent) and ran
+        `front-door-tools.mjs --write` to regenerate the mirror. Verified:
+        `node --test platform/marketing/*.test.mjs` 86/86,
+        `python3 -m pytest gitops/tests -q` 259/259,
+        `publish_surface.py --check`, `clauses.mjs`, `faq-duplicate.mjs`,
+        `browser-signals.mjs`, and the money-sign/input-bounds/form-defaults
+        checks all green. Opened and merged (squash) as #2826, all 7 CI
+        checks green on real runners including `validate`.
+      - >-
+        A concurrent session found and fixed the identical defect
+        independently (#2827, `SHARD_BYTE_CEILING` -> 716 KiB instead of
+        706). Closed #2827 as superseded by the already-merged #2826 after
+        `supersede_check.py` returned NOT SUPERSEDED on a raw line diff
+        (the two branches produce different literal byte counts) but its
+        RENAME SUSPECTED section confirmed every unmatched line has a
+        90-92%-alike twin already on `main` -- same feature, shipped twice
+        concurrently. Re-verified `main` was actually green immediately
+        before closing, per this file's own guidance on that failure mode.
+      - >-
+        Two more open PRs (#2824, a `bitnami/kubectl:1.31` 404 fix in
+        `gitops/prod/portfolio-site.yaml`; #2825, a fix for the Codex
+        worker's `install_tools()` shelling out to apt-get inside a
+        NetworkPolicy that permits no port-80 egress, which would have
+        failed every queue item identically from the first tick after the
+        owner enables the governor) were both blocked on the same broken
+        `main` via their `gitops` CI job. Updated both branches onto
+        post-#2826 `main` (`update_pull_request_branch`), re-verified both
+        went green, and merged both (squash). Met the 3-PR merge quota with
+        #2826, #2824, #2825; closed #2821 (a `moving-bid-calculator`
+        vs-SmartMoving page, byte-identical to the already-merged #2823 via
+        an identical-merge `supersede_check.py` proof) as a verified
+        duplicate along the way. 0 open PRs remained after this phase.
+      - >-
+        Checked the owner's explicit three-part ask (deployment/CI-CD
+        priority, marketing materials on Hetzner, Codex CLI spending its
+        own plan quota for dev work) against current repo state rather than
+        assuming the entry above (same date, same venture) already settled
+        it: confirmed independently that `gitops/agents/queue/README.md`'s
+        `deploy-cicd-readiness` and `marketing-distribution` items are
+        already the two highest-priority enabled queue items (reordered
+        2026-09-01 on this exact instruction), and that the Codex worker
+        fleet in `gitops/agents/` is code-complete and (after #2825) no
+        longer dead-on-arrival, blocked only on `decision_queue.py` row 12
+        (`codex-governor-enable`, #1996) -- the owner sealing
+        `codex-secrets` and flipping two suspend/enabled switches. No new
+        code needed for that ask beyond the #2825 fix already merged above;
+        it was a pre-existing, correctly-queued owner blocker, not a gap in
+        the repo.
+    mrr_end: null
