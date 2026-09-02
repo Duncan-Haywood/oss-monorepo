@@ -240,7 +240,7 @@ codes as exit 42 and a rejected credential as exit 43.
    `gitops/ci/secrets/actions-runner-token.template.yaml` (a
    fine-grained PAT for this repo with **Administration: Read and
    write**), then set the repository variable `CI_RUNNER` =
-   `self-hosted`. Clearing that variable moves all 217 workflows back to
+   `self-hosted`. Clearing that variable moves every workflow back to
    GitHub-hosted runners. Details and the security posture:
    `gitops/ci/README.md`.
 
