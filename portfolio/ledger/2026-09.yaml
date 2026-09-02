@@ -5971,3 +5971,84 @@ entries:
         do. Confirmed via `decision_queue.py` before starting new work and
         did not re-add the ask.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/sharp-volta-j555wn`. Owner's standing direction again
+        repeated: prioritise deployment/CI-CD, build and deploy marketing
+        materials on the Hetzner VMs, set up Codex CLI to spend its
+        built-in quota there. PR queue at start: zero open PRs
+        (`list_pull_requests` and `search_pull_requests` both returned
+        empty). Audited all 222 non-`main` remote branches rather than
+        stopping at "queue empty": scoped every branch's three-dot diff
+        against current `main`, found 139 with an empty diff (fully
+        superseded) and ~55 more with only ledger/mirror/kustomization
+        changes. Spot-checked roughly 25 of the highest-signal remaining
+        branches by size and by keyword (gitops/deploy/cicd/marketing/
+        codex/runner) across every category -- large old forks
+        (`cursor/chargeback-evidence-packet-main`, `tmp/ssh-key-smoke`),
+        CI/CD branches (`claude/gha-branch-cleanup-pajw2b`,
+        `cursor/agent-cross-review-f90e` -- the latter's auto-merge feature
+        is a *closed* decision-queue item, not a gap), full ventures
+        (`cursor/product-first-development-mandate-818b`'s driveway-gate
+        calculator, `claude/festive-mccarthy-ocyq3v`'s
+        backup-verification-evidence), and duplicate vendor-watch
+        implementations (`cursor/vendor-change-watch-fix-20260824`,
+        `claude/festive-mccarthy-xrn3ua`). Every one of them was already on
+        `main`, including one (`gitops-governor-rbac-narrow-jobs-pods-verbs`)
+        whose exact verb-narrowing change and exact new test function name
+        were already present verbatim -- confirmed by checking out the
+        branch and diffing against a freshly fetched `origin/main` rather
+        than trusting a stale local ref. Concluded the branch backlog holds
+        no repairable work this run and moved to product work, consistent
+        with two independent findings already in this ledger
+        (`claude/nice-brown-7oo1nc` above, and the recurring "main keeps
+        absorbing the same feature from a sibling branch" pattern
+        `CLAUDE.md` itself documents).
+      - >-
+        Shipped two `vs-jobber.html` comparison pages -- `chimney-sweep-
+        bid-calculator` and `foundation-repair-bid-calculator`, two of the
+        58 bid-calculator ventures with no comparison page at session
+        start -- following the established discipline (no invented
+        competitor pricing, explicit non-affiliation, FAQPage JSON-LD
+        matching visible copy, linked from `index.html` and `sitemap.xml`,
+        front-door mirror regenerated). Opened #2918. Concurrency was
+        extreme: three other sessions landed their own `vs-*` pages
+        (flat-roof, boiler-replacement) on `main` during the ~20 minutes
+        this took, each requiring `platform/marketing/
+        resolve-mirror-merge.sh` to reconcile the generated mirror rather
+        than picking a side by hand -- and a *fourth* session was, it turned
+        out, working the identical branch name `claude/sharp-volta-j555wn`
+        concurrently (same chimney-sweep page, same mirror regen), requiring
+        two more merges of `origin/claude/sharp-volta-j555wn` into itself.
+      - >-
+        Found and fixed a live defect on `main`: PR #2916 ("consolidate the
+        vs-ServiceTitan page") had merged with unresolved git conflict
+        markers committed directly into
+        `ventures/boiler-replacement-bid-calculator/index.html` --
+        `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` literal text in
+        the page footer, already deployed (a merge to `main` is the Argo CD
+        deploy). `platform/ci/check_conflict_markers.py` and page-integrity
+        both fail on `main`'s own tip for this reason, surfaced while
+        chasing an unrelated CI failure on #2918. Opened and merged #2921 as
+        a standalone hotfix (both near-duplicate sides of the conflict said
+        the same thing; kept the one matching the repo's href convention and
+        `vs-servicetitan.test.mjs`'s own assertion). The concurrent session
+        sharing this branch name found and fixed the same defect
+        independently within minutes; both fixes were merged together.
+      - >-
+        No duplicate owner ask, reconfirmed: the "Codex CLI on the Hetzner
+        VM, use its built-in quota" request is decision-queue item
+        `codex-governor-enable` -- code, RBAC and tests already built and
+        unused (`suspend: true` / `"enabled": false`), gated solely on the
+        owner creating a separate-org OpenAI project key with a hard spend
+        limit and sealing it. The queue entry itself flags that a literal
+        reading of "use up the built-in quota" means logging into Codex
+        with the owner's personal ChatGPT/Plus/Pro plan, which
+        `infra/OWNER_CHECKLIST.md` explicitly calls the wrong move (no
+        spend cap, competes with interactive use) -- so this session did not
+        implement that shape, and did not re-add the ask.
+    mrr_end: null
