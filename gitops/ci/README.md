@@ -56,8 +56,8 @@ Unset, `vars.CI_RUNNER` is the empty string, which is falsy, so the expression
 falls back to `ubuntu-latest`. **Merging this changes nothing** until the repo
 variable is set. Setting it to `self-hosted` moves every workflow onto this
 stack at once; clearing it moves them all back when metered minutes reset. That
-is the point of routing through one variable rather than editing 217 files
-twice.
+is the point of routing through one variable rather than editing every
+workflow file twice.
 
 `gitops/tests/test_ci_runner.py` fails if a workflow hard-codes a runner again.
 
@@ -144,7 +144,7 @@ but the blast radius is bounded anyway:
 
 ## No workflow needs anything from the base image
 
-Nearly all 220 are `actions/checkout` plus `actions/setup-node`/`setup-python`,
+Nearly all workflows are `actions/checkout` plus `actions/setup-node`/`setup-python`,
 which download their own toolchains, so nothing here depends on what the base
 image ships beyond `curl`, `jq`, `unzip` and `git` — confirmed against
 `actions/runner`'s own `images/Dockerfile`, which installs exactly that list

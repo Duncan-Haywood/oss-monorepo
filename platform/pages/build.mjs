@@ -1085,7 +1085,7 @@ async function countPages(sourceDir) {
  * found", not as a verified guarantee that none exist.
  */
 export async function surfaceExternalFetchHosts(dir) {
-  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js'));
+  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.html'));
   const hosts = new Set();
 
   for (const file of files) {
@@ -1103,6 +1103,20 @@ export async function surfaceExternalFetchHosts(dir) {
         .map((m) => urlConsts.get(m[1]))
         .filter(Boolean),
     ];
+    // HTML-only: a browser fetches these on page load without any `fetch()`
+    // call ever appearing in a `.js` file, so the checks above miss them
+    // entirely. `rel="canonical"` / `rel="alternate"` are metadata a crawler
+    // reads, never a request a browser makes, so they are deliberately not
+    // included here — every venture's own canonical tag would otherwise show
+    // up as a false "external call" on itself.
+    if (file.endsWith('.html')) {
+      targets.push(...[...src.matchAll(/<script[^>]+\bsrc=["']?(https?:\/\/[^"'\s>]+)/gi)].map((m) => m[1]));
+      targets.push(
+        ...[...src.matchAll(/<link\b[^>]*\brel=["'][^"']*\b(?:stylesheet|preconnect|preload|modulepreload|dns-prefetch)\b[^"']*["'][^>]*>/gi)]
+          .flatMap((tag) => [...tag[0].matchAll(/\bhref=["']?(https?:\/\/[^"'\s>]+)/gi)])
+          .map((m) => m[1]),
+      );
+    }
     for (const url of targets) {
       try {
         hosts.add(new URL(url).host);
