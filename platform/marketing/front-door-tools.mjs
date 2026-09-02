@@ -82,6 +82,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -97,6 +98,75 @@ export const TOOLS_URL = 'https://tools.marisstella.dev/';
 
 /** The apex path the mirror is served under. Matches `front-door/default.conf`. */
 export const MIRROR_PREFIX = 'tools/';
+
+/**
+ * The mirror is stored gzipped, and this is why.
+ *
+ * Every ceiling below is a ceiling on *bytes*, and every one of them was
+ * binding on the same resource: the mirror had reached 5,067,476 of the
+ * 5 MiB it was allowed, 96.6% full, and the module's own comments had spent
+ * three revisions explaining which working tool to delete to make room for
+ * the next one. 53 of the portfolio's ventures were reachable from the only
+ * live surface it has; the other hundred were not, and the constraint that
+ * kept them out was not editorial.
+ *
+ * These are HTML, ES modules, CSS and a plain-text LICENSE — text, and
+ * repetitive text at that. Measured across every eligible venture in the
+ * repository, gzip -9 returns **3.13x**: 15,743,302 bytes of tool source
+ * compress to 5,034,765. That is the whole remaining catalogue inside the
+ * budget that previously held a third of it.
+ *
+ * ## Storing only the compressed copy
+ *
+ * The mirror ships `<slug>__<file>.gz` and nothing else — there is no
+ * uncompressed copy in the ConfigMap, in git, or in the pod's tmpfs. nginx
+ * serves it with `gzip_static always` (send the stored `.gz` whatever the
+ * client asked for) plus `gunzip on` (decompress in the worker for a client
+ * that did not send `Accept-Encoding: gzip`). Both modules are compiled into
+ * `nginxinc/nginx-unprivileged:1.27-alpine`, which is the image
+ * `gitops/prod/portfolio-front.yaml` runs; `nginx -V` on it lists
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`.
+ *
+ * The `location` blocks in `front-door/default.conf` had to change shape for
+ * this, and the reason is worth keeping: they used `try_files /$1__$2 =404`,
+ * which `stat()`s the *uncompressed* name and would 404 every request in a
+ * gz-only mirror before `gzip_static` ever ran. They now `rewrite` to the
+ * flattened key with named captures — `$1` in a `rewrite` replacement refers
+ * to the rewrite's own regex, not to the enclosing `location`'s, so a
+ * positional capture there silently resolves to the empty string and asks for
+ * `__index.html`.
+ *
+ * ## What this costs
+ *
+ * The three costs the ceilings below track move in different directions:
+ *
+ * - **The repository and the pod's tmpfs** hold the compressed bytes, so both
+ *   fall by 3.13x per mirrored tool.
+ * - **The applied ConfigMap** holds base64, because gzip output is not valid
+ *   UTF-8 and kustomize puts it under `binaryData`. That is a 4/3 expansion,
+ *   so the object is ~2.35x smaller per tool rather than 3.13x — and
+ *   `SHARD_BYTE_CEILING` below is stated in *stored* bytes and has to leave
+ *   room for it.
+ * - **CPU**, only for a client that does not accept gzip, which in practice
+ *   means a scripted fetch rather than a browser. `gunzip on` inflates into a
+ *   worker buffer at request time.
+ *
+ * ## Determinism
+ *
+ * The output is committed, so the bytes have to be reproducible or
+ * `front-door-tools.test.mjs`'s drift check would fail on every regeneration.
+ * Node writes a fixed gzip header — no mtime, no filename, OS byte 3 — which
+ * `GZIP_HEADER` pins so a runtime upgrade that changed it fails loudly here
+ * instead of showing up as an unexplained 5 MB diff.
+ */
+export const GZIP_LEVEL = 9;
+
+/** The first ten bytes Node's `gzipSync` writes, pinned so a runtime change is loud. */
+export const GZIP_HEADER = Buffer.from('1f8b0800000000000203', 'hex');
+
+/** The stored (compressed) form of one mirrored file. */
+export const compress = (contents) =>
+  zlib.gzipSync(Buffer.from(contents, 'utf8'), { level: GZIP_LEVEL });
 
 /**
  * The ceiling on ONE ConfigMap shard's bytes.
@@ -161,8 +231,26 @@ export const MIRROR_PREFIX = 'tools/';
  * headroom under the 1 MiB object cap: 753,664 content bytes serialise to
  * roughly 781 KB at the measured 3.7% overhead, leaving ~267 KB rather than
  * ~296 KB for Argo's tracking metadata and server-side apply's `managedFields`.
+ *
+ * **Lowered to 544 KiB when the mirror went gzip-only, and the unit changed
+ * under it.** This counts *stored* bytes now, and a stored byte is not valid
+ * UTF-8, so kustomize writes the shard under `binaryData` as base64 rather
+ * than under `data` as an escaped string. The serialisation overhead is
+ * therefore 4/3 rather than the 3.7% every paragraph above measured — an
+ * eightfold change in the number this ceiling exists to predict, and the kind
+ * of change that turns a ceiling into decoration if it is left alone. 544 KiB
+ * of stored bytes serialises to 742,744 bytes of base64, so a shard lands
+ * around 745 KB against etcd's 1 MiB — the same ~280 KB of headroom the
+ * paragraphs above were defending, in the new unit.
+ *
+ * Seven shards no longer cover the whole mirror, and that stopped being a
+ * property worth buying: at 3.13x compression `MIRROR_BYTE_CEILING` now admits
+ * roughly three times the tools, so the shard count moves with the catalogue
+ * either way. `renderKustomization` writes however many are needed and
+ * `test_portfolio_front_mounts_every_generated_mirror_shard` fails if
+ * `portfolio-front.yaml`'s projected volume has not been updated to match.
  */
-export const SHARD_BYTE_CEILING = 736 * 1024;
+export const SHARD_BYTE_CEILING = 544 * 1024;
 
 /**
  * The ceiling on the mirror's total bytes, across every shard.
@@ -188,8 +276,25 @@ export const SHARD_BYTE_CEILING = 736 * 1024;
  * at all and makes this directory deletable in one commit. Raising this number
  * past the point where the stopgap costs more than the seal would is the wrong
  * trade; the right one is the seal.
+ *
+ * **Raised from 5 MiB to 8 MiB when the mirror went gzip-only, and the unit
+ * changed under it.** Both costs above are paid in *stored* bytes — tmpfs
+ * holds what the ConfigMap holds, and git holds the `.gz` files themselves —
+ * so both fell by 3.13x on the same day this number rose by 1.6x. The
+ * arithmetic that matters is the product: 5 MiB of uncompressed source was
+ * 53 tools, and 8 MiB of compressed source is every eligible venture in the
+ * repository with about 40% left over. The committed mirror at this ceiling
+ * is 8 MiB against a 71 MB `.git`, and each replica's tmpfs is 8 MiB against
+ * a 192Mi limit — both larger than before, both a smaller share of the
+ * catalogue's growth than they were.
+ *
+ * The seal is still the right answer and this is still a stopgap. What
+ * changed is that the stopgap now covers the whole catalogue rather than a
+ * third of it, so the cost of the seal *not* landing this month is much lower
+ * than it was — which is an argument for keeping the seal queued, not for
+ * dropping it.
  */
-export const MIRROR_BYTE_CEILING = 5 * 1024 * 1024;
+export const MIRROR_BYTE_CEILING = 8 * 1024 * 1024;
 
 /** The name prefix every mirror shard's ConfigMap takes; `-0`, `-1`, ... follow. */
 export const SHARD_PREFIX = 'portfolio-front-tools';
@@ -500,6 +605,102 @@ export const STARTER_SET = [
 ];
 
 /**
+ * Every other venture the mirror can serve, appended to `STARTER_SET`.
+ *
+ * ## Why the set stopped being hand-picked
+ *
+ * `STARTER_SET`'s comment above is an argument about scarcity: which tools
+ * are small enough, which category is left on one card, which venture "costs
+ * a fifth of the ceiling on its own". Every sentence of it was true, and
+ * gzip made none of it binding — the whole eligible catalogue now fits in
+ * 60% of `MIRROR_BYTE_CEILING`. A curated subset was the right answer to a
+ * budget that could hold 53 of 169 tools. It is the wrong answer to a budget
+ * that can hold all of them: the visitor who arrives on a category card and
+ * finds their exact question missing does not care that the omission was
+ * once well reasoned.
+ *
+ * So `STARTER_SET` keeps its job — it is the *order*, and the tools whose
+ * presence someone argued for — and this adds everything else that can be
+ * served, in slug order after it. Two consequences worth stating:
+ *
+ * - **New ventures reach the live front door on merge**, with no edit here.
+ *   That is the point: `gitops/prod/` is the deploy, so a venture that lands
+ *   on `main` with a flat, self-contained `index.html` is public as soon as
+ *   the mirror is regenerated, which `front-door-tools.test.mjs` requires of
+ *   the same commit.
+ * - **Ordering still matters for churn, not for correctness.** Shard names
+ *   carry a content hash that rolls the pods, and `STARTER_SET` stays first
+ *   so the shards holding it are undisturbed by a new venture landing in the
+ *   middle of the alphabet.
+ *
+ * ## What "can be served" means, and why it is computed rather than listed
+ *
+ * A venture is eligible when its servable files are flat (the `__` key
+ * encoding represents no subdirectory), its slug and filenames match what
+ * `front-door/default.conf` routes, it has an `index.html`, and every
+ * relative link in its pages resolves inside the mirror.
+ *
+ * That last one is not a property of the venture alone — it is a property of
+ * the venture *and the set*. `marketplace-fee-compare` links sideways to its
+ * sibling marketplace calculators, which is exactly why `STARTER_SET`'s
+ * comment records it as unmirrorable; with the siblings now in the set those
+ * links resolve and it is fine. So eligibility is computed by fixpoint:
+ * assume every candidate is in, drop the ones with dead links, and repeat,
+ * because dropping a venture can break the links of one that pointed at it.
+ *
+ * A `STARTER_SET` entry is never dropped this way. Someone argued for it, and
+ * a curated tool silently vanishing from the front door because a neighbour
+ * changed a link is the failure this whole module exists to prevent —
+ * `buildMirror` still throws for those.
+ */
+export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTURES_DIR } = {}) {
+  const named = new Set(set.map((entry) => entry.slug));
+  const candidates = [];
+  for (const entry of await fs.readdir(venturesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || named.has(entry.name) || !ROUTABLE_SLUG.test(entry.name)) continue;
+    const names = await ventureFiles(entry.name, venturesDir);
+    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_FILE.test(n))) continue;
+    candidates.push({ slug: entry.name, names });
+  }
+  candidates.sort((a, b) => a.slug.localeCompare(b.slug));
+
+  // Read once; the fixpoint below only ever removes ventures, so re-reading on
+  // each pass would be the same bytes off disk two or three times over.
+  const read = async ({ slug, names }) =>
+    Promise.all(
+      names.map(async (file) => ({
+        slug,
+        file,
+        contents: await fs.readFile(path.join(venturesDir, slug, file), 'utf8'),
+      })),
+    );
+  const namedFiles = (
+    await Promise.all(set.map(async ({ slug }) => read({ slug, names: await ventureFiles(slug, venturesDir) })))
+  ).flat();
+  const byCandidate = new Map(
+    await Promise.all(candidates.map(async (c) => [c.slug, await read(c)])),
+  );
+
+  let admitted = candidates.map((c) => c.slug);
+  for (;;) {
+    const files = [...namedFiles, ...admitted.flatMap((slug) => byCandidate.get(slug))];
+    const failing = new Set(
+      validateLinks(files)
+        .map((problem) => problem.split('/')[0])
+        .filter((slug) => !named.has(slug)),
+    );
+    if (!failing.size) return admitted;
+    admitted = admitted.filter((slug) => !failing.has(slug));
+  }
+}
+
+/** `STARTER_SET`, then every other venture the mirror can serve. */
+export async function mirrorSet(venturesDir = VENTURES_DIR) {
+  const discovered = await discoverEligible({ venturesDir });
+  return [...STARTER_SET, ...discovered.map((slug) => ({ slug }))];
+}
+
+/**
  * The ConfigMap key a mirrored file gets.
  *
  * ConfigMap keys cannot contain `/`, so the venture and the filename are joined
@@ -510,6 +711,18 @@ export const STARTER_SET = [
  * in nginx does the same job in two lines and cannot drift.
  */
 export const mirrorKey = (slug, file) => `${slug}__${file}`;
+
+/**
+ * The ConfigMap key the *stored* bytes get — the mirror key plus `.gz`.
+ *
+ * Two keys rather than one because they answer different questions and both
+ * are asked. `mirrorKey` is the identity of the file inside the mirror, which
+ * is what `validateLinks`, `assertUniqueKeys` and the URL rewrites reason
+ * about; `storedKey` is the name on disk and in the ConfigMap, which is what
+ * `gzip_static` appends `.gz` to find. Collapsing them would make every link
+ * check compare `a.html` against `a.html.gz` and pass nothing.
+ */
+export const storedKey = (slug, file) => `${mirrorKey(slug, file)}.gz`;
 
 /**
  * The slugs and filenames `front-door/default.conf` can actually route.
@@ -769,7 +982,11 @@ export function validateLinks(files) {
  * Returns one entry per file with its ConfigMap key and final contents, plus
  * the per-venture titles the front door needs to name its cards.
  */
-export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DIR } = {}) {
+export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
+  // Resolved here rather than in the parameter list because it reads the
+  // filesystem; a caller passing an explicit `set` (every test that exercises
+  // packing or a deliberate failure) must not pay for a scan of `ventures/`.
+  set ??= await mirrorSet(venturesDir);
   const files = [];
   const tools = [];
   for (const { slug, why } of set) {
@@ -795,7 +1012,17 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
       const contents = file.endsWith('.html')
         ? injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length })
         : raw;
-      files.push({ slug, file, key: mirrorKey(slug, file), contents });
+      files.push({
+        slug,
+        file,
+        key: mirrorKey(slug, file),
+        stored: storedKey(slug, file),
+        contents,
+        // The bytes that reach git, the ConfigMap and the pod. Computed once
+        // here because every ceiling below measures it and gzip -9 over a
+        // 5 MB mirror is the most expensive thing this module does.
+        bytes: compress(contents),
+      });
     }
     const entry = files.find((f) => f.slug === slug && f.file === 'index.html');
     tools.push({
@@ -814,15 +1041,19 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
     throw new Error(`the mirror would serve dead links:\n  ${problems.join('\n  ')}`);
   }
 
-  const bytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
+  const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
     throw new Error(
-      `the mirror is ${bytes} bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling — ` +
+      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling — ` +
         `drop a venture from STARTER_SET rather than raising it without reading its comment`,
     );
   }
+  // What the mirror would have cost uncompressed, reported rather than
+  // checked: it is the number that says whether gzip is still earning its
+  // place, and it has no ceiling of its own because nothing stores it.
+  const sourceBytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
 
-  return { files, tools, bytes, shards: packShards(files) };
+  return { files, tools, bytes, sourceBytes, shards: packShards(files) };
 }
 
 /**
@@ -856,7 +1087,7 @@ export function packShards(files, ceiling = SHARD_BYTE_CEILING, runtThreshold = 
   const shards = [];
   let current = null;
   for (const file of files) {
-    const size = Buffer.byteLength(file.contents);
+    const size = file.bytes.length;
     if (size > ceiling) {
       throw new Error(
         `${file.key} is ${size} bytes, larger than the ${ceiling}-byte shard ceiling, ` +
@@ -903,7 +1134,7 @@ export function packShards(files, ceiling = SHARD_BYTE_CEILING, runtThreshold = 
     const last = shards[shards.length - 1];
     const prev = shards[shards.length - 2];
     if (prev.files.length < 2) break;
-    const movedSize = Buffer.byteLength(prev.files[prev.files.length - 1].contents);
+    const movedSize = prev.files[prev.files.length - 1].bytes.length;
     if (last.bytes + movedSize > ceiling) break;
     const moved = prev.files.pop();
     prev.bytes -= movedSize;
@@ -1023,7 +1254,7 @@ export function renderKustomization(shards) {
         `      annotations:\n` +
         `        ${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}\n` +
         `    files:\n` +
-        shard.files.map((f) => `      - ${f.key}=${f.key}`).join('\n'),
+        shard.files.map((f) => `      - ${f.stored}=${f.stored}`).join('\n'),
     )
     .join('\n');
   const sizes = shards.map((s) => `#   ${s.name}: ${s.files.length} files, ${s.bytes} bytes`).join('\n');
@@ -1047,9 +1278,19 @@ export function renderKustomization(shards) {
 # etcd caps a stored object at 1 MiB, so a mirror held in a single ConfigMap
 # could never serve more than about twenty tools however many were worth
 # serving. Several ConfigMaps merged into one \`mountPath\` by a projected volume
-# have no such shared cap; nginx still sees one flat directory of \`slug__file\`
-# keys, and \`front-door/default.conf\` did not change. \`SHARD_BYTE_CEILING\` in
-# \`front-door-tools.mjs\` carries the reasoning and the measurements.
+# have no such shared cap; nginx sees one flat directory of \`slug__file.gz\`
+# keys. \`SHARD_BYTE_CEILING\` in \`front-door-tools.mjs\` carries the reasoning
+# and the measurements.
+#
+# WHY EVERY KEY ENDS IN \`.gz\`
+#
+# The mirror stores only the compressed copy of each page, and nginx serves it
+# with \`gzip_static always\` plus \`gunzip on\` — see the compression section at
+# the top of \`front-door-tools.mjs\`. gzip output is not valid UTF-8, so
+# kustomize puts these under \`binaryData\` as base64 rather than under \`data\`;
+# that is a 4/3 expansion on the applied object and a 3.13x saving on
+# everything else, which is what let the mirror grow from 53 tools to the whole
+# eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
 ${sizes}
@@ -1079,7 +1320,7 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
   for (const file of built.files) {
-    await fs.writeFile(path.join(outputDir, file.key), file.contents);
+    await fs.writeFile(path.join(outputDir, file.stored), file.bytes);
   }
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
   return built;
@@ -1098,20 +1339,17 @@ const shardSummary = (shards) =>
     .join('\n');
 
 if (isMain) {
+  const totals = ({ files, tools, bytes, sourceBytes, shards }) =>
+    `${tools.length} tools, ${files.length} files, ${bytes} stored bytes ` +
+    `(${Math.round((bytes / MIRROR_BYTE_CEILING) * 100)}% of the mirror ceiling; ` +
+    `${sourceBytes} uncompressed, ${(sourceBytes / bytes).toFixed(2)}x) ` +
+    `in ${shards.length} shards\n${shardSummary(shards)}`;
   if (process.argv.includes('--write')) {
-    const { files, tools, bytes, shards } = await writeMirror();
-    console.log(
-      `wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ` +
-        `${tools.length} tools, ${files.length} files, ${bytes} bytes ` +
-        `(${Math.round((bytes / MIRROR_BYTE_CEILING) * 100)}% of the mirror ceiling) ` +
-        `in ${shards.length} shards\n${shardSummary(shards)}`,
-    );
+    const built = await writeMirror();
+    console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
   } else {
-    const { files, tools, bytes, shards } = await buildMirror();
-    for (const tool of tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
-    console.log(
-      `\n${tools.length} tools, ${files.length} files, ${bytes} bytes in ` +
-        `${shards.length} shards\n${shardSummary(shards)}`,
-    );
+    const built = await buildMirror();
+    for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
+    console.log(`\n${totals(built)}`);
   }
 }

@@ -16,9 +16,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 import {
+  GZIP_HEADER,
+  compress,
+  storedKey,
+  discoverEligible,
   MIRROR_BYTE_CEILING,
   SHARD_BYTE_CEILING,
   packShards,
@@ -54,20 +59,28 @@ const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
 test('the committed mirror matches what the generator produces', async () => {
   const { files } = await buildMirror();
   for (const file of files) {
-    const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.key), 'utf8').catch(() => null);
-    assert.notEqual(onDisk, null, `${file.key} is missing from the commit — run \`${REGENERATE}\``);
-    assert.equal(onDisk, file.contents, `${file.key} is stale — run \`${REGENERATE}\``);
+    const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.stored)).catch(() => null);
+    assert.notEqual(onDisk, null, `${file.stored} is missing from the commit — run \`${REGENERATE}\``);
+    assert.ok(onDisk.equals(file.bytes), `${file.stored} is stale — run \`${REGENERATE}\``);
+    // What is committed is compressed, so a byte comparison alone would pass
+    // for two files that are both wrong in the same way. Inflating proves the
+    // stored bytes are the page a visitor is actually served.
+    assert.equal(
+      zlib.gunzipSync(onDisk).toString('utf8'),
+      file.contents,
+      `${file.stored} does not inflate to the page it mirrors — run \`${REGENERATE}\``,
+    );
   }
 });
 
 test('the mirror directory holds nothing the generator did not write', async () => {
   const { files } = await buildMirror();
-  const expected = new Set([...files.map((f) => f.key), 'kustomization.yaml']);
+  const expected = new Set([...files.map((f) => f.stored), 'kustomization.yaml']);
   const actual = await fs.readdir(OUTPUT_DIR);
   for (const name of actual) {
     assert.ok(
       expected.has(name),
-      `${name} is left over from a venture no longer in STARTER_SET — run \`${REGENERATE}\``,
+      `${name} is left over from a venture the mirror no longer serves — run \`${REGENERATE}\``,
     );
   }
   assert.equal(actual.length, expected.size, `run \`${REGENERATE}\``);
@@ -233,7 +246,7 @@ test('packShards refuses a file no shard could hold', () => {
   // the packer has to say so rather than emit a shard over the cap — which
   // would apply cleanly right up until etcd rejected it.
   assert.throws(
-    () => packShards([{ key: 'a__big.mjs', contents: 'x'.repeat(2048) }], 1024),
+    () => packShards([{ key: 'a__big.mjs', bytes: Buffer.alloc(2048) }], 1024),
     /larger than the 1024-byte shard ceiling/,
   );
 });
@@ -249,11 +262,11 @@ test('a trailing runt shard is absorbed rather than mounted as its own ConfigMap
   const ceiling = 1000;
   const runt = 150;
   const files = [
-    { key: 'a__1.mjs', contents: 'x'.repeat(600) },
-    { key: 'a__2.mjs', contents: 'x'.repeat(350) },
+    { key: 'a__1.mjs', bytes: Buffer.alloc(600) },
+    { key: 'a__2.mjs', bytes: Buffer.alloc(350) },
     // 950 + 100 overflows, so without absorption this lands alone in a
     // 100-byte second shard.
-    { key: 'b__1.mjs', contents: 'x'.repeat(100) },
+    { key: 'b__1.mjs', bytes: Buffer.alloc(100) },
   ];
   const shards = packShards(files, ceiling, runt);
   const last = shards[shards.length - 1];
@@ -280,11 +293,11 @@ test('absorbing a runt never pushes the receiving shard over the ceiling', () =>
   const ceiling = 1000;
   const runt = 150;
   const files = [
-    { key: 'a__1.mjs', contents: 'x'.repeat(100) },
+    { key: 'a__1.mjs', bytes: Buffer.alloc(100) },
     // The only file the donor could give back is 900 bytes, which would take
     // the 120-byte runt to 1020 — over the ceiling. The runt has to stay.
-    { key: 'a__2.mjs', contents: 'x'.repeat(900) },
-    { key: 'b__1.mjs', contents: 'x'.repeat(120) },
+    { key: 'a__2.mjs', bytes: Buffer.alloc(900) },
+    { key: 'b__1.mjs', bytes: Buffer.alloc(120) },
   ];
   const shards = packShards(files, ceiling, runt);
   for (const shard of shards) {
@@ -302,8 +315,8 @@ test('absorbing a runt never drains its donor to an empty shard', () => {
   const runt = 150;
   const files = [
     // The donor holds exactly one file, so giving it back would empty it.
-    { key: 'a__1.mjs', contents: 'x'.repeat(900) },
-    { key: 'b__1.mjs', contents: 'x'.repeat(150) },
+    { key: 'a__1.mjs', bytes: Buffer.alloc(900) },
+    { key: 'b__1.mjs', bytes: Buffer.alloc(150) },
   ];
   const shards = packShards(files, ceiling, runt);
   for (const shard of shards) {
@@ -319,8 +332,8 @@ test('a duplicate ConfigMap key is refused rather than mounted', () => {
   // rather than a visible failure. Cheaper to catch here.
   assert.throws(
     () => packShards([
-      { key: 'a__index.html', contents: 'x' },
-      { key: 'a__index.html', contents: 'y' },
+      { key: 'a__index.html', bytes: Buffer.alloc(1) },
+      { key: 'a__index.html', bytes: Buffer.alloc(1) },
     ]),
     /appears twice in the mirror/,
   );
@@ -424,16 +437,89 @@ test('the nginx config serves every shape of path the mirror produces', async ()
     path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
     'utf8',
   );
-  assert.match(conf, /location ~ "\^\/tools\/\(\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$"/);
-  assert.match(conf, /try_files \/\$1__index\.html =404;/);
-  assert.match(conf, /try_files \/\$1__\$2 =404;/);
+  assert.match(conf, /location ~ "\^\/tools\/\(\?<slug>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$"/);
+  assert.match(conf, /rewrite \^ \/\$\{slug\}__index\.html break;/);
+
+  // The four properties a gz-only mirror needs from every `/tools/` location,
+  // each of which is a silent whole-mirror 404 if it is missing.
+  const toolBlocks = conf.match(/location ~ "\^\/tools\/[\s\S]*?\n  \}/g) ?? [];
+  assert.equal(toolBlocks.length, 4, 'the mirror is routed by four location blocks');
+  for (const block of toolBlocks) {
+    // `gzip_static always`, not `on`: `on` only consults the stored `.gz` when
+    // the client sent `Accept-Encoding: gzip`, and falls through to a plain
+    // file that a gz-only mirror does not have.
+    assert.match(block, /gzip_static always;/, `a /tools/ block does not serve the stored .gz:\n${block}`);
+    // `gunzip on`, or every client that did not ask for gzip gets bytes it
+    // cannot read with a 200.
+    assert.match(block, /gunzip on;/, `a /tools/ block cannot answer a non-gzip client:\n${block}`);
+    // `try_files` stats the *uncompressed* name, which does not exist here, so
+    // it would 404 before `gzip_static` ran. This is the trap, and it looks
+    // correct.
+    assert.doesNotMatch(block, /try_files/, `a /tools/ block still uses try_files:\n${block}`);
+    // A positional `$1` in a `rewrite` replacement refers to the rewrite's own
+    // regex (`^`, which captures nothing), not to the location's — so it
+    // resolves to the empty string and asks for `__index.html`.
+    assert.doesNotMatch(
+      block,
+      /rewrite \^ \/\$\d/,
+      `a /tools/ block uses a positional capture in its rewrite, which resolves empty:\n${block}`,
+    );
+    assert.match(block, /X-Robots-Tag "noindex"/);
+  }
+
   // `.mjs` must be typed, or the module is refused and every calculator is an
   // inert form that still returns 200.
-  assert.match(conf, /\\\.mjs\)\$"[\s\S]{0,200}default_type text\/javascript;/);
+  assert.match(conf, /\\\.mjs\)\$"[\s\S]{0,900}default_type text\/javascript;/);
   // ...and its block must come before the general file rule, since nginx takes
   // the first matching regex location.
-  assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('([A-Za-z0-9._-]+)$"'));
-  assert.match(conf, /X-Robots-Tag "noindex"/);
+  assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('<any_file>[A-Za-z0-9._-]+)$"'));
+});
+
+test('every stored key is one the nginx rewrites reconstruct', async () => {
+  // The encoding lives in two places that cannot import each other: the
+  // generator writes `<slug>__<file>.gz`, and `gzip_static` finds it by
+  // appending `.gz` to the URI the `rewrite` produced. This walks the real
+  // mirror and rebuilds each key the way nginx would, so a change to either
+  // side without the other fails here rather than as a 404 in production.
+  const { files } = await buildMirror();
+  for (const file of files) {
+    const url = mirrorUrl(file.slug, file.file);
+    const [, slug, tail] = url.match(/^\/tools\/([^/]+)\/(.*)$/);
+    // The trailing-slash location is a separate rule for exactly this reason:
+    // an empty tail is `index.html`, not an empty filename.
+    assert.equal(`${slug}__${tail || 'index.html'}.gz`, file.stored);
+    assert.equal(storedKey(file.slug, file.file), file.stored);
+  }
+});
+
+test('the stored bytes inflate to the page, with a gzip header that does not drift', async () => {
+  // The mirror is committed, so its bytes have to be reproducible or the
+  // staleness check fails on every regeneration. Node writes a fixed header —
+  // no mtime, no filename — and this pins it so a runtime upgrade that changed
+  // it shows up here rather than as an unexplained multi-megabyte diff.
+  const sample = '<!doctype html><html><head><title>x</title></head><body>hello</body></html>';
+  const gz = compress(sample);
+  assert.ok(gz.subarray(0, GZIP_HEADER.length).equals(GZIP_HEADER), gz.subarray(0, 10).toString('hex'));
+  assert.equal(zlib.gunzipSync(gz).toString('utf8'), sample);
+  assert.ok(compress(sample).equals(gz), 'compression is not deterministic');
+});
+
+test('discovery admits every venture the mirror can serve, and no curated one twice', async () => {
+  // `STARTER_SET` is the order and the argued-for core; discovery appends
+  // everything else that is flat, routable and self-contained. The mirror is
+  // worth having only if that second half is substantially larger than the
+  // first — that is the whole reason compression was worth doing.
+  const discovered = await discoverEligible();
+  const curated = new Set(STARTER_SET.map((entry) => entry.slug));
+  for (const slug of discovered) {
+    assert.ok(!curated.has(slug), `${slug} is both curated and discovered, so it would mirror twice`);
+    assert.match(slug, ROUTABLE_SLUG);
+  }
+  assert.deepEqual(discovered, discovered.slice().sort(), 'discovery order must be stable');
+  assert.ok(
+    discovered.length > curated.size,
+    `discovery found ${discovered.length} ventures beyond the ${curated.size} curated ones`,
+  );
 });
 
 test('the front door compresses every non-HTML type the mirror actually serves', async () => {

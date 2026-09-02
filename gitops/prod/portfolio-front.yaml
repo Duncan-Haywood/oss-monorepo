@@ -191,8 +191,16 @@ spec:
           # Several ConfigMaps merged into one directory have no such shared
           # cap. Each shard is bounded separately, the union is bounded by
           # `MIRROR_BYTE_CEILING`, and nothing downstream can tell: the keys
-          # are `slug__file` either way, they land in one flat directory either
-          # way, and `front-door/default.conf` is unchanged.
+          # are `slug__file.gz` either way, they land in one flat directory
+          # either way, and the `location` blocks in
+          # `front-door/default.conf` name no venture.
+          #
+          # The keys gained their `.gz` when the mirror went gzip-only, which
+          # is also why there are ten sources here rather than seven while the
+          # mirror serves three times the tools. nginx serves the stored bytes
+          # with `gzip_static always` and inflates them with `gunzip on` for a
+          # client that did not ask for gzip; `front-door-tools.mjs`'s
+          # compression section carries the measurements.
           #
           # The property that had to survive is the content hash. Kustomize's
           # name-reference transformer rewrites
@@ -233,6 +241,12 @@ spec:
                   name: portfolio-front-tools-5
               - configMap:
                   name: portfolio-front-tools-6
+              - configMap:
+                  name: portfolio-front-tools-7
+              - configMap:
+                  name: portfolio-front-tools-8
+              - configMap:
+                  name: portfolio-front-tools-9
         - name: conf
           configMap:
             name: portfolio-front-nginx
