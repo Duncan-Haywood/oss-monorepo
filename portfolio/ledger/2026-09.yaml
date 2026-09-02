@@ -5486,3 +5486,74 @@ entries:
         starts destroying uncommitted work rather than just requiring
         recovery.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs existed at session start (confirmed via
+        `list_pull_requests` and `search_pull_requests`). Checked the 4
+        non-`claude/sharp-volta-*` stale branches for unshipped work:
+        `session/cleanup-2026-08-24` and
+        `session/remove-stale-local-site-studio-entry` (single-commit
+        2026-08-24 ledger housekeeping) are both superseded by far more
+        thorough entries already on `main`; `venture/vendor-change-watch`
+        has an identical tree to `main` at its parent
+        (`git diff main...branch` empty); `tmp/ssh-key-smoke` is a 9-day
+        stale, 936-commit-behind one-shot CI smoke-test branch not worth
+        reviving. No PRs needed — quota satisfied by an empty, already-drained
+        queue (corroborated by a concurrent session's #2888, which
+        independently audited 9 more branches to the same "all superseded"
+        result the same evening).
+      - >-
+        The scheduled brief re-stated (in the owner's own words) "make sure
+        deployment and cicd is a priority and building and deploying
+        marketing materials on the hetzner vms," and separately asked to set
+        up Codex CLI on the Hetzner VM to spend its built-in ChatGPT-plan
+        quota. Confirmed this is already fully built and unused
+        (`gitops/agents/`: governor CronJob, RBAC, `codex-home` PVC, worker
+        mandate, tested queue reader) and correctly gated on the owner-only
+        `codex login` + `kubeseal` step per `asks.yaml`'s
+        `codex-governor-enable` row (also independently reconfirmed by
+        #2888 the same evening). No duplicate ask added, nothing flipped —
+        the checklist explicitly warns against the literal "personal login"
+        reading of that request.
+      - >-
+        Picked up the two highest-priority queue items directly
+        (`deploy-cicd-readiness` priority 7, `marketing-distribution`
+        priority 6 — both bumped to those priorities specifically on this
+        same owner direction) rather than waiting for the ungated governor.
+        Found and fixed a real gap via a research subagent:
+        `gitops/prod/portfolio-front.yaml`'s nginx `tmp` emptyDir volume had
+        no `sizeLimit`, unlike its two siblings (`portfolio-site.yaml`
+        64Mi, `landing.yaml` 16Mi) — an unbounded emptyDir grows until the
+        kubelet evicts the pod, on the node that also runs the k3s control
+        plane, ingress and cert-manager, and `portfolio-front` is the one
+        surface of the three that's unconditionally live today. Capped at
+        64Mi and added a generalized `gitops/tests` regression test.
+      - >-
+        Shipped `vs-quickbooks-online-invoicing.html` for
+        `invoice-payment-terms-calculator` — QuickBooks Online is the
+        category-leading invoicing incumbent and had no comparison page
+        anywhere in the portfolio; the venture's whole subject (cash-landing
+        date, 2/10 discount vs. waiting, factoring vs. waiting) is exactly
+        what QuickBooks' own per-invoice terms feature doesn't cover. No
+        vendor dollar figure claimed, matching this repo's existing
+        discipline.
+      - >-
+        First push (PR #2892) came back CI-red on `validate`: adding the new
+        page and editing `index.html`'s nav line made the committed
+        front-door tool mirror (`gitops/prod/front-door-tools/`, a generated
+        artifact `front-door-tools.test.mjs` checks for freshness) stale —
+        3/98 tests failing with the exact stale file and a 1215-vs-1216
+        count mismatch named in the assertion output. This was the PR's own
+        fault, not infra: fixed with
+        `node platform/marketing/front-door-tools.mjs --write`, re-verified
+        (40/40, 58/58, 266/266, 89/89), merged a concurrent `main` commit
+        that had touched the same `portfolio-front.yaml` file (clean
+        auto-merge, no conflict), commented the failure and fix on the PR,
+        and merged once the full 15-check re-run went green. Worth recording
+        as a general lesson: any change touching a venture's static files
+        needs the mirror regenerated in the same PR, and `validate`'s
+        `front-door-tools.test.mjs` is what catches it.
+    mrr_end: null
