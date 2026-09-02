@@ -4327,6 +4327,56 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled routine, quota phase: 1 open PR at start (#2832,
+        `opencode-high-throughput`'s R5 least-privilege permissions gap --
+        a mechanical, already-verified `contents: read` file-level floor
+        with the three write scopes moved to the one job that needs them).
+        Reviewed, confirmed all 4 checks green, merged (squash). Met the
+        (trivial, since only one PR existed) merge quota; 0 open PRs
+        remained.
+      - >-
+        Ran `deploy-cicd-readiness` (queue priority 7, the owner's own
+        "deployment and cicd is a priority" instruction from 2026-09-01)
+        and found a real defect: `gitops/ci/networkpolicy.yaml`'s
+        internet-egress rule had no `ports:` field at all, which in
+        NetworkPolicy semantics means every port to any allowed
+        destination, not the HTTPS-only egress the file's own header
+        claimed. The sibling files (`gitops/agents/networkpolicy.yaml`'s
+        `worker-egress`, `gitops/prod/networkpolicy.yaml`'s
+        `portfolio-site-egress`) both already carry the `ports: [{TCP,
+        443}]` scoping and both cite this file as already fixed the same
+        way -- it never was; only the `except:` CIDR list had been. A CI
+        workflow step (arbitrary code from any PR) could open an outbound
+        TCP connection on any port to any internet address short of the
+        excluded cluster/private/metadata ranges. `test_runner_cannot_
+        reach_the_cluster` checked the CIDR list but never checked
+        `ports`, so nothing caught the gap.
+      - >-
+        Fixed: added the `ports: [{TCP, 443}]` scope, plus a narrow
+        `/32`-scoped port-22 carve-out for the two Hetzner boxes so a
+        future `CI_RUNNER=self-hosted` flip doesn't silently strand
+        `hetzner-gitops-ci.yml`'s `preflight` SSH health check behind the
+        new 443-only rule, and two regression tests pinning both
+        properties. Verified: `pytest gitops/tests -q` 265/265 (263 + 2
+        new), `kustomize build` + `kubeconform -strict` clean across all
+        six overlays, `shellcheck` clean. Opened and merged (squash) as
+        #2836, all 6 real checks green (`preflight` skipped as designed --
+        `workflow_dispatch`-only).
+      - >-
+        Checked the owner's explicit Codex-CLI-on-Hetzner ask against
+        current state before doing anything else: confirmed independently
+        (matches the entry above from earlier the same day) that the
+        Codex worker fleet under `gitops/agents/` is fully built and
+        tested, blocked only on `decision_queue.py` row 12
+        (`codex-governor-enable`, #1996) -- the owner sealing
+        `codex-secrets` and flipping the governor's suspend/enabled
+        switches. Did not rebuild or duplicate that ask.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Scheduled routine session, same standing prompt (deployment/CI-CD
         first, marketing on the Hetzner VMs, Codex CLI on the plan quota).
         Open-PR queue was one item, #2833, and a concurrent session merged
