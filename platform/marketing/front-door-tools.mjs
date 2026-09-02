@@ -750,7 +750,7 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
  * it rather than assuming it, because the cost of being wrong is the apex
  * freezing on a stale mirror with nothing failing loudly.
  */
-export function packShards(files, ceiling = SHARD_BYTE_CEILING) {
+export function packShards(files, ceiling = SHARD_BYTE_CEILING, runtThreshold = CLIENT_SIDE_APPLY_CEILING) {
   assertUniqueKeys(files);
   const shards = [];
   let current = null;
@@ -769,6 +769,45 @@ export function packShards(files, ceiling = SHARD_BYTE_CEILING) {
     }
     current.files.push(file);
     current.bytes += size;
+  }
+  // Declaration order packs a trailing shard however small the last venture's
+  // remainder happens to be — one file over, and the whole mirror grows a
+  // shard that does not need `ServerSideApply` but carries it anyway (see the
+  // "the mirror asks for the apply mode its size actually requires" test).
+  // Rather than asking a future session to hunt for a `STARTER_SET` position
+  // that happens not to fragment (fragile: it changes on every unrelated size
+  // edit to any venture ahead of it), or to spend another few KiB of
+  // `SHARD_BYTE_CEILING`'s headroom on every growth — both of which were
+  // tried, and both of which come back the next time any mirrored venture
+  // gains a page — grow the runt by pulling files back from the shard before
+  // it until it is big enough to deserve the annotation it carries.
+  //
+  // Two guards keep the transfer sound, and both are load-bearing rather than
+  // defensive: the donor must keep at least one file, so draining it can never
+  // leave an empty ConfigMap in the middle of the projected volume; and the
+  // recipient must stay under `ceiling`, because it *grows* here. Only the
+  // donor shrinks monotonically. Today the recipient could not realistically
+  // breach `ceiling` (it stops at `CLIENT_SIDE_APPLY_CEILING` plus one file,
+  // and the largest file in the mirror is 208 KB against a 706 KiB ceiling),
+  // but that is a fact about today's file sizes, not an invariant: the loop
+  // above already admits any file up to `ceiling` itself, and one of those
+  // would push the recipient past the etcd object cap this whole sharding
+  // design exists to stay under. The guard makes it true by construction.
+  // `runtThreshold` is a parameter rather than a direct read of
+  // `CLIENT_SIDE_APPLY_CEILING` so that the behaviour can be exercised at a
+  // test-sized ceiling. Reading the constant directly made every shard in a
+  // small-ceiling test a "runt" by definition, which quietly turned the first
+  // draft of these tests into assertions that passed with or without the fix.
+  while (shards.length > 1 && shards[shards.length - 1].bytes <= runtThreshold) {
+    const last = shards[shards.length - 1];
+    const prev = shards[shards.length - 2];
+    if (prev.files.length < 2) break;
+    const movedSize = Buffer.byteLength(prev.files[prev.files.length - 1].contents);
+    if (last.bytes + movedSize > ceiling) break;
+    const moved = prev.files.pop();
+    prev.bytes -= movedSize;
+    last.files.unshift(moved);
+    last.bytes += movedSize;
   }
   return shards;
 }

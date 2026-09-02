@@ -236,6 +236,81 @@ test('packShards refuses a file no shard could hold', () => {
   );
 });
 
+test('a trailing runt shard is absorbed rather than mounted as its own ConfigMap', () => {
+  // Declaration-order packing can leave a last shard holding almost nothing —
+  // too small to need `ServerSideApply`, but carrying the annotation anyway,
+  // which the "asks for the apply mode its size actually requires" test below
+  // refuses. Previous sessions fixed each occurrence by hunting a STARTER_SET
+  // position that happened not to fragment, or by spending a few more KiB of
+  // ceiling; both come back the next time a mirrored venture gains a page.
+  // The packer now pulls files back from the previous shard instead.
+  const ceiling = 1000;
+  const runt = 150;
+  const files = [
+    { key: 'a__1.mjs', contents: 'x'.repeat(600) },
+    { key: 'a__2.mjs', contents: 'x'.repeat(350) },
+    // 950 + 100 overflows, so without absorption this lands alone in a
+    // 100-byte second shard.
+    { key: 'b__1.mjs', contents: 'x'.repeat(100) },
+  ];
+  const shards = packShards(files, ceiling, runt);
+  const last = shards[shards.length - 1];
+  assert.ok(
+    last.bytes > runt,
+    `the trailing shard was left as a ${last.bytes}-byte runt instead of absorbing from its predecessor`,
+  );
+  // Absorption must not lose or duplicate a file.
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+  // Every shard still respects the ceiling it was packed against.
+  for (const shard of shards) {
+    assert.ok(shard.bytes <= ceiling, `${shard.name} is ${shard.bytes} bytes, over the ${ceiling} ceiling`);
+    assert.ok(shard.files.length > 0, `${shard.name} is empty and would mount as an empty ConfigMap`);
+  }
+});
+
+test('absorbing a runt never pushes the receiving shard over the ceiling', () => {
+  // The donor shard shrinks monotonically, so it is safe by inspection; the
+  // *receiving* shard grows, and nothing about the loop bounds that except
+  // the guard. A donor file large enough to breach the ceiling must stop the
+  // transfer and leave the runt in place — a small ConfigMap is a cosmetic
+  // problem, one over etcd's object cap is an outage.
+  const ceiling = 1000;
+  const runt = 150;
+  const files = [
+    { key: 'a__1.mjs', contents: 'x'.repeat(100) },
+    // The only file the donor could give back is 900 bytes, which would take
+    // the 120-byte runt to 1020 — over the ceiling. The runt has to stay.
+    { key: 'a__2.mjs', contents: 'x'.repeat(900) },
+    { key: 'b__1.mjs', contents: 'x'.repeat(120) },
+  ];
+  const shards = packShards(files, ceiling, runt);
+  for (const shard of shards) {
+    assert.ok(shard.bytes <= ceiling, `${shard.name} is ${shard.bytes} bytes, over the ${ceiling} ceiling`);
+  }
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+});
+
+test('absorbing a runt never drains its donor to an empty shard', () => {
+  // A projected volume with an empty ConfigMap source is a wasted object at
+  // best; draining the donor entirely would also renumber every shard after
+  // it. The donor keeps at least one file however small the runt stays.
+  const ceiling = 1000;
+  const runt = 150;
+  const files = [
+    // The donor holds exactly one file, so giving it back would empty it.
+    { key: 'a__1.mjs', contents: 'x'.repeat(900) },
+    { key: 'b__1.mjs', contents: 'x'.repeat(150) },
+  ];
+  const shards = packShards(files, ceiling, runt);
+  for (const shard of shards) {
+    assert.ok(shard.files.length > 0, `${shard.name} is empty and would mount as an empty ConfigMap`);
+  }
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+});
+
 test('a duplicate ConfigMap key is refused rather than mounted', () => {
   // Two sources of a projected volume offering the same key makes the volume
   // fail to mount, and `maxUnavailable: 0` turns that into a stale front door
