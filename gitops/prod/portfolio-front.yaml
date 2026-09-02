@@ -152,13 +152,15 @@ spec:
           # is resident in each replica and counts against this limit. nginx
           # itself serving static files is ~10 MiB.
           #
-          # The mirror is 4.2 MB today against a 5 MiB `MIRROR_BYTE_CEILING`,
-          # so 192Mi leaves the mirror at roughly a third of the limit even
-          # once it grows into its ceiling. The old 64Mi predates the mirror
-          # having a ceiling worth the name and would have been ~10 MiB from
-          # OOMKilling both replicas at full growth. Two pods at these numbers
-          # are noise against the `prod` ResourceQuota (4 CPU / 8Gi requested,
-          # 8 CPU / 16Gi limit).
+          # The mirror is 5.4 MB today — 156 tools, 64% of the 8 MiB
+          # `MIRROR_BYTE_CEILING` (raised from 5 MiB by #2886, which also grew
+          # the mirror from 53 tools) — so the 192Mi limit is 24x the ceiling
+          # even once the mirror grows to fill it, well past the 2x floor
+          # `test_portfolio_front_fits_the_prod_quota` enforces. The old 64Mi
+          # predates the mirror having a ceiling worth the name and would have
+          # been ~10 MiB from OOMKilling both replicas at full growth. Two pods
+          # at these numbers are noise against the `prod` ResourceQuota
+          # (4 CPU / 8Gi requested, 8 CPU / 16Gi limit).
           resources:
             requests:
               cpu: 20m
@@ -251,7 +253,8 @@ spec:
           configMap:
             name: portfolio-front-nginx
         - name: tmp
-          emptyDir: {}
+          emptyDir:
+            sizeLimit: 64Mi
 ---
 apiVersion: v1
 kind: Service
