@@ -383,6 +383,31 @@ export const STARTER_SET = [
   { slug: 'grant-deadline-tracker', why: 'evidence — pairs with grant-reporting-tracker: the deadlines, then the reports' },
   { slug: 'shopify-a11y-evidence', why: 'evidence — an accessibility record a merchant can show, not a score' },
 
+  // Added 2026-09-02. `faire-wholesale-calculator` (marketplace) shipped
+  // 2026-08-26 (#1707), has 107 passing tests, and `clauses.mjs` finds the
+  // no-warranty clause on all 8 published pages — but it was absent from
+  // every curation pass above, including the "mirror every eligible venture"
+  // mechanical sweep, because that sweep ran against `ventures/` as it stood
+  // on the day it was written and this slug was never re-checked against the
+  // result. `buildMirror` confirms it is flat, self-contained (`validateLinks`
+  // passes) and the mirror with it added is 4,976,324 bytes, 95% of
+  // `MIRROR_BYTE_CEILING` — leaving ~266 KB of the marketing-distribution
+  // runway the ceiling's comment describes, down from ~460 KB.
+  //
+  // It sits here, between evidence and back-office, rather than beside the
+  // rest of the marketplace block above or appended at the end — both were
+  // tried first. `packShards` bins by declaration order with no rebalancing,
+  // so where a venture lands changes which shard absorbs it, and both of
+  // those positions left a fragment shard under `CLIENT_SIDE_APPLY_CEILING`
+  // (3,750 and 11,987 bytes respectively) — too small to need the
+  // `ServerSideApply` annotation it would still carry, which
+  // `front-door-tools.test.mjs`'s "the mirror asks for the apply mode its
+  // size actually requires" test correctly refuses. This position is the one
+  // place in the whole file (of 53 tried) where inserting it does not create
+  // that fragment. A future session moving this entry should re-run that
+  // test before relying on where it happens to sit.
+  { slug: 'faire-wholesale-calculator', why: 'marketplace — the wholesale venue alongside the big three consumer marketplaces; first-order vs. reorder fee is a question none of the others answer' },
+
   // back-office — the four eligible ventures the card was missing.
   { slug: 'invoice-payment-terms-calculator', why: 'back-office — what a payment term actually costs, which is the question behind every net-30 argument' },
   { slug: 'cash-runway-planner', why: 'back-office — the number a small business checks most often and models worst' },

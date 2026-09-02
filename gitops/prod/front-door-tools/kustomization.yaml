@@ -28,8 +28,8 @@
 #   portfolio-front-tools-2: 38 files, 694232 bytes
 #   portfolio-front-tools-3: 47 files, 715610 bytes
 #   portfolio-front-tools-4: 88 files, 714723 bytes
-#   portfolio-front-tools-5: 78 files, 705341 bytes
-#   portfolio-front-tools-6: 41 files, 527981 bytes
+#   portfolio-front-tools-5: 67 files, 712911 bytes
+#   portfolio-front-tools-6: 64 files, 711201 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -405,6 +405,18 @@ configMapGenerator:
       - shopify-a11y-evidence__theme-areas.mjs=shopify-a11y-evidence__theme-areas.mjs
       - shopify-a11y-evidence__usage.mjs=shopify-a11y-evidence__usage.mjs
       - shopify-a11y-evidence__what-changed-between-axe-scans.html=shopify-a11y-evidence__what-changed-between-axe-scans.html
+      - faire-wholesale-calculator__LICENSE=faire-wholesale-calculator__LICENSE
+      - faire-wholesale-calculator__calc.mjs=faire-wholesale-calculator__calc.mjs
+      - faire-wholesale-calculator__faire-direct-vs-marketplace.html=faire-wholesale-calculator__faire-direct-vs-marketplace.html
+      - faire-wholesale-calculator__index.html=faire-wholesale-calculator__index.html
+      - faire-wholesale-calculator__retailer.html=faire-wholesale-calculator__retailer.html
+      - faire-wholesale-calculator__share.mjs=faire-wholesale-calculator__share.mjs
+      - faire-wholesale-calculator__should-i-list-during-faire-open-house.html=faire-wholesale-calculator__should-i-list-during-faire-open-house.html
+      - faire-wholesale-calculator__should-i-offer-faire-pay-now.html=faire-wholesale-calculator__should-i-offer-faire-pay-now.html
+      - faire-wholesale-calculator__should-i-pay-for-faire-next-day-payout.html=faire-wholesale-calculator__should-i-pay-for-faire-next-day-payout.html
+      - faire-wholesale-calculator__should-i-run-faire-promoted-listings.html=faire-wholesale-calculator__should-i-run-faire-promoted-listings.html
+      - faire-wholesale-calculator__should-i-take-this-faire-return.html=faire-wholesale-calculator__should-i-take-this-faire-return.html
+      - faire-wholesale-calculator__usage.mjs=faire-wholesale-calculator__usage.mjs
       - invoice-payment-terms-calculator__LICENSE=invoice-payment-terms-calculator__LICENSE
       - invoice-payment-terms-calculator__calc.mjs=invoice-payment-terms-calculator__calc.mjs
       - invoice-payment-terms-calculator__chasing-a-late-invoice.html=invoice-payment-terms-calculator__chasing-a-late-invoice.html
@@ -439,6 +451,11 @@ configMapGenerator:
       - commercial-photo-license-calculator__LICENSE=commercial-photo-license-calculator__LICENSE
       - commercial-photo-license-calculator__app.mjs=commercial-photo-license-calculator__app.mjs
       - commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html=commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html
+  - name: portfolio-front-tools-6
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - commercial-photo-license-calculator__index.html=commercial-photo-license-calculator__index.html
       - commercial-photo-license-calculator__style.css=commercial-photo-license-calculator__style.css
       - commercial-photo-license-calculator__vs-fotoquote.html=commercial-photo-license-calculator__vs-fotoquote.html
@@ -462,11 +479,6 @@ configMapGenerator:
       - roofing-bid-calculator__LICENSE=roofing-bid-calculator__LICENSE
       - roofing-bid-calculator__calc.mjs=roofing-bid-calculator__calc.mjs
       - roofing-bid-calculator__how-to-price-a-roof-by-the-square.html=roofing-bid-calculator__how-to-price-a-roof-by-the-square.html
-  - name: portfolio-front-tools-6
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - roofing-bid-calculator__index.html=roofing-bid-calculator__index.html
       - roofing-bid-calculator__proposal-terms.mjs=roofing-bid-calculator__proposal-terms.mjs
       - roofing-bid-calculator__proposal.mjs=roofing-bid-calculator__proposal.mjs
