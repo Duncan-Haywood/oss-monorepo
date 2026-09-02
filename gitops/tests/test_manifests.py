@@ -1381,22 +1381,70 @@ def test_portfolio_site_carries_no_token_and_reads_one_from_a_secret() -> None:
 
 
 def _prod_networkpolicies() -> dict[str, dict]:
-    docs = list(yaml.safe_load_all((ROOT / "prod" / "networkpolicy.yaml").read_text()))
-    return {d["metadata"]["name"]: d for d in docs if d}
+    # Every *.yaml directly under prod/, not just networkpolicy.yaml: a
+    # NetworkPolicy can ride in a workload's own manifest instead of the
+    # shared file, the way portfolio-front-egress does in portfolio-front.yaml
+    # (added by #2730, after this file's own networkpolicy.yaml was written).
+    # Reading one file only made
+    # test_landing_is_the_only_prod_workload_without_a_networkpolicy below
+    # pass for the wrong reason: it never saw that fourth policy to count it,
+    # so an assertion naming exactly three names still passed the day a
+    # fourth one landed elsewhere. secrets/ is skipped because a SealedSecret
+    # cannot contain a NetworkPolicy and, once portfolio-repo-token.sealed.yaml
+    # exists, is not something this test suite should be parsing as plaintext
+    # YAML at all.
+    policies: dict[str, dict] = {}
+    for path in sorted((ROOT / "prod").glob("*.yaml")):
+        if path.name == "kustomization.yaml":
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if doc and doc.get("kind") == "NetworkPolicy":
+                policies[doc["metadata"]["name"]] = doc
+    return policies
 
 
-def test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy() -> None:
-    # `landing` is the one prod workload deliberately left off this list: it
-    # holds no credential of any kind (no ServiceAccount token, no external
-    # secret) and calls out to nothing, so it has nothing worth restricting.
-    # The other three -- portfolio-site (the GitHub clone token) and the two
-    # CronJobs below (a ServiceAccount token with RBAC to mutate a specific
-    # resource) -- all hold something a NetworkPolicy is worth writing for.
+def test_landing_is_the_only_prod_workload_without_a_networkpolicy() -> None:
+    # Inverted from what this test asserted through #2727: it used to say
+    # "portfolio-site is the only prod workload with a NetworkPolicy" and
+    # named exactly one, which was true when it was written and stayed
+    # syntactically true after #2632, #2727 and #2730 each added another --
+    # each new policy was a set this assertion had never claimed to be
+    # exhaustive against by name, so nothing here failed while the claim in
+    # the old test's name quietly stopped matching the tree. `landing` is
+    # still the one prod workload deliberately left off this list: it holds
+    # no credential of any kind (no ServiceAccount token, no external secret)
+    # and calls out to nothing, so it has nothing worth restricting. Every
+    # other workload in this namespace now has one: portfolio-site (the
+    # GitHub clone token), its two CronJobs (a ServiceAccount token with RBAC
+    # to mutate a specific resource), and portfolio-front (no credential, but
+    # locked to egress: [] anyway since it has nothing to call out to either
+    # -- see test_portfolio_front_egress_targets_the_pod_it_guards below).
     assert set(_prod_networkpolicies()) == {
         "portfolio-site-egress",
         "portfolio-site-usage-egress",
         "portfolio-site-refresh-egress",
+        "portfolio-front-egress",
     }
+
+
+def test_portfolio_front_egress_targets_the_pod_it_guards() -> None:
+    # Same regression class as
+    # test_portfolio_site_egress_targets_the_pod_that_holds_the_clone_token
+    # just below: a podSelector that does not match the Deployment's own pod
+    # labels silently governs nothing, and nothing here had pinned that this
+    # policy (added by #2730, alongside the Deployment) actually reaches the
+    # pod it was written for.
+    policy = _prod_networkpolicies()["portfolio-front-egress"]
+    assert policy["spec"]["podSelector"]["matchLabels"] == {"app": "portfolio-front"}
+    assert (
+        _portfolio_front()["Deployment"]["spec"]["template"]["metadata"]["labels"]["app"]
+        == "portfolio-front"
+    )
+    # Deny-all egress is deliberate, not a placeholder: this pod serves only
+    # what its ConfigMap volumes already hold and calls out to nothing, so
+    # unlike every sibling policy above it needs no DNS or HTTPS carve-out.
+    assert policy["spec"]["policyTypes"] == ["Egress"]
+    assert policy["spec"]["egress"] == []
 
 
 def test_networkpolicy_is_synced_by_prod() -> None:
