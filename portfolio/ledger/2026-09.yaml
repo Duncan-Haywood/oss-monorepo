@@ -1646,3 +1646,63 @@ entries:
         (`validate` 164s, `build` 167s) both landed on real runners before
         merge. Did not touch `gitops/`, so `pytest gitops/tests` was not
         run.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs, ~84 remote branches (of 210) carrying commits not
+        reachable from `origin/main`, after `git fetch --unshallow`. Checked
+        a briefed priority list plus a wider ~25-branch sample by hand
+        (not `supersede_check.py`'s identical-merge replay, which is
+        expensive on branches this old against the current tree size --
+        content comparison instead: for each branch's distinctive
+        function/feature name, grep `origin/main` for it and read the
+        result) rather than trusting commit-message similarity or raw diff
+        stats, which the brief flagged as misleading here (merge-commit
+        noise inflates line counts; a three-dot diff against a stale
+        merge-base can read as "1200 new lines" for a directory that is
+        byte-identical to `main` once compared directly).
+      - >-
+        Every branch checked was superseded, extending #2531's finding
+        (2026-08-31, a 12-branch sample of this same cluster) to a larger
+        set drawn from the same 2026-08-24 fleet burst. Confirmed by direct
+        content comparison, not by title: `vendor-change-watch-fix` (the
+        snapshot-collision/URL-keying fix is verbatim on `main`),
+        `where-to-sell-rank-by-profit-per-day` (`RANK_MODES` with
+        `profitPerDay` and the removed "can't know sell speed" claim both
+        already shipped), `amazon-fba-sourcing-check` (`buyCostCheck` and
+        its exact test already on `main`), `3pl-quote-normalizer-compare`
+        (`main` has `compare.html`/`compare.mjs`/`comparison-insights.mjs`,
+        richer than the branch's version), `chargeback-evidence-packet-main`
+        (already identified by #2531 as the pre-refactor prototype now
+        superseded by `packet.mjs`), `festive-mccarthy-xrn3ua`'s DNS-test
+        stabilization (identical comment already in
+        `check-url.test.ts` on `main`). Two cases were `main` turning out to
+        be *ahead* rather than merely equal: `quote-margin-check`'s
+        half-even rounding fix is superseded by a more rigorous BigInt-exact
+        implementation already on `main` (`format.mjs`), and
+        `eaa-wcag-triage`'s `mechanical_fix.py` diff ran backwards -- the
+        branch's copy is missing four remediations (`muted` autoplay,
+        orientation-rotate strip, colour-only-link underline, `<main>`
+        wrap) that `main`'s copy already has.
+      - >-
+        One branch (`cursor/agent-cross-review-f90e`) carried real,
+        un-superseded content -- a four-agent PR cross-review workflow with
+        auto-merge, editing `CLAUDE.md` itself to describe the new gate.
+        Deliberately left alone rather than opened: it is platform/CI
+        process, not product, and it edits the exact policy section
+        (`CLAUDE.md` "Ship without review ceremony" / "no human review
+        gate") this run is instructed to rely on, which needs owner intent
+        rather than an agent's unilateral read of an abandoned week-old
+        branch to resolve.
+      - >-
+        No PR opened, none merged. Nothing on `main` needs the fix a
+        checked branch offered; `main` had already independently rebuilt
+        or exceeded every one. The recurring shape -- an old branch
+        proposing a small fix or feature whose target file has since been
+        rebuilt into something larger that already includes it -- is now
+        confirmed across ~30 branches from this cluster (12 by #2531, ~18
+        here), which is the population `decision-queue.py`'s
+        `branch-cleanup-automation` item (#829) exists to stop re-deriving
+        by hand each time.
