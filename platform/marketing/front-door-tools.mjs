@@ -765,14 +765,21 @@ export async function mirrorSet(venturesDir = VENTURES_DIR) {
  *   neither is a one-line change, which is why this says so instead of
  *   guessing.
  *
- * One entry is a false exclusion worth knowing about before someone "fixes"
- * it: `marketplace-fee-compare` is held out because `validateLinks` scans the
- * whole document, including `<script>`, and its channel list builds hrefs from
- * JS template strings — so the checker reads a literal
- * `href="../${escapeHtml(channel.deepTool)}/"`. The page is not broken. The
- * check is conservative in the safe direction, and narrowing it to skip script
- * bodies would trade one missing tool for a class of genuinely dead link it
- * currently catches. Left as is deliberately.
+ * **Fixed 2026-09-02.** This paragraph used to name a fourth entry —
+ * `marketplace-fee-compare`, held out because `validateLinks` scanned the whole
+ * document including `<script>`, so its channel list's JS template strings read
+ * as a literal `href="../${escapeHtml(channel.deepTool)}/"`. It argued the
+ * check was "conservative in the safe direction" and that narrowing it "would
+ * trade one missing tool for a class of genuinely dead link it currently
+ * catches".
+ *
+ * That trade was never on offer. On an interpolated href the old scan compared
+ * unexpanded template source against the mirror, which cannot match whatever
+ * the expression evaluates to — so it failed every such link unconditionally
+ * rather than detecting anything. `validateLinks` now scans script bodies as
+ * JavaScript: fully literal hrefs in a script are resolved exactly as markup
+ * ones are (that is the real detection, and it is kept and tested), and
+ * interpolated ones go to `dynamicLinks` as advisory. The tool is served.
  */
 export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
   const discovered = await discoverEligible({ venturesDir });
@@ -1061,13 +1068,101 @@ export function injectMirrorNav(html, { toolCount }) {
  * Absolute URLs, fragments, `mailto:` and `data:` are external by definition and
  * are not this function's business. A bare `.` or `./` is the venture's own
  * entry page, which is `index.html` by nginx's `try_files`.
+ *
+ * ## Script bodies are scanned, but as JavaScript rather than as markup
+ *
+ * This function used to run one regex over the whole document, `<script>`
+ * included. That is not what a browser does — text inside a script element is
+ * program source, not markup — and it cost the mirror a finished tool:
+ * `marketplace-fee-compare` builds its channel list from template strings, so
+ * the scan read the literal source text `href="../${escapeHtml(channel.deepTool)}/"`
+ * and reported a missing directory named `${escapeHtml(channel.deepTool)}`.
+ * The page is fine; the checker was reading the wrong language.
+ *
+ * The previous revision knew this and left it, on the argument that narrowing
+ * the scan "would trade one missing tool for a class of genuinely dead link it
+ * currently catches". That trade is not the one on offer, because the scan
+ * never detected anything in the interpolated case: it compared unexpanded
+ * template source against the mirror, which cannot match whatever the
+ * expression evaluates to. It failed every such link unconditionally, which is
+ * not detection.
+ *
+ * So the markup scan now runs over the document with script and style bodies
+ * blanked, and script bodies are scanned separately under the rule that
+ * actually applies to them:
+ *
+ * - a **fully literal** href/src in a script (no `${`) is a real path the page
+ *   will hand the browser, and is resolved exactly as a markup one is — this
+ *   is the genuine detection the old comment was protecting, and it is kept;
+ * - an **interpolated** one cannot be resolved statically, so it is not judged
+ *   here at all. `dynamicLinks` reports those separately: advisory, never a
+ *   reason to drop a venture, but surfaced so a page whose runtime links go
+ *   somewhere the mirror lacks is a thing a human can see rather than a thing
+ *   that vanished. It is a separate function rather than a property on the
+ *   returned array because `validateLinks` is compared with `deepStrictEqual`
+ *   in several tests, and an array carrying an extra own property is not
+ *   deep-equal to the plain `[]` those assertions expect.
+ *
+ * `marketplace-fee-compare`'s seven `deepTool` targets are all mirrored, which
+ * is what makes admitting it correct and not merely quieter.
+ *
+ * Blanking preserves byte offsets so nothing downstream that indexes into the
+ * document shifts; only the characters inside the element change.
  */
+const SCRIPT_OR_STYLE = /<(script|style)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
+
+export function blankScriptBodies(html) {
+  return html.replace(SCRIPT_OR_STYLE, (match, tag, body) => {
+    const open = match.length - body.length - `</${tag}>`.length;
+    return match.slice(0, open) + ' '.repeat(body.length) + match.slice(open + body.length);
+  });
+}
+
+export function scriptBodies(html) {
+  return [...html.matchAll(SCRIPT_OR_STYLE)]
+    .filter(([, tag]) => tag.toLowerCase() === 'script')
+    .map(([, , body]) => body);
+}
+
+/**
+ * Relative href/src literals a page builds at runtime inside a `<script>`.
+ *
+ * Advisory only — these cannot be resolved without evaluating the page, so
+ * nothing is dropped for appearing here. Reported so the interpolated case is
+ * visible rather than merely un-judged.
+ */
+export function dynamicLinks(files) {
+  const found = [];
+  for (const { slug, file, contents } of files) {
+    if (!file.endsWith('.html')) continue;
+    for (const body of scriptBodies(contents)) {
+      for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
+        // `${` is the only interpolation form that reaches here: these are
+        // HTML fragments inside JS template literals, and a fragment built by
+        // concatenation would not carry a quoted attribute this regex matches.
+        if (href.includes('${')) found.push(`${slug}/${file} → "${href}"`);
+      }
+    }
+  }
+  return found;
+}
+
 export function validateLinks(files) {
   const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
   const problems = [];
   for (const { slug, file, contents } of files) {
     if (!file.endsWith('.html')) continue;
-    for (const [, href] of contents.matchAll(/(?:href|src)="([^"]*)"/g)) {
+    const markup = blankScriptBodies(contents);
+    const hrefs = [...markup.matchAll(/(?:href|src)="([^"]*)"/g)].map(([, href]) => href);
+    for (const body of scriptBodies(contents)) {
+      for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
+        // A fully literal href in a script is a real path the page will hand
+        // the browser, so it is checked exactly as a markup one is. The
+        // interpolated ones are `dynamicLinks`' business.
+        if (!href.includes('${')) hrefs.push(href);
+      }
+    }
+    for (const href of hrefs) {
       if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(href) || href === '') continue;
       const target = href.split(/[?#]/)[0];
       if (target === '' || target === '.' || target === './') continue;
