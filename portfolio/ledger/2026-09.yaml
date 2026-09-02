@@ -5005,4 +5005,13 @@ entries:
         `product-feature-improvement`: fix the two pages' visible prose (or
         JSON-LD) to match, per the test's own guidance in its failure
         message.
+      - >-
+        Already resolved by the time this entry merges: #2872, from a
+        concurrent session, fixed both pages the same way this entry
+        recommended (JSON-LD corrected to match the on-page copy) minutes
+        after this pass found the regression. Landed on this branch via an
+        automatic merge-from-main rather than anything done here. No
+        further action needed on the `build` job; recording only so the
+        gap between "found" and "fixed" in this file is not read as still
+        open.
     mrr_end: null
