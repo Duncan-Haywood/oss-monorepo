@@ -3592,3 +3592,63 @@ entries:
         `hcloud-scope`, `validate`, `site-test`, Portfolio Pages) came back
         green on real runners. Merged (squash) as #2794.
     mrr_end: null
+  - venture: window-replacement-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the marketing-distribution queue item's candidate 2
+        (comparison/alternatives page) via #2800:
+        `vs-marketsharp.html`, naming MarketSharp -- a long-running CRM and
+        business-management platform sold on subscription specifically to
+        home-improvement/remodeling contractors (windows, doors, siding,
+        roofing) -- as the genuine named incumbent this venture had none
+        against yet. Measured before picking, per the item's own
+        instruction: candidate 1 (embed widget) already covers all 169
+        entry pages (`build.mjs` "Added an embed offer to 169 tool entry
+        page(s)"); candidates 3 and 4 (`/c/` hub copy, `/about/` press kit)
+        showed no drift on a fresh re-read. Surveyed every venture for an
+        existing comparison page first -- roughly 30 already have one,
+        including all six marketplace-fee calculators this ledger's prior
+        entries confirm as settled (Amazon #2590, Walmart #2597, plus
+        eBay/Etsy/Reverb/TikTok Shop, each already carrying its own
+        incumbent's page) -- and picked one of the ~92 `*-bid-calculator`
+        ventures still missing one that has a genuine, well-documented
+        single named incumbent rather than re-deriving the mechanism.
+      - >-
+        Same shape as the established `vs-*.html` pattern (AccuLynx,
+        PaintScout, PestPac, SingleOps, ...): identity-only facts for
+        MarketSharp (category, audience, account-based subscription model),
+        no dollar figure for it anywhere on the page (its pricing is not
+        published and this session could not verify a number), FAQPage
+        schema matching the visible copy exactly, the full liability
+        disclaimer, the no-SLA hosting notice, and a link back to the
+        calculator. Linked from `index.html` and listed in the venture's
+        `sitemap.xml`, matching this venture's own existing test pattern
+        for its secondary page.
+      - >-
+        One real defect caught by the full `platform/pages` suite before
+        merge, not by eye: the JSON-LD FAQ answer used a literal `--` where
+        the matching visible `<p>` used `&mdash;` (an em dash), which
+        `faq-visible.test.mjs`'s exact-match visibility check correctly
+        failed on (855/856 first run). Fixed by using the same em dash
+        character in both places; re-run came back 856/856.
+      - >-
+        Verified: venture `node --test` 103/103 (was 96), full
+        `PAGES_BASE_URL=... node platform/pages/build.mjs` + `check.mjs`
+        (169 products, 7 category pages, 546 pages, no dead links), the
+        full `platform/pages` suite (856/856), `clauses.mjs` (3 pages carry
+        the no-warranty clause, was 2), `faq-duplicate.mjs` (clean), and
+        `faq-coverage.mjs`/`guide-coverage.mjs` (still 169/169 each). All 8
+        real CI checks came back green on real runners (`build` x2,
+        `check`, `link-contrast`, `page-integrity`, `site-test`,
+        `validate`, `deploy` correctly skipped as write-gated) before
+        merge (squash) as #2800.
+      - >-
+        0 open PRs at session start; no branch or commit already carried a
+        `vs-marketsharp.html` or equivalent, so this was new work, not a
+        duplicate. Did not touch `gitops/`, `.github/workflows/`,
+        `ventures/3pl-quote-normalizer`, or
+        `ventures/where-to-sell-calculator`, per this run's stated
+        concurrent-agent boundaries.
+    mrr_end: null
