@@ -6298,3 +6298,63 @@ entries:
         One new PR (#2929, this session's own marketing work) opened
         and merged after.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same standing brief (deploy/CI-CD priority,
+        Hetzner marketing materials, Codex CLI spending its built-in
+        plan quota there). Zero open PRs at session start — three-PR
+        quota satisfied vacuously. Checked the branch-to-PR-presumption
+        backlog again (`session/cleanup-2026-08-24`,
+        `session/decision-queue-stale-prs-777-731`,
+        `session/remove-stale-local-site-studio-entry`,
+        `tmp/ssh-key-smoke`, `venture/vendor-change-watch`) and
+        independently reached the same conclusion an earlier session
+        today already recorded for all five (superseded, empty, or an
+        empty commit) — wrote no duplicate finding for this. Also
+        re-confirmed the Codex-on-Hetzner ask needs no further building
+        (decision-queue item 12 / #1996, owner-blocked on `codex
+        login` + kubeseal) without adding a duplicate row.
+      - >-
+        Shipped one more `marketing-distribution`-shaped page:
+        `ventures/crown-molding-bid-calculator/vs-jobber.html`,
+        comparing this calculator against Jobber (field-service
+        management SaaS) — chosen because it had zero existing vs-*
+        pages and no in-flight overlap at the time. No Jobber pricing
+        is stated (getjobber.com unreachable from this session's
+        egress-proxied network); only well-documented identity facts
+        are used, enforced by a test asserting no `$` figure appears.
+        Delegated the build to a background subagent, which produced
+        solid content but stalled for 10+ minutes making almost no
+        progress on a full-portfolio `browser_checks.py` sweep it had
+        started unscoped (redundant with one a prior session already
+        completed today) — took the task over directly rather than
+        keep burning resume cycles on it, verified with the fast
+        checks (unit tests, conflict markers, router validate,
+        marketing tests, duplicate-symbols — all green), and told the
+        subagent to stand down before it could resume and duplicate
+        the work. Merged as #2937 after CI (13 checks) went green.
+      - >-
+        Operational finding worth keeping, distinct from the
+        stale-checkout lesson recorded a few entries above this one:
+        by the time this session went to commit, its local checkout
+        had drifted two commits behind `origin/main` (#2933, and
+        #2934 — another concurrent session's own comparison page,
+        `concrete-lifting-bid-calculator/vs-quoteiq.html`), entirely
+        from background subagent wall-clock time elapsing while this
+        repo saw its usual multiple-sessions-per-hour traffic. A
+        first `git diff --stat origin/main` misread as "origin/main
+        deleted a file" was actually "my stale checkout never had the
+        file `origin/main` just added" — worth remembering the sign
+        convention runs the other way from what it can look like at a
+        glance. Recovery pattern: `git stash -u`, fast-forward-merge
+        to `origin/main`, `git stash pop`, and for the one conflict
+        (the generated `kustomization.yaml`, which both sessions'
+        mirror regenerations had touched) take upstream's version and
+        **regenerate the mirror fresh** (`front-door-tools.mjs
+        --write`) rather than hand-resolving a generated file — it
+        correctly folded in both pages' shard entries. Re-ran the full
+        verification suite against the merged state before pushing.
+    mrr_end: null
