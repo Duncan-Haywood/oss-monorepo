@@ -5752,3 +5752,57 @@ entries:
         `ModuleNotFoundError: yaml` on a tree that is fine -- use `python3 -m
         pytest` to get the real answer (267/267 here).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session; the owner's prompt named three
+        priorities: deployment/CI-CD, marketing materials built and
+        deployed on the Hetzner VMs, and the Codex CLI spending its
+        built-in plan quota on unattended dev work there. Checked all
+        three against actual repo state before building: deploy-cicd-
+        readiness and marketing-distribution are already the top two
+        enabled `gitops/agents/queue/` items (priorities 7 and 6), and the
+        Codex-on-Hetzner worker (`gitops/agents/governor/`,
+        `workers/mandate.md` mirroring this repo's own CLAUDE.md) is fully
+        code-complete and gated solely on the owner's one-time `codex
+        login` + kubeseal step -- all confirmed by several sessions
+        earlier today (see prior entries this file) and not re-verified or
+        re-recorded in full here, per this file's own "do not re-verify"
+        rule.
+      - >-
+        0 open PRs at session start (`search_pull_requests is:open`, not
+        the list endpoint, which returned a stale/misleading empty result
+        via a different code path -- both checked) -- three-PR merge quota
+        vacuous, moved straight to marketing-distribution's #2 candidate
+        (a comparison page) after scanning `ventures/` for coverage: 64 of
+        184 ventures had one, most did not.
+      - >-
+        Shipped two vs-X comparison pages for ventures that had none:
+        `basement-finishing-bid-calculator` vs. Buildxact (#2903, reusing
+        the already-verified competitor from `drywall-bid-calculator`) and
+        `asphalt-driveway-pave-bid-calculator` vs. JobNimbus (#2905,
+        reusing the already-verified competitor from three other
+        exterior-trade ventures). Both PRs' first commit failed CI's
+        `validate` check -- `front-door-tools.test.mjs`'s "committed
+        mirror matches what the generator produces" -- because a new
+        venture page requires regenerating the tools.marisstella.dev
+        mirror shards (`platform/marketing/front-door-tools.mjs --write`),
+        which the first commit on each branch omitted. Reproduced against
+        a clean `origin/main` clone first to rule out a pre-existing or
+        concurrent-session failure (main was green, 42/42), then fixed
+        with a second commit on each branch. #2905 merged first; #2903
+        then hit a real merge conflict on the same generated
+        `kustomization.yaml` (both branches' mirror regenerations touched
+        it), resolved by re-running the generator against the merged tree
+        rather than hand-editing the conflict markers, per this repo's
+        rule for generated files. Both merged: #2905 then #2903, both
+        squash-merged with CI green (13/13 checks each, real runners).
+      - >-
+        Lesson for the next session shipping a venture page here: run
+        `node platform/marketing/front-door-tools.mjs --write` and commit
+        its output in the same commit as any new page under `ventures/`,
+        not as a follow-up -- the mirror generator's own test enforces
+        this in CI but does not warn locally unless you think to run it.
+    mrr_end: null
