@@ -38,11 +38,11 @@
 #   portfolio-front-tools-2: 154 files, 556430 bytes
 #   portfolio-front-tools-3: 122 files, 555946 bytes
 #   portfolio-front-tools-4: 129 files, 545767 bytes
-#   portfolio-front-tools-5: 116 files, 555517 bytes
-#   portfolio-front-tools-6: 119 files, 556005 bytes
-#   portfolio-front-tools-7: 118 files, 556755 bytes
-#   portfolio-front-tools-8: 103 files, 542904 bytes
-#   portfolio-front-tools-9: 76 files, 383587 bytes
+#   portfolio-front-tools-5: 116 files, 546194 bytes
+#   portfolio-front-tools-6: 114 files, 552435 bytes
+#   portfolio-front-tools-7: 122 files, 554412 bytes
+#   portfolio-front-tools-8: 103 files, 550102 bytes
+#   portfolio-front-tools-9: 78 files, 395608 bytes
 #   portfolio-front-tools-10: 59 files, 278045 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -859,6 +859,7 @@ configMapGenerator:
       - gravel-driveway-bid-calculator__proposal.mjs.gz=gravel-driveway-bid-calculator__proposal.mjs.gz
       - gravel-driveway-bid-calculator__share.mjs.gz=gravel-driveway-bid-calculator__share.mjs.gz
       - gravel-driveway-bid-calculator__usage.mjs.gz=gravel-driveway-bid-calculator__usage.mjs.gz
+      - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
       - gutter-cleaning-bid-calculator__LICENSE.gz=gutter-cleaning-bid-calculator__LICENSE.gz
       - gutter-cleaning-bid-calculator__calc.mjs.gz=gutter-cleaning-bid-calculator__calc.mjs.gz
       - gutter-cleaning-bid-calculator__index.html.gz=gutter-cleaning-bid-calculator__index.html.gz
@@ -913,12 +914,12 @@ configMapGenerator:
       - hot-tub-bid-calculator__LICENSE.gz=hot-tub-bid-calculator__LICENSE.gz
       - hot-tub-bid-calculator__calc.mjs.gz=hot-tub-bid-calculator__calc.mjs.gz
       - hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz=hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz
-      - hot-tub-bid-calculator__index.html.gz=hot-tub-bid-calculator__index.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - hot-tub-bid-calculator__index.html.gz=hot-tub-bid-calculator__index.html.gz
       - hot-tub-bid-calculator__proposal.mjs.gz=hot-tub-bid-calculator__proposal.mjs.gz
       - hot-tub-bid-calculator__usage.mjs.gz=hot-tub-bid-calculator__usage.mjs.gz
       - interior-door-bid-calculator__LICENSE.gz=interior-door-bid-calculator__LICENSE.gz
@@ -1032,17 +1033,17 @@ configMapGenerator:
       - no-show-fee-calculator__LICENSE.gz=no-show-fee-calculator__LICENSE.gz
       - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
       - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
+  - name: portfolio-front-tools-7
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - no-show-fee-calculator__index.html.gz=no-show-fee-calculator__index.html.gz
       - no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz=no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz
       - no-show-fee-calculator__style.css.gz=no-show-fee-calculator__style.css.gz
       - no-show-fee-calculator__usage.mjs.gz=no-show-fee-calculator__usage.mjs.gz
       - no-show-fee-calculator__vs-acuity-scheduling.html.gz=no-show-fee-calculator__vs-acuity-scheduling.html.gz
       - parking-lot-striping-bid-calculator__LICENSE.gz=parking-lot-striping-bid-calculator__LICENSE.gz
-  - name: portfolio-front-tools-7
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - parking-lot-striping-bid-calculator__calc.mjs.gz=parking-lot-striping-bid-calculator__calc.mjs.gz
       - parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz=parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz
       - parking-lot-striping-bid-calculator__index.html.gz=parking-lot-striping-bid-calculator__index.html.gz
@@ -1159,13 +1160,13 @@ configMapGenerator:
       - septic-pumping-bid-calculator__LICENSE.gz=septic-pumping-bid-calculator__LICENSE.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
-      - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
-      - septic-pumping-bid-calculator__proposal.mjs.gz=septic-pumping-bid-calculator__proposal.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
+      - septic-pumping-bid-calculator__proposal.mjs.gz=septic-pumping-bid-calculator__proposal.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
       - sewer-hydrojet-bid-calculator__LICENSE.gz=sewer-hydrojet-bid-calculator__LICENSE.gz
       - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
@@ -1267,13 +1268,13 @@ configMapGenerator:
       - spray-foam-bid-calculator__proposal.mjs.gz=spray-foam-bid-calculator__proposal.mjs.gz
       - spray-foam-bid-calculator__usage.mjs.gz=spray-foam-bid-calculator__usage.mjs.gz
       - stair-lift-bid-calculator__LICENSE.gz=stair-lift-bid-calculator__LICENSE.gz
-      - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
-      - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stair-lift-bid-calculator__calc.mjs.gz=stair-lift-bid-calculator__calc.mjs.gz
+      - stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz=stair-lift-bid-calculator__how-much-to-charge-to-install-a-stair-lift.html.gz
       - stair-lift-bid-calculator__index.html.gz=stair-lift-bid-calculator__index.html.gz
       - stair-lift-bid-calculator__proposal.mjs.gz=stair-lift-bid-calculator__proposal.mjs.gz
       - stair-lift-bid-calculator__share.mjs.gz=stair-lift-bid-calculator__share.mjs.gz
