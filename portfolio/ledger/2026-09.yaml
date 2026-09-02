@@ -5165,3 +5165,79 @@ entries:
         Sitewide `build.mjs` + `check.mjs`: 169 products, 570 pages, no
         dead links.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `deploy-cicd-readiness` by hand (governor not live yet). A
+        sibling session had already run this same item minutes earlier and
+        fixed the stale CLAUDE.md "bots don't trigger Actions" claim (#2868)
+        and the FAQPage JSON-LD drift regression (#2871/#2872), so this pass
+        needed a different gap. Validated the manifest surface directly
+        rather than trusting the last snapshot: installed `kustomize`
+        v5.6.0 and `kubeconform` v0.6.7 locally (the exact versions
+        `hetzner-gitops-ci.yml` pins) and ran `kustomize build` against all
+        six overlays (`gitops/{apps,platform,prod,staging,agents,ci}`)
+        piped into `kubeconform -strict -kubernetes-version 1.31.0
+        -ignore-missing-schemas` -- all six built cleanly, 66/66 resources
+        valid, 0 invalid, 0 errors. `python3 -m pytest gitops/tests -q`:
+        265/265, matching the queue item's own note. Read every RBAC
+        Role/RoleBinding, NetworkPolicy egress rule, AppProject whitelist,
+        ResourceQuota-vs-workload-request arithmetic and CronJob/Deployment
+        in `gitops/` end to end against what the code they authorize
+        actually calls; checked `hetzner-gitops-ci.yml`'s and
+        `portfolio-pages.yml`'s runs against current `main` HEAD via the
+        Actions API (real runner ids, all green, confirming no live
+        regression). None of that turned up a manifest defect, a
+        self-hosted-runner-incompatible workflow step, or a test/manifest
+        gap -- the tree is in genuinely good shape after the many recent
+        sessions' work in this lane.
+      - >-
+        Found and fixed one real, smaller gap instead:
+        `gitops/ci/runner-entrypoint.sh`'s two `RUNNER_TOKEN` diagnostic
+        messages (the unset-var guard and the "could not mint a
+        registration token" failure) both told the owner to check for a
+        classic-PAT `'repo'` scope. Every other doc in the same lane --
+        `gitops/ci/README.md`, `infra/OWNER_CHECKLIST.md`,
+        `gitops/ci/secrets/actions-runner-token.template.yaml`, and
+        `bootstrap/scripts/seal-owner-secrets.sh`'s own interactive prompt
+        -- has since standardized on a fine-grained PAT with
+        "Administration: Read and write" as the preferred (and, in the
+        script, only-offered) credential shape, which carries no OAuth
+        `'repo'` scope at all -- fine-grained PATs have permissions, not
+        scopes. An owner debugging a `CrashLoopBackOff` via the documented,
+        scripted path would have been pointed at a permission model that
+        does not apply to the token they actually minted. Repointed both
+        messages at `gitops/ci/README.md` (the real source of truth for how
+        to scope this token) so the two cannot drift apart again, and added
+        a comment naming both valid credential shapes. `shellcheck` clean;
+        `kustomize build gitops/ci | kubeconform -strict` still 5/5 valid
+        with the new script text correctly embedded in the
+        `actions-runner-script` ConfigMap; `pytest gitops/tests -q` still
+        265/265 (no test pinned the old wording). Shipped as #2879.
+      - >-
+        Caught and self-corrected a workspace hazard worth recording: this
+        session's working directory is shared with other concurrent
+        sessions rather than isolated, and a `git checkout -b` left the
+        tree exposed to a race -- a concurrent session checked out a
+        different local branch (`fix/tender-radar-currency-value-filter`)
+        between two of this session's commands, so this session's commit
+        landed on that branch instead of its own and sat underneath the
+        other session's subsequent commit. Neither branch had been pushed
+        yet, so nothing was lost or corrupted: recovered cleanly via `git
+        worktree add --detach <path> <this session's own commit sha>` to
+        get an isolated checkout, branched and pushed from there instead of
+        the shared directory, and left the other session's branch/commit
+        untouched (confirmed post-hoc via `git fetch` that it landed
+        separately and cleanly as #2875/#2878). One unused side effect: an
+        empty branch `agent/runner-token-error-message` (identical to
+        `main`, created before the race was noticed) is stranded on the
+        remote with no delete permission available to this session
+        (`git push --delete` returned HTTP 403; no MCP tool exposes branch
+        deletion) -- harmless since it carries no diff, but worth an owner
+        `git push origin --delete agent/runner-token-error-message` at some
+        point to tidy up. Next session sharing this workspace: prefer `git
+        worktree add` over `git checkout -b` in the main checkout for
+        exactly this reason.
+    mrr_end: null
