@@ -749,35 +749,35 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    ONE owner step remains, typed out with a verification command under
-    "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md` (the
-    rationale is in `gitops/README.md`): mint a fine-grained GitHub token
-    scoped to this one repository with Contents:Read-only and nothing
-    else, then seal it into `prod/kustomization.yaml` per
+    ONE owner step remains -- fewer than this row used to say -- typed out
+    with a verification command under "Publish `tools.marisstella.dev`" in
+    `infra/OWNER_CHECKLIST.md` (the rationale is in `gitops/README.md`):
+    mint a fine-grained GitHub token scoped to this one repository with
+    Contents:Read-only and nothing else, then seal it into
+    `prod/kustomization.yaml` per
     `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous). Both of the
-    other steps this row used to list are gone and need no action. DNS:
+    private, so the in-cluster clone cannot be anonymous). Every other step
+    this row used to list is gone and needs no action. DNS:
     `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
     2026-08-29 with `getent hosts tools.marisstella.dev`) --
     `marisstella.dev`'s existing wildcard `A/*` record already covers the
-    subdomain. ACME contact: dropped 2026-08-30. This row used to ask for
-    a real mailbox to replace `replace-me@duncanhaywood.dev`, on the
-    stated grounds that Let's Encrypt would refuse to register the
-    placeholder. An ACME account contact is optional (RFC 8555 makes
-    `contact` optional and cert-manager's `email` follows), so
-    `platform/cert-manager/issuer.yaml` now omits `email` entirely and
-    registers normally -- no address to choose, nothing to wait on.
-    Adding a real one later, purely to receive Let's Encrypt's expiry
-    warnings, is a one-line change per issuer that cert-manager applies by
-    updating the existing account registration; it is optional and it does
-    not block anything. That single remaining step is all that stands
-    between the portfolio and a live site; after it the site is
-    reachable on a Let's Encrypt *staging* certificate, which
-    browsers warn about. The last step -- flipping the Ingress annotation
-    from `letsencrypt-staging` to `letsencrypt-prod` and updating the
-    test that pins it -- is an ordinary code change, not an owner action:
-    once you confirm the staging certificate issued, ask a session to
-    open that PR rather than editing two files by hand.
+    subdomain. ACME contact: dropped 2026-08-30 -- an ACME account contact
+    is optional (RFC 8555 makes `contact` optional and cert-manager's
+    `email` follows), so `platform/cert-manager/issuer.yaml` omits `email`
+    entirely and registers normally. Adding a real one later, purely to
+    receive Let's Encrypt's expiry warnings, is a one-line change per
+    issuer that cert-manager applies by updating the existing account
+    registration; it is optional and does not block anything. **The
+    Ingress issuer flip is also done (#2545, 2026-08-31)** -- this row used
+    to describe it as a follow-up code change still waiting on "once you
+    confirm the staging certificate issued", but DNS resolving on
+    2026-08-29 retired that precondition before the wait ever mattered, so
+    the flip was made ahead of the seal rather than behind it. Both
+    `gitops/prod/portfolio-site.yaml` and `gitops/prod/portfolio-apex.yaml`
+    already carry `cert-manager.io/cluster-issuer: letsencrypt-prod`, and
+    `gitops/tests/test_manifests.py` pins it. So the token is now the only
+    remaining step, full stop -- after it the site issues straight to a
+    publicly trusted certificate, not a staging one browsers warn about.
   unlocks:
     - >-
       A public URL for 164 finished, tested, free tools at once --
@@ -791,8 +791,9 @@ decisions:
       Pages (not enabled, and would not serve a private repo's Pages site
       publicly even if it were -- see `deploy-settings`'s note). Of the
       two live deploy asks, this is the cheaper one to grant: no billing
-      change, no new account -- DNS already resolves, so it is down to a
-      scoped read-only token and a real email address.
+      change, no new account -- DNS already resolves and the issuer is
+      already pointed at prod, so it is down to a single scoped read-only
+      token.
   blocked_by: []
   note: >-
     Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened
@@ -835,5 +836,7 @@ decisions:
     not the dark Pages origin. `check.mjs` also exits 1 on both a missing
     and an empty site directory, which is what makes the build container
     fail the pod rather than serve an empty site. Nothing in the build
-    half of this deploy is waiting on anything; all four remaining steps
-    are the owner's.
+    half of this deploy is waiting on anything; the one remaining step is
+    the owner's (three others this note used to count -- DNS, the ACME
+    contact, and the issuer flip -- have since landed with no owner action,
+    see `action` above).
