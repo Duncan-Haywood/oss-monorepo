@@ -71,6 +71,37 @@ case "$*" in
 esac
 """
 
+# Fake `curl`s for the probe path. Every test above runs with `--no-probe`,
+# which means `probe_can_read_repo` and `probe_can_mint_runner_token` -- the
+# functions that ask GitHub whether a token can actually do the one thing its
+# pod needs before it is sealed -- had no test coverage of their own at all.
+# That gap is exactly how `probe_can_read_repo` came to call
+# `/repos/{owner}/{repo}` (gated only on "Metadata: Read", which every
+# fine-grained token gets automatically and cannot decline) and read a 200
+# there as proof the token could read repository *contents* -- the permission
+# `git clone` actually needs and the one an owner can genuinely mint a token
+# without. `-o /dev/null -w '%{http_code}'` means real curl prints only the
+# status code with no trailing newline; these do the same.
+FAKE_CURL_CONTENTS_OK = """#!/usr/bin/env bash
+case "$*" in
+  *"/contents/README.md"*)   printf '200' ;;
+  *"registration-token"*)    printf '201' ;;
+  *)                         printf '200' ;;
+esac
+"""
+
+# A token with only the mandatory "Metadata: Read" permission: it can see the
+# repository exists (any bare /repos/{owner}/{repo} call some other probe
+# might make would 200) but 403s on its contents, exactly what an owner gets
+# from a fine-grained PAT they minted without checking the "Contents" box.
+FAKE_CURL_METADATA_ONLY = """#!/usr/bin/env bash
+case "$*" in
+  *"/contents/README.md"*)   printf '403' ;;
+  *"registration-token"*)    printf '403' ;;
+  *)                         printf '200' ;;
+esac
+"""
+
 
 def _bin(path: Path, body: str) -> None:
     path.write_text(body)
@@ -302,6 +333,60 @@ def test_ci_seal_targets_the_runner_secret(sandbox: dict) -> None:
     assert f"RUNNER_TOKEN: {base64.b64encode(token.encode()).decode()}" in manifest
     # Sealing the PAT is only half of it; the switch is a repo variable.
     assert "CI_RUNNER = self-hosted" in result.stdout
+
+
+def test_probe_seals_a_token_that_can_actually_read_contents(sandbox: dict) -> None:
+    # The ordinary path, with the probe on (no --no-probe): a token that
+    # passes the real check the pod's own clone needs still seals normally.
+    _bin(sandbox["bin"] / "curl", FAKE_CURL_CONTENTS_OK)
+    token = "github_pat_site_TESTVALUE"
+    result = _run(sandbox, ["site"], stdin=f"{token}\n")
+    assert result.returncode == 0, result.stderr
+    assert "token can read" in result.stdout
+
+    sealed = sandbox["root"] / "gitops" / "prod" / "secrets" / "portfolio-repo-token.sealed.yaml"
+    assert sealed.exists()
+
+
+def test_probe_refuses_a_token_that_can_only_read_metadata(sandbox: dict) -> None:
+    # Regression for the bug this probe used to have: `/repos/{owner}/{repo}`
+    # 200s for any token with access to the repo at all, because "Metadata:
+    # Read" is mandatory and cannot be unchecked when a fine-grained PAT is
+    # minted. That endpoint proves nothing about "Contents", which is the
+    # permission `git clone` -- what the site pod's `fetch` init container
+    # actually runs -- needs. A token missing it used to sail through this
+    # probe as "token can read $REPO_SLUG" and only fail once mounted in the
+    # cluster, which is the exact CrashLoopBackOff this probe exists to catch
+    # before a seal rather than after one.
+    _bin(sandbox["bin"] / "curl", FAKE_CURL_METADATA_ONLY)
+    token = "github_pat_site_TESTVALUE"
+    result = _run(sandbox, ["site"], stdin=f"{token}\n")
+
+    assert "could NOT read" in result.stderr, result.stderr
+    assert "did not seal: site" in result.stderr
+
+    sealed = sandbox["root"] / "gitops" / "prod" / "secrets" / "portfolio-repo-token.sealed.yaml"
+    assert not sealed.exists(), "a token that cannot read repo contents must never be sealed"
+
+
+def test_ci_probe_actually_asks_for_a_registration_token(sandbox: dict) -> None:
+    # `probe_can_mint_runner_token` was already the right shape -- it calls the
+    # exact endpoint `gitops/ci/runner-entrypoint.sh` calls at pod start -- but
+    # like the repo-read probe above, nothing exercised it before this test:
+    # every ci-seal test above runs with `--no-probe`. A token that cannot
+    # mint a registration token must be refused before it reaches kubeseal.
+    _bin(sandbox["bin"] / "curl", FAKE_CURL_METADATA_ONLY)
+    token = "github_pat_ci_TESTVALUE"
+    result = _run(sandbox, ["ci"], stdin=f"{token}\n")
+
+    assert "could NOT mint" in result.stderr, result.stderr
+    sealed = sandbox["root"] / "gitops" / "ci" / "secrets" / "actions-runner-token.sealed.yaml"
+    assert not sealed.exists()
+
+    _bin(sandbox["bin"] / "curl", FAKE_CURL_CONTENTS_OK)
+    result = _run(sandbox, ["ci"], stdin=f"{token}\n")
+    assert result.returncode == 0, result.stderr
+    assert sealed.exists()
 
 
 def test_running_twice_does_not_duplicate_the_kustomization_entry(sandbox: dict) -> None:
