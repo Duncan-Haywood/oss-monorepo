@@ -72,7 +72,7 @@ usual during those five days.
 A subdomain, because `tools.marisstella.dev` is the canonical host
 stamped into every page's canonical link, og:url and sitemap entry. The
 apex and `www` are served by `prod/portfolio-apex.yaml`, which 301s them
-here rather than putting two uncanonical copies of all 518 pages in front
+here rather than putting two uncanonical copies of all 524 pages in front
 of crawlers.
 
 This used to say the apex was left alone because it "already resolves to
@@ -110,7 +110,7 @@ PAGES_BASE_URL=https://tools.marisstella.dev/ \
   node platform/pages/check.mjs --dist=/tmp/site
 ```
 
-Both exit 0 on `main`: 169 products, 7 category pages, 518 pages, no dead
+Both exit 0 on `main`: 169 products, 7 category pages, 524 pages, no dead
 links. `build.mjs` reads the committed `launched.json` rather than shelling
 out to `git log` (see the comment at its line ~4648), so the `--depth 1`
 clone the `fetch` container does costs it nothing — the depth-1 checkout and
@@ -120,6 +120,9 @@ Re-verified same-day against a later `main`: the page count moved 517 → 518
 between the two runs (another venture merged in between; the product count
 held at 169). Expect this figure to keep moving by a page or two per session
 — it is not the property this check exists to pin, "still exits 0" is.
+Re-verified again on 2026-09-02 against a later `main` still: 524 pages,
+169 products unchanged, no dead links — the drift this paragraph predicted,
+not a regression.
 
 This says the seal will land on a working build; it does not confirm
 anything about the cluster. Certificate issuance and public reachability
