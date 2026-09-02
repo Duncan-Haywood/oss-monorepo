@@ -4549,3 +4549,75 @@ entries:
         `DIRECTION.md`'s "deploy beats another build" while the only two
         deploy-unblocking actions left are owner-only secret seals.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2847: `packShards` now absorbs a trailing runt shard by
+        pulling files back from its predecessor, instead of the mirror
+        needing a bigger `SHARD_BYTE_CEILING` every time a mirrored venture
+        gains a page. Three sessions hit that same fragment on 2026-09-02 and
+        each fixed it differently -- hunt a non-fragmenting `STARTER_SET`
+        position (53 candidates tried), raise the ceiling 700->706 (#2820,
+        merged), raise it 700->716 (`gitops/regen-front-door-mirror`) -- and
+        all three recur on the next growth. Salvaged the structural fix from
+        `marketing/vs-smartmoving-moving-bid-calculator`, which was the only
+        part of that branch present nowhere else.
+      - >-
+        Hardened the salvaged loop before merging. As written it bounded only
+        the *donor* shard ("safe by construction" in its own comment); the
+        *recipient* grows and nothing capped it, so a file larger than
+        ~444 KiB would have pushed a shard past the etcd object cap the whole
+        sharding design exists to stay under. Added that guard plus a
+        keep-one-file guard so the donor cannot drain to an empty ConfigMap,
+        and dropped the branch's stale `portfolio-front-tools-7` volume mount,
+        which referenced a ConfigMap that does not exist at 7 shards and would
+        have broken the front-door pod.
+      - >-
+        The first draft of the three new tests passed with *and* without the
+        fix. Cause worth remembering: the loop read `CLIENT_SIDE_APPLY_CEILING`
+        (256 KiB) directly, so at a test-sized ceiling of 1000 bytes every
+        shard is a "runt" by definition and the real path never ran. Made the
+        threshold a parameter; each test now demonstrably fails against the
+        code it guards. `--write` reproduces the committed mirror byte for
+        byte (53 tools, 439 files, 7 shards), so zero ConfigMap churn and no
+        pod rolls. All 6 checks green on real runners.
+      - >-
+        Branch queue: 0 open PRs at session start, so the three-PR quota was
+        vacuous by its own terms. Inventoried ~90 branches with commits ahead
+        of `main`; exactly one carried work present nowhere else. Every other
+        candidate verified superseded three ways -- `supersede_check.py`
+        identical-merge proof (fence vs-Fence-Cloud, regen-front-door-mirror,
+        governor-rbac, sweep-embed-fix, gha-branch-cleanup), empty residue
+        after test-merging `main` (`pr/where-to-sell-rank-by-profit-per-day`,
+        122 tests green but tree-identical to `main`), or the headline feature
+        already present under a different commit (quote-margin-check settled-
+        report usage, CSV currency labels, harness line-shift gate,
+        ai-engineering-academy `site/tools.mjs`, `ventures/vendor-watch`).
+        Left them unmerged rather than force-resolving week-old conflicts into
+        weaker duplicates of live code.
+      - >-
+        Did not re-derive the owner asks. The Codex-on-Hetzner stack the owner
+        asked about is already built, deployed via `gitops/apps/agents.yaml`,
+        and tested (99/99 worker+governor, 100/100 seal+manifest). It is
+        blocked solely on `codex-governor-enable` (queued 4d): seal
+        `CODEX_AUTH_JSON`, then flip `cronjob.yaml suspend: false` and
+        `policy.json "enabled": true`. Deliberately did not flip those toggles
+        -- unsealed, the CronJob would fire ~4 doomed Jobs/day, each
+        `apt-get`ing and `npm install`ing on the cpx22 before hitting the same
+        dead credential. Added nothing to the queue; it already says this.
+      - >-
+        Marketing surface, measured rather than assumed: 49 `vs-` comparison
+        pages now exist under `ventures/`, 41 of them mirrored to the front
+        door -- and every mirrored page carries `noindex,follow` by design,
+        while the canonical host that would carry the indexable copies
+        (`tools.marisstella.dev`) still fails closed on the unsealed
+        `portfolio-site-repo`. So the portfolio's entire indexable footprint
+        is one URL, `https://marisstella.dev/`, and its `sitemap.xml` lists
+        exactly that one. The fleet is producing SEO assets at several per day
+        that cannot be indexed until that seal lands. Could not verify the
+        live hosts from this session -- the environment's egress policy
+        answers 403 to CONNECT on all three hostnames, which is a network
+        policy denial and not evidence about the site.
+    mrr_end: null
