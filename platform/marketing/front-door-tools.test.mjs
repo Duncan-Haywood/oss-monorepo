@@ -24,6 +24,7 @@ import {
   compress,
   storedKey,
   discoverEligible,
+  explainIneligible,
   MIRROR_BYTE_CEILING,
   SHARD_BYTE_CEILING,
   packShards,
@@ -717,5 +718,50 @@ test('no venture source already uses the return link class', async () => {
         `${slug}/${file} already uses "${NAV_CLASS}" — rename NAV_CLASS rather than shipping the collision`,
       );
     }
+  }
+});
+
+test('every unmirrored venture is explained, and a collateral drop is not blamed on itself', async () => {
+  // The report is only worth having if its reasons are the fixpoint's real
+  // ones. Re-checking an excluded venture on its own does not give those: in
+  // isolation every cross-venture link reads as dead, so a page that is merely
+  // collateral would be reported as broken and a session would go "fix" a
+  // page that is fine. `discoverEligible`'s drop log is what prevents that,
+  // and this is what keeps it wired up.
+  const excluded = await explainIneligible();
+  const served = new Set([...STARTER_SET.map((e) => e.slug), ...(await discoverEligible())]);
+  for (const entry of excluded) {
+    assert.ok(!served.has(entry.slug), `${entry.slug} is both served and reported as excluded`);
+    assert.ok(entry.reason, `${entry.slug} has no reason`);
+    assert.notEqual(
+      entry.kind,
+      'unexplained',
+      `${entry.slug} is excluded but the drop log does not know why — discovery and the report disagree`,
+    );
+  }
+  // Every venture is either served or explained; nothing falls between them.
+  const dirs = (await fs.readdir(path.join(REPO_ROOT, 'ventures'), { withFileTypes: true }))
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+  const accounted = new Set([...served, ...excluded.map((e) => e.slug)]);
+  for (const slug of dirs) {
+    assert.ok(accounted.has(slug), `${slug} is neither mirrored nor explained`);
+  }
+});
+
+test('a collateral drop names a later pass than the venture that caused it', async () => {
+  // The distinction the report exists to make. `appointment-deposit-calculator`
+  // is fine on its own and drops only because `no-show-fee-calculator` loads
+  // `src/app.mjs` from a subdirectory the flat key encoding cannot represent —
+  // one venture costing three off the front door. If that ever stops being
+  // true this test should be updated to whatever the new shape is, not deleted:
+  // the property under test is that pass 1 and pass 2+ mean different things.
+  const excluded = await explainIneligible();
+  for (const entry of excluded.filter((e) => e.kind === 'collateral')) {
+    assert.ok(entry.pass > 1, `${entry.slug} is collateral but dropped on pass ${entry.pass}`);
+    assert.match(entry.reason, /collateral \(pass \d+\)/);
+  }
+  for (const entry of excluded.filter((e) => e.kind === 'dead-link')) {
+    assert.equal(entry.pass, 1, `${entry.slug} is a first-pass drop but reports pass ${entry.pass}`);
   }
 });

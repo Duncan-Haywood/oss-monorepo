@@ -682,22 +682,139 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
   );
 
   let admitted = candidates.map((c) => c.slug);
-  for (;;) {
+  // Why each venture left, and on which pass. Pass 1 is a venture's own doing;
+  // a later pass means it only became ineligible when something it linked to
+  // was dropped, which is the difference between "this page is unmirrorable"
+  // and "this page is collateral". `explainIneligible` reports that difference
+  // because the two call for completely different responses.
+  const dropped = new Map();
+  for (let pass = 1; ; pass += 1) {
     const files = [...namedFiles, ...admitted.flatMap((slug) => byCandidate.get(slug))];
-    const failing = new Set(
-      validateLinks(files)
-        .map((problem) => problem.split('/')[0])
-        .filter((slug) => !named.has(slug)),
-    );
-    if (!failing.size) return admitted;
+    const failing = new Map();
+    for (const problem of validateLinks(files)) {
+      const slug = problem.split('/')[0];
+      if (named.has(slug) || failing.has(slug)) continue;
+      failing.set(slug, problem);
+    }
+    if (!failing.size) return withDrops(admitted, dropped);
+    for (const [slug, problem] of failing) dropped.set(slug, { pass, problem });
     admitted = admitted.filter((slug) => !failing.has(slug));
   }
+}
+
+/**
+ * The discovered slugs, with the drop log hung off them as a non-enumerable
+ * property.
+ *
+ * An array so every existing caller — `mirrorSet`, the tests that assert
+ * ordering — keeps working unchanged; non-enumerable so `assert.deepEqual`
+ * against a plain array of slugs still passes. `explainIneligible` is the only
+ * thing that reads it, and it needs the *reason* the fixpoint dropped each
+ * venture, which cannot be recovered afterwards by re-checking that venture on
+ * its own: in isolation every cross-venture link looks dead, so a page that is
+ * only collateral would be reported as if it were broken.
+ */
+function withDrops(admitted, dropped) {
+  Object.defineProperty(admitted, 'dropped', { value: dropped, enumerable: false });
+  return admitted;
 }
 
 /** `STARTER_SET`, then every other venture the mirror can serve. */
 export async function mirrorSet(venturesDir = VENTURES_DIR) {
   const discovered = await discoverEligible({ venturesDir });
   return [...STARTER_SET, ...discovered.map((slug) => ({ slug }))];
+}
+
+/**
+ * Every venture the mirror does *not* serve, and the reason for each.
+ *
+ * Reported rather than checked, and printed by a bare run of this module. It
+ * exists because "why isn't venture X on the front door?" became the only
+ * interesting question this file answers that its output did not, and
+ * answering it took a throwaway script that re-implemented half of
+ * `discoverEligible` — and got the answer wrong, because a venture checked on
+ * its own has every cross-venture link read as dead.
+ *
+ * So the reasons come from the fixpoint's own drop log, not from re-checking.
+ * The pass number is the whole point:
+ *
+ * - **Dropped on pass 1** — the venture's own pages link somewhere the mirror
+ *   cannot follow. That is a fact about the venture.
+ * - **Dropped on a later pass** — it was fine until something it linked to
+ *   was dropped. It is collateral, and it comes back for free if the venture
+ *   that blocked it ever becomes eligible.
+ *
+ * Measured 2026-09-02 over 28 excluded ventures:
+ *
+ * - **19 have no flat `index.html`** — `tender-radar`, `print-atelier`,
+ *   `ubuntu-agent-server`, `local-site-studio`, `quote-margin-check` and the
+ *   rest are CLIs, servers, watch faces, or apps with a build step and a
+ *   nested `site/` or `src/`. Not static pages, so not a gap the mirror can
+ *   close, and no future session should try. If one grows a flat browser
+ *   entry point it becomes eligible on its own — which is why this is
+ *   reported rather than written down as a list.
+ * - **The interesting case is one venture costing three.**
+ *   `no-show-fee-calculator/index.html` loads `src/app.mjs`, a subdirectory
+ *   the flat `<slug>__<file>` key encoding cannot represent, so it drops on
+ *   pass 1. `appointment-deposit-calculator` links to it and drops as
+ *   collateral, and `delivery-app-margin-calculator` links to both it and
+ *   `quote-margin-check`. Three finished calculators are off the front door
+ *   for one subdirectory reference. Fixing it means either teaching the key
+ *   encoding about subdirectories (and `front-door/default.conf` with it) or
+ *   flattening that one file in the venture; both are real options and
+ *   neither is a one-line change, which is why this says so instead of
+ *   guessing.
+ *
+ * One entry is a false exclusion worth knowing about before someone "fixes"
+ * it: `marketplace-fee-compare` is held out because `validateLinks` scans the
+ * whole document, including `<script>`, and its channel list builds hrefs from
+ * JS template strings — so the checker reads a literal
+ * `href="../${escapeHtml(channel.deepTool)}/"`. The page is not broken. The
+ * check is conservative in the safe direction, and narrowing it to skip script
+ * bodies would trade one missing tool for a class of genuinely dead link it
+ * currently catches. Left as is deliberately.
+ */
+export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
+  const discovered = await discoverEligible({ venturesDir });
+  const dropped = discovered.dropped ?? new Map();
+  const served = new Set([...STARTER_SET.map((entry) => entry.slug), ...discovered]);
+  const excluded = [];
+  for (const entry of await fs.readdir(venturesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || served.has(entry.name)) continue;
+    const slug = entry.name;
+    if (!ROUTABLE_SLUG.test(slug)) {
+      excluded.push({ slug, kind: 'unroutable', reason: 'slug is not one front-door/default.conf can route' });
+      continue;
+    }
+    const names = await ventureFiles(slug, venturesDir).catch(() => null);
+    if (!names?.includes('index.html')) {
+      excluded.push({ slug, kind: 'not-a-page', reason: 'no flat index.html — not a static page the mirror can serve' });
+      continue;
+    }
+    const unroutable = names.filter((name) => !ROUTABLE_FILE.test(name));
+    if (unroutable.length) {
+      excluded.push({ slug, kind: 'unroutable', reason: `filenames nginx cannot route: ${unroutable.join(', ')}` });
+      continue;
+    }
+    const drop = dropped.get(slug);
+    if (!drop) {
+      // Discovery admitted it and this did not, or neither did. Either way the
+      // two disagree, which is a bug in one of them rather than a fact about
+      // the venture — say so rather than inventing a reason.
+      excluded.push({ slug, kind: 'unexplained', reason: 'not served and not in the drop log — discovery and this disagree' });
+      continue;
+    }
+    excluded.push({
+      slug,
+      kind: drop.pass === 1 ? 'dead-link' : 'collateral',
+      pass: drop.pass,
+      reason:
+        drop.pass === 1
+          ? drop.problem
+          : `collateral (pass ${drop.pass}) — became unreachable once something it links to was dropped: ${drop.problem}`,
+    });
+  }
+  return excluded.sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
 /**
@@ -1351,5 +1468,30 @@ if (isMain) {
     const built = await buildMirror();
     for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
     console.log(`\n${totals(built)}`);
+    // The other half of the answer, and the half that used to need a
+    // throwaway script: which ventures are *not* here, and why each one is
+    // not. See `explainIneligible` for what the reasons mean and which of
+    // them a future session should not try to close.
+    const excluded = await explainIneligible();
+    if (excluded.length) {
+      // Grouped, and the bulk case summarised rather than listed line by line.
+      // 21 of these are CLIs and servers that will never be static pages, and
+      // printing all of them at equal weight buries the six that a session
+      // could actually do something about.
+      const notAPage = excluded.filter((e) => e.kind === 'not-a-page');
+      const actionable = excluded.filter((e) => e.kind !== 'not-a-page');
+      console.log(`\n${excluded.length} venture(s) the mirror does not serve:`);
+      console.log(
+        `\n  ${notAPage.length} have no flat index.html — CLIs, servers, and apps with a build step.\n` +
+          `  Not static pages, so not a gap the mirror can close:\n` +
+          `    ${notAPage.map((e) => e.slug).join(', ')}`,
+      );
+      if (actionable.length) {
+        console.log(`\n  ${actionable.length} are static pages held out by a link the mirror cannot follow:`);
+        for (const { slug, kind, reason } of actionable) {
+          console.log(`    ${slug} [${kind}]\n      ${reason}`);
+        }
+      }
+    }
   }
 }
