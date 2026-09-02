@@ -301,7 +301,7 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         # exceed the price. Printing "-4.00 (31.00 over)" reads as a quantity
         # of hours; what a negative there means is that there is no budget to
         # spend. Keeps the browser build's wording (site/index.html).
-        f"| Hours supported at target rate | "
+        "| Hours supported at target rate | "
         + (
             "none — direct costs leave nothing to pay for time"
             if result["cost_coverage"] <= 0
