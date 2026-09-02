@@ -2186,3 +2186,74 @@ entries:
         That is the third consecutive session to find no repairable backlog,
         so the mandate's three-PR quota resolved on its "fewer than three
         exist, process all of them" branch rather than being missed.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2720: `repairLinks` was sending ten cross-tool links on the
+        built site to a URL in this *private* repository -- a 404 for every
+        visitor. It decides whether a link escapes the site by whether the
+        target exists on disk, and it ran inside the loop that copies each
+        venture, so a link to a sibling that sorts later alphabetically was
+        tested before that sibling had been copied, came back missing, and was
+        rewritten to `blob/main/ventures/<slug>`.
+      - >-
+        All seven distinct targets were live published pages:
+        no-show-fee-calculator, where-to-sell-calculator,
+        walmart-marketplace-calculator, tiktok-shop-fee-calculator,
+        shopify-fee-calculator, quote-margin-check, and one
+        invoice-payment-terms-calculator page. Concretely: a visitor on the
+        Shopify fee calculator clicking "compare what one item nets on Shopify,
+        eBay, Etsy, Amazon" was sent to a GitHub page they cannot open instead
+        of the where-to-sell calculator one directory away. This is the
+        portfolio's only non-search path between products, so it bears directly
+        on the marketing-distribution item.
+      - >-
+        Two things hid it. `check.mjs` reports "no dead links" throughout,
+        because by then the link is absolute and it does not follow those. And
+        the failure is invisible in the source tree -- every one of these links
+        is written correctly as `../<slug>/` and only becomes wrong during the
+        build.
+      - >-
+        This is the same hazard `addSiteChrome` already documents at
+        build.mjs:4006 for its own `../` hub link, solved there by running after
+        the hub is written. Cross-venture links need every venture written, so
+        the copy is now its own pass ahead of everything that reads the finished
+        tree. `repairLinks` still runs ahead of `surfaceExternalFetchHosts`
+        within the second pass and that order is load-bearing -- a repair can
+        rewrite a `<script src>` to a github.com URL, which is a real external
+        request the privacy copy must report. Verified unchanged: the
+        `externalFetchHosts` of all 169 tools in `catalog.json` are
+        byte-identical before and after.
+      - >-
+        Rejected alternative, recorded so it is not retried: making
+        `repairLinks` ask the source tree "will this be published?" instead.
+        `copyTree` deliberately does not publish everything under a venture
+        (CLI source, and the README/LICENCE cases this feature exists for), so
+        "exists in source" is not "will be published" and the test would have
+        started wrongly keeping links that really do 404 inside the site.
+      - >-
+        Verified: 856 platform/pages tests (was 855); build.mjs + check.mjs (169
+        products, 531 pages, no dead links); regression test confirmed to fail
+        on the unfixed build (`not ok 248`) and pass with the fix; and a full
+        diff of the built site before and after -- 6 files differ, 5 restoring a
+        working internal link and the 6th `sw.js`'s content-derived cache hash.
+        The only GitHub rewrites left are the ones the feature is for:
+        README.md and LICENSE files no venture publishes. All 9 CI checks green
+        on real runners.
+      - >-
+        The regression test asserts the invariant over the whole built site
+        rather than over those seven ventures, so the same mistake cannot return
+        through a venture nobody is watching. It only flags a link into a
+        published venture when the target file actually exists in the output, so
+        legitimate README/LICENCE repairs stay legal.
+      - >-
+        Also shipped #2719: `deposit-vs-no-show-fee.html` still called collected
+        deposits "net" after #2717 established they are not, so the two pages
+        contradicted each other and the one a search visitor is likelier to land
+        on carried the misreading. Corrected in the copy and the JSON-LD, which
+        had drifted together, and the page now names its boundary with
+        no-show-fee-calculator (which already ships `compareCollectionPolicies`)
+        rather than duplicating it. A new test recomputes every quoted figure
+        from `plan()` so the page cannot drift again.
