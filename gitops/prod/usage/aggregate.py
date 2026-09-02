@@ -99,12 +99,41 @@ EMBED_PREFIX = "embed/"
 # to separate them afterwards. That is why the front door shipped unmeasured
 # rather than mismeasured, and this is the key that fixes it.
 #
-# One key for the whole pod, not a path breakdown, because there is only ever
-# one path: that pod's nginx does `try_files /index.html =404`, and `$uri` is
-# logged after `try_files` resolves, so every request it counts logs the same
-# URI. A per-path split would be fiction. `/healthz` sets `access_log off`, so
-# probes never reach this file at all.
+# `/healthz` sets `access_log off`, so probes never reach this file at all.
+#
+# **Changed when the apex tool mirror landed.** This comment used to end "one
+# key for the whole pod, not a path breakdown, because there is only ever one
+# path: that pod's nginx does `try_files /index.html =404`, so every request it
+# counts logs the same URI. A per-path split would be fiction." That was true
+# and is not any more. `front-door-tools.mjs` mirrors 14 complete ventures onto
+# that same pod, so it now serves the front page *and* those tools, and folding
+# them all onto one key would recreate — inside this pod — exactly the
+# conflation this key was added to prevent: "did anyone find the portfolio" and
+# "did anyone use a mirrored tool" as one number.
+#
+# That number is also the only evidence the mirror is worth serving, so losing
+# it would leave the experiment unmeasurable.
 FRONT_KEY = "_front"
+
+# The prefix a mirrored tool's row gets, e.g. `_front/job-margin-variance`.
+#
+# Prefixed rather than sharing the catalogue's bare `<slug>` row, even though
+# it is the same tool: while both hosts serve it, one row would mix a visit to
+# the apex copy with a visit to the catalogue's, and the two are not the same
+# question — whether the mirror earns its keep is precisely the difference.
+# It sorts beside `_front` for free, and it disappears with the mirror.
+FRONT_TOOL_PREFIX = f"{FRONT_KEY}/"
+
+# How a mirrored file's logged `$uri` maps back to its venture.
+#
+# nginx logs `$uri` *after* `try_files` resolves, and the mirror's locations
+# resolve `/tools/<slug>/<file>` to the flattened ConfigMap key `/<slug>__<file>`
+# — so that is the shape in the log, not the URL the visitor typed. The `__`
+# separator is what makes this unambiguous: a real path on the tools host never
+# contains one. Verified against a live nginx serving the real config, which
+# logged `/job-margin-variance__index.html` for a request to
+# `/tools/job-margin-variance/`.
+MIRROR_SEPARATOR = "__"
 
 # Which key a pod's counted lines belong to, chosen by its `app` label.
 #
@@ -206,19 +235,35 @@ def fold_for_app(counts: dict[str, int], app: str | None) -> dict[str, int]:
     Split out of `main` so the decision that matters is testable without a
     cluster: `main`'s own body is API calls around this.
 
-    A pod whose app maps to `None` keeps `slug_for`'s keys. One that maps to a
-    string collapses onto that single key, because it serves a single page. An
-    unrecognised app contributes nothing — the caller reports it; guessing a
-    key would put an unexplained row in a file whose whole value is that every
-    row means something.
+    A pod whose app maps to `None` keeps `slug_for`'s keys. An unrecognised app
+    contributes nothing — the caller reports it; guessing a key would put an
+    unexplained row in a file whose whole value is that every row means
+    something.
+
+    A pod that maps to a string used to collapse onto that single key, because
+    it served a single page. The apex now serves the front page *and* the
+    mirrored tools, so its lines split: anything carrying `MIRROR_SEPARATOR` is
+    a mirrored venture and gets its own `_front/<slug>` row, and everything else
+    — which is the front page, since that pod's fallback is `try_files
+    /index.html` — stays on the bare key.
     """
     if app not in APP_KEYS:
         return {}
     key = APP_KEYS[app]
     if key is None:
         return dict(counts)
-    hits = sum(counts.values())
-    return {key: hits} if hits else {}
+    folded: dict[str, int] = {}
+    for slug, hits in counts.items():
+        if MIRROR_SEPARATOR in slug:
+            # `slug_for` has already stripped `.html`, so a mirrored entry page
+            # arrives as `<slug>__index` and a sub-page as `<slug>__<name>`.
+            # Both belong to the venture, matching how the tools host rolls a
+            # tool's sub-pages onto its own row.
+            row = f"{FRONT_TOOL_PREFIX}{slug.split(MIRROR_SEPARATOR, 1)[0]}"
+        else:
+            row = key
+        folded[row] = folded.get(row, 0) + hits
+    return {row: hits for row, hits in sorted(folded.items()) if hits}
 
 
 def merge_days(existing: dict[str, Any], day: str, counts: dict[str, int]) -> dict[str, Any]:
@@ -234,9 +279,10 @@ def merge_days(existing: dict[str, Any], day: str, counts: dict[str, int]) -> di
         "schema": 1,
         "note": (
             "Aggregate page views of the public tool site, plus the apex "
-            "front door under the key _front. No addresses, user agents, "
-            "referrers or query strings are logged upstream, so no field "
-            "here derives from one. See portfolio/usage/README.md."
+            "front door under the key _front and each tool the apex mirrors "
+            "under _front/<slug>. No addresses, user agents, referrers or "
+            "query strings are logged upstream, so no field here derives "
+            "from one. See portfolio/usage/README.md."
         ),
         "days": kept,
     }

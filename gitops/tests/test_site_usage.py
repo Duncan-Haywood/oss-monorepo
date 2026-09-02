@@ -533,14 +533,69 @@ def test_the_front_door_is_counted_apart_from_the_catalogue_hub() -> None:
     assert module.HUB_KEY != module.FRONT_KEY
 
 
-def test_the_front_door_collapses_to_one_row_because_it_serves_one_page() -> None:
-    # Its nginx does `try_files /index.html =404`, so `$uri` is resolved to the
-    # same page whatever was requested. If that ever stops being true, this
-    # says what the aggregator will do with it rather than leaving a silent
-    # per-path split nobody chose.
+def test_the_front_doors_own_pages_still_collapse_to_one_row() -> None:
+    # Anything from that pod that is *not* a mirrored tool is the front page:
+    # its fallback is `try_files /index.html =404`, so `$uri` resolves to the
+    # same page whatever was requested. The mirror is the one exception and it
+    # is keyed by `__`; these three slugs carry none, so they fold as before.
     module = _load_aggregate()
     counts = {"a": 2, "b": 5, module.HUB_KEY: 1}
     assert module.fold_for_app(counts, "portfolio-front") == {module.FRONT_KEY: 8}
+
+
+def test_each_mirrored_tool_gets_its_own_row_rather_than_vanishing_into_the_front_key() -> None:
+    """The apex serves 14 tools as well as its front page, and they must differ.
+
+    Before the mirror this pod served one page, so one key for the whole pod
+    was right. Folding the tools onto it now would recreate, inside this pod,
+    the exact conflation `FRONT_KEY` was added to prevent — and it would hide
+    the only evidence that mirroring the tools was worth doing.
+    """
+    module = _load_aggregate()
+    # The shapes nginx actually logs: `$uri` after `try_files` resolved
+    # `/tools/<slug>/<file>` onto the flattened ConfigMap key.
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /job-margin-variance__index.html",
+        "2026-09-02T10:02:00+00:00 200 /job-margin-variance__index.html",
+        # A sub-page of the same venture rolls onto the venture's row, matching
+        # how the tools host treats `/slug/page.html`.
+        "2026-09-02T10:03:00+00:00 200 /job-margin-variance__why-it-cost-more.html",
+        "2026-09-02T10:04:00+00:00 200 /seller-net-sheet__index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert module.fold_for_app(counts, "portfolio-front") == {
+        module.FRONT_KEY: 1,
+        f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 3,
+        f"{module.FRONT_TOOL_PREFIX}seller-net-sheet": 1,
+    }
+
+
+def test_a_mirrored_tools_row_cannot_be_confused_with_the_catalogues() -> None:
+    # While both hosts serve the same tool, a shared bare `<slug>` row would mix
+    # a visit to the apex copy with a visit to the catalogue's -- and whether
+    # the mirror earns its keep is exactly that difference.
+    module = _load_aggregate()
+    assert module.FRONT_TOOL_PREFIX.startswith(module.FRONT_KEY)
+    counts = module.count_lines(
+        ["2026-09-02T10:00:00+00:00 200 /job-margin-variance__index.html"], "2026-09-02"
+    )
+    row = next(iter(module.fold_for_app(counts, "portfolio-front")))
+    assert row == "_front/job-margin-variance"
+    assert row != "job-margin-variance"
+
+
+def test_the_mirrors_non_page_assets_are_not_counted_as_views() -> None:
+    # `calc.mjs` and `LICENSE` are fetched by the page, not visited. `slug_for`
+    # already drops anything without a page suffix; this pins that the mirror's
+    # flattened names did not accidentally start looking like pages.
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /job-margin-variance__calc.mjs",
+        "2026-09-02T10:00:01+00:00 200 /job-margin-variance__usage.mjs",
+        "2026-09-02T10:00:02+00:00 200 /job-margin-variance__LICENSE",
+    ]
+    assert module.count_lines(lines, "2026-09-02") == {}
 
 
 def test_a_pod_with_no_views_adds_no_row() -> None:

@@ -30,7 +30,7 @@
  * ConfigMap and the pod mounts it. `front-door.test.mjs` regenerates and
  * compares, so a stale commit fails the suite with the command that fixes it.
  *
- * ## Why it does not list the tools
+ * ## Why it does not list the whole catalogue
  *
  * Because `tools.marisstella.dev` does, and `portfolio-apex.yaml`'s own
  * comment explains at length why two hostnames must not serve the same bytes:
@@ -42,6 +42,22 @@
  * That is also what keeps it from becoming dead weight once the clone token is
  * sealed. A front door describing the collection is what a brand apex is for;
  * the tools live one hop away either way.
+ *
+ * ## The one exception: the tools this host serves itself
+ *
+ * Every link above points at `tools.marisstella.dev`, which serves nothing
+ * until `portfolio-site-repo` is sealed — so for the whole life of this page a
+ * visitor who acted on any of it reached a dead host. `front-door-tools.mjs`
+ * mirrors a curated set of complete ventures into this host's own ConfigMap,
+ * and `renderFrontDoor`'s `mirrored` argument is the section that names them.
+ *
+ * That does not reopen the two-hosts-one-canonical question above: every
+ * mirrored page carries `noindex` and a canonical pointing back at its
+ * `tools.marisstella.dev` URL, so the mirror is reachable by people and
+ * invisible to crawlers. Read that module's header for the full argument.
+ *
+ * `mirrored` defaults to empty, so deleting the mirror after the seal removes
+ * this section without touching anything here.
  */
 
 import fs from 'node:fs/promises';
@@ -252,6 +268,7 @@ const STYLE = `
   .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
   .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
   .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; }
   .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
   .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
   footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; }
@@ -266,7 +283,15 @@ const STYLE = `
  * Pure: everything it needs is passed in, so the test can render a fixed list
  * of slugs and assert on the numbers without touching the repository.
  */
-export function renderFrontDoor({ slugs, toolsUrl = TOOLS_URL, canonical = FRONT_DOOR_URL } = {}) {
+export function renderFrontDoor({
+  slugs,
+  toolsUrl = TOOLS_URL,
+  canonical = FRONT_DOOR_URL,
+  // The tools served from this host, from `front-door-tools.mjs`'s
+  // `STARTER_SET`. Defaulted empty so this module keeps rendering a correct
+  // page on its own, and so a test can pin both states.
+  mirrored = [],
+} = {}) {
   const list = [...slugs].sort();
   const counts = categoryCounts(list);
   const categories = orderedCategories(counts);
@@ -306,6 +331,28 @@ export function renderFrontDoor({ slugs, toolsUrl = TOOLS_URL, canonical = FRONT
         </li>`,
   ).join('\n');
 
+  // The tools this host serves itself. Empty until `front-door-tools.mjs`
+  // passes a set in, which is what keeps this page correct in both states:
+  // once `portfolio-site-repo` is sealed the mirror can be deleted and this
+  // section disappears with it, rather than having to be found and removed.
+  const mirrorSection = mirrored.length
+    ? `
+  <h2 id="open-now">Open one now, on this page's own host</h2>
+  <p class="lede-sm">${escapeHtml(
+    `${mirrored.length} of the ${total} tools are served directly from this domain, so they work whether or not the catalogue host is up. They are the complete tools, not previews.`,
+  )}</p>
+  <ul class="grid">
+${mirrored
+  .map(
+    (tool) => `        <li class="card">
+          <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
+        </li>`,
+  )
+  .join('\n')}
+  </ul>
+`
+    : '';
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -339,6 +386,7 @@ ${jsonLd(structuredData)}
 ${cards}
   </ul>
 
+${mirrorSection}
   <h2>How it works</h2>
   <ul class="rows">
 ${how}
@@ -361,7 +409,12 @@ export async function publishedSlugs(file = LAUNCHED_FILE) {
 }
 
 export async function buildFrontDoor() {
-  return renderFrontDoor({ slugs: await publishedSlugs() });
+  // The mirror is imported lazily so `front-door.mjs` keeps working — and its
+  // own tests keep running — if `front-door-tools.mjs` is ever deleted, which
+  // is exactly what should happen once `portfolio-site-repo` is sealed.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { tools } = await buildMirror();
+  return renderFrontDoor({ slugs: await publishedSlugs(), mirrored: tools });
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);

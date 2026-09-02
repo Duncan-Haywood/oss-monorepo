@@ -9,6 +9,7 @@ resources:
   - portfolio-front.yaml
   - portfolio-apex.yaml
   - site-usage.yaml
+  - front-door-tools/
 configMapGenerator:
   - name: portfolio-site-usage-script
     files:
@@ -45,6 +46,13 @@ configMapGenerator:
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
+# `front-door-tools/` in the resource list above is the mirrored tools the apex
+# serves itself, so the front door's cards lead somewhere while
+# `portfolio-site-repo` is unsealed. It is a nested kustomization rather than
+# another generator here because its file list is generated, one line per
+# mirrored file — regenerate the directory and its kustomization together with:
+#   node platform/marketing/front-door-tools.mjs --write
+# `platform/marketing/front-door-tools.test.mjs` fails if the commit is stale.
 # `secrets/portfolio-repo-token.sealed.yaml` joins the resource list once the
 # owner has sealed the read-only clone token — see secrets/*.template.yaml.
 # Until then the site's `fetch` init container fails closed. The apex does not
