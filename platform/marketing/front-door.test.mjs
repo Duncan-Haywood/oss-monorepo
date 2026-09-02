@@ -13,7 +13,12 @@ import {
   FRONT_DOOR_URL,
   OUTPUT_FILE,
   PROMISE,
+  ROBOTS_FILE,
+  ROBOTS_OUTPUT_FILE,
+  ROBOTS_TXT,
   SITE_NAME,
+  SITEMAP_FILE,
+  SITEMAP_OUTPUT_FILE,
   SOCIAL_CARD_ALT,
   SOCIAL_CARD_OUTPUT_FILE,
   TOOLS_URL,
@@ -24,6 +29,7 @@ import {
   orderedCategories,
   publishedSlugs,
   renderFrontDoor,
+  renderSitemap,
 } from './front-door.mjs';
 
 /** The nginx config that serves the page and the card, beside them both. */
@@ -436,4 +442,103 @@ test('the published slug list is the one check.mjs already pins', async () => {
   const slugs = await publishedSlugs();
   assert.ok(slugs.length > 100, 'launched.json should hold the whole published catalogue');
   assert.ok(slugs.includes('roofing-bid-calculator'));
+});
+
+test('the committed robots.txt and sitemap match what this generator produces', async () => {
+  // Same contract as the page and the card above: Argo CD delivers the files
+  // in git, so a stale commit ships stale bytes and nothing else catches it.
+  assert.equal(
+    await fs.readFile(ROBOTS_OUTPUT_FILE, 'utf8'),
+    ROBOTS_TXT,
+    'gitops/prod/front-door/robots.txt is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+  assert.equal(
+    await fs.readFile(SITEMAP_OUTPUT_FILE, 'utf8'),
+    renderSitemap(),
+    'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('robots.txt points at a sitemap this host actually serves', async () => {
+  // The `Sitemap:` line is an absolute URL by protocol requirement — a
+  // relative path there is ignored — so it names a host, and naming the dark
+  // tools host would send every crawler to a sitemap that does not resolve.
+  assert.match(ROBOTS_TXT, new RegExp(`^Sitemap: ${FRONT_DOOR_URL}${SITEMAP_FILE}$`, 'm'));
+  assert.ok(!ROBOTS_TXT.includes(`${TOOLS_URL}${SITEMAP_FILE}`));
+  assert.equal(path.basename(SITEMAP_OUTPUT_FILE), SITEMAP_FILE);
+  assert.equal(path.basename(ROBOTS_OUTPUT_FILE), ROBOTS_FILE);
+});
+
+test('robots.txt allows the crawl the mirror depends on being allowed', async () => {
+  // The load-bearing assertion in this file. `front-door-tools.mjs` keeps the
+  // mirror out of search with a noindex meta and an X-Robots-Tag header, and
+  // both are only obeyed by a crawler that is permitted to fetch the page and
+  // read them. A `Disallow: /tools/` here would block the fetch, leave the
+  // noindex unread, and let the URLs be indexed bare — the opposite of what
+  // the Disallow would have been added to achieve.
+  assert.match(ROBOTS_TXT, /^Allow: \/$/m);
+  assert.ok(
+    !/^Disallow:\s*\S/m.test(ROBOTS_TXT),
+    'a Disallow here blocks the fetch that makes the mirror noindex effective',
+  );
+  // The header the paragraph above depends on, asserted where the claim is
+  // made rather than trusted from the module that sets it.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  assert.match(conf, /location ~ "\^\/tools\/[^"]*"\s*\{[\s\S]*?X-Robots-Tag "noindex"/);
+});
+
+test('robots.txt is plain ASCII, so no crawler has to guess an encoding', () => {
+  // The generator interpolates prose that elsewhere in this file carries em
+  // dashes. robots.txt is parsed by a long tail of clients with no agreed
+  // encoding behaviour, and the file has no charset declaration of its own.
+  assert.ok(
+    // eslint-disable-next-line no-control-regex
+    !/[^\x00-\x7F]/.test(ROBOTS_TXT),
+    'keep robots.txt ASCII — replace any em dash or smart quote with plain punctuation',
+  );
+});
+
+test('the sitemap lists the one indexable URL and no noindex page', () => {
+  const xml = renderSitemap();
+  assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+  assert.match(xml, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
+  const locs = [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
+  assert.deepEqual(locs, [FRONT_DOOR_URL]);
+  // A sitemap entry for a `noindex` page asks a crawler to index what the page
+  // then forbids; consoles report the pair as an error rather than picking a
+  // winner. Every /tools/ page is noindex, so none of them belongs here.
+  assert.ok(!xml.includes('/tools/'));
+  // No `<lastmod>`: the only value available at build time is the build's own
+  // clock, which would move on every regeneration and make the staleness test
+  // above unpassable while training crawlers to distrust the field.
+  assert.ok(!xml.includes('<lastmod>'));
+});
+
+test('nginx answers the crawler paths with the files rather than the page', async () => {
+  // The catch-all `location /` returns `index.html` for every path. Before
+  // these blocks existed, `/robots.txt` was 200 + text/html + 16 KB of markup
+  // on the portfolio's only indexable surface.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  for (const [file, type] of [
+    [ROBOTS_FILE, 'text/plain'],
+    [SITEMAP_FILE, 'application/xml'],
+  ]) {
+    const block = conf.match(
+      new RegExp(`location = /${escapeForRegExp(file)} \\{[\\s\\S]*?\\n {2}\\}`),
+    );
+    assert.ok(block, `front-door/default.conf must serve /${file} explicitly`);
+    assert.match(block[0], new RegExp(`default_type ${escapeForRegExp(type)};`));
+    assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(file)} =404;`));
+    // Never noindex: these are the apex's own files describing its own
+    // indexable page, and a noindex on the sitemap defeats pointing at it.
+    assert.ok(!/X-Robots-Tag/.test(block[0]), `/${file} must stay crawlable`);
+    assert.ok(
+      conf.indexOf(`location = /${file}`) < conf.indexOf('location / {'),
+      `keep the /${file} block above the catch-all`,
+    );
+  }
+  // A broad `.xml` regex location would retype every sitemap on the tools
+  // host; `test_manifests.py` asserts the same thing about that config, and
+  // the exact-match form above is what keeps this one clear of it.
+  assert.ok(!/location ~ \\?\.xml\$/.test(conf));
 });

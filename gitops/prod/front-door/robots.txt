@@ -1,0 +1,13 @@
+# https://marisstella.dev/robots.txt
+#
+# Crawling is unrestricted on purpose. The mirrored tools under /tools/ are
+# copies whose canonical lives on https://tools.marisstella.dev/
+# and they must not be indexed here. That is enforced by a noindex meta on
+# every mirrored page and an X-Robots-Tag: noindex header on every /tools/
+# response -- NOT by a Disallow. A disallowed page is never fetched, so its
+# noindex is never read, and the URL can still be indexed bare. Allowing the
+# crawl is what makes the noindex work.
+User-agent: *
+Allow: /
+
+Sitemap: https://marisstella.dev/sitemap.xml
