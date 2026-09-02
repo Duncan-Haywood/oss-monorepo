@@ -1255,9 +1255,47 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
 });
 
+// A cutting planner for woodworkers and sign shops spent its whole life filed
+// under "Logistics, freight & cloud cost" because the `logistics` rule matched
+// the literal prefix `cut-list`. Nothing about the page was wrong; every
+// internal link out of it was. The four related tools it offered were a 3PL
+// quote normaliser, a cloud egress calculator, a medical-courier route margin
+// and an owner-operator CPM, and it was listed on the freight hub where its
+// readers do not look. Both halves are asserted here: where it now lives, and
+// that the freight section no longer claims it.
+test('the cut list planner is filed with the trades that cut sheet goods, not with freight', () => {
+  assert.equal(categoryFor('cut-list-optimizer').id, 'trades');
+  assert.equal(subcategoryFor('cut-list-optimizer').id, 'trades-interior');
+  assert.notEqual(categoryFor('cut-list-optimizer').id, 'logistics');
+  // The freight tools it used to sit beside are still freight tools.
+  for (const slug of ['3pl-quote-normalizer', 'ltl-freight-class-estimator', 'medical-courier-route-margin']) {
+    assert.equal(categoryFor(slug).id, 'logistics', `${slug} should still be logistics`);
+  }
+});
+
+// The consequence the misfiling actually had, asserted directly rather than
+// through the category id: a woodworker is offered woodworking tools.
+test('the cut list planner offers trade siblings, not freight tools', () => {
+  const surfaces = [
+    'cut-list-optimizer',
+    'countertop-bid-calculator',
+    'cabinet-refinishing-bid-calculator',
+    'crown-molding-bid-calculator',
+    'flooring-bid-calculator',
+    '3pl-quote-normalizer',
+    'cloud-egress-calculator',
+    'medical-courier-route-margin',
+  ].map((slug) => ({ slug, title: slug }));
+  const related = relatedTools(surfaces, 'cut-list-optimizer', 4);
+  assert.equal(related.length, 4);
+  for (const surface of related) {
+    assert.equal(categoryFor(surface.slug).id, 'trades', `${surface.slug} is not a trade tool`);
+  }
+});
+
 test('sub-groups only apply where a category is large enough to need them', () => {
   assert.equal(subcategoryFor('ebay-fee-calculator'), null, 'marketplace reads as one list');
-  assert.equal(subcategoryFor('cut-list-optimizer'), null, 'logistics reads as one list');
+  assert.equal(subcategoryFor('3pl-quote-normalizer'), null, 'logistics reads as one list');
   assert.equal(subcategoryFor('metal-roof-bid-calculator').id, 'trades-roof');
   assert.equal(subcategoryFor('quote-margin-check').id, 'trades-paid');
 });

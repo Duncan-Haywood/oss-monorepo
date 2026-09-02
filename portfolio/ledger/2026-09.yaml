@@ -1745,3 +1745,72 @@ entries:
         `page-integrity`, `site-test`, `validate`, `deploy` skipped as
         expected off a non-`main` push); `ci_starvation.py` confirmed
         `validate` (157s) landed on a real runner before merge.
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2693 (part 1): `cut-list-optimizer` had been classified as
+        `logistics` since the category rules were written -- the rule matched
+        the literal prefix `cut-list`, in a list beside `3pl`, `freight`,
+        `ltl-`, `owner-operator` and `medical-courier`. It is a plywood and
+        board cutting planner for woodworkers and sign shops. Nothing on the
+        page was wrong; every internal link out of it was. The four related
+        tools injected at the foot of every cut-list page were a 3PL quote
+        normaliser, a cloud egress calculator, a medical-courier route margin
+        and an owner-operator CPM; the tool was listed on `/c/logistics/`,
+        where a freight buyer met a plywood planner; it was absent from
+        `/c/trades/`, where its readers browse; and `llms.txt` -- the file
+        written for AI assistants to quote -- grouped it under freight. It
+        now resolves to `trades` / `trades-interior`, beside the countertop,
+        cabinet-refinishing, crown-molding and flooring bids sold by the same
+        people who cut sheet goods.
+      - >-
+        The generalisable finding, which is why this is recorded rather than
+        filed as a typo: a slug prefix can read as a different industry than
+        the product, and nothing in the suite tested the *consequence* of a
+        classification -- only that categories existed and that the catch-all
+        was empty. Both were true and green throughout. The two regression
+        tests added assert the classification and, separately, that the
+        related-tool offer at the foot of the page is trade work, which is
+        the thing a visitor actually experiences.
+      - >-
+        Swept the other 168 slugs against the same question -- each tool's
+        category read against its own meta description -- and found no
+        second case of this severity, but two softer ones, both left alone
+        deliberately and recorded here rather than fixed, because unlike
+        `cut-list` they are judgment calls rather than a tool filed into the
+        wrong industry. (1) `tender-bid-readiness` and `tender-radar` sit in
+        the `more` catch-all while `contractor-bid-readiness` -- the same
+        shape of tool, and both tender pages name small contractors as their
+        reader -- sits in `trades`. (2) `music-lesson-break-even` is in
+        `backoffice` because its slug ends in `break-even`, but it prices a
+        teacher's lessons, which is the `services` blurb's exact job ("price
+        a visit, a route, a booking... for the service businesses that quote
+        work without bidding a construction job") rather than backoffice's
+        ("the arithmetic that happens after the job is won"). Neither is
+        wrong the way `cut-list` was: the catch-all is an honest home, and
+        `break-even` is a real back-office shape. Both are worth a decision;
+        neither is worth widening this PR for.
+      - >-
+        Shipped #2693 (part 2): a comparison page against optiCutter and
+        CutList Optimizer, the two named hosted incumbents -- the
+        `marketing-distribution` shape, an asset that deploys with the site.
+        18 of 169 tools now carry one. No price and no free-tier limit is
+        stated for either service and a test enforces that: both vendors'
+        own sites are blocked by this environment's egress proxy, and the
+        third-party round-ups that publish figures contradict each other on
+        exactly the numbers a reader would act on -- one attributes "5 stock
+        sizes / 20 part sizes / 500 parts" to CutList Optimizer, another the
+        identical figures to optiCutter. The page says so and links out.
+        Same discipline as `vs-fotoquote.html`.
+      - >-
+        Also merged #2687 (the fotoQuote comparison page) on its own green
+        CI. That was the entire open-PR queue: one PR open at the start of
+        the run, zero at the end.
+      - >-
+        Delivery is unchanged and still one owner action from public:
+        `platform/ci/publish_surface.py --check` reports 0 hostnames serving
+        content, `gitops/tests` is 222/222 green, and the only remaining
+        step for the site is sealing `portfolio-site-repo`. Nothing in this
+        run's diff touches that, and no new ask was added to the queue.
