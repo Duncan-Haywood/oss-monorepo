@@ -5865,3 +5865,46 @@ entries:
         the mirror fresh against the merged tree each time rather than
         hand-resolving the generated `kustomization.yaml` conflict.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session, designated branch `claude/nice-brown-
+        e14r6d`. Owner's standing added direction: prioritise
+        deployment/CI-CD, build and deploy marketing materials on the
+        Hetzner VMs, and set up the Codex CLI to spend its built-in plan
+        quota there. PR queue at start: 0 open (confirmed via
+        `list_pull_requests`), so the three-PR quota was satisfied
+        vacuously.
+      - >-
+        Checked the three owner-blocked asks named in the standing
+        direction against current docs rather than re-deriving them:
+        `codex-governor-enable` (Codex-on-Hetzner) and the
+        `tools.marisstella.dev` deploy are both fully built per
+        `infra/OWNER_CHECKLIST.md` item 8 and `gitops/README.md`, gated
+        solely on the owner sealing `codex-secrets` /
+        `portfolio-site-repo`; the self-hosted CI runner stack in
+        `gitops/ci/` is likewise complete pending a sealed PAT and the
+        `CI_RUNNER` repo variable. All three already recorded in the
+        decision queue by prior sessions today. No duplicate asks added.
+      - >-
+        Re-verified the live build is still clean against current `main`
+        (`node platform/pages/build.mjs && node platform/pages/check.mjs`):
+        169 products, 581 pages, no dead links.
+      - >-
+        Shipped `ventures/cabinet-refinishing-bid-calculator/vs-kickserv.html`,
+        a comparison page against Kickserv (a real field-service
+        management platform, founded 2006) — one of many bid calculators
+        still missing a competitor comparison page, chosen after checking
+        for collisions (no open branch/PR touched this venture; Kickserv
+        was not already used by another `vs-*` page in the repo, unlike
+        Jobber and Housecall Pro). Followed the existing `vs-jobber.html`
+        discipline: only verifiable public facts about the competitor, no
+        invented pricing, explicit non-affiliation, FAQPage JSON-LD
+        matching the visible copy verbatim. Regenerated the front-door
+        tools mirror in the same commit. Verified: venture's own test
+        suite (74/74), `front-door-tools.test.mjs` +
+        `front-door.test.mjs` (108/108), and a full site rebuild + check
+        (169 products, 581 pages, no dead links). Opened #2912.
+    mrr_end: null
