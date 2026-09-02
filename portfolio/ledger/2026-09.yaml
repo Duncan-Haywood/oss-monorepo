@@ -5908,3 +5908,66 @@ entries:
         `front-door.test.mjs` (108/108), and a full site rebuild + check
         (169 products, 581 pages, no dead links). Opened #2912.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/nice-brown-7oo1nc`. Owner's standing direction repeated:
+        prioritise deployment/CI-CD, build and deploy marketing materials on
+        the Hetzner VMs, and set up the Codex CLI to spend its built-in plan
+        quota there. PR queue at start: one open PR (#2901, a one-character
+        doc-comment fix on `front-door-tools.mjs`). Reviewed and merged it
+        (checks green). Per the mandate's "if fewer than three exist, process
+        all of them" clause, the quota phase closed there with an empty
+        queue. Spot-checked the three non-ephemeral named branches
+        (`agent/deploy-cicd-readiness-2868`, `agent/marketing-distribution-
+        water-heater-vs-servicetitan`, `agent/runner-token-error-message`)
+        via `git diff origin/main`; all three were net-deletions against
+        current `main` -- already fully superseded, nothing to convert to a
+        PR.
+      - >-
+        Spent real effort hunting a `deploy-cicd-readiness` gap (RBAC scope
+        in `gitops/agents/governor/rbac.yaml`, image tags across
+        `gitops/prod`, `browser-checks-ci.yml`'s continue-on-error masking,
+        `infra/OWNER_CHECKLIST.md`'s "waited on unnecessarily" candidates)
+        and found the delivery path already extremely well-maintained by
+        concurrent sessions today -- no fresh, finishable defect turned up.
+        Recording this so the next session does not re-spend the same
+        search: the CI/CD area is not currently starved for easy wins --
+        the remaining candidates all need cluster access or an owner seal.
+      - >-
+        Shipped the run's product/marketing work: a `vs-servicetitan.html`
+        comparison page for `mini-split-bid-calculator` (#2904, merged), the
+        one HVAC-trade calculator among the five with a ServiceTitan
+        incumbent (furnace, hvac-maintenance-contract, water-heater,
+        electrical-panel-upgrade already had one) that still lacked it. CI
+        caught two real defects on the first push, both fixed on the same
+        PR before merge: (1) `platform/pages/faq-visible.test.mjs` -- the
+        FAQPage JSON-LD and the visible FAQ prose diverged after 637
+        characters, from adapting one copy of a stock paragraph without the
+        other; (2) `platform/marketing/front-door-tools.test.mjs` -- the
+        front-door-tools mirror includes every venture page, not just
+        index.html, so the new page needed `front-door-tools.mjs --write`
+        re-run and its output committed, same pattern several sibling PRs
+        this run used. Verified before merge: venture `node --test` 72/72,
+        `platform/marketing/*.test.mjs` 108/108, `platform/pages/*.test.mjs`
+        856/856, `build.mjs`+`check.mjs` clean (169 products, 576 pages, no
+        dead links), and all 15 PR checks green on real runners
+        (`ci_starvation.py` confirmed real runner IDs on both jobs that
+        failed pre-fix, ruling out starvation before debugging). Several
+        concurrent sessions shipped the same kind of page for other
+        ventures in parallel (#2903, #2905, #2907, #2910, #2911, #2912,
+        #2914) -- confirmed before starting that none targeted
+        `mini-split-bid-calculator`.
+      - >-
+        No duplicate owner ask. The "Codex CLI on the Hetzner VM, built-in
+        quota" request is already fully built and queued as decision-queue
+        item `codex-governor-enable` (`gitops/agents/governor/`,
+        `infra/OWNER_CHECKLIST.md` item 8) -- code, RBAC and tests exist and
+        are unused, gated solely on the owner sealing `CODEX_AUTH_JSON` (or
+        `OPENAI_API_KEY`) into `codex-secrets`, which no agent session can
+        do. Confirmed via `decision_queue.py` before starting new work and
+        did not re-add the ask.
+    mrr_end: null
