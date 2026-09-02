@@ -2257,3 +2257,95 @@ entries:
         no-show-fee-calculator (which already ships `compareCollectionPolicies`)
         rather than duplicating it. A new test recomputes every quoted figure
         from `plan()` so the page cannot drift again.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Tasked with draining the open-branch backlog: 0 open PRs, 83 branches
+        ahead of `origin/main` (the 2026-08-24 fleet-burst cluster this
+        month's prior three sessions already sampled). Checked the full
+        ranked candidate list -- all 20 branches carrying 2+ unique commits,
+        plus ~20 more of the single/double-commit ones -- by direct content
+        comparison against current `main` (diffing the actual target file,
+        not the three-dot diff stat, which reads as large new work on a
+        directory that turns out byte-identical once compared straight:
+        `ai-engineering-academy/site/tools.mjs` showed as a 322-line new file
+        against the stale merge base and was one description-copy line away
+        from `main`'s copy of the same file).
+      - >-
+        Every one came back superseded, extending the prior sessions'
+        12-branch and ~18-branch samples (recorded above) to effectively the
+        whole ranked list. Confirmed by name, with what `main` already has:
+        `claude/festive-mccarthy-xrn3ua` (stale continuation of merged #905,
+        would regress `main` by dropping LICENSE/robots.txt/sitemap.xml and
+        the #1821 baseline feature), `cursor/3pl-quote-normalizer-compare-20260825`
+        and `cursor/3pl-provider-names-20260825` (`main`'s `export.mjs`
+        already has `exportJson`), `cursor/vendor-change-watch-fix-20260824`
+        (`store.py`/`cli.py` byte-identical on `main`), `pr/where-to-sell-rank-by-profit-per-day`
+        and `claude/funny-archimedes-6av5kj` (`main`'s `share.mjs` already
+        has the field-drop safety fix plus the full field list the branches
+        were still building toward), `cursor/chargeback-evidence-packet-main`
+        and `-launch-20260824` (pre-refactor prototype, superseded by
+        `packet.mjs`), `cursor/amazon-fba-sourcing-check-20260824`,
+        `claude/gha-branch-cleanup-pajw2b` (`main`'s `branch_cleanup.py` has
+        CSV export, `--fail-on-risk`, PR-export scanning the branch lacks),
+        `cursor/branch-hygiene-product-20260824` (same relationship, `main`
+        strictly ahead), `claude/festive-mccarthy-ocyq3v` (`main`'s
+        `backup-verification-evidence` already has artifact-integrity
+        checking and a privacy-gated log tail the branch lacks),
+        `claude/festive-mccarthy-4rzjtb` (its probe already landed at
+        `portfolio/pipeline/probes/repository-branch-hygiene`),
+        `cursor/product-first-development-mandate-98dc` and `-818b`
+        (`faire-wholesale-calculator`'s promoted-listings page and
+        `automatic-driveway-gate-bid-calculator` both already shipped),
+        `rematch-spray-foam` (its venture score already on `main`, same
+        numbers), `claude/dreamy-planck-vvaum5` and `pipeline/dns-evidence-monitor`
+        (both candidate docs already in `candidates.yaml`),
+        `cursor/no-show-fee-scenarios-20260824` (`main`'s `calc.mjs` already
+        treats a blank field as missing input rather than a silent zero),
+        `etsy-profit-calculator-vs-listing-form-calculator` and
+        `session/agent_872b1ce4-6534-4581-8833-e51e8bfec97a`
+        (`vs-etsys-listing-form-calculator.html` and
+        `equipment-rental-break-even` both already shipped),
+        `claude/funny-archimedes-iz76so`/`-7qv0f4`/`-895zx9` and
+        `session/agent_10bda07b-dfc5-4f33-a259-41c81a444201` (all
+        `quote-margin-check`/`backup-verification-evidence` surfaces already
+        on `main`, `main`'s further ahead in each), `claude/sweet-archimedes-cn4s8c`
+        (`walk-in-tub-bid-calculator`'s `share.mjs` fix is a small subset of
+        what `main`'s version already does -- fragment-based URLs, proposal
+        terms, coercion tolerance), `claude/sweet-archimedes-icmubl` (its
+        Pages-workflow gate spells the variable `GITHUB_PAGES_ENABLED`,
+        which `main`'s own comment there explains GitHub rejects outright --
+        the branch's approach was broken, not merely duplicated),
+        `claude/sweet-archimedes-uxfxf7` (`main`'s `build.mjs` already
+        excludes `package.json` from published output, with a fuller
+        comment), `claude/revert-368-dependabot` (`main` already carries no
+        `.github/dependabot.yml`), `cursor/ethical-product-profits-adba`
+        (already identified by a prior session as running backwards --
+        `main`'s `mechanical_fix.py` has four remediations the branch
+        lacks). `cursor/product-first-development-mandate-a411` is a true
+        no-op (empty diff against `main`).
+      - >-
+        Left `cursor/agent-cross-review-f90e` alone, per the prior session's
+        recorded reasoning: real, un-superseded platform/CI content (a
+        four-agent PR cross-review workflow), but it edits `CLAUDE.md`'s own
+        "Ship without review ceremony" section, which needs owner intent
+        rather than a fourth agent unilaterally deciding to add a review
+        gate to the policy that licenses it to merge without one.
+      - >-
+        Did not open ledger-only branches as PRs (`claude/intelligent-knuth-bnlwuq`,
+        `-3hhg6d`, `-mz9kgu`, `claude/nifty-goodall-u8h5tm`,
+        `claude/festive-mccarthy-uod8qm`/`-bvo98t`, `claude/dreamy-planck-yf0nme`/
+        `-lbpwto`/`-ddiv7f`): each is a stale append to `asks.yaml` or a
+        `2026-08.yaml` entry referencing PR numbers in the #786-#870 range,
+        long since resolved by `main`'s current state -- exactly the
+        "ledger-only PR that re-states a known blocker" `AGENTS.md` says not
+        to open.
+      - >-
+        Zero PRs opened, zero merged. This is the fourth consecutive session
+        (after the two recorded above and #2708's session) to find no
+        repairable branch backlog; between them the ranked candidate list is
+        now checked essentially in full. `decision_queue.py` showed nothing
+        new to flag; the one open item this run would have touched
+        (`portfolio-site-repo`) is already queued.
