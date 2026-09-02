@@ -60,7 +60,9 @@ spec:
   # Two, matching portfolio-site: this is the portfolio's front door, and a
   # single replica means an evicted pod takes the domain down for the length
   # of a reschedule. Both fit inside the prod ResourceQuota with room —
-  # 20m/32Mi requested each against 4 CPU and 8Gi.
+  # 20m/64Mi requested each against 4 CPU and 8Gi. (The request rose with the
+  # memory limit when the tool mirror was sharded; see `resources` below for
+  # why the mirror, not nginx, is what sizes this pod.)
   replicas: 2
   strategy:
     rollingUpdate:
