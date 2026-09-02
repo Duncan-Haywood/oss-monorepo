@@ -41,8 +41,8 @@
 #   portfolio-front-tools-5: 111 files, 543192 bytes
 #   portfolio-front-tools-6: 110 files, 556238 bytes
 #   portfolio-front-tools-7: 108 files, 553786 bytes
-#   portfolio-front-tools-8: 111 files, 553656 bytes
-#   portfolio-front-tools-9: 85 files, 410906 bytes
+#   portfolio-front-tools-8: 110 files, 550597 bytes
+#   portfolio-front-tools-9: 87 files, 418245 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1156,6 +1156,7 @@ configMapGenerator:
       - snow-removal-bid-calculator__index.html.gz=snow-removal-bid-calculator__index.html.gz
       - snow-removal-bid-calculator__proposal.mjs.gz=snow-removal-bid-calculator__proposal.mjs.gz
       - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
+      - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
       - sod-install-bid-calculator__LICENSE.gz=sod-install-bid-calculator__LICENSE.gz
       - sod-install-bid-calculator__calc.mjs.gz=sod-install-bid-calculator__calc.mjs.gz
       - sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz=sod-install-bid-calculator__how-much-to-charge-to-install-sod.html.gz
@@ -1232,13 +1233,13 @@ configMapGenerator:
       - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
       - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
       - tree-service-bid-calculator__index.html.gz=tree-service-bid-calculator__index.html.gz
-      - tree-service-bid-calculator__proposal.mjs.gz=tree-service-bid-calculator__proposal.mjs.gz
-      - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - tree-service-bid-calculator__proposal.mjs.gz=tree-service-bid-calculator__proposal.mjs.gz
+      - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
       - tree-service-bid-calculator__vs-singleops.html.gz=tree-service-bid-calculator__vs-singleops.html.gz
       - tuckpointing-bid-calculator__LICENSE.gz=tuckpointing-bid-calculator__LICENSE.gz
       - tuckpointing-bid-calculator__calc.mjs.gz=tuckpointing-bid-calculator__calc.mjs.gz
