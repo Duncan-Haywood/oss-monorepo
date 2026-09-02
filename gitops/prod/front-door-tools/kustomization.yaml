@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 114 files, 554735 bytes
 #   portfolio-front-tools-4: 119 files, 553416 bytes
 #   portfolio-front-tools-5: 116 files, 557040 bytes
-#   portfolio-front-tools-6: 119 files, 543697 bytes
+#   portfolio-front-tools-6: 120 files, 547656 bytes
 #   portfolio-front-tools-7: 114 files, 554239 bytes
 #   portfolio-front-tools-8: 103 files, 543645 bytes
 #   portfolio-front-tools-9: 105 files, 520164 bytes
@@ -956,6 +956,7 @@ configMapGenerator:
       - mini-split-bid-calculator__index.html.gz=mini-split-bid-calculator__index.html.gz
       - mini-split-bid-calculator__proposal.mjs.gz=mini-split-bid-calculator__proposal.mjs.gz
       - mini-split-bid-calculator__usage.mjs.gz=mini-split-bid-calculator__usage.mjs.gz
+      - mini-split-bid-calculator__vs-servicetitan.html.gz=mini-split-bid-calculator__vs-servicetitan.html.gz
       - mobile-detailing-bid-calculator__LICENSE.gz=mobile-detailing-bid-calculator__LICENSE.gz
       - mobile-detailing-bid-calculator__calc.mjs.gz=mobile-detailing-bid-calculator__calc.mjs.gz
       - mobile-detailing-bid-calculator__how-much-to-charge.html.gz=mobile-detailing-bid-calculator__how-much-to-charge.html.gz
