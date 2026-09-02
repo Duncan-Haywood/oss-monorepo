@@ -1342,3 +1342,56 @@ entries:
         recognises this as settled rather than re-investigating it: the
         useful sentence is which seals remain, not another survey of the
         stack behind them.
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, run manually (governor still
+        disabled). Checked candidate 1 first against a fresh build.mjs run:
+        embed widget still has full coverage (169/169 tool entry pages), so
+        not re-picked. Confirmed all six ventures the brief names as already
+        having a compare mechanism (marketplace-fee-compare,
+        3pl-quote-normalizer, cut-list-optimizer, shopify-permission-drift,
+        mcp-supply-chain-watch, seller-net-sheet) do -- and found a broader
+        pattern of `vs-<incumbent>.html` pages across many other ventures
+        that the brief's own list did not enumerate. Shipped #2670: a
+        `vs-granthub.html` comparison page for grant-reporting-tracker,
+        whose sibling grant-deadline-tracker already has vs-instrumentl.html
+        but this venture had none -- a real, unaddressed gap.
+      - >-
+        GrantHub (Foundant Technologies) is the named incumbent: a paid,
+        subscription platform for a nonprofit's whole grant lifecycle
+        (prospecting, proposals, document library, team collaboration,
+        reporting), against which this tracker is positioned for the
+        narrower post-award job (deadlines and restricted balance on awards
+        already held). Confirmed the prior session's environment finding
+        still holds: foundant.com is blocked by this session's egress
+        proxy too, so no GrantHub pricing figure is asserted anywhere on
+        the page -- only stable, well-known facts, with a link so a reader
+        can verify pricing themselves, matching the sibling
+        vs-instrumentl.html's own documented discipline. A test
+        (`vs-granthub.test.mjs`) asserts no dollar figure ever appears next
+        to "GrantHub" and no network call is made from the page.
+      - >-
+        Verified: venture's own `node --test` 14/14 (calc.test.mjs +
+        vs-granthub.test.mjs); `build.mjs`+`check.mjs` (169 products, 523
+        pages, no dead links, page count 511->512); `clauses.mjs
+        grant-reporting-tracker` (no-warranty clause on all 3 published
+        pages); the independent Python site builder
+        (`build_pages_site.py`+`check_pages_links.py`, 513 pages, no dead
+        links -- the local workflow runner couldn't execute this step
+        itself, since it needs an unevaluated `${{ }}` base-url expression);
+        `test_build_pages_site.py` 34/34. Real CI on the PR went green on
+        all 8 checks (`build` x2, `link-contrast`, `page-integrity`,
+        `site-test`, `check`, `validate`, `deploy` skipped as expected off
+        a non-`main` push) before merge. Browser `sweep` check could not
+        complete in this sandbox -- Chromium's own background network
+        calls (`www.google.com`, `accounts.google.com`) are rejected by the
+        egress proxy and stall the 169-page run well past any reasonable
+        timeout; noted on the PR rather than silently skipped. The new page
+        has no interactive JS at all (no `<script>`, no form), so the
+        failure mode that check exists to catch does not apply to it the
+        way it would a calculator change. Did not touch `gitops/` or
+        `.github/workflows/`, staying clear of the concurrent
+        deploy/CI-CD session sharing this working tree.
