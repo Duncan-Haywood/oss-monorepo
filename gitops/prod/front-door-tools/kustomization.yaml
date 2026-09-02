@@ -81,6 +81,7 @@ configMapGenerator:
       - hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html=hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html
       - hvac-maintenance-contract-calculator__index.html=hvac-maintenance-contract-calculator__index.html
       - hvac-maintenance-contract-calculator__usage.mjs=hvac-maintenance-contract-calculator__usage.mjs
+      - hvac-maintenance-contract-calculator__vs-servicetitan.html=hvac-maintenance-contract-calculator__vs-servicetitan.html
       - cleaning-dilution-calculator__LICENSE=cleaning-dilution-calculator__LICENSE
       - cleaning-dilution-calculator__calc.mjs=cleaning-dilution-calculator__calc.mjs
       - cleaning-dilution-calculator__how-much-does-diluted-cleaning-solution-cost.html=cleaning-dilution-calculator__how-much-does-diluted-cleaning-solution-cost.html
