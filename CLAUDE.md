@@ -381,12 +381,29 @@ checks tab — never the bare status call.
 
 ## Ledger (minimal)
 
-Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
-something new** — not when you looked and confirmed the same blockers. Never
-bundle a ledger entry into a PR waiting on the owner.
+**A ledger entry is never a deliverable on its own.** Run this before pushing:
+
+```
+python3 portfolio/ledger/check_ledger_only.py
+```
+
+Exit 1 means your branch is ledger prose and nothing else. That is not a
+session's output — it is a footnote to output that does not exist. In the
+seven days to 2026-09-02 the fleet landed **381 such commits, 34.6% of the
+1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still recorded
+zero observed users across all 184 products. The rule that was supposed to
+prevent that ("do not open ledger-only PRs that re-state known blockers") had
+an escape hatch, and every session used it.
+
+So: record outcomes per `portfolio/ledger/README.md` when you **shipped
+something**, in the same commit or PR as the thing you shipped. If you found a
+blocker instead, say so in your reply and leave `main` alone — an unshipped
+session is a real outcome and does not need a commit to be true. Never bundle
+a ledger entry into a PR waiting on the owner.
 
 `git fetch origin main` before appending; skip if the latest entry already
-covers your finding.
+covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
+ordinary platform code, exempt from the check and mergeable on its own.
 
 ## Automation
 
