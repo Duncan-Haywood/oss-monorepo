@@ -14,7 +14,7 @@
 # WHY IT IS A REDIRECT AND NOT A SECOND COPY OF THE SITE
 #
 # `platform/pages/build.mjs` stamps `PAGES_BASE_URL` into the canonical link,
-# the og:url and every sitemap entry of all 518 pages, and
+# the og:url and every sitemap entry of all 524 pages, and
 # `portfolio-site.yaml` sets that to `https://tools.marisstella.dev/`. One
 # canonical host, one indexed copy. Serving the same bytes on three hostnames
 # would put two uncanonical duplicates in front of crawlers and rely on the
