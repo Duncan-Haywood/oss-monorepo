@@ -1,6 +1,6 @@
 # Free calculators and checks for people who run a small business
 
-> 156 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 159 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -84,6 +84,7 @@ not linked — a link there would resolve to nothing today.
 - [Mobile Detailing Bid Calculator — Price a Detail Job](https://marisstella.dev/tools/mobile-detailing-bid-calculator/): Free mobile detailing price calculator: include travel, labor, supplies, overhead, and card fees to find your break-even and target-margin quote.
 - [Mold Remediation Bid Calculator — Containment and Demo](https://marisstella.dev/tools/mold-remediation-bid-calculator/): Price a mold remediation job from extra containment zones, demolition, HEPA and dehumidifier days, HVAC cleaning, dumpster, occupied-home access, and third-party clearance — not a published $999 mold special. See the walk-away number before you match a cheaper closet quote.
 - [Moving Company Bid Calculator — Stairs and Long Carry](https://marisstella.dev/tools/moving-bid-calculator/): Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote.
+- [No-Show Fee Calculator for Service Businesses](https://marisstella.dev/tools/no-show-fee-calculator/): Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee, see whether overbooking the empty chairs still beats collecting it, and copy a cancellation policy.
 - [Parking Lot Striping Bid Calculator — Price to Stripe It](https://marisstella.dev/tools/parking-lot-striping-bid-calculator/): Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.
 - [Patio Door Bid Calculator — Panels, Glass, and Opening](https://marisstella.dev/tools/patio-door-bid-calculator/): Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.
 - [Paver Patio Bid Calculator — Base, Waste, and Edge](https://marisstella.dev/tools/paver-patio-bid-calculator/): Price a paver patio from pattern waste, base depth, excavation, edge restraint, and haul-away — then see price per square foot, crew hours, and the walk-away number.
@@ -165,6 +166,8 @@ not linked — a link there would resolve to nothing today.
 - [Cash Runway Planner for Small Businesses](https://marisstella.dev/tools/cash-runway-planner/): Forecast when invoices and recurring bills could create a cash shortfall for your small business, including one-off payments like a quarterly tax bill or an insurance renewal, and see which payment to move.
 - [Supplier Rate Break-Even Calculator](https://marisstella.dev/tools/vendor-rate-break-even/): Free supplier, subcontractor, and equipment rate break-even calculator. Compare fixed fees, per-job costs, savings, and payback volume.
 - [Music Lesson Pricing Calculator](https://marisstella.dev/tools/music-lesson-break-even/): Free music lesson pricing calculator for independent teachers. Include cancellations, preparation, travel, studio costs, and target pay to find a sustainable lesson price.
+- [Appointment Deposit Calculator for Service Businesses](https://marisstella.dev/tools/appointment-deposit-calculator/): Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.
+- [Payment Reconciliation — Match Payouts to Bank Deposits](https://marisstella.dev/tools/payment-reconciliation-workbench/): Free private CSV tool for small businesses to match Stripe, Square, or PayPal payouts to bank deposits and find reconciliation gaps without QuickBooks.
 
 ## Service business pricing & quotes
 
