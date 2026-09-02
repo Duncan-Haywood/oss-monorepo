@@ -160,6 +160,52 @@ export function orderedCategories(counts) {
 }
 
 /**
+ * The on-page anchor a category's mirrored tools are listed under.
+ *
+ * A fragment, not a `/c/<id>/` URL, because these are the tools *this* host
+ * serves. The two must not collide in a reader's mind or in the markup:
+ * `categoryPagePath` names the catalogue host's own collection page, which is
+ * still what the JSON-LD and the footer point at.
+ */
+export const categoryAnchor = (id) => `open-${id}`;
+
+/**
+ * The mirrored tools grouped by the category their slug classifies into.
+ *
+ * Uses `categoryFor`, the same function that decides where a tool sits on the
+ * catalogue host, so a tool cannot appear under "Trades" here and "Services"
+ * there. Insertion order within a group follows `STARTER_SET`, which is the
+ * order `front-door-tools.mjs` justifies per entry.
+ */
+export function mirroredByCategory(mirrored) {
+  const groups = new Map();
+  for (const tool of mirrored) {
+    const id = categoryFor(tool.slug).id;
+    if (!groups.has(id)) groups.set(id, []);
+    groups.get(id).push(tool);
+  }
+  return groups;
+}
+
+/**
+ * The order the mirror's category groups are listed in.
+ *
+ * Driven by the groups, not by `orderedCategories`. Those two lists are built
+ * from different inputs — the cards count *published* slugs, the groups hold
+ * *mirrored* ones — and a group whose category has no published count would
+ * otherwise be dropped from the page while the ConfigMap went on serving it:
+ * a tool live on the host that nothing links to. Categories the cards do show
+ * lead, in the cards' own order, so the page reads in one direction; anything
+ * left over follows in the order the mirror supplied it.
+ */
+export function orderedGroups(groups, categories) {
+  const shown = categories.filter((category) => groups.has(category.id)).map((category) => category.id);
+  const rest = [...groups.keys()].filter((id) => !shown.includes(id));
+  const titles = new Map(ALL_CATEGORIES.map((category) => [category.id, category.title]));
+  return [...shown, ...rest].map((id) => ({ id, title: titles.get(id) ?? id, tools: groups.get(id) }));
+}
+
+/**
  * The one-sentence promise under the headline.
  *
  * Every clause is a claim the site already makes on its About page and on
@@ -267,6 +313,13 @@ const STYLE = `
   .card h3 a:hover, .card h3 a:focus { text-decoration: underline; }
   .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
   .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  /* The category headings inside the mirror section. Sized between an h2 and a
+     card title so the section reads as one list with dividers rather than as
+     several sections; scroll-margin-top keeps a heading off the very top
+     edge when a card's fragment link jumps to it. */
+  .group { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 1.75rem 0 0.75rem; scroll-margin-top: 1rem; }
+  .group:first-of-type { margin-top: 0; }
+  header .fine { color: var(--ink-soft); font-size: 0.9rem; max-width: 60ch; margin: 0.75rem 0 0; }
   .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
   .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; }
   .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
@@ -314,14 +367,51 @@ export function renderFrontDoor({
     })),
   };
 
+  // Whether this host serves any tools of its own. Every difference below is
+  // gated on it, so with the default empty `mirrored` the page renders exactly
+  // as it did before the mirror existed — which is the state it returns to
+  // when `portfolio-site-repo` is sealed and the mirror is deleted.
+  const grouped = mirroredByCategory(mirrored);
+  const hasMirror = mirrored.length > 0;
+
+  /**
+   * What a category card links to, and what its count line says.
+   *
+   * The defect this fixes: these seven cards are the page's primary
+   * navigation, and every one of them pointed at `tools.marisstella.dev`,
+   * which serves nothing until the clone token is sealed. A visitor who acted
+   * on the main affordance of the portfolio's only reachable page reached a
+   * dead host — the same failure `front-door-tools.mjs` fixed for the hero
+   * copy, still live one element down.
+   *
+   * So a category with mirrored tools now leads to them, on this host, by
+   * fragment; a category without any is not a link at all. An unlinked
+   * heading is deliberate over a disabled-looking link: there is nowhere
+   * honest to send that click today, and saying so in the count line is
+   * better than spending a visitor's click to find out.
+   */
   const cards = categories
-    .map(
-      (category) => `        <li class="card" style="--accent: ${escapeHtml(category.accent)}">
-          <h3><a href="${escapeHtml(`${toolsUrl}${categoryPagePath(category.id)}`)}">${escapeHtml(category.title)}</a></h3>
-          <span class="count">${category.count} ${category.count === 1 ? 'tool' : 'tools'}</span>
+    .map((category) => {
+      const here = grouped.get(category.id) ?? [];
+      const plural = category.count === 1 ? 'tool' : 'tools';
+      const hubUrl = `${toolsUrl}${categoryPagePath(category.id)}`;
+      const heading =
+        hasMirror && here.length
+          ? `<a href="#${escapeHtml(categoryAnchor(category.id))}">${escapeHtml(category.title)}</a>`
+          : hasMirror
+            ? escapeHtml(category.title)
+            : `<a href="${escapeHtml(hubUrl)}">${escapeHtml(category.title)}</a>`;
+      const count = !hasMirror
+        ? `${category.count} ${plural}`
+        : here.length
+          ? `${category.count} ${plural} · ${here.length} you can open here now`
+          : `${category.count} ${plural} · none on this host yet`;
+      return `        <li class="card" style="--accent: ${escapeHtml(category.accent)}">
+          <h3>${heading}</h3>
+          <span class="count">${escapeHtml(count)}</span>
           <p>${escapeHtml(category.blurb)}</p>
-        </li>`,
-    )
+        </li>`;
+    })
     .join('\n');
 
   const how = HOW_IT_WORKS.map(
@@ -335,21 +425,30 @@ export function renderFrontDoor({
   // passes a set in, which is what keeps this page correct in both states:
   // once `portfolio-site-repo` is sealed the mirror can be deleted and this
   // section disappears with it, rather than having to be found and removed.
-  const mirrorSection = mirrored.length
+  // Grouped under the same category headings the cards above use, so a card's
+  // fragment lands on its own tools rather than on the top of a flat list of
+  // seventeen the reader then has to scan. Categories keep the `categories`
+  // order — biggest first — so the page reads in one direction throughout.
+  const mirrorSection = hasMirror
     ? `
   <h2 id="open-now">Open one now, on this page's own host</h2>
   <p class="lede-sm">${escapeHtml(
     `${mirrored.length} of the ${total} tools are served directly from this domain, so they work whether or not the catalogue host is up. They are the complete tools, not previews.`,
   )}</p>
+${orderedGroups(grouped, categories)
+  .map(
+    (group) => `  <h3 class="group" id="${escapeHtml(categoryAnchor(group.id))}">${escapeHtml(group.title)}</h3>
   <ul class="grid">
-${mirrored
+${group.tools
   .map(
     (tool) => `        <li class="card">
           <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
         </li>`,
   )
   .join('\n')}
-  </ul>
+  </ul>`,
+  )
+  .join('\n')}
 `
     : '';
 
@@ -378,7 +477,14 @@ ${jsonLd(structuredData)}
 <header>
   <h1>${total} free tools for people who quote, sell and bill</h1>
   <p class="lede">${escapeHtml(PROMISE)}</p>
-  <p><a class="cta" href="${escapeHtml(toolsUrl)}">Browse all ${total} tools</a></p>
+  <p><a class="cta" href="${hasMirror ? '#open-now' : escapeHtml(toolsUrl)}">${
+    hasMirror ? `Open one of the ${mirrored.length} tools running here now` : `Browse all ${total} tools`
+  }</a></p>${
+    hasMirror
+      ? `
+  <p class="fine">The full catalogue of ${total} is at <a href="${escapeHtml(toolsUrl)}">tools.marisstella.dev</a>, which goes live when its access token is sealed.</p>`
+      : ''
+  }
 </header>
 <main>
   <h2>What is here</h2>
