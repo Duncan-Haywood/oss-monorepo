@@ -99,3 +99,114 @@ spec:
       ports:
         - protocol: TCP
           port: 443
+---
+# The two other credentialed workloads in this namespace, added later than
+# the header comment above and missed by its own framing.
+#
+# That comment reasons about "a live *external* credential" -- a secret that
+# leaves the cluster, like the GitHub PAT `fetch` mounts above. `governor`
+# and `codex-worker` (`gitops/agents/networkpolicy.yaml`) hold that kind too,
+# but `governor` holds no external secret at all: its ServiceAccount token is
+# purely internal, scoped by RBAC to create Jobs and update one named
+# ConfigMap, and it still got an egress policy restricting it to the
+# kube-apiserver and DNS -- CLAUDE.md calls it "the workload most worth
+# narrowing" for exactly that RBAC, not for an external secret. By that same
+# standard `portfolio-site-usage` (list every pod in this namespace, read any
+# pod's logs, update one ConfigMap) and `portfolio-site-refresh` (patch the
+# `portfolio-site` Deployment) are the same shape of workload as `governor`,
+# and until now carried the same unrestricted egress the header above
+# describes as the defect it exists to close -- just for a ServiceAccount
+# token instead of a PAT. A compromised `bitnami/kubectl` or
+# `python:3.12-slim-bookworm` image on either CronJob could otherwise open a
+# connection anywhere on the internet with nothing here to stop it.
+#
+# Both pods need an explicit label to select on: a CronJob's pod otherwise
+# carries only the auto-generated `job-name`/`controller-uid` labels, and the
+# Job name changes every run, so `site-usage.yaml` and this file's sibling
+# `portfolio-site.yaml` each stamp `app.kubernetes.io/name` on their own pod
+# template -- the same thing `governor/cronjob.yaml` already does for the
+# identical reason.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: portfolio-site-usage-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: portfolio-site-usage
+  policyTypes:
+    - Egress
+  egress:
+    # aggregate.py talks to the apiserver by the `KUBERNETES_SERVICE_HOST`
+    # env var (a fixed IP, 10.43.0.1) rather than the DNS name
+    # `kubernetes.default.svc`, so DNS is not load-bearing for this pod the
+    # way it is for `portfolio-site-refresh` below. Allowed anyway, at zero
+    # marginal risk, for the same reason `governor-egress` does: consistent
+    # with every other egress policy in this repo, and cheap insurance
+    # against a future change that resolves a name.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # k3s default kubernetes Service -- the one address this pod actually
+    # calls, and the same fixed IP `governor-egress` scopes its own
+    # apiserver rule to.
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+      ports:
+        - protocol: TCP
+          port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: portfolio-site-refresh-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: portfolio-site-refresh
+  policyTypes:
+    - Egress
+  egress:
+    # Two things this pod's own script resolves by name rather than a fixed
+    # IP: `kubernetes.default.svc` (kubectl's in-cluster config falls back to
+    # DNS when a name is configured, unlike governor.py and aggregate.py's
+    # own urllib clients, which read KUBERNETES_SERVICE_HOST directly) and
+    # `portfolio-site` (the freshness check's plain `curl
+    # http://portfolio-site/buildinfo.txt`, resolved via the namespace's
+    # search domain to `portfolio-site.prod.svc.cluster.local`).
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # The whole service CIDR, not a single /32: unlike the apiserver's fixed
+    # 10.43.0.1, the `portfolio-site` Service's ClusterIP is assigned by the
+    # control plane and not something a session with no cluster access can
+    # read or pin down. 10.43.0.0/16 is the k3s default service CIDR this
+    # repo's other NetworkPolicies already treat as a known constant (see the
+    # `except:` lists in `portfolio-site-egress` above and in
+    # `gitops/ci/networkpolicy.yaml` / `gitops/agents/networkpolicy.yaml`),
+    # so naming the whole range here needs no cluster read to get right, and
+    # it excludes the pod network, the node network, the internet and
+    # metadata services just as surely as a single address would -- it is
+    # the apiserver's own port and this pod's Service call, and nothing
+    # outside those, that widen from a /32 to a /16.
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 80
