@@ -19,6 +19,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /Do not keep anonymous local usage counts/);
   assert.match(html, /href="LICENSE"/);
   assert.match(html, /how-much-to-charge\.html/);
+  assert.match(html, /vs-marketsharp\.html/);
   assert.match(html, /engineering/);
 });
 
@@ -38,6 +39,7 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(robots, /sitemap\.xml/);
   assert.match(sitemap, /window-replacement-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge\.html/);
+  assert.match(sitemap, /vs-marketsharp\.html/);
 });
 
 const proposalMarkup = page('index.html');

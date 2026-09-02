@@ -3645,3 +3645,63 @@ entries:
         been the known starvation signature, not a regression. Merged
         (squash) as #2801.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same three-part brief as the entries above it
+        this month (deploy/CI-CD priority, Hetzner marketing, Codex
+        built-in-quota) plus an explicit reminder of that same brief in the
+        firing prompt. Independently re-ran a full supersede-check sweep of
+        the ~81 remote branches carrying unique commits vs. `main` (subset
+        of the same ~200-branch backlog #2796 swept in parallel this run)
+        before seeing that PR; reached the identical conclusion by hand-
+        reading every "NOT SUPERSEDED" verdict rather than trusting the
+        line-diff heuristic alone -- confirmed `claude/festive-mccarthy-
+        xrn3ua` (vendor-watch), `claude/optimistic-heisenberg-v07yn7`
+        (payment-reconciliation-workbench/vs-synder.html) and `claude/
+        funny-archimedes-895zx9` (quote-margin-check share/markdown
+        export) each superseded in substance: `main`'s version of the same
+        file already has the feature, under different names or a later
+        rewrite, which the branch's own line-diff missed. Merged #2796
+        (the concurrent session's ledger record of the same finding)
+        rather than writing a duplicate entry.
+      - >-
+        Read `gitops/agents/queue/deploy-cicd-readiness.yaml` and spent
+        real effort looking for a fixable delivery-path gap per its own
+        candidate list (stale/wrong manifest, broken non-outage workflow
+        step, gitops/tests coverage gap, a follow-up whose precondition
+        has since been met). Found none this session: all `kustomization.yaml`
+        resource references resolve, `gitops/tests` passes 257/257,
+        `portfolio/router/validate.py` passes 182/182 VENTURE.yaml, and a
+        concurrent session merged the one live gap found in this window
+        (#2795, a stale Ingress count in a cert-manager comment) before
+        this session got to it. Both live owner blockers are unchanged and
+        already fully tracked: `portfolio-site-repo` (site clone token) and
+        the Codex credential (`codex login` plan quota or `OPENAI_API_KEY`)
+        per `infra/OWNER_CHECKLIST.md` -- the Codex-on-Hetzner governor,
+        worker, and priority-ordered work queue this session was separately
+        asked to "set up" already exist in full at the code level
+        (`gitops/agents/governor/`, `gitops/agents/workers/`,
+        `gitops/agents/queue/*.yaml`, reordered 2026-09-01 on the owner's
+        own direction to put `deploy-cicd-readiness` and
+        `marketing-distribution` first) and are owner-gated on exactly
+        those two seals, not on missing code.
+      - >-
+        Shipped: `ventures/gutter-cleaning-bid-calculator/vs-jobber.html`
+        (#2798), a comparison page against Jobber (field service
+        management platform used across home service trades), following
+        the `vs-singleops.html` pattern -- category-level non-numeric
+        description, no invented Jobber pricing, FAQ schema, standard
+        disclaimers. Picked a venture with no comparison page and an
+        incumbent not already named elsewhere in the repo, to stay
+        additive against the high concurrent volume of similar work this
+        session observed landing in real time (#2794, #2795, #2797 all
+        merged by other sessions during this run). Verified: `node --test`
+        in the venture directory (67/67, 11 new), `node
+        platform/webcheck/check_pages.mjs` (547 pages sound), `node
+        platform/pages/ink.mjs --strict` (no violation), `python3
+        portfolio/router/validate.py` (182/182). All 7 real CI checks
+        green on real runners. Merged (squash) as #2798.
+    mrr_end: null
