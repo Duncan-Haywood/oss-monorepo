@@ -726,6 +726,25 @@ test('nginx answers /feed.xml with the feed, typed as Atom', async () => {
   );
 });
 
+test('nginx compresses the feed it serves', async () => {
+  // `front-door-tools.test.mjs`'s `the front door compresses every non-HTML
+  // type the mirror actually serves` derives `gzip_types` coverage from
+  // `STARTER_SET`, which is the venture *mirror* — a different generator from
+  // this one, so it cannot see `/feed.xml`. Without its own assertion here,
+  // the feed can go back to shipping uncompressed (as it did until this test
+  // was added) with nothing failing anywhere: it is 26 KB the day this test
+  // is written, more than 25x `gzip_min_length`, so every byte of that was
+  // going out uncompressed to every reader polling it.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const gzipLine = conf.match(/^\s*gzip_types\s+([^;]+);/m);
+  assert.ok(gzipLine, 'default.conf has no gzip_types directive');
+  const gzipped = new Set(gzipLine[1].trim().split(/\s+/));
+  assert.ok(
+    gzipped.has('application/atom+xml'),
+    '/feed.xml is served as application/atom+xml but that type is missing from gzip_types',
+  );
+});
+
 test('the feed rides in the ConfigMap that mounts at the document root', async () => {
   // It has to sit beside index.html for `/feed.xml` to resolve, and two
   // ConfigMaps cannot mount at one mountPath — the same constraint the card,
