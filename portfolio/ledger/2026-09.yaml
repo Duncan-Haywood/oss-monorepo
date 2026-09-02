@@ -6223,3 +6223,78 @@ entries:
         above — still fully built, still gated only on the owner
         sealing a secret.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session, designated branch
+        `claude/optimistic-heisenberg-7v9mwn`. Owner's standing added
+        direction, same as several preceding sessions this week:
+        prioritise deployment/CI-CD, build and deploy marketing
+        materials on the Hetzner VMs, and set up the Codex CLI to
+        spend its built-in plan quota there. PR queue at start: zero
+        open PRs, confirmed rather than assumed, so the three-PR quota
+        was satisfied vacuously under the mandate's "if none exist,
+        start new work" clause. A read-only branch audit (of the ~220
+        remote branches) found one candidate that looked mergeable
+        (`claude/happy-wozniak-cabmcx`, a one-line doc-comment fix) but
+        it turned out already merged as #2901 under a different
+        branch name — the audit was comparing against a stale local
+        checkout of `main`, not `origin/main`. No action needed; a
+        reminder that branch-diff findings must be checked against a
+        freshly fetched base ref, not a session's possibly-stale local
+        clone.
+      - >-
+        Ran the repo's own `deploy-cicd-readiness` queue-item prompt by
+        hand (the governor that would normally run it is still
+        owner-blocked): a thorough pass over manifests, workflows,
+        RBAC, and the gitops/CI test-to-manifest mapping found the
+        delivery path already healthy after very recent concurrent-
+        session attention (#2882-#2902 had just landed touching exactly
+        this area). Correctly reported a no-op rather than manufacturing
+        a cosmetic change — `python3 -m pytest gitops/tests -q`
+        (267/7-skipped), `kustomize build` + `kubeconform -strict` on
+        all six manifest trees, and `publish_surface.py --check` all
+        clean, last 30 Actions runs on `main` green.
+      - >-
+        Shipped the `marketing-distribution` queue item: added
+        `ventures/security-camera-bid-calculator/vs-d-tools.html`, a
+        comparison page against D-Tools (System Integrator), the named
+        incumbent business-management platform for AV/security/
+        low-voltage integrators — a niche with no prior comparison
+        page. Verified public facts only (founded 1998 by Adam Stone,
+        HQ Concord, CA, on-premises SI plus a cloud edition since 2019),
+        no invented pricing. Merged as #2929.
+      - >-
+        Operational finding worth keeping: this session's container was
+        restarted mid-run, silently killing a background subagent that
+        had already created and pushed most of the #2929 work to its
+        own branch. The branch and its local worktree survived on disk
+        (git state, not process state), so nothing was lost — but on
+        resuming the subagent via `SendMessage`, both it and the
+        resumed coordinator independently re-merged `main` and pushed
+        to the same branch around the same moment, racing each other
+        (`git push` rejected once on "fetch first"). Recovered by
+        resetting to whichever push landed first and re-verifying,
+        then messaging the subagent to stand down before merging.
+        Lesson for a future session recovering from a mid-run restart:
+        treat a resumed background agent as still possibly live and
+        racing you, not as inert state to read — confirm it has
+        actually stopped (or explicitly tell it to) before pushing to
+        a branch it might also still be pushing to.
+      - >-
+        Re-confirmed, not re-added: the Codex-CLI-on-Hetzner ask
+        (#1996/queue item 12) needs no further building — full
+        governor/RBAC/budget/queue pipeline already built and correctly
+        ordered (`deploy-cicd-readiness` priority 7,
+        `marketing-distribution` priority 6, both quoting the owner's
+        exact sentence), gated only on the owner's one interactive
+        `codex login` + secret-seal step. No new decision-queue row
+        added.
+      - >-
+        Three-PR merge quota: zero PRs were open at session start, so
+        the quota was satisfied vacuously per the mandate's own clause.
+        One new PR (#2929, this session's own marketing work) opened
+        and merged after.
+    mrr_end: null
