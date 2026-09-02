@@ -52,7 +52,7 @@ spec:
       # burst must never be the reason the public site loses a pod.
       priorityClassName: ci-low
       # The cpx22 is tainted for Codex Jobs and has 4 GB; a node --test sweep
-      # across 220 workflows does not fit beside a Codex worker there.
+      # across the full workflow set does not fit beside a Codex worker there.
       nodeSelector:
         hcloud/node-role: control-plane
       # Nothing in CI talks to the Kubernetes API, so it gets no token to talk

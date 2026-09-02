@@ -6,7 +6,9 @@
 // ---------------
 // GitHub serves exactly one Pages site per repository. Before this script the
 // only workflow that could publish one built `retail-pilot-intel`'s
-// passcode-gated docs app — so the owner's single `GITHUB_PAGES_ENABLED` flip
+// passcode-gated docs app — so the owner's single Pages-enable flip
+// (`PAGES_ENABLED`; see `platform/pages/README.md` for why it is not spelled
+// `GITHUB_PAGES_ENABLED`)
 // would have put an internal docs site live and left ~30 finished, tested,
 // free calculators with no public URL at all. Deploy-first (portfolio/DIRECTION.md)
 // means the flip has to publish the products, so the site the flip publishes
@@ -318,7 +320,13 @@ const CATEGORY_RULES = [
     // restoration & insulation" and an HVAC contractor reading "HVAC, plumbing
     // & electrical" never saw them. The tool existed, its audience was browsing
     // the right section, and it was not in it.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair)/.test(slug),
+    // `cut-list` is the one tool here that prices no job at all: it plans how a
+    // parts list falls onto sheet stock and boards. It is in this section
+    // anyway, because the section is defined by who is reading it, and the
+    // people who cut plywood for a living are the ones bidding the cabinet,
+    // countertop and molding work below. See the note in `logistics`, which is
+    // where it used to land.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list)/.test(slug),
   },
   {
     id: 'services',
@@ -341,7 +349,19 @@ const CATEGORY_RULES = [
     blurb: 'Normalise a quote, audit a bill, or size a transfer window before you sign for it.',
     // `ltl-`, `owner-operator-` and `medical-courier-` are freight arithmetic that
     // was landing in the catch-all only because the slug did not start with "3pl".
-    test: (slug) => /^(3pl|freight|cut-list|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
+    //
+    // `cut-list` used to be in this list and is not freight. It is a plywood and
+    // board cutting planner for "woodworkers, sign shops, and makers" — its own
+    // words — and the only thing it shares with this section is the word
+    // "optimizer". The cost of the mistake was not cosmetic: the four related
+    // tools at the foot of every cut-list page were a 3PL quote normaliser, a
+    // cloud egress calculator, a medical-courier route margin and an
+    // owner-operator CPM, none of which a cabinet maker has any use for, and the
+    // tool was listed on `/c/logistics/` where a freight buyer met it instead.
+    // It now sits in `trades` / `trades-interior`, beside the countertop,
+    // cabinet-refinishing, crown-molding and flooring bids sold by the same
+    // people who cut sheet goods.
+    test: (slug) => /^(3pl|freight|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
   },
   {
     id: 'evidence',
@@ -408,6 +428,13 @@ export function toolCardFileFor(slug) {
 // Both are claims the site already makes on its manifest and its About page —
 // a card is the wrong place to introduce a new one.
 export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded';
+
+// The one card-sized substitute for a card whose tool (or whose category,
+// because it holds that tool) is a documented `externalCallExceptions` entry
+// — currently just Sponsor Ready, filed under "more". Sized to fit the same
+// footer band as `CARD_FOOTER`; see the About page and the category page's
+// own `nothing you type is uploaded, except on…` for the unabbreviated claim.
+export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · one lookup checks a public API';
 
 export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
 
@@ -574,7 +601,11 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-interior',
       title: 'Interior finishes & remodels',
-      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert)/.test(slug),
+      // `cut-list` joins this group rather than any other: the parts it nests
+      // are cabinet doors, countertop substrate and molding stock, so the
+      // related-tool offer at the foot of its pages is work the same visitor
+      // sells.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list)/.test(slug),
     },
     {
       id: 'trades-site',
@@ -1054,7 +1085,7 @@ async function countPages(sourceDir) {
  * found", not as a verified guarantee that none exist.
  */
 export async function surfaceExternalFetchHosts(dir) {
-  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js'));
+  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.html'));
   const hosts = new Set();
 
   for (const file of files) {
@@ -1072,6 +1103,20 @@ export async function surfaceExternalFetchHosts(dir) {
         .map((m) => urlConsts.get(m[1]))
         .filter(Boolean),
     ];
+    // HTML-only: a browser fetches these on page load without any `fetch()`
+    // call ever appearing in a `.js` file, so the checks above miss them
+    // entirely. `rel="canonical"` / `rel="alternate"` are metadata a crawler
+    // reads, never a request a browser makes, so they are deliberately not
+    // included here — every venture's own canonical tag would otherwise show
+    // up as a false "external call" on itself.
+    if (file.endsWith('.html')) {
+      targets.push(...[...src.matchAll(/<script[^>]+\bsrc=["']?(https?:\/\/[^"'\s>]+)/gi)].map((m) => m[1]));
+      targets.push(
+        ...[...src.matchAll(/<link\b[^>]*\brel=["'][^"']*\b(?:stylesheet|preconnect|preload|modulepreload|dns-prefetch)\b[^"']*["'][^>]*>/gi)]
+          .flatMap((tag) => [...tag[0].matchAll(/\bhref=["']?(https?:\/\/[^"'\s>]+)/gi)])
+          .map((m) => m[1]),
+      );
+    }
     for (const url of targets) {
       try {
         hosts.add(new URL(url).host);
@@ -1452,6 +1497,15 @@ export function renderCategoryPage({ category, items, groups, baseUrl }) {
   // Every asset lives at the site root and this page is served two levels down.
   const toRoot = '../../';
   const subgroups = groupBySubcategory(category.id, items);
+  // Computed the same way the About page proves its own privacy claim, so a
+  // category that happens to hold the one tool with a documented external
+  // call (Sponsor Ready, filed under "more") does not have this page say
+  // "nothing you type is uploaded" for all of its tools when that is false
+  // for one of them.
+  const categoryExceptions = externalCallExceptions(items);
+  const countPrivacyClaim = categoryExceptions.length
+    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => x.title))}`
+    : 'nothing you type is uploaded';
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
 
   const renderCard = (surface) => `          <li class="card">
@@ -1552,7 +1606,7 @@ ${subItems.map(renderCard).join('\n')}
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
     </header>
 
     <main>
@@ -1723,7 +1777,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     <header>
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type into them is uploaded anywhere.</p>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
     </header>
 
     <main class="prose">
@@ -1747,10 +1801,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
-          your browser, in JavaScript you can read — use <em>View Source</em>,
-          or read the same file
-          <a href="https://github.com/Duncan-Haywood/monorepo-projects">in the
-          public source repository</a>. Specifically:
+          your browser, in JavaScript you can read with your browser's own
+          <em>View Source</em> or developer tools — no build step, no
+          minification, nothing hidden from you. Specifically:
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
@@ -1810,7 +1863,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <ul>
         <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
-        <li><strong>Open source</strong> under the MIT licence — <a href="https://github.com/Duncan-Haywood/monorepo-projects">github.com/Duncan-Haywood/monorepo-projects</a>.</li>
+        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
       <p>
@@ -4263,7 +4316,6 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
       license: 'MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
-      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
       // The feed carries the newest FEED_MAX_ENTRIES tools; this file carries
       // every tool with the same dates, which is what lets `check.mjs` prove
@@ -4370,7 +4422,6 @@ export function renderLlmsTxt(surfaces, baseUrl) {
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
-    `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
     '',
   ].join('\n');
 
@@ -4494,7 +4545,10 @@ export async function addOfflineSupport({
   const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
 
   await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
-  await fs.writeFile(path.join(outDir, 'manifest.webmanifest'), renderManifest(base, surfaces.length));
+  await fs.writeFile(
+    path.join(outDir, 'manifest.webmanifest'),
+    renderManifest(base, surfaces.length, externalCallExceptions(surfaces).length > 0),
+  );
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
@@ -4550,12 +4604,67 @@ export async function buildSite({
   const surfaces = [];
   const repairs = [];
 
+  // Pass 1: copy every venture's tree, and nothing else.
+  //
+  // This used to be one loop that copied a surface and immediately repaired its
+  // links, which made `repairLinks` order-dependent in a way it cannot see. It
+  // judges a link "inside the site" by whether the target exists on disk, so a
+  // link to a sibling venture that sorts later alphabetically was tested before
+  // that sibling had been copied, came back missing, and was repointed at
+  // GitHub — a 404 for every visitor, because this repository is private.
+  //
+  // It is the same hazard `addSiteChrome` documents for its own `../` hub link;
+  // that one was solved by running after the hub is written. Cross-venture links
+  // need every venture written, so the copy is split out ahead of everything
+  // that reads the finished tree.
+  //
+  // Ten links across the built site were being rewritten this way, and all seven
+  // distinct targets were live published pages (`no-show-fee-calculator`,
+  // `where-to-sell-calculator`, `walmart-marketplace-calculator`,
+  // `tiktok-shop-fee-calculator`, `shopify-fee-calculator`, `quote-margin-check`,
+  // and one `invoice-payment-terms-calculator` page). `check.mjs` reported no
+  // dead links throughout, because by then the link was absolute and it does not
+  // follow those.
+  for (const surface of discovered) {
+    await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
+  }
+
+  // A handful of ventures (currently: ai-engineering-academy, tender-radar,
+  // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
+  // equipment-rental-break-even) publish from a `site/` subdirectory, so their
+  // own root LICENSE sits one level above `sourceDir` and never gets copied
+  // above. Every one of those tools still links to its own LICENSE (an
+  // `<a href="LICENSE">` footer), and until now that link "escaped the site"
+  // and `repairLinks`, below, correctly-by-its-own-logic repointed it at this
+  // private GitHub repository -- a 404 for every visitor, same defect #2720
+  // fixed for cross-venture links. Publishing the file here, ahead of
+  // `repairLinks`, means the link resolves locally and `repairLinks` leaves it
+  // alone: this fixes it without touching that function's matching logic.
+  //
+  // README.md is deliberately NOT part of this: `EXCLUDED_FILES` and
+  // `NON_WEB_EXTENSIONS` keep every venture's README.md out of the published
+  // tree on purpose (`check.mjs` fails a build that publishes one, as "repo
+  // bookkeeping"), so copying it here for six ventures while `copyTree` drops
+  // it for the other 163 would both contradict that policy and make this
+  // build fail its own check.
+  for (const surface of discovered) {
+    const from = path.join(venturesDir, surface.slug, 'LICENSE');
+    const to = path.join(outDir, surface.slug, 'LICENSE');
+    if (existsSync(to) || !(await exists(from))) continue;
+    await fs.copyFile(from, to);
+  }
+
+  // Pass 2: everything that has to read a complete site.
+  //
+  // `repairLinks` stays ahead of `surfaceExternalFetchHosts` within this loop,
+  // and that order is load-bearing: a repair can rewrite a `<script src>` or a
+  // stylesheet `<link href>` to a github.com URL, which is a genuine external
+  // request the privacy copy has to report.
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
-    await copyTree(surface.sourceDir, destination, base);
     repairs.push(
       ...(await repairLinks({
         publishedDir: destination,
@@ -4655,6 +4764,15 @@ export async function buildSite({
   // neither belongs to one category.
   await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
   // One card per category, tinted and headlined with the section's own name.
+  // A category holding a documented `externalCallExceptions` entry (today:
+  // "more", because Sponsor Ready lives there) gets the exception footer —
+  // otherwise this card would tell every social preview "nothing you type is
+  // uploaded" for a category where that is false for one of its tools.
+  const categoriesWithExceptions = new Set(
+    categoryGroups
+      .filter(({ items }) => externalCallExceptions(items).length)
+      .map(({ category }) => category.id),
+  );
   await Promise.all(
     ALL_CATEGORIES.map((category) =>
       fs.writeFile(
@@ -4663,7 +4781,7 @@ export async function buildSite({
           color: category.accent,
           headline: category.title,
           kicker: SITE_NAME,
-          footer: CARD_FOOTER,
+          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
         }),
       )),
   );
@@ -4686,7 +4804,10 @@ export async function buildSite({
         color: categoryFor(surface.slug).accent,
         headline: surface.title,
         kicker: SITE_NAME,
-        footer: CARD_FOOTER,
+        // Sponsor Ready's own card gets the exception footer — its whole job
+        // is a live lookup, so "nothing you type is uploaded" is the one
+        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
+        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
       }),
     );
   }

@@ -321,10 +321,11 @@ data:
 # that node the first time it is consumed, which is the same node — the volume
 # cannot drift.
 #
-# 1Gi against a 32Mi site (measured 2026-08-30, 1596 files): one live copy,
-# one staging copy mid-write, and room for the tool count to keep growing.
-# The floor exists so a runaway write cannot fill the control-plane disk out
-# from under ingress.
+# 1Gi against a 34Mi site (re-measured 2026-09-02: 169 tools, 1712 files —
+# was 32Mi/1596 files on 2026-08-30): one live copy, one staging copy
+# mid-write, and room for the tool count to keep growing. The floor exists
+# so a runaway write cannot fill the control-plane disk out from under
+# ingress.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -594,17 +595,19 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
-          # Measured on 2026-08-30 against `main` at fa041f0, running both
-          # commands above exactly as this container does (165 tools, 482
-          # pages, 1596 files emitted):
+          # Re-measured 2026-09-02 against `main` at 1782b8011, running both
+          # commands above exactly as this container does (169 tools, 532
+          # pages, 1712 files emitted) — was 165 tools, 482 pages, 1596 files
+          # on 2026-08-30:
           #
-          #   build.mjs   25s, peak RSS 134Mi
-          #   check.mjs   11s, peak RSS  99Mi
+          #   build.mjs   22s, peak RSS 137Mi (was 25s, 134Mi)
+          #   check.mjs   11s, peak RSS 102Mi (was 11s,  99Mi)
           #
-          # So the request is ~4x the observed peak and the limit ~11x. That
-          # headroom is deliberate: both numbers scale with the tool count,
-          # which has grown all month, and an OOM here fails the pod rather
-          # than degrading — the site would go to zero on a rollout.
+          # So the request is still ~4x the observed peak and the limit still
+          # ~11x. That headroom is deliberate: both numbers scale with the
+          # tool count, which has grown all month, and an OOM here fails the
+          # pod rather than degrading — the site would go to zero on a
+          # rollout.
           resources:
             requests:
               cpu: 250m
@@ -659,10 +662,11 @@ spec:
         - name: workspace
           emptyDir:
             sizeLimit: 2Gi
-        # The finished site measured 32Mi across 1596 files on 2026-08-30,
-        # so this is ~16x what it holds today. An emptyDir that fills does
-        # not fail the write — the kubelet evicts the pod — so this is sized
-        # for a year of growth rather than for the current build.
+        # The finished site measured 34Mi across 1712 files on 2026-09-02
+        # (was 32Mi/1596 files on 2026-08-30), so this is still ~15x what it
+        # holds today. An emptyDir that fills does not fail the write — the
+        # kubelet evicts the pod — so this is sized for a year of growth
+        # rather than for the current build.
         - name: site
           emptyDir:
             sizeLimit: 512Mi
@@ -710,7 +714,7 @@ spec:
 # issue #1925.
 #
 # The host below stays `tools.` anyway, because it is the canonical host
-# stamped into all 518 pages' canonical links, og:urls and sitemap entries
+# stamped into all 524 pages' canonical links, og:urls and sitemap entries
 # via PAGES_BASE_URL. The apex and `www` are handled next door in
 # `portfolio-apex.yaml`, which 301s them here rather than serving a second
 # uncanonical copy. Keep this Ingress single-host: the test in
@@ -868,6 +872,14 @@ spec:
     spec:
       backoffLimit: 2
       template:
+        # Named so `networkpolicy.yaml`'s egress rule can select this pod --
+        # a CronJob's pods otherwise carry only the auto-generated
+        # `job-name`/`controller-uid` labels, and the Job name changes on
+        # every run (a `-<timestamp>` suffix), so nothing durable exists to
+        # select on without this.
+        metadata:
+          labels:
+            app.kubernetes.io/name: portfolio-site-refresh
         spec:
           restartPolicy: OnFailure
           serviceAccountName: portfolio-site-refresh

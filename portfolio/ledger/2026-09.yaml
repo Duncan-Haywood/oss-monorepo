@@ -5,6 +5,265 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Made the front door shipped earlier this session measurable, which it
+        deliberately was not at merge. `usage/aggregate.py` selected
+        `app=portfolio-site`, and `slug_for("/index.html")` returns the hub key
+        for the apex page and the catalogue's front page alike -- so folding
+        the new pod in would have added apex visits to `_hub`, answering "did
+        anyone find the portfolio" and "did anyone browse the catalogue" with
+        one number that nothing downstream could separate again. The selector
+        now covers both workloads and an `APP_KEYS` map routes each pod's lines
+        by its `app` label: the site keeps its existing keys unprefixed (the
+        stored history depends on those names), the front door gets `_front`.
+      - >-
+        One row rather than a per-path split, because the front door's nginx
+        does `try_files /index.html =404` and `$uri` is logged after
+        `try_files` resolves -- every request it counts logs the same URI, so a
+        breakdown would be fiction. `/healthz` sets `access_log off`, so probes
+        never reach the aggregator.
+      - >-
+        The routing came out of `main()` into `fold_for_app()` so the decision
+        that matters is testable without a cluster. Five tests added, including
+        one that pins the selector and the key map against each other and
+        against the Deployments in `gitops/prod` -- the drift that would
+        silently drop a workload's traffic (a pod selected but unkeyed is
+        counted nowhere; a key for an app never selected is a row that can
+        never appear) is invisible in production, so it is checked in git.
+      - >-
+        Verified: 299 Python tests (gitops + publish_surface), `kustomize build
+        gitops/prod` clean, pyflakes clean, and the set-based selector's URL
+        encoding round-trips.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the portfolio's first surface a stranger can reach.
+        `marisstella.dev` and `www.marisstella.dev` have answered since
+        2026-08-28, but only as annotation-only 301s into
+        `tools.marisstella.dev`, which fails closed on the unsealed Secret
+        `portfolio-site-repo` -- so both live hostnames spent five days
+        handing every visitor a redirect into nothing, which
+        `publish_surface.py --check` printed as a note under each.
+        `gitops/prod/portfolio-front.yaml` now serves those two names a
+        generated front-door page from a kustomize ConfigMap: no clone at
+        pod start, so no token; Argo applies it from `main`, so no Actions
+        run and no Pages flip. `--check` reports 2 hostnames serving content
+        for the first time. No owner action was involved, and none is
+        available that would have done this.
+      - >-
+        What the page is, so a later session does not mistake it for a
+        placeholder: positioning, one card per category with its live tool
+        count (169, derived from `launched.json` rather than typed), a
+        three-point "how it works", both PRODUCT_PLAYBOOK.md section 5b
+        clauses in full -- it is a hosted surface `platform/pages/build.mjs`
+        does not build, so the no-SLA injection that covers every tool page
+        does not reach it -- and links into the hub, about page and feed
+        taken from `build.mjs`'s own exported path constants. Deliberately
+        no per-tool listing: `portfolio-apex.yaml` spends a paragraph on why
+        two hostnames must not serve the same bytes, and the front door
+        carries its own canonical instead.
+      - >-
+        Measured rather than assumed, and worth not re-deriving: a prior
+        session priced ConfigMap-seeding the *whole* site at 34 MB (14.4 MB
+        gzipped) against a 1 MiB ceiling and correctly rejected it. That
+        verdict does not extend to a front door -- this page is 11 KB, and a
+        test fails it past 256 KB.
+      - >-
+        Two defects found by running the thing rather than reading it. (1)
+        The call-to-action button used `--link` as its background with a
+        hard-coded white foreground; `--link` inverts in dark mode and the
+        text did not, measuring 1.93:1 -- caught by a headless contrast pass
+        before it ever shipped, fixed with its own `--cta-bg`/`--cta-fg`
+        pair (now 9.46:1 dark, 8.8:1 light), and pinned by a test on the
+        mechanism. (2) kustomize 5.4 cannot re-enable a name suffix hash per
+        generator once `generatorOptions` disables it globally -- a
+        per-generator `disableNameSuffixHash: false` is indistinguishable
+        from unset, so the first build produced unhashed ConfigMaps and a
+        regenerated page would never have rolled the pods. The global block
+        moved onto the one generator that wants it (the usage script, which
+        a CronJob names literally). Verified with `kustomize build
+        gitops/prod`.
+      - >-
+        Verified: `kustomize build gitops/prod` clean; 294 Python tests
+        (gitops + publish_surface, up from 291 -- two apex tests rewritten
+        for the new behaviour, seven added for the new workload); 15 new
+        node tests for the generator including a drift check against the
+        committed output; 856 platform/pages tests; the pod's own command
+        (`build.mjs` + `check.mjs`) still exits 0 at 169 products / 532
+        pages; and a headless Chromium pass at 375/768/1280px -- no console
+        errors, no horizontal overflow, 7 category cards, valid JSON-LD.
+      - >-
+        Queue state: zero open PRs at the start of the run (verified against
+        the API, not a prior session's list), so the mandate's three-PR
+        quota resolved on its "none exist" branch. Fifth consecutive session
+        to find no repairable backlog.
+      - >-
+        Still owner-blocked, unchanged and not re-derived: `portfolio-site-repo`
+        (the 169 tools), the Codex `CODEX_AUTH_JSON` seal plus the governor's
+        two knobs (the Hetzner dev fleet in `gitops/agents/`, which is code
+        complete), and `funding-sponsors-live`. The front door's category
+        cards all link into the tools host, so the site seal is now what turns
+        a live front door into a live catalogue.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2702: itemised calculators rebuild their rows when a saved
+        bid is restored or a bid link is opened. Eight tools here build the
+        form in script (tree service by tree, carpet by room, window
+        cleaning by glass type, snow removal by stop, pest control by
+        service, hood cleaning by component, gutter cleaning by run,
+        portable restrooms by unit type) with ids like `t3-dbh` off a
+        counter that resets every page load, so both bid-handoff features
+        matched on ids that are an artefact of click order rather than a
+        fact about the job.
+      - >-
+        The user-visible cost of that: a six-room carpet bid saved fine and
+        never restored -- the atomic-or-refused rule correctly refused and
+        told the contractor to "add or remove rows until the form matches",
+        i.e. rebuild by hand the thing they saved to avoid rebuilding by
+        hand -- and `link.mjs` excluded these pages from the share control
+        outright, on sound reasoning for the matching rule it had.
+      - >-
+        Fix: a page opts in with `data-pf-repeat="<prefix>"` on the control
+        that appends a row; the runtime clicks that control until the group
+        holds as many rows as the record, then compares by position within
+        the group instead of by id. Clicking is the only way in, so the rows
+        stay the venture's own markup. Still atomic-or-refused and still
+        grow-only (no page declares a remove control), and a page declaring
+        nothing gets the identity key map -- which is what keeps this off
+        the other 161 tools.
+      - >-
+        Verified: `node --test` in `platform/pages` 853/853; the 8 ventures'
+        own suites 476/476; `build.mjs` shareable-bid-link count 151 -> 158;
+        `check.mjs` 169 products / 528 pages / no dead links; and a
+        Chromium+Playwright pass over the built `dist`, 12/12 -- a 4-tree
+        link opened in a fresh browser context rebuilt all 4 rows, carried
+        every DBH, and worked out the same $17,785.19 the sender saw, while
+        a 7-room + 2-upholstery carpet bid saved, reloaded and restored both
+        groups intact.
+      - >-
+        Concurrent work integrated rather than duplicated: #2699 gave
+        `pest-control-bid-calculator` its own `share.mjs` while this branch
+        was open. `main` was merged in and the existing gate handles it --
+        that page keeps its own control and takes no second button, so 7 of
+        the 8 gain the platform link and all 8 gain the saved-bid replay,
+        which `jobs.mjs` owns and no share module covers. A test pins the
+        7-of-8 split so a venture growing or dropping its own control
+        surfaces as a number rather than silently.
+      - >-
+        Queue state: one PR open at the start of the run (#2697, merged
+        after its checks went green on real runners), zero at the end
+        besides this run's own #2702, which also merged green. Delivery is
+        unchanged and still one owner seal from public --
+        `publish_surface.py --check` reports 0 hostnames serving content,
+        `portfolio-site-repo` is the step, and no new ask was added.
+  - venture: pest-control-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2699: a shareable, saved bid link (`share.mjs`, the
+        canonical copy already used by 37 of the other 38 bid-calculator
+        ventures). Cost fields, frequency, waive-initial, every service
+        row -- including a custom "other" row -- and the proposal's
+        deposit/valid-days/payment-terms/notes/exclusions all now ride in
+        the URL fragment and in a local autosave; a link always wins over
+        the saved draft, and the page says which source it opened from.
+        Verified in headless Chromium via Playwright over a local
+        http-server, not just `node --test` (108/108 passing, was 106):
+        filled every field, copied the link, opened it in a fresh browser
+        context with no shared storage, and confirmed every field
+        including the recurring price ($228.25) matched exactly. Also
+        caught and fixed a real bug in review before merging -- an early
+        `applyValues()` only restored the fixed COST_IDS list, so a
+        restored link silently dropped the deposit percent and payment
+        terms back to the page's defaults, the same class of defect
+        `share.mjs`'s own header names as having shipped once already
+        (2026-08-29). Switching to the generic `Object.entries(values)`
+        pattern the other ventures already use fixed it.
+      - >-
+        Publishing is still owner-gated on sealing `portfolio-site-repo`;
+        nothing here touches that and no new ask was queued.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2677: the Codex worker's "the plan credential wins a tie"
+        promise was not true, and failed in the direction that costs money.
+        `gitops/agents/secrets/README.md` states that a `codex-secrets`
+        carrying both credentials spends the ChatGPT plan's included quota
+        rather than the metered `OPENAI_API_KEY`, and that is the shape the
+        owner asked for ("use up the built in quota"). But `configure_auth`
+        picked the subscription branch and returned with `OPENAI_API_KEY`
+        still exported, and `codex exec` inherits the script's environment --
+        so the CLI was handed a live metered credential on a run that had
+        just announced itself as the plan's, and which one it then prefers is
+        not something this repo controls. The test behind the promise
+        (`test_both_credentials_stay_usable_and_the_free_one_wins_a_tie`)
+        compared where the two branches appear in the file, which proves the
+        script says a thing and never that running it does that thing -- the
+        exact gap `test_worker_run.py` exists to close, slipped through.
+        `seal-owner-secrets.sh` emits one credential at a time so its own
+        output never reaches this state, but `codex-token.template.yaml`
+        carries both keys and the README documents sealing that template by
+        hand with kubeseal, which is how a Secret with both gets made. Fixed
+        by unsetting the metered key on the plan route (logged, so an
+        operator sees which was withheld rather than learning it from an
+        invoice); a credential cached on the `codex-home` PVC also no longer
+        outranks a freshly sealed `OPENAI_API_KEY`, because the volume is a
+        cache and the Secret is current intent -- preferring the cache spent
+        the wrong budget and, once that login expired, would exit 43 forever
+        and hold the queue 6 h at a time with a working key beside it. Every
+        run now prints one `auth mode:` line naming the budget; the README
+        already claimed this and no single line actually said it.
+      - >-
+        Verified: `python3 -m pytest gitops/tests -q` -- 220 passed on `main`
+        at fb19bd4f4, 222 with the change. The two new cases in
+        `test_worker_run.py` run `worker.sh` end to end against a stub
+        `codex` that records its own environment, so they assert on what the
+        CLI is handed rather than on which branch ran; confirmed the tie case
+        fails against the previous `worker.sh` before fixing it, and the
+        paired case pins that a Secret carrying only `OPENAI_API_KEY` still
+        reaches the CLI. Real CI green on all 6 non-skipped checks (`check`,
+        `gitops`, `tofu`, `hcloud-scope`, `scripts`, `duplicate-symbols`) on
+        assigned runners -- not the 3-6 s `runner_id: 0` signature.
+      - >-
+        Branch backlog: settled, and settled negatively, so no future session
+        needs to re-derive it. Zero open PRs at the start of this run, so the
+        three-PR quota was vacuous. Ran an identical-merge proof over all 88
+        non-`main` remote branches (replay each on `main` with `main` winning
+        every conflict, compare trees against `main`'s): 65 come back
+        provably superseded. Of the ~20 that did not, every one read is
+        superseded in substance or unsafe to merge -- `3pl-quote-normalizer`
+        and `invoice-payment-terms-calculator` branches are strict subsets of
+        what `main` now carries; `sweet-archimedes-icmubl`'s catalog.json
+        landed from a sibling; `no-show-fee-scenarios` duplicates a
+        `compareFeeScenarios` main already has, so its residue is a second
+        `renderScenarios`; `sweet-archimedes-cn4s8c` (169 files) is *behind*
+        main on share.mjs and merging it would delete `withProposalTerms`,
+        `usableText` and `choiceText`; `agent-cross-review-f90e` adds an
+        auto-merge workflow, which CLAUDE.md's automation rule forbids
+        without owner approval. The `-X ours` residue overstates uniqueness
+        and is evidence to read, not a verdict -- three of the branches it
+        called UNIQUE would have regressed `main`. Nothing was closed or
+        deleted; the branches are simply not a source of shippable work.
+      - >-
+        Checked and rejected one deploy unblock rather than assuming it:
+        the site could in principle drop its `portfolio-site-repo` token by
+        serving from a kustomize ConfigMap, since Argo already holds repo
+        access -- but `build.mjs` emits 34 MB across 1699 files, far past the
+        1 MiB ConfigMap ceiling. The runtime clone, and therefore the seal,
+        is genuinely unavoidable. Deployment stays blocked on exactly the one
+        owner action `publish_surface.py --check` already names.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Fixed a real gap in the Codex delivery path, shipped as #2635.
         `worker.sh` has exited 43 for a Codex credential the API refused
         since the subscription route was wired -- deliberately distinct from
@@ -1342,3 +1601,856 @@ entries:
         recognises this as settled rather than re-investigating it: the
         useful sentence is which seals remain, not another survey of the
         stack behind them.
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, run manually (governor still
+        disabled). Checked candidate 1 first against a fresh build.mjs run:
+        embed widget still has full coverage (169/169 tool entry pages), so
+        not re-picked. Confirmed all six ventures the brief names as already
+        having a compare mechanism (marketplace-fee-compare,
+        3pl-quote-normalizer, cut-list-optimizer, shopify-permission-drift,
+        mcp-supply-chain-watch, seller-net-sheet) do -- and found a broader
+        pattern of `vs-<incumbent>.html` pages across many other ventures
+        that the brief's own list did not enumerate. Shipped #2670: a
+        `vs-granthub.html` comparison page for grant-reporting-tracker,
+        whose sibling grant-deadline-tracker already has vs-instrumentl.html
+        but this venture had none -- a real, unaddressed gap.
+      - >-
+        GrantHub (Foundant Technologies) is the named incumbent: a paid,
+        subscription platform for a nonprofit's whole grant lifecycle
+        (prospecting, proposals, document library, team collaboration,
+        reporting), against which this tracker is positioned for the
+        narrower post-award job (deadlines and restricted balance on awards
+        already held). Confirmed the prior session's environment finding
+        still holds: foundant.com is blocked by this session's egress
+        proxy too, so no GrantHub pricing figure is asserted anywhere on
+        the page -- only stable, well-known facts, with a link so a reader
+        can verify pricing themselves, matching the sibling
+        vs-instrumentl.html's own documented discipline. A test
+        (`vs-granthub.test.mjs`) asserts no dollar figure ever appears next
+        to "GrantHub" and no network call is made from the page.
+      - >-
+        Verified: venture's own `node --test` 14/14 (calc.test.mjs +
+        vs-granthub.test.mjs); `build.mjs`+`check.mjs` (169 products, 523
+        pages, no dead links, page count 511->512); `clauses.mjs
+        grant-reporting-tracker` (no-warranty clause on all 3 published
+        pages); the independent Python site builder
+        (`build_pages_site.py`+`check_pages_links.py`, 513 pages, no dead
+        links -- the local workflow runner couldn't execute this step
+        itself, since it needs an unevaluated `${{ }}` base-url expression);
+        `test_build_pages_site.py` 34/34. Real CI on the PR went green on
+        all 8 checks (`build` x2, `link-contrast`, `page-integrity`,
+        `site-test`, `check`, `validate`, `deploy` skipped as expected off
+        a non-`main` push) before merge. Browser `sweep` check could not
+        complete in this sandbox -- Chromium's own background network
+        calls (`www.google.com`, `accounts.google.com`) are rejected by the
+        egress proxy and stall the 169-page run well past any reasonable
+        timeout; noted on the PR rather than silently skipped. The new page
+        has no interactive JS at all (no `<script>`, no form), so the
+        failure mode that check exists to catch does not apply to it the
+        way it would a calculator change. Did not touch `gitops/` or
+        `.github/workflows/`, staying clear of the concurrent
+        deploy/CI-CD session sharing this working tree.
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2671: `scheduleOutcome()` sorted its milestones array by
+        `paidDay` (when cash clears) rather than `invoiceDay` (when it is
+        issued), and `scheduleCopy()` renders that same array verbatim as
+        the client-facing contract text. A deposit invoiced at kickoff but
+        slow to collect could clear after a later milestone's invoice,
+        printing "Balance on completion" before "Deposit" -- a contract
+        telling the client to pay for finished work before the kickoff
+        deposit it was supposed to precede, and a document a user could
+        copy straight into a real proposal. Found via a targeted
+        correctness review of this venture's date/schedule arithmetic (no
+        other issues found in the pay-run date logic or peak-exposure
+        formula, both verified numerically sound).
+      - >-
+        Fix: sort by `invoiceDay` instead; `fullyPaidDay` no longer follows
+        from array order so it is now computed via `Math.max(...)`. Added a
+        regression test reproducing the exact scenario, confirmed it fails
+        against the old sort and passes against the fix. 80/80 venture
+        tests pass (was 79). Real CI went green (`check`, `test`, `build`
+        x2) before merge.
+  - venture: 3pl-quote-normalizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2678: `returnDispositionSummary()`'s flip-line ternary had
+        no branch for `cheapestPath`/`path` value `"tie"`, so when a
+        restockable-rate or unit-cost sweep never resolves to a single
+        cheapest disposition path, the report falsely stated "Destroy stays
+        cheapest" through the whole sweep -- a wrong claim in a report used
+        to negotiate 3PL return-disposition policy. `kittingSummary()`
+        already handles the analogous tie case correctly, confirming this
+        was an omission rather than intended behaviour. Found in the same
+        review pass as the invoice-terms fix above, scoped to this
+        venture's sweep/flip functions (`returnsFlip`, `agedStorageFlip`,
+        `returnDispositionFlip`, `kittingFlip`); no crash-level bugs found
+        in any of the four.
+      - >-
+        Fix: added the missing "tie" branch to both flip-line ternaries.
+        Added a regression test with inputs that collapse all three
+        disposition paths to the same net cost at every swept value;
+        confirmed it fails against the old ternary and passes against the
+        fix. 103/103 venture tests pass (was 102).
+      - >-
+        Not fixed, flagged in the PR body instead of bundled in:
+        `agedStorageFlip` assumes 3PL cost only rises with
+        `leftoverPallets`, which can be false if a user enters a discounted
+        long-term storage rate below the standard rate -- a genuine second
+        finding from the same review, but one needing a design decision
+        (detect the reversal vs. constrain the input) rather than a
+        one-line fix.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This run's own PR/branch-drain check (0 open PRs, a sample of 8
+        stale branches all verified superseded) reached the same negative
+        verdict the concurrent, more rigorous entry above already records
+        (an identical-merge proof over all 88 branches) -- not repeated here
+        to avoid duplicating that finding. What follows is what that entry
+        does not cover.
+      - >-
+        Verified the owner's two explicitly-requested priorities
+        (deployment/CI-CD, and Codex-on-Hetzner "use the built-in quota")
+        are both already fully built in code, per `gitops/agents/` and
+        `infra/OWNER_CHECKLIST.md`, and are already the top two enabled
+        items in `gitops/agents/queue/` (`deploy-cicd-readiness` priority
+        7, `marketing-distribution` priority 6, both explicitly re-prioritized
+        2026-09-01 on this same owner instruction). Both remain blocked
+        purely on owner-only sealed-secret actions (`portfolio-site-repo`,
+        `codex-secrets`) that need a laptop holding the Sealed Secrets key
+        -- nothing an agent session can do. Did not duplicate these
+        already-queued asks. Ran `python3 -m pytest gitops/tests -q`
+        (219/219), `kustomize build` + `kubeconform -strict` across all 6
+        overlays (clean), and `platform/ci/publish_surface.py --check`
+        (still 0 hostnames serving content, unchanged) rather than find a
+        new gitops defect to report -- none surfaced despite a genuine
+        search, which this entry records so a future session does not
+        re-run the same search expecting a different answer.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Executed `marketing-distribution` (priority 6,
+        `gitops/agents/queue/marketing-distribution.yaml`) manually,
+        standing in for the disabled Codex worker fleet. Measured before
+        picking: built the real site (`build.mjs` + `check.mjs`, 169
+        products, 523 pages, no dead links) and re-checked all four listed
+        candidates against it. Embed widget: still 169/169 tool entry
+        pages carry it, no gap. Comparison pages: the listed gap
+        (grant-reporting-tracker) had already landed as #2670 while this
+        session was starting, so it was not duplicated. Category hubs: all
+        7 `/c/` pages already carry real intro/audience copy per
+        `CATEGORY_PAGE_COPY`. The real remaining gap was candidate 4's own
+        prediction -- "a claim that has drifted from what the build
+        actually emits, not a missing section."
+      - >-
+        Shipped #2681: the About page's press-kit section already proves
+        its privacy claim through `externalCallExceptions()` -- the one
+        tool with a documented live lookup is Sponsor Ready (filed under
+        `/c/more/`, pastes a GitHub handle to `api.github.com`) -- but four
+        other places kept the older, unconditional "nothing you type is
+        uploaded" wording and were therefore false for that one tool: the
+        About page's own lede (the first sentence a visitor reads), every
+        category hub's count line (literally false on `/c/more/`), the
+        baked-in footer text on every social share-card PNG (`CARD_FOOTER`,
+        including Sponsor Ready's own card and the "more" category card --
+        these images are the site's actual distribution surface, since a
+        forum or group share renders as this picture), and the PWA install
+        manifest's description. Fix: all four now run through
+        `externalCallExceptions()`, via a new `CARD_FOOTER_EXCEPTION`
+        constant for the raster cards and a `hasExternalCallException` flag
+        threaded into `renderManifest()`. No new copy invented; every
+        exception branch names the real tool.
+      - >-
+        Verified: `node --test build.test.mjs` 243/243 (4 new regression
+        tests, keyed off `externalCallExceptions()` rather than hardcoding
+        "Sponsor Ready" so they hold if the exception set changes); `node
+        --test *.test.mjs` across `platform/pages/` 842/842; `node --test`
+        in `ventures/sponsor-ready` 40/40; `build.mjs`+`check.mjs` clean
+        (169 products, 523 pages, no dead links). Real CI on the PR went
+        green on all 8 checks (`check`, `build`, `gitops`, `scripts`,
+        `tofu`, `hcloud-scope`, `validate`, `preflight`/`deploy` skipped as
+        expected off a non-`main` push) with real runner durations (build
+        ~2m36s, validate ~2m25s, gitops ~66s), confirmed against
+        `ci_starvation.py`'s signature before merge. Did not touch
+        `gitops/`, so `pytest gitops/tests` was not required and not run.
+        No new third-party script, font, CDN, or network call; the
+        `/about/` no-third-party-script promise is unchanged.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2683, closing the gap #2667's ledger entry named
+        explicitly: "no check in this repo catches an orphaned page."
+        `check.mjs` proved every link's *target* exists (dead-link
+        scanning) and that every page appears in a sitemap, but nothing
+        checked the reverse -- a comparison or SEO subpage can ship
+        correct, dead-link-free, and sitemap-listed while no `href`
+        anywhere on the site points at it, reachable only by a crawler
+        reading the sitemap directly. Added that check to `checkSite()`,
+        reusing the same href/src resolution the dead-link scan already
+        builds: every internal target that resolves is recorded, and
+        every non-`index.html` page inside a product directory must
+        appear in that set. Scoped to product subpages only --
+        `index.html`, `/c/`, and `/about/` already have their own
+        two-way hub-reachability checks.
+      - >-
+        Running the new check against a fresh build found a second live
+        instance of the same defect class immediately:
+        `marketplace-fee-compare/which-marketplace-has-the-lowest-fees.html`,
+        listed only in its own `sitemap.xml` and linked from nowhere
+        else on the site. Fixed forward with a "read the worked example"
+        link from the calculator's `index.html`, the same convention
+        #2667 used for the npm one. Read as a signal, not a one-off: this
+        is the second comparison/SEO page found orphaned by hand-checking
+        rather than by CI in as many weeks, which is what the new check
+        exists to stop.
+      - >-
+        Verified: `platform/pages` `node --test` 845/845 (842 prior + 3
+        new orphan-page tests); `marketplace-fee-compare` `node --test`
+        64/64; `build.mjs`+`check.mjs` clean (169 products, 524 pages, no
+        problems -- the orphan gone); independent Python builder
+        (`build_pages_site.py`+`check_pages_links.py`) 512 pages, no dead
+        links; browser checks (`browser_checks.py --checks
+        sweep,sideways`, real Playwright) 175/175 tools answered, 521
+        pages clean at 360px. Real CI on the PR went green on 12/13 check
+        runs (`deploy` skipped as expected off a non-`main` push);
+        `ci_starvation.py` confirmed the two long-running jobs
+        (`validate` 164s, `build` 167s) both landed on real runners before
+        merge. Did not touch `gitops/`, so `pytest gitops/tests` was not
+        run.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs, ~84 remote branches (of 210) carrying commits not
+        reachable from `origin/main`, after `git fetch --unshallow`. Checked
+        a briefed priority list plus a wider ~25-branch sample by hand
+        (not `supersede_check.py`'s identical-merge replay, which is
+        expensive on branches this old against the current tree size --
+        content comparison instead: for each branch's distinctive
+        function/feature name, grep `origin/main` for it and read the
+        result) rather than trusting commit-message similarity or raw diff
+        stats, which the brief flagged as misleading here (merge-commit
+        noise inflates line counts; a three-dot diff against a stale
+        merge-base can read as "1200 new lines" for a directory that is
+        byte-identical to `main` once compared directly).
+      - >-
+        Every branch checked was superseded, extending #2531's finding
+        (2026-08-31, a 12-branch sample of this same cluster) to a larger
+        set drawn from the same 2026-08-24 fleet burst. Confirmed by direct
+        content comparison, not by title: `vendor-change-watch-fix` (the
+        snapshot-collision/URL-keying fix is verbatim on `main`),
+        `where-to-sell-rank-by-profit-per-day` (`RANK_MODES` with
+        `profitPerDay` and the removed "can't know sell speed" claim both
+        already shipped), `amazon-fba-sourcing-check` (`buyCostCheck` and
+        its exact test already on `main`), `3pl-quote-normalizer-compare`
+        (`main` has `compare.html`/`compare.mjs`/`comparison-insights.mjs`,
+        richer than the branch's version), `chargeback-evidence-packet-main`
+        (already identified by #2531 as the pre-refactor prototype now
+        superseded by `packet.mjs`), `festive-mccarthy-xrn3ua`'s DNS-test
+        stabilization (identical comment already in
+        `check-url.test.ts` on `main`). Two cases were `main` turning out to
+        be *ahead* rather than merely equal: `quote-margin-check`'s
+        half-even rounding fix is superseded by a more rigorous BigInt-exact
+        implementation already on `main` (`format.mjs`), and
+        `eaa-wcag-triage`'s `mechanical_fix.py` diff ran backwards -- the
+        branch's copy is missing four remediations (`muted` autoplay,
+        orientation-rotate strip, colour-only-link underline, `<main>`
+        wrap) that `main`'s copy already has.
+      - >-
+        One branch (`cursor/agent-cross-review-f90e`) carried real,
+        un-superseded content -- a four-agent PR cross-review workflow with
+        auto-merge, editing `CLAUDE.md` itself to describe the new gate.
+        Deliberately left alone rather than opened: it is platform/CI
+        process, not product, and it edits the exact policy section
+        (`CLAUDE.md` "Ship without review ceremony" / "no human review
+        gate") this run is instructed to rely on, which needs owner intent
+        rather than an agent's unilateral read of an abandoned week-old
+        branch to resolve.
+      - >-
+        No PR opened, none merged. Nothing on `main` needs the fix a
+        checked branch offered; `main` had already independently rebuilt
+        or exceeded every one. The recurring shape -- an old branch
+        proposing a small fix or feature whose target file has since been
+        rebuilt into something larger that already includes it -- is now
+        confirmed across ~30 branches from this cluster (12 by #2531, ~18
+        here), which is the population `decision-queue.py`'s
+        `branch-cleanup-automation` item (#829) exists to stop re-deriving
+        by hand each time.
+  - venture: lawn-care-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2691: a shareable quote link. This calculator builds its
+        per-service rows in script, which put it outside
+        `platform/pages/link.mjs`'s build-time auto-injected bid link (it
+        deliberately skips any page whose fields are not present in the
+        static form) -- so it had no way to hand a priced job to another
+        person as a link, unlike the ~58 other itemised trades that carry
+        a hand-written `share.mjs` for the same reason.
+      - >-
+        Added `share.mjs` (allowlisted JSON payload: every cost field
+        plus the service-row list, decoded back through the existing
+        `addServiceRow`/`readServices` path so a preset-matched or custom
+        row prices identically on both ends) and vendored
+        `proposal-terms.mjs` from `platform/proposal/terms.mjs`, which
+        `term-ids.test.mjs` requires of any venture carrying both the
+        proposal panel and its own share encoder -- without it the
+        deposit split, hold period, exclusions, payment terms and notes
+        would silently reopen at the page's defaults on the recipient's
+        side, the exact defect `platform/proposal/README.md` records
+        costing a sender's customer $1,094 on a different calculator
+        while the headline price matched to the cent.
+      - >-
+        Verified: `node --test` in the venture 85/85 (57 prior + 7 new
+        `share.test.mjs` + 21 new `proposal-terms.test.mjs`); repo-wide
+        `platform/proposal/sync.test.mjs`, `term-ids.test.mjs` and
+        `discoverability.test.mjs` all pass with this venture included.
+        End-to-end with `platform/pages/roundtrip.mjs` driving real
+        Chromium against a full `build.mjs` output: `ok
+        lawn-care-bid-calculator: 37 fields, headline $5,690.88` -- every
+        field and the headline price round-trip exactly through a copied
+        link opened cold in a fresh browser context. Real CI on the PR
+        went green on all 8 checks (`build` x2, `check`, `link-contrast`,
+        `page-integrity`, `site-test`, `validate`, `deploy` skipped as
+        expected off a non-`main` push); `ci_starvation.py` confirmed
+        `validate` (157s) landed on a real runner before merge.
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2693 (part 1): `cut-list-optimizer` had been classified as
+        `logistics` since the category rules were written -- the rule matched
+        the literal prefix `cut-list`, in a list beside `3pl`, `freight`,
+        `ltl-`, `owner-operator` and `medical-courier`. It is a plywood and
+        board cutting planner for woodworkers and sign shops. Nothing on the
+        page was wrong; every internal link out of it was. The four related
+        tools injected at the foot of every cut-list page were a 3PL quote
+        normaliser, a cloud egress calculator, a medical-courier route margin
+        and an owner-operator CPM; the tool was listed on `/c/logistics/`,
+        where a freight buyer met a plywood planner; it was absent from
+        `/c/trades/`, where its readers browse; and `llms.txt` -- the file
+        written for AI assistants to quote -- grouped it under freight. It
+        now resolves to `trades` / `trades-interior`, beside the countertop,
+        cabinet-refinishing, crown-molding and flooring bids sold by the same
+        people who cut sheet goods.
+      - >-
+        The generalisable finding, which is why this is recorded rather than
+        filed as a typo: a slug prefix can read as a different industry than
+        the product, and nothing in the suite tested the *consequence* of a
+        classification -- only that categories existed and that the catch-all
+        was empty. Both were true and green throughout. The two regression
+        tests added assert the classification and, separately, that the
+        related-tool offer at the foot of the page is trade work, which is
+        the thing a visitor actually experiences.
+      - >-
+        Swept the other 168 slugs against the same question -- each tool's
+        category read against its own meta description -- and found no
+        second case of this severity, but two softer ones, both left alone
+        deliberately and recorded here rather than fixed, because unlike
+        `cut-list` they are judgment calls rather than a tool filed into the
+        wrong industry. (1) `tender-bid-readiness` and `tender-radar` sit in
+        the `more` catch-all while `contractor-bid-readiness` -- the same
+        shape of tool, and both tender pages name small contractors as their
+        reader -- sits in `trades`. (2) `music-lesson-break-even` is in
+        `backoffice` because its slug ends in `break-even`, but it prices a
+        teacher's lessons, which is the `services` blurb's exact job ("price
+        a visit, a route, a booking... for the service businesses that quote
+        work without bidding a construction job") rather than backoffice's
+        ("the arithmetic that happens after the job is won"). Neither is
+        wrong the way `cut-list` was: the catch-all is an honest home, and
+        `break-even` is a real back-office shape. Both are worth a decision;
+        neither is worth widening this PR for.
+      - >-
+        Shipped #2693 (part 2): a comparison page against optiCutter and
+        CutList Optimizer, the two named hosted incumbents -- the
+        `marketing-distribution` shape, an asset that deploys with the site.
+        18 of 169 tools now carry one. No price and no free-tier limit is
+        stated for either service and a test enforces that: both vendors'
+        own sites are blocked by this environment's egress proxy, and the
+        third-party round-ups that publish figures contradict each other on
+        exactly the numbers a reader would act on -- one attributes "5 stock
+        sizes / 20 part sizes / 500 parts" to CutList Optimizer, another the
+        identical figures to optiCutter. The page says so and links out.
+        Same discipline as `vs-fotoquote.html`.
+      - >-
+        Also merged #2687 (the fotoQuote comparison page) on its own green
+        CI. That was the entire open-PR queue: one PR open at the start of
+        the run, zero at the end.
+      - >-
+        Delivery is unchanged and still one owner action from public:
+        `platform/ci/publish_surface.py --check` reports 0 hostnames serving
+        content, `gitops/tests` is 222/222 green, and the only remaining
+        step for the site is sealing `portfolio-site-repo`. Nothing in this
+        run's diff touches that, and no new ask was added to the queue.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Assigned two named branches to process (`rematch-1172`,
+        `ledger-real-estate-photo-log-lead-474`), not a generic brief, so no
+        session-gate run. Both turned out to be stale duplicates of work
+        already on `main`, not new work: opened PRs #2694 and #2695 so there
+        was something concrete to close against, ran
+        `supersede_check.py` on each (both exit 0), and closed both with a
+        comment naming the exact commit already on `main`.
+      - >-
+        `rematch-1172` (#2695): its one commit, "mobile-detailing: count
+        whole-stop hours and loaded wage (#1172)", is already on `main` as
+        `3743e2afd2` -- same PR number, same title, `calc.mjs`/
+        `calc.test.mjs` byte-identical; `main` has since moved past it twice
+        more (#1824 unreachable-margin guard, #1825 fee/margin claim note),
+        which is what made the merge conflict rather than fast-forward.
+        `supersede_check.py 2695` returned the identical-merge proof (exit
+        0); the 3 `index.html` lines its line-scan couldn't match were the
+        superseded lede/copy text, confirmed by hand.
+      - >-
+        `ledger-real-estate-photo-log-lead-474` (#2694): its one commit is a
+        word-for-word duplicate of the `real-estate-agent-photo-app`
+        log-lead UTC-date-bug ledger entry already on `main` at `52416c5c57`
+        (`portfolio/ledger/2026-08.yaml`, PR #474). `supersede_check.py
+        2694` returned exit 0 (adds nothing `main` lacks).
+      - >-
+        Net: 0 shipped, 2 stale branches accounted for and closed rather
+        than left open or merged as duplicates. No product code changed, so
+        nothing to verify beyond the two supersede proofs above.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous-mandate run: the mandate's own three-PR quota
+        met the same wall the last several sessions have been hitting from a
+        different angle -- 0 open PRs, and the ~84 unmerged branches with
+        commits `main` lacks are almost entirely already-superseded
+        duplicates from the swarm-cadence pattern this ledger already names.
+        Checked 18 candidate branches directly (not a sample of the easy
+        ones -- deliberately spread across every naming cohort: `claude/*`,
+        `cursor/*`, `session/agent_*`, `decision-queue/*`, `agent/*`,
+        `gitops-*`, `rematch-*`, bare venture names) and found 17 of 18
+        already shipped on `main` under different filenames, wording, or PR
+        numbers. Two of those 17 (`claude/gha-branch-cleanup-pajw2b`,
+        `gitops-governor-rbac-narrow-jobs-pods-verbs`) looked completely
+        clean on every check available before opening a PR -- `git
+        merge-tree` reported no conflicts, and for the branch-cleanup one I
+        had already fixed a real time-dependent test bug in it -- and I
+        opened PRs #2704 and #2705 before running `supersede_check.py`
+        against them. Both came back SUPERSEDED (#829 and #2669
+        respectively, both already merged, one with the identical fix to
+        the same test bug). Closed both immediately with the exact
+        superseding commit named. **The lesson worth keeping: a
+        conflict-free `git merge-tree` and passing local tests are not
+        evidence a branch is unmerged work -- they are necessary, not
+        sufficient. `supersede_check.py` (or the equivalent direct
+        `git show origin/main:<path>` comparison for a branch too old to
+        have a PR yet) has to run before opening the PR, not just before
+        closing one, on any branch that predates today's `main`.**
+      - >-
+        One of the 18 was genuinely new and shipped: #2706, marking the
+        `vendor-change-evidence` pipeline candidate `verdict: graduated`
+        (it shipped as `ventures/vendor-change-watch`, #2002, on
+        2026-08-29, but the pipeline docs never caught up). The source
+        branch (`agent/software-evidence-provenance`) had instead deleted
+        the candidate row outright, which would have made it the only
+        graduated candidate missing from `candidates.yaml` -- inconsistent
+        with every other graduated entry in the same file (verdict +
+        `initiated_path`, never removed) and not something
+        `validate_candidates.py`/`validate_doc_consistency.py` would have
+        caught, since they check score agreement, not "should a graduated
+        venture still be listed." Resolved the merge conflict by following
+        the established convention instead of the branch's own approach.
+        Both validators pass on the result.
+      - >-
+        Checked the two things this run's brief named as priorities before
+        starting new product work, per the queue-drain-first mandate.
+        Deployment/CI-CD: `platform/ci/publish_surface.py --check` still
+        reports 0 hostnames serving content, sealing `portfolio-site-repo`
+        is still the only remaining step, and `gitops/tests` is 223/223
+        green -- unchanged since the last session recorded this, so not
+        re-litigated further. Codex CLI on the Hetzner VM: this run's brief
+        asked for exactly what `decision_queue` row `codex-governor-enable`
+        and `infra/OWNER_CHECKLIST.md` item 8 already fully specify, down
+        to quoting the same standing instruction verbatim as of 2026-09-01
+        -- a working, tested governor + worker pipeline
+        (`gitops/agents/governor/`) sits `enabled: false` / `suspend: true`
+        waiting on exactly one owner action (`codex login` + seal
+        `codex-secrets` with `CODEX_AUTH_JSON`). Nothing to build; the gap
+        is the owner's, not a missing implementation, and it was already
+        queued before this run started.
+      - >-
+        Found that `gitops/agents/queue/*.yaml` already encodes this same
+        run's exact brief as its own priority-7 and priority-6 items
+        (`deploy-cicd-readiness.yaml`, `marketing-distribution.yaml`),
+        quoting the owner's "deployment and cicd is a priority and building
+        and deploying marketing materials on the hetzner vms" verbatim as
+        the reason, dated 2026-09-01. Since the governor that would
+        normally run those items is still owner-gated, delegated both
+        prompts verbatim to two parallel background agents rather than
+        wait on the flip or re-derive new prompts. Their PRs are not yet
+        known at the time of this entry -- see the next session's entry or
+        the PR list for outcome.
+  - venture: delivery-app-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Assigned the marketing-distribution queue item's own prompt
+        (`gitops/agents/queue/marketing-distribution.yaml`, priority 6):
+        ship one distribution asset that deploys with the site. Found #2709
+        already open doing exactly that -- a `doordash-vs-ubereats-fees.html`
+        comparison page, the "named commercial incumbent" shape from the
+        candidate list -- so repaired nothing (it merged clean against the
+        latest `main`) and merged it rather than duplicating the work.
+      - >-
+        Verified before merging: venture suite 33/33
+        (`node --test ventures/delivery-app-margin-calculator/*.test.mjs`);
+        full site build + check --
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs` then `check.mjs` -- 169 products, 529
+        pages, no dead links; `clauses.mjs delivery-app-margin-calculator`
+        confirms the no-warranty clause on all 3 published pages;
+        `python3 -m pytest gitops/tests -q` 223/223 (the PR also touched a
+        `gitops/ci/README.md` workflow-count doc fix). Re-verified the
+        page's DoorDash/Uber Eats/Grubhub "you keep" figures against
+        `calc.mjs`'s own `CHANNEL_PRESETS`/`calculateChannel` directly
+        rather than trusting the PR description.
+      - >-
+        Merged #2709 (squash). Ran `supersede_check.py 2709` afterward as
+        the required final sanity check -- SUPERSEDED, i.e. `main` now has
+        everything the branch had, which is the expected/correct read
+        post-merge, not a sign anything was lost.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A separate concurrent scheduled run, same brief as the one recorded
+        just above (0 open PRs; independently re-confirmed via
+        `list_pull_requests`/`search_pull_requests`, and independently
+        sampled ~19 of the ~84-branch backlog with `supersede_check.py` --
+        all but one non-substantive pipeline-scoring branch came back
+        already superseded, same finding as the entry above reached by a
+        different sample). Rather than re-run the same overlap check a
+        third time, delegated the `deploy-cicd-readiness` and
+        `marketing-distribution` queue prompts (verbatim) to two
+        research-only background agents, same as the sibling session above
+        did -- this entry is "the next session's entry" that one flagged as
+        pending.
+      - >-
+        `deploy-cicd-readiness` agent's finding: the delivery path is
+        genuinely clean (`pytest gitops/tests` 223/223, `kustomize build` on
+        all 6 `gitops/*` dirs, `kubeconform -strict` 52/52 valid,
+        `actionlint` on all 221 workflows, `shellcheck`, `pyflakes` on
+        `governor.py` -- zero findings across the board). Its one real catch
+        was doc drift: stale hardcoded workflow counts (217/218/220/246)
+        left over from when the self-hosted-runner switch was first built,
+        now 221 workflows / 247 `runs-on` lines. Shipped as #2713 (squash),
+        fixing the instances in `infra/OWNER_CHECKLIST.md`,
+        `bootstrap/scripts/seal-owner-secrets.sh`, `gitops/ci/runner.yaml`
+        and `gitops/tests/test_ci_runner.py`, plus the one instance in
+        `gitops/ci/README.md` the #2709 CI/CD doc fix above hadn't reached
+        yet (a second instance in that same file, "Nearly all 220 are
+        actions/checkout..."). Resolved one merge conflict against #2709's
+        fix to the *other* README.md line by keeping #2709's already-landed
+        wording rather than overwriting it. No functional change -- every
+        edit is a comment/docstring/prose string; the one test assertion
+        that used to reference a count already only checked `len(workflows)
+        > 200`. Verified: `pytest gitops/tests -q` 223/223 before and after,
+        CI green (`check`, `gitops`, `scripts`, `tofu`, `hcloud-scope`,
+        `duplicate-symbols` all passed on real runners) before merging.
+      - >-
+        `marketing-distribution` agent's top candidate (a
+        `subscription-price-impact` vs. ProfitWell/Price-Intelligently
+        comparison page) turned out to need external verification against
+        `profitwell.com`/`paddle.com`/`visualping.com` -- all three blocked
+        by the repo's read-only egress proxy (the still-open `egress-policy`
+        decision-queue row covers a different, narrower domain list that
+        doesn't include these). Declined to publish competitor claims that
+        couldn't be checked against a primary source rather than guess from
+        secondhand SEO aggregator pages. #2709 above (DoorDash vs. Uber Eats,
+        merged separately, same run window) turned out to be the safer
+        version of this same candidate shape -- computed entirely from the
+        venture's own `calc.mjs`, no external fact-checking needed -- so
+        nothing further was owed here once that had landed.
+      - >-
+        Own finding, not from either agent: `surfaceExternalFetchHosts` in
+        `platform/pages/build.mjs` (the function the About/category pages'
+        "nothing you type is uploaded" / "no third-party scripts" claims are
+        computed from) only ever scanned `.js` files for `fetch()` calls, so
+        a `<script src>` or `<link rel=stylesheet|preconnect>` to an
+        off-site host in a venture's HTML would go uncaught -- the privacy
+        claim could go silently false with nothing in the build or
+        `check.mjs` pipeline to catch it. Checked the live risk first: the
+        one venture that does load an external font (`retail-pilot-intel`,
+        Google Fonts) is already excluded from this site's build via
+        `EXCLUDED_SLUGS` and has its own separate deploy, so no page
+        currently ships a false claim -- this closes a real gap in the
+        *verification tooling*, not an active defect. Shipped as #2712
+        (squash): scans `.html` files too, for the same `fetch()` patterns
+        plus external `<script src>`/stylesheet-or-preconnect `<link href>`,
+        deliberately excluding `rel="canonical"`/`rel="alternate"` (a
+        crawler reads those, a browser never fetches them) so no venture's
+        own canonical tag registers as a false positive on itself. Added 2
+        direct unit tests. Verified: full `build.mjs` run (169 tools, 528
+        pages) and `check.mjs` report the same single documented exception
+        (Sponsor Ready / api.github.com) before and after -- no false
+        positives against the real site; `node --test build.test.mjs`
+        247/247 (245 before, +2 new); CI green before merging.
+      - >-
+        Net this session: 0 of 3 mandate-quota PRs came from repairing an
+        existing branch (none needed repair -- confirms rather than
+        contradicts the sibling entry's finding), 2 shipped from the
+        deploy-cicd-readiness/marketing-distribution delegation
+        (#2712, #2713), both merged with CI green. Did not attempt a third
+        just to hit the quota number once the two genuine, verifiable
+        findings were exhausted -- the mandate's quota targets a real
+        backlog, and this run confirmed for the second time this cycle that
+        none exists.
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2717: the calculator now answers whether requiring a deposit
+        actually leaves the owner with more money. Its headline was "expected
+        secured cash per year" ($21,762 on the defaults), but a deposit is
+        applied to the service total rather than added to it, so that figure
+        is revenue the business would have billed anyway, collected earlier.
+        It could argue for a deposit and never against one, because the cost
+        side -- bookings never made because a deposit was asked for -- never
+        entered the number. The page's own FAQ already conceded the gap
+        ("it changes who books, not just who shows"), collected the estimate
+        as `bookingRate`, and then never spent it on that question.
+      - >-
+        Two new inputs (no-show rate with and without a deposit) drive a year
+        of revenue each way -- today's bookings minus today's no-shows at full
+        price, against the bookings kept under a deposit at full price when
+        they show and the forfeited deposit when they do not -- reported as
+        two columns, a difference, and a break-even booking rate. Defaults:
+        $79,560 vs $83,783.70, +$4,223.70, break-even 88.3%. At a 60% booking
+        rate it reads -$25,506.00.
+      - >-
+        Finding worth keeping: break-even is normally BELOW 100%. As long as a
+        deposit does not make no-shows worse, it pays for itself at full
+        retention even with no behaviour change at all, because the no-shows
+        that remain forfeit a deposit instead of paying nothing -- so the
+        entire cost of a deposit policy is the bookings it turns away. This
+        was got backwards while writing it: the first test asserted that no
+        no-show improvement means break-even above 100%, and the code came
+        back 97.3% and was right. A draft FAQ paragraph blaming "too small a
+        gap between the two no-show rates" was corrected before merge in both
+        the visible copy and the JSON-LD. Above 100% is reachable only when
+        the user enters a higher no-show rate WITH a deposit than without.
+      - >-
+        Second finding, narrower: `annual` keeps its original left-associated
+        expression. Folding it into the new `annualBookings` term is
+        algebraically identical and a different double (21762 vs
+        21762.000000000004), and the figure is displayed to the cent. Caught
+        by the pre-existing test and now commented at the site so it is not
+        "simplified" back.
+      - >-
+        Verified: 33 venture tests (was 20); `clauses.mjs`; 855 platform/pages
+        tests; `build.mjs` + `check.mjs` (169 products, 530 pages, no dead
+        links); and a headless Chromium pass over the real page -- defaults,
+        the loss case, the validation guard and its recovery, gain/loss
+        contrast at 7.13:1 and 6.97:1 on the result tile, no horizontal
+        overflow at 375px. All 9 CI checks green on real runners before merge.
+      - >-
+        Deploy note, measured so the next run does not re-derive it: seeding
+        the site from a ConfigMap so `portfolio-site.yaml`'s build init
+        container stops failing closed on a first start with no token and no
+        cache is NOT viable as a full-site fallback. The built site is 34 MB,
+        14.4 MB gzipped, against a 1 MiB ConfigMap limit; the hub index.html
+        alone is 298 KB raw. A curated subset fits but means ~500 KB of
+        generated HTML duplicated into git plus a drift check, and becomes
+        dead weight the moment `portfolio-site-repo` is sealed. Not built.
+        `publish_surface.py --check` still reports 0 hostnames serving.
+      - >-
+        Queue state this run: exactly one open PR existed at the start
+        (#2708, vs-Baremetrics comparison page) -- reviewed, verified locally
+        (28 venture + 853 platform tests), CI green on real runners, merged.
+        That is the third consecutive session to find no repairable backlog,
+        so the mandate's three-PR quota resolved on its "fewer than three
+        exist, process all of them" branch rather than being missed.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2720: `repairLinks` was sending ten cross-tool links on the
+        built site to a URL in this *private* repository -- a 404 for every
+        visitor. It decides whether a link escapes the site by whether the
+        target exists on disk, and it ran inside the loop that copies each
+        venture, so a link to a sibling that sorts later alphabetically was
+        tested before that sibling had been copied, came back missing, and was
+        rewritten to `blob/main/ventures/<slug>`.
+      - >-
+        All seven distinct targets were live published pages:
+        no-show-fee-calculator, where-to-sell-calculator,
+        walmart-marketplace-calculator, tiktok-shop-fee-calculator,
+        shopify-fee-calculator, quote-margin-check, and one
+        invoice-payment-terms-calculator page. Concretely: a visitor on the
+        Shopify fee calculator clicking "compare what one item nets on Shopify,
+        eBay, Etsy, Amazon" was sent to a GitHub page they cannot open instead
+        of the where-to-sell calculator one directory away. This is the
+        portfolio's only non-search path between products, so it bears directly
+        on the marketing-distribution item.
+      - >-
+        Two things hid it. `check.mjs` reports "no dead links" throughout,
+        because by then the link is absolute and it does not follow those. And
+        the failure is invisible in the source tree -- every one of these links
+        is written correctly as `../<slug>/` and only becomes wrong during the
+        build.
+      - >-
+        This is the same hazard `addSiteChrome` already documents at
+        build.mjs:4006 for its own `../` hub link, solved there by running after
+        the hub is written. Cross-venture links need every venture written, so
+        the copy is now its own pass ahead of everything that reads the finished
+        tree. `repairLinks` still runs ahead of `surfaceExternalFetchHosts`
+        within the second pass and that order is load-bearing -- a repair can
+        rewrite a `<script src>` to a github.com URL, which is a real external
+        request the privacy copy must report. Verified unchanged: the
+        `externalFetchHosts` of all 169 tools in `catalog.json` are
+        byte-identical before and after.
+      - >-
+        Rejected alternative, recorded so it is not retried: making
+        `repairLinks` ask the source tree "will this be published?" instead.
+        `copyTree` deliberately does not publish everything under a venture
+        (CLI source, and the README/LICENCE cases this feature exists for), so
+        "exists in source" is not "will be published" and the test would have
+        started wrongly keeping links that really do 404 inside the site.
+      - >-
+        Verified: 856 platform/pages tests (was 855); build.mjs + check.mjs (169
+        products, 531 pages, no dead links); regression test confirmed to fail
+        on the unfixed build (`not ok 248`) and pass with the fix; and a full
+        diff of the built site before and after -- 6 files differ, 5 restoring a
+        working internal link and the 6th `sw.js`'s content-derived cache hash.
+        The only GitHub rewrites left are the ones the feature is for:
+        README.md and LICENSE files no venture publishes. All 9 CI checks green
+        on real runners.
+      - >-
+        The regression test asserts the invariant over the whole built site
+        rather than over those seven ventures, so the same mistake cannot return
+        through a venture nobody is watching. It only flags a link into a
+        published venture when the target file actually exists in the output, so
+        legitimate README/LICENCE repairs stay legal.
+      - >-
+        Also shipped #2719: `deposit-vs-no-show-fee.html` still called collected
+        deposits "net" after #2717 established they are not, so the two pages
+        contradicted each other and the one a search visitor is likelier to land
+        on carried the misreading. Corrected in the copy and the JSON-LD, which
+        had drifted together, and the page now names its boundary with
+        no-show-fee-calculator (which already ships `compareCollectionPolicies`)
+        rather than duplicating it. A new test recomputes every quoted figure
+        from `plan()` so the page cannot drift again.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Tasked with draining the open-branch backlog: 0 open PRs, 83 branches
+        ahead of `origin/main` (the 2026-08-24 fleet-burst cluster this
+        month's prior three sessions already sampled). Checked the full
+        ranked candidate list -- all 20 branches carrying 2+ unique commits,
+        plus ~20 more of the single/double-commit ones -- by direct content
+        comparison against current `main` (diffing the actual target file,
+        not the three-dot diff stat, which reads as large new work on a
+        directory that turns out byte-identical once compared straight:
+        `ai-engineering-academy/site/tools.mjs` showed as a 322-line new file
+        against the stale merge base and was one description-copy line away
+        from `main`'s copy of the same file).
+      - >-
+        Every one came back superseded, extending the prior sessions'
+        12-branch and ~18-branch samples (recorded above) to effectively the
+        whole ranked list. Confirmed by name, with what `main` already has:
+        `claude/festive-mccarthy-xrn3ua` (stale continuation of merged #905,
+        would regress `main` by dropping LICENSE/robots.txt/sitemap.xml and
+        the #1821 baseline feature), `cursor/3pl-quote-normalizer-compare-20260825`
+        and `cursor/3pl-provider-names-20260825` (`main`'s `export.mjs`
+        already has `exportJson`), `cursor/vendor-change-watch-fix-20260824`
+        (`store.py`/`cli.py` byte-identical on `main`), `pr/where-to-sell-rank-by-profit-per-day`
+        and `claude/funny-archimedes-6av5kj` (`main`'s `share.mjs` already
+        has the field-drop safety fix plus the full field list the branches
+        were still building toward), `cursor/chargeback-evidence-packet-main`
+        and `-launch-20260824` (pre-refactor prototype, superseded by
+        `packet.mjs`), `cursor/amazon-fba-sourcing-check-20260824`,
+        `claude/gha-branch-cleanup-pajw2b` (`main`'s `branch_cleanup.py` has
+        CSV export, `--fail-on-risk`, PR-export scanning the branch lacks),
+        `cursor/branch-hygiene-product-20260824` (same relationship, `main`
+        strictly ahead), `claude/festive-mccarthy-ocyq3v` (`main`'s
+        `backup-verification-evidence` already has artifact-integrity
+        checking and a privacy-gated log tail the branch lacks),
+        `claude/festive-mccarthy-4rzjtb` (its probe already landed at
+        `portfolio/pipeline/probes/repository-branch-hygiene`),
+        `cursor/product-first-development-mandate-98dc` and `-818b`
+        (`faire-wholesale-calculator`'s promoted-listings page and
+        `automatic-driveway-gate-bid-calculator` both already shipped),
+        `rematch-spray-foam` (its venture score already on `main`, same
+        numbers), `claude/dreamy-planck-vvaum5` and `pipeline/dns-evidence-monitor`
+        (both candidate docs already in `candidates.yaml`),
+        `cursor/no-show-fee-scenarios-20260824` (`main`'s `calc.mjs` already
+        treats a blank field as missing input rather than a silent zero),
+        `etsy-profit-calculator-vs-listing-form-calculator` and
+        `session/agent_872b1ce4-6534-4581-8833-e51e8bfec97a`
+        (`vs-etsys-listing-form-calculator.html` and
+        `equipment-rental-break-even` both already shipped),
+        `claude/funny-archimedes-iz76so`/`-7qv0f4`/`-895zx9` and
+        `session/agent_10bda07b-dfc5-4f33-a259-41c81a444201` (all
+        `quote-margin-check`/`backup-verification-evidence` surfaces already
+        on `main`, `main`'s further ahead in each), `claude/sweet-archimedes-cn4s8c`
+        (`walk-in-tub-bid-calculator`'s `share.mjs` fix is a small subset of
+        what `main`'s version already does -- fragment-based URLs, proposal
+        terms, coercion tolerance), `claude/sweet-archimedes-icmubl` (its
+        Pages-workflow gate spells the variable `GITHUB_PAGES_ENABLED`,
+        which `main`'s own comment there explains GitHub rejects outright --
+        the branch's approach was broken, not merely duplicated),
+        `claude/sweet-archimedes-uxfxf7` (`main`'s `build.mjs` already
+        excludes `package.json` from published output, with a fuller
+        comment), `claude/revert-368-dependabot` (`main` already carries no
+        `.github/dependabot.yml`), `cursor/ethical-product-profits-adba`
+        (already identified by a prior session as running backwards --
+        `main`'s `mechanical_fix.py` has four remediations the branch
+        lacks). `cursor/product-first-development-mandate-a411` is a true
+        no-op (empty diff against `main`).
+      - >-
+        Left `cursor/agent-cross-review-f90e` alone, per the prior session's
+        recorded reasoning: real, un-superseded platform/CI content (a
+        four-agent PR cross-review workflow), but it edits `CLAUDE.md`'s own
+        "Ship without review ceremony" section, which needs owner intent
+        rather than a fourth agent unilaterally deciding to add a review
+        gate to the policy that licenses it to merge without one.
+      - >-
+        Did not open ledger-only branches as PRs (`claude/intelligent-knuth-bnlwuq`,
+        `-3hhg6d`, `-mz9kgu`, `claude/nifty-goodall-u8h5tm`,
+        `claude/festive-mccarthy-uod8qm`/`-bvo98t`, `claude/dreamy-planck-yf0nme`/
+        `-lbpwto`/`-ddiv7f`): each is a stale append to `asks.yaml` or a
+        `2026-08.yaml` entry referencing PR numbers in the #786-#870 range,
+        long since resolved by `main`'s current state -- exactly the
+        "ledger-only PR that re-states a known blocker" `AGENTS.md` says not
+        to open.
+      - >-
+        Zero PRs opened, zero merged. This is the fourth consecutive session
+        (after the two recorded above and #2708's session) to find no
+        repairable branch backlog; between them the ranked candidate list is
+        now checked essentially in full. `decision_queue.py` showed nothing
+        new to flag; the one open item this run would have touched
+        (`portfolio-site-repo`) is already queued.

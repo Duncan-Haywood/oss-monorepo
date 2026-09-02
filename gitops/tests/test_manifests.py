@@ -136,8 +136,8 @@ def test_governor_runs_unprivileged_and_read_only() -> None:
     # refuses privilege escalation and runs a read-only root filesystem.
     # governor was the one exception -- despite being the single workload in
     # `agents` that holds a live ServiceAccount token with RBAC to create Jobs
-    # and patch a ConfigMap, which makes it the workload most worth narrowing,
-    # not the one to skip.
+    # and update a ConfigMap, which makes it the workload most worth
+    # narrowing, not the one to skip.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
     pod = cron["spec"]["jobTemplate"]["spec"]["template"]["spec"]
     assert pod["securityContext"]["runAsNonRoot"] is True
@@ -221,6 +221,15 @@ def test_both_credentials_stay_usable_and_the_free_one_wins_a_tie() -> None:
     api_key = text.index('if [[ -n "${OPENAI_API_KEY:-}" ]]')
     assert subscription < api_key, "the non-billing credential should be tried first"
     assert "bills per token" in text
+    # Branch order alone is not the win. `codex exec` inherits this script's
+    # environment, so leaving OPENAI_API_KEY in it hands the CLI a metered
+    # credential on a run that reported itself as the plan's -- and which one
+    # the CLI prefers is not ours to decide. The behavioural pair lives in
+    # test_worker_run.py; this keeps the mechanism from being deleted as dead
+    # code by someone reading only the branch order.
+    assert "unset OPENAI_API_KEY" in text, (
+        "the plan route must remove the metered key from codex's environment"
+    )
     template = (AGENTS / "secrets" / "codex-token.template.yaml").read_text()
     assert "OPENAI_API_KEY: CHANGE_ME" in template
     assert "CODEX_AUTH_JSON" in template
@@ -306,7 +315,12 @@ def test_governor_role_reads_no_configmap_it_cannot_name() -> None:
     named = [r for r in cm_rules if r.get("resourceNames")]
     assert len(named) == 1, named
     assert named[0]["resourceNames"] == ["governor-state"]
-    assert sorted(named[0]["verbs"]) == ["get", "patch", "update"]
+    # `patch` sat here too until it was trimmed: `_save_state` always PUTs the
+    # whole object (verb `update`), never a partial PATCH, and no other call
+    # in governor.py builds one either. See
+    # test_governor_role_grants_no_verb_its_own_code_never_calls for the
+    # jobs/pods siblings of the same gap.
+    assert sorted(named[0]["verbs"]) == ["get", "update"]
 
     # Any rule that does NOT name its objects must not be able to read them.
     # `create` returns the object it made, never one it did not, so it leaks
@@ -319,6 +333,44 @@ def test_governor_role_reads_no_configmap_it_cannot_name() -> None:
 
     for rule in rules:
         assert "*" not in rule.get("verbs", [])
+
+
+def test_governor_role_grants_no_verb_its_own_code_never_calls() -> None:
+    # Same class of gap as test_governor_role_reads_no_configmap_it_cannot_
+    # name, but for the batch/jobs and core/pods rules rather than
+    # configmaps: `_load_cluster_jobs` makes exactly one call against each --
+    # a bare GET on the collection endpoint (`/jobs?labelSelector=...` and
+    # `/pods`, both with no name in the path), which RBAC classifies as
+    # `list`, not `get`. `get` authorizes GET on a *named* object
+    # (`/jobs/{name}`, `/pods/{name}`) and governor.py never builds either
+    # URL. `watch` was never used at all -- every tick is a one-shot poll,
+    # not a long-lived watch stream. All three verbs used to be granted
+    # anyway, on the same ServiceAccount this repo's own history (CLAUDE.md)
+    # already singles out as "the workload most worth narrowing" -- the one
+    # holding a live token with RBAC to create Jobs and update a ConfigMap.
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    jobs_rule = next(r for r in role["rules"] if r["resources"] == ["jobs"])
+    assert sorted(jobs_rule["verbs"]) == ["create", "list"]
+    pods_rule = next(r for r in role["rules"] if r["resources"] == ["pods"])
+    assert sorted(pods_rule["verbs"]) == ["list"]
+
+    # Neither endpoint is ever addressed with a trailing name segment -- a
+    # call like f"{...}/pods/{name}" or f"{...}/jobs/{name}" is the only
+    # thing that would justify `get` rather than `list` on either resource,
+    # and this repo has none.
+    source = (AGENTS / "governor" / "governor.py").read_text()
+    assert "/pods/" not in source
+    assert "/jobs/" not in source
+
+    # The named `configmaps` rule (test_governor_role_reads_no_configmap_it_
+    # cannot_name above) is the same gap by a third route: it granted `patch`
+    # alongside `get`/`update`, and no call anywhere in governor.py ever
+    # issues a PATCH -- `_save_state` always PUTs the whole object. `_k8s`'s
+    # `method` parameter is a plain string built at each call site, so every
+    # verb this Role's ServiceAccount can actually exercise is spelled out
+    # literally and greppable, not assembled or passed through a variable.
+    assert '"PATCH"' not in source
 
 
 def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:
@@ -520,7 +572,7 @@ def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
     # stamped into every page's canonical link (see the PAGES_BASE_URL test
     # below). The apex and `www` reach the site through the 301 in
     # `prod/portfolio-apex.yaml`, so adding either here would put two
-    # uncanonical copies of all 518 pages in front of crawlers.
+    # uncanonical copies of all 524 pages in front of crawlers.
     ingress = _portfolio_site()["Ingress"]
     hosts = [rule["host"] for rule in ingress["spec"]["rules"]]
     assert hosts == ["tools.marisstella.dev"]
@@ -550,36 +602,195 @@ def test_portfolio_apex_claims_both_bare_and_www() -> None:
     assert set(apex["spec"]["tls"][0]["hosts"]) == hosts
 
 
-def test_portfolio_apex_redirects_permanently_to_the_canonical_host() -> None:
-    # A 301 to the canonical host, not a second copy of the site: build.mjs
-    # stamps one canonical base into all 518 pages, and serving those bytes
-    # under two more names would contradict it on every page.
+def _mounted_secrets(docs) -> set[str]:
+    """Secret names a workload in `docs` must have before its pods can start.
+
+    Ingress `tls.secretName` is excluded: cert-manager mints those from the
+    ClusterIssuer when the Ingress is admitted, so their absence from git
+    blocks nothing. Everything else — `volumes[].secret`, `secretKeyRef`,
+    `envFrom.secretRef` — is a mount the kubelet will not start a pod without.
+    """
+    found: set[str] = set()
+
+    def walk(node, kind: str | None) -> None:
+        if isinstance(node, dict):
+            if kind != "Ingress":
+                secret = node.get("secret")
+                if isinstance(secret, dict) and isinstance(secret.get("secretName"), str):
+                    found.add(secret["secretName"])
+                for key in ("secretKeyRef", "secretRef"):
+                    ref = node.get(key)
+                    if isinstance(ref, dict) and isinstance(ref.get("name"), str):
+                        found.add(ref["name"])
+            for value in node.values():
+                walk(value, kind)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value, kind)
+
+    for doc in docs:
+        if doc:
+            walk(doc, doc.get("kind"))
+    return found
+
+
+def test_portfolio_apex_does_not_redirect_into_a_host_that_serves_nothing() -> None:
+    # Changed 2026-09-02. This used to pin a 301 to tools.marisstella.dev,
+    # which was right about canonicalisation and wrong about the cluster: that
+    # host fails closed on the unsealed Secret `portfolio-site-repo`, so the
+    # apex spent every day of its life redirecting strangers into a dead end.
+    # It now serves the front door instead (`portfolio-front.yaml`).
+    #
+    # Restoring a redirect is a legitimate later choice — but only once the
+    # target actually serves, which is what this test now says. If the
+    # annotation comes back while `portfolio-site` still mounts an unprovided
+    # Secret, this fails.
     apex = _portfolio_apex()
-    annotations = apex["metadata"]["annotations"]
-    target = annotations["nginx.ingress.kubernetes.io/permanent-redirect"]
-    assert target == "https://tools.marisstella.dev/"
-    assert annotations["nginx.ingress.kubernetes.io/permanent-redirect-code"] == "301"
-
-    # The redirect target must stay the host the content Ingress actually
-    # serves. If someone renames that host and forgets this file, the front
-    # door 301s everyone into a name nothing answers for.
+    annotations = apex["metadata"].get("annotations", {})
+    redirect = annotations.get("nginx.ingress.kubernetes.io/permanent-redirect")
+    if redirect is None:
+        return
     served = _portfolio_site()["Ingress"]["spec"]["rules"][0]["host"]
-    assert target == f"https://{served}/"
+    assert redirect == f"https://{served}/"
+    site_docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()))
+    provided = {
+        doc["metadata"]["name"]
+        for doc in site_docs
+        if doc and doc.get("kind") in {"Secret", "SealedSecret"}
+    }
+    assert not (_mounted_secrets(site_docs) - provided), (
+        "the redirect target cannot start until its Secret is sealed — "
+        "restoring this annotation now would 301 every visitor into a 503"
+    )
 
 
-def test_portfolio_apex_backend_is_the_real_site_not_a_stub() -> None:
-    # The backend is unreachable while the redirect annotation is set, so its
-    # only job is to decide what happens if that annotation is ever dropped:
-    # pointing at the live Service degrades to serving the site (whose pages
-    # carry the canonical tag anyway), while a stub would degrade to a 503.
-    site_service = None
-    for doc in yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()):
-        if doc and doc["kind"] == "Service":
-            site_service = doc["metadata"]["name"]
-    assert site_service is not None
+def test_portfolio_apex_backend_can_start_without_an_owner_action() -> None:
+    # The apex is the portfolio's front door, so whatever it names has to be
+    # able to run today. `portfolio-site` cannot: its pods mount the unsealed
+    # clone token. `portfolio-front` holds nothing but two generated
+    # ConfigMaps, which Argo applies from this repository directly.
+    front_docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-front.yaml").read_text()))
+    front_service = next(
+        doc["metadata"]["name"] for doc in front_docs if doc and doc["kind"] == "Service"
+    )
     for rule in _portfolio_apex()["spec"]["rules"]:
         for path in rule["http"]["paths"]:
-            assert path["backend"]["service"]["name"] == site_service
+            assert path["backend"]["service"]["name"] == front_service
+    assert not _mounted_secrets(front_docs), (
+        "the front door must not grow a Secret dependency — that is the one "
+        "property that makes it deployable while the site is not"
+    )
+
+
+def _portfolio_front() -> dict[str, dict]:
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-front.yaml").read_text()))
+    return {doc["kind"]: doc for doc in docs if doc}
+
+
+def test_portfolio_front_runs_unprivileged_and_read_only() -> None:
+    # Same posture as every other workload in this tree. It is reachable from
+    # the public internet on the portfolio's own domain, which makes it the
+    # one with the least excuse for skipping it.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+    assert pod["automountServiceAccountToken"] is False
+    container = pod["containers"][0]
+    sec = container["securityContext"]
+    assert sec["readOnlyRootFilesystem"] is True
+    assert sec["allowPrivilegeEscalation"] is False
+    assert sec["capabilities"]["drop"] == ["ALL"]
+    # nginx-unprivileged writes its temp dirs and pid under /tmp, so a
+    # read-only root filesystem needs that one path writable or the container
+    # never finishes starting.
+    assert any(v["mountPath"] == "/tmp" for v in container["volumeMounts"])
+
+
+def test_portfolio_front_probes_a_path_that_is_not_the_page() -> None:
+    # A probe every few seconds against "/" would be written into the access
+    # log as a page view, and this pod's log is the only record of how many
+    # people reach the portfolio's front door.
+    container = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]["containers"][0]
+    for probe in ("readinessProbe", "livenessProbe"):
+        assert container[probe]["httpGet"]["path"] == "/healthz"
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    assert "location = /healthz" in conf
+    assert "access_log off;" in conf
+
+
+def test_portfolio_front_access_log_records_no_visitor() -> None:
+    # The same structural privacy property the site's own log_format carries:
+    # a page with no account and no cookie must not write an address, a user
+    # agent or a referer into a pod log. Dropping the fields is what makes the
+    # claim on the page itself ("anonymous page views") true by construction.
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    log_format = next(line for line in conf.splitlines() if line.startswith("log_format"))
+    for forbidden in ("$remote_addr", "$http_user_agent", "$http_referer", "$request"):
+        assert forbidden not in log_format, f"{forbidden} identifies a visitor"
+    assert "$uri" in log_format
+
+
+def test_portfolio_front_mounts_only_generated_configmaps() -> None:
+    # The whole reason this workload can deploy while the site cannot. If it
+    # ever grows a PVC, a Secret or an init container that clones, it has
+    # taken on the site's failure modes and the apex goes dark with it.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    assert "initContainers" not in pod
+    for volume in pod["volumes"]:
+        assert set(volume) <= {"name", "configMap", "emptyDir"}, volume
+    generated = {
+        entry["name"]
+        for entry in yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
+            "configMapGenerator"
+        ]
+    }
+    mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
+    assert mounted <= generated, f"{mounted - generated} is mounted but not generated"
+
+
+def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
+    # A Deployment mounts these, so the generated name has to change with the
+    # content or a regenerated page never reaches a running pod. The usage
+    # script is the deliberate exception: a CronJob names it directly.
+    generators = yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
+        "configMapGenerator"
+    ]
+    by_name = {entry["name"]: entry for entry in generators}
+    for name in ("portfolio-front-html", "portfolio-front-nginx"):
+        options = by_name[name].get("options", {})
+        assert not options.get("disableNameSuffixHash"), (
+            f"{name} is mounted by a Deployment; without the hash a content "
+            "change would not roll the pods"
+        )
+    assert by_name["portfolio-site-usage-script"]["options"]["disableNameSuffixHash"] is True
+
+
+def test_portfolio_front_page_is_the_committed_generator_output() -> None:
+    # The manifest side of the drift check in
+    # platform/marketing/front-door.test.mjs: the file the ConfigMap is
+    # generated from has to exist and be the real page, not a placeholder.
+    page = (ROOT / "prod" / "front-door" / "index.html").read_text()
+    assert page.startswith("<!doctype html>")
+    assert 'rel="canonical" href="https://marisstella.dev/"' in page
+    # Both PRODUCT_PLAYBOOK.md section 5b clauses, on a hosted surface that
+    # platform/pages/build.mjs does not build and therefore cannot inject.
+    assert "No warranty." in page
+    assert "Best-effort hosting, no SLA." in page
+
+
+def test_portfolio_front_fits_the_prod_quota() -> None:
+    quota = next(
+        doc
+        for doc in yaml.safe_load_all((ROOT / "prod" / "quota.yaml").read_text())
+        if doc and doc["kind"] == "ResourceQuota"
+    )["spec"]["hard"]
+    spec = _portfolio_front()["Deployment"]["spec"]
+    container = spec["template"]["spec"]["containers"][0]
+    replicas = spec["replicas"]
+    # Millicores and mebibytes, small enough that exact parsing is overkill.
+    assert container["resources"]["requests"]["cpu"] == "20m"
+    assert container["resources"]["requests"]["memory"] == "32Mi"
+    assert replicas * 20 < int(quota["requests.cpu"]) * 1000
+    assert replicas * 32 < int(quota["requests.memory"].removesuffix("Gi")) * 1024
 
 
 def test_portfolio_apex_matches_the_site_certificate_issuer() -> None:
@@ -736,7 +947,17 @@ def _prod_networkpolicies() -> dict[str, dict]:
 
 
 def test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy() -> None:
-    assert set(_prod_networkpolicies()) == {"portfolio-site-egress"}
+    # `landing` is the one prod workload deliberately left off this list: it
+    # holds no credential of any kind (no ServiceAccount token, no external
+    # secret) and calls out to nothing, so it has nothing worth restricting.
+    # The other three -- portfolio-site (the GitHub clone token) and the two
+    # CronJobs below (a ServiceAccount token with RBAC to mutate a specific
+    # resource) -- all hold something a NetworkPolicy is worth writing for.
+    assert set(_prod_networkpolicies()) == {
+        "portfolio-site-egress",
+        "portfolio-site-usage-egress",
+        "portfolio-site-refresh-egress",
+    }
 
 
 def test_networkpolicy_is_synced_by_prod() -> None:
@@ -805,6 +1026,96 @@ def test_portfolio_site_egress_cannot_reach_the_kube_apiserver() -> None:
     assert internet["cidr"] == "0.0.0.0/0"
     for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.244.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
+
+
+def test_portfolio_site_credentialed_cronjobs_get_the_same_treatment_as_governor() -> None:
+    # Same class of gap `governor-egress` and `worker-egress` already close in
+    # `agents`: a pod holding a live ServiceAccount token with RBAC to mutate a
+    # cluster resource must not also have unrestricted egress. `landing` is not
+    # part of this -- it holds no credential of any kind and calls out to
+    # nothing.
+    usage_policy = _prod_networkpolicies()["portfolio-site-usage-egress"]
+    refresh_policy = _prod_networkpolicies()["portfolio-site-refresh-egress"]
+
+    for policy in (usage_policy, refresh_policy):
+        assert policy["spec"]["policyTypes"] == ["Egress"]
+        assert "ingress" not in policy["spec"]
+
+    assert usage_policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "portfolio-site-usage"
+    }
+    assert refresh_policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "portfolio-site-refresh"
+    }
+
+    # Each selector has to match the label the CronJob's own pod template
+    # actually stamps, or the policy silently governs no pod at all -- the
+    # same failure mode test_portfolio_site_egress_targets_the_pod_that_holds_
+    # the_clone_token guards against for the Deployment above.
+    usage_cron = [
+        d
+        for d in yaml.safe_load_all((ROOT / "prod" / "site-usage.yaml").read_text())
+        if d and d["kind"] == "CronJob"
+    ][0]
+    usage_pod_labels = usage_cron["spec"]["jobTemplate"]["spec"]["template"]["metadata"]["labels"]
+    assert usage_pod_labels == {"app.kubernetes.io/name": "portfolio-site-usage"}
+
+    refresh_cron = _portfolio_site()["CronJob"]
+    refresh_pod_labels = refresh_cron["spec"]["jobTemplate"]["spec"]["template"]["metadata"]["labels"]
+    assert refresh_pod_labels == {"app.kubernetes.io/name": "portfolio-site-refresh"}
+
+
+def test_portfolio_site_usage_egress_is_scoped_to_dns_and_the_apiserver() -> None:
+    # aggregate.py never calls anything but the apiserver (by
+    # KUBERNETES_SERVICE_HOST, a fixed IP, so DNS is not load-bearing here --
+    # allowed anyway for the same reason governor-egress allows it: cheap
+    # insurance, not a requirement).
+    policy = _prod_networkpolicies()["portfolio-site-usage-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    assert dns_rules[0]["to"][0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+    https_rules = [r for r in policy["spec"]["egress"] if r.get("ports") == [{"protocol": "TCP", "port": 443}]]
+    assert len(https_rules) == 1, https_rules
+    # A single address, not a range: unlike the refresh job below, this pod
+    # calls nothing else, so the tightest correct rule is the one fixed IP
+    # governor-egress already uses for the identical call.
+    assert https_rules[0]["to"][0]["ipBlock"]["cidr"] == "10.43.0.1/32"
+
+
+def test_portfolio_site_refresh_egress_reaches_the_apiserver_and_the_service() -> None:
+    # Unlike the usage job above, this pod's own script resolves two names --
+    # kubectl's in-cluster config falls back to `kubernetes.default.svc`, and
+    # the freshness check curls the `portfolio-site` Service by name -- so DNS
+    # is load-bearing here, and the Service's own ClusterIP is not a fixed,
+    # predictable address the way the apiserver's is.
+    policy = _prod_networkpolicies()["portfolio-site-refresh-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    assert dns_rules[0]["to"][0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+    service_rules = [r for r in policy["spec"]["egress"] if r.get("to", [{}])[0].get("ipBlock")]
+    assert len(service_rules) == 1, service_rules
+    ipblock = service_rules[0]["to"][0]["ipBlock"]
+    # The whole service CIDR, not a single /32 -- the ClusterIP the
+    # `portfolio-site` Service gets is assigned by the control plane, not
+    # something a session with no cluster access can read or pin down, but
+    # the CIDR itself is the same k3s-default constant every other
+    # NetworkPolicy in this repo already treats as known.
+    assert ipblock["cidr"] == "10.43.0.0/16"
+    assert "except" not in ipblock
+    ports = {p["port"] for p in service_rules[0]["ports"]}
+    assert ports == {80, 443}
 
 
 def test_portfolio_site_refresh_can_only_restart_the_site() -> None:

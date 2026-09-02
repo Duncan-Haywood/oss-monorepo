@@ -20,7 +20,7 @@ import {
   pageTakesBidLink,
   renderBidLinkModule,
 } from './link.mjs';
-import { injectSavedBids } from './jobs.mjs';
+import { injectSavedBids, pageRepeatPrefixes } from './jobs.mjs';
 
 // A page shaped like the ones this runs on: a form with enough fields to count
 // as a bid, a hero number, and a feature list to append the claim to.
@@ -452,7 +452,14 @@ test('the page script treats a named omission as accounted for, not as a mismatc
   // in a page, and the browser pass in the PR is what exercises it end to end.
   const source = renderBidLinkModule();
   assert.match(source, /var skipped = incoming\.omitted \|\| \[\];/);
-  assert.match(source, /for \(var s = 0; s < skipped\.length; s\+\+\) link\[skipped\[s\]\] = 1;/);
+  // Written through the same key map as every other id since row groups landed,
+  // so an omitted field inside a generated row is accounted for by position too
+  // rather than only when its raw id happens to match.
+  assert.match(source, /for \(var s = 0; s < skipped\.length; s\+\+\) link\[linkKeys\[skipped\[s\]\]\] = 1;/);
+  // And the grown form is what the comparison measures: reading `formFields()`
+  // again after the clicks is the difference between an itemised link opening
+  // and being refused on the rows it just created.
+  assert.match(source, /var fields = growRows\(linkIds\.concat\(skipped\)\);/);
 });
 
 // The build passes what the markup cannot say: whether this page loads a share
@@ -466,4 +473,66 @@ test('a page the build reports as already having a share control gets no second 
   // and the injection agrees with its own gate
   assert.equal(injectBidLink(html, { source: page(), hasShareModule: true }), html);
   assert.notEqual(injectBidLink(html, { source: page(), hasShareModule: false }), html);
+});
+
+test('the itemised calculators are offered the control once they declare their rows', async () => {
+  // The eight pages this exclusion used to cost. Read off disk rather than from
+  // a fixture: the point of the assertion is that the venture files carry the
+  // declaration, which a fixture would happily pass without.
+  const { promises: fsp } = await import('node:fs');
+  const nodePath = await import('node:path');
+  const { fileURLToPath: toPath } = await import('node:url');
+  const root = nodePath.resolve(nodePath.dirname(toPath(import.meta.url)), '../../ventures');
+
+  const itemised = [
+    'carpet-cleaning-bid-calculator',
+    'gutter-cleaning-bid-calculator',
+    'hood-cleaning-bid-calculator',
+    'pest-control-bid-calculator',
+    'portable-restroom-event-quote',
+    'snow-removal-bid-calculator',
+    'tree-service-bid-calculator',
+    'window-cleaning-bid-calculator',
+  ];
+
+  for (const slug of itemised) {
+    const html = await fsp.readFile(nodePath.join(root, slug, 'index.html'), 'utf8');
+    // Still genuinely runtime-built — this is not a page that quietly moved its
+    // fields into the markup, which would make the assertions below vacuous.
+    assert.equal(pageBuildsFieldsAtRuntime(html), true, `${slug} builds fields at runtime`);
+    // The declaration is what every one of the eight gets from this change, and
+    // it is the half `jobs.mjs` reads: a saved bid restores through the row
+    // replay whether or not the page also carries a share control of its own.
+    assert.ok(pageRepeatPrefixes(html).length > 0, `${slug} declares its row groups`);
+
+    // The link half defers to a venture that already ships its own control, so
+    // this can never draw a second button writing a second hash format.
+    // `pest-control-bid-calculator` is the live case rather than a hypothetical:
+    // it grew a `share.mjs` in #2699 while this branch was open, so it keeps
+    // what it has and the other seven take the platform control.
+    const ownShare = pageHasOwnShareLink(html);
+    assert.equal(pageTakesBidLink(html), !ownShare, `${slug} link control follows its own share control`);
+    assert.equal(pageTakesBidLink(html, { hasShareModule: true }), false, `${slug} defers to a share module`);
+  }
+
+  // Seven of the eight take the platform control today; all eight declare their
+  // rows. Pinned as counts so a venture growing or dropping its own share
+  // control shows up here as a number to re-read rather than silently.
+  const takes = [];
+  for (const slug of itemised) {
+    const html = await fsp.readFile(nodePath.join(root, slug, 'index.html'), 'utf8');
+    if (pageTakesBidLink(html)) takes.push(slug);
+  }
+  assert.equal(itemised.length, 8);
+  assert.equal(takes.includes('pest-control-bid-calculator'), false,
+    'pest-control keeps the share control it shipped in #2699');
+  assert.equal(takes.length, 7);
+
+  // And the exclusion is intact for a runtime-built page that declares nothing,
+  // which is what stops this widening past the eight pages above.
+  const undeclared = '<form>' + '<input id="crewRate"><input id="travelMinutes"><input id="overhead">'
+    + '<input id="margin"><input id="dumpFee">' + '</form><script>el.innerHTML = `<input id="${id}-x">`;</script>';
+  assert.equal(pageBuildsFieldsAtRuntime(undeclared), true);
+  assert.deepEqual(pageRepeatPrefixes(undeclared), []);
+  assert.equal(pageTakesBidLink(undeclared), false);
 });

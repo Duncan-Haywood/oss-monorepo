@@ -1,4 +1,4 @@
-import { parseInputs, plan, policyDraft, comparisonNote } from './calc.mjs';
+import { parseInputs, plan, policyDraft, comparisonNote, netEffectNote } from './calc.mjs';
 import { recordUsage, isUsageEnabled, setUsageEnabled } from './usage.mjs';
 
 const form = document.querySelector('#deposit-form');
@@ -21,6 +21,23 @@ function render() {
   document.querySelector('#balance').textContent = format(modeled.balance);
   document.querySelector('#annual').textContent = format(modeled.annual);
   document.querySelector('#bookings').textContent = `${modeled.weeklyBookings.toFixed(1)} / week (${modeled.annualBookings.toFixed(0)} / year)`;
+  document.querySelector('#revenue-without').textContent = format(modeled.revenueWithoutDeposit);
+  document.querySelector('#revenue-with').textContent = format(modeled.revenueWithDeposit);
+
+  // The sign is the answer, so it is carried by a word and a class rather than
+  // by a leading "-" alone: `Intl.NumberFormat` renders a negative currency as
+  // "-$1,234.00" in some locales and "($1,234.00)" in others, and neither
+  // reads as "you lose this much" at a glance.
+  const net = document.querySelector('#net-change');
+  net.textContent = `${modeled.netChange >= 0 ? '+' : '−'}${format(Math.abs(modeled.netChange))} a year`;
+  net.dataset.direction = modeled.netChange >= 0 ? 'gain' : 'loss';
+
+  const breakEven = document.querySelector('#break-even');
+  breakEven.textContent = modeled.breakEvenBookingRate == null
+    ? 'Not applicable'
+    : `${modeled.breakEvenBookingRate.toFixed(1)}% of today's bookings`;
+
+  document.querySelector('#net-effect').textContent = netEffectNote(parsed.values, modeled, format);
   document.querySelector('#comparison').textContent = comparisonNote(parsed.values, modeled, format);
   document.querySelector('#policy').value = policyDraft(parsed.values, modeled, format);
   results.hidden = false;
@@ -29,7 +46,16 @@ function render() {
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
-  if (render()) recordUsage('deposit_calculated');
+  const modeled = render();
+  if (!modeled) return;
+  recordUsage('deposit_calculated');
+  // Which side of break-even the run landed on. This is an outcome, not a
+  // second visit counter: a tool whose users mostly discover their deposit
+  // does NOT pay for itself is telling us something about the niche that the
+  // raw calculate count cannot. Deliberately one of two buckets and nothing
+  // else -- no price, no rate, no amount -- so the footer's promise that only
+  // anonymous feature events are counted stays true.
+  recordUsage(modeled.netChange >= 0 ? 'deposit_pays_off' : 'deposit_costs_money');
 });
 
 document.querySelector('#copy').addEventListener('click', async () => {

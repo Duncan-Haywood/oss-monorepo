@@ -14,7 +14,16 @@ Policy knobs (all in git):
   enabled                  kill switch; default false
   maxConcurrent            start at 1 — the cpx22 is 4 GB
   targetUtilization        fraction of the 5-hour window to occupy
-  reserveForInteractive    unused here except as documentation of the slack
+  reserveForInteractive    caps the usable fraction at (1 - this) whenever
+                           that is tighter than targetUtilization — see
+                           Policy.effective_window_budget(). Raise it to
+                           actually shrink the automated budget when a
+                           CODEX_AUTH_JSON seat is shared with interactive
+                           use, per agents/secrets/README.md. At the
+                           policy.json default (0.10, against
+                           targetUtilization 0.90) the two exactly cancel
+                           and it has no effect — which is what made this
+                           look unused until it was raised.
   weeklyBudgetFraction     stop early in the week so you do not go dark
   cooldownOnLimitSeconds   sleep after a 429 instead of retrying immediately
   cooldownOnAuthFailureSeconds
@@ -130,7 +139,15 @@ class Policy:
     )
 
     def effective_window_budget(self) -> float:
-        # reserveForInteractive is the slack inside the window.
+        # reserveForInteractive is the slack inside the window. At the
+        # policy.json default it is exactly cancelled by targetUtilization
+        # (0.90 == 1 - 0.10), so the min() below is a no-op there — do not
+        # read that as reserveForInteractive having no effect. Raise it past
+        # (1 - targetUtilization) — the move agents/secrets/README.md
+        # describes for a shared ChatGPT-plan seat — and it binds, shrinking
+        # the budget below what targetUtilization alone would allow.
+        # test_effective_window_budget_reserve_can_bind_tighter_than_target
+        # exercises the case this comment used to leave untested.
         usable = min(self.target_utilization, 1.0 - self.reserve_for_interactive)
         return max(0.0, usable) * self.window_seconds
 
@@ -276,11 +293,8 @@ def pick_item(
 
     This used to be `sorted(key=(-priority, id))[0]` -- the single
     highest-priority enabled item, every tick, forever. That starves every
-    other item: with the real items (open-pr-repair-merge 7, branch-pr-drain 6,
-    deploy-cicd-readiness 5, marketing-distribution 4,
-    seo-discoverability-audit 3, product-feature-improvement 2) only the top
-    one could ever run, and the rest were unreachable until someone edited
-    priorities in git.
+    other item: with only one item able to run, the rest were unreachable
+    until someone edited priorities in git.
 
     That was tolerable while the PR/branch backlog was the bottleneck. It
     stopped being tolerable once the backlog drained: on 2026-08-30 the repo
@@ -292,13 +306,21 @@ def pick_item(
     priority-0 item from being weightless (score 0 can never win), so no
     enabled item starves. Within a window the first pick is still the
     highest-priority item, and over many picks the items run in roughly their
-    weight ratio -- 8:7:6:5:4:3 for the six above. Ties break toward higher
-    priority, then by id, so the choice stays deterministic.
+    weight ratio. As of the 2026-09-01 reprioritization the six enabled items
+    (`gitops/agents/queue/*.yaml` is the source of truth, not this docstring)
+    are deploy-cicd-readiness 7, marketing-distribution 6, open-pr-repair-merge
+    5, branch-pr-drain 4, seo-discoverability-audit 3,
+    product-feature-improvement 2 -- weight ratio 8:7:6:5:4:3. Ties break
+    toward higher priority, then by id, so the choice stays deterministic.
 
     That fixed starvation but not waste. Weighting by priority alone assumes
-    every item always has work, and two of the five provably do not: with zero
-    open PRs and every branch merged, `open-pr-repair-merge` and
-    `branch-pr-drain` are 13/25ths of the weight and 0 of the output. So the
+    every item always has work, and some provably do not: on 2026-08-31, with
+    zero open PRs and every branch merged, `open-pr-repair-merge` and
+    `branch-pr-drain` -- then the two highest-priority items -- were 13/25ths
+    of the weight and 0 of the output. Re-derive the current fraction from the
+    queue YAMLs rather than trusting a number here; it moves every time the
+    queue is reprioritized (weight is `priority + 1`, denominator is the sum
+    of `priority + 1` over every `enabled: true` item). So the
     score is damped a second time by `noops_by_item` -- how many finished runs
     in a row that item changed nothing:
 

@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "agents"
@@ -234,6 +235,71 @@ def test_job_mounts_the_persistent_codex_home() -> None:
     assert mount.get("readOnly") is not True
 
 
+def _millicores(value: str) -> int:
+    return int(value[:-1]) if value.endswith("m") else int(float(value) * 1000)
+
+
+def _mebibytes(value: str) -> float:
+    if value.endswith("Gi"):
+        return float(value[:-2]) * 1024
+    if value.endswith("Mi"):
+        return float(value[:-2])
+    raise AssertionError(f"unhandled memory unit: {value}")
+
+
+def test_governor_plus_one_worker_fits_the_agents_quota() -> None:
+    # `gitops/ci/test_runner_fits_the_ci_quota` and
+    # `gitops/tests/test_manifests.py::test_portfolio_site_fits_the_prod_quota`
+    # both pin that a namespace's live containers cannot outrun their own
+    # ResourceQuota's requests/limits. Nothing pinned the same thing here.
+    #
+    # `gitops/agents/quota.yaml`'s own comment reasons at length about the two
+    # OBJECT-COUNT quotas (`count/jobs.batch`, `pods`) -- the governor's
+    # finished-Job history -- but never about the `requests.*`/`limits.*`
+    # lines, which are the ones that actually gate whether a new Job can be
+    # scheduled at all. `policy.json`'s `maxConcurrent: 1` means at most one
+    # Codex worker Job runs at a time, but the governor CronJob's own pod can
+    # be running in the same namespace at the same moment (a tick that starts
+    # a worker Job still has to finish the rest of that tick's work before its
+    # own pod exits) -- so the quota has to hold both sets of containers'
+    # requests and limits at once, not the worker's alone.
+    #
+    # This was never wrong -- 520m/1088Mi requested and 1700m/3200Mi limited
+    # both fit under "2"/"3Gi" requests and "2"/"3500Mi" limits, the last with
+    # only 300Mi of margin -- but nothing would have caught it silently
+    # stopping being true. A worker Job whose containers no longer fit does
+    # not fail loudly: the API server rejects the CronJob's own tick with
+    # "exceeded quota", and `governor.py` never even gets to look at the
+    # queue -- the exact failure mode `quota.yaml`'s comment already
+    # describes for the count quotas, just for the resource ones instead.
+    quota = [
+        d
+        for d in yaml.safe_load_all((AGENTS / "quota.yaml").read_text())
+        if d and d["kind"] == "ResourceQuota"
+    ][0]["spec"]["hard"]
+
+    cronjob = [
+        d
+        for d in yaml.safe_load_all((AGENTS / "governor" / "cronjob.yaml").read_text())
+        if d and d["kind"] == "CronJob"
+    ][0]
+    governor_container = cronjob["spec"]["jobTemplate"]["spec"]["template"]["spec"][
+        "containers"
+    ][0]
+
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    worker_container = manifest["spec"]["template"]["spec"]["containers"][0]
+
+    for field in ("requests", "limits"):
+        governor_cpu = _millicores(governor_container["resources"][field]["cpu"])
+        worker_cpu = _millicores(worker_container["resources"][field]["cpu"])
+        assert governor_cpu + worker_cpu <= _millicores(quota[f"{field}.cpu"])
+
+        governor_mem = _mebibytes(governor_container["resources"][field]["memory"])
+        worker_mem = _mebibytes(worker_container["resources"][field]["memory"])
+        assert governor_mem + worker_mem <= _mebibytes(quota[f"{field}.memory"])
+
+
 def test_delivery_defaults_to_the_harness_and_rejects_anything_else() -> None:
     assert g.queue_item_from_dict(
         {"id": "a", "repo": "o/r", "prompt": "p"}
@@ -401,11 +467,22 @@ def test_seo_item_measures_its_backlog_instead_of_naming_one() -> None:
 
 
 def test_governor_queue_configmap_includes_all_real_items() -> None:
+    # "all real items" means all six -- the same set
+    # test_delivery_reaches_the_worker_and_the_real_items_own_theirs (above)
+    # and the priority-ordering tests (below) already enumerate. This one had
+    # drifted to five: marketing-distribution.yaml sits in the
+    # configMapGenerator in `gitops/agents/kustomization.yaml` today (the
+    # governor's CronJob needs it there to see that queue item at all), but
+    # nothing here asserted it. A future edit that dropped that one line
+    # would silently stop the ConfigMap from carrying the item -- no crash,
+    # just an item that quietly stops being pickable -- and this test, whose
+    # name is the direct promise to catch exactly that, would still pass.
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
         "open-pr-repair-merge.yaml=queue/open-pr-repair-merge.yaml",
         "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
         "deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml",
+        "marketing-distribution.yaml=queue/marketing-distribution.yaml",
         "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
     ):
@@ -475,6 +552,31 @@ def test_real_queue_items_are_priority_ordered_deploy_then_marketing_then_drain(
 def test_effective_window_budget_leaves_interactive_slack() -> None:
     policy = _policy(target_utilization=0.90, reserve_for_interactive=0.10)
     assert policy.effective_window_budget() == 16_200
+
+
+def test_effective_window_budget_reserve_can_bind_tighter_than_target() -> None:
+    # The test above only ever runs policy.json's own defaults, where
+    # targetUtilization (0.90) and 1 - reserveForInteractive (1 - 0.10 = 0.90)
+    # are numerically equal -- so it passes identically whether or not
+    # effective_window_budget()'s min() is doing anything, and would keep
+    # passing if a future edit deleted reserveForInteractive from the
+    # computation entirely. governor.py's own module docstring said exactly
+    # that ("unused here except as documentation of the slack") until this
+    # test was written to check.
+    #
+    # It is not unused: agents/secrets/README.md tells an owner sharing a
+    # ChatGPT-plan seat with interactive use to raise reserveForInteractive to
+    # protect their own quota, and raising it past (1 - targetUtilization) has
+    # to actually shrink the automated budget for that advice to mean
+    # anything. This is that case: reserveForInteractive (0.30) now leaves
+    # less than targetUtilization (0.90) would alone, so the min() must bind.
+    policy = _policy(target_utilization=0.90, reserve_for_interactive=0.30)
+    assert policy.effective_window_budget() == 12_600
+    # And the reverse shape: a reserve below the target's own slack is the
+    # policy.json-default case, where targetUtilization is what actually
+    # binds and reserveForInteractive's value does not matter.
+    loose = _policy(target_utilization=0.90, reserve_for_interactive=0.0)
+    assert loose.effective_window_budget() == 16_200
 
 
 def test_state_roundtrip() -> None:

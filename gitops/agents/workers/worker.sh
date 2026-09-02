@@ -113,6 +113,18 @@ install_tools() {
 # not bill; the mode is logged either way so a run is never ambiguous about
 # whose budget it just spent.
 #
+# "Wins" has to mean something the CLI can observe, not just which `if` this
+# script took. Choosing the subscription branch leaves `OPENAI_API_KEY` in the
+# environment `codex exec` inherits, and which credential the CLI then prefers
+# is not something this repository controls — so the tie was decided somewhere
+# we cannot see, and the failure is silent in the direction that costs money: a
+# run announcing the plan while billing the metered key. `unset_metered_key`
+# below removes it, which makes the preference true by construction.
+#
+# Both can be present in practice even though `seal-owner-secrets.sh` emits one
+# at a time: `secrets/codex-token.template.yaml` carries both keys, and
+# `secrets/README.md` documents sealing that template by hand with kubeseal.
+#
 # The subscription credential has to be written to disk: the Codex CLI reads
 # `auth.json` from $CODEX_HOME and has no environment variable for a plan
 # token. The old `CODEX_ACCESS_TOKEN` check here only proved a variable was
@@ -122,6 +134,17 @@ install_tools() {
 AUTH_FILE="$CODEX_HOME/auth.json"
 SEED_FINGERPRINT="$CODEX_STATE_DIR/.seed-sha256"
 AUTH_MODE=""
+
+# Take the metered key out of the environment before the CLI is handed it, so
+# a plan run cannot bill. Announced rather than done quietly: an operator who
+# sealed both should be able to see from the log which one was withheld and
+# why, instead of discovering it from an invoice.
+unset_metered_key() {
+  if [[ -n "${OPENAI_API_KEY:-}" ]]; then
+    unset OPENAI_API_KEY
+    echo "worker: OPENAI_API_KEY is also mounted — withheld from codex so this tick cannot bill"
+  fi
+}
 
 configure_auth() {
   printf '%s\n' 'cli_auth_credentials_store = "file"' > "$CODEX_HOME/config.toml"
@@ -144,10 +167,18 @@ configure_auth() {
     fi
     chmod 600 "$AUTH_FILE"
     AUTH_MODE="subscription"
+    unset_metered_key
     return 0
   fi
 
-  if [[ -s "$AUTH_FILE" ]]; then
+  # A credential on the volume with none in the Secret. The volume is a cache;
+  # the Secret is the owner's current intent. So this branch only speaks for a
+  # plan when the Secret names no other credential at all — if a metered key is
+  # sealed, the owner has since chosen it, and preferring a cached login over
+  # it would both spend the wrong budget and, once that cached login expires,
+  # exit 43 forever and hold the queue six hours at a time with a working key
+  # sitting unused beside it.
+  if [[ -s "$AUTH_FILE" && -z "${OPENAI_API_KEY:-}" ]]; then
     chmod 600 "$AUTH_FILE"
     echo "worker: using the persisted Codex credential (no \$CODEX_AUTH_JSON in the Secret)"
     AUTH_MODE="subscription"
@@ -176,6 +207,13 @@ MSG
 
 install_tools
 configure_auth
+# One line, same shape on every run, naming the budget this tick will spend.
+# The per-branch messages above say what happened to the credential; this says
+# what it costs, which is the question an operator scanning `kubectl logs` for
+# a surprise bill is actually asking.
+echo "worker: auth mode: ${AUTH_MODE} ($([[ "$AUTH_MODE" == "subscription" ]] \
+  && echo "the plan's included quota — no per-token charge" \
+  || echo "metered — this run bills per token"))"
 
 # node:22-bookworm has node, not necessarily python3.
 read_item() {
@@ -210,13 +248,13 @@ BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
 #
 # `--depth` implies `--single-branch`, so the clone came back with its refspec
 # pinned to `+refs/heads/$REF:refs/remotes/origin/$REF` and no merge base for
-# anything else. That breaks the queue's two highest-priority items outright:
+# anything else. That breaks two of the queue's real items outright:
 #
-#   open-pr-repair-merge (6)  resolves a conflict by merging $REF into a PR
+#   open-pr-repair-merge (5)  resolves a conflict by merging $REF into a PR
 #                             branch. In a depth-50 clone that fetch comes back
 #                             shallow and the merge aborts with
 #                             `fatal: refusing to merge unrelated histories`.
-#   branch-pr-drain (5)       enumerates branches with unique commits. Under the
+#   branch-pr-drain (4)       enumerates branches with unique commits. Under the
 #                             pinned refspec `git branch -r` knows only $REF, so
 #                             there is nothing to enumerate.
 #
@@ -224,8 +262,16 @@ BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
 # before closing a PR — `supersede_check.py` needs a merge base with `main`, and
 # CLAUDE.md's own note ("Your clone is shallow. `git fetch --unshallow` before
 # any of this") is written for exactly this failure. Nothing in the prompt told
-# the agent to unshallow, so between them those items are 11/25ths of the
+# the agent to unshallow, so between them those items are 11/33rds of the
 # governor's weight aimed at work the checkout cannot do.
+#
+# The two priority numbers above, and the 11/33 they feed, move whenever the
+# queue is reprioritised (`gitops/agents/queue/*.yaml`'s own `priority:`
+# fields are the source of truth) — they read 6 and 5 out of 11/25 here until
+# the 2026-09-01 reordering that put deploy-cicd-readiness and
+# marketing-distribution ahead of both. Re-derive rather than trust this
+# comment: weight is `priority + 1`, and the denominator is the sum of
+# `priority + 1` over every `enabled: true` item in `gitops/agents/queue/`.
 #
 # The pack is ~64 MiB. A few seconds and that much disk on the cpx22, once per
 # Job, is the whole cost of the fix.

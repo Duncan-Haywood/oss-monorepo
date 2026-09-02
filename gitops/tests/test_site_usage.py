@@ -256,7 +256,15 @@ def test_usage_job_is_synced_and_mounts_the_script_from_git() -> None:
     assert "portfolio-site-usage-script" in generated
     # A name suffix hash would rename the ConfigMap out from under the
     # CronJob, which references it literally.
-    assert kustomization["generatorOptions"]["disableNameSuffixHash"] is True
+    #
+    # Read from this generator's own `options` rather than from a
+    # namespace-wide `generatorOptions:` block, which is where it lived until
+    # 2026-09-02. The front door added the first generated ConfigMap that a
+    # Deployment mounts, and that one needs the hash — kustomize 5.4 cannot
+    # re-enable it per generator once it is disabled globally, so the
+    # exception had to move to the generator that wants it.
+    by_name = {g["name"]: g for g in kustomization["configMapGenerator"]}
+    assert by_name["portfolio-site-usage-script"]["options"]["disableNameSuffixHash"] is True
 
     pod = _docs()["CronJob"]["spec"]["jobTemplate"]["spec"]["template"]["spec"]
     mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
@@ -499,3 +507,86 @@ def test_merge_days_replaces_a_day_and_keeps_a_month() -> None:
         merged = module.merge_days(merged, f"2026-08-{day:02d}", {"a": day})
     assert len(merged["days"]) == module.RETAIN_DAYS
     assert max(merged["days"]) == "2026-08-19"
+
+
+def test_the_front_door_is_counted_apart_from_the_catalogue_hub() -> None:
+    """Two front pages, two rows.
+
+    `slug_for` returns the hub key for `/index.html` whichever pod served it,
+    because the path is the same on both hostnames. Folding the apex front
+    door in without a key of its own would answer "did anyone find the
+    portfolio" and "did anyone browse the catalogue" with one number, and
+    nothing downstream could take them apart again.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /index.html",
+        "2026-09-02T10:02:00+00:00 304 /index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert counts == {module.HUB_KEY: 3}
+
+    # The same three lines, read from each pod in turn.
+    assert module.fold_for_app(counts, "portfolio-site") == {module.HUB_KEY: 3}
+    assert module.fold_for_app(counts, "portfolio-front") == {module.FRONT_KEY: 3}
+    assert module.HUB_KEY != module.FRONT_KEY
+
+
+def test_the_front_door_collapses_to_one_row_because_it_serves_one_page() -> None:
+    # Its nginx does `try_files /index.html =404`, so `$uri` is resolved to the
+    # same page whatever was requested. If that ever stops being true, this
+    # says what the aggregator will do with it rather than leaving a silent
+    # per-path split nobody chose.
+    module = _load_aggregate()
+    counts = {"a": 2, "b": 5, module.HUB_KEY: 1}
+    assert module.fold_for_app(counts, "portfolio-front") == {module.FRONT_KEY: 8}
+
+
+def test_a_pod_with_no_views_adds_no_row() -> None:
+    # A slug with no views is absent from a day rather than present as 0, and
+    # the front door follows the same rule -- `total[key] += 0` would have
+    # inserted one.
+    module = _load_aggregate()
+    assert module.fold_for_app({}, "portfolio-front") == {}
+    assert module.fold_for_app({}, "portfolio-site") == {}
+
+
+def test_an_unrecognised_workload_contributes_nothing() -> None:
+    # Guessing a key would put an unexplained row in a file whose whole value
+    # is that every row means something. `main` reports the pod on stderr.
+    module = _load_aggregate()
+    assert module.fold_for_app({"x": 3}, "something-else") == {}
+    assert module.fold_for_app({"x": 3}, None) == {}
+
+
+def test_the_selector_and_the_key_map_name_the_same_workloads() -> None:
+    """The one way this silently loses a workload's traffic.
+
+    A selector that matches a pod `APP_KEYS` does not know skips it (counted
+    nowhere, reported only on stderr); a key for an app the selector never
+    matches is a row that can never appear. Either drift is invisible in
+    production, so it is pinned here.
+    """
+    module = _load_aggregate()
+    cron = next(
+        doc
+        for doc in yaml.safe_load_all(SITE_USAGE.read_text())
+        if doc and doc.get("kind") == "CronJob"
+    )
+    env = {
+        e["name"]: e["value"]
+        for e in cron["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0]["env"]
+    }
+    selector = env["USAGE_SELECTOR"]
+    named = {part.strip() for part in selector.split("(")[1].rstrip(")").split(",")}
+    assert named == set(module.APP_KEYS)
+
+    # And every app named there is really a workload in this namespace, with
+    # that label on its pods.
+    labels = set()
+    for path in (ROOT / "prod").glob("*.yaml"):
+        for doc in yaml.safe_load_all(path.read_text()):
+            if doc and doc.get("kind") == "Deployment":
+                labels.add(doc["spec"]["template"]["metadata"]["labels"]["app"])
+    assert named <= labels, f"{named - labels} is selected but no Deployment carries it"

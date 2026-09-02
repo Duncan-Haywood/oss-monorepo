@@ -97,9 +97,22 @@ The last 30 days sit in a ConfigMap. Read them with:
 kubectl -n prod get configmap portfolio-site-usage -o jsonpath='{.data.usage\.json}'
 ```
 
-Keys are catalogue slugs, plus `_hub` for the front page, `c/<category>` for a
-category page, and `embed/<slug>` for a view served inside somebody else's page
-through the embed widget.
+Keys are catalogue slugs, plus `_hub` for the catalogue's front page,
+`c/<category>` for a category page, `embed/<slug>` for a view served inside
+somebody else's page through the embed widget, and `_front` for the apex front
+door at `marisstella.dev`.
+
+`_front` and `_hub` are two different pages on two different hostnames, and
+they are separate rows because they answer different questions: `_front` is
+"did anyone find the portfolio at all", `_hub` is "did anyone go on to browse
+the catalogue". Both resolve to `/index.html` in the log, so nothing
+downstream could have taken them apart if they had shared a row — the split is
+made where the line is read, by which workload served it
+(`aggregate.py`'s `APP_KEYS`).
+
+`_front` is a single row rather than a per-path breakdown because the front
+door serves one page: its nginx resolves every request to `index.html` before
+`$uri` is logged.
 
 That last split is the point of the fourth field. The embed snippet points at
 `/<slug>/?pfEmbed=1`, and `$uri` is resolved *past* the query string, so a

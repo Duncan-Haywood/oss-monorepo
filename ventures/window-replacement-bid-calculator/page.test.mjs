@@ -17,7 +17,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
   assert.match(html, /how-much-to-charge\.html/);
   assert.match(html, /engineering/);
 });

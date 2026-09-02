@@ -48,20 +48,27 @@ still a zero baseline. `python3 platform/ci/publish_surface.py` still
 reports nothing live on a push to `main`.
 
 That tool reads `gitops/` as well as the workflows since 2026-08-31, so
-"nothing live" is now a statement about both delivery paths rather than
-only the one this paragraph was written about. On the Hetzner path it
-reports, per hostname: `marisstella.dev` and `www.marisstella.dev` answer
-on merge already (annotation-only 301s, no workload, no Secret), and
-`tools.marisstella.dev` — the one that serves the 169 tools — fails closed
-on the unsealed Secret `portfolio-site-repo`. Since both redirects point
-at that host, no stranger reaches content, and the tool says so rather
-than letting "two hosts live" stand.
+"nothing live" was a statement about both delivery paths rather than only
+the one this paragraph was written about.
 
-One seal, not one build, is what stands between this paragraph and being
-obsolete: `./bootstrap/scripts/seal-owner-secrets.sh site`.
+**Half of it stopped being true on 2026-09-02 (#2723).** `marisstella.dev`
+and `www.marisstella.dev` had answered on merge since 2026-08-28, but only
+as annotation-only 301s into `tools.marisstella.dev` — the host that serves
+the 169 tools and fails closed on the unsealed Secret
+`portfolio-site-repo`. Two hosts answering, nobody reaching content. Those
+two names now serve a generated front-door page from a kustomize ConfigMap
+(`gitops/prod/portfolio-front.yaml`), which needs no clone token, no
+Actions runner and no Pages flip, so it deploys on merge with no owner
+action at all. `publish_surface.py --check` reports **2 hostnames serving
+content**.
 
-Until at least one already-built user-facing surface is reachable by a
-stranger, **deploy beats another build**:
+What has not changed: the catalogue is still behind the seal.
+`./bootstrap/scripts/seal-owner-secrets.sh site` is what makes the front
+door's category links land on the tools they describe, and it remains the
+highest-value owner action in the queue.
+
+Until the already-built catalogue is reachable by a stranger, **deploy
+beats another build**:
 
 1. Get a live URL (or install command) in front of a niche user.
 2. Record a usage reading that is not `null`.

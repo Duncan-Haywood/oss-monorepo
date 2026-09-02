@@ -8,23 +8,31 @@ kind: Role
 metadata:
   name: governor
 rules:
-  # `_load_cluster_jobs` issues exactly one call against this resource: a GET
-  # on the collection endpoint (`/apis/batch/v1/namespaces/{ns}/jobs?labelSelector=...`),
-  # which RBAC authorizes via `list`, not `get` -- `get` only covers a GET on
-  # a *named* Job (`.../jobs/<name>`), and nothing in this file ever builds
-  # that URL. `build_job_manifest`'s own POST is the other call, needing
-  # `create`. Nothing here ever opens a watch: `_k8s` is a single
-  # `urllib.request` round trip with a 30s timeout, not a long-lived stream,
-  # so `watch` -- which would let this ServiceAccount hold open a live feed
-  # of every Job's status in the namespace -- was pure unused reach, the
-  # same class of gap the ConfigMap rule below was already cut down for.
+  # `_load_cluster_jobs` makes exactly one call against this resource: a GET
+  # on the collection endpoint with a labelSelector query string, which is
+  # the `list` verb, not `get` -- `get` authorizes GET on a *named* object
+  # (`/jobs/{name}`), and governor.py never builds that URL. `watch` was
+  # never used either: every tick is a one-shot poll, not a long-lived watch
+  # stream, and grep across this file confirms no caller ever asks for one.
+  # Both sat here ungranted-against by any code path, on the same
+  # ServiceAccount CLAUDE.md's own history flags as "the workload most worth
+  # narrowing" -- the one holding a live token with RBAC to create Jobs and
+  # update a ConfigMap. `create` is the only verb besides `list` this rule's
+  # own code (`main()`'s POST to this same endpoint) actually calls.
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["list", "create"]
   # The only ConfigMap the governor ever touches is governor-state. Normal
-  # ticks GET then PUT/PATCH it by name -- `governor/state.yaml` seeds it in
-  # git, mirroring `portfolio-site-usage`, precisely so that path is the
-  # common case. There used to be a second, namespace-wide `configmaps` rule
+  # ticks GET then PUT it by name -- `_save_state` always sends the whole
+  # object (RBAC verb `update`), never a partial PATCH -- `governor/state.yaml`
+  # seeds it in git, mirroring `portfolio-site-usage`, precisely so that path
+  # is the common case. `patch` sat granted here too until it was trimmed for
+  # the same reason #2669 trimmed `get`/`watch` off the jobs and pods rules
+  # below: no call in governor.py ever builds a PATCH request, on either this
+  # ConfigMap or anything else, so the verb authorized a write this Role's own
+  # ServiceAccount never makes.
+  #
+  # There used to be a second, namespace-wide `configmaps` rule
   # here (verbs get/list/create, no resourceNames) that granted read access
   # to every ConfigMap in `agents` -- governor-policy, governor-script,
   # governor-queue, codex-worker-script -- none of which governor.py ever
@@ -42,14 +50,14 @@ rules:
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["governor-state"]
-    verbs: ["get", "update", "patch"]
+    verbs: ["get", "update"]
   - apiGroups: [""]
     resources: ["configmaps"]
     verbs: ["create"]
-  # `_load_cluster_jobs` also GETs the pod collection, unfiltered, to match
-  # each Job's pod by its `job-name` label -- again a `list` call, never a
-  # GET on a named pod (`.../pods/<name>`), so `get` guarded nothing here
-  # either.
+  # `_load_cluster_jobs` calls this resource once too, the same way: a bare
+  # GET on `/pods` with no name in the path, which is `list`. Nothing here
+  # ever fetches one pod by name, so `get` authorized a call this Role's own
+  # ServiceAccount never makes.
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["list"]

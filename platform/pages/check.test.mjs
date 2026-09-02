@@ -130,6 +130,54 @@ test('an external link is not resolved on disk', async () => {
   assert.deepEqual(problems, []);
 });
 
+test('a venture subpage nothing links to is caught', async () => {
+  // The exact shape of #2664: a comparison/SEO page that ships, resolves
+  // every link, and is listed in its own sitemap — with no `href` anywhere on
+  // the site pointing at it. Every other check here is satisfied by that
+  // shape, which is what let it ship unlinked in the first place.
+  const problems = await problemsFor({
+    'tool/compare.html': '<p>compare</p>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
+  });
+  assert.equal(
+    mentioning(problems, 'tool/compare.html: no page on the site links to it').length,
+    1,
+  );
+});
+
+test('a venture subpage linked from its own index page is not an orphan', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<a href="./compare.html">Compare</a><footer>No warranty.</footer>',
+    'tool/compare.html': '<p>compare</p>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
+  });
+  assert.deepEqual(mentioning(problems, 'no page on the site links to it'), []);
+});
+
+test('a link from a different product also clears the orphan check', async () => {
+  // The inbound link does not have to come from the page's own venture — a
+  // comparison page linked from a sibling tool's "see also" list is just as
+  // reachable as one linked from its own index.
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><a href="other/" data-tool="other">Other</a>'
+      + '<footer><a href="about/">About</a> No warranty.</footer>',
+    'other/index.html': '<a href="../tool/compare.html">See the comparison</a><footer>No warranty.</footer>',
+    'other/sitemap.xml': urlset('other/'),
+    'tool/compare.html': '<p>compare</p>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/compare.html'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'other/sitemap.xml'),
+    'llms.txt': `# Tools\n\n> Two tools.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n- [Other](${url('other/')}): does another thing.\n`,
+    'catalog.json': JSON.stringify({
+      tools: [
+        { slug: 'tool', launched: '2026-08-01' },
+        { slug: 'other', launched: '2026-08-01' },
+      ],
+    }),
+  });
+  assert.deepEqual(mentioning(problems, 'no page on the site links to it'), []);
+});
+
 test('a product directory with no landing page is caught', async () => {
   const problems = await problemsFor({ 'orphan/deep.html': '<p>no index</p>' });
   assert.equal(mentioning(problems, 'orphan/ has no index.html').length, 1);

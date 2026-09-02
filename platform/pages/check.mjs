@@ -916,6 +916,13 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  // Resolved (site-relative, filesystem-absolute) targets of every internal
+  // `href`/`src` seen anywhere in the artifact's markup. Built alongside the
+  // dead-link scan below — same targets, same resolution — and consulted
+  // afterward by the orphan-page check: a target only ever lands here when a
+  // real page actually points at it.
+  const inboundLinks = new Set();
+
   for (const relative of files) {
     const extension = path.extname(relative).toLowerCase();
     if (!TEXT_EXTENSIONS.has(extension)) continue;
@@ -949,6 +956,40 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
         if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
       }
       if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
+      else inboundLinks.add(resolved);
+    }
+  }
+
+  // ---- Orphaned pages: a link resolving is not the same as a link existing -
+  //
+  // The dead-link scan above proves every link's *target* exists. It says
+  // nothing about the reverse: a page can ship correct, dead-link-free, listed
+  // in the sitemap, disclaimered — and still have no `href` anywhere on the
+  // site pointing at it, reachable only by a crawler reading the sitemap
+  // directly, not by a visitor clicking anything. #2664 shipped exactly that
+  // (a comparison page with zero inbound hrefs, fixed forward in #2667), and
+  // nothing in this file caught it: sitemap coverage was fine, dead-link
+  // scanning was fine, the disclaimer was there. An internal link is what
+  // carries ranking signal between pages and is how a visitor already on the
+  // tool finds the deeper page — sitemap-only discovery is the weak half.
+  //
+  // Scoped to non-index pages inside a product directory: `index.html` has its
+  // own reachability check above (the hub), and so do the category and about
+  // pages. This is the class those checks do not reach — the comparison
+  // pages, the "how much to charge for X" articles, the decision pages a
+  // venture adds under its own slug.
+  for (const product of productDirs) {
+    const dir = path.join(site, product);
+    const subEntries = await fs.readdir(dir, { withFileTypes: true }).catch(() => []);
+    for (const entry of subEntries) {
+      if (!entry.isFile() || !entry.name.endsWith('.html') || entry.name === 'index.html') continue;
+      const subpage = path.join(dir, entry.name);
+      if (!inboundLinks.has(subpage)) {
+        problems.push(
+          `${path.relative(site, subpage)}: no page on the site links to it — only a crawler ` +
+            'reading the sitemap directly can find it, not a visitor or a search result',
+        );
+      }
     }
   }
 
