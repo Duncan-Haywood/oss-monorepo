@@ -6030,3 +6030,72 @@ entries:
         built, gated only on owner secret-sealing. Confirmed via
         `decision_queue.py`; no duplicate ask added.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run driven by the account owner's standing instruction to
+        prioritize deployment/CI-CD and marketing-material delivery on the
+        Hetzner VMs, plus a question about setting up the Codex CLI there.
+        Started with 0 open PRs, so ran the branch-drain half of the
+        three-PR quota: audited all ~83 remote branches carrying commits
+        not on `main` (`git rev-list --count origin/main..<branch>`),
+        spot-checked the dozen-plus largest/most-plausible candidates with
+        `portfolio/ledger/supersede_check.py` plus manual byte-level and
+        tree-hash comparison where the line-scan reported "not superseded"
+        (gha-branch-cleanup, gitops RBAC narrowing, 3pl-quote-normalizer
+        compare, vendor-change-watch, vendor-watch, where-to-sell-calculator
+        ranking, quote-margin-check x3, ai-engineering-academy tools,
+        no-show-fee-calculator, amazon-fba peak-vs-off-peak-storage,
+        equipment-rental-break-even, payment-reconciliation vs-Synder).
+        Every single one had already landed on `main` through other
+        concurrent sessions, several under different filenames/identifiers
+        (the RENAME SUSPECTED case) -- confirmed via direct diff of both
+        versions at the same path, not just the tool's exit code. Opened no
+        redundant PRs; this confirms the backlog this file's own earlier
+        entries built up is being drained in near-real-time by the fleet's
+        normal operation, not that no one is checking.
+      - >-
+        With the branch queue genuinely empty of recoverable work, moved to
+        this run's own priority order (deploy/CI-CD, then marketing, then
+        product): merged #2816 (`gitops/prod/front-door/default.conf` was
+        missing `application/atom+xml` in `gzip_types`, so the 26 KB Atom
+        feed at `/feed.xml` had been shipping fully uncompressed to every
+        RSS/Atom reader and AI crawler since #2811 added it -- a gap between
+        two generators' test coverage, neither of which could see the
+        other's blind spot; fixed plus a new regression test in
+        `front-door.test.mjs`) and #2819 (`einvoice-preflight`'s
+        `looksLikeCompleteIban`/`looks_like_complete_iban` checked for a
+        `classify()` result of `"format"`, a string the function never
+        actually returns -- only `"unknown"`/`"bad-format"`/`"checksum"` --
+        so every wrong-length IBAN, a common real typo, silently skipped
+        three of the tool's cross-checks (INV-027 BIC/IBAN mismatch, INV-030
+        missing remittance, INV-045/046 payment-means) while still showing
+        the unrelated INV-024 length finding, which is why it went
+        unnoticed; fixed both the JS and Python implementations plus 9 new
+        regression tests). Both merged squash on green CI verified on real
+        runner IDs, not the starvation signature.
+      - >-
+        Confirmed Codex-on-Hetzner is fully built and code-complete
+        (`gitops/agents/governor` + `gitops/agents/workers/mandate.md` +
+        the priority-ordered queue in `gitops/agents/queue/`, already
+        reordered 2026-09-01 to deployment/CI-CD first then marketing, per
+        this same owner instruction recorded that day) and gated only on an
+        owner-only secret seal (`CODEX_AUTH_JSON` or `OPENAI_API_KEY`) plus
+        flipping `governor/cronjob.yaml` `suspend`/`policy.json` `enabled`,
+        both documented in `infra/OWNER_CHECKLIST.md` item 8. Did not
+        attempt to seal a credential or flip either switch -- both are
+        explicitly owner-only (spends paid API budget / enables unattended
+        automation). Ran `decision_queue.py` first per this file's own rule;
+        the item was already there, so no duplicate ask was added.
+      - >-
+        Two further parallel agents (deploy-cicd-readiness item and
+        marketing-distribution item, run verbatim from
+        `gitops/agents/queue/*.yaml`) were lost mid-run to a container
+        restart before they could report back -- no PR resulted from either
+        in this session, and no ledger row covers whatever partial local
+        state they reached. If a future session finds an unpushed branch or
+        stray worktree matching those topics, it is this session's orphaned
+        work, not a duplicate to avoid.
+    mrr_end: null
