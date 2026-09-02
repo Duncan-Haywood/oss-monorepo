@@ -2033,3 +2033,90 @@ entries:
         the required final sanity check -- SUPERSEDED, i.e. `main` now has
         everything the branch had, which is the expected/correct read
         post-merge, not a sign anything was lost.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A separate concurrent scheduled run, same brief as the one recorded
+        just above (0 open PRs; independently re-confirmed via
+        `list_pull_requests`/`search_pull_requests`, and independently
+        sampled ~19 of the ~84-branch backlog with `supersede_check.py` --
+        all but one non-substantive pipeline-scoring branch came back
+        already superseded, same finding as the entry above reached by a
+        different sample). Rather than re-run the same overlap check a
+        third time, delegated the `deploy-cicd-readiness` and
+        `marketing-distribution` queue prompts (verbatim) to two
+        research-only background agents, same as the sibling session above
+        did -- this entry is "the next session's entry" that one flagged as
+        pending.
+      - >-
+        `deploy-cicd-readiness` agent's finding: the delivery path is
+        genuinely clean (`pytest gitops/tests` 223/223, `kustomize build` on
+        all 6 `gitops/*` dirs, `kubeconform -strict` 52/52 valid,
+        `actionlint` on all 221 workflows, `shellcheck`, `pyflakes` on
+        `governor.py` -- zero findings across the board). Its one real catch
+        was doc drift: stale hardcoded workflow counts (217/218/220/246)
+        left over from when the self-hosted-runner switch was first built,
+        now 221 workflows / 247 `runs-on` lines. Shipped as #2713 (squash),
+        fixing the instances in `infra/OWNER_CHECKLIST.md`,
+        `bootstrap/scripts/seal-owner-secrets.sh`, `gitops/ci/runner.yaml`
+        and `gitops/tests/test_ci_runner.py`, plus the one instance in
+        `gitops/ci/README.md` the #2709 CI/CD doc fix above hadn't reached
+        yet (a second instance in that same file, "Nearly all 220 are
+        actions/checkout..."). Resolved one merge conflict against #2709's
+        fix to the *other* README.md line by keeping #2709's already-landed
+        wording rather than overwriting it. No functional change -- every
+        edit is a comment/docstring/prose string; the one test assertion
+        that used to reference a count already only checked `len(workflows)
+        > 200`. Verified: `pytest gitops/tests -q` 223/223 before and after,
+        CI green (`check`, `gitops`, `scripts`, `tofu`, `hcloud-scope`,
+        `duplicate-symbols` all passed on real runners) before merging.
+      - >-
+        `marketing-distribution` agent's top candidate (a
+        `subscription-price-impact` vs. ProfitWell/Price-Intelligently
+        comparison page) turned out to need external verification against
+        `profitwell.com`/`paddle.com`/`visualping.com` -- all three blocked
+        by the repo's read-only egress proxy (the still-open `egress-policy`
+        decision-queue row covers a different, narrower domain list that
+        doesn't include these). Declined to publish competitor claims that
+        couldn't be checked against a primary source rather than guess from
+        secondhand SEO aggregator pages. #2709 above (DoorDash vs. Uber Eats,
+        merged separately, same run window) turned out to be the safer
+        version of this same candidate shape -- computed entirely from the
+        venture's own `calc.mjs`, no external fact-checking needed -- so
+        nothing further was owed here once that had landed.
+      - >-
+        Own finding, not from either agent: `surfaceExternalFetchHosts` in
+        `platform/pages/build.mjs` (the function the About/category pages'
+        "nothing you type is uploaded" / "no third-party scripts" claims are
+        computed from) only ever scanned `.js` files for `fetch()` calls, so
+        a `<script src>` or `<link rel=stylesheet|preconnect>` to an
+        off-site host in a venture's HTML would go uncaught -- the privacy
+        claim could go silently false with nothing in the build or
+        `check.mjs` pipeline to catch it. Checked the live risk first: the
+        one venture that does load an external font (`retail-pilot-intel`,
+        Google Fonts) is already excluded from this site's build via
+        `EXCLUDED_SLUGS` and has its own separate deploy, so no page
+        currently ships a false claim -- this closes a real gap in the
+        *verification tooling*, not an active defect. Shipped as #2712
+        (squash): scans `.html` files too, for the same `fetch()` patterns
+        plus external `<script src>`/stylesheet-or-preconnect `<link href>`,
+        deliberately excluding `rel="canonical"`/`rel="alternate"` (a
+        crawler reads those, a browser never fetches them) so no venture's
+        own canonical tag registers as a false positive on itself. Added 2
+        direct unit tests. Verified: full `build.mjs` run (169 tools, 528
+        pages) and `check.mjs` report the same single documented exception
+        (Sponsor Ready / api.github.com) before and after -- no false
+        positives against the real site; `node --test build.test.mjs`
+        247/247 (245 before, +2 new); CI green before merging.
+      - >-
+        Net this session: 0 of 3 mandate-quota PRs came from repairing an
+        existing branch (none needed repair -- confirms rather than
+        contradicts the sibling entry's finding), 2 shipped from the
+        deploy-cicd-readiness/marketing-distribution delegation
+        (#2712, #2713), both merged with CI green. Did not attempt a third
+        just to hit the quota number once the two genuine, verifiable
+        findings were exhausted -- the mandate's quota targets a real
+        backlog, and this run confirmed for the second time this cycle that
+        none exists.
