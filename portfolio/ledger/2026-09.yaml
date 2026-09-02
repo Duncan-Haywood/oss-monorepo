@@ -4454,3 +4454,49 @@ entries:
         sealing `codex-secrets` with `CODEX_AUTH_JSON`. Neither is agent-
         actionable; neither was re-analysed beyond confirming it.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "continue product-first development, prioritize CI/CD,
+        Hetzner deployment, and standing up Codex CLI on the Hetzner VM"
+        session. `session_gate.py` -> PROCEED, 6 concurrent sessions in the
+        last 15 minutes. Independently re-verified (not re-derived from the
+        ledger) that CI is healthy and the CI/CD + Hetzner-deploy + Codex
+        asks are already fully built and owner-blocked: `portfolio-validate`
+        and `hetzner-gitops-ci` both green on `main`'s last several runs,
+        `python3 -m pytest gitops/tests/` is 265/265, and
+        `decision_queue.py` rows 12/13 (`codex-governor-enable`,
+        `portfolio-site-hetzner-deploy`) already state the exact remaining
+        owner steps precisely. Added nothing to the queue -- would have
+        duplicated it.
+      - >-
+        Started with 0 open PRs; 3 appeared mid-session from a concurrent
+        run (session_017hBZpogvqYT6Z2Vmsa8SZ2). Processed all three rather
+        than starting new work: merged #2844 (ledger append, verified with a
+        local worktree merge + YAML parse before merging). Closed #2843
+        (`payment-reconciliation-workbench` vs-Synder page) and #2842
+        (`moving-bid-calculator` vs-SmartMoving + `fence-bid-calculator`
+        vs-Fence-Cloud pages, front-door shard repack) as superseded --
+        `supersede_check.py` reported NOT SUPERSEDED on both (raw line scan)
+        because each duplicated an already-merged sibling PR under different
+        wording (#2724, #2823, #2820), which a manual diff confirmed were
+        the same feature at the same file path with an add/add conflict on
+        merge, not new content. #2842's `front-door-tools.mjs` change also
+        would have regressed `SHARD_BYTE_CEILING` from 706 back to 700 KiB,
+        undoing a fix `main` already shipped the same day; confirmed `main`
+        still builds 7 full shards / 28-28 green tests without it. Verified
+        the surviving files were still on `main` both before and after each
+        close, per CLAUDE.md's supersede-close rule.
+      - >-
+        Sampled 2 of the ~85 stale branches with commits ahead of `main`
+        (`claude/festive-mccarthy-xrn3ua`, `cursor/vendor-change-watch-fix-
+        20260824`) via `supersede_check.py`; both were superseded or had
+        their real content (>90% similar) already on `main` under
+        `ventures/vendor-watch` and `ventures/vendor-change-watch`. Did not
+        process the remaining ~83 -- consistent with #829's read that most
+        of the no-PR branch backlog is landed-or-abandoned noise, and with
+        `DIRECTION.md`'s "deploy beats another build" while the only two
+        deploy-unblocking actions left are owner-only secret seals.
+    mrr_end: null
