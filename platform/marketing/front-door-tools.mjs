@@ -759,6 +759,26 @@ export function packShards(files, ceiling = SHARD_BYTE_CEILING) {
     current.files.push(file);
     current.bytes += size;
   }
+  // Declaration order packs a trailing shard however small the last venture's
+  // remainder happens to be — one file over, and the whole mirror grows a
+  // shard that does not need `ServerSideApply` but carries it anyway (see the
+  // "the mirror asks for the apply mode its size actually requires" test).
+  // Rather than asking a future session to hunt for a `STARTER_SET` position
+  // that happens not to fragment (fragile: it changes on every unrelated size
+  // edit to any venture ahead of it), absorb the shortfall from the shard
+  // before it. This only ever *removes* bytes from that shard, so it can
+  // never push it over `ceiling` — the loop below is safe by construction,
+  // not because of the specific sizes seen so far.
+  while (shards.length > 1 && shards[shards.length - 1].bytes <= CLIENT_SIDE_APPLY_CEILING) {
+    const last = shards[shards.length - 1];
+    const prev = shards[shards.length - 2];
+    if (prev.files.length === 0) break;
+    const moved = prev.files.pop();
+    const movedSize = Buffer.byteLength(moved.contents);
+    prev.bytes -= movedSize;
+    last.files.unshift(moved);
+    last.bytes += movedSize;
+  }
   return shards;
 }
 

@@ -29,7 +29,8 @@
 #   portfolio-front-tools-3: 47 files, 715610 bytes
 #   portfolio-front-tools-4: 88 files, 714723 bytes
 #   portfolio-front-tools-5: 67 files, 712911 bytes
-#   portfolio-front-tools-6: 64 files, 711201 bytes
+#   portfolio-front-tools-6: 42 files, 457527 bytes
+#   portfolio-front-tools-7: 23 files, 264678 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -498,6 +499,11 @@ configMapGenerator:
       - concrete-bid-calculator__calc.mjs=concrete-bid-calculator__calc.mjs
       - concrete-bid-calculator__how-much-concrete-for-a-driveway.html=concrete-bid-calculator__how-much-concrete-for-a-driveway.html
       - concrete-bid-calculator__index.html=concrete-bid-calculator__index.html
+  - name: portfolio-front-tools-7
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - concrete-bid-calculator__proposal-terms.mjs=concrete-bid-calculator__proposal-terms.mjs
       - concrete-bid-calculator__proposal.mjs=concrete-bid-calculator__proposal.mjs
       - concrete-bid-calculator__share.mjs=concrete-bid-calculator__share.mjs
@@ -520,3 +526,4 @@ configMapGenerator:
       - fence-bid-calculator__proposal.mjs=fence-bid-calculator__proposal.mjs
       - fence-bid-calculator__share.mjs=fence-bid-calculator__share.mjs
       - fence-bid-calculator__usage.mjs=fence-bid-calculator__usage.mjs
+      - fence-bid-calculator__vs-fence-cloud.html=fence-bid-calculator__vs-fence-cloud.html
