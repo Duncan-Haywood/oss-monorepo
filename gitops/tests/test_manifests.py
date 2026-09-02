@@ -187,6 +187,43 @@ def test_staging_appproject_whitelist_carries_no_group_staging_never_ships() -> 
     )
 
 
+def test_agents_appproject_whitelist_carries_no_dead_group() -> None:
+    # Same shape as test_staging_appproject_whitelist_carries_no_group_staging_never_ships,
+    # applied to `agents`: `apps` (Deployment/ReplicaSet/DaemonSet/StatefulSet)
+    # sat wildcarded in this AppProject's namespaceResourceWhitelist since the
+    # namespace was first adopted (#1486), despite gitops/agents/ never
+    # shipping a single apps/v1 resource -- the governor and the Codex worker
+    # are both Jobs, not Deployments.
+    #
+    # `bitnami.com/SealedSecret` is excluded on purpose: it is a deliberate,
+    # documented anticipatory entry (see its neighbouring comment in
+    # apps/projects.yaml) added ahead of the owner sealing `codex-secrets`,
+    # the same pattern `prod`'s AppProject uses for `portfolio-site-repo` --
+    # unlike the plain `apps` wildcard, it is not a leftover with no
+    # justification.
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    by_name = {d["metadata"]["name"]: d for d in docs if d}
+    whitelist = by_name["agents"]["spec"]["namespaceResourceWhitelist"]
+    whitelisted_groups = {e.get("group") for e in whitelist}
+    shipped_groups: set[str] = set()
+    for path in (ROOT / "agents").rglob("*.yaml"):
+        if path.name == "kustomization.yaml" or "secrets" in path.parts:
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if not doc or "kind" not in doc:
+                continue
+            api_version = doc.get("apiVersion", "")
+            group = api_version.split("/")[0] if "/" in api_version else ""
+            shipped_groups.add(group)
+    anticipated = {"bitnami.com"}
+    unused = whitelisted_groups - shipped_groups - {"*"} - anticipated
+    assert not unused, (
+        f"agents AppProject wildcards {sorted(unused)} but gitops/agents/ "
+        f"ships no resource in {sorted(unused)} -- narrow the whitelist to "
+        "match, per apps/projects.yaml's own header comment"
+    )
+
+
 def test_agents_project_cannot_dest_prod() -> None:
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}

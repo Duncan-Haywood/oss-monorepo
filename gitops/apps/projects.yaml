@@ -141,8 +141,19 @@ spec:
   namespaceResourceWhitelist:
     - group: ""
       kind: "*"
-    - group: apps
-      kind: "*"
+    # `apps` (Deployment/ReplicaSet/DaemonSet/StatefulSet) sat wildcarded here
+    # since the namespace was first adopted (#1486), the same
+    # "whitelist wider than anything it guards" shape this file's own header
+    # comment names for the `policy` group it removed tree-wide (#2771) and
+    # `staging` narrowed for `apps`/`networking.k8s.io` in its own directory
+    # (test_staging_appproject_whitelist_carries_no_group_staging_never_ships).
+    # `gitops/agents/` has never shipped an apps/v1 resource: the governor and
+    # the Codex worker are both Jobs -- one via a CronJob (`batch`), the other
+    # created directly by governor.py's own `build_job_manifest` -- never a
+    # Deployment. Removed rather than left wildcarded; add it back, with a
+    # Deployment or other apps/v1 manifest, in the same commit that first
+    # needs it. test_agents_appproject_whitelist_carries_no_dead_group in
+    # gitops/tests/test_manifests.py pins this so it cannot regress unnoticed.
     - group: batch
       kind: "*"
     - group: networking.k8s.io
