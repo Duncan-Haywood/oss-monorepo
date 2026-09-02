@@ -10,7 +10,9 @@ import {
   SITE_NAME,
   TOOLS_URL,
   buildFrontDoor,
+  categoryAnchor,
   categoryCounts,
+  mirroredByCategory,
   orderedCategories,
   publishedSlugs,
   renderFrontDoor,
@@ -133,6 +135,89 @@ test('links only to paths the site build actually emits', () => {
     assert.ok(emitted.has(target), `${target} is not a path platform/pages/build.mjs publishes`);
   }
   assert.ok(linked.length > 0);
+});
+
+// A mirror shaped like `buildMirror`'s `tools`, using real slugs so
+// `categoryFor` groups them the way it groups the live set.
+const MIRROR = [
+  { slug: 'roofing-bid-calculator', title: 'Roofing Bid Calculator', url: '/tools/roofing-bid-calculator/' },
+  { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator', url: '/tools/deck-bid-calculator/' },
+  { slug: '3pl-quote-normalizer', title: '3PL Quote Normalizer', url: '/tools/3pl-quote-normalizer/' },
+];
+
+test('groups mirrored tools by the category their slug already classifies into', () => {
+  const groups = mirroredByCategory(MIRROR);
+  assert.deepEqual([...groups.keys()].sort(), ['logistics', 'trades']);
+  assert.deepEqual(
+    groups.get('trades').map((t) => t.slug),
+    ['roofing-bid-calculator', 'deck-bid-calculator'],
+    'order within a group should follow STARTER_SET, not re-sort',
+  );
+});
+
+test('a category card with tools on this host leads to them, not to the dark hub', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // This is the defect the mirror section left behind: the seven category
+  // cards are the page's primary navigation and every one of them pointed at
+  // tools.marisstella.dev, which serves nothing until portfolio-site-repo is
+  // sealed. A card that has tools here must lead to them.
+  for (const id of ['trades', 'logistics']) {
+    assert.match(html, new RegExp(`<h3><a href="#${categoryAnchor(id)}">`));
+    assert.match(html, new RegExp(`id="${categoryAnchor(id)}"`));
+  }
+  // No *clickable* category link into the dark host remains. The JSON-LD's
+  // `hasPart` still names those `/c/<id>/` URLs and should: structured data
+  // describes where the collection's parts canonically live, which is the hub,
+  // and a crawler reading it is not a visitor spending a click.
+  assert.ok(
+    !html.includes(`href="${TOOLS_URL}c/`),
+    'no category card should still send a click into the host that serves nothing',
+  );
+});
+
+test('a category with nothing on this host is stated, not linked into the dark', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  // 'marketplace' has published tools (SAMPLE has two) but none mirrored, so
+  // its card must be an unlinked heading — there is nowhere honest to send
+  // that click today — and must say so rather than spend the click to reveal it.
+  assert.match(html, /<h3>Marketplace seller tools<\/h3>/);
+  assert.match(html, /2 tools · none on this host yet/);
+  assert.match(html, /3 tools · 2 you can open here now/);
+});
+
+test('lists a mirrored tool whose category has no card', () => {
+  // The cards count published slugs; the groups hold mirrored ones. Driving
+  // the mirror section off the cards drops any group whose category has no
+  // published count — a tool the ConfigMap goes on serving that nothing on
+  // the page links to. `orderedGroups` reads the groups instead.
+  const html = renderFrontDoor({ slugs: ['ebay-fee-calculator'], mirrored: MIRROR });
+  for (const tool of MIRROR) {
+    assert.ok(html.includes(`href="${tool.url}"`), `${tool.slug} is served but not listed`);
+  }
+  assert.match(html, new RegExp(`id="${categoryAnchor('trades')}"`));
+});
+
+test('every card fragment resolves to an id on the page', () => {
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  const fragments = [...html.matchAll(/href="#([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(fragments.length > 0);
+  for (const fragment of fragments) {
+    assert.ok(ids.has(fragment), `#${fragment} is linked but nothing on the page carries that id`);
+  }
+});
+
+test('with no mirror the page is exactly what it was before one existed', () => {
+  // The mirror is temporary: once portfolio-site-repo is sealed it gets
+  // deleted, `mirrored` falls back to empty, and every card has to return to
+  // linking the hub. Pinning that here is what makes the deletion a one-line
+  // change rather than a page nobody can navigate.
+  const html = renderFrontDoor({ slugs: SAMPLE });
+  for (const id of ['trades', 'marketplace', 'logistics']) {
+    assert.match(html, new RegExp(`<h3><a href="${TOOLS_URL}${categoryPagePath(id)}">`));
+  }
+  assert.ok(!html.includes('href="#'), 'with no mirror there is nothing on this host to point a fragment at');
+  assert.match(html, /Browse all 6 tools/);
 });
 
 test('the promise is one sentence a visitor can check on any tool page', () => {
