@@ -125,6 +125,32 @@ test('a pre-existing canonical is replaced rather than duplicated', () => {
   assert.ok(!out.includes('example.invalid'));
 });
 
+test('a venture-declared robots directive is replaced, not contradicted', () => {
+  // The real shape: `build.mjs` is not what puts `index, follow` on these
+  // pages — the venture sources carry it themselves, so it arrives inside the
+  // bytes this module copies. Prepending `noindex,follow` in front of it left
+  // 24 of the 45 mirrored pages telling a crawler both things at once.
+  const html =
+    '<head><meta charset="utf-8"><title>x</title>\n<meta name="robots" content="index, follow"></head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
+  const robots = out.match(/<meta[^>]*name="robots"[^>]*>/g);
+  assert.equal(robots.length, 1, 'two robots directives let the crawler choose which one to believe');
+  assert.equal(robots[0], '<meta name="robots" content="noindex,follow">');
+  assert.ok(!out.includes('index, follow'));
+});
+
+test('no mirrored page ships more than one robots directive', async () => {
+  // The end-to-end form of the check above, over what is actually committed —
+  // the unit test would still pass if `injectMirrorTags` stopped being the
+  // only thing that writes these tags.
+  const { files } = await buildMirror();
+  for (const { slug, file, contents } of files.filter((f) => f.file.endsWith('.html'))) {
+    const robots = contents.match(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi) ?? [];
+    assert.equal(robots.length, 1, `${slug}/${file} has ${robots.length} robots directives`);
+    assert.match(robots[0], /noindex/);
+  }
+});
+
 test('every mirrored path is one nginx can actually route', async () => {
   // The silent failure this guards: a venture whose slug or filename falls
   // outside the character classes in `front-door/default.conf` would be

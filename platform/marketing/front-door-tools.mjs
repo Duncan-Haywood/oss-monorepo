@@ -44,7 +44,9 @@
  * about *crawlers*, and it is correct, so this mirror is built to be invisible
  * to them and visible only to people:
  *
- * - every mirrored page carries `<meta name="robots" content="noindex,follow">`,
+ * - every mirrored page carries `<meta name="robots" content="noindex,follow">`
+ *   and *only* that one — `injectMirrorTags` strips whatever the venture
+ *   source already declared, so no page ships two directives that disagree;
  *   so no copy here is eligible to be indexed at all; and
  * - every mirrored page carries a `<link rel="canonical">` pointing at its own
  *   `tools.marisstella.dev/<slug>/` URL, so any signal that does reach a
@@ -329,12 +331,33 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
  * when it publishes — so there is nothing here to replace. The regex still
  * strips a pre-existing one rather than leaving two, since a page with two
  * canonicals has the crawler pick, which is the failure mode being avoided.
+ *
+ * **`robots` is stripped for exactly that reason, and until 2026-09-02 it was
+ * not.** The sentence above was written about canonicals and the same argument
+ * was never carried across, so the mirror prepended its `noindex,follow` and
+ * left whatever the venture already had: 24 of the 45 mirrored pages went out
+ * carrying `noindex,follow` on line 4 and `index, follow` on line 8. Unlike
+ * the canonical case, these tags are not merely two of a kind — they say
+ * opposite things.
+ *
+ * Google resolves conflicting robots directives by taking the most
+ * restrictive, so `noindex` almost certainly won, and `default.conf`'s
+ * `X-Robots-Tag: noindex` on these paths is an independent backstop that does
+ * not depend on the markup at all. So this is a hardening, not a live
+ * indexing incident. It is still worth fixing, because the module header above
+ * claims the mirror is invisible to crawlers *structurally* — and a claim that
+ * rests on every crawler resolving a contradiction we shipped the way Google
+ * documents is not structural. Bing and the AI crawlers do not all publish a
+ * conflict rule, and "most restrictive wins" is not the only plausible one;
+ * "last tag wins" would have indexed all 24.
  */
 export function injectMirrorTags(html, { slug, file }) {
   const tags =
     `<meta name="robots" content="noindex,follow">` +
     `<link rel="canonical" href="${canonicalUrl(slug, file)}">`;
-  const stripped = html.replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '');
+  const stripped = html
+    .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '')
+    .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '');
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
     const at = stripped.indexOf(charset[0]) + charset[0].length;
