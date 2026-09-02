@@ -4253,3 +4253,46 @@ entries:
         it was a pre-existing, correctly-queued owner blocker, not a gap in
         the repo.
     mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `marketing-distribution` (queue priority 6, the owner's own
+        "building and deploying marketing materials on the Hetzner VMs"
+        instruction from 2026-09-01). Measured first rather than picking
+        blind: `build.mjs` (169 tools) and `check.mjs` (557 pages, no dead
+        links) both clean, then surveyed all ~90 existing `vs-*`/`compare*`
+        pages under `ventures/` to find a venture with a genuine named
+        incumbent and no comparison page yet, since that pattern (candidate
+        2 of 4 in the brief) is heavily worked by concurrent sessions --
+        roughly 35 ventures already carry one, ~90 files total.
+      - >-
+        Shipped `ventures/window-cleaning-bid-calculator/vs-servicemonster.html`:
+        ServiceMonster is field-service management software that markets
+        specifically to window cleaning, pressure washing, and carpet
+        cleaning businesses (roots to 2002, HQ Bellingham WA, acquired by
+        Teamfront in 2023 per industry coverage, own "trusted by thousands
+        of service pros" claim stated as a claim, not fact) -- verified via
+        WebSearch only, since WebFetch to www.servicemonster.com returned
+        EGRESS_BLOCKED. No dollar figure for ServiceMonster appears
+        anywhere on the page, matching the discipline every other `vs-*`
+        page in the repo already uses, even though third-party review
+        sites reported specific plan prices -- those aren't ServiceMonster's
+        own current page and can go stale. Linked from the venture's
+        `index.html` and `sitemap.xml`, carries the standard FAQPage
+        schema, no-warranty/no-affiliation disclaimers, and 9 new tests. No
+        new third-party script, font, CDN, or network call.
+      - >-
+        PR #2833. First CI pass failed one test:
+        `platform/pages/faq-visible.test.mjs` caught the visible
+        `<h3>`/`<p>` answer text diverging from the FAQPage JSON-LD
+        `acceptedAnswer.text` after 820 characters (paraphrased slightly
+        differently by hand) -- a real, working guard, not CI starvation
+        (all 8 check runs completed on real runner ids, e.g. `build` job
+        100285722439 ran 126s and 856 sub-tests before failing on merit).
+        Fixed by making the visible paragraph byte-identical to the JSON-LD
+        text; re-ran `faq-visible.test.mjs` (4/4) and the venture's own
+        suite (64/64) locally, pushed, all 8 checks went green on the
+        second run, merged (squash).
+    mrr_end: null
