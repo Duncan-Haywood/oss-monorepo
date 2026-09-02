@@ -230,13 +230,23 @@ resolution turned up a live bug (`share.mjs` carried its own field
 allowlist, so a shared link silently dropped `quantity` and `targetMargin`
 and the recipient computed a different profit than the sender saw).
 
-**Absent CI is not failed CI.** PRs opened by bots using `GITHUB_TOKEN` do
-not trigger Actions, so most PRs here show *zero* checks — not red ones.
-#1006 was triaged as "not merge-ready because Portfolio validate and
+**Absent CI is not failed CI** — but "most PRs here show zero checks" is no
+longer the default to expect, and this paragraph used to say it was. #1006
+(2026-08-24) was triaged as "not merge-ready because Portfolio validate and
 agent-permission-harness checks are failing" when neither check had ever
-run on it. If a PR shows no checks, verify locally (`node --test`, the
-venture's suite, a browser pass) and record what you ran; do not read the
-blank as a failure.
+run on it, and the reason given was "PRs opened by bots using `GITHUB_TOKEN`
+do not trigger Actions." That named the wrong mechanism: an agent PR here
+authenticates with a fine-grained PAT (`GH_TOKEN`, the agents identity in
+`infra/OWNER_CHECKLIST.md`), not the in-workflow `secrets.GITHUB_TOKEN` that
+GitHub's no-recursion rule actually applies to — a PAT is a full credential
+and triggers `pull_request` workflows the same as a human opening one would.
+**Verified 2026-09-02:** #2856, opened the ordinary way, created 13 check
+runs; 11 executed on real runners and passed. So a blank check list on a PR
+here is a thing to go verify (the checks tab or the `check-runs` endpoint,
+never the bare status call — see below), not the state to assume by
+default. If a PR genuinely shows no checks, verify locally (`node --test`,
+the venture's suite, a browser pass) and record what you ran; do not read
+the blank as a failure either way.
 
 **Runners came back on 2026-09-01. Read a red check as a real failure again.**
 From 2026-08-26 to 2026-09-01 every workflow in the repo failed without a
