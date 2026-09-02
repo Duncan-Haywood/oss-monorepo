@@ -274,9 +274,9 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 159 of the 169 tools directly. Step 1
+"You decide" below), and it mirrors 160 of the 169 tools directly. Step 1
 below is what turns that front door into a working funnel for the other
-10 — every category card on it links into `tools.marisstella.dev`, which
+9 — every category card on it links into `tools.marisstella.dev`, which
 still serves nothing until the token is sealed.
 
 That ratio moved a long way on 2026-09-02, and it changes what Step 1 is
@@ -396,7 +396,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 159 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 160 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
