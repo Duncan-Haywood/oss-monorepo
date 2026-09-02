@@ -3075,3 +3075,74 @@ entries:
         disk and 7,980 in the object, so measuring the file would have
         understated every binary key by a third. Failing loudly rather than
         under-measuring was the good direction for that bug to fail in.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine session. Same prompt an earlier 2026-09 firing of
+        this routine already answered (see this file's first entry): keep
+        deployment/CI-CD a priority, build and deploy marketing materials on
+        the Hetzner VMs, and set up the Codex CLI to spend its built-in
+        plan quota on unattended dev work there. Re-confirmed rather than
+        re-derived: `gitops/agents/queue/deploy-cicd-readiness.yaml` and
+        `marketing-distribution.yaml` are still priorities 7 and 6 (the top
+        two enabled items), and the Codex worker pipeline is still
+        code-complete and still correctly fail-closed on the same two owner
+        actions (`codex-secrets` seal, then the `policy.json`/`cronjob.yaml`
+        flips) -- already `codex-governor-enable` (#1996, decision-queue row
+        12). No drift found, no duplicate ask added.
+      - >-
+        PR-quota phase: 0 open PRs at session start. Scanned all 211 remote
+        branches for unmerged unique work (`git rev-list --count
+        origin/main..<branch>` plus `git merge-tree` against `main`) rather
+        than trusting an earlier session's account of the backlog. Found 4
+        genuinely new, cleanly-mergeable branches and merged all of them:
+        #2767 (a NetworkPolicy restricting egress for the two credentialed
+        CronJobs -- reduces blast radius if either's token leaks), #2768 and
+        #2769 (a comparison page and a missing regression test, both already
+        implemented/verified, just sitting on unmerged branches), each
+        verified locally before merge (58 gitops-manifest tests, 23 and 29
+        venture tests respectively, all passing). Four other candidate
+        branches (`gitops-governor-rbac-narrow-jobs-pods-verbs`,
+        `claude/fix-sweep-embed-chrome-false-positive`,
+        `claude/optimistic-heisenberg-v07yn7`,
+        `claude/gha-branch-cleanup-pajw2b`) all conflicted with `main`;
+        checked each rather than assuming conflict means duplicate --
+        confirmed all four are the exact rename-suspected pattern
+        `CLAUDE.md` warns about: `main` already independently shipped
+        equivalent-or-better versions of each (PR #875's reused-ref grace
+        fix, an already-narrower RBAC role, a newer `sweep.mjs` comment, an
+        already-existing `vs-synder.html`). Skipped rather than reopened;
+        no unique value would have been lost by leaving them unmerged.
+      - >-
+        With the quota met, delegated the owner's two named priorities to
+        two parallel agents rather than doing the exploratory `gitops/`- and
+        `ventures/`-wide search serially: one executed
+        `deploy-cicd-readiness.yaml`'s own prompt directly (found
+        `gitops/apps/projects.yaml` wildcarding an unused `policy` API group
+        across all four AppProjects' RBAC-adjacent resource whitelist --
+        `grep -rn "^apiVersion: policy" gitops/` confirmed no manifest in
+        the tree has ever shipped one -- removed it and added a regression
+        test; shipped as #2771, 254 gitops tests green, real CI runners
+        confirmed via `ci_starvation.py`, not the starvation signature). The
+        other executed `marketing-distribution.yaml`'s prompt (measured the
+        real site first via `build.mjs`/`check.mjs`, found
+        `tree-service-bid-calculator` had a named incumbent, SingleOps, with
+        no comparison page despite 38 other ventures having one; shipped
+        `vs-singleops.html` with no numeric claims about the competitor
+        since its site returned `EGRESS_BLOCKED`; #2770, 72/72 venture tests
+        and all 8 CI checks green). A third, concurrent, independently-
+        started session shipped the same class of asset for a different
+        venture in parallel (`painting-bid-calculator` vs. PaintScout,
+        #2772) -- reviewed and helped land it once its own CI went green,
+        no overlap with either of this session's two PRs.
+      - >-
+        Five PRs merged this session (#2767, #2768, #2769, #2770, #2771),
+        plus reviewed and merged one concurrent session's PR (#2772). No new
+        venture started: the owner's own instruction named deployment/CI-CD
+        and marketing as the priority, and the two agents above did exactly
+        that rather than opening a twelfth calculator. `payout-rail` remains
+        the only queue item that moves the revenue ceiling off $0; nothing
+        in this session's findings changes that.
+    mrr_end: null
