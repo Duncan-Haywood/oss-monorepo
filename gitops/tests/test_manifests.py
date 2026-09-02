@@ -760,7 +760,17 @@ def _prod_networkpolicies() -> dict[str, dict]:
 
 
 def test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy() -> None:
-    assert set(_prod_networkpolicies()) == {"portfolio-site-egress"}
+    # `landing` is the one prod workload deliberately left off this list: it
+    # holds no credential of any kind (no ServiceAccount token, no external
+    # secret) and calls out to nothing, so it has nothing worth restricting.
+    # The other three -- portfolio-site (the GitHub clone token) and the two
+    # CronJobs below (a ServiceAccount token with RBAC to mutate a specific
+    # resource) -- all hold something a NetworkPolicy is worth writing for.
+    assert set(_prod_networkpolicies()) == {
+        "portfolio-site-egress",
+        "portfolio-site-usage-egress",
+        "portfolio-site-refresh-egress",
+    }
 
 
 def test_networkpolicy_is_synced_by_prod() -> None:
@@ -829,6 +839,96 @@ def test_portfolio_site_egress_cannot_reach_the_kube_apiserver() -> None:
     assert internet["cidr"] == "0.0.0.0/0"
     for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.244.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
+
+
+def test_portfolio_site_credentialed_cronjobs_get_the_same_treatment_as_governor() -> None:
+    # Same class of gap `governor-egress` and `worker-egress` already close in
+    # `agents`: a pod holding a live ServiceAccount token with RBAC to mutate a
+    # cluster resource must not also have unrestricted egress. `landing` is not
+    # part of this -- it holds no credential of any kind and calls out to
+    # nothing.
+    usage_policy = _prod_networkpolicies()["portfolio-site-usage-egress"]
+    refresh_policy = _prod_networkpolicies()["portfolio-site-refresh-egress"]
+
+    for policy in (usage_policy, refresh_policy):
+        assert policy["spec"]["policyTypes"] == ["Egress"]
+        assert "ingress" not in policy["spec"]
+
+    assert usage_policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "portfolio-site-usage"
+    }
+    assert refresh_policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "portfolio-site-refresh"
+    }
+
+    # Each selector has to match the label the CronJob's own pod template
+    # actually stamps, or the policy silently governs no pod at all -- the
+    # same failure mode test_portfolio_site_egress_targets_the_pod_that_holds_
+    # the_clone_token guards against for the Deployment above.
+    usage_cron = [
+        d
+        for d in yaml.safe_load_all((ROOT / "prod" / "site-usage.yaml").read_text())
+        if d and d["kind"] == "CronJob"
+    ][0]
+    usage_pod_labels = usage_cron["spec"]["jobTemplate"]["spec"]["template"]["metadata"]["labels"]
+    assert usage_pod_labels == {"app.kubernetes.io/name": "portfolio-site-usage"}
+
+    refresh_cron = _portfolio_site()["CronJob"]
+    refresh_pod_labels = refresh_cron["spec"]["jobTemplate"]["spec"]["template"]["metadata"]["labels"]
+    assert refresh_pod_labels == {"app.kubernetes.io/name": "portfolio-site-refresh"}
+
+
+def test_portfolio_site_usage_egress_is_scoped_to_dns_and_the_apiserver() -> None:
+    # aggregate.py never calls anything but the apiserver (by
+    # KUBERNETES_SERVICE_HOST, a fixed IP, so DNS is not load-bearing here --
+    # allowed anyway for the same reason governor-egress allows it: cheap
+    # insurance, not a requirement).
+    policy = _prod_networkpolicies()["portfolio-site-usage-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    assert dns_rules[0]["to"][0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+    https_rules = [r for r in policy["spec"]["egress"] if r.get("ports") == [{"protocol": "TCP", "port": 443}]]
+    assert len(https_rules) == 1, https_rules
+    # A single address, not a range: unlike the refresh job below, this pod
+    # calls nothing else, so the tightest correct rule is the one fixed IP
+    # governor-egress already uses for the identical call.
+    assert https_rules[0]["to"][0]["ipBlock"]["cidr"] == "10.43.0.1/32"
+
+
+def test_portfolio_site_refresh_egress_reaches_the_apiserver_and_the_service() -> None:
+    # Unlike the usage job above, this pod's own script resolves two names --
+    # kubectl's in-cluster config falls back to `kubernetes.default.svc`, and
+    # the freshness check curls the `portfolio-site` Service by name -- so DNS
+    # is load-bearing here, and the Service's own ClusterIP is not a fixed,
+    # predictable address the way the apiserver's is.
+    policy = _prod_networkpolicies()["portfolio-site-refresh-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    assert dns_rules[0]["to"][0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+    service_rules = [r for r in policy["spec"]["egress"] if r.get("to", [{}])[0].get("ipBlock")]
+    assert len(service_rules) == 1, service_rules
+    ipblock = service_rules[0]["to"][0]["ipBlock"]
+    # The whole service CIDR, not a single /32 -- the ClusterIP the
+    # `portfolio-site` Service gets is assigned by the control plane, not
+    # something a session with no cluster access can read or pin down, but
+    # the CIDR itself is the same k3s-default constant every other
+    # NetworkPolicy in this repo already treats as known.
+    assert ipblock["cidr"] == "10.43.0.0/16"
+    assert "except" not in ipblock
+    ports = {p["port"] for p in service_rules[0]["ports"]}
+    assert ports == {80, 443}
 
 
 def test_portfolio_site_refresh_can_only_restart_the_site() -> None:

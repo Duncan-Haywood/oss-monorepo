@@ -868,6 +868,14 @@ spec:
     spec:
       backoffLimit: 2
       template:
+        # Named so `networkpolicy.yaml`'s egress rule can select this pod --
+        # a CronJob's pods otherwise carry only the auto-generated
+        # `job-name`/`controller-uid` labels, and the Job name changes on
+        # every run (a `-<timestamp>` suffix), so nothing durable exists to
+        # select on without this.
+        metadata:
+          labels:
+            app.kubernetes.io/name: portfolio-site-refresh
         spec:
           restartPolicy: OnFailure
           serviceAccountName: portfolio-site-refresh
