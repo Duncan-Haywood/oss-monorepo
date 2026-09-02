@@ -35,10 +35,10 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 150 files, 554263 bytes
 #   portfolio-front-tools-1: 152 files, 556248 bytes
-#   portfolio-front-tools-2: 149 files, 556957 bytes
-#   portfolio-front-tools-3: 115 files, 554383 bytes
-#   portfolio-front-tools-4: 123 files, 555506 bytes
-#   portfolio-front-tools-5: 111 files, 543192 bytes
+#   portfolio-front-tools-2: 149 files, 546123 bytes
+#   portfolio-front-tools-3: 112 files, 555870 bytes
+#   portfolio-front-tools-4: 123 files, 556579 bytes
+#   portfolio-front-tools-5: 115 files, 555284 bytes
 #   portfolio-front-tools-6: 110 files, 556238 bytes
 #   portfolio-front-tools-7: 108 files, 553786 bytes
 #   portfolio-front-tools-8: 111 files, 553656 bytes
@@ -425,6 +425,7 @@ configMapGenerator:
       - invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz=invoice-payment-terms-calculator__should-i-factor-this-invoice.html.gz
       - invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz=invoice-payment-terms-calculator__should-i-offer-2-10-net-30.html.gz
       - invoice-payment-terms-calculator__usage.mjs.gz=invoice-payment-terms-calculator__usage.mjs.gz
+      - invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz=invoice-payment-terms-calculator__vs-quickbooks-online-invoicing.html.gz
       - cash-runway-planner__LICENSE.gz=cash-runway-planner__LICENSE.gz
       - cash-runway-planner__app.mjs.gz=cash-runway-planner__app.mjs.gz
       - cash-runway-planner__index.html.gz=cash-runway-planner__index.html.gz
@@ -525,12 +526,12 @@ configMapGenerator:
       - asphalt-driveway-pave-bid-calculator__LICENSE.gz=asphalt-driveway-pave-bid-calculator__LICENSE.gz
       - asphalt-driveway-pave-bid-calculator__calc.mjs.gz=asphalt-driveway-pave-bid-calculator__calc.mjs.gz
       - asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz=asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz
-      - asphalt-driveway-pave-bid-calculator__index.html.gz=asphalt-driveway-pave-bid-calculator__index.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - asphalt-driveway-pave-bid-calculator__index.html.gz=asphalt-driveway-pave-bid-calculator__index.html.gz
       - asphalt-driveway-pave-bid-calculator__proposal.mjs.gz=asphalt-driveway-pave-bid-calculator__proposal.mjs.gz
       - asphalt-driveway-pave-bid-calculator__share.mjs.gz=asphalt-driveway-pave-bid-calculator__share.mjs.gz
       - asphalt-driveway-pave-bid-calculator__usage.mjs.gz=asphalt-driveway-pave-bid-calculator__usage.mjs.gz
@@ -642,15 +643,15 @@ configMapGenerator:
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
       - cut-list-optimizer__draft.mjs.gz=cut-list-optimizer__draft.mjs.gz
       - cut-list-optimizer__index.html.gz=cut-list-optimizer__index.html.gz
-      - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz
-      - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
-      - cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz=cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz
-      - deck-bid-calculator__LICENSE.gz=deck-bid-calculator__LICENSE.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz
+      - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
+      - cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz=cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz
+      - deck-bid-calculator__LICENSE.gz=deck-bid-calculator__LICENSE.gz
       - deck-bid-calculator__calc.mjs.gz=deck-bid-calculator__calc.mjs.gz
       - deck-bid-calculator__how-much-to-charge.html.gz=deck-bid-calculator__how-much-to-charge.html.gz
       - deck-bid-calculator__index.html.gz=deck-bid-calculator__index.html.gz
@@ -770,15 +771,15 @@ configMapGenerator:
       - freelance-retainer-calculator__style.css.gz=freelance-retainer-calculator__style.css.gz
       - freelance-retainer-calculator__unused-hour-rollover.html.gz=freelance-retainer-calculator__unused-hour-rollover.html.gz
       - freelance-retainer-calculator__vs-bonsai.html.gz=freelance-retainer-calculator__vs-bonsai.html.gz
-      - freelance-retainer-calculator__will-this-retainer-hit-my-income-goal.html.gz=freelance-retainer-calculator__will-this-retainer-hit-my-income-goal.html.gz
-      - french-drain-bid-calculator__LICENSE.gz=french-drain-bid-calculator__LICENSE.gz
-      - french-drain-bid-calculator__calc.mjs.gz=french-drain-bid-calculator__calc.mjs.gz
-      - french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz=french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - freelance-retainer-calculator__will-this-retainer-hit-my-income-goal.html.gz=freelance-retainer-calculator__will-this-retainer-hit-my-income-goal.html.gz
+      - french-drain-bid-calculator__LICENSE.gz=french-drain-bid-calculator__LICENSE.gz
+      - french-drain-bid-calculator__calc.mjs.gz=french-drain-bid-calculator__calc.mjs.gz
+      - french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz=french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz
       - french-drain-bid-calculator__index.html.gz=french-drain-bid-calculator__index.html.gz
       - french-drain-bid-calculator__proposal.mjs.gz=french-drain-bid-calculator__proposal.mjs.gz
       - french-drain-bid-calculator__share.mjs.gz=french-drain-bid-calculator__share.mjs.gz
