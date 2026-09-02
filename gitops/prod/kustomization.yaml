@@ -63,6 +63,13 @@ configMapGenerator:
       # kilobyte together against a 1 MiB object ceiling.
       - robots.txt=front-door/robots.txt
       - sitemap.xml=front-door/sitemap.xml
+      # The apex's own Atom feed over the mirrored tools. Same reason as the
+      # three above for riding in this ConfigMap: the page declares it at
+      # `/feed.xml` in `<link rel="alternate">` and links it from the footer,
+      # so it has to sit at the document root, and two ConfigMaps cannot mount
+      # at one `mountPath`. Text, so it lands in `data`. A few kilobytes
+      # against a 1 MiB object ceiling.
+      - feed.xml=front-door/feed.xml
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

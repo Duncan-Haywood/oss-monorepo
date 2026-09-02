@@ -78,6 +78,13 @@ import {
   categoryPagePath,
 } from '../pages/build.mjs';
 
+// The feed's ordering, cap and `<updated>` rule come from the module that owns
+// the launch dates, not from a second implementation here: `renderFrontDoorFeed`
+// and `build.mjs`'s `renderFeed` are two views of one list, and a divergence in
+// how they sort or cap it would show up as a reader's feed re-ordering itself
+// the day the seal lands.
+import { FEED_MAX_ENTRIES, feedUpdatedAt, isIsoDate, orderForFeed } from '../pages/launched.mjs';
+
 // The share card is drawn, not copied: `renderSocialCard` is the same
 // dependency-free PNG encoder `build.mjs` uses for the hub's card, so the apex
 // and the tools host show one mark rather than two pictures that drift.
@@ -183,6 +190,9 @@ export const SITEMAP_OUTPUT_FILE = path.join(
   SITEMAP_FILE,
 );
 
+/** Where `--write` puts the apex's own Atom feed. See `renderFrontDoorFeed`. */
+export const FEED_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', FEED_FILE);
+
 /**
  * `robots.txt` for the apex, and why it allows everything.
  *
@@ -268,6 +278,154 @@ export function renderSitemap() {
 </urlset>
 `;
 }
+
+/**
+ * The apex's own Atom feed, over the tools this host actually serves.
+ *
+ * ## The defect this fixes
+ *
+ * The footer of this page offered three links — "All 169 tools", "About these
+ * tools", "New tools feed" — and every one of them pointed at
+ * `tools.marisstella.dev`, which serves nothing until `portfolio-site-repo` is
+ * sealed. That is the same dead end `front-door-tools.mjs` fixed for the hero
+ * copy and the comment on `cards` fixed for the category headings, still live
+ * in the page's third and last navigation block. It was the worst of the three
+ * cases, because unlike the header's fine print it carried no warning at all:
+ * the page said "goes live when its access token is sealed" two screens above
+ * a bare link that did not.
+ *
+ * The feed is the link that mattered most. `gitops/agents/workers/mandate.md`
+ * calls it the mechanism by which "a reader, an aggregator, or a community's
+ * own moderators pick a tool up without us publishing outward" — the
+ * portfolio's only organic distribution channel that does not require the
+ * owner to post anything anywhere. It has been dead on the only reachable
+ * hostname for the whole life of this page.
+ *
+ * ## Why a second feed does not double anyone's subscription
+ *
+ * `build.mjs`'s `renderFeed` mints entry ids as
+ * `tag:marisstella.dev,2026:tool/<slug>` — an RFC 4151 tag URI keyed on the
+ * slug, with the authority *fixed* rather than taken from the base URL, and its
+ * comment says why in as many words: so that serving the same build from two
+ * hostnames "does not mint two different ids for one tool and double every
+ * subscriber's feed". This renderer reuses that exact id function.
+ *
+ * So a reader subscribed here who later moves to the tools host's feed sees
+ * entries they have already read stay read, and a reader subscribed to both is
+ * not notified twice. That property is what makes this feed safe to ship as a
+ * stopgap and safe to delete afterwards, which is the same contract the mirror
+ * itself keeps.
+ *
+ * ## Why the entries link here rather than at the canonical
+ *
+ * `<link rel="alternate">` points at `/tools/<slug>/` on this host, not at the
+ * tool's canonical `tools.marisstella.dev` URL. The canonical is the correct
+ * long-run address and it is also, today, a host that answers nothing — and a
+ * feed whose every entry is a dead link is worse than no feed, because a reader
+ * who follows one concludes the project is abandoned rather than that one
+ * hostname is pending.
+ *
+ * The SEO cost of that choice is nil, which is the reason it is available at
+ * all: the mirrored pages carry `noindex` in markup and in the `X-Robots-Tag`
+ * header, so search consolidation onto the canonical is unaffected by what a
+ * feed reader is handed. A feed is read by people and aggregators, and both
+ * want the URL that works.
+ *
+ * ## Scope
+ *
+ * Only the mirrored tools. The other 116 are not reachable from this host, so
+ * listing them would rebuild the dead end one layer down. `<subtitle>` says so
+ * rather than leaving a reader to infer that a feed on a 169-tool site carries
+ * 53 entries because the rest are old.
+ *
+ * `<updated>` is the newest entry's launch date, never the build time, for the
+ * reason `feedUpdatedAt` gives: a rebuild that changed nothing must not tell
+ * every aggregator that something changed. That is also what keeps `--write`
+ * from dirtying the tree on a no-op run, which the staleness test depends on.
+ */
+export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
+  const dated = orderForFeed(mirrored, launched).filter((tool) => isIsoDate(launched[tool.slug]));
+  const entries = dated.slice(0, FEED_MAX_ENTRIES);
+  const updated = feedUpdatedAt(dated, launched);
+
+  const entryXml = (tool) => {
+    const date = `${launched[tool.slug]}T00:00:00Z`;
+    const summary = String(tool.description ?? '').replace(/\s+/g, ' ').trim();
+    return `  <entry>
+    <title>${escapeHtml(tool.title)}</title>
+    <link rel="alternate" type="text/html" href="${escapeHtml(`${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url}`)}"/>
+    <id>${escapeHtml(feedEntryId(tool.slug))}</id>
+    <published>${date}</published>
+    <updated>${date}</updated>
+    <category term="${escapeHtml(categoryFor(tool.slug).title)}"/>${
+      summary ? `\n    <summary type="text">${escapeHtml(summary)}</summary>` : ''
+    }
+  </entry>`;
+  };
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeHtml(SITE_NAME)} — tools on ${escapeHtml(FRONT_DOOR_HOST)}</title>
+  <subtitle>${escapeHtml(subtitleFor(mirrored.length, entries.length))}</subtitle>
+  <link rel="self" type="application/atom+xml" href="${escapeHtml(`${FRONT_DOOR_URL}${FEED_FILE}`)}"/>
+  <link rel="alternate" type="text/html" href="${escapeHtml(FRONT_DOOR_URL)}"/>
+  <id>${escapeHtml(FEED_ID)}</id>
+  <updated>${updated ?? EMPTY_FEED_UPDATED}</updated>
+  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+${entries.map(entryXml).join('\n')}
+</feed>
+`;
+}
+
+/**
+ * What the feed says it is, in the two states it has.
+ *
+ * The count matters and is easy to get wrong: `FEED_MAX_ENTRIES` caps the feed
+ * at 40 while the mirror serves 53, so a subtitle written from `entries.length`
+ * would tell a subscriber this host serves 40 tools — a false claim about the
+ * product, generated by an implementation detail of the feed. The first draft
+ * of this function did exactly that.
+ *
+ * So the subtitle states the real number served and, only when the cap is
+ * actually biting, says the feed carries the newest slice of it. That is the
+ * same distinction `renderFeed`'s own comment draws: the feed is the "new"
+ * list, not another catalogue, and a tool that scrolls off is still on the
+ * page.
+ */
+export function subtitleFor(served, listed) {
+  const catalogue = TOOLS_URL.replace(/^https:\/\//, '').replace(/\/$/, '');
+  const scope =
+    listed < served
+      ? `The ${served} free, browser-only tools served directly from ${FRONT_DOOR_HOST} — the newest ${listed} of them listed here, newest first.`
+      : `The ${served} free, browser-only tools served directly from ${FRONT_DOOR_HOST}, newest first.`;
+  return `${scope} No account, no upload: every number stays on your own device. The full catalogue is larger and lives at ${catalogue}.`;
+}
+
+/**
+ * An entry's stable id, shared with the tools host's feed on purpose — see the
+ * "double anyone's subscription" section above. Kept as a named function
+ * rather than inlined so the shape cannot drift from `build.mjs`'s `tagId`
+ * without `front-door.test.mjs`'s cross-check failing.
+ */
+export const feedEntryId = (slug) => `tag:marisstella.dev,2026:tool/${slug}`;
+
+/** The feed document's own id. Distinct from the tools host's, which names the site rather than this host's subset. */
+export const FEED_ID = 'tag:marisstella.dev,2026:front-door-tools';
+
+/** The apex's bare hostname, for copy that names it. */
+export const FRONT_DOOR_HOST = FRONT_DOOR_URL.replace(/^https:\/\//, '').replace(/\/$/, '');
+
+/**
+ * The `<updated>` of a feed with no dated entry.
+ *
+ * A fixed instant rather than `new Date()`: an Atom feed's `<updated>` is
+ * required, and generating one from the clock would make `--write` dirty the
+ * tree on every run and the staleness test unpassable. This value is only ever
+ * reached with an empty mirror, which is the post-seal state in which the whole
+ * file is deleted — `check.mjs` and the mirror's own tests are what stop a
+ * populated mirror from arriving here undated.
+ */
+export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
 
 /**
  * What the collection calls itself.
@@ -599,6 +757,38 @@ export function renderFrontDoor({
     })
     .join('\n');
 
+  /**
+   * The footer's link row — the page's third and last navigation block, and
+   * the one that stayed broken longest.
+   *
+   * It read `All 169 tools · About these tools · New tools feed`, three bare
+   * links to `tools.marisstella.dev`, which serves nothing until
+   * `portfolio-site-repo` is sealed. The header's fine print two screens above
+   * says that host "goes live when its access token is sealed"; the footer said
+   * nothing, so the page contradicted itself within one scroll and spent a
+   * visitor's click to prove it. The `cards` comment above records the same fix
+   * for the category headings.
+   *
+   * With a mirror, all three become links that work:
+   *
+   * - the catalogue link becomes the on-host section the cards already point
+   *   at, counted honestly at what this host serves rather than at 169;
+   * - the feed becomes this host's own — see `renderFrontDoorFeed`, and note
+   *   that it is the one entry here with distribution value rather than
+   *   navigational value;
+   * - "About" is dropped rather than relabelled. There is no about page on this
+   *   host and inventing one to fill a footer slot would be a page written for
+   *   a link rather than for a reader. The header's fine print already names
+   *   the catalogue host and its state, which is what "About" would have said.
+   *
+   * Without a mirror the row is unchanged, which is the state this page returns
+   * to when the seal lands, the mirror is deleted, and all three destinations
+   * are live for real.
+   */
+  const footerLinks = hasMirror
+    ? `<a href="#open-now">The ${mirrored.length} tools on this host</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a>`
+    : `<a href="${escapeHtml(toolsUrl)}">All ${total} tools</a> · <a href="${escapeHtml(`${toolsUrl}${ABOUT_PATH}`)}">About these tools</a> · <a href="${escapeHtml(`${toolsUrl}${FEED_FILE}`)}">New tools feed</a>`;
+
   const how = HOW_IT_WORKS.map(
     (item) => `        <li>
           <h3>${escapeHtml(item.title)}</h3>
@@ -646,7 +836,12 @@ ${group.tools
 <meta name="description" content="${escapeHtml(description)}">
 <link rel="icon" href="/${escapeHtml(FAVICON_FILE)}" type="image/svg+xml">
 <meta name="theme-color" content="${escapeHtml(THEME_COLOR)}">
-<link rel="canonical" href="${escapeHtml(canonical)}">
+<link rel="canonical" href="${escapeHtml(canonical)}">${
+    hasMirror
+      ? `
+<link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — tools on ${FRONT_DOOR_HOST}`)}" href="/${escapeHtml(FEED_FILE)}">`
+      : ''
+  }
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
 <meta property="og:title" content="${escapeHtml(SITE_NAME)} — ${total} tools for people who quote, sell and bill">
@@ -691,7 +886,7 @@ ${how}
   </ul>
 </main>
 <footer>
-  <p><a href="${escapeHtml(toolsUrl)}">All ${total} tools</a> · <a href="${escapeHtml(`${toolsUrl}${ABOUT_PATH}`)}">About these tools</a> · <a href="${escapeHtml(`${toolsUrl}${FEED_FILE}`)}">New tools feed</a></p>
+  <p>${footerLinks}</p>
   <p class="fine"><strong>No warranty.</strong> ${escapeHtml(NO_WARRANTY)}</p>
   <p class="fine"><strong>Best-effort hosting, no SLA.</strong> ${escapeHtml(NO_SLA.replace('Best-effort hosting, no SLA. ', ''))}</p>
 </footer>
@@ -706,19 +901,38 @@ export async function publishedSlugs(file = LAUNCHED_FILE) {
   return Object.keys(parsed.launched ?? {});
 }
 
+/** The launch dates, read from the same committed file the site build pins. */
+export async function launchedDates(file = LAUNCHED_FILE) {
+  const parsed = JSON.parse(await fs.readFile(file, 'utf8'));
+  return parsed.launched ?? {};
+}
+
+/**
+ * The page and the feed together.
+ *
+ * Both, rather than the page alone, because the page now declares the feed in
+ * `<link rel="alternate">` and links it from the footer. Building them on one
+ * call is what stops the two being written on different runs and committed out
+ * of step — the same reason `--write` emits the card, the icon, `robots.txt`
+ * and the sitemap alongside the page.
+ */
 export async function buildFrontDoor() {
   // The mirror is imported lazily so `front-door.mjs` keeps working — and its
   // own tests keep running — if `front-door-tools.mjs` is ever deleted, which
   // is exactly what should happen once `portfolio-site-repo` is sealed.
   const { buildMirror } = await import('./front-door-tools.mjs');
   const { tools } = await buildMirror();
-  return renderFrontDoor({ slugs: await publishedSlugs(), mirrored: tools });
+  const launched = await launchedDates();
+  return {
+    html: renderFrontDoor({ slugs: await publishedSlugs(), mirrored: tools }),
+    feed: renderFrontDoorFeed({ mirrored: tools, launched }),
+  };
 }
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const html = await buildFrontDoor();
+  const { html, feed } = await buildFrontDoor();
   if (process.argv.includes('--write')) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
@@ -745,6 +959,11 @@ if (isMain) {
     console.log(
       `wrote ${path.relative(REPO_ROOT, SITEMAP_OUTPUT_FILE)} (${sitemap.length} bytes)`,
     );
+    // Same reason once more: the page declares this feed in `<link
+    // rel="alternate">` and links it from the footer, so a run that wrote the
+    // page without it would ship a document advertising a path nothing serves.
+    await fs.writeFile(FEED_OUTPUT_FILE, feed);
+    console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
   } else {
     process.stdout.write(html);
   }
