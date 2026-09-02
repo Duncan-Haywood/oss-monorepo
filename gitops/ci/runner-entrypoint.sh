@@ -15,7 +15,7 @@
 set -euo pipefail
 
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be owner/repo}"
-: "${RUNNER_TOKEN:?RUNNER_TOKEN (a PAT with repo scope) must be set}"
+: "${RUNNER_TOKEN:?RUNNER_TOKEN (a PAT that can mint a runner registration token -- see gitops/ci/README.md) must be set}"
 
 RUNNER_LABELS="${RUNNER_LABELS:-self-hosted,linux,x64,hetzner}"
 
@@ -82,7 +82,15 @@ if [ -z "${reg_token}" ]; then
   # Deliberately does not echo the API response: on some failures GitHub
   # returns the request back, and this log is the one place a token could leak.
   echo "Could not read a registration token from the API response." >&2
-  echo "Check that RUNNER_TOKEN is a PAT with 'repo' scope on ${GITHUB_REPOSITORY}." >&2
+  # Not just 'repo' scope: the documented, scripted path
+  # (bootstrap/scripts/seal-owner-secrets.sh, gitops/ci/README.md) mints a
+  # fine-grained PAT with the "Administration: Read and write" repository
+  # permission, which is the narrowest thing that can mint a runner
+  # registration token and carries no classic OAuth "scope" at all. A
+  # classic PAT with full 'repo' scope also works but is broader than
+  # necessary. Either way, check the token has not expired or been revoked,
+  # and that it is scoped to exactly ${GITHUB_REPOSITORY}.
+  echo "Check RUNNER_TOKEN can mint a runner registration token on ${GITHUB_REPOSITORY} -- see gitops/ci/README.md." >&2
   exit 1
 fi
 
