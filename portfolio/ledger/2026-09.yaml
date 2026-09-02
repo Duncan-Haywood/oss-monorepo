@@ -3409,3 +3409,94 @@ entries:
         `site-test`) all came back green (`deploy` skipped, expected on a
         non-`main` push), and it was merged.
     mrr_end: null
+  - venture: portfolio-front
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        deploy-cicd-readiness. Open PR queue was empty at the start of this
+        run (0 open, `list_pull_requests` state=open), so the three-PR merge
+        quota was satisfied by an empty queue rather than skipped, and the
+        run went straight to product work after the overlap check.
+        Measured before choosing: the apex tool mirror stood at 767,450
+        bytes against its own 800 KiB `BYTE_CEILING` -- 93.7% -- serving 20
+        of the 153 ventures that pass `validateLinks`. The number 20 was set
+        by the delivery mechanism, not by merit: the mirror was one
+        ConfigMap and etcd caps a stored object at 1 MiB. It was also two
+        comparison pages from failing the build, and the standing
+        `marketing-distribution` queue item adds those to mirrored ventures
+        continuously -- the failure message says to drop a venture from
+        `STARTER_SET`, i.e. to remove a working tool from the live front
+        door to make room for a page about one.
+      - >-
+        The fix is a projected volume, not a bigger number. Several
+        ConfigMaps merge into one `mountPath`, so the per-object cap stops
+        being the cap on the mirror; nginx still sees one flat directory of
+        `slug__file` keys and `front-door/default.conf` did not change. The
+        property that had to survive is the content hash, and it does:
+        kustomize's name-reference transformer rewrites
+        `volumes[].projected.sources[].configMap.name` exactly as it does
+        the plain form -- verified against v5.6.0, the version
+        `hetzner-gitops-ci.yml` installs, on the real built manifest. With
+        the cap gone the set is chosen on merit: **every category except
+        `trades` is now served in full**, 20 tools -> 47. Marketplace went
+        1 -> 7; `ebay-fee-calculator` alone is 818,849 bytes and could not
+        previously be mirrored at any set size. `trades` stays at 8 on
+        purpose -- 114 of the 153 eligible ventures are in it, so it can
+        only ever be sampled, and all of it goes live on the
+        `portfolio-site-repo` seal regardless.
+      - >-
+        Three defects the expansion surfaced, each fixed at its source
+        rather than worked around. (1) `isServable` excluded
+        `calc.test.mjs` but not a plainly-named `test.mjs`, so
+        `cam-reconciliation-check` and `chargeback-evidence-packet` were
+        publishing their suites to the apex -- nothing links to them, so
+        `validateLinks` had no reason to notice. (2) `pageTitle` returned
+        raw HTML while `front-door.mjs` escapes it again, so
+        `notary-trip-quote`, the first mirrored venture with an ampersand,
+        would have shown `&amp;amp;` on its card; confirmed rendering
+        correctly in a browser after the fix. (3) Mirrored pages declared no
+        `rel="icon"` though the apex serves one, and fixing that exposed
+        `validateLinks` resolving root-absolute hrefs against the venture
+        directory -- it would have failed the build on the tag being
+        injected.
+      - >-
+        `MIRROR_BYTE_CEILING` (5 MiB) replaces the per-object cap as the
+        bound and is about different costs: a ConfigMap volume is tmpfs
+        charged to the pod's memory cgroup, and the mirror is committed to
+        git. Memory limit 64Mi -> 192Mi with a test tying it to twice the
+        ceiling, because the symptom of getting that wrong is the apex
+        crash-looping long after whoever raised the mirror ceiling has gone.
+      - >-
+        Verified: 257 gitops tests, 59 marketing tests, 380 platform/ci
+        tests, `kustomize build` on all six overlays, `kubeconform -strict`
+        on the output (80 resources, 0 invalid; every shard 713-744 KB
+        against the suite's 943,718-byte budget). Then the built ConfigMaps
+        were served through an emulation of the projected volume (union of
+        all six shards' keys, no duplicates) and `default.conf`'s rewrite
+        rules, and driven in Chromium: 279 URLs crawled from the front door
+        with no broken link, all 47 tools loaded with no JS error and no
+        failed request, and the eBay calculator computed real fee figures
+        through the real routing. Opened as #2789; all seven real CI checks
+        (`check`, `gitops`, `scripts`, `hcloud-scope`, `duplicate-symbols`,
+        `tofu`, `validate`) came back green on real runners, and it was
+        merged.
+      - >-
+        Not verified: the public route. Argo CD delivers `gitops/`, so the
+        merge is the deploy and no owner action is needed -- but this
+        session's egress policy will not tunnel to `marisstella.dev` (the
+        CONNECT to :443 hangs), so `curl` against the live apex is not
+        available here. A session that can reach it should confirm
+        `https://marisstella.dev/tools/ebay-fee-calculator/` answers 200.
+      - >-
+        Owner asks re-checked rather than re-filed, per the no-duplicates
+        rule. The Codex-on-Hetzner pipeline the scheduled brief asked about
+        is complete on the agent side and already queued as
+        `codex-governor-enable` (#1996) with accurate steps: `codex login`,
+        seal `CODEX_AUTH_JSON` plus a scoped `GH_TOKEN` into
+        `codex-secrets`, then flip `policy.json` `enabled: true` and the
+        CronJob's `suspend: false`. Nothing was added to the queue.
+        `portfolio-site-repo` remains the highest-value seal, and this work
+        makes the interim surface worth 47 tools instead of 20 rather than
+        changing that.
+    mrr_end: null
