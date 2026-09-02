@@ -387,11 +387,20 @@ def expand_grace_prs(prs, lookup):
 
 
 def run(github, prs, protected, grace_hours, dry_run, out,
-        delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep):
-    """Apply `decide` to each PR, deleting what it approves. Returns the count."""
+        delete_delay=DELETE_DELAY_SECONDS, sleep=time.sleep, now=None):
+    """Apply `decide` to each PR, deleting what it approves. Returns the count.
+
+    `now` is injectable so callers (tests) can pin the clock; a real run
+    leaves it None and gets the actual current time. The same value is
+    reused for the pre-delete recheck below -- that recheck exists to catch a
+    branch or PR state that moved during the run, not to re-derive whether a
+    grace period has since elapsed, and a sweep runs in seconds to minutes so
+    the elapsed real time between the two reads is immaterial.
+    """
     branch_shas = github.branch_shas()
     reserved = github.open_pr_refs(exclude={pr["number"] for pr in prs})
-    now = datetime.now(timezone.utc)
+    if now is None:
+        now = datetime.now(timezone.utc)
     # A single-PR run (the on-close `--pr` job) does not see other closed
     # rows, so a merged reuse of a branch still in another PR's grace would
     # delete immediately. Ask the API for that head's other closed PRs. A
@@ -422,7 +431,7 @@ def run(github, prs, protected, grace_hours, dry_run, out,
                 pr,
                 live_shas,
                 live_reserved,
-                datetime.now(timezone.utc),
+                now,
                 grace_hours,
                 protected,
                 grace_refs,

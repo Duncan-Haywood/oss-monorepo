@@ -248,7 +248,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({"claude/one": "a" * 40, "claude/two": "a" * 40})
         out = io.StringIO()
 
-        deleted = run(github, [merged, waiting], DEFAULT_PROTECTED, 24.0, False, out)
+        deleted = run(github, [merged, waiting], DEFAULT_PROTECTED, 24.0, False, out, now=NOW)
 
         self.assertEqual(deleted, 1)
         self.assertEqual(github.deleted, ["claude/one"])
@@ -259,7 +259,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({"claude/one": "a" * 40})
         out = io.StringIO()
 
-        deleted = run(github, [merged], DEFAULT_PROTECTED, 24.0, True, out)
+        deleted = run(github, [merged], DEFAULT_PROTECTED, 24.0, True, out, now=NOW)
 
         self.assertEqual(deleted, 1)
         self.assertEqual(github.deleted, [])
@@ -274,7 +274,7 @@ class RunTest(unittest.TestCase):
         naps = []
 
         run(github, prs, DEFAULT_PROTECTED, 24.0, False, io.StringIO(),
-            delete_delay=0.8, sleep=naps.append)
+            delete_delay=0.8, sleep=naps.append, now=NOW)
 
         self.assertEqual(len(github.deleted), 3)
         self.assertEqual(naps, [0.8, 0.8])  # between deletions, not before the first
@@ -284,7 +284,7 @@ class RunTest(unittest.TestCase):
         naps = []
 
         run(FakeGitHub({"claude/one": "a" * 40}), [merged], DEFAULT_PROTECTED, 24.0,
-            True, io.StringIO(), delete_delay=0.8, sleep=naps.append)
+            True, io.StringIO(), delete_delay=0.8, sleep=naps.append, now=NOW)
 
         self.assertEqual(naps, [])
 
@@ -294,7 +294,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({"claude/shared": "a" * 40})
         out = io.StringIO()
 
-        deleted = run(github, [first, second], DEFAULT_PROTECTED, 24.0, True, out)
+        deleted = run(github, [first, second], DEFAULT_PROTECTED, 24.0, True, out, now=NOW)
 
         self.assertEqual(deleted, 1)
         self.assertIn("already gone", out.getvalue())
@@ -308,7 +308,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({"claude/shared": "a" * 40})
         out = io.StringIO()
 
-        deleted = run(github, [first, second], DEFAULT_PROTECTED, 24.0, False, out)
+        deleted = run(github, [first, second], DEFAULT_PROTECTED, 24.0, False, out, now=NOW)
 
         self.assertEqual(deleted, 1)
         self.assertEqual(github.deleted, ["claude/shared"])
@@ -324,7 +324,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({ref: pull["head_sha"]}, after_snapshot=drift)
         out = io.StringIO()
 
-        deleted = run(github, [pull], DEFAULT_PROTECTED, 24.0, False, out)
+        deleted = run(github, [pull], DEFAULT_PROTECTED, 24.0, False, out, now=NOW)
 
         self.assertEqual(deleted, 0)
         self.assertEqual(github.deleted, [])
@@ -340,7 +340,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({ref: pull["head_sha"]}, after_snapshot=drift)
         out = io.StringIO()
 
-        deleted = run(github, [pull], DEFAULT_PROTECTED, 24.0, False, out)
+        deleted = run(github, [pull], DEFAULT_PROTECTED, 24.0, False, out, now=NOW)
 
         self.assertEqual(deleted, 0)
         self.assertEqual(github.deleted, [])
@@ -356,7 +356,7 @@ class RunTest(unittest.TestCase):
         for prs in ([newer, older], [older, newer]):
             with self.subTest(order=[p["number"] for p in prs]):
                 out = io.StringIO()
-                deleted = run(github, prs, DEFAULT_PROTECTED, 24.0, False, out)
+                deleted = run(github, prs, DEFAULT_PROTECTED, 24.0, False, out, now=NOW)
                 self.assertEqual(deleted, 0)
                 self.assertEqual(github.deleted, [])
                 self.assertIn("grace", out.getvalue())
@@ -383,7 +383,7 @@ class RunTest(unittest.TestCase):
         github = FakeGitHub({ref: "a" * 40}, closed_for_head={ref: [peer]})
         out = io.StringIO()
 
-        deleted = run(github, [merged], DEFAULT_PROTECTED, 24.0, False, out)
+        deleted = run(github, [merged], DEFAULT_PROTECTED, 24.0, False, out, now=NOW)
 
         self.assertEqual(deleted, 0)
         self.assertEqual(github.deleted, [])
