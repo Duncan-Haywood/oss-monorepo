@@ -56,6 +56,13 @@ configMapGenerator:
       # Same reason as the card for riding in this ConfigMap: it has to sit at
       # the document root for `/favicon.svg` to resolve.
       - favicon.svg=front-door/favicon.svg
+      # The crawler handshake. Both ride in this ConfigMap for the same reason
+      # the card and the icon do: they have to sit at the document root for
+      # `/robots.txt` and `/sitemap.xml` to resolve, and two ConfigMaps cannot
+      # mount at one `mountPath`. Text, so both land in `data`. Under a
+      # kilobyte together against a 1 MiB object ceiling.
+      - robots.txt=front-door/robots.txt
+      - sitemap.xml=front-door/sitemap.xml
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

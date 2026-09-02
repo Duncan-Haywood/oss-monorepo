@@ -167,6 +167,108 @@ export const FRONT_DOOR_URL = 'https://marisstella.dev/';
 /** The canonical host every tool page is stamped with; see `build.mjs`. */
 export const TOOLS_URL = 'https://tools.marisstella.dev/';
 
+/** The file name crawlers fetch unprompted before anything else on an origin. */
+export const ROBOTS_FILE = 'robots.txt';
+
+/** The sitemap `robots.txt` points at, and nginx serves. */
+export const SITEMAP_FILE = 'sitemap.xml';
+
+/** Where `--write` puts the two, beside the page they describe. */
+export const ROBOTS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ROBOTS_FILE);
+export const SITEMAP_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  SITEMAP_FILE,
+);
+
+/**
+ * `robots.txt` for the apex, and why it allows everything.
+ *
+ * ## What this replaces
+ *
+ * The catch-all `location /` in `front-door/default.conf` answers *every* path
+ * with `index.html`, which is deliberate for a mistyped URL and wrong for the
+ * two paths a crawler asks for by convention. Until this file existed, a
+ * crawler fetching `https://marisstella.dev/robots.txt` was handed 16 KB of
+ * HTML with a `200` and `Content-Type: text/html` — the same failure the
+ * `/social-card.png` block above was added to fix, on the one file every
+ * crawler requests before it reads a single page.
+ *
+ * A 200 carrying unparseable content is the worst of the three outcomes here.
+ * A 404 is a clean "no restrictions, no sitemap" that every crawler
+ * understands; a valid file is better still. HTML with a 200 is neither: the
+ * portfolio's only indexable surface has been answering the discovery
+ * handshake with a document that does not parse as a directive.
+ *
+ * ## Why `Allow: /` and not a `Disallow` on the mirror
+ *
+ * The obvious-looking line to add here is `Disallow: /tools/`, since
+ * `front-door-tools.mjs` is emphatic that the mirrored pages are copies whose
+ * canonical lives on the tools host and must not compete in search. That line
+ * would be a mistake, and the reason is the standard trap:
+ *
+ * `robots.txt` governs *crawling*, not *indexing*. A crawler that is
+ * disallowed from `/tools/` never fetches those pages, and therefore never
+ * sees the `<meta name="robots" content="noindex,follow">` that
+ * `injectMirrorTags` puts in each one, nor the `X-Robots-Tag: noindex` header
+ * `default.conf` sets on the same paths. A URL that is blocked from crawling
+ * but linked to from an indexable page can still be indexed URL-only — title
+ * and bare link, no content, no way to consolidate onto the canonical.
+ *
+ * So blocking the crawl would *weaken* exactly the consolidation the mirror is
+ * careful to preserve. Letting crawlers fetch the mirror is what makes its
+ * `noindex` effective, because a directive is only obeyed by a crawler allowed
+ * to read it. `Allow: /` here and `noindex` there are the same policy stated
+ * in the layer that can actually enforce it.
+ */
+export const ROBOTS_TXT = `# ${FRONT_DOOR_URL}${ROBOTS_FILE}
+#
+# Crawling is unrestricted on purpose. The mirrored tools under /tools/ are
+# copies whose canonical lives on ${TOOLS_URL}
+# and they must not be indexed here. That is enforced by a noindex meta on
+# every mirrored page and an X-Robots-Tag: noindex header on every /tools/
+# response -- NOT by a Disallow. A disallowed page is never fetched, so its
+# noindex is never read, and the URL can still be indexed bare. Allowing the
+# crawl is what makes the noindex work.
+User-agent: *
+Allow: /
+
+Sitemap: ${FRONT_DOOR_URL}${SITEMAP_FILE}
+`;
+
+/**
+ * The sitemap: one URL, because this host has exactly one indexable page.
+ *
+ * Every other path the apex serves is either an asset (`/social-card.png`,
+ * `/favicon.svg`) or a mirrored tool page under `/tools/`, and all of the
+ * latter carry `noindex` plus a canonical pointing at the tools host. Listing
+ * a `noindex` URL in a sitemap is a direct contradiction — the sitemap asks a
+ * crawler to index what the page then tells it not to — and search consoles
+ * report it as an error rather than resolving it in either direction. So the
+ * mirror stays out, and this file grows a second entry only when the apex
+ * grows a second page of its own.
+ *
+ * No `<lastmod>`. The honest value would be the commit date of
+ * `front-door/index.html`, which this generator cannot read without making its
+ * output depend on git state — and a `<lastmod>` stamped with the *build* time
+ * would change on every regeneration, so `--write` would dirty the tree on
+ * runs that changed nothing and the staleness test below could never pass
+ * twice. `<lastmod>` is optional in the protocol and an inaccurate one is
+ * worse than none, since crawlers weight it and a date that moves without the
+ * content moving is a signal that trains them to stop trusting it.
+ */
+export function renderSitemap() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${FRONT_DOOR_URL}</loc>
+  </url>
+</urlset>
+`;
+}
+
 /**
  * What the collection calls itself.
  *
@@ -632,6 +734,17 @@ if (isMain) {
     // being committed out of step.
     await fs.writeFile(FAVICON_OUTPUT_FILE, FAVICON_SVG);
     console.log(`wrote ${path.relative(REPO_ROOT, FAVICON_OUTPUT_FILE)} (${FAVICON_SVG.length} bytes)`);
+    // Same reason again: `robots.txt` names the sitemap's URL and the sitemap
+    // names the page's, so all three are written by whichever run writes any
+    // of them. A sitemap referenced by a robots.txt that was never delivered
+    // is the `og:image` defect one layer out.
+    await fs.writeFile(ROBOTS_OUTPUT_FILE, ROBOTS_TXT);
+    console.log(`wrote ${path.relative(REPO_ROOT, ROBOTS_OUTPUT_FILE)} (${ROBOTS_TXT.length} bytes)`);
+    const sitemap = renderSitemap();
+    await fs.writeFile(SITEMAP_OUTPUT_FILE, sitemap);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, SITEMAP_OUTPUT_FILE)} (${sitemap.length} bytes)`,
+    );
   } else {
     process.stdout.write(html);
   }
