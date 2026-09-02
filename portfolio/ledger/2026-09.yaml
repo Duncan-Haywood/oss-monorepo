@@ -6358,3 +6358,101 @@ entries:
         correctly folded in both pages' shard entries. Re-ran the full
         verification suite against the merged state before pushing.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "product-first autonomous mandate" session, explicitly
+        naming CI/CD, marketing-materials deployment on the Hetzner VMs, and
+        "set up the Codex CLI to use the built-in quota for dev work,
+        following a similar prompt to this one, on the Hetzner VM" as
+        priorities. Zero open PRs at start, five stale branches without PRs
+        checked: two empty diffs against `main`, two fully superseded (their
+        content already landed under different PR numbers/ledger entries —
+        confirmed by grepping `main`'s ledger and `asks.yaml` for the exact
+        claims each branch would have added), and one (`tmp/ssh-key-smoke`)
+        a stale one-off CI probe 1000+ commits behind `main`. Three-PR quota
+        trivially satisfied (none existed, none needed).
+      - >-
+        Surveyed the repo's actual Hetzner/Codex automation state before
+        building anything: `gitops/agents/` is a complete, tested (99/99
+        governor+worker tests) Codex-on-Hetzner autonomous loop -- governor
+        CronJob, worker Job, RBAC, NetworkPolicy, a PVC persisting
+        `~/.codex/auth.json`, and six real queue items including
+        `deploy-cicd-readiness` (priority 7) and `marketing-distribution`
+        (priority 6), both reordered to the top on 2026-09-01 on this exact
+        owner instruction. It is fully built and off
+        (`policy.json.enabled: false`, `cronjob.yaml suspend: true`),
+        blocked on one owner action already queued as decision `#1996
+        codex-governor-enable`: run `codex login`, seal `CODEX_AUTH_JSON`
+        (the literal "use the built-in quota" route -- costs nothing extra
+        against a ChatGPT plan) into `codex-secrets`, then flip the two
+        booleans. This session could not move that forward -- the credential
+        is not something any session holds -- so it did the code half
+        instead: verified nothing had rotted and the two priority-1/2 queue
+        items' own claims were still accurate.
+      - >-
+        Ran two dedicated research passes mirroring exactly what
+        `deploy-cicd-readiness` and `marketing-distribution` ask a Codex
+        worker to do (RBAC/NetworkPolicy/image-tag/kustomization/workflow
+        sweep; embed-widget/comparison-page/category-hub/about-page sweep).
+        Both came back empty of genuine untracked gaps -- `pytest gitops/tests`
+        267/267, `publish_surface.py --check` and `check_duplicate_symbols.py`
+        clean, embed coverage 169/169, all 7 category hubs and `/about/`
+        verified accurate. Real findings from the sweep: stale "156 tools"
+        prose comments (mirror is 159) in `front-door.mjs` and
+        `portfolio-front.yaml`, and the marketing queue doc undercounting
+        existing comparison pages by an order of magnitude (6 claimed, 78
+        actual `vs-*.html` pages by filename). Fixed both and recorded the
+        sweep results with today's date directly in
+        `gitops/agents/queue/deploy-cicd-readiness.yaml` and
+        `marketing-distribution.yaml` so the first ticks after the governor
+        is enabled don't re-spend a run rediscovering "nothing here."
+        Merged as #2935 (auto-merged near-instantly by the repo's own
+        merge-on-green path).
+      - >-
+        A third research pass (mirroring `product-feature-improvement`)
+        found a real, narrow bug: `backup-verification-evidence`'s on-page
+        trend table renders sizes via `formatBytes()` (e.g. "51.2 GB"), but
+        the markdown report shown directly below it -- the artifact this
+        tool exists to produce, copied verbatim by its "Copy markdown"
+        button into a ticket or runbook -- built its own size string by
+        hand and never called `formatBytes`, so the same row read
+        "51200000000 bytes" there. Fixing the flagged spot surfaced the
+        identical "raw bytes, no formatter" pattern in three siblings
+        sharing the same file/module pair (the JS and Python alert-detail
+        strings, and the Python markdown table), none of which the research
+        pass had been asked to check; fixed all four together rather than
+        leaving three known-broken siblings next to the one just patched.
+        Added a Python `format_bytes()` matching the JS one exactly (none
+        existed) and tests in both suites pinning the human-readable format.
+      - >-
+        Driving that fix (#2938) to green surfaced two rounds of base drift
+        from this repo's usual multiple-sessions-per-hour traffic, distinct
+        from each other: first, CI caught that this session's own commit to
+        `report.mjs` (a file `front-door-tools.mjs` mirrors into the
+        ConfigMap shards) needed the mirror regenerated, which this session
+        had not done -- a real, self-caused failure, fixed by running the
+        generator and re-verifying. Second, after pushing that fix, a
+        genuine merge conflict appeared against a concurrently-merged PR
+        (#2936, changing how the mirror generator scans `.mjs` files) in the
+        generated `kustomization.yaml` -- resolved via the repo's own
+        documented `platform/marketing/resolve-mirror-merge.sh`, which
+        regenerates and verifies rather than hand-resolving a generated
+        file. While pushing that resolution, a second Claude session (also
+        watching #2938, almost certainly a PR-steward process) independently
+        pushed a byte-identical merge resolution to the same branch first;
+        rather than push a redundant duplicate merge commit, this session
+        fetched and adopted that commit (`git reset --hard`) and re-verified
+        the identical tree before merging. Merged as #2938 (squash
+        `5916fdf6c`) after 13 checks went green on the final head.
+      - >-
+        Did not start a new venture or a fourth product PR this run. With
+        CI/CD and marketing-distribution both independently confirmed
+        saturated and the Codex/Hetzner ask confirmed fully built and
+        credential-blocked, the two shipped PRs plus the accurate queue-doc
+        corrections were judged the highest-value close to this run rather
+        than manufacturing a lower-value diff to hit a self-imposed count.
+    mrr_end: null
+    mrr_end: null
