@@ -4895,3 +4895,61 @@ entries:
         existing-PR repair, since the repairable queue was verified empty
         first.
     mrr_end: null
+  - venture: portfolio-front
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2869: every one of the 53 tools the apex serves
+        was a cul-de-sac. `front-door-tools.mjs` fixed the hop *into* a tool
+        on 2026-09-02 by mirroring complete ventures into the front door's
+        own ConfigMaps, and left the hop *out* of one missing. Measured on
+        `main` before the fix, a mirrored page's complete link set was its
+        own siblings, its `LICENSE`, `/favicon.svg`, and a canonical to
+        `tools.marisstella.dev` — which serves nothing until
+        `portfolio-site-repo` is sealed. So a visitor who opened the fence
+        calculator, from the front door or a bookmark or a link someone sent
+        them, had no route to the other 52 tools and no way to learn they
+        exist. The portfolio's one working funnel was a single page deep.
+        `injectMirrorNav` now puts one anchor back to `/` immediately after
+        `<body>` on all 232 mirrored pages.
+      - >-
+        Two details worth carrying forward rather than re-deriving. **The
+        `@media print` hide is not cosmetic**: every mirrored venture's print
+        stylesheet hides `header, main, footer` with `!important` so that
+        printing yields the customer proposal alone, and an unhidden bar
+        would have printed "All 53 free tools" across the top of a
+        contractor's bid — the one page of this portfolio a stranger's own
+        customer sees. **And `SHARD_BYTE_CEILING` went 706 -> 736 KiB** for a
+        different reason than the 700 -> 706 bump did: `7 * 736 KiB` exceeds
+        `MIRROR_BYTE_CEILING` itself, so seven shards now hold any mirror the
+        module is allowed to build and the next byte of growth stops at the
+        total ceiling rather than silently adding a ConfigMap that
+        `portfolio-front.yaml` would have to mount. Cost is headroom under
+        the 1 MiB etcd object cap: ~267 KB rather than ~296 KB.
+      - >-
+        Verified before merge: 95 `platform/marketing` tests (6 new), 265
+        `gitops/tests` pytest cases, and the mirror materialised the way
+        nginx serves it (`slug__file` -> `/tools/<slug>/<file>`) and driven
+        in Chromium — all 53 entry pages render exactly one visible return
+        link with zero page errors, print media hides it, and clicking it
+        lands on the front door. All 7 CI checks green on real runners, then
+        squash-merged per this repo's no-review-gate rule. Argo CD syncs
+        `gitops/` from `main`, so the merge is the deploy; the live domain
+        could not be checked from here because the egress policy answers 403
+        to CONNECT on `marisstella.dev`, which is a network-policy denial
+        rather than evidence about the site.
+      - >-
+        Queue state for the next session: 1 open PR at the start (#2861,
+        reviewed and locally verified at 69/69 before a concurrent session
+        merged it), 0 repairable PRs after, and the 217-branch sweep turned
+        up nothing new beyond the prior session's supersede findings —
+        `venture/vendor-change-watch` is one commit ahead of `main` with an
+        empty diff. Confirmed rather than re-derived: `worker.sh` already
+        installs `@openai/codex` and prefers `CODEX_AUTH_JSON` (a `codex
+        login` session, i.e. the built-in plan quota) while withholding
+        `OPENAI_API_KEY` so a tick cannot bill, which is exactly the owner's
+        standing "use up the built-in quota" instruction. It is inert until
+        `codex-secrets` is sealed and the governor unsuspended. No duplicate
+        owner ask added.
+    mrr_end: null
