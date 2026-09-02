@@ -5241,3 +5241,64 @@ entries:
         worktree add` over `git checkout -b` in the main checkout for
         exactly this reason.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `marketing-distribution` (queue item, owner priority second only
+        to deploy/CICD) by hand. Measured first: built the Pages site
+        (`PAGES_BASE_URL=... node platform/pages/build.mjs` +
+        `check.mjs` -- 169 products, 570 pages, no dead links, clean
+        baseline) before picking anything. Walked all four candidates:
+        embed widget (#2561) already covers all 169 entry pages, no skip
+        found; comparison/"alternatives" pages are far more complete than
+        the task's seed list implied -- every marketplace fee calculator
+        and most non-marketplace tools with a real named incumbent already
+        carry a `vs-<incumbent>.html` page (a prior same-day session had
+        already closed the one remaining gap, #2864's
+        `vs-JobNimbus` page for `siding-bid-calculator`); no tool with both
+        a genuine verifiable incumbent and no comparison page was found;
+        `/about/`'s press kit had no drifted claim on inspection.
+      - >-
+        The real gap was candidate 3, the category-hub depth pass: read all
+        seven `/c/` hubs' `CATEGORY_PAGE_COPY` against actual category
+        membership (`groupByCategory` output, not the source by eye) and
+        found two false claims and one omission, all in the meta
+        description / OG description / JSON-LD `CollectionPage.description`
+        that search engines and AI assistants quote directly.
+        `/c/evidence/` named "DNS evidence" as an example -- no DNS tool has
+        ever shipped as a browser surface (`dns-configuration-evidence` is
+        CLI-only, no `index.html`, never in `discoverSurfaces`), so the
+        claim was false since the category pages first shipped in #2060.
+        `/c/logistics/` named "cost a cut list" -- `cut-list-optimizer` was
+        deliberately moved out of `logistics` into `trades` by #2060 itself,
+        but the hub's own copy was never updated and kept advertising a
+        tool that left the category the same PR that wrote the sentence.
+        `/c/more/` omitted the `services` category (carved out of this
+        exact catch-all in the same #2060 PR) from its own "everything
+        outside ... sections" enumeration. Fixed all three with true,
+        verified replacements (`permission drift`, `class an LTL shipment`
+        / `audit a freight accessorial bill`, added `services`), each
+        checked against `groupByCategory` and kept under `check.mjs`'s
+        160-character `SNIPPET_MAX`. 3-line diff, `build.mjs` only. No
+        third-party script/font/CDN/network call added.
+      - >-
+        Verified in an isolated `git worktree` off `origin/main` (the shared
+        checkout had another agent's uncommitted `gitops/` changes sitting
+        dirty; left them untouched rather than risk clobbering parallel
+        work): build + check.mjs clean, `guide-coverage.mjs` and
+        `faq-coverage.mjs` 169/169, `faq-duplicate.mjs` 559 pages clean,
+        `node --test platform/pages/build.test.mjs platform/pages/check.test.mjs`
+        320/320 in the worktree, full `platform/pages/*.test.mjs` suite
+        856/856 (run against the same edit in a separate checkout). Grepped
+        the built `dist/`, `catalog.json`, `llms.txt` to confirm no leftover
+        "DNS evidence" / "cost a cut list" strings anywhere. CI on the PR
+        (#2882) ran on real runners (`ci_starvation.py` signature not
+        present -- jobs took 10s-3min with real conclusions, not the 3-6s
+        `runner_id: 0` pattern): all 7 non-skipped check runs (`build`,
+        `tofu`, `gitops`, `hcloud-scope`, `scripts`, `validate`, `check`)
+        passed. Shipped and merged #2882. Did not touch `gitops/` --
+        that stays with the parallel deploy/CI agent (open PR #2877 at
+        session start).
+    mrr_end: null
