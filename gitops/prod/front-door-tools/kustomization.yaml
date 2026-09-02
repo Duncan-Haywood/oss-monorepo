@@ -38,10 +38,10 @@
 #   portfolio-front-tools-2: 154 files, 556431 bytes
 #   portfolio-front-tools-3: 113 files, 552835 bytes
 #   portfolio-front-tools-4: 122 files, 554168 bytes
-#   portfolio-front-tools-5: 114 files, 543453 bytes
-#   portfolio-front-tools-6: 115 files, 556098 bytes
-#   portfolio-front-tools-7: 122 files, 556331 bytes
-#   portfolio-front-tools-8: 105 files, 555437 bytes
+#   portfolio-front-tools-5: 114 files, 553993 bytes
+#   portfolio-front-tools-6: 118 files, 553101 bytes
+#   portfolio-front-tools-7: 120 files, 554872 bytes
+#   portfolio-front-tools-8: 104 files, 549437 bytes
 #   portfolio-front-tools-9: 59 files, 303789 bytes
 #   portfolio-front-tools-10: 59 files, 278044 bytes
 #
@@ -826,7 +826,6 @@ configMapGenerator:
       - gravel-driveway-bid-calculator__proposal.mjs.gz=gravel-driveway-bid-calculator__proposal.mjs.gz
       - gravel-driveway-bid-calculator__share.mjs.gz=gravel-driveway-bid-calculator__share.mjs.gz
       - gravel-driveway-bid-calculator__usage.mjs.gz=gravel-driveway-bid-calculator__usage.mjs.gz
-      - gravel-driveway-bid-calculator__vs-jobber.html.gz=gravel-driveway-bid-calculator__vs-jobber.html.gz
       - gutter-cleaning-bid-calculator__LICENSE.gz=gutter-cleaning-bid-calculator__LICENSE.gz
       - gutter-cleaning-bid-calculator__calc.mjs.gz=gutter-cleaning-bid-calculator__calc.mjs.gz
       - gutter-cleaning-bid-calculator__index.html.gz=gutter-cleaning-bid-calculator__index.html.gz
@@ -896,12 +895,12 @@ configMapGenerator:
       - irrigation-install-bid-calculator__LICENSE.gz=irrigation-install-bid-calculator__LICENSE.gz
       - irrigation-install-bid-calculator__calc.mjs.gz=irrigation-install-bid-calculator__calc.mjs.gz
       - irrigation-install-bid-calculator__how-much-to-charge-to-install-a-sprinkler-system.html.gz=irrigation-install-bid-calculator__how-much-to-charge-to-install-a-sprinkler-system.html.gz
+      - irrigation-install-bid-calculator__index.html.gz=irrigation-install-bid-calculator__index.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - irrigation-install-bid-calculator__index.html.gz=irrigation-install-bid-calculator__index.html.gz
       - irrigation-install-bid-calculator__proposal.mjs.gz=irrigation-install-bid-calculator__proposal.mjs.gz
       - irrigation-install-bid-calculator__share.mjs.gz=irrigation-install-bid-calculator__share.mjs.gz
       - irrigation-install-bid-calculator__usage.mjs.gz=irrigation-install-bid-calculator__usage.mjs.gz
@@ -987,6 +986,7 @@ configMapGenerator:
       - mold-remediation-bid-calculator__index.html.gz=mold-remediation-bid-calculator__index.html.gz
       - mold-remediation-bid-calculator__proposal.mjs.gz=mold-remediation-bid-calculator__proposal.mjs.gz
       - mold-remediation-bid-calculator__usage.mjs.gz=mold-remediation-bid-calculator__usage.mjs.gz
+      - mold-remediation-bid-calculator__vs-xactimate.html.gz=mold-remediation-bid-calculator__vs-xactimate.html.gz
       - moving-bid-calculator__LICENSE.gz=moving-bid-calculator__LICENSE.gz
       - moving-bid-calculator__calc.mjs.gz=moving-bid-calculator__calc.mjs.gz
       - moving-bid-calculator__how-much-to-charge.html.gz=moving-bid-calculator__how-much-to-charge.html.gz
@@ -1016,14 +1016,14 @@ configMapGenerator:
       - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
       - patio-door-bid-calculator__index.html.gz=patio-door-bid-calculator__index.html.gz
       - patio-door-bid-calculator__proposal.mjs.gz=patio-door-bid-calculator__proposal.mjs.gz
+      - patio-door-bid-calculator__share.mjs.gz=patio-door-bid-calculator__share.mjs.gz
+      - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
+      - paver-patio-bid-calculator__LICENSE.gz=paver-patio-bid-calculator__LICENSE.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - patio-door-bid-calculator__share.mjs.gz=patio-door-bid-calculator__share.mjs.gz
-      - patio-door-bid-calculator__usage.mjs.gz=patio-door-bid-calculator__usage.mjs.gz
-      - paver-patio-bid-calculator__LICENSE.gz=paver-patio-bid-calculator__LICENSE.gz
       - paver-patio-bid-calculator__calc.mjs.gz=paver-patio-bid-calculator__calc.mjs.gz
       - paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz=paver-patio-bid-calculator__how-much-to-charge-for-a-paver-patio.html.gz
       - paver-patio-bid-calculator__index.html.gz=paver-patio-bid-calculator__index.html.gz
@@ -1143,12 +1143,12 @@ configMapGenerator:
       - sewer-line-replace-bid-calculator__share.mjs.gz=sewer-line-replace-bid-calculator__share.mjs.gz
       - sewer-line-replace-bid-calculator__usage.mjs.gz=sewer-line-replace-bid-calculator__usage.mjs.gz
       - shed-install-bid-calculator__LICENSE.gz=shed-install-bid-calculator__LICENSE.gz
+      - shed-install-bid-calculator__calc.mjs.gz=shed-install-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - shed-install-bid-calculator__calc.mjs.gz=shed-install-bid-calculator__calc.mjs.gz
       - shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz=shed-install-bid-calculator__how-much-to-charge-to-install-a-shed.html.gz
       - shed-install-bid-calculator__index.html.gz=shed-install-bid-calculator__index.html.gz
       - shed-install-bid-calculator__proposal.mjs.gz=shed-install-bid-calculator__proposal.mjs.gz
