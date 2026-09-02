@@ -8,6 +8,8 @@ After using this, you can now see which grant report needs attention next and ha
 
 Open `index.html` in a browser. Add one row per award, enter the award date and reporting interval in months, then select **Review grants**. The date is a planning calculation, not a filing deadline determination. Export the resulting queue when you need to share it.
 
+See [when-is-my-grant-report-due.html](when-is-my-grant-report-due.html) for a worked example of how the review queue is sorted, or [vs-granthub.html](vs-granthub.html) for how this narrow, free tracker differs from Foundant's paid GrantHub grant-management platform.
+
 ## Privacy and usage
 
 Everything runs in your browser. Grant data is never uploaded, and there are no accounts, cookies, or analytics vendors. The optional usage switch counts only local feature events (`grant_added`, `reviewed`, `sample_loaded`, `exported`) in this browser; it stores no grant names, amounts, dates, IPs, or identifiers. It is off by default, and counting stops automatically when the browser sends Do Not Track or Global Privacy Control.
@@ -21,5 +23,5 @@ The tracker produces a planning queue. It does not determine a funder's rules, f
 ## Development
 
 ```sh
-node --test calc.test.mjs
+node --test
 ```
