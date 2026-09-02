@@ -3319,3 +3319,93 @@ entries:
         #2780 after all 13 check runs (11 success, 2 skipped: `deploy` and
         `preflight`, both expected on a non-`main` push) came back green.
     mrr_end: null
+  - venture: solar-pv-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `gitops/agents/queue/marketing-distribution.yaml`. Checked open
+        PRs first: none. Measured before picking, per the item's own
+        instruction: a real `PAGES_BASE_URL=... node platform/pages/build.mjs`
+        showed "Added an embed offer to 169 tool entry page(s)" against 169
+        built tools (candidate #1, embed widget, has no gap), re-reading all 7
+        `CATEGORY_PAGE_COPY` entries against the actual venture list turned up
+        no drift (candidate #3), and checking `/about/`'s MIT-license count
+        (177 LICENSE files on disk, 169 in the built dist -- matches the 169
+        deployed tools), its "no cookies" claim (zero `document.cookie` hits
+        across `ventures/` and the dist), and its opt-out checkbox all held
+        (candidate #4). Candidate #2 (comparison pages) still had a real gap:
+        diffed every deployed venture against the ~50 `vs-*.html` pages that
+        already exist and found `solar-pv-bid-calculator` uncovered, with
+        Aurora Solar (the dominant remote solar-design/proposal platform for
+        installers) as a genuine, niche-specific named incumbent. WebFetch is
+        blocked for every external domain in this environment, confirmed live
+        against `aurorasolar.com`, a third-party review page, Wikipedia, and
+        `google.com` (all `EGRESS_BLOCKED`) -- consistent with the same block
+        `vs-billd.html`'s and `vs-servicetitan.html`'s sessions hit, though
+        WebSearch (a separate, unblocked tool) still works and did surface a
+        third-party-aggregated Aurora Solar price. Left it out rather than
+        citing it as fact, since there was no way to confirm it against
+        Aurora's own current pricing page -- the same no-fabricated-numbers
+        discipline `vs-paintscout.html` and `vs-singleops.html` already use
+        for their own incumbents (both shipped the same week, evidence this
+        is now the house style for a vendor whose pricing can't be fetched
+        live, not a one-off). Shipped `vs-aurora-solar.html` (disclaimer,
+        non-affiliation notice, FAQPage schema with matching visible copy,
+        a test asserting no `$` figure appears for Aurora Solar), linked it
+        from `index.html` and `README.md`, and listed it in `sitemap.xml`.
+        Verified: the venture's own `node --test` (71/71, up from 63), the
+        full `platform/pages` suite (856/856), a real `build.mjs` run (page
+        count 531->532, exactly the one new page, entry/category counts
+        unchanged), `check.mjs` (543 pages, no dead links), and
+        `platform/marketing/front-door-tools.test.mjs` locally (20/20) --
+        this change only added a link inside an existing tool's `index.html`
+        rather than a new venture, so the apex-mirror staleness #2780 hit
+        did not recur, and CI's own "Check the apex tool mirror is not
+        stale" step confirmed it. Merged as #2784 after all 7 check runs
+        came back green (`deploy` skipped, expected on a non-`main` push).
+    mrr_end: null
+  - venture: pressure-washing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item. Checked open PRs first: none.
+        Measured all four candidates before picking, per the item's own
+        instruction not to guess which gap is real: the embed widget
+        (`platform/pages/embed.mjs`) already covers all 169 entry pages
+        (`Added an embed offer to 169 tool entry page(s)` on a fresh
+        `build.mjs` run, matching the tool count exactly); the 7 `/c/`
+        category hubs and the `/about/` press kit are both computed from
+        real counts rather than hand-written prose, and `check.mjs` reports
+        no staleness on either. The remaining gap was in comparison pages:
+        `pressure-washing-bid-calculator` had none, and GorillaDesk is a
+        well-documented, dedicated field-service platform marketed
+        specifically to pressure-washing (and lawn-care/pest-control)
+        businesses -- an obvious named incumbent, the same shape as the
+        portfolio's existing `vs-acculynx.html` / `vs-singleops.html` pages.
+        `WebFetch` is blocked for every external domain in this session,
+        including `gorilladesk.com` and even `en.wikipedia.org`
+        (`EGRESS_BLOCKED`), and `WebSearch` third-party aggregators quote
+        conflicting numbers for GorillaDesk ($49/mo to $245/mo, none from
+        its own page), so no price is verifiable and none is claimed --
+        same discipline `vs-singleops.html` and `vs-billd.html` already
+        established. Shipped `vs-gorilladesk.html`: only well-documented,
+        non-numeric identity facts (category, field-service focus,
+        account-based subscription model), the full liability disclaimer
+        and no-SLA clause, linked from `index.html`, listed in
+        `sitemap.xml`, FAQPage JSON-LD matching the visible headings, and 9
+        new tests. Verified `node --test` for the venture (97/97, up from
+        88), `platform/pages/clauses.mjs pressure-washing-bid-calculator`
+        (3/3 pages carry the no-warranty clause), a full
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ build.mjs` +
+        `check.mjs` run (169 products, 543 pages, no dead links, up from
+        542), the full `platform/pages` suite (856/856), and
+        `platform/marketing` (51/51, confirming the `index.html` edit did
+        not leave `gitops/prod/front-door-tools/` stale -- the exact
+        failure mode PR #2780's ledger entry flagged for the same kind of
+        edit). Opened as #2785; real GitHub Actions checks (`build` x2,
+        `check`, `validate`, `link-contrast`, `page-integrity`,
+        `site-test`) all came back green (`deploy` skipped, expected on a
+        non-`main` push), and it was merged.
+    mrr_end: null

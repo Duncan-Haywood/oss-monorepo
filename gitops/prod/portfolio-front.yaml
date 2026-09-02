@@ -34,7 +34,7 @@
 # WHY IT IS NOT A SECOND COPY OF THE SITE
 #
 # `portfolio-apex.yaml` warns at length against serving the same bytes on
-# three hostnames: `build.mjs` stamps one canonical host into all 524 pages,
+# three hostnames: `build.mjs` stamps one canonical host into all 544 pages,
 # and a duplicate in front of a crawler undoes that consolidation. This page
 # is a different document — positioning, seven category cards, the two §5b
 # clauses — with its own canonical (`https://marisstella.dev/`) and no

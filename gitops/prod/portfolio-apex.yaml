@@ -16,7 +16,7 @@
 # It was a 301 to `https://tools.marisstella.dev/` from 2026-08-28 until now,
 # and the argument for that was sound as far as it went: `build.mjs` stamps
 # `PAGES_BASE_URL` into the canonical link, the og:url and every sitemap entry
-# of all 524 pages, `portfolio-site.yaml` sets that to the tools host, and
+# of all 544 pages, `portfolio-site.yaml` sets that to the tools host, and
 # serving the same bytes on three hostnames would put two uncanonical
 # duplicates in front of crawlers for the `rel=canonical` tag to undo.
 #
