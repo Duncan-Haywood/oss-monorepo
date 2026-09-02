@@ -898,7 +898,33 @@ spec:
               type: RuntimeDefault
           containers:
             - name: kubectl
-              image: bitnami/kubectl:1.31
+              # `:1.31` 404s against Docker Hub as of 2026-09-02 (`curl
+              # https://hub.docker.com/v2/repositories/bitnami/kubectl/tags/1.31/`
+              # -> "httperror 404: tag '1.31' not found") and stays that way:
+              # Bitnami rebranded this repository "Bitnami Secure Image for
+              # kubectl" and, per its own Docker Hub description, now ships
+              # only a rolling `latest` (plus opaque `sha256-*` digest tags) --
+              # every versioned tag that used to exist under the free tier is
+              # gone. `latest` is genuinely current: Bitnami rebuilds and
+              # re-pushes it same-day (`docker.io/v2/.../tags/latest`
+              # `last_pushed` reads today), so a pull here always gets a
+              # supported build rather than one frozen at whatever kubectl
+              # shipped when this line was last edited. A CronJob that
+              # crash-loops on ImagePullBackOff is silent in exactly the way
+              # `portfolio-site-refresh`'s own header comment says the old
+              # `kubectl rollout restart`-and-exit shape used to be: the Job
+              # goes red, but nothing about *why* is visible without reading
+              # this container's events, and the site keeps serving on old
+              # pods (`maxUnavailable: 0`) with no outward sign the nightly
+              # rebuild alarm stopped firing at all.
+              #
+              # The version-skew risk `:latest` usually carries is bounded
+              # here to near nothing: this container only ever calls `kubectl
+              # rollout restart` and `kubectl get deployment -o go-template`
+              # against one Deployment -- two verbs that have not changed
+              # shape across Kubernetes releases in years, unlike a script
+              # that touched CRDs or newer API groups.
+              image: bitnami/kubectl:latest
               command: ["/bin/sh", "-ec"]
               args:
                 - |
