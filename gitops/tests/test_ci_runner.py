@@ -87,6 +87,40 @@ def test_docker_dependent_exception_is_exactly_the_jobs_that_need_docker() -> No
     assert found == DOCKER_DEPENDENT_JOBS, found ^ DOCKER_DEPENDENT_JOBS
 
 
+def test_readme_runs_on_count_matches_reality() -> None:
+    # gitops/ci/README.md states a specific count of `runs-on` lines that read
+    # the switch ("All N `runs-on` lines across M workflows"). That count went
+    # stale once already (#2713 fixed it at 247/221; a later PR, #2740, added a
+    # job and pushed the true total to 248 without anyone touching this
+    # sentence) -- a hand-written number in prose has no way to notice a
+    # workflow gained a job. Recompute both numbers from the same source the
+    # other tests in this file use and assert the README agrees, so the next
+    # drift fails CI instead of sitting unnoticed.
+    workflows = sorted(WORKFLOWS.glob("*.yml"))
+    total_runs_on = 0
+    for path in workflows:
+        spec = yaml.safe_load(path.read_text())
+        total_runs_on += len(spec.get("jobs") or {})
+    switch_count = total_runs_on - len(DOCKER_DEPENDENT_JOBS)
+
+    readme = (CI / "README.md").read_text()
+    match = re.search(
+        r"(\d+) of the (\d+) `runs-on` lines across (\d+) workflows", readme
+    )
+    assert match, "README's runs-on count sentence not found or reworded"
+    assert int(match.group(1)) == switch_count, (
+        f"README claims {match.group(1)} runs-on lines read the switch, "
+        f"actual count is {switch_count}"
+    )
+    assert int(match.group(2)) == total_runs_on, (
+        f"README claims {match.group(2)} total runs-on lines, "
+        f"actual count is {total_runs_on}"
+    )
+    assert int(match.group(3)) == len(workflows), (
+        f"README claims {match.group(3)} workflows, actual count is {len(workflows)}"
+    )
+
+
 _PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
 _NODE_NEEDLE = re.compile(r"\b(node|npm|npx)\b")
 
