@@ -1,5 +1,31 @@
 period: 2026-09
 entries:
+  - venture: cleaning-dilution-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped product-depth work per the queue's
+        `product-feature-improvement` item (#2840, merged): the calculator
+        reported a smooth cost-per-gallon rate but never told an operator
+        how much concentrate to actually buy for a job. Concentrate only
+        comes in whole containers, and a job's usable gallons (after the
+        same waste allowance that already inflates cost-per-gallon) rarely
+        divide evenly into them, so the continuous rate could understate a
+        real purchase order or bid. Added `concentrateNeededOz`,
+        `containersNeeded` (rounded up), `containerPurchaseCost`, and
+        `leftoverConcentrateOz` to `calculateDilution`, surfaced in a new
+        "What to buy for this job" panel, plus fixed an error message that
+        named the job-size field "Batch size" when the visible label reads
+        "Bucket or job size." 8 new tests (17/17 total pass); disclaimer,
+        safety copy, and the DNT/GPC-aware usage tally are untouched.
+        Regenerated `gitops/prod/front-door-tools` for the mirrored
+        `calc.mjs`/`index.html` per `front-door-tools.test.mjs`. All 13
+        PR check runs went green on real runners (`build`, `test`,
+        `page-integrity`, `link-contrast`, `validate`, `gitops`, `tofu`,
+        `scripts`, `hcloud-scope`, `check` -- `deploy` and `preflight`
+        correctly skipped as held/gated jobs).
+    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
