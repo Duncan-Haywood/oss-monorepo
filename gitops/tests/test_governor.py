@@ -554,6 +554,31 @@ def test_effective_window_budget_leaves_interactive_slack() -> None:
     assert policy.effective_window_budget() == 16_200
 
 
+def test_effective_window_budget_reserve_can_bind_tighter_than_target() -> None:
+    # The test above only ever runs policy.json's own defaults, where
+    # targetUtilization (0.90) and 1 - reserveForInteractive (1 - 0.10 = 0.90)
+    # are numerically equal -- so it passes identically whether or not
+    # effective_window_budget()'s min() is doing anything, and would keep
+    # passing if a future edit deleted reserveForInteractive from the
+    # computation entirely. governor.py's own module docstring said exactly
+    # that ("unused here except as documentation of the slack") until this
+    # test was written to check.
+    #
+    # It is not unused: agents/secrets/README.md tells an owner sharing a
+    # ChatGPT-plan seat with interactive use to raise reserveForInteractive to
+    # protect their own quota, and raising it past (1 - targetUtilization) has
+    # to actually shrink the automated budget for that advice to mean
+    # anything. This is that case: reserveForInteractive (0.30) now leaves
+    # less than targetUtilization (0.90) would alone, so the min() must bind.
+    policy = _policy(target_utilization=0.90, reserve_for_interactive=0.30)
+    assert policy.effective_window_budget() == 12_600
+    # And the reverse shape: a reserve below the target's own slack is the
+    # policy.json-default case, where targetUtilization is what actually
+    # binds and reserveForInteractive's value does not matter.
+    loose = _policy(target_utilization=0.90, reserve_for_interactive=0.0)
+    assert loose.effective_window_budget() == 16_200
+
+
 def test_state_roundtrip() -> None:
     original = _state(estimated_seconds_used=120.5, accounted_job_uids=["a"])
     restored = g.state_from_dict(g.state_to_dict(original), NOW)

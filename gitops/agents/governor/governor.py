@@ -14,7 +14,16 @@ Policy knobs (all in git):
   enabled                  kill switch; default false
   maxConcurrent            start at 1 — the cpx22 is 4 GB
   targetUtilization        fraction of the 5-hour window to occupy
-  reserveForInteractive    unused here except as documentation of the slack
+  reserveForInteractive    caps the usable fraction at (1 - this) whenever
+                           that is tighter than targetUtilization — see
+                           Policy.effective_window_budget(). Raise it to
+                           actually shrink the automated budget when a
+                           CODEX_AUTH_JSON seat is shared with interactive
+                           use, per agents/secrets/README.md. At the
+                           policy.json default (0.10, against
+                           targetUtilization 0.90) the two exactly cancel
+                           and it has no effect — which is what made this
+                           look unused until it was raised.
   weeklyBudgetFraction     stop early in the week so you do not go dark
   cooldownOnLimitSeconds   sleep after a 429 instead of retrying immediately
   cooldownOnAuthFailureSeconds
@@ -130,7 +139,15 @@ class Policy:
     )
 
     def effective_window_budget(self) -> float:
-        # reserveForInteractive is the slack inside the window.
+        # reserveForInteractive is the slack inside the window. At the
+        # policy.json default it is exactly cancelled by targetUtilization
+        # (0.90 == 1 - 0.10), so the min() below is a no-op there — do not
+        # read that as reserveForInteractive having no effect. Raise it past
+        # (1 - targetUtilization) — the move agents/secrets/README.md
+        # describes for a shared ChatGPT-plan seat — and it binds, shrinking
+        # the budget below what targetUtilization alone would allow.
+        # test_effective_window_budget_reserve_can_bind_tighter_than_target
+        # exercises the case this comment used to leave untested.
         usable = min(self.target_utilization, 1.0 - self.reserve_for_interactive)
         return max(0.0, usable) * self.window_seconds
 
