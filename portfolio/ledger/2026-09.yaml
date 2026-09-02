@@ -6099,3 +6099,46 @@ entries:
         stray worktree matching those topics, it is this session's orphaned
         work, not a duplicate to avoid.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Supplementary session, designated branch
+        `claude/clever-bohr-5vdrq1`. Correction to the entry above: the
+        `boiler-replacement-bid-calculator` conflict-marker incident had
+        **four** independent duplicate fixes, not two — #2920 (merged),
+        #2921, #2922 (this session's own), and #2923, all opened within
+        about four minutes by four different concurrent sessions. #2921
+        was closed by this session (verified #2920 still merged
+        immediately before and after, per this file's own protocol);
+        #2922 and #2923 self-resolved elsewhere. Consolidated onto #2920
+        because it was the only one of the four that also caught a real
+        duplicate `sitemap.xml` entry (`vs-servicetitan.html` listed
+        twice) that the other three all missed.
+      - >-
+        Found and fixed a second real bug while running the required
+        `supersede_check.py` against #2921/#2922:
+        `portfolio/ledger/supersede_check.py` crashed with
+        `UnicodeDecodeError` on any PR touching the front-door mirror's
+        binary `.gz` shards (`_git()` decodes `git show` output as
+        strict UTF-8, and a gzip blob is not valid UTF-8) — meaning the
+        close-verification step CLAUDE.md itself requires was unusable
+        on almost any product PR, since `front-door-tools.mjs --write`
+        regenerates that mirror alongside most venture changes. Fixed by
+        filtering binary paths (via `git diff --numstat`'s `-\t-\t`
+        marker) out of the line-based comparison before it runs. Merged
+        as #2925. A concurrent session hit and fixed the identical crash
+        independently as #2926, with an equivalent code change plus a
+        regression test #2925 lacked; closed #2926 as superseded but
+        carried its test over verbatim into #2927 (merged) so the
+        coverage wasn't lost.
+      - >-
+        Net this session: 2 PRs merged directly (#2925, #2927), 3
+        duplicate PRs closed with verified pointers (#2921, #2922,
+        #2926), 0 new owner-blocked asks added. Codex-on-Hetzner
+        (#1996/queue item 12) and the `tools.marisstella.dev` seal
+        (#1999/queue item 13) reconfirmed unchanged from the entry
+        above — still fully built, still gated only on the owner
+        sealing a secret.
+    mrr_end: null
