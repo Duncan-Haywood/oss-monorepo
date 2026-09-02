@@ -65,6 +65,7 @@ import {
   renderLlmsTxt,
   renderCatalog,
   externalCallExceptions,
+  surfaceExternalFetchHosts,
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
 } from './build.mjs';
@@ -3537,6 +3538,40 @@ test('a category page counts its own visits without identifying anyone', async (
   // Cards are counted as cross-tool clicks, which is what says whether the page
   // converts. Without this an arrival and a bounce look identical.
   assert.ok(/data-tool="[^"]+" data-pf-to="[^"]+"/.test(html));
+});
+
+test('surfaceExternalFetchHosts catches a browser-level third-party request an HTML file makes with no fetch() in any .js file', async () => {
+  // The scanner used to look only at `.js` files. A `<script src>` or a
+  // `<link rel="stylesheet">` pointing off-site is a real request the
+  // browser makes on page load -- exactly the thing the About and category
+  // pages' "nothing you type is uploaded" / "no third-party scripts" claims
+  // are about -- and it never appears as a `fetch(` call anywhere, so the
+  // old .js-only scan would silently miss it and the privacy claim would go
+  // uncaught-false for that page.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-'));
+  await fs.writeFile(
+    path.join(dir, 'index.html'),
+    `<!doctype html><html><head>
+      <link rel="canonical" href="https://example.test/site/should-not-count/">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">
+      <script src="https://cdn.example.com/widget.js"></script>
+    </head><body></body></html>`,
+  );
+  const hosts = await surfaceExternalFetchHosts(dir);
+  assert.deepEqual(hosts, ['cdn.example.com', 'fonts.googleapis.com']);
+});
+
+test('surfaceExternalFetchHosts ignores an HTML file with no off-origin request', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-clean-'));
+  await fs.writeFile(
+    path.join(dir, 'index.html'),
+    `<!doctype html><html><head>
+      <link rel="canonical" href="https://example.test/site/">
+      <link rel="alternate" type="application/atom+xml" href="https://example.test/feed.xml">
+      <link rel="icon" href="../favicon.svg">
+    </head><body><script>fetch('/local-only');</script></body></html>`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
 });
 
 test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
