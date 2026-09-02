@@ -2671,3 +2671,72 @@ entries:
         the prior entry: the mirror's remaining headroom was the highest-
         value non-duplicative work available under an empty PR queue and two
         owner-blocked deploy paths (full catalogue, Codex governor).
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Investigated a task brief alleging a mass-wrongful-PR-closure
+        incident: ~30 PRs (#2694-#2743) all closed within a ~4-hour window
+        on 2026-09-02, with `mcp__github__list_pull_requests` (state=closed)
+        reporting `merged: false` on every single one -- read as a possible
+        repeat of the 2026-08-24 concurrent-close failure CLAUDE.md
+        documents (two sessions closing each other's still-open PRs as
+        "superseded" within seconds, destroying finished work).
+      - >-
+        Finding: the incident did not happen. `list_pull_requests`'s
+        `merged` field is not populated on that endpoint -- it reads false
+        for every row regardless of actual state. The single-PR
+        `pull_request_read` (method get) endpoint is authoritative and
+        shows `merged: true` / `merged_by` / `merged_at` correctly. Checked
+        individually: 45 of the ~50 PRs in #2694-2743 are cleanly merged
+        into `main`. The remaining 5 (#2694, #2695, #2704, #2705, #2726)
+        are genuinely closed unmerged -- and every one of those five has a
+        close comment citing `portfolio/ledger/supersede_check.py` output
+        and naming a specific surviving commit/PR, exactly as CLAUDE.md's
+        "Duplicate PRs" section requires. Independently re-ran
+        `supersede_check.py` on all five myself rather than trusting the
+        comment text: #2694, #2695, #2704, #2705 all exit 0 (three via
+        identical-merge proof); #2726 exits 1 (a genuine same-feature
+        duplicate of #2724's `vs-synder.html`, not a strict line-for-line
+        match -- confirmed by reading both files side by side, matching
+        CLAUDE.md's explicit "exit 1 does not license an unread close, read
+        the pairs" guidance rather than the identical-merge shortcut). None
+        of the five should be reopened.
+      - >-
+        Lesson for future sessions: do not read `list_pull_requests`'s
+        `merged` field as evidence of anything. A closed-PR audit needs
+        `pull_request_read` (method get) per PR, or the merge commit
+        message/SHA, to tell a merged PR from an abandoned one. Trusting
+        the list endpoint's `merged: false` at face value is what produced
+        this session's starting premise, and would have led to reopening
+        45 already-shipped PRs if not independently checked against `main`
+        first.
+      - >-
+        With the presumed incident resolved as a non-event and the PR queue
+        genuinely empty at that point, picked up 4 PRs opened by concurrent
+        sessions in the same window and merged them after independent local
+        verification (not just trusting each PR's own claimed test output):
+        #2746 (gitops/prod: the apex tool mirror ConfigMap exceeds the
+        262144-byte client-side-apply annotation cap and would never sync
+        without `ServerSideApply=true` -- confirmed by building kustomize
+        v5.6.0 from source in-session, since no binary was preinstalled, and
+        seeing the annotation land on the built ConfigMap; 248/248 gitops
+        pytest, 30/30 node tests, CI green on real runners per
+        `ci_starvation.py`); #2745 (hvac-maintenance-contract-calculator:
+        vs-ServiceTitan comparison page; 21/21 venture tests, 856/856
+        platform/pages tests, matching the PR's own claimed counts exactly);
+        #2747 (ledger-only entry, YAML re-parsed clean after merge); #2748
+        (front door: category cards now route to the 8 mirrored tools they
+        can actually serve instead of the dark `tools.marisstella.dev` host
+        for those categories -- verified the built ConfigMap hash
+        `portfolio-front-html-4m4c6bdd48` matches what the PR claims rolls
+        the pod; 248/248 gitops pytest, 36/36 node tests). A fifth PR,
+        #2744 (mirror `str-host-payout-calculator`), was merged by a
+        concurrent session while this one was verifying #2746 -- confirmed
+        via `pull_request_read` rather than assumed.
+      - >-
+        Queue empty at end of session (`list_pull_requests` state=open
+        returns `[]`). 5 PRs merged this run (4 directly, 1 concurrently).
+        0 reopened -- all 5 non-merged closes in the audited window were
+        legitimate.
