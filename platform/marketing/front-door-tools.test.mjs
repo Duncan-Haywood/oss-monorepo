@@ -20,6 +20,8 @@ import { fileURLToPath } from 'node:url';
 
 import {
   BYTE_CEILING,
+  ROUTABLE_FILE,
+  ROUTABLE_SLUG,
   OUTPUT_DIR,
   STARTER_SET,
   TOOLS_URL,
@@ -116,6 +118,33 @@ test('a pre-existing canonical is replaced rather than duplicated', () => {
   const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
   assert.equal(out.match(/rel="canonical"/g).length, 1);
   assert.ok(!out.includes('example.invalid'));
+});
+
+test('every mirrored path is one nginx can actually route', async () => {
+  // The silent failure this guards: a venture whose slug or filename falls
+  // outside the character classes in `front-door/default.conf` would be
+  // generated, committed, mounted, and 404 on every request, with no test in
+  // the tree failing. Checked here against the same patterns the config uses.
+  const { files } = await buildMirror();
+  for (const { slug, file } of files) {
+    assert.match(slug, ROUTABLE_SLUG, `${slug} is not routable`);
+    assert.match(file, ROUTABLE_FILE, `${slug}/${file} is not routable`);
+  }
+  const conf = await fs.readFile(
+    path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
+    'utf8',
+  );
+  // The patterns here have to stay the ones the config actually uses, or this
+  // test passes while agreeing with itself instead of with nginx.
+  assert.ok(conf.includes(ROUTABLE_SLUG.source.replace(/^\^|\$$/g, '')));
+  assert.ok(conf.includes(ROUTABLE_FILE.source.replace(/^\^|\$$/g, '')));
+});
+
+test('buildMirror refuses a slug nginx could not route', async () => {
+  await assert.rejects(
+    () => buildMirror({ set: [{ slug: 'Not_Routable', why: 'underscore and capitals' }] }),
+    /could never route it/,
+  );
 });
 
 test('the mirror stays under the ConfigMap ceiling', async () => {

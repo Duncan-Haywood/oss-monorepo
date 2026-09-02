@@ -157,6 +157,19 @@ export const STARTER_SET = [
  */
 export const mirrorKey = (slug, file) => `${slug}__${file}`;
 
+/**
+ * The slugs and filenames `front-door/default.conf` can actually route.
+ *
+ * Kept here beside the encoding they pair with, because a mismatch is silent
+ * in the worst way: the generator would happily write files for a venture
+ * called `foo_bar`, kustomize would happily put them in the ConfigMap, the
+ * pod would happily mount them, and every request would 404 with nothing in
+ * the tree failing. These mirror the character classes in those `location`
+ * blocks, and `buildMirror` rejects anything they do not match.
+ */
+export const ROUTABLE_SLUG = /^[a-z0-9][a-z0-9-]*$/;
+export const ROUTABLE_FILE = /^[A-Za-z0-9._-]+$/;
+
 /** The apex URL a mirrored file is served at. */
 export const mirrorUrl = (slug, file) =>
   `/${MIRROR_PREFIX}${slug}/${file === 'index.html' ? '' : file}`;
@@ -245,11 +258,24 @@ export async function buildMirror({ set = STARTER_SET, venturesDir = VENTURES_DI
   const files = [];
   const tools = [];
   for (const { slug, why } of set) {
+    // Before the filesystem read, so an unroutable slug reports why it is
+    // unroutable rather than an ENOENT from a directory nobody should add.
+    if (!ROUTABLE_SLUG.test(slug)) {
+      throw new Error(
+        `${slug} does not match the slug pattern in front-door/default.conf, so nginx ` +
+          `could never route it — every page would 404 with nothing else failing`,
+      );
+    }
     const names = await ventureFiles(slug, venturesDir);
     if (!names.includes('index.html')) {
       throw new Error(`${slug} has no index.html — it cannot be an entry in STARTER_SET`);
     }
     for (const file of names) {
+      if (!ROUTABLE_FILE.test(file)) {
+        throw new Error(
+          `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
+        );
+      }
       const raw = await fs.readFile(path.join(venturesDir, slug, file), 'utf8');
       const contents = file.endsWith('.html') ? injectMirrorTags(raw, { slug, file }) : raw;
       files.push({ slug, file, key: mirrorKey(slug, file), contents });
