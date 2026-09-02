@@ -46,7 +46,7 @@ do block (`portfolio-site-repo` and `codex-secrets`), per
 
 ## The switch
 
-All 246 `runs-on` lines across 220 workflows now read:
+All 247 `runs-on` lines across 221 workflows now read:
 
 ```yaml
 runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
