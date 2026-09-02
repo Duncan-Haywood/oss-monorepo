@@ -5,6 +5,78 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Shipped #2677: the Codex worker's "the plan credential wins a tie"
+        promise was not true, and failed in the direction that costs money.
+        `gitops/agents/secrets/README.md` states that a `codex-secrets`
+        carrying both credentials spends the ChatGPT plan's included quota
+        rather than the metered `OPENAI_API_KEY`, and that is the shape the
+        owner asked for ("use up the built in quota"). But `configure_auth`
+        picked the subscription branch and returned with `OPENAI_API_KEY`
+        still exported, and `codex exec` inherits the script's environment --
+        so the CLI was handed a live metered credential on a run that had
+        just announced itself as the plan's, and which one it then prefers is
+        not something this repo controls. The test behind the promise
+        (`test_both_credentials_stay_usable_and_the_free_one_wins_a_tie`)
+        compared where the two branches appear in the file, which proves the
+        script says a thing and never that running it does that thing -- the
+        exact gap `test_worker_run.py` exists to close, slipped through.
+        `seal-owner-secrets.sh` emits one credential at a time so its own
+        output never reaches this state, but `codex-token.template.yaml`
+        carries both keys and the README documents sealing that template by
+        hand with kubeseal, which is how a Secret with both gets made. Fixed
+        by unsetting the metered key on the plan route (logged, so an
+        operator sees which was withheld rather than learning it from an
+        invoice); a credential cached on the `codex-home` PVC also no longer
+        outranks a freshly sealed `OPENAI_API_KEY`, because the volume is a
+        cache and the Secret is current intent -- preferring the cache spent
+        the wrong budget and, once that login expired, would exit 43 forever
+        and hold the queue 6 h at a time with a working key beside it. Every
+        run now prints one `auth mode:` line naming the budget; the README
+        already claimed this and no single line actually said it.
+      - >-
+        Verified: `python3 -m pytest gitops/tests -q` -- 220 passed on `main`
+        at fb19bd4f4, 222 with the change. The two new cases in
+        `test_worker_run.py` run `worker.sh` end to end against a stub
+        `codex` that records its own environment, so they assert on what the
+        CLI is handed rather than on which branch ran; confirmed the tie case
+        fails against the previous `worker.sh` before fixing it, and the
+        paired case pins that a Secret carrying only `OPENAI_API_KEY` still
+        reaches the CLI. Real CI green on all 6 non-skipped checks (`check`,
+        `gitops`, `tofu`, `hcloud-scope`, `scripts`, `duplicate-symbols`) on
+        assigned runners -- not the 3-6 s `runner_id: 0` signature.
+      - >-
+        Branch backlog: settled, and settled negatively, so no future session
+        needs to re-derive it. Zero open PRs at the start of this run, so the
+        three-PR quota was vacuous. Ran an identical-merge proof over all 88
+        non-`main` remote branches (replay each on `main` with `main` winning
+        every conflict, compare trees against `main`'s): 65 come back
+        provably superseded. Of the ~20 that did not, every one read is
+        superseded in substance or unsafe to merge -- `3pl-quote-normalizer`
+        and `invoice-payment-terms-calculator` branches are strict subsets of
+        what `main` now carries; `sweet-archimedes-icmubl`'s catalog.json
+        landed from a sibling; `no-show-fee-scenarios` duplicates a
+        `compareFeeScenarios` main already has, so its residue is a second
+        `renderScenarios`; `sweet-archimedes-cn4s8c` (169 files) is *behind*
+        main on share.mjs and merging it would delete `withProposalTerms`,
+        `usableText` and `choiceText`; `agent-cross-review-f90e` adds an
+        auto-merge workflow, which CLAUDE.md's automation rule forbids
+        without owner approval. The `-X ours` residue overstates uniqueness
+        and is evidence to read, not a verdict -- three of the branches it
+        called UNIQUE would have regressed `main`. Nothing was closed or
+        deleted; the branches are simply not a source of shippable work.
+      - >-
+        Checked and rejected one deploy unblock rather than assuming it:
+        the site could in principle drop its `portfolio-site-repo` token by
+        serving from a kustomize ConfigMap, since Argo already holds repo
+        access -- but `build.mjs` emits 34 MB across 1699 files, far past the
+        1 MiB ConfigMap ceiling. The runtime clone, and therefore the seal,
+        is genuinely unavoidable. Deployment stays blocked on exactly the one
+        owner action `publish_surface.py --check` already names.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Fixed a real gap in the Codex delivery path, shipped as #2635.
         `worker.sh` has exited 43 for a Codex credential the API refused
         since the subscription route was wired -- deliberately distinct from
