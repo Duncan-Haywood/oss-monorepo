@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/amazon-fba-calculator/should-i-use-amazon-remote-fulfillment.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I use Amazon Remote Fulfillment? | NARF vs a Canada FBA pile</title>
+  <meta name="description" content="Compare skipping Canada, fulfilling from US FBA with Amazon Remote Fulfillment, or sending a dedicated Canada pile. See leftover after the remote surcharge, Canada inbound, and take rate.">
+  
+  
+  <meta property="og:title" content="Should I use Amazon Remote Fulfillment?">
+  <meta property="og:description" content="Skip Canada vs Remote Fulfillment from US FBA vs a dedicated Canada pile: leftover after the remote surcharge, Canada inbound, and take rate.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Amazon Remote Fulfillment vs Canada FBA calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Skip-Canada leftover on incremental demand, Remote Fulfillment leftover after the US-to-Canada surcharge, dedicated Canada pile leftover after CA inbound, extra cash vs skip on the session, remote-fee ceiling that still matches the Canada pile"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I use Amazon Remote Fulfillment or send inventory to Canada?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator defaults — a $29.99 large-standard unit already in US FBA, 15% referral, $4.15 pick, $8 cost of goods, $1.25 remote surcharge, $5.20 first Canada inbound, 50% Remote Fulfillment take and 65% local Prime take — Remote Fulfillment keeps $5.12 more per Canada session than skipping ($5.12 vs $0.00), $204.86 on 40 sessions. A dedicated Canada pile is $4.87, $0.25 behind, because the first CA inbound is expensive per unit. The remote fee can rise to about $1.75 before the Canada pile matches. A $2.40 Canada inbound flips the pile ahead by $1.57."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Remote Fulfillment the same as Amazon AWD or inbound placement?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. AWD is where a fresh US purchase order parks before it replenishes FBA. Inbound placement is which US fulfillment centers a shipment goes to. Remote Fulfillment is whether Canada or Mexico demand uses the US pile you already sent, for a per-unit surcharge, or whether you send a second pile across the border. This page holds US placement at the listing inbound line so the table stays a Canada-expansion question. It does not recommend Remote Fulfillment and it does not publish Amazon's live NARF schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does a dedicated Canada pile beat Remote Fulfillment?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When Canada inbound plus the slower Remote Fulfillment take costs more than sending working stock for local Prime. On these defaults a $2.40 Canada inbound flips the pile ahead by $1.57 per session ($6.69 vs $5.12). Matched take rates usually favor whichever inbound is cheaper. Replace the remote surcharge, Canada inbound, and take rates from your current Remote Fulfillment and CA inbound previews."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>Should I use Amazon Remote Fulfillment?</h1>
+  <p>
+    Sellers search this after a US FBA pile is already sitting and
+    Amazon offers Remote Fulfillment with North America. Skipping
+    Canada leaves that demand on the table. Remote Fulfillment ships
+    the US unit across the border for a surcharge. A dedicated
+    Canada pile buys local Prime take — and a second inbound.
+    The main calculator’s inbound / unit line is a blended US
+    number, so it cannot show whether the remote fee is cheaper
+    than a first CA shipment.
+  </p>
+  <p>
+    On the default $29.99 large-standard unit already in US FBA,
+    Remote Fulfillment keeps $5.12 more per Canada session than
+    skipping ($5.12 vs $0.00), $204.86 on 40 sessions. The $1.25
+    remote surcharge on a unit you already inbounded still beats a
+    $5.20 first Canada inbound even though local Prime converts
+    65% against Remote Fulfillment’s 50%. A dedicated Canada pile
+    is $4.87, $0.25 behind. The remote fee can rise to about $1.75
+    before the pile matches. A $2.40 Canada inbound flips the pile
+    ahead by $1.57 ($6.69 vs $5.12).
+  </p>
+  <form id="narfForm" class="fields">
+    <label>Sale price ($) <input id="salePrice" type="number" min="0" step="0.01" value="29.99"></label>
+    <label>Referral rate (%) <input id="referralRate" type="number" min="0" step="0.01" value="15"></label>
+    <label>Length (in) <input id="length" type="number" min="0" step="0.01" value="8"></label>
+    <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6"></label>
+    <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2"></label>
+    <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75"></label>
+    <label>You paid for the item ($) <input id="costOfGoods" type="number" min="0" step="0.01" value="8"></label>
+    <label>US inbound already paid / unit ($) <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20"></label>
+    <label>Prep / packaging ($) <input id="packagingCost" type="number" min="0" step="0.01" value="0.60"></label>
+    <label>Remote fulfillment / unit ($) <input id="narfFee" type="number" min="0" step="0.01" value="1.25"></label>
+    <label>Canada inbound / unit ($) <input id="caInboundPerUnit" type="number" min="0" step="0.01" value="5.20"></label>
+    <label>Remote Fulfillment take (%) <input id="narfTakePct" type="number" min="0" max="100" step="0.1" value="50"></label>
+    <label>Canada FBA take (%) <input id="caTakePct" type="number" min="0" max="100" step="0.1" value="65"></label>
+    <label>Canada sessions / month <input id="caSessions" type="number" min="1" step="1" value="40"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Take</th>
+        <th scope="col">Completed</th>
+        <th scope="col">Expected</th>
+        <th scope="col">Monthly</th>
+        <th scope="col">vs skip</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table>
+  <p class="note">
+    Expected leftover is take% × completed-sale profit. Remote
+    Fulfillment uses the US FBA leftover minus the surcharge;
+    US inbound is already sunk. A Canada pile replaces that
+    inbound with the CA line. Return mix is held at zero so this
+    table stays a Canada-expansion question. Complementary to
+    <a href="should-i-use-amazon-awd.html">Amazon AWD</a>
+    (where a fresh US PO parks), to
+    <a href="inbound-placement-fee.html">inbound placement</a>
+    (which US FC), to
+    <a href="should-i-use-amazon-mcf-for-website-orders.html">MCF</a>
+    (a website order from FBA stock), and to
+    <a href="should-i-use-seller-fulfilled-prime.html">Seller Fulfilled Prime</a>
+    (a US Prime badge). Paste the remote surcharge, Canada inbound,
+    and take rates from your current fee previews. This page does
+    not publish Amazon’s live Remote Fulfillment schedule.
+  </p>
+  <p class="note">
+    The calculator is arithmetic, not advice. It does not recommend
+    Remote Fulfillment, sending a Canada pile, or skipping Canada.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use Amazon Remote Fulfillment or send inventory to Canada?</h3>
+  <p>On the calculator defaults — a $29.99 large-standard unit already in US FBA, 15% referral, $4.15 pick, $8 cost of goods, $1.25 remote surcharge, $5.20 first Canada inbound, 50% Remote Fulfillment take and 65% local Prime take — Remote Fulfillment keeps $5.12 more per Canada session than skipping ($5.12 vs $0.00), $204.86 on 40 sessions. A dedicated Canada pile is $4.87, $0.25 behind, because the first CA inbound is expensive per unit. The remote fee can rise to about $1.75 before the Canada pile matches. A $2.40 Canada inbound flips the pile ahead by $1.57.</p>
+  <h3>Is Remote Fulfillment the same as Amazon AWD or inbound placement?</h3>
+  <p>No. AWD is where a fresh US purchase order parks before it replenishes FBA. Inbound placement is which US fulfillment centers a shipment goes to. Remote Fulfillment is whether Canada or Mexico demand uses the US pile you already sent, for a per-unit surcharge, or whether you send a second pile across the border. This page holds US placement at the listing inbound line so the table stays a Canada-expansion question. It does not recommend Remote Fulfillment and it does not publish Amazon's live NARF schedule.</p>
+  <h3>When does a dedicated Canada pile beat Remote Fulfillment?</h3>
+  <p>When Canada inbound plus the slower Remote Fulfillment take costs more than sending working stock for local Prime. On these defaults a $2.40 Canada inbound flips the pile ahead by $1.57 per session ($6.69 vs $5.12). Matched take rates usually favor whichever inbound is cheaper. Replace the remote surcharge, Canada inbound, and take rates from your current Remote Fulfillment and CA inbound previews.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareRemoteFulfillment, remoteFulfillmentNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "salePrice", "referralRate", "length", "width", "height", "weightLb",
+      "costOfGoods", "inboundPerUnit", "packagingCost", "narfFee",
+      "caInboundPerUnit", "narfTakePct", "caTakePct", "caSessions",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareRemoteFulfillment(raw);
+        document.getElementById("summary").textContent = remoteFulfillmentNote(result);
+        document.getElementById("verdict").textContent = result.winner === "narf"
+          ? `Remote Fulfillment keeps ${money(result.extraNarfVsSkip)} more per session than skipping Canada`
+          : result.winner === "canada"
+            ? `A Canada pile keeps ${money(result.extraCanadaVsNarf)} more per session than Remote Fulfillment`
+            : result.winner === "skip"
+              ? "Skipping Canada leaves more than listing there on these rates"
+              : "Remote Fulfillment and a Canada pile leave the same expected leftover";
+        document.getElementById("compare").innerHTML = result.rows.map((row) => {
+          const winner = result.winner === row.id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${row.takePct.toFixed(1)}%</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.monthlyProfit)}</td><td>${row.id === "skip" ? "Current" : money(row.vsSkip)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "remote_fulfillment_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

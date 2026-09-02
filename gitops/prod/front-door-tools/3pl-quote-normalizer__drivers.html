@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/3pl-quote-normalizer/drivers.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>3PL cost drivers | Rank the largest rate-card lines</title>
+  <meta name="description" content="Rank the monthly lines in a normalized 3PL quote and see what a typed percent reduction would change before you ask about any one rate.">
+  
+  
+  <meta property="og:title" content="Rank the largest lines in a 3PL quote">
+  <meta property="og:description" content="See which rate-card line costs the most in a normalized 3PL quote before you ask the provider to move it.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"3PL Cost Driver Ranking","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Rank the monthly line items in a normalized 3PL quote by size and preview a typed percent reduction on each before asking about it."}</script>
+  <style>
+    body{font:16px system-ui,sans-serif;max-width:900px;margin:auto;padding:24px;background:#f4f1ea;color:#17212b}
+    main{background:#fff;padding:24px;border-radius:14px}
+    label{font-weight:700}input,button{font:inherit;padding:10px;margin-top:5px}
+    input{border:1px solid #a9b4af;border-radius:7px;width:140px;box-sizing:border-box}
+    button{background:#c05430;color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+    .note{color:#52605d;font-size:.9rem}table{border-collapse:collapse;width:100%;margin:16px 0}
+    th,td{padding:10px 8px;border-bottom:1px solid #e6e2da;text-align:right}th:nth-child(2),td:nth-child(2){text-align:left}
+    .bar{height:8px;background:#c05430;border-radius:99px;min-width:4px;margin-top:6px}
+    @media(max-width:600px){.hide-narrow{display:none}}
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <main>
+    <p class="note">FULFILLMENT DECISION TOOL</p>
+    <h1>Rank the largest lines in a 3PL quote</h1>
+    <p>Uses the same normalized monthly totals as the calculator. Type a percent to see what each line would be if that rate moved. This is arithmetic on the saved quote, not a script for the provider conversation.</p>
+    <p><label>Proposed reduction (%)<input id="reduction" type="number" min="0" max="100" step="1" value="10"></label>
+      <button id="reload" type="button">Use saved calculator quote</button></p>
+    <p id="status" class="note" aria-live="polite"></p>
+    <table>
+      <thead><tr><th>Priority</th><th>Component</th><th>Current / month</th><th>After typed reduction</th><th class="hide-narrow">Difference</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p id="total" class="note"></p>
+    <p class="note">Need the two-quote ask instead? <a href="./negotiation.html">Create a negotiation brief</a>. Or <a href="./index.html">normalize the rate card</a> first.</p>
+    <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p class="note"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p class="note">Everything runs in your browser. Your data is never uploaded, and anonymous feature counts are local and opt-out.</p>
+    <p class="note">Free to use. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> if you want — refusing does not change the calculator.</p>
+  </main>
+  <script type="module">
+    import { calculate, costDrivers, money } from "./calc.mjs";
+    import { record } from "./usage.mjs";
+    const reduction = document.querySelector("#reduction");
+    const rows = document.querySelector("#rows");
+    const total = document.querySelector("#total");
+    const status = document.querySelector("#status");
+    const saveKey = "3pl-quote-normalizer-inputs";
+    let input = {};
+    function load() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(saveKey) || "null");
+        if (saved && typeof saved === "object") input = saved;
+        status.textContent = saved ? "Figures use the quote saved by the main calculator." : "No saved quote yet; showing calculator defaults.";
+      } catch {
+        status.textContent = "Saved inputs are unavailable; showing calculator defaults.";
+      }
+    }
+    function render(track = false) {
+      const result = calculate(input);
+      const rate = Math.min(100, Math.max(0, Number(reduction.value) || 0));
+      const drivers = costDrivers(result, rate);
+      const subtotal = result.quote.subtotal || 0;
+      rows.innerHTML = drivers.map((driver, index) => {
+        const share = subtotal ? Math.max(4, (driver.current / subtotal) * 100) : 4;
+        const label = document.createElement("strong");
+        label.textContent = driver.label;
+        return `<tr><td>${index + 1}</td><td>${label.outerHTML}<div class="bar" style="width:${share}%"></div></td><td>${money(driver.current)}</td><td>${money(driver.revised)}</td><td class="hide-narrow">${money(driver.savings)}</td></tr>`;
+      }).join("");
+      const savings = drivers.reduce((sum, driver) => sum + driver.savings, 0);
+      total.textContent = `A ${rate}% reduction on these line items would change the subtotal by ${money(savings)} per month before any minimum charge.`;
+      if (track) record("cost_drivers_viewed");
+    }
+    load();
+    render(true);
+    reduction.addEventListener("input", () => render());
+    document.querySelector("#reload").addEventListener("click", () => { load(); render(true); });
+  </script>
+</body>
+</html>

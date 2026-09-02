@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/vendor-change-evidence/"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendor Change Evidence — free vendor policy diff checker</title>
+  <meta name="description" content="Free, no-signup, no-upload tool that compares two dated vendor policy snapshots (privacy, terms, subprocessors, security) in your browser and reports what changed. Runs entirely client-side." />
+  <meta property="og:title" content="Vendor Change Evidence" />
+  <meta property="og:description" content="Paste a before and after snapshot of a vendor's policy page. See what changed, with a dated review record. Never leaves your browser." />
+  <link rel="stylesheet" href="style.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vendor Change Evidence","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this fetch the vendor's page for me?","acceptedAnswer":{"@type":"Answer","text":"No. This tool never makes a network request to a vendor. You supply both snapshots — however you captured them — and this only compares the two. That keeps it usable for internal, access-controlled, or authenticated pages a public fetcher could never reach."}},{"@type":"Question","name":"What counts as a valid snapshot?","acceptedAnswer":{"@type":"Answer","text":"A JSON object with four string fields: url (the page you captured), captured_at (an ISO 8601 timestamp), fetch_status (\"ok\" if the capture succeeded, anything else if it didn't), and text (the page content or a normalized extract of it)."}},{"@type":"Question","name":"Why \"inconclusive\" instead of \"unchanged\"?","acceptedAnswer":{"@type":"Answer","text":"If either capture failed (a non-\"ok\" fetch status) or the \"after\" timestamp is earlier than \"before\", the tool cannot honestly claim the page is stable — a failed fetch could be hiding a real change. It reports inconclusive rather than a false negative."}},{"@type":"Question","name":"Is my snapshot text uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Comparison happens with JavaScript running in your own browser tab. This page makes no network request with your pasted content — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a comparison was run\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same comparison logic ships as a local Python CLI (src/vendor_change.py) in this tool's repository, for scripted or scheduled use. See the README for its usage."}}]}</script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Vendor Change Evidence</h1>
+      <p class="tagline">
+        If a vendor changes its privacy, terms, subprocessors, or security
+        page, paste a dated <code>before</code> and <code>after</code>
+        snapshot and get a portable review record — entirely in your browser.
+      </p>
+    </header>
+
+    <div id="drop-zone" class="drop-zone">
+      <p>Paste your two snapshots as JSON (<code>url</code>, <code>captured_at</code>, <code>fetch_status</code>, <code>text</code>):</p>
+      <div class="snapshot-grid">
+        <div class="snapshot-col">
+          <label for="before-paste">Before</label>
+          <textarea id="before-paste" rows="6" placeholder='{"url":"https://vendor.example/privacy","captured_at":"2026-08-23T09:00:00Z","fetch_status":"ok","text":"..."}' spellcheck="false"></textarea>
+        </div>
+        <div class="snapshot-col">
+          <label for="after-paste">After</label>
+          <textarea id="after-paste" rows="6" placeholder='{"url":"https://vendor.example/privacy","captured_at":"2026-08-24T09:00:00Z","fetch_status":"ok","text":"..."}' spellcheck="false"></textarea>
+        </div>
+      </div>
+      <button type="button" id="compare-button">Compare snapshots</button>
+    </div>
+
+    <p class="example-line">
+      Don't have snapshots handy?
+      <button type="button" id="load-example" class="link-button">Load a worked example</button>
+      — a small before/after pair with a real content change, so you can see
+      the report shape before using your own.
+    </p>
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <div id="results" class="results" aria-live="polite"></div>
+
+    <section class="disclaimer">
+      <h2>What this is and isn't</h2>
+      <ul>
+        <li>
+          Everything runs in <em>your</em> browser. The snapshots you paste
+          are never uploaded — there is no server here to send them to.
+        </li>
+        <li>
+          This tool never contacts a vendor. You (or your own capture
+          process) supply both dated snapshots; this only compares them.
+        </li>
+        <li>
+          It reports observations only — <code>changed</code>,
+          <code>unchanged</code>, or <code>inconclusive</code> — and does not
+          decide whether a contract, security posture, or compliance status
+          changed. That judgment is yours.
+        </li>
+        <li>
+          Use <code>fetch_status</code> values other than <code>"ok"</code>
+          (for example <code>"timeout"</code> or <code>"blocked"</code>) when
+          a capture failed. The report is marked
+          <code>inconclusive</code>, never falsely stable.
+        </li>
+        <li>
+          Only anonymous, aggregate usage counts (for example "a comparison
+          was run") may be recorded locally — never snapshot text or URLs.
+        </li>
+      </ul>
+    </section>
+
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>Does this fetch the vendor's page for me?</h3>
+      <p>No. This tool never makes a network request to a vendor. You supply both snapshots — however you captured them — and this only compares the two. That keeps it usable for internal, access-controlled, or authenticated pages a public fetcher could never reach.</p>
+      <h3>What counts as a valid snapshot?</h3>
+      <p>A JSON object with four string fields: <code>url</code> (the page you captured), <code>captured_at</code> (an ISO 8601 timestamp), <code>fetch_status</code> (<code>"ok"</code> if the capture succeeded, anything else if it didn't), and <code>text</code> (the page content or a normalized extract of it).</p>
+      <h3>Why "inconclusive" instead of "unchanged"?</h3>
+      <p>If either capture failed (a non-<code>"ok"</code> fetch status) or the "after" timestamp is earlier than "before", the tool cannot honestly claim the page is stable — a failed fetch could be hiding a real change. It reports <code>inconclusive</code> rather than a false negative.</p>
+      <h3>Is my snapshot text uploaded anywhere?</h3>
+      <p>No. Comparison happens with JavaScript running in your own browser tab. This page makes no network request with your pasted content — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like "a comparison was run" may be recorded locally, with an opt-out below.</p>
+      <h3>Is there a command-line version?</h3>
+      <p>Yes — the same comparison logic ships as a local Python CLI (<code>src/vendor_change.py</code>) in this tool's repository, for scripted or scheduled use. See the README for its usage.</p>
+    </section>
+
+    <p class="seo-link"><a href="./how-do-i-track-vendor-policy-changes.html">How do I track when a vendor changes its subprocessors or privacy policy?</a></p>
+    <footer class="footer">
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a report needs to survive, keep the Markdown or JSON you download.</p>
+      <p>Comparison runs in your browser. Your snapshots are never uploaded — there is no server to send them to. We count only anonymous local feature events, never people or snapshot content, with an opt-out on this page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+      <p>
+        Part of the Free small-business calculators portfolio.
+      </p>
+    </footer>
+  </main>
+
+  <script src="evidence.js"></script>
+  <script src="usage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

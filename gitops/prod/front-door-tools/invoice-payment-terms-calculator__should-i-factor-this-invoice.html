@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/invoice-payment-terms-calculator/should-i-factor-this-invoice.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I factor this invoice? | Factor fee vs waiting for Net 30</title>
+  <meta name="description" content="On a $1,200 invoice, a 3% factor fee with a 90% advance leaves $1,161.24 after 24% carrying cost. Waiting 30 days for $1,200 leaves $1,176.33. They match at a 1.74% fee.">
+  
+  
+  <meta property="og:title" content="Should I factor this invoice?">
+  <meta property="og:description" content="On a $1,200 invoice, 24% money still leaves waiting $15.09 ahead of a 3% factor fee. At 50%, factoring flips ahead.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Invoice factoring vs waiting calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"factor fee versus waiting, advance and reserve leftover, break-even factor fee, carrying-cost flip"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I factor this invoice or wait for Net 30?","acceptedAnswer":{"@type":"Answer","text":"On the calculator defaults — a $1,200 invoice, a 3% factor fee, a 90% advance, a 35-day reserve, and a 24% annual carrying-cost assumption — factoring leaves $1,161.24 after the $36.00 fee. Waiting 30 days for $1,200 leaves $1,176.33. The fee is larger than the float you skip. This is not a recommendation to factor or to wait."}},{"@type":"Question","name":"When does invoice factoring still beat waiting?","acceptedAnswer":{"@type":"Answer","text":"When your money is expensive or the fee is cheap. At a 50% annual carrying-cost assumption the same invoice leaves $1,158.25 after factoring and $1,150.68 after waiting. Factoring and waiting match at a 1.74% fee or about 41.3% money. A 1.5% fee at 24% flips ahead by $2.91."}},{"@type":"Question","name":"Is factoring the same as offering 2/10 Net 30?","acceptedAnswer":{"@type":"Answer","text":"No. 2/10 is a discount you give the client to pay faster. Factoring is a fee you pay a third party while the client still has Net 30. The 2/10 page prices the discount. This page prices the factor fee, the advance, and the reserve."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #176b53; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #9aada6; border-radius: 8px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #cbd8d3; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #344640; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #344640; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <p><a href="./">← Invoice payment terms calculator</a></p>
+  <h1>Should I factor this invoice?</h1>
+  <p>
+    Freelancers search this after a factor, a card “get paid now”
+    button, or a bookkeeper suggests selling the receivable.
+    Three percent off a $1,200 invoice looks cheap until you price
+    the fee against the cash you were going to wait 30 days for.
+  </p>
+  <p>
+    <strong>This is not 2/10 Net 30.</strong>
+    That discount is money you give the client. Factoring is a fee
+    you pay a third party. The client still has Net 30. You get an
+    advance today and a reserve after they pay.
+  </p>
+  <p>
+    On the calculator defaults — $1,200, 3% fee, 90% advance,
+    reserve on day 35, 24% money — the factor takes
+    <strong>$36.00</strong> and advances <strong>$1,044.00</strong>
+    today. The $120 reserve arrives later. Factoring leaves
+    <strong>$1,161.24</strong>. Waiting 30 days for $1,200 leaves
+    <strong>$1,176.33</strong> — <strong>$15.09</strong> ahead.
+    They match at a <strong>1.74%</strong> fee, or about
+    <strong>41.3%</strong> money.
+  </p>
+  <p>
+    At 50%, the same fee leaves <strong>$1,158.25</strong> and
+    waiting leaves <strong>$1,150.68</strong>. A 1.5% fee at 24%
+    flips ahead by <strong>$2.91</strong>. Cheap 6% money still
+    covers the wait by about $31.
+  </p>
+  <form id="factorForm" class="fields">
+    <label>Invoice amount <input id="amount" type="number" min="0.01" step="0.01" value="1200"></label>
+    <label>Payment terms (days) <input id="termsDays" type="number" min="0" step="1" value="30"></label>
+    <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" max="99.99" value="3"></label>
+    <label>Advance (%) <input id="advancePct" type="number" min="0.01" max="100" step="any" value="90"></label>
+    <label>Reserve days <input id="reserveDays" type="number" min="0" step="1" value="35"></label>
+    <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Cash now</th>
+        <th scope="col">Later</th>
+        <th scope="col">After float</th>
+        <th scope="col">vs wait</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="note">
+    Carrying cost is your assumption, not a late fee and not interest
+    you can invoice. The factor fee, advance, and reserve dates come
+    from the quote you actually have — this page does not publish a
+    factor’s live schedule. Complementary to
+    <a href="should-i-offer-2-10-net-30.html">Should I offer 2/10 Net 30?</a>
+    (a discount you give the client). Open the
+    <a href="./#factorFeePct">invoice payment terms calculator</a>
+    to change the amount.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I factor this invoice or wait for Net 30?</h3>
+  <p>On the calculator defaults — a $1,200 invoice, a 3% factor fee, a 90% advance, a 35-day reserve, and a 24% annual carrying-cost assumption — factoring leaves $1,161.24 after the $36.00 fee. Waiting 30 days for $1,200 leaves $1,176.33. The fee is larger than the float you skip. This is not a recommendation to factor or to wait.</p>
+  <h3>When does invoice factoring still beat waiting?</h3>
+  <p>When your money is expensive or the fee is cheap. At a 50% annual carrying-cost assumption the same invoice leaves $1,158.25 after factoring and $1,150.68 after waiting. Factoring and waiting match at a 1.74% fee or about 41.3% money. A 1.5% fee at 24% flips ahead by $2.91.</p>
+  <h3>Is factoring the same as offering 2/10 Net 30?</h3>
+  <p>No. 2/10 is a discount you give the client to pay faster. Factoring is a fee you pay a third party while the client still has Net 30. The 2/10 page prices the discount. This page prices the factor fee, the advance, and the reserve.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. It does not tell you to factor or to wait. Verify the output before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareFactor, factorNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = ["amount", "termsDays", "factorFeePct", "advancePct", "reserveDays", "annualCarryRate"];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareFactor(raw);
+        document.getElementById("summary").textContent = factorNote(result);
+        const rows = [
+          {
+            label: "Factor (advance + reserve)",
+            now: result.advanceNow,
+            later: result.reserve,
+            after: result.factorAfterFloat,
+            vs: result.factorPremium,
+            win: result.factorBeatsWait,
+          },
+          {
+            label: "Wait for the client",
+            now: 0,
+            later: result.waitCash,
+            after: result.waitAfterFloat,
+            vs: 0,
+            win: !result.factorBeatsWait,
+          },
+        ];
+        document.getElementById("rows").innerHTML = rows.map((row) =>
+          `<tr class="${row.win ? "winner-row" : ""}"><td>${row.label}</td><td>${money(row.now)}</td><td>${money(row.later)}</td><td>${money(row.after)}</td><td>${row.label.startsWith("Wait") ? "Current" : money(row.vs)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("rows").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "factor_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

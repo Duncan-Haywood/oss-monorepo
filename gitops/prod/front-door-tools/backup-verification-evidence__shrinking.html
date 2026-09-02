@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/backup-verification-evidence/shrinking.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Why is my backup smaller than yesterday?</title>
+  <meta name="description" content="A backup can exit 0 and still write far fewer bytes than last night. Here is how to tell a real shrink from a green cron job, in the browser, without uploading anything.">
+  
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my backup file smaller than yesterday?","acceptedAnswer":{"@type":"Answer","text":"A scheduled backup can exit 0 while writing a truncated or incomplete artifact that still clears a minimum-size check. Compare consecutive nights' sizes. A drop of 20% or more versus the previous night or the prior-night median is a reason to inspect the job, even if the latest run is marked verified."}},{"@type":"Question","name":"Does a smaller backup mean data was lost?","acceptedAnswer":{"@type":"Answer","text":"No. Retention pruning, incremental repositories, and a genuinely smaller dataset can shrink an artifact on purpose. A size drop is an observation. Test a restore before treating any night as safe."}}]}
+  </script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17212b; background: #f4f1ea; }
+    body { max-width: 720px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; color: #123b36; }
+    p, li { line-height: 1.55; }
+    a { color: #9a3412; }
+    footer { margin-top: 28px; border-top: 1px solid #d8d3c9; padding-top: 16px; font-size: .86rem; color: #52605d; }
+  </style>
+</head>
+<body>
+  <p><a href="./index.html">← Backup trend checker</a></p>
+  <h1>Why is my backup smaller than yesterday?</h1>
+  <p>Because the job that wrote it can fail quietly. <code>pg_dump … | gzip</code> without <code>pipefail</code> reports gzip's exit code. The destination can fill up mid-write and still leave a file that looks "big enough." Incremental tools can finish a short night and still exit 0. In every one of those cases, last night's file exists, is recent, and is smaller than Tuesday's.</p>
+  <p>A single-run check that only asks "did it exit 0 and clear a size floor?" will call that night verified. Comparing nights is what makes the shrink visible.</p>
+  <h2>What to do</h2>
+  <ol>
+    <li>Keep the JSON run records from <code>backup-evidence record</code> — one file per night.</li>
+    <li>Open the <a href="./index.html">trend checker</a> and drop those files, or run <code>backup-evidence check runs/*.json --trend</code>.</li>
+    <li>If a night is 20% or more below the previous night or the prior-night median, inspect that job before you trust the green exit.</li>
+    <li>Test a restore. A size comparison is not a restore.</li>
+  </ol>
+  <h2>When a shrink is normal</h2>
+  <p>Retention pruning, a restic/borg rewrite, and a dataset that actually got smaller will drop bytes on purpose. The checker reports the drop. You decide whether it matches the work you did.</p>
+  <h2>Common questions</h2>
+  <h3>Why is my backup file smaller than yesterday?</h3>
+  <p>A scheduled backup can exit 0 while writing a truncated or incomplete artifact that still clears a minimum-size check. Compare consecutive nights' sizes. A drop of 20% or more versus the previous night or the prior-night median is a reason to inspect the job, even if the latest run is marked verified.</p>
+  <h3>Does a smaller backup mean data was lost?</h3>
+  <p>No. Retention pruning, incremental repositories, and a genuinely smaller dataset can shrink an artifact on purpose. A size drop is an observation. Test a restore before treating any night as safe.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is provided free and as-is. It is not engineering advice and it does not replace a test restore. <strong>Best-effort hosting, no SLA.</strong> These tools may move or go offline without notice. Everything in the checker runs in your browser.</p>
+  </footer>
+</body>
+</html>

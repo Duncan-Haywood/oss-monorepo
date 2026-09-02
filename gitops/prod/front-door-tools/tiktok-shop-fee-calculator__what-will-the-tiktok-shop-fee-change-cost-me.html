@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/tiktok-shop-fee-calculator/what-will-the-tiktok-shop-fee-change-cost-me.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What will the 1 Oct 2026 TikTok Shop fee change cost me? | Per order, per month, and the price that holds your margin</title>
+  <meta name="description" content="Free TikTok Shop fee-change calculator. Put your own SKU through today's 6% referral and the announced 8% + 1.5% facilitation schedule, and see the price rise that holds your margin.">
+  
+  
+  <meta property="og:title" content="What will the 1 Oct 2026 TikTok Shop fee change cost me?">
+  <meta property="og:description" content="Your SKU under today's referral and the announced October schedule — per order, per month, and the price that holds your margin.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TikTok Shop fee-change impact calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Cost per order and per month of the announced schedule, organic vs affiliate split, price that holds your margin, max buy cost after the change"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What will the 1 October 2026 TikTok Shop fee change cost me?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the SKU and on where the order came from. On the worked example — a $19.99 item, $4.99 shipping charged, 15% creator commission on item price only, 12% returns — the announced 8% referral plus 1.5% creator facilitation costs about $0.78 more on an affiliate-sourced order and about $0.45 more on an organic one. At 8 orders a day that is roughly $190 a month. Put your own numbers in the form to get your figure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the announced facilitation fee hit every TikTok Shop order?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. In this model the 1.5% creator facilitation applies to affiliate-sourced orders only, so a shop selling mostly organic is hit less hard than the headline suggests. The page splits the two so you can weight them by your own affiliate share instead of assuming one number covers the catalogue."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much do I have to raise my price to hold my margin?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The page solves for it. It takes the expected margin your SKU earns under today's schedule, then finds the list price under the announced schedule that lands on that same margin after returns, creator commission, fulfillment, and ads. On the worked example a $19.99 listing needs about $21.94 to hold a 27.7% margin."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is raising the price the only option?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The other lever is unit cost, so the page also shows the most the unit can cost and still clear, before and after. On the worked example that ceiling falls from about $11.73 to about $10.93 — which is the number to take to a supplier if the listing price cannot move."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1824; background: #f3eef6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a1fa2; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d7cce0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a183310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    h3 { font-size: .95rem; margin: 18px 0 6px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a88ad; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
+    .checks input { width: auto; }
+    .hint { font-weight: 500; font-size: .78rem; color: #5c4e68; }
+    .result { position: sticky; top: 15px; background: #2a1038; color: #f7f1fb; border-color: #2a1038; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 1.15rem; font-weight: 650; line-height: 1.35; margin: 8px 0 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    .note { font-size: .82rem; opacity: .84; }
+    .error { color: #ffb0a2; }
+    .actions { margin: 14px 0 0; padding: 0; list-style: none; font-size: .9rem; }
+    .actions li { padding: 7px 0; border-bottom: 1px solid #ffffff22; }
+    .actions li:last-child { border-bottom: 0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #53485f; }
+    footer a { color: #7a1fa2; }
+    a { color: #7a1fa2; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">TIKTOK SHOP · ANNOUNCED FEE CHANGE</p>
+    <h1>The headline is 6% to 8%. What it costs you depends on where the order came from.</h1>
+    <p>
+      The announced US schedule adds a creator facilitation rate on top of a
+      higher referral — but facilitation lands on affiliate-sourced orders,
+      not on the organic ones. A shop selling mostly organic is hit less hard
+      than the headline implies, and a shop living on creator video is hit
+      harder. This page puts <em>your</em> SKU through both schedules, then
+      solves for the two things you can actually change: the list price and
+      the unit cost. <a href=".">Back to the full calculator</a>.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section>
+      <h2>The listing</h2>
+      <div class="fields">
+        <label>Compare from
+          <select id="fromId"></select>
+          <span class="hint">The schedule your SKU is priced against today.</span>
+        </label>
+        <label>Compare to
+          <select id="toId"></select>
+        </label>
+        <label>Item price
+          <input id="itemPrice" type="number" min="0" step="0.01" value="19.99">
+        </label>
+        <label>Shipping charged
+          <input id="shippingCharged" type="number" min="0" step="0.01" value="4.99">
+        </label>
+        <label>Affiliate commission you set (%)
+          <input id="affiliateRate" type="number" min="0" step="0.1" value="15">
+        </label>
+        <label>Return rate (%)
+          <input id="returnRate" type="number" min="0" max="100" step="0.1" value="12">
+        </label>
+        <label>You paid for the item
+          <input id="cogs" type="number" min="0" step="0.01" value="5.50">
+        </label>
+        <label>Fulfillment / postage you pay
+          <input id="fulfillmentCost" type="number" min="0" step="0.01" value="4.28">
+        </label>
+        <label>Packaging / other per order
+          <input id="otherPerOrder" type="number" min="0" step="0.01" value="0.40">
+        </label>
+        <label>Ads allocated to this order
+          <input id="adSpend" type="number" min="0" step="0.01" value="1.50">
+        </label>
+        <label>Returned units you cannot resell (%)
+          <input id="unsellableRate" type="number" min="0" max="100" step="1" value="80">
+        </label>
+        <label>Orders per day (for the monthly figure)
+          <input id="unitsPerDay" type="number" min="0" step="0.1" value="8">
+        </label>
+      </div>
+      <div class="checks">
+        <label>
+          <input id="affiliateOnItemOnly" type="checkbox" checked>
+          Creator commission is on item price only
+        </label>
+        <label>
+          <input id="affiliateRefundedOnReturn" type="checkbox">
+          Affiliate commission is clawed back on a return
+        </label>
+      </div>
+      <p class="hint" id="scheduleNote"></p>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <h2>What the change costs this SKU</h2>
+      <p class="hero-number" id="note"></p>
+      <p class="error" id="error" hidden></p>
+
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Order source</th>
+            <th scope="col" id="beforeHead">Before</th>
+            <th scope="col" id="afterHead">After</th>
+            <th scope="col">Costs you</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+
+      <h3>What you can do about it</h3>
+      <ul class="actions" id="actions"></ul>
+
+      <p class="note">Transparent arithmetic from your inputs — not TikTok’s live schedule, and not advice about what to charge. The announced rates are an announcement, not a guarantee they ship unchanged. Confirm your own referral, facilitation, and creator payout rules in Seller Center before you relist.</p>
+    </section>
+  </main>
+
+  <h2>Common questions</h2>
+  <h3>What will the 1 October 2026 TikTok Shop fee change cost me?</h3>
+  <p>It depends on the SKU and on where the order came from. On the worked example — a $19.99 item, $4.99 shipping charged, 15% creator commission on item price only, 12% returns — the announced 8% referral plus 1.5% creator facilitation costs about $0.78 more on an affiliate-sourced order and about $0.45 more on an organic one. At 8 orders a day that is roughly $190 a month. Put your own numbers in the form to get your figure.</p>
+  <h3>Does the announced facilitation fee hit every TikTok Shop order?</h3>
+  <p>No. In this model the 1.5% creator facilitation applies to affiliate-sourced orders only, so a shop selling mostly organic is hit less hard than the headline suggests. The page splits the two so you can weight them by your own affiliate share instead of assuming one number covers the catalogue.</p>
+  <h3>How much do I have to raise my price to hold my margin?</h3>
+  <p>The page solves for it. It takes the expected margin your SKU earns under today's schedule, then finds the list price under the announced schedule that lands on that same margin after returns, creator commission, fulfillment, and ads. On the worked example a $19.99 listing needs about $21.94 to hold a 27.7% margin.</p>
+  <h3>Is raising the price the only option?</h3>
+  <p>No. The other lever is unit cost, so the page also shows the most the unit can cost and still clear, before and after. On the worked example that ceiling falls from about $11.73 to about $10.93 — which is the number to take to a supplier if the listing price cannot move.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400">
+      <input id="usageOptOut" type="checkbox" style="width:auto">
+      Do not keep anonymous local usage counts
+    </label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
+    <p>Free and open source. <a href=".">Full TikTok Shop calculator</a> · <a href="should-i-offer-free-shipping-on-tiktok-shop.html">Free shipping comparison</a> · <a href="affiliate-commission-on-returns.html">Affiliate returns example</a> · <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional.</p>
+  </footer>
+
+  <script type="module">
+    import { feeChangeImpact, feeChangeNote, FEE_SCHEDULE_PRESETS } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const FIELD_IDS = [
+      "itemPrice", "shippingCharged", "affiliateRate", "returnRate", "cogs",
+      "fulfillmentCost", "otherPerOrder", "adSpend", "unsellableRate", "unitsPerDay",
+    ];
+
+    const money = (value) => {
+      if (value === null || value === undefined) return "n/a";
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+    const pct = (value) => (value === null ? "n/a" : `${value.toFixed(1)}%`);
+    const el = (id) => document.getElementById(id);
+    const count = (event) => recordUsage(localStorage, el("usageOptOut").checked, event);
+
+    for (const [id, preset] of Object.entries(FEE_SCHEDULE_PRESETS)) {
+      for (const selectId of ["fromId", "toId"]) {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = preset.label;
+        el(selectId).append(option);
+      }
+    }
+    el("fromId").value = "us_standard";
+    el("toId").value = "oct_2026";
+
+    function readInput() {
+      const value = (id) => el(id).value;
+      return {
+        itemPrice: value("itemPrice"),
+        shippingCharged: value("shippingCharged"),
+        affiliateRate: value("affiliateRate"),
+        returnRate: value("returnRate"),
+        cogs: value("cogs"),
+        fulfillmentCost: value("fulfillmentCost"),
+        otherPerOrder: value("otherPerOrder"),
+        adSpend: value("adSpend"),
+        unsellableRate: value("unsellableRate"),
+        unitsPerDay: value("unitsPerDay"),
+        affiliateOnItemOnly: el("affiliateOnItemOnly").checked,
+        affiliateRefundedOnReturn: el("affiliateRefundedOnReturn").checked,
+      };
+    }
+
+    function paint() {
+      el("error").hidden = true;
+      try {
+        const impact = feeChangeImpact(readInput(), el("fromId").value, el("toId").value);
+        el("note").textContent = feeChangeNote(impact);
+        el("scheduleNote").textContent = impact.to.note;
+        el("beforeHead").textContent = impact.from.short;
+        el("afterHead").textContent = impact.to.short;
+
+        const rows = [
+          ["Organic (no creator)", impact.organic],
+          ["Affiliate-sourced", impact.affiliate],
+        ];
+        el("rows").innerHTML = rows.map(([label, split]) => `<tr>
+          <td>${label}</td>
+          <td>${money(split.before.expectedProfit)}</td>
+          <td>${money(split.after.expectedProfit)}</td>
+          <td>${money(split.extraCostPerOrder)}</td>
+        </tr>`).join("");
+
+        // Only the levers that apply. A SKU the change does not touch, or one
+        // already under water, must not be handed a price rise it does not need.
+        const actions = [];
+        actions.push(`Margin on this SKU moves from ${pct(impact.marginBefore)} to ${pct(impact.marginAfter)}.`);
+        // Half a cent of rise is not a relist instruction; a schedule that
+        // costs nothing should not produce a "raise your price by $0.00" line.
+        if (impact.priceToHoldMargin !== null && impact.priceRise >= 0.005) {
+          actions.push(`Relist at <strong>${money(impact.priceToHoldMargin)}</strong> (up ${money(impact.priceRise)}) to hold ${pct(impact.heldMargin)}.`);
+        }
+        if (!impact.stillClears) {
+          actions.push(impact.clearedBefore
+            ? `This SKU stops clearing. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new rates.`
+            : `This SKU already loses money at today's rates. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new ones.`);
+        }
+        // A null ceiling means the SKU loses money even on free goods, so
+        // there is no supplier price to go and ask for. Saying "n/a before,
+        // n/a after — the number to take to a supplier" would point a seller
+        // at a negotiation that cannot fix this listing.
+        if (impact.maxBuyCostAfter === null) {
+          actions.push(impact.maxBuyCostBefore === null
+            ? `No unit cost clears this SKU under either schedule — even free goods lose money on it. Only the listing price (or the fulfilment and ad costs) can fix that.`
+            : `Under the new schedule no unit cost clears this SKU — even free goods lose money on it. It cleared at up to ${money(impact.maxBuyCostBefore)} before, so a supplier conversation alone will not recover it; the listing price has to move.`);
+        } else {
+          actions.push(`Most the unit can cost and still clear: ${money(impact.maxBuyCostBefore)} before, <strong>${money(impact.maxBuyCostAfter)}</strong> after — the number to take to a supplier if the price cannot move.`);
+        }
+        if (impact.extraCostPerMonth > 0) {
+          actions.push(`Doing nothing costs about ${money(impact.extraCostPerMonth)} a month at ${impact.before.monthlyOrders.toFixed(0)} orders.`);
+        }
+        el("actions").innerHTML = actions.map((line) => `<li>${line}</li>`).join("");
+      } catch (error) {
+        el("error").hidden = false;
+        el("error").textContent = error.message;
+        el("note").textContent = "";
+        el("rows").innerHTML = "";
+        el("actions").innerHTML = "";
+      }
+    }
+
+    FIELD_IDS.forEach((id) => {
+      el(id).addEventListener("input", paint);
+      el(id).addEventListener("change", () => count("fee_change_compared"));
+    });
+    ["fromId", "toId", "affiliateOnItemOnly", "affiliateRefundedOnReturn", "usageOptOut"].forEach((id) => {
+      el(id).addEventListener("change", () => {
+        if (id !== "usageOptOut") count("fee_change_compared");
+        paint();
+      });
+    });
+
+    paint();
+  </script>
+</body>
+</html>

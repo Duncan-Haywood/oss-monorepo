@@ -19,7 +19,10 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import {
-  BYTE_CEILING,
+  MIRROR_BYTE_CEILING,
+  SHARD_BYTE_CEILING,
+  packShards,
+  shardName,
   CLIENT_SIDE_APPLY_CEILING,
   SYNC_OPTIONS,
   SYNC_OPTIONS_ANNOTATION,
@@ -33,12 +36,15 @@ import {
   buildMirror,
   canonicalUrl,
   injectMirrorTags,
+  APEX_ROOT_PATHS,
+  FAVICON_FILE,
   mirrorUrl,
+  pageTitle,
   renderKustomization,
   validateLinks,
   ventureFiles,
 } from './front-door-tools.mjs';
-import { renderFrontDoor } from './front-door.mjs';
+import { FAVICON_FILE as FRONT_DOOR_FAVICON, renderFrontDoor } from './front-door.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
@@ -66,9 +72,9 @@ test('the mirror directory holds nothing the generator did not write', async () 
 });
 
 test('the committed kustomization matches the file list', async () => {
-  const { files } = await buildMirror();
+  const { shards } = await buildMirror();
   const onDisk = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
-  assert.equal(onDisk, renderKustomization(files), `stale — run \`${REGENERATE}\``);
+  assert.equal(onDisk, renderKustomization(shards), `stale — run \`${REGENERATE}\``);
 });
 
 test('no mirrored page links to something the mirror does not serve', async () => {
@@ -179,12 +185,90 @@ test('buildMirror refuses a slug nginx could not route', async () => {
   );
 });
 
-test('the mirror stays under the ConfigMap ceiling', async () => {
-  // Not a style rule. A ConfigMap over 1 MiB fails to apply, and this one is
-  // mounted by the front door's own pod — so blowing the ceiling would trade a
-  // broken link for a broken apex.
-  const { bytes } = await buildMirror();
-  assert.ok(bytes <= BYTE_CEILING, `${bytes} bytes is over the ${BYTE_CEILING} ceiling`);
+test('every shard stays under the ConfigMap ceiling, and the mirror under its own', async () => {
+  // Not a style rule, and now two rules rather than one.
+  //
+  // A ConfigMap over 1 MiB fails to apply, and these are mounted by the front
+  // door's own pod — so blowing the per-object ceiling would trade a broken
+  // link for a broken apex. Sharding means that cap binds per shard, which is
+  // what makes 47 tools possible where 20 was the limit.
+  //
+  // `MIRROR_BYTE_CEILING` is the one that binds the whole mirror now, and it
+  // is not about etcd at all: the mirror is tmpfs-resident in both replicas
+  // (so it is charged to `resources.limits.memory`) and committed to git (so
+  // every byte duplicates one under `ventures/`). Both costs are real and
+  // bounded; see the constant's comment.
+  const { bytes, shards } = await buildMirror();
+  assert.ok(
+    bytes <= MIRROR_BYTE_CEILING,
+    `${bytes} bytes is over the ${MIRROR_BYTE_CEILING}-byte mirror ceiling`,
+  );
+  for (const shard of shards) {
+    assert.ok(
+      shard.bytes <= SHARD_BYTE_CEILING,
+      `${shard.name} is ${shard.bytes} bytes, over the ${SHARD_BYTE_CEILING}-byte shard ceiling`,
+    );
+  }
+});
+
+test('shards are named in order and hold every file exactly once', async () => {
+  // The projected volume in `portfolio-front.yaml` names shards by index, so a
+  // gap or a repeat in the sequence is a mount that silently drops a shard's
+  // worth of tools. And a file that lands in two shards is a duplicate key,
+  // which makes the volume fail to mount outright.
+  const { files, shards } = await buildMirror();
+  assert.deepEqual(
+    shards.map((s) => s.name),
+    shards.map((_, i) => shardName(i)),
+  );
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+  assert.equal(new Set(packed).size, packed.length, 'a file was packed into two shards');
+});
+
+test('packShards refuses a file no shard could hold', () => {
+  // A single file larger than the shard ceiling cannot be placed anywhere, and
+  // the packer has to say so rather than emit a shard over the cap — which
+  // would apply cleanly right up until etcd rejected it.
+  assert.throws(
+    () => packShards([{ key: 'a__big.mjs', contents: 'x'.repeat(2048) }], 1024),
+    /larger than the 1024-byte shard ceiling/,
+  );
+});
+
+test('a duplicate ConfigMap key is refused rather than mounted', () => {
+  // Two sources of a projected volume offering the same key makes the volume
+  // fail to mount, and `maxUnavailable: 0` turns that into a stale front door
+  // rather than a visible failure. Cheaper to catch here.
+  assert.throws(
+    () => packShards([
+      { key: 'a__index.html', contents: 'x' },
+      { key: 'a__index.html', contents: 'y' },
+    ]),
+    /appears twice in the mirror/,
+  );
+});
+
+test('a title that arrives HTML-encoded is decoded before the front door escapes it', () => {
+  // `front-door.mjs` escapes every string it renders. A `<title>` is parsed
+  // HTML text, so an ampersand reaches us as `&amp;` and would be escaped a
+  // second time into visible markup on the card. `notary-trip-quote` is the
+  // first mirrored venture with one.
+  assert.equal(pageTitle('<title>Mobile Notary &amp; Loan Signing</title>'), 'Mobile Notary & Loan Signing');
+  assert.equal(pageTitle('<title>A &lt;b&gt; and &#39;q&#39; | tail</title>'), "A <b> and 'q'");
+  // An unknown reference is left alone rather than guessed at.
+  assert.equal(pageTitle('<title>100 &widget; each</title>'), '100 &widget; each');
+});
+
+test('no test file is published to the apex', async () => {
+  // Two ventures name their suite plainly `test.mjs` rather than
+  // `calc.test.mjs`, which the `.test.` check did not catch — so
+  // `cam-reconciliation-check__test.mjs` and
+  // `chargeback-evidence-packet__test.mjs` were both served to strangers out
+  // of a mirror that was refusing new tools for want of room.
+  const { files } = await buildMirror();
+  const published = files.filter((f) => /(^|\.)test\.(m?js)$/.test(f.file));
+  assert.deepEqual(published, [], `${published.map((f) => f.key).join(', ')} is a test file`);
 });
 
 test('the mirror asks for the apply mode its size actually requires', async () => {
@@ -199,14 +283,22 @@ test('the mirror asks for the apply mode its size actually requires', async () =
   // keeps serving its old, toolless pods and `prod` sits Degraded. That is the
   // whole point of the annotation, so pin both halves: that it is emitted, and
   // that the size making it necessary is real rather than assumed.
-  const { files, bytes } = await buildMirror();
-  assert.ok(
-    bytes > CLIENT_SIDE_APPLY_CEILING,
-    `the mirror is ${bytes} bytes, under the ${CLIENT_SIDE_APPLY_CEILING}-byte client-side ` +
-      'apply cap — if that is deliberate, this test and the annotation it guards can go',
+  const { shards } = await buildMirror();
+  for (const shard of shards) {
+    assert.ok(
+      shard.bytes > CLIENT_SIDE_APPLY_CEILING,
+      `${shard.name} is ${shard.bytes} bytes, under the ${CLIENT_SIDE_APPLY_CEILING}-byte ` +
+        'client-side apply cap — if that is deliberate, this test and the annotation it ' +
+        'guards can go',
+    );
+  }
+  const kustomization = renderKustomization(shards);
+  const annotations = kustomization.match(
+    new RegExp(`${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}`, 'g'),
   );
-  const kustomization = renderKustomization(files);
-  assert.match(kustomization, new RegExp(`${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}`));
+  // One per generator, not just one somewhere in the file: an annotation on
+  // the first shard and not the fourth is the same outage, three shards later.
+  assert.equal(annotations.length, shards.length);
   // Under `options:`, not as a stray top-level key that kustomize would reject.
   assert.match(
     kustomization,
@@ -337,4 +429,48 @@ test('the category words a why may use are exactly the categories that exist', a
   // would make the test above throw `undefined` rather than report a mismatch.
   const { ALL_CATEGORIES } = await import('../pages/build.mjs');
   assert.deepEqual(Object.keys(WHY_CATEGORY_WORD).sort(), ALL_CATEGORIES.map((c) => c.id).sort());
+});
+
+test('every mirrored page declares the tab mark the apex actually serves', async () => {
+  // A document that declares no icon makes the browser request `/favicon.ico`
+  // unprompted; nothing on this host serves that, so all 47 mirrored pages
+  // showed a blank tab and logged a miss on every view. `front-door.mjs` fixed
+  // exactly this for the apex page and its comment explains why it is worth
+  // fixing; the mirrored pages are on the same origin and were left out.
+  //
+  // One declaration per page, not two: a venture that later grows its own
+  // `rel="icon"` must be replaced rather than contradicted, the same rule the
+  // canonical and robots tags already follow.
+  const { files } = await buildMirror();
+  for (const { key, file, contents } of files) {
+    if (!file.endsWith('.html')) continue;
+    const icons = contents.match(/<link\b[^>]*\brel=["']icon["'][^>]*>/gi) ?? [];
+    assert.equal(icons.length, 1, `${key} declares ${icons.length} icons`);
+    assert.match(icons[0], new RegExp(`href="/${FAVICON_FILE}"`));
+  }
+});
+
+test('the mirror names the same favicon file the front door writes', () => {
+  // The two modules are deliberately decoupled — `front-door.mjs` imports this
+  // one dynamically so its tests survive the mirror being deleted — so the
+  // filename is declared twice and has to be pinned rather than shared. If they
+  // drift, every mirrored page points at a file the apex does not serve.
+  assert.equal(FAVICON_FILE, FRONT_DOOR_FAVICON);
+  assert.ok(APEX_ROOT_PATHS.has(`/${FAVICON_FILE}`));
+});
+
+test('a root-absolute link is checked against the apex root, not the mirror', () => {
+  // `validateLinks` resolves relative hrefs inside the venture directory. A
+  // root-absolute href is answered by the front door's own document root
+  // instead, so treating it as relative both misreports the tag this module
+  // injects and misses a genuinely dead one.
+  assert.deepEqual(
+    validateLinks([{ slug: 'a', file: 'index.html', contents: '<a href="/favicon.svg">' }]),
+    [],
+  );
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<a href="/nothing-here.css">' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /apex document root serves only/);
 });

@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/ebay-fee-calculator/should-i-send-an-ebay-offer-to-watchers.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I send an offer to eBay watchers? | 10% vs waiting</title>
+  <meta name="description" content="Compare sending a seller-initiated eBay offer with waiting for Buy It Now. See leftover after fees, the accept rate that still ties waiting, and the offer-percent ceiling on the same listing.">
+  
+  
+  <meta property="og:title" content="Should I send an offer to eBay watchers?">
+  <meta property="og:description" content="See whether a 10% seller-initiated offer still beats waiting — and when a 20% make-them-take-it coupon flips the table.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay seller-initiated offer vs waiting",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "seller-initiated offer vs waiting after sell-through, accept rate that ties waiting, offer-percent ceiling, expected listing profit after returns"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I send an offer to eBay watchers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A seller-initiated offer is a pricing decision on a listing that already exists. You either wait for Buy It Now at the listed price or send a percent-off offer to watchers. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 10% offer, 40% wait sell-through, 55% accept rate) waiting expects $7.34 and the offer expects $8.37. The offer keeps $1.03 more. The offer has to be accepted about 48.2% of the time, or stay at or below about 16.0% off ($33.59), before it matches waiting. That is arithmetic on your inputs, not advice to send the offer."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does waiting beat a seller-initiated eBay offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the discount eats more leftover than the conversion lift returns. On the same $40 listing, a 20% offer at a 55% accept rate expects $6.65 against $7.34 for waiting — $0.69 less. Waiting at 50% sell-through already beats a 10% offer ($9.17 vs $8.37)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is sending an offer the same as taking a Best Offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. An incoming Best Offer is the buyer naming a price. A seller-initiated offer is you naming the discount and sending it to watchers. Auction versus Buy It Now is a listing-format choice before anyone watches. The repricing table moves the list price without a typed conversion lift."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether sending the offer still beats waiting.</h1>
+    <p>
+      Sending an offer to watchers is not the same decision as
+      taking an incoming Best Offer. You are naming the discount.
+      Waiting keeps the listed price and a lower sell-through; the
+      offer drops the ticket and uses a typed accept rate.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>The listing and the offer</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>Offer percent off <input id="offerPercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>Wait sell-through (%) <input id="waitSellThroughPct" type="number" min="0" max="100" step="1" value="40"></label>
+        <label>Offer accept rate (%) <input id="offerAcceptPct" type="number" min="0" max="100" step="1" value="55"></label>
+        <label>Offers sent per month <input id="monthlyOffers" type="number" min="0" step="1" value="40"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Offer vs waiting</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by the offer versus waiting</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Waiting after sell-through</dt><dd id="waitExpected"></dd>
+        <dt>Offer after accept rate</dt><dd id="offerExpected"></dd>
+        <dt>If they take Buy It Now</dt><dd id="waitIfSells"></dd>
+        <dt>If they accept the offer</dt><dd id="offerIfSells"></dd>
+        <dt>Accept rate that still ties waiting</dt><dd id="breakEvenAccept"></dd>
+        <dt>Offer-percent ceiling at this lift</dt><dd id="percentCeiling"></dd>
+        <dt>Offer price that still ties waiting</dt><dd id="priceCeiling"></dd>
+        <dt>Monthly gap vs waiting</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same listing, two close paths</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Price</th>
+            <th scope="col">Close rate</th>
+            <th scope="col">If it sells</th>
+            <th scope="col">Expected after sell-through</th>
+            <th scope="col">vs waiting</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Insertion is already sunk. Accept rate and wait sell-through are inputs — not eBay’s watcher-conversion policy.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Card, clothing, and small-goods sellers search “should I send
+      an offer to eBay watchers” because Seller Hub shows a watcher
+      count and a Send offer button. A 10% coupon looks automatic.
+      It also writes a new ticket, and a 20% “make them take it”
+      discount can leave less than sitting at the listed price.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 shipping charged, 13.25%
+      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack,
+      $5 return label, 10% returns, 10% offer, 40% wait
+      sell-through, 55% accept rate, forty offers — waiting
+      expects $7.34 and the offer expects $8.37. The offer keeps
+      $1.03 more on this listing and +$41.36 across forty offers.
+      The offer has to be accepted about 48.2% of the time, or stay
+      at or below about 16.0% off ($33.59), before it matches
+      waiting.
+    </p>
+    <p>
+      A deeper coupon flips. Keep the same listing and send 20%
+      off. Waiting still expects $7.34; the 20% offer expects
+      $6.65 — $0.69 less. Waiting at 50% sell-through already
+      beats a 10% offer ($9.17 vs $8.37). The conversion you
+      thought you bought did not cover the leftover you gave away.
+    </p>
+    <p>
+      It does not tell you to send the offer, and it is not tax or
+      financial advice. An incoming Best Offer, auction versus Buy
+      It Now, combined shipping, and a return-<em>rate</em> mix are
+      different questions. Compare
+      <a href="should-i-accept-this-ebay-offer.html">an incoming Best Offer versus waiting</a>,
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>,
+      <a href="should-i-offer-an-ebay-quantity-discount.html">a quantity discount versus selling separately</a>,
+      <a href="should-i-offer-ebay-combined-shipping.html">combined shipping versus two labels</a>,
+      <a href="should-i-offer-a-partial-refund-on-ebay.html">a partial refund versus taking the return</a>,
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      <a href="should-i-offer-ebay-local-pickup.html">local pickup versus the label</a>,
+      or
+      <a href="is-ebay-standard-envelope-worth-it.html">Standard Envelope versus a tracked label</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I send an offer to eBay watchers?</h3>
+  <p>A seller-initiated offer is a pricing decision on a listing that already exists. You either wait for Buy It Now at the listed price or send a percent-off offer to watchers. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 10% offer, 40% wait sell-through, 55% accept rate) waiting expects $7.34 and the offer expects $8.37. The offer keeps $1.03 more. The offer has to be accepted about 48.2% of the time, or stay at or below about 16.0% off ($33.59), before it matches waiting. That is arithmetic on your inputs, not advice to send the offer.</p>
+  <h3>When does waiting beat a seller-initiated eBay offer?</h3>
+  <p>When the discount eats more leftover than the conversion lift returns. On the same $40 listing, a 20% offer at a 55% accept rate expects $6.65 against $7.34 for waiting — $0.69 less. Waiting at 50% sell-through already beats a 10% offer ($9.17 vs $8.37).</p>
+  <h3>Is sending an offer the same as taking a Best Offer?</h3>
+  <p>No. An incoming Best Offer is the buyer naming a price. A seller-initiated offer is you naming the discount and sending it to watchers. Auction versus Buy It Now is a listing-format choice before anyone watches. The repricing table moves the list price without a typed conversion lift.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from a 20% offer that waiting would have beaten, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareSellerInitiatedOffer, sellerInitiatedOfferNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "finalValueRate", "fixedFee",
+      "costOfGoods", "shippingCost", "packagingCost", "returnShippingCost",
+      "returnRatePercent", "offerPercent", "waitSellThroughPct",
+      "offerAcceptPct", "monthlyOffers",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareSellerInitiatedOffer(readInput());
+        const extra = result.extraKeptOnOffer;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by the offer versus waiting" :
+          extra < 0 ? "the offer keeps less than waiting" :
+          "the offer and waiting keep the same";
+        document.getElementById("summary").textContent = sellerInitiatedOfferNote(result);
+        document.getElementById("waitExpected").textContent = money(result.wait.expectedProfit);
+        document.getElementById("offerExpected").textContent = money(result.offer.expectedProfit);
+        document.getElementById("waitIfSells").textContent = money(result.wait.soldExpectedProfit);
+        document.getElementById("offerIfSells").textContent = money(result.offer.soldExpectedProfit);
+        document.getElementById("breakEvenAccept").textContent = Number.isFinite(result.breakEvenAcceptPct)
+          ? `${result.breakEvenAcceptPct.toFixed(1)}%`
+          : "none";
+        document.getElementById("percentCeiling").textContent = Number.isFinite(result.offerPercentCeiling)
+          ? `${result.offerPercentCeiling.toFixed(1)}%`
+          : "none";
+        document.getElementById("priceCeiling").textContent = Number.isFinite(result.offerPriceCeiling)
+          ? money(result.offerPriceCeiling)
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnOffer >= 0
+            ? `${money(result.monthlyExtraOnOffer)} more`
+            : `${money(-result.monthlyExtraOnOffer)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${money(row.price)}</td><td>${row.sellThroughPct}%</td><td>${money(row.soldExpectedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["waitExpected", "offerExpected", "waitIfSells", "offerIfSells", "breakEvenAccept", "percentCeiling", "priceCeiling", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "seller_initiated_offer_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

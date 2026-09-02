@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/walmart-marketplace-calculator/should-i-match-the-walmart-buy-box.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I match the lower Walmart offer? | Hold vs match vs promo</title>
+  <meta name="description" content="Compare holding your Walmart list price against a permanent match and a time-boxed promo after Buy Box take rate. See leftover, the take that still matches, and the promo length that catches a permanent drop.">
+  
+  
+  <meta property="og:title" content="Should I match the lower Walmart offer?">
+  <meta property="og:description" content="Hold list vs permanent match vs a time-boxed promo: leftover after Buy Box take, not just unit profit at the lower ticket.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Walmart Buy Box match vs hold calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "hold-list leftover after current take, permanent-match leftover after a higher take, time-boxed promo leftover, match-take floor that still matches holding, promo-day floor that still matches a permanent drop"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I match a lower Walmart offer to win the Buy Box?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator defaults — a $24.99 home unit on WFS, 15% referral, $21.99 match, 60 completed sales at a 40% hold take, 70% match take, and a 10-day promo at 80% take — permanently matching keeps $121.49 more than holding the list ($640.48 vs $518.99). A 10-day promo is $589.99, $50.50 behind the match. The promo catches a permanent drop at about 17.1 days. Holding matches if match take falls to about 56.7%. This page does the arithmetic from the rates you enter; it does not recommend a price."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this the same as the match price on the main Walmart calculator?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. The main calculator re-runs the same costs at a lower ticket and holds take fixed, so it cannot show whether winning more of the Buy Box covers the thinner unit. This page mixes take rate with that thinner leftover, and a time-boxed promo that reverts. A completed-sale WFS versus seller table, a 2-day take-rate mix, a refund mix, aged leftover, and Walmart Connect ads are different squeezes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does a Walmart promo still beat a permanent match?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the promo is long enough that its higher take outweighs the days you spend back at the hold mix. On these defaults that is about 17.1 promo days in a 30-day month. A 20-day promo flips ahead of the permanent match by $20.50 ($660.98 vs $640.48). Replace the match price and take rates from your current Seller Center offer."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <p><a href="./">← Walmart Marketplace calculator</a></p>
+  <h1>Should I match the lower Walmart offer?</h1>
+  <p>
+    Sellers search this after a competing offer undercuts them and
+    the Buy Box moves. The main calculator’s match field is one
+    leftover on a completed sale at the lower ticket, so it cannot
+    show whether the extra take covers that thinner unit. Holding
+    the list keeps today’s leftover at today’s take. Permanently
+    matching sells more of the sessions that already saw the
+    listing, at the lower ticket, every day. A time-boxed promo
+    uses the match ticket at a higher take for N days — before
+    competitors react — then reverts.
+  </p>
+  <p>
+    On the default $24.99 home unit on WFS, permanently matching
+    $21.99 at 70% take keeps $121.49 more than holding the list
+    at 40% take ($640.48 vs $518.99) on 60 completed sales.
+    A 10-day promo at 80% take is $589.99, $50.50 behind the
+    match. The promo catches a permanent drop at about 17.1 days.
+    Holding matches if match take falls to about 56.7%. A 20-day
+    promo flips ahead of the permanent match by $20.50. A 50%
+    match take and 50% promo take flip the leftover back to
+    holding by $61.50.
+  </p>
+  <form id="matchForm" class="fields">
+    <label>Sale price ($) <input id="salePrice" type="number" min="0" step="0.01" value="24.99"></label>
+    <label>Match / promo price ($) <input id="matchPrice" type="number" min="0" step="0.01" value="21.99"></label>
+    <label>Referral rate (%) <input id="referralRate" type="number" min="0" step="0.01" value="15"></label>
+    <label>Length (in) <input id="length" type="number" min="0" step="0.01" value="8"></label>
+    <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6"></label>
+    <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2"></label>
+    <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75"></label>
+    <label>You paid for the item ($) <input id="costOfGoods" type="number" min="0" step="0.01" value="7"></label>
+    <label>Inbound to WFS / unit ($) <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.10"></label>
+    <label>Prep / packaging ($) <input id="packagingCost" type="number" min="0" step="0.01" value="0.50"></label>
+    <label>Completed sales at hold take <input id="monthlyUnits" type="number" min="1" step="1" value="60"></label>
+    <label>Hold take (%) <input id="holdTakePct" type="number" min="0.1" max="100" step="0.1" value="40"></label>
+    <label>Permanent match take (%) <input id="matchTakePct" type="number" min="0" max="100" step="0.1" value="70"></label>
+    <label>Promo take (%) <input id="promoTakePct" type="number" min="0" max="100" step="0.1" value="80"></label>
+    <label>Promo days <input id="promoDays" type="number" min="0" step="1" value="10"></label>
+    <label>Days in the month <input id="monthDays" type="number" min="1" step="1" value="30"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Path</th>
+        <th scope="col">Price</th>
+        <th scope="col">Take</th>
+        <th scope="col">Completed</th>
+        <th scope="col">Monthly leftover</th>
+        <th scope="col">vs hold</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table>
+  <p class="note">
+    Monthly leftover is take% × completed-sale profit × sessions,
+    and sessions are completed sales divided by the hold take.
+    Complementary to the
+    <a href="./">unit-profit match on the main calculator</a>
+    (same take, lower ticket), to
+    <a href="wfs-vs-seller-fulfilled.html">WFS vs seller fulfilled</a>
+    (a completed sale), to
+    <a href="should-i-offer-two-day-shipping-on-walmart.html">2-day vs WFS</a>
+    (fulfillment vs take, price held), to
+    <a href="should-i-use-wfs-with-walmart-returns.html">returns vs WFS</a>
+    (a refund, not a price), to
+    <a href="should-i-pull-aged-wfs-inventory.html">aged leftover vs a removal</a>
+    (units already inbound), and to
+    <a href="should-i-run-walmart-connect-ads.html">Walmart Connect vs skip</a>
+    (buying traffic, price held).
+    Paste the match price and take rates from your current
+    Seller Center offer. This page does not publish Walmart’s
+    live Buy Box rules.
+  </p>
+  <p class="note">
+    The calculator is arithmetic, not advice. It does not recommend
+    holding the list, permanently matching, or running a promo.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I match a lower Walmart offer to win the Buy Box?</h3>
+  <p>On the calculator defaults — a $24.99 home unit on WFS, 15% referral, $21.99 match, 60 completed sales at a 40% hold take, 70% match take, and a 10-day promo at 80% take — permanently matching keeps $121.49 more than holding the list ($640.48 vs $518.99). A 10-day promo is $589.99, $50.50 behind the match. The promo catches a permanent drop at about 17.1 days. Holding matches if match take falls to about 56.7%. This page does the arithmetic from the rates you enter; it does not recommend a price.</p>
+  <h3>Is this the same as the match price on the main Walmart calculator?</h3>
+  <p>No. The main calculator re-runs the same costs at a lower ticket and holds take fixed, so it cannot show whether winning more of the Buy Box covers the thinner unit. This page mixes take rate with that thinner leftover, and a time-boxed promo that reverts. A completed-sale WFS versus seller table, a 2-day take-rate mix, a refund mix, aged leftover, and Walmart Connect ads are different squeezes.</p>
+  <h3>When does a Walmart promo still beat a permanent match?</h3>
+  <p>When the promo is long enough that its higher take outweighs the days you spend back at the hold mix. On these defaults that is about 17.1 promo days in a 30-day month. A 20-day promo flips ahead of the permanent match by $20.50 ($660.98 vs $640.48). Replace the match price and take rates from your current Seller Center offer.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareMatchTake, matchTakeNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "salePrice", "matchPrice", "referralRate", "length", "width", "height",
+      "weightLb", "costOfGoods", "inboundPerUnit", "packagingCost",
+      "monthlyUnits", "holdTakePct", "matchTakePct", "promoTakePct",
+      "promoDays", "monthDays",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareMatchTake(raw);
+        document.getElementById("summary").textContent = matchTakeNote(result);
+        document.getElementById("verdict").textContent = result.winner === "match"
+          ? `Permanently matching keeps ${money(result.extraMatchVsHold)} more than holding the list`
+          : result.winner === "promo"
+            ? `A time-boxed promo keeps ${money(result.extraPromoVsHold)} more than holding the list`
+            : result.winner === "hold"
+              ? `Holding the list keeps ${money(-result.extraMatchVsHold)} more than permanently matching`
+              : "Holding the list, matching, and a promo leave the same leftover";
+        document.getElementById("compare").innerHTML = result.rows.map((row) => {
+          const winner = result.winner === row.id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${money(row.salePrice)}</td><td>${row.takePct.toFixed(1)}%</td><td>${money(row.completedProfit)}</td><td>${money(row.monthlyProfit)}</td><td>${row.id === "hold" ? "Current" : money(row.vsHold)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "match_take_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

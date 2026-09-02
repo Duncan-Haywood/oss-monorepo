@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/cloud-egress-calculator/vs-google-cloud-pricing-calculator.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. the Google Cloud Pricing Calculator</title>
+  <meta name="description" content="How this free cloud egress calculator differs from the Google Cloud Pricing Calculator, and when to use each one. Vendor-neutral, bring your own price sheet. Not affiliated with Google.">
+  
+  
+  <meta property="og:title" content="This calculator vs. the Google Cloud Pricing Calculator">
+  <meta property="og:description" content="Two different jobs: Google's own calculator estimates Google Cloud products against Google's schedule; this one puts two providers' price sheets side by side and solves the outbound-GB crossover.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I use this calculator or the Google Cloud Pricing Calculator?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most teams get more use out of both, because they answer different questions. The Google Cloud Pricing Calculator estimates the cost of Google Cloud products you add and configure, priced against Google's own schedule, so it is the right place to answer “what would this bucket and this outbound volume cost on Google Cloud?” This page does not try to replace that, and it never publishes or endorses any provider's prices. What it adds is the comparison Google's calculator is not built around: two providers' price sheets on one workload at the same time, the outbound-gigabyte volume where a cheaper storage rate stops being cheaper, and the CDN, replica, and storage-class calls that sit on top of that decision."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does this calculator make me type the rates in myself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Because a rate this page had cached would be wrong the day a provider changed it, and you would have no way to tell. Every provider publishes its own current price sheet and its own estimator; those are the authoritative sources and this tool deliberately defers to them. Typing the rates also means the arithmetic works for a negotiated or committed-use rate that no public sheet lists, and it means nothing you enter has to leave your browser."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this page affiliated with Google?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. This site is not affiliated with, endorsed by, or sponsored by Google LLC. Google, Google Cloud, and Cloud Storage are trademarks of Google LLC, named here only to describe what this calculator is for and to point at the primary sources quoted on this page."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    blockquote { margin: 1rem 0; padding: 2px 0 2px 14px; border-left: 4px solid #8fa0b8; color: #33405a; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #c9d3e2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #445064; }
+    .note { font-size: .85rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 700px) { table { display: block; overflow-x: auto; max-width: 100%; } }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Cloud egress cost calculator</a></p>
+  <h1>This calculator vs. the Google Cloud Pricing Calculator</h1>
+  <p>
+    Google publishes its own free cost-estimation tool, the
+    <strong>Google Cloud Pricing Calculator</strong>, at
+    <a href="https://cloud.google.com/products/calculator" rel="nofollow noopener">cloud.google.com/products/calculator</a>.
+    Its own instruction to a new visitor is to “Add and configure products to
+    get a cost estimate to share with your team,” and Google's Cloud Storage
+    price list at
+    <a href="https://cloud.google.com/storage/pricing" rel="nofollow noopener">cloud.google.com/storage/pricing</a>
+    points readers to it directly: “For the Google Cloud pricing calculator,
+    see the Calculator page.” Signing in is offered there to “view billing
+    account pricing.”
+  </p>
+  <p>
+    That makes it the right tool for one job: <strong>what a configuration of
+    Google Cloud products would cost on Google's own schedule.</strong> It
+    prices Google's products against Google's numbers, which is something no
+    third-party page, this one included, can claim to do. This site does not
+    publish, cache, or endorse any provider's prices — it asks you to paste
+    the rates from the price sheet or quote in front of you. Google also states
+    the limits of its estimate on the calculator page itself:
+  </p>
+  <blockquote>
+    “This tool creates cost estimates based on assumptions that you provide.
+    These estimates may not accurately reflect the final costs on your monthly
+    Google Cloud bill.”
+  </blockquote>
+  <p>
+    So if the question is a Google Cloud number, open Google's calculator; this
+    page says so plainly. What it does not do is the thing this tool exists
+    for — putting a <em>second</em> provider's sheet next to the first one on
+    the same workload, which is the shape of an actual migration decision.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What would this bucket and this outbound volume cost on Google Cloud?</td>
+        <td>Google's own Pricing Calculator — it prices Google Cloud products on Google's schedule.</td>
+      </tr>
+      <tr>
+        <td>Provider A quoted me one sheet and provider B another. Which is cheaper on <em>my</em> stored GB, requests, and outbound transfer?</td>
+        <td>This calculator — both sheets on one screen, from the rates you enter.</td>
+      </tr>
+      <tr>
+        <td>At what outbound volume does the cheaper storage rate stop being cheaper?</td>
+        <td>This calculator's break-even line, solved from the two rate sets.</td>
+      </tr>
+      <tr>
+        <td>Does putting a CDN in front of the origin actually cut the bill at my cache-hit rate?</td>
+        <td>This calculator's <a href="does-a-cdn-cut-s3-egress.html">CDN vs origin-only page</a>, including miss-fetch cost.</td>
+      </tr>
+      <tr>
+        <td>Is a second-region replica cheaper than paying a cross-region pull every month?</td>
+        <td>This calculator's <a href="does-a-replica-beat-cross-region-pull.html">replica vs cross-region pull page</a>.</td>
+      </tr>
+      <tr>
+        <td>Does an infrequent-access or archive class still win once restore fees land?</td>
+        <td>This calculator's <a href="does-infrequent-access-still-beat-standard.html">storage-class page</a>.</td>
+      </tr>
+      <tr>
+        <td>I have a negotiated or committed-use rate that no public sheet lists.</td>
+        <td>This calculator — every rate is a field you type, so a quoted rate works the same as a list price.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    Getting the question right also matters more here than the arithmetic
+    does. Google's Cloud Storage price list separates network usage charges
+    into “Data transfer within Google Cloud,” “Specialty network services,”
+    and “General data transfer,” the last covering transfer out of Google
+    Cloud or between continents — and it defines outbound data transfer as
+    “data sent from Cloud Storage in HTTP responses.” Providers differ in how
+    they cut those lines up, which is exactly why this tool asks for one
+    outbound rate per option and shows its working, rather than pretending a
+    single number is comparable across two sheets you have not read.
+  </p>
+  <p>
+    Beyond the comparison itself, this tool needs no account, no cloud
+    project, and no sign-in. It is a static page, the arithmetic runs in your
+    browser, and once it has loaded it keeps working with the connection off.
+    Nothing you type is uploaded anywhere, and the copyable decision summary
+    deliberately carries the totals and the cheaper option without the rate
+    sheet behind them, so pasting it into a migration ticket cannot leak a
+    quote you are under NDA about.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or the Google Cloud Pricing Calculator?</h3>
+  <p>Most teams get more use out of both, because they answer different questions. The Google Cloud Pricing Calculator estimates the cost of Google Cloud products you add and configure, priced against Google's own schedule, so it is the right place to answer “what would this bucket and this outbound volume cost on Google Cloud?” This page does not try to replace that, and it never publishes or endorses any provider's prices. What it adds is the comparison Google's calculator is not built around: two providers' price sheets on one workload at the same time, the outbound-gigabyte volume where a cheaper storage rate stops being cheaper, and the CDN, replica, and storage-class calls that sit on top of that decision.</p>
+  <h3>Why does this calculator make me type the rates in myself?</h3>
+  <p>Because a rate this page had cached would be wrong the day a provider changed it, and you would have no way to tell. Every provider publishes its own current price sheet and its own estimator; those are the authoritative sources and this tool deliberately defers to them. Typing the rates also means the arithmetic works for a negotiated or committed-use rate that no public sheet lists, and it means nothing you enter has to leave your browser.</p>
+  <h3>Is this page affiliated with Google?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Google LLC. Google, Google Cloud, and Cloud Storage are trademarks of Google LLC, named here only to describe what this calculator is for and to point at the primary sources quoted on this page.</p>
+  <p class="note">
+    Open the <a href="./">cloud egress cost calculator</a> to run the
+    comparison on your own numbers.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Quotations from Google's pages above were read on 2026-09-01; verify every rate and every claim against the provider's own current price sheet before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
