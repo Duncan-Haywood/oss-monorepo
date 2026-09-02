@@ -6,18 +6,47 @@ resources:
   - networkpolicy.yaml
   - landing.yaml
   - portfolio-site.yaml
+  - portfolio-front.yaml
   - portfolio-apex.yaml
   - site-usage.yaml
 configMapGenerator:
   - name: portfolio-site-usage-script
     files:
       - aggregate.py=usage/aggregate.py
-generatorOptions:
-  # The CronJob names this ConfigMap directly, so it must not grow a content
-  # hash. Editing the script therefore does not roll a Deployment — nothing
-  # long-running mounts it, and the next scheduled run picks the change up.
-  disableNameSuffixHash: true
-# `secrets/portfolio-repo-token.sealed.yaml` joins this list once the owner
-# has sealed the read-only clone token — see secrets/*.template.yaml. Until
-# then the site's `fetch` init container fails closed, which is why the
-# placeholder landing above stays.
+    options:
+      # No content hash. The CronJob in `site-usage.yaml` names this ConfigMap
+      # directly, so a hashed name would leave it referring to an object that
+      # no longer exists. Nothing long-running mounts it, so editing the script
+      # does not need to roll anything — the next scheduled run picks it up.
+      #
+      # This used to be a namespace-wide `generatorOptions:` block at the foot
+      # of this file. It moved here on 2026-09-02, when the front door below
+      # became the first generated ConfigMap that a Deployment mounts: a global
+      # `disableNameSuffixHash: true` cannot be overridden back to `false` by a
+      # per-generator `options` (kustomize 5.4 merges the two, and a `false`
+      # there is indistinguishable from unset), so the only way to have both
+      # behaviours in one kustomization is to state the exception per generator
+      # rather than globally. Verified with `kustomize build gitops/prod`:
+      # this one stays bare, the two below carry hashes.
+      disableNameSuffixHash: true
+  # The apex front door: one generated page and the nginx config that serves
+  # it. Both take the content hash, because a long-running Deployment mounts
+  # them and a change has to produce a new ConfigMap name for the rollout to
+  # happen at all. Without it a regenerated page would sit in the ConfigMap
+  # while both pods went on serving the old one until something unrelated
+  # restarted them.
+  #
+  # Regenerate the page with:
+  #   node platform/marketing/front-door.mjs --write
+  # `platform/marketing/front-door.test.mjs` fails if the commit is stale.
+  - name: portfolio-front-html
+    files:
+      - index.html=front-door/index.html
+  - name: portfolio-front-nginx
+    files:
+      - default.conf=front-door/default.conf
+# `secrets/portfolio-repo-token.sealed.yaml` joins the resource list once the
+# owner has sealed the read-only clone token — see secrets/*.template.yaml.
+# Until then the site's `fetch` init container fails closed. The apex does not
+# wait on it: `portfolio-front.yaml` serves marisstella.dev from the ConfigMap
+# generated above, with nothing sealed.

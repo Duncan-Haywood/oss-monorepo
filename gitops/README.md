@@ -71,9 +71,20 @@ usual during those five days.
 
 A subdomain, because `tools.marisstella.dev` is the canonical host
 stamped into every page's canonical link, og:url and sitemap entry. The
-apex and `www` are served by `prod/portfolio-apex.yaml`, which 301s them
-here rather than putting two uncanonical copies of all 524 pages in front
-of crawlers.
+apex and `www` are served by `prod/portfolio-apex.yaml`, which used to 301
+them here rather than putting two uncanonical copies of all 524 pages in
+front of crawlers.
+
+**Changed 2026-09-02.** That redirect pointed at a host serving nothing for
+every day of its life, because of the seal below. The apex and `www` now
+serve `prod/portfolio-front.yaml` instead: a generated front-door page —
+positioning, one card per category, the §5b clauses — held in a kustomize
+ConfigMap and therefore needing nothing sealed, no runner and no Pages
+flip. It is a different document from the hub (its own canonical, no
+per-tool listing), so it does not reintroduce the duplicate the redirect
+existed to prevent. Regenerate it with `node
+platform/marketing/front-door.mjs --write`; the suite fails on a stale
+commit.
 
 This used to say the apex was left alone because it "already resolves to
 the cpx52 for something else". It does not: `infra/README.md` records
@@ -90,6 +101,12 @@ wildcard `A/*` record already covers this subdomain, no new record
 needed). **One thing remains**, and it is an owner action. Until it lands
 Argo syncs the manifests and the pods crash-loop on the missing secret,
 which is the intended fail-closed state.
+
+Note what this section is and is not about since 2026-09-02: it is the step
+that makes the **169 tools** reachable. The portfolio's apex is already
+serving (`prod/portfolio-front.yaml`, above), and every category card on
+that page links in here — so this seal is what turns a live front door into
+a live catalogue, not what turns the domain on.
 
 1. **The clone token.** The repository is private, so the init container
    cannot clone anonymously. Mint a fine-grained token scoped to this one

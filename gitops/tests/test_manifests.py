@@ -574,36 +574,195 @@ def test_portfolio_apex_claims_both_bare_and_www() -> None:
     assert set(apex["spec"]["tls"][0]["hosts"]) == hosts
 
 
-def test_portfolio_apex_redirects_permanently_to_the_canonical_host() -> None:
-    # A 301 to the canonical host, not a second copy of the site: build.mjs
-    # stamps one canonical base into all 524 pages, and serving those bytes
-    # under two more names would contradict it on every page.
+def _mounted_secrets(docs) -> set[str]:
+    """Secret names a workload in `docs` must have before its pods can start.
+
+    Ingress `tls.secretName` is excluded: cert-manager mints those from the
+    ClusterIssuer when the Ingress is admitted, so their absence from git
+    blocks nothing. Everything else — `volumes[].secret`, `secretKeyRef`,
+    `envFrom.secretRef` — is a mount the kubelet will not start a pod without.
+    """
+    found: set[str] = set()
+
+    def walk(node, kind: str | None) -> None:
+        if isinstance(node, dict):
+            if kind != "Ingress":
+                secret = node.get("secret")
+                if isinstance(secret, dict) and isinstance(secret.get("secretName"), str):
+                    found.add(secret["secretName"])
+                for key in ("secretKeyRef", "secretRef"):
+                    ref = node.get(key)
+                    if isinstance(ref, dict) and isinstance(ref.get("name"), str):
+                        found.add(ref["name"])
+            for value in node.values():
+                walk(value, kind)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value, kind)
+
+    for doc in docs:
+        if doc:
+            walk(doc, doc.get("kind"))
+    return found
+
+
+def test_portfolio_apex_does_not_redirect_into_a_host_that_serves_nothing() -> None:
+    # Changed 2026-09-02. This used to pin a 301 to tools.marisstella.dev,
+    # which was right about canonicalisation and wrong about the cluster: that
+    # host fails closed on the unsealed Secret `portfolio-site-repo`, so the
+    # apex spent every day of its life redirecting strangers into a dead end.
+    # It now serves the front door instead (`portfolio-front.yaml`).
+    #
+    # Restoring a redirect is a legitimate later choice — but only once the
+    # target actually serves, which is what this test now says. If the
+    # annotation comes back while `portfolio-site` still mounts an unprovided
+    # Secret, this fails.
     apex = _portfolio_apex()
-    annotations = apex["metadata"]["annotations"]
-    target = annotations["nginx.ingress.kubernetes.io/permanent-redirect"]
-    assert target == "https://tools.marisstella.dev/"
-    assert annotations["nginx.ingress.kubernetes.io/permanent-redirect-code"] == "301"
-
-    # The redirect target must stay the host the content Ingress actually
-    # serves. If someone renames that host and forgets this file, the front
-    # door 301s everyone into a name nothing answers for.
+    annotations = apex["metadata"].get("annotations", {})
+    redirect = annotations.get("nginx.ingress.kubernetes.io/permanent-redirect")
+    if redirect is None:
+        return
     served = _portfolio_site()["Ingress"]["spec"]["rules"][0]["host"]
-    assert target == f"https://{served}/"
+    assert redirect == f"https://{served}/"
+    site_docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()))
+    provided = {
+        doc["metadata"]["name"]
+        for doc in site_docs
+        if doc and doc.get("kind") in {"Secret", "SealedSecret"}
+    }
+    assert not (_mounted_secrets(site_docs) - provided), (
+        "the redirect target cannot start until its Secret is sealed — "
+        "restoring this annotation now would 301 every visitor into a 503"
+    )
 
 
-def test_portfolio_apex_backend_is_the_real_site_not_a_stub() -> None:
-    # The backend is unreachable while the redirect annotation is set, so its
-    # only job is to decide what happens if that annotation is ever dropped:
-    # pointing at the live Service degrades to serving the site (whose pages
-    # carry the canonical tag anyway), while a stub would degrade to a 503.
-    site_service = None
-    for doc in yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()):
-        if doc and doc["kind"] == "Service":
-            site_service = doc["metadata"]["name"]
-    assert site_service is not None
+def test_portfolio_apex_backend_can_start_without_an_owner_action() -> None:
+    # The apex is the portfolio's front door, so whatever it names has to be
+    # able to run today. `portfolio-site` cannot: its pods mount the unsealed
+    # clone token. `portfolio-front` holds nothing but two generated
+    # ConfigMaps, which Argo applies from this repository directly.
+    front_docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-front.yaml").read_text()))
+    front_service = next(
+        doc["metadata"]["name"] for doc in front_docs if doc and doc["kind"] == "Service"
+    )
     for rule in _portfolio_apex()["spec"]["rules"]:
         for path in rule["http"]["paths"]:
-            assert path["backend"]["service"]["name"] == site_service
+            assert path["backend"]["service"]["name"] == front_service
+    assert not _mounted_secrets(front_docs), (
+        "the front door must not grow a Secret dependency — that is the one "
+        "property that makes it deployable while the site is not"
+    )
+
+
+def _portfolio_front() -> dict[str, dict]:
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-front.yaml").read_text()))
+    return {doc["kind"]: doc for doc in docs if doc}
+
+
+def test_portfolio_front_runs_unprivileged_and_read_only() -> None:
+    # Same posture as every other workload in this tree. It is reachable from
+    # the public internet on the portfolio's own domain, which makes it the
+    # one with the least excuse for skipping it.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+    assert pod["automountServiceAccountToken"] is False
+    container = pod["containers"][0]
+    sec = container["securityContext"]
+    assert sec["readOnlyRootFilesystem"] is True
+    assert sec["allowPrivilegeEscalation"] is False
+    assert sec["capabilities"]["drop"] == ["ALL"]
+    # nginx-unprivileged writes its temp dirs and pid under /tmp, so a
+    # read-only root filesystem needs that one path writable or the container
+    # never finishes starting.
+    assert any(v["mountPath"] == "/tmp" for v in container["volumeMounts"])
+
+
+def test_portfolio_front_probes_a_path_that_is_not_the_page() -> None:
+    # A probe every few seconds against "/" would be written into the access
+    # log as a page view, and this pod's log is the only record of how many
+    # people reach the portfolio's front door.
+    container = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]["containers"][0]
+    for probe in ("readinessProbe", "livenessProbe"):
+        assert container[probe]["httpGet"]["path"] == "/healthz"
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    assert "location = /healthz" in conf
+    assert "access_log off;" in conf
+
+
+def test_portfolio_front_access_log_records_no_visitor() -> None:
+    # The same structural privacy property the site's own log_format carries:
+    # a page with no account and no cookie must not write an address, a user
+    # agent or a referer into a pod log. Dropping the fields is what makes the
+    # claim on the page itself ("anonymous page views") true by construction.
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    log_format = next(line for line in conf.splitlines() if line.startswith("log_format"))
+    for forbidden in ("$remote_addr", "$http_user_agent", "$http_referer", "$request"):
+        assert forbidden not in log_format, f"{forbidden} identifies a visitor"
+    assert "$uri" in log_format
+
+
+def test_portfolio_front_mounts_only_generated_configmaps() -> None:
+    # The whole reason this workload can deploy while the site cannot. If it
+    # ever grows a PVC, a Secret or an init container that clones, it has
+    # taken on the site's failure modes and the apex goes dark with it.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    assert "initContainers" not in pod
+    for volume in pod["volumes"]:
+        assert set(volume) <= {"name", "configMap", "emptyDir"}, volume
+    generated = {
+        entry["name"]
+        for entry in yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
+            "configMapGenerator"
+        ]
+    }
+    mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
+    assert mounted <= generated, f"{mounted - generated} is mounted but not generated"
+
+
+def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
+    # A Deployment mounts these, so the generated name has to change with the
+    # content or a regenerated page never reaches a running pod. The usage
+    # script is the deliberate exception: a CronJob names it directly.
+    generators = yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
+        "configMapGenerator"
+    ]
+    by_name = {entry["name"]: entry for entry in generators}
+    for name in ("portfolio-front-html", "portfolio-front-nginx"):
+        options = by_name[name].get("options", {})
+        assert not options.get("disableNameSuffixHash"), (
+            f"{name} is mounted by a Deployment; without the hash a content "
+            "change would not roll the pods"
+        )
+    assert by_name["portfolio-site-usage-script"]["options"]["disableNameSuffixHash"] is True
+
+
+def test_portfolio_front_page_is_the_committed_generator_output() -> None:
+    # The manifest side of the drift check in
+    # platform/marketing/front-door.test.mjs: the file the ConfigMap is
+    # generated from has to exist and be the real page, not a placeholder.
+    page = (ROOT / "prod" / "front-door" / "index.html").read_text()
+    assert page.startswith("<!doctype html>")
+    assert 'rel="canonical" href="https://marisstella.dev/"' in page
+    # Both PRODUCT_PLAYBOOK.md section 5b clauses, on a hosted surface that
+    # platform/pages/build.mjs does not build and therefore cannot inject.
+    assert "No warranty." in page
+    assert "Best-effort hosting, no SLA." in page
+
+
+def test_portfolio_front_fits_the_prod_quota() -> None:
+    quota = next(
+        doc
+        for doc in yaml.safe_load_all((ROOT / "prod" / "quota.yaml").read_text())
+        if doc and doc["kind"] == "ResourceQuota"
+    )["spec"]["hard"]
+    spec = _portfolio_front()["Deployment"]["spec"]
+    container = spec["template"]["spec"]["containers"][0]
+    replicas = spec["replicas"]
+    # Millicores and mebibytes, small enough that exact parsing is overkill.
+    assert container["resources"]["requests"]["cpu"] == "20m"
+    assert container["resources"]["requests"]["memory"] == "32Mi"
+    assert replicas * 20 < int(quota["requests.cpu"]) * 1000
+    assert replicas * 32 < int(quota["requests.memory"].removesuffix("Gi")) * 1024
 
 
 def test_portfolio_apex_matches_the_site_certificate_issuer() -> None:

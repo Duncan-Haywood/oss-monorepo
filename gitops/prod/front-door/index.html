@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free small-business calculators — 169 tools for people who quote, sell and bill</title>
+<meta name="description" content="169 free calculators and checks for trade contractors, marketplace sellers, and small service businesses. Runs in your browser, no signup.">
+<link rel="canonical" href="https://marisstella.dev/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Free small-business calculators">
+<meta property="og:title" content="Free small-business calculators — 169 tools for people who quote, sell and bill">
+<meta property="og:description" content="169 free calculators and checks for trade contractors, marketplace sellers, and small service businesses. Runs in your browser, no signup.">
+<meta property="og:url" content="https://marisstella.dev/">
+<meta property="og:image" content="https://tools.marisstella.dev/social-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow">
+<style>
+  :root {
+    color-scheme: light dark;
+    --ink: #16191d;
+    --ink-soft: #454c55;
+    --paper: #fbfaf8;
+    --card: #ffffff;
+    --rule: #ddd8d0;
+    --link: #12506b;
+    /* The call to action needs its own pair rather than reusing --link on a
+       white foreground. In dark mode --link is a pale blue, and white text on
+       it measured 1.93:1 — a headless contrast pass caught it before this page
+       ever shipped. The button inverts instead: pale fill, dark ink. */
+    --cta-bg: #12506b;
+    --cta-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eceef1;
+      --ink-soft: #b3bac3;
+      --paper: #14171a;
+      --card: #1c2025;
+      --rule: #333940;
+      --link: #7fc4e2;
+      --cta-bg: #7fc4e2;
+      --cta-fg: #10161a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main, header, footer { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding-top: 3.5rem; padding-bottom: 1rem; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 0.75rem; letter-spacing: -0.015em; }
+  .lede { font-size: clamp(1.05rem, 2.4vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.5rem; max-width: 44rem; }
+  .cta {
+    display: inline-block;
+    background: var(--cta-bg);
+    color: var(--cta-fg);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.7rem 1.3rem;
+    border-radius: 0.4rem;
+  }
+  .cta:hover, .cta:focus { filter: brightness(1.1); }
+  h2 { font-size: 1.35rem; margin: 2.75rem 0 1rem; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent, var(--rule));
+    border-radius: 0.5rem;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
+  .card h3 a { color: var(--link); text-decoration: none; }
+  .card h3 a:hover, .card h3 a:focus { text-decoration: underline; }
+  .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+  .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; }
+  footer a { color: var(--link); }
+  footer p { max-width: 52rem; }
+  .fine strong { color: var(--ink); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Free small-business calculators",
+  "url": "https://marisstella.dev/",
+  "description": "169 free calculators and checks for trade contractors, marketplace sellers, and small service businesses. Runs in your browser, no signup.",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "hasPart": [
+    {
+      "@type": "CollectionPage",
+      "name": "Trade & contractor bids",
+      "url": "https://tools.marisstella.dev/c/trades/",
+      "description": "Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign."
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Compliance checks & evidence records",
+      "url": "https://tools.marisstella.dev/c/evidence/",
+      "description": "Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf."
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Marketplace seller tools",
+      "url": "https://tools.marisstella.dev/c/marketplace/",
+      "description": "Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic."
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Back-office money & contracts",
+      "url": "https://tools.marisstella.dev/c/backoffice/",
+      "description": "Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won."
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Service business pricing & quotes",
+      "url": "https://tools.marisstella.dev/c/services/",
+      "description": "Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job."
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://tools.marisstella.dev/c/logistics/",
+      "description": "Normalise a quote, audit a bill, or size a transfer window before you sign for it."
+    },
+    {
+      "@type": "CollectionPage",
+      "name": "More free tools",
+      "url": "https://tools.marisstella.dev/c/more/",
+      "description": "Everything else that runs entirely in your browser."
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header>
+  <h1>169 free tools for people who quote, sell and bill</h1>
+  <p class="lede">Free, no signup, no account. Each tool runs in your browser — where one needs to look something up online, its own page says so before you use it.</p>
+  <p><a class="cta" href="https://tools.marisstella.dev/">Browse all 169 tools</a></p>
+</header>
+<main>
+  <h2>What is here</h2>
+  <ul class="grid">
+        <li class="card" style="--accent: #5c4412">
+          <h3><a href="https://tools.marisstella.dev/c/trades/">Trade &amp; contractor bids</a></h3>
+          <span class="count">116 tools</span>
+          <p>Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.</p>
+        </li>
+        <li class="card" style="--accent: #5c2a1f">
+          <h3><a href="https://tools.marisstella.dev/c/evidence/">Compliance checks &amp; evidence records</a></h3>
+          <span class="count">14 tools</span>
+          <p>Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.</p>
+        </li>
+        <li class="card" style="--accent: #12594a">
+          <h3><a href="https://tools.marisstella.dev/c/marketplace/">Marketplace seller tools</a></h3>
+          <span class="count">12 tools</span>
+          <p>Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.</p>
+        </li>
+        <li class="card" style="--accent: #1f5c35">
+          <h3><a href="https://tools.marisstella.dev/c/backoffice/">Back-office money &amp; contracts</a></h3>
+          <span class="count">11 tools</span>
+          <p>Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.</p>
+        </li>
+        <li class="card" style="--accent: #1d4a5c">
+          <h3><a href="https://tools.marisstella.dev/c/services/">Service business pricing &amp; quotes</a></h3>
+          <span class="count">6 tools</span>
+          <p>Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job.</p>
+        </li>
+        <li class="card" style="--accent: #3d2f5c">
+          <h3><a href="https://tools.marisstella.dev/c/logistics/">Logistics, freight &amp; cloud cost</a></h3>
+          <span class="count">6 tools</span>
+          <p>Normalise a quote, audit a bill, or size a transfer window before you sign for it.</p>
+        </li>
+        <li class="card" style="--accent: #3a4552">
+          <h3><a href="https://tools.marisstella.dev/c/more/">More free tools</a></h3>
+          <span class="count">4 tools</span>
+          <p>Everything else that runs entirely in your browser.</p>
+        </li>
+  </ul>
+
+  <h2>How it works</h2>
+  <ul class="rows">
+        <li>
+          <h3>Open it and use it</h3>
+          <p>No sign-up, no trial, no seat count. Every tool is the full tool: the same arithmetic, the same printable output, whether it is your first visit or your hundredth.</p>
+        </li>
+        <li>
+          <h3>Your numbers stay yours</h3>
+          <p>The calculators run as JavaScript on your own device. There are no accounts, no tracking cookies and no analytics vendor — the hosting counts anonymous page views and nothing about who asked for them.</p>
+        </li>
+        <li>
+          <h3>Free while we learn what is useful</h3>
+          <p>Nothing here takes payment, and no feature is held back behind one. What people actually come back to is what gets built out next, so using a tool is the whole of what we ask.</p>
+        </li>
+  </ul>
+</main>
+<footer>
+  <p><a href="https://tools.marisstella.dev/">All 169 tools</a> · <a href="https://tools.marisstella.dev/about/">About these tools</a> · <a href="https://tools.marisstella.dev/feed.xml">New tools feed</a></p>
+  <p class="fine"><strong>No warranty.</strong> These tools are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, engineering or professional advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+</footer>
+</body>
+</html>

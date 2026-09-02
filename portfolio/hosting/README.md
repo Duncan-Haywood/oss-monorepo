@@ -46,7 +46,22 @@ none of the three: Argo syncs the
 manifest from `main` and the site is built inside the cluster, so it needs
 neither Actions nor Pages. The box is already paid for and already runs
 ingress-nginx and cert-manager. Its own remaining step is now **one**: a
-sealed read-only clone token, listed in `gitops/README.md`. The DNS record
+sealed read-only clone token, listed in `gitops/README.md`.
+
+## Amended 2026-09-02: the apex serves without waiting for that seal
+
+`gitops/prod/portfolio-front.yaml` puts a generated front-door page on
+`marisstella.dev` and `www.marisstella.dev`, served by nginx from a
+kustomize ConfigMap. It clones nothing at pod start, so it needs no token;
+Argo applies it from `main`, so it needs no Actions run and no Pages flip.
+That makes it the portfolio's first surface a stranger can actually reach,
+and it went up on a merge with no owner action.
+
+This does not replace the row above or reduce the seal's value — the front
+door is one page describing the collection, and every category card on it
+links into `tools.marisstella.dev`. The seal is still what puts 169 tools
+in front of anyone. What changed is that the domain is no longer a dead
+redirect while that waits. The DNS record
 turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
 the subdomain, verified 2026-08-29), and the ACME contact stopped being a
 step on 2026-08-30 — an ACME account contact is optional, so the issuers
