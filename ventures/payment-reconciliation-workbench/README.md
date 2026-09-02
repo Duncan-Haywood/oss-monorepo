@@ -12,7 +12,7 @@ Anything that does not match becomes a review row with a **What to check** colum
 
 The pairing looks a week further than the matching does, so the most ordinary exception of all gets explained: a deposit for exactly the right amount that the bank posted a few days later than your tolerance allows. That row now reads *"same amount, 5 days apart — outside the date tolerance you set"*, which tells you the one thing you need in order to decide whether to widen the tolerance and re-run. Beyond a week past your tolerance the tool stops offering a lead, because at that distance an equal amount is as likely to be a different transaction as a late one.
 
-No account, build step, API key, or paid service is needed. The product does not connect to payment providers and does not move money. It is deliberately a review aid rather than an accounting system.
+No account, build step, API key, or paid service is needed. The product does not connect to payment providers and does not move money. It is deliberately a review aid rather than an accounting system. See [this workbench vs. Synder](vs-synder.html) for which job fits a one-off CSV check versus an ongoing, connected sync subscription.
 
 ## Opportunity assessment
 
