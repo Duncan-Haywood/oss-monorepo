@@ -1,5 +1,32 @@
 period: 2026-09
 entries:
+  - venture: pest-control-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2699: a shareable, saved bid link (`share.mjs`, the
+        canonical copy already used by 37 of the other 38 bid-calculator
+        ventures). Cost fields, frequency, waive-initial, every service
+        row -- including a custom "other" row -- and the proposal's
+        deposit/valid-days/payment-terms/notes/exclusions all now ride in
+        the URL fragment and in a local autosave; a link always wins over
+        the saved draft, and the page says which source it opened from.
+        Verified in headless Chromium via Playwright over a local
+        http-server, not just `node --test` (108/108 passing, was 106):
+        filled every field, copied the link, opened it in a fresh browser
+        context with no shared storage, and confirmed every field
+        including the recurring price ($228.25) matched exactly. Also
+        caught and fixed a real bug in review before merging -- an early
+        `applyValues()` only restored the fixed COST_IDS list, so a
+        restored link silently dropped the deposit percent and payment
+        terms back to the page's defaults, the same class of defect
+        `share.mjs`'s own header names as having shipped once already
+        (2026-08-29). Switching to the generic `Object.entries(values)`
+        pattern the other ventures already use fixed it.
+      - >-
+        Publishing is still owner-gated on sealing `portfolio-site-repo`;
+        nothing here touches that and no new ask was queued.
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
