@@ -467,11 +467,22 @@ def test_seo_item_measures_its_backlog_instead_of_naming_one() -> None:
 
 
 def test_governor_queue_configmap_includes_all_real_items() -> None:
+    # "all real items" means all six -- the same set
+    # test_delivery_reaches_the_worker_and_the_real_items_own_theirs (above)
+    # and the priority-ordering tests (below) already enumerate. This one had
+    # drifted to five: marketing-distribution.yaml sits in the
+    # configMapGenerator in `gitops/agents/kustomization.yaml` today (the
+    # governor's CronJob needs it there to see that queue item at all), but
+    # nothing here asserted it. A future edit that dropped that one line
+    # would silently stop the ConfigMap from carrying the item -- no crash,
+    # just an item that quietly stops being pickable -- and this test, whose
+    # name is the direct promise to catch exactly that, would still pass.
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
         "open-pr-repair-merge.yaml=queue/open-pr-repair-merge.yaml",
         "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
         "deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml",
+        "marketing-distribution.yaml=queue/marketing-distribution.yaml",
         "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
     ):
