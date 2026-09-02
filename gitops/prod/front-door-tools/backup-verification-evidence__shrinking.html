@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/backup-verification-evidence/shrinking.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <meta charset="utf-8"><meta name="robots" content="noindex,follow"><link rel="canonical" href="https://tools.marisstella.dev/backup-verification-evidence/shrinking.html"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>.fd-back{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}@media print{.fd-back{display:none!important}}</style>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Why is my backup smaller than yesterday?</title>
   <meta name="description" content="A backup can exit 0 and still write far fewer bytes than last night. Here is how to tell a real shrink from a green cron job, in the browser, without uploading anything.">
@@ -18,7 +18,7 @@
     footer { margin-top: 28px; border-top: 1px solid #d8d3c9; padding-top: 16px; font-size: .86rem; color: #52605d; }
   </style>
 </head>
-<body>
+<body><a class="fd-back" href="/">&#8592; All 53 free tools on this site</a>
   <p><a href="./index.html">← Backup trend checker</a></p>
   <h1>Why is my backup smaller than yesterday?</h1>
   <p>Because the job that wrote it can fail quietly. <code>pg_dump … | gzip</code> without <code>pipefail</code> reports gzip's exit code. The destination can fill up mid-write and still leave a file that looks "big enough." Incremental tools can finish a short night and still exit 0. In every one of those cases, last night's file exists, is recent, and is smaller than Tuesday's.</p>

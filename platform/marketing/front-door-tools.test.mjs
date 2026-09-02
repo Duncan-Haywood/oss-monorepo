@@ -36,6 +36,8 @@ import {
   buildMirror,
   canonicalUrl,
   injectMirrorTags,
+  injectMirrorNav,
+  NAV_CLASS,
   APEX_ROOT_PATHS,
   FAVICON_FILE,
   mirrorUrl,
@@ -548,4 +550,86 @@ test('a root-absolute link is checked against the apex root, not the mirror', ()
   ]);
   assert.equal(dead.length, 1);
   assert.match(dead[0], /apex document root serves only/);
+});
+
+test('every mirrored page carries a way back to the front door', async () => {
+  // The defect this guards: before the return link, a mirrored page's only
+  // links were its own siblings, its LICENSE, and a canonical to a host that
+  // serves nothing. Every one of the tools the apex serves was a cul-de-sac,
+  // so the portfolio's one working funnel was a single page deep. Asserted
+  // over what is committed rather than over `injectMirrorNav` alone, because
+  // the unit test would still pass if `buildMirror` stopped calling it.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    assert.ok(
+      page.contents.includes(`<a class="${NAV_CLASS}" href="/">`),
+      `${page.key} has no link back to the front door`,
+    );
+    assert.ok(
+      page.contents.includes(`.${NAV_CLASS}{`),
+      `${page.key} carries the return link with no rule to style it`,
+    );
+  }
+});
+
+test('the return link names the number of tools the mirror actually holds', async () => {
+  // A hard-coded count would go stale the first time STARTER_SET changes, and
+  // the front door's own copy already states a number a visitor can check by
+  // counting the cards. Two surfaces disagreeing about how many free tools
+  // exist is the kind of small untruth that costs trust on a page whose whole
+  // pitch is that the arithmetic is honest.
+  const { files, tools } = await buildMirror();
+  for (const page of files.filter((f) => f.file.endsWith('.html'))) {
+    assert.ok(
+      page.contents.includes(`All ${tools.length} free tools on this site`),
+      `${page.key} states a tool count other than ${tools.length}`,
+    );
+  }
+});
+
+test('the return link is hidden when a venture page is printed', () => {
+  // Every mirrored venture's print stylesheet hides `header, main, footer`
+  // with `!important` so that printing yields the customer proposal alone.
+  // A bar that survived that would print "All 53 free tools" across the top
+  // of a contractor's bid — the one page of this portfolio a stranger's own
+  // customer sees.
+  const html = '<head><meta charset="utf-8"></head><body><main>x</main></body>';
+  const out = injectMirrorNav(injectMirrorTags(html, { slug: 'demo', file: 'index.html' }), {
+    toolCount: 53,
+  });
+  assert.match(out, /@media print\{\.fd-back\{display:none!important\}\}/);
+});
+
+test('the return link sits inside the body it belongs to', () => {
+  const html = '<html><head><meta charset="utf-8"></head><body class="x">\n<header>h</header></body></html>';
+  const out = injectMirrorNav(html, { toolCount: 7 });
+  assert.ok(out.indexOf('<body class="x">') < out.indexOf(`class="${NAV_CLASS}"`));
+  assert.ok(out.indexOf(`class="${NAV_CLASS}"`) < out.indexOf('<header>'));
+  assert.ok(out.includes('All 7 free tools'));
+});
+
+test('injectMirrorNav refuses a document with no body rather than inventing one', () => {
+  // Prepending to a bodyless file would put the anchor outside <html>, where
+  // it renders but no stylesheet in the document reaches it.
+  assert.throws(() => injectMirrorNav('<head><meta charset="utf-8"></head>', { toolCount: 1 }), {
+    message: /no <body> tag/,
+  });
+});
+
+test('no venture source already uses the return link class', async () => {
+  // The rule is injected near the top of <head>, ahead of the venture's own
+  // <style>, so a venture that used this class would win the cascade and the
+  // return link would inherit whatever that class means to it.
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (!file.endsWith('.html')) continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      assert.ok(
+        !raw.includes(NAV_CLASS),
+        `${slug}/${file} already uses "${NAV_CLASS}" — rename NAV_CLASS rather than shipping the collision`,
+      );
+    }
+  }
 });
