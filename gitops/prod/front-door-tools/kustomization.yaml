@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 150 files, 554263 bytes
 #   portfolio-front-tools-1: 152 files, 556248 bytes
 #   portfolio-front-tools-2: 149 files, 546123 bytes
-#   portfolio-front-tools-3: 112 files, 546825 bytes
+#   portfolio-front-tools-3: 113 files, 550681 bytes
 #   portfolio-front-tools-4: 118 files, 554888 bytes
 #   portfolio-front-tools-5: 117 files, 555116 bytes
 #   portfolio-front-tools-6: 113 files, 553328 bytes
@@ -535,6 +535,7 @@ configMapGenerator:
       - asphalt-driveway-pave-bid-calculator__proposal.mjs.gz=asphalt-driveway-pave-bid-calculator__proposal.mjs.gz
       - asphalt-driveway-pave-bid-calculator__share.mjs.gz=asphalt-driveway-pave-bid-calculator__share.mjs.gz
       - asphalt-driveway-pave-bid-calculator__usage.mjs.gz=asphalt-driveway-pave-bid-calculator__usage.mjs.gz
+      - asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz=asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz
       - asphalt-sealcoat-bid-calculator__LICENSE.gz=asphalt-sealcoat-bid-calculator__LICENSE.gz
       - asphalt-sealcoat-bid-calculator__calc.mjs.gz=asphalt-sealcoat-bid-calculator__calc.mjs.gz
       - asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz=asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz
