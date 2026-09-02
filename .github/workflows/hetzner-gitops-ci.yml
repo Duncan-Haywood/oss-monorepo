@@ -23,6 +23,14 @@ on:
       # clone token. That check runs only when this workflow does, so a PR
       # touching check.mjs alone has to trigger it too.
       - "platform/pages/check.mjs"
+      # The apex front door. `gitops/prod/front-door/index.html` is generated
+      # from these two by `platform/marketing/front-door.mjs`, and
+      # `front-door.test.mjs` fails when the commit is stale — so a change to
+      # the generator, or a new venture arriving in `launched.json` and moving
+      # the tool count the page states, has to trigger this workflow even
+      # though neither file is under `gitops/`.
+      - "platform/marketing/**"
+      - "platform/pages/launched.json"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   pull_request:
@@ -32,6 +40,8 @@ on:
       - "gitops/**"
       - "platform/pages/build.mjs"
       - "platform/pages/check.mjs"
+      - "platform/marketing/**"
+      - "platform/pages/launched.json"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
@@ -67,6 +77,12 @@ jobs:
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest
         run: pytest gitops/tests -v
+      # The generator behind `gitops/prod/front-door/index.html`. Run here
+      # rather than in portfolio-pages.yml because the page it produces is a
+      # GitOps input, not part of the Pages artifact — and because this is the
+      # workflow that already triggers on the directory it lands in.
+      - name: front door generator
+        run: node --test "platform/marketing/*.test.mjs"
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py

@@ -6,12 +6,18 @@
 # first adopted this namespace and nothing in gitops claimed that name yet.
 # It stopped being the whole story on #2481: portfolio-apex.yaml, in this
 # same directory, now binds an Ingress to marisstella.dev and www on
-# purpose, 301-redirecting both to tools.marisstella.dev. That is not this
-# file hijacking the name -- it is the deliberate, documented follow-up the
-# original comment was waiting for, landed elsewhere. Leaving this page's
-# text saying "add an Ingress in a follow-up PR when ready" after that PR
-# merged would read as marisstella.dev still being unclaimed in this tree,
-# which is the one way to get a second, conflicting Ingress opened for it.
+# purpose. That is not this file hijacking the name -- it is the deliberate,
+# documented follow-up the original comment was waiting for, landed
+# elsewhere. Leaving this page's text saying "add an Ingress in a follow-up
+# PR when ready" after that PR merged would read as marisstella.dev still
+# being unclaimed in this tree, which is the one way to get a second,
+# conflicting Ingress opened for it.
+#
+# Updated 2026-09-02: that Ingress no longer 301s to tools.marisstella.dev.
+# It serves `portfolio-front` (portfolio-front.yaml) -- the generated front
+# door -- because the redirect target cannot start until the clone token is
+# sealed. This file is unaffected either way: it still has no Ingress, and
+# the two public names are still claimed elsewhere.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -27,7 +33,7 @@ data:
     <p>This namespace is the GitOps destination for products. This page
     itself has no public Ingress. marisstella.dev and www.marisstella.dev
     are already claimed in this directory by portfolio-apex.yaml, which
-    301-redirects both to tools.marisstella.dev -- do not add a second
+    serves the portfolio-front deployment on both -- do not add a second
     Ingress for either host.</p>
     </body>
     </html>

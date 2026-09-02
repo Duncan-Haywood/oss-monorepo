@@ -87,7 +87,9 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
-(1) comes first while `publish_surface.py` reports nothing live.
+(1) comes first while `publish_surface.py` reports the tools host dark. As of
+2026-09-02 it reports two hostnames serving content and one still waiting on
+`portfolio-site-repo` — the front door is up, the catalogue behind it is not.
 
 **That tool now reads `gitops/` as well as `.github/workflows/`** (changed
 2026-08-31). It used to answer "what does a merge to `main` publish?" from the
@@ -100,27 +102,31 @@ that reads:
 
 ```
     prod  (gitops/prod)
-      + https://marisstella.dev/            (301 redirect at the ingress)
+      + https://marisstella.dev/            (serves content)
       - https://tools.marisstella.dev/      (serves content, waiting on Secret
                                              portfolio-site-repo)
-      + https://www.marisstella.dev/        (301 redirect at the ingress)
-
-  No stranger can reach content yet, despite the hosts marked + above:
-    - prod: https://marisstella.dev/ answers on merge but 301s to
-      https://tools.marisstella.dev/, which is waiting on Secret
-      portfolio-site-repo.
+      + https://www.marisstella.dev/        (serves content)
 ```
 
-Two of the three hostnames *do* answer on a merge today — the apex and `www`
-are annotation-only redirects needing no workload and no Secret. Both 301 to
-the one host that serves nothing, so the portfolio still has no reachable
-content. `--check` prints that dead-end as a note rather than leaving the
-"+" marks to be misread.
+**Changed 2026-09-02 (#2723): "nothing live" is no longer true.** The apex and
+`www` used to be annotation-only 301s into `tools.marisstella.dev`, which
+serves nothing until the clone token is sealed — so the two hosts that
+answered handed every visitor a dead end, and `--check` printed that as a
+note. They now serve `gitops/prod/portfolio-front.yaml`: a generated
+front-door page held in a kustomize ConfigMap, needing no clone token, no
+Actions runner and no Pages flip. A merge to `main` is the deploy.
 
-So "nothing live" still holds, but it now means **one seal away**, not
-"nothing is built": `portfolio-site-repo`, via
-`./bootstrap/scripts/seal-owner-secrets.sh site`. Do not read it as a reason
-to build a twelfth calculator.
+So the standing reading has two halves now, and they differ:
+
+- **The portfolio has a public surface.** A stranger typing the domain gets
+  positioning, one card per category, and the §5b clauses.
+- **The 169 tools are still one seal away**: `portfolio-site-repo`, via
+  `./bootstrap/scripts/seal-owner-secrets.sh site`. Every category card on
+  the front door links into that host, so the seal is what turns the front
+  door into a working funnel. It remains the single highest-value owner
+  action, and it is queued.
+
+Neither half is a reason to build a twelfth calculator.
 
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.

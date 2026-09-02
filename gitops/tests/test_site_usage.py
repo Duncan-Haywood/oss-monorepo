@@ -256,7 +256,15 @@ def test_usage_job_is_synced_and_mounts_the_script_from_git() -> None:
     assert "portfolio-site-usage-script" in generated
     # A name suffix hash would rename the ConfigMap out from under the
     # CronJob, which references it literally.
-    assert kustomization["generatorOptions"]["disableNameSuffixHash"] is True
+    #
+    # Read from this generator's own `options` rather than from a
+    # namespace-wide `generatorOptions:` block, which is where it lived until
+    # 2026-09-02. The front door added the first generated ConfigMap that a
+    # Deployment mounts, and that one needs the hash — kustomize 5.4 cannot
+    # re-enable it per generator once it is disabled globally, so the
+    # exception had to move to the generator that wants it.
+    by_name = {g["name"]: g for g in kustomization["configMapGenerator"]}
+    assert by_name["portfolio-site-usage-script"]["options"]["disableNameSuffixHash"] is True
 
     pod = _docs()["CronJob"]["spec"]["jobTemplate"]["spec"]["template"]["spec"]
     mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}

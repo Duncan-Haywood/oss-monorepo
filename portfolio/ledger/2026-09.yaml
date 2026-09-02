@@ -5,6 +5,78 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Shipped the portfolio's first surface a stranger can reach.
+        `marisstella.dev` and `www.marisstella.dev` have answered since
+        2026-08-28, but only as annotation-only 301s into
+        `tools.marisstella.dev`, which fails closed on the unsealed Secret
+        `portfolio-site-repo` -- so both live hostnames spent five days
+        handing every visitor a redirect into nothing, which
+        `publish_surface.py --check` printed as a note under each.
+        `gitops/prod/portfolio-front.yaml` now serves those two names a
+        generated front-door page from a kustomize ConfigMap: no clone at
+        pod start, so no token; Argo applies it from `main`, so no Actions
+        run and no Pages flip. `--check` reports 2 hostnames serving content
+        for the first time. No owner action was involved, and none is
+        available that would have done this.
+      - >-
+        What the page is, so a later session does not mistake it for a
+        placeholder: positioning, one card per category with its live tool
+        count (169, derived from `launched.json` rather than typed), a
+        three-point "how it works", both PRODUCT_PLAYBOOK.md section 5b
+        clauses in full -- it is a hosted surface `platform/pages/build.mjs`
+        does not build, so the no-SLA injection that covers every tool page
+        does not reach it -- and links into the hub, about page and feed
+        taken from `build.mjs`'s own exported path constants. Deliberately
+        no per-tool listing: `portfolio-apex.yaml` spends a paragraph on why
+        two hostnames must not serve the same bytes, and the front door
+        carries its own canonical instead.
+      - >-
+        Measured rather than assumed, and worth not re-deriving: a prior
+        session priced ConfigMap-seeding the *whole* site at 34 MB (14.4 MB
+        gzipped) against a 1 MiB ceiling and correctly rejected it. That
+        verdict does not extend to a front door -- this page is 11 KB, and a
+        test fails it past 256 KB.
+      - >-
+        Two defects found by running the thing rather than reading it. (1)
+        The call-to-action button used `--link` as its background with a
+        hard-coded white foreground; `--link` inverts in dark mode and the
+        text did not, measuring 1.93:1 -- caught by a headless contrast pass
+        before it ever shipped, fixed with its own `--cta-bg`/`--cta-fg`
+        pair (now 9.46:1 dark, 8.8:1 light), and pinned by a test on the
+        mechanism. (2) kustomize 5.4 cannot re-enable a name suffix hash per
+        generator once `generatorOptions` disables it globally -- a
+        per-generator `disableNameSuffixHash: false` is indistinguishable
+        from unset, so the first build produced unhashed ConfigMaps and a
+        regenerated page would never have rolled the pods. The global block
+        moved onto the one generator that wants it (the usage script, which
+        a CronJob names literally). Verified with `kustomize build
+        gitops/prod`.
+      - >-
+        Verified: `kustomize build gitops/prod` clean; 294 Python tests
+        (gitops + publish_surface, up from 291 -- two apex tests rewritten
+        for the new behaviour, seven added for the new workload); 15 new
+        node tests for the generator including a drift check against the
+        committed output; 856 platform/pages tests; the pod's own command
+        (`build.mjs` + `check.mjs`) still exits 0 at 169 products / 532
+        pages; and a headless Chromium pass at 375/768/1280px -- no console
+        errors, no horizontal overflow, 7 category cards, valid JSON-LD.
+      - >-
+        Queue state: zero open PRs at the start of the run (verified against
+        the API, not a prior session's list), so the mandate's three-PR
+        quota resolved on its "none exist" branch. Fifth consecutive session
+        to find no repairable backlog.
+      - >-
+        Still owner-blocked, unchanged and not re-derived: `portfolio-site-repo`
+        (the 169 tools), the Codex `CODEX_AUTH_JSON` seal plus the governor's
+        two knobs (the Hetzner dev fleet in `gitops/agents/`, which is code
+        complete), and `funding-sponsors-live`. The front door's category
+        cards all link into the tools host, so the site seal is now what turns
+        a live front door into a live catalogue.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Shipped #2702: itemised calculators rebuild their rows when a saved
         bid is restored or a bid link is opened. Eight tools here build the
         form in script (tree service by tree, carpet by room, window
