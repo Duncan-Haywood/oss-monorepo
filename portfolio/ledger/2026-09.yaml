@@ -3652,3 +3652,54 @@ entries:
         portfolio/router/validate.py` (182/182). All 7 real CI checks
         green on real runners. Merged (squash) as #2798.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped: the apex front door now serves a real `robots.txt` and
+        `sitemap.xml` (#2799). Found by reading `front-door/default.conf`
+        rather than by a report: the catch-all `location /` answers every
+        path with `index.html`, so `https://marisstella.dev/robots.txt`
+        returned 21,780 bytes of `text/html` with a `200`, and the host had
+        no sitemap at all. Reproduced both against the committed config by
+        running nginx 1.24 locally before changing anything, then again
+        after: 592 B `text/plain` and 167 B `application/xml`. This is the
+        `/social-card.png` defect already fixed in that file, on the one
+        file a crawler reads before it reads a single page -- and it sat on
+        the portfolio's only indexable surface, whose whole job is organic
+        discovery.
+      - >-
+        The decision worth remembering: `robots.txt` says `Allow: /` and
+        deliberately does NOT `Disallow: /tools/`, even though the mirrored
+        tools are copies whose canonical is on the tools host. robots.txt
+        governs crawling, not indexing -- a disallowed page is never
+        fetched, so the `noindex` meta and `X-Robots-Tag` that keep the
+        mirror out of search are never read, and the URLs can still be
+        indexed bare. Blocking the crawl would weaken the consolidation it
+        looks like it protects. The sitemap lists only the apex root for
+        the same reason, and carries no `<lastmod>` (the only build-time
+        value is the build clock, which would dirty the tree on every
+        regeneration). A test fails if a `Disallow` is ever added.
+      - >-
+        Verified: `nginx -t` passes; `/`, `/healthz`, `/favicon.svg`,
+        `/social-card.png`, `/tools/<slug>/` and an unknown path are
+        byte-for-byte unchanged and `/tools/` still carries `X-Robots-Tag:
+        noindex`; `kustomize build gitops/prod` puts both keys in the
+        ConfigMap `data` and rolls the Deployment onto a new content hash,
+        so config and files ship together. 65 node tests (6 new) and 257
+        pytest green locally; all 7 CI checks green on real runners
+        (`ci_starvation.py` not needed -- a starved job cannot succeed).
+        Merged (squash) as #2799.
+      - >-
+        Not done, and why: did not spend the tool mirror's remaining ~457 KB
+        of `MIRROR_BYTE_CEILING` headroom on 3-4 more ventures. It would put
+        a handful more of the 117 launched-but-unmirrored tools in front of
+        visitors, but it would leave the next session that adds a page to
+        any mirrored venture with a build failure telling it to drop a
+        venture from `STARTER_SET` -- and venture pages are being added
+        continuously by concurrent sessions (today's `concrete-bid-calculator`
+        vs-stack page grew the mirror 11 KB on its own). The headroom is
+        the buffer that keeps those builds passing; the fix for the other
+        117 is the `portfolio-site-repo` seal, not the last of the buffer.
+    mrr_end: null
