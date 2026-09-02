@@ -3319,3 +3319,49 @@ entries:
         #2780 after all 13 check runs (11 success, 2 skipped: `deploy` and
         `preflight`, both expected on a non-`main` push) came back green.
     mrr_end: null
+  - venture: solar-pv-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `gitops/agents/queue/marketing-distribution.yaml`. Checked open
+        PRs first: none. Measured before picking, per the item's own
+        instruction: a real `PAGES_BASE_URL=... node platform/pages/build.mjs`
+        showed "Added an embed offer to 169 tool entry page(s)" against 169
+        built tools (candidate #1, embed widget, has no gap), re-reading all 7
+        `CATEGORY_PAGE_COPY` entries against the actual venture list turned up
+        no drift (candidate #3), and checking `/about/`'s MIT-license count
+        (177 LICENSE files on disk, 169 in the built dist -- matches the 169
+        deployed tools), its "no cookies" claim (zero `document.cookie` hits
+        across `ventures/` and the dist), and its opt-out checkbox all held
+        (candidate #4). Candidate #2 (comparison pages) still had a real gap:
+        diffed every deployed venture against the ~50 `vs-*.html` pages that
+        already exist and found `solar-pv-bid-calculator` uncovered, with
+        Aurora Solar (the dominant remote solar-design/proposal platform for
+        installers) as a genuine, niche-specific named incumbent. WebFetch is
+        blocked for every external domain in this environment, confirmed live
+        against `aurorasolar.com`, a third-party review page, Wikipedia, and
+        `google.com` (all `EGRESS_BLOCKED`) -- consistent with the same block
+        `vs-billd.html`'s and `vs-servicetitan.html`'s sessions hit, though
+        WebSearch (a separate, unblocked tool) still works and did surface a
+        third-party-aggregated Aurora Solar price. Left it out rather than
+        citing it as fact, since there was no way to confirm it against
+        Aurora's own current pricing page -- the same no-fabricated-numbers
+        discipline `vs-paintscout.html` and `vs-singleops.html` already use
+        for their own incumbents (both shipped the same week, evidence this
+        is now the house style for a vendor whose pricing can't be fetched
+        live, not a one-off). Shipped `vs-aurora-solar.html` (disclaimer,
+        non-affiliation notice, FAQPage schema with matching visible copy,
+        a test asserting no `$` figure appears for Aurora Solar), linked it
+        from `index.html` and `README.md`, and listed it in `sitemap.xml`.
+        Verified: the venture's own `node --test` (71/71, up from 63), the
+        full `platform/pages` suite (856/856), a real `build.mjs` run (page
+        count 531->532, exactly the one new page, entry/category counts
+        unchanged), `check.mjs` (543 pages, no dead links), and
+        `platform/marketing/front-door-tools.test.mjs` locally (20/20) --
+        this change only added a link inside an existing tool's `index.html`
+        rather than a new venture, so the apex-mirror staleness #2780 hit
+        did not recur, and CI's own "Check the apex tool mirror is not
+        stale" step confirmed it. Merged as #2784 after all 7 check runs
+        came back green (`deploy` skipped, expected on a non-`main` push).
+    mrr_end: null
