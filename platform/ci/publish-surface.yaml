@@ -461,7 +461,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
       == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none

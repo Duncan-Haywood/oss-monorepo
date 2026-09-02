@@ -15,6 +15,12 @@
 # concurrency groups -- racing on every push, with the live site left as whichever
 # finished last.
 #
+# That variable was renamed to `PAGES_ENABLED` once it turned out
+# `GITHUB_PAGES_ENABLED` could never have been set at all -- GitHub rejects any
+# Actions configuration-variable name starting with `GITHUB_` (case-insensitive,
+# enforced at creation time). The race this section describes was real, but
+# nobody could have flipped either variable to trigger it.
+#
 # `portfolio-pages.yml` keeps the deploy: it is the more developed of the two
 # (site navigation, favicon, sitemap repair, the no-SLA clause check) and the
 # later Pages work built on it. Nothing here is deleted, because this builder is
