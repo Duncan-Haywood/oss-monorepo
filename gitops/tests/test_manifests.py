@@ -737,12 +737,19 @@ def test_portfolio_front_mounts_only_generated_configmaps() -> None:
     assert "initContainers" not in pod
     for volume in pod["volumes"]:
         assert set(volume) <= {"name", "configMap", "emptyDir"}, volume
-    generated = {
-        entry["name"]
-        for entry in yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
-            "configMapGenerator"
-        ]
-    }
+    # Both kustomizations that can generate a ConfigMap into this namespace.
+    # `front-door-tools/` is a nested one (its file list is machine-written, one
+    # line per mirrored file, so it lives in its own directory rather than
+    # inflating `prod/kustomization.yaml`), and it is still a generator: what
+    # this assertion cares about is that nothing here is mounted from an object
+    # no kustomization in the tree produces.
+    generated = set()
+    for kustomization in (
+        ROOT / "prod" / "kustomization.yaml",
+        ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
+    ):
+        parsed = yaml.safe_load(kustomization.read_text())
+        generated |= {entry["name"] for entry in parsed.get("configMapGenerator", [])}
     mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
     assert mounted <= generated, f"{mounted - generated} is mounted but not generated"
 
@@ -751,11 +758,22 @@ def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # A Deployment mounts these, so the generated name has to change with the
     # content or a regenerated page never reaches a running pod. The usage
     # script is the deliberate exception: a CronJob names it directly.
-    generators = yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
-        "configMapGenerator"
-    ]
-    by_name = {entry["name"]: entry for entry in generators}
-    for name in ("portfolio-front-html", "portfolio-front-nginx"):
+    by_name = {}
+    for kustomization in (
+        ROOT / "prod" / "kustomization.yaml",
+        ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
+    ):
+        parsed = yaml.safe_load(kustomization.read_text())
+        # A nested kustomization can set the option globally rather than per
+        # entry, so fold `generatorOptions` down onto each generator before
+        # asking the question. `portfolio-front-tools` is generated that way and
+        # is mounted by the same Deployment, so it is bound by the same rule.
+        shared = parsed.get("generatorOptions", {})
+        for entry in parsed.get("configMapGenerator", []):
+            merged = dict(entry)
+            merged["options"] = {**shared, **entry.get("options", {})}
+            by_name[entry["name"]] = merged
+    for name in ("portfolio-front-html", "portfolio-front-nginx", "portfolio-front-tools"):
         options = by_name[name].get("options", {})
         assert not options.get("disableNameSuffixHash"), (
             f"{name} is mounted by a Deployment; without the hash a content "
