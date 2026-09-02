@@ -4652,6 +4652,82 @@ entries:
         `site-test`, `page-integrity`, `link-contrast`, `deploy`). Squash-
         merged per this repo's no-review-gate rule for product PRs.
     mrr_end: null
+  - venture: appliance-repair-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2856: a `vs-housecall-pro.html` comparison page
+        for `appliance-repair-quote-calculator`, chosen on a selection rule
+        this entry records below rather than on the usual "which tool lacks a
+        comparison page" scan. All 11 GitHub Actions checks green on real
+        runners plus 2 skipped; `node --test` 28/28 in the venture,
+        `clauses.mjs` clean, `build.mjs` + `check.mjs` clean (169 products,
+        561 pages, no dead links). Mirror regenerated, not hand-edited, and
+        it fits existing headroom at 95% of `MIRROR_BYTE_CEILING` -- no
+        ceiling raised, per that constant's own argument.
+      - >-
+        Selection rule, and the skew it corrects. Only the 53 ventures
+        mirrored into `gitops/prod/front-door-tools` are reachable by any
+        visitor today; `tools.marisstella.dev` still fails closed on the
+        unsealed `portfolio-site-repo`. Measured against that line, 9 of the
+        11 ventures improved in the last 30 commits on `main` were *not*
+        mirrored -- electrical-panel, furnace, moving, flooring, irrigation,
+        mobile-detailing, window-cleaning, cut-list and einvoice all gained
+        pages nobody can open yet. Only `cleaning-dilution-calculator` and
+        `fence-bid-calculator` were on the reachable side. The fleet is
+        producing real work at roughly 4-to-1 against the surface that is
+        actually live. 25 mirrored tools still have no comparison page, and
+        ~240 KB of mirror headroom remains -- about two more pages of this
+        size -- after which the honest answer is the seal, not the mirror.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Branch queue verified exhausted, and the verification is the finding:
+        do not re-derive it. Ran `supersede_check.py` against all 29 remote
+        branches carrying commits ahead of `main`. 22 returned SUPERSEDED
+        outright, most by the identical-merge proof. The 7 that returned NOT
+        SUPERSEDED were each read by hand and are all the RENAME case
+        `CLAUDE.md` documents -- `main` re-implemented the same feature under
+        a different name or file, generally more completely. Specifically:
+        `funny-archimedes-7qv0f4`'s `csvRows`/`csvField` in `calc.mjs` is
+        `main`'s fuller `quoteCsv`/`csvCell` in `export.mjs`;
+        `funny-archimedes-2hd9yp`'s `\(line \d+\)\*\*` volatility mask is
+        subsumed by `main`'s broader `\(line \d+\)`;
+        `funny-archimedes-895zx9`'s `toMarkdown` is `main`'s
+        `markdownReview` in `markdown.mjs`, with rounding parity now covered
+        by `main`'s `parity.test.mjs`; `funny-archimedes-6av5kj`'s
+        return-per-day ranking is `main`'s `profitPerDay` /
+        `rankBy: "profitPerDay"`; `festive-mccarthy-xrn3ua`'s vendor-watch
+        venture is on `main`; `funny-archimedes-dbu92o`'s `tools.mjs` is
+        byte-for-byte the same length as `main`'s; `funny-archimedes-9u0s0t`'s
+        `usage.mjs` differs from `main`'s by one line. Merging any of them
+        would add a second, weaker copy of a live feature -- the exact defect
+        the RENAME report exists to warn about. No branch was closed or
+        deleted on this reading; they are simply spent.
+      - >-
+        Two standing notes in `CLAUDE.md` are now stale in the same
+        direction. "PRs opened by bots using `GITHUB_TOKEN` do not trigger
+        Actions, so most PRs here show zero checks" did not hold for #2856:
+        13 check runs were created, 11 executed on real runners and passed.
+        Read a blank check list as a fact to verify, not as the expected
+        state. The deploy pipeline is also healthy -- `hetzner-gitops-ci.yml`
+        was green on `main` for its last 10 runs -- and 220 of 221 workflows
+        already carry `paths:` filters, so metered-minute burn is not the
+        lever it might look like.
+      - >-
+        Could not verify any live hostname from this session: the egress
+        policy answers 403 to CONNECT on `marisstella.dev`,
+        `tools.marisstella.dev` and `housecallpro.com` alike. That is a
+        network-policy denial, not evidence about the site. Competitor facts
+        for #2856 came from web search (a separate tool, not blocked) against
+        the vendor's own pages; third-party prices in the same results were
+        not repeated, and a test asserts no dollar figure for the vendor
+        appears on the page.
+    mrr_end: null
   - venture: deck-bid-calculator
     agent_spend_usd: null
     human_hours: 0
