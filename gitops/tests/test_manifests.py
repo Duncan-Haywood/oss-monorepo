@@ -146,82 +146,68 @@ def test_appproject_whitelist_carries_no_group_this_tree_never_ships() -> None:
         )
 
 
-def test_staging_appproject_whitelist_carries_no_group_staging_never_ships() -> None:
+def test_appproject_whitelist_carries_no_group_its_own_namespace_never_ships() -> None:
     # Generalizes test_appproject_whitelist_carries_no_group_this_tree_never_ships
-    # to a per-namespace check rather than a tree-wide one. `apps` and
-    # `networking.k8s.io` are real, load-bearing groups elsewhere (prod ships
-    # a Deployment via `apps`, both prod and ci ship a NetworkPolicy via
-    # `networking.k8s.io`), so the tree-wide check above cannot see this gap
-    # -- it only catches a group nothing anywhere ever ships. `staging`
-    # wildcarded both anyway despite `gitops/staging/` shipping nothing but
-    # quota.yaml's ResourceQuota (group ""; kustomization.yaml lists exactly
-    # one resource) -- the same "whitelist wider than anything it guards"
-    # shape as `policy`, just scoped to one namespace's own directory rather
-    # than the whole tree, which is why it needs its own check instead of
-    # extending the one above.
+    # to a per-namespace check rather than a tree-wide one, and to every
+    # venture namespace rather than just `staging`. `apps` and
+    # `networking.k8s.io` are real, load-bearing groups *somewhere* (prod
+    # ships a Deployment via `apps`, prod/ci/agents all ship a NetworkPolicy
+    # via `networking.k8s.io`), so the tree-wide check above cannot see a
+    # group that is unused in one specific namespace's own directory while
+    # real in a sibling's -- it only catches a group nothing anywhere ever
+    # ships.
     #
-    # This does not assert staging must stay empty -- it asserts the
-    # whitelist stays in sync with what actually ships there. Deploying a
-    # Service or CronJob to staging should fail this test until the matching
-    # group is added back, per this file's own header comment: "Add it back,
-    # in whichever project needs it, the same commit a [resource] lands."
+    # Two live cases this caught before this generalization existed:
+    # `staging` wildcarded both `apps` and `networking.k8s.io` despite
+    # `gitops/staging/` shipping nothing but quota.yaml's ResourceQuota
+    # (group ""), and `agents` wildcarded `apps` despite `gitops/agents/`
+    # never shipping anything but a `batch/v1` CronJob, RBAC, NetworkPolicies
+    # and core-group objects -- no Deployment, StatefulSet, ReplicaSet or
+    # DaemonSet. Both are the same "whitelist wider than anything it guards"
+    # shape as `policy` above, just scoped to one namespace's own directory
+    # rather than the whole tree, which is why this needs a per-namespace
+    # check instead of only the tree-wide one.
+    #
+    # This does not assert a namespace must stay empty -- it asserts each
+    # whitelist stays in sync with what actually ships (or is deliberately
+    # pre-provisioned for) in its own directory. Deploying a Service or
+    # CronJob to staging, or a Deployment to agents, should fail this test
+    # until the matching group is added back, per this file's own header
+    # comment: "Add it back, in whichever project needs it, the same commit
+    # a [resource] lands."
+    #
+    # `bitnami.com`/SealedSecret is the one deliberate exception: prod, ci
+    # and agents each whitelist it ahead of an actual SealedSecret landing,
+    # for a `secrets/*.template.yaml` waiting on an owner to seal it (see
+    # test_every_project_with_a_secrets_template_can_receive_a_sealed_secret
+    # above) -- the template itself is excluded from the scan the same way
+    # that test excludes it, being a CHANGE_ME placeholder rather than a real
+    # manifest, so `bitnami.com` would otherwise read as unused right up
+    # until the seal lands.
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}
-    whitelist = by_name["staging"]["spec"]["namespaceResourceWhitelist"]
-    whitelisted_groups = {e.get("group") for e in whitelist}
-    shipped_groups: set[str] = set()
-    for path in (ROOT / "staging").rglob("*.yaml"):
-        if path.name == "kustomization.yaml" or "secrets" in path.parts:
-            continue
-        for doc in yaml.safe_load_all(path.read_text()):
-            if not doc or "kind" not in doc:
+    for venture in ("prod", "staging", "agents", "ci"):
+        whitelist = by_name[venture]["spec"]["namespaceResourceWhitelist"]
+        whitelisted_groups = {e.get("group") for e in whitelist}
+        shipped_groups: set[str] = set()
+        for path in (ROOT / venture).rglob("*.yaml"):
+            if path.name == "kustomization.yaml" or "secrets" in path.parts:
                 continue
-            api_version = doc.get("apiVersion", "")
-            group = api_version.split("/")[0] if "/" in api_version else ""
-            shipped_groups.add(group)
-    unused = whitelisted_groups - shipped_groups - {"*"}
-    assert not unused, (
-        f"staging AppProject wildcards {sorted(unused)} but gitops/staging/ "
-        f"ships no resource in {sorted(unused)} -- narrow the whitelist to "
-        "match, per this file's own header comment"
-    )
-
-
-def test_agents_appproject_whitelist_carries_no_dead_group() -> None:
-    # Same shape as test_staging_appproject_whitelist_carries_no_group_staging_never_ships,
-    # applied to `agents`: `apps` (Deployment/ReplicaSet/DaemonSet/StatefulSet)
-    # sat wildcarded in this AppProject's namespaceResourceWhitelist since the
-    # namespace was first adopted (#1486), despite gitops/agents/ never
-    # shipping a single apps/v1 resource -- the governor and the Codex worker
-    # are both Jobs, not Deployments.
-    #
-    # `bitnami.com/SealedSecret` is excluded on purpose: it is a deliberate,
-    # documented anticipatory entry (see its neighbouring comment in
-    # apps/projects.yaml) added ahead of the owner sealing `codex-secrets`,
-    # the same pattern `prod`'s AppProject uses for `portfolio-site-repo` --
-    # unlike the plain `apps` wildcard, it is not a leftover with no
-    # justification.
-    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
-    by_name = {d["metadata"]["name"]: d for d in docs if d}
-    whitelist = by_name["agents"]["spec"]["namespaceResourceWhitelist"]
-    whitelisted_groups = {e.get("group") for e in whitelist}
-    shipped_groups: set[str] = set()
-    for path in (ROOT / "agents").rglob("*.yaml"):
-        if path.name == "kustomization.yaml" or "secrets" in path.parts:
-            continue
-        for doc in yaml.safe_load_all(path.read_text()):
-            if not doc or "kind" not in doc:
-                continue
-            api_version = doc.get("apiVersion", "")
-            group = api_version.split("/")[0] if "/" in api_version else ""
-            shipped_groups.add(group)
-    anticipated = {"bitnami.com"}
-    unused = whitelisted_groups - shipped_groups - {"*"} - anticipated
-    assert not unused, (
-        f"agents AppProject wildcards {sorted(unused)} but gitops/agents/ "
-        f"ships no resource in {sorted(unused)} -- narrow the whitelist to "
-        "match, per apps/projects.yaml's own header comment"
-    )
+            for doc in yaml.safe_load_all(path.read_text()):
+                if not doc or "kind" not in doc:
+                    continue
+                api_version = doc.get("apiVersion", "")
+                group = api_version.split("/")[0] if "/" in api_version else ""
+                shipped_groups.add(group)
+        if list((ROOT / venture).glob("secrets/*.template.yaml")):
+            shipped_groups.add("bitnami.com")
+        unused = whitelisted_groups - shipped_groups - {"*"}
+        assert not unused, (
+            f"{venture} AppProject wildcards {sorted(unused)} but "
+            f"gitops/{venture}/ ships no resource in {sorted(unused)} -- "
+            "narrow the whitelist to match, per this file's own header "
+            "comment"
+        )
 
 
 def test_agents_project_cannot_dest_prod() -> None:
