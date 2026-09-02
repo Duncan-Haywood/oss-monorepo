@@ -1,6 +1,6 @@
 # Free calculators and checks for people who run a small business
 
-> 160 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 162 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
@@ -142,6 +142,8 @@ not linked — a link there would resolve to nothing today.
 - [npm Deployment Evidence — Free Lockfile Surface Report](https://marisstella.dev/tools/npm-deployment-evidence/): Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side.
 - [Grant Deadline Tracker for Small Nonprofits](https://marisstella.dev/tools/grant-deadline-tracker/): Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
 - [Shopify Accessibility Evidence Report](https://marisstella.dev/tools/shopify-a11y-evidence/): Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
+- [Consent Change Record](https://marisstella.dev/tools/consent-change-record/): Compare before-and-after consent browser traces and create a local request and storage change record.
+- [E-invoice Preflight — Check JSON, UBL, CII, or Factur-X](https://marisstella.dev/tools/einvoice-preflight/): Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.
 
 ## Marketplace seller tools
 

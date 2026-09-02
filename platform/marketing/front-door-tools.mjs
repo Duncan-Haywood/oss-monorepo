@@ -349,11 +349,51 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
  * links to it, so leaving it out would fail `validateLinks`.
  *
  * `sitemap.xml` and `robots.txt` are deliberately absent. They are written for
- * the tools host and describe URLs this mirror does not serve; nothing on any
- * page links to them, which `validateLinks` confirms rather than assumes.
+ * the tools host and describe URLs this mirror does not serve.
+ *
+ * **Corrected 2026-09-02.** This paragraph used to end "nothing on any page
+ * links to them, which `validateLinks` confirms rather than assumes". The
+ * confirming was real; the claim was not. `einvoice-preflight/index.html`
+ * carries `<link rel="sitemap" type="application/xml" href="sitemap.xml">`,
+ * so `validateLinks` reported a dead link and `discoverEligible` dropped the
+ * whole venture — a finished, tested static tool held off the apex by a
+ * `<link>` element no visitor can follow. It is the only such link in
+ * `ventures/` today, which is how the wrong claim survived. See
+ * `STRIPPED_LINK_RELS` for the fix.
  */
 const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
 const SERVABLE_NAMES = new Set(['LICENSE']);
+
+/**
+ * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
+ * page, and which `validateLinks` therefore must not hold a venture to.
+ *
+ * These three are the mirror's own to set, not the venture's:
+ *
+ * - `canonical` — the mirror points every page at its `tools.marisstella.dev`
+ *   URL, which is the whole basis of the "invisible to crawlers" argument in
+ *   this module's header.
+ * - `icon` — replaced with the apex's own `/favicon.svg`, so a mirrored page
+ *   wears the mark of the host actually serving it.
+ * - `sitemap` — dropped outright. The document it names is written for the
+ *   tools host and is not mirrored (see `SERVABLE_EXTENSIONS`), so on a
+ *   mirrored page the link is dead; and pointing a crawler at another host's
+ *   sitemap from a page this mirror deliberately marks `noindex` argues
+ *   against itself.
+ *
+ * Both call sites derive from this one set. They were independent before, and
+ * the drift was not cosmetic: `injectMirrorTags` stripped a tag `validateLinks`
+ * still policed, so a venture could be dropped from the mirror over an href
+ * that would never have reached a browser. A `<link>` whose target the mirror
+ * removes is not a broken link — it is a link that does not exist.
+ */
+export const STRIPPED_LINK_RELS = ['canonical', 'icon', 'sitemap'];
+
+/** One `<link>` element carrying any rel in `STRIPPED_LINK_RELS`. */
+const STRIPPED_LINK = new RegExp(
+  `<link\\b[^>]*\\brel=["'](?:${STRIPPED_LINK_RELS.join('|')})["'][^>]*>`,
+  'gi',
+);
 
 /**
  * The tools the apex serves itself.
@@ -659,7 +699,7 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
   for (const entry of await fs.readdir(venturesDir, { withFileTypes: true })) {
     if (!entry.isDirectory() || named.has(entry.name) || !ROUTABLE_SLUG.test(entry.name)) continue;
     const names = await ventureFiles(entry.name, venturesDir);
-    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_FILE.test(n))) continue;
+    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_SUBPATH.test(n))) continue;
     candidates.push({ slug: entry.name, names });
   }
   candidates.sort((a, b) => a.slug.localeCompare(b.slug));
@@ -833,8 +873,18 @@ export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
  * directory tree at mount time — would put ~90 lines of hand-maintained YAML in
  * `portfolio-front.yaml` that must stay in step with this set. A rewrite rule
  * in nginx does the same job in two lines and cannot drift.
+ *
+ * A file inside a page subdirectory (`tool/index.html`, see `ventureFiles`)
+ * has its separator encoded the same way, so `consent-change-record` +
+ * `tool/index.html` becomes `consent-change-record__tool__index.html`. That is
+ * unambiguous to decode because `ROUTABLE_SLUG` forbids `_` in both the slug
+ * and the directory name, so the nginx captures cannot swallow a separator —
+ * but a *filename* may contain `__`, which is why `assertUniqueKeys` still has
+ * to run: a venture holding both `tool/index.html` and a flat file literally
+ * named `tool__index.html` would encode to one key, and the projected volume
+ * would refuse to mount rather than serve the wrong bytes.
  */
-export const mirrorKey = (slug, file) => `${slug}__${file}`;
+export const mirrorKey = (slug, file) => `${slug}__${file.replaceAll('/', '__')}`;
 
 /**
  * The ConfigMap key the *stored* bytes get — the mirror key plus `.gz`.
@@ -860,6 +910,20 @@ export const storedKey = (slug, file) => `${mirrorKey(slug, file)}.gz`;
  */
 export const ROUTABLE_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 export const ROUTABLE_FILE = /^[A-Za-z0-9._-]+$/;
+
+/**
+ * A path inside a venture that `front-door/default.conf` can route: a flat
+ * filename, or one page subdirectory then a filename.
+ *
+ * Two levels and no more. `ventureFiles` only ever walks one level down, and
+ * the `location` blocks only decode one separator — so a deeper path would be
+ * generated, stored and mounted, and then 404 with nothing failing. That is
+ * the exact silent-mismatch failure the comment above this pair describes, so
+ * the depth limit lives in the pattern rather than in a reader's memory.
+ */
+export const ROUTABLE_SUBPATH = new RegExp(
+  `^(?:${ROUTABLE_SLUG.source.slice(1, -1)}/)?${ROUTABLE_FILE.source.slice(1, -1)}$`,
+);
 
 /** The apex URL a mirrored file is served at. */
 export const mirrorUrl = (slug, file) =>
@@ -911,14 +975,65 @@ const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(na
 const isServable = (name) =>
   (SERVABLE_EXTENSIONS.has(path.extname(name)) || SERVABLE_NAMES.has(name)) && !isTestFile(name);
 
-/** The servable files of one venture, sorted so the output is deterministic. */
+/**
+ * Is this subdirectory a page of the venture, or part of how it is built?
+ *
+ * The mirror walks exactly one level down, and only into directories that
+ * carry their own `index.html`. That single condition is what separates the
+ * two kinds of subdirectory `ventures/` actually contains:
+ *
+ * - `consent-change-record/tool/` is a second tool — its own page, its own
+ *   modules, linked from the venture's front page as "HAR before/after diff".
+ * - `src/`, `tests/`, `examples/`, `scripts/`, `docs/` are how a venture is
+ *   built or checked. None of them holds an `index.html`, and mirroring one
+ *   would put a Node source tree behind a public URL and spend the mirror's
+ *   byte ceiling on files no visitor can use.
+ *
+ * Measured across all 184 ventures on 2026-09-02: exactly one subdirectory
+ * anywhere in `ventures/` satisfies this, and it is `consent-change-record/
+ * tool/`. So the rule admits the page it was written for and nothing else,
+ * and it stays that way by construction rather than by a hand-kept list — a
+ * future venture that grows a genuine sub-page is picked up, and one that
+ * grows a `src/` is not.
+ *
+ * The directory name must also pass `ROUTABLE_SLUG`, because
+ * `front-door/default.conf` routes it with the same character class it routes
+ * a venture slug with. A `.cursor/` or `.github/` could never be reached even
+ * if it somehow held a page, so it is refused here rather than shipped dark.
+ */
+async function isPageDirectory(dir, name, venturesDir) {
+  if (!ROUTABLE_SLUG.test(name)) return false;
+  return fs
+    .access(path.join(venturesDir, dir, name, 'index.html'))
+    .then(() => true)
+    .catch(() => false);
+}
+
+/**
+ * The servable files of one venture, sorted so the output is deterministic.
+ *
+ * Returns flat filenames (`index.html`, `calc.mjs`) plus, for any subdirectory
+ * `isPageDirectory` admits, that directory's own servable files as posix paths
+ * one level deep (`tool/index.html`). Everything downstream — `mirrorKey`,
+ * `mirrorUrl`, `validateLinks` — treats the result as an opaque path relative
+ * to the venture root, so a `/` inside one needs no special case beyond the
+ * key encoding and the two `location` blocks that decode it.
+ */
 export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
   const dir = path.join(venturesDir, slug);
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  return entries
+  const files = entries
     .filter((entry) => entry.isFile() && isServable(entry.name))
-    .map((entry) => entry.name)
-    .sort();
+    .map((entry) => entry.name);
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (!(await isPageDirectory(slug, entry.name, venturesDir))) continue;
+    const nested = await fs.readdir(path.join(dir, entry.name), { withFileTypes: true });
+    for (const child of nested) {
+      if (child.isFile() && isServable(child.name)) files.push(`${entry.name}/${child.name}`);
+    }
+  }
+  return files.sort();
 }
 
 /**
@@ -960,8 +1075,7 @@ export function injectMirrorTags(html, { slug, file }) {
     `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">` +
     NAV_STYLE;
   const stripped = html
-    .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '')
-    .replace(/<link\b[^>]*\brel=["']icon["'][^>]*>/gi, '')
+    .replace(STRIPPED_LINK, '')
     .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '');
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
@@ -1111,6 +1225,18 @@ export function injectMirrorNav(html, { toolCount }) {
  */
 const SCRIPT_OR_STYLE = /<(script|style)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
 
+/**
+ * Blank out the `<link>` elements `injectMirrorTags` will delete, so their
+ * hrefs are not held against a venture that is otherwise perfectly mirrorable.
+ *
+ * Blanked to spaces rather than removed, matching `blankScriptBodies`: byte
+ * offsets stay put, so a problem string this function's caller builds still
+ * points where a human reading the source would look.
+ */
+export function blankStrippedLinks(html) {
+  return html.replace(STRIPPED_LINK, (match) => ' '.repeat(match.length));
+}
+
 export function blankScriptBodies(html) {
   return html.replace(SCRIPT_OR_STYLE, (match, tag, body) => {
     const open = match.length - body.length - `</${tag}>`.length;
@@ -1152,7 +1278,7 @@ export function validateLinks(files) {
   const problems = [];
   for (const { slug, file, contents } of files) {
     if (!file.endsWith('.html')) continue;
-    const markup = blankScriptBodies(contents);
+    const markup = blankStrippedLinks(blankScriptBodies(contents));
     const hrefs = [...markup.matchAll(/(?:href|src)="([^"]*)"/g)].map(([, href]) => href);
     for (const body of scriptBodies(contents)) {
       for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
@@ -1178,7 +1304,16 @@ export function validateLinks(files) {
         }
         continue;
       }
-      const resolved = path.posix.normalize(path.posix.join(slug, target));
+      // Resolved against the linking file's own directory, not the venture
+      // root. The two are the same thing for every flat page — which is why
+      // this read `join(slug, target)` until page subdirectories existed — but
+      // for `tool/index.html` they differ, and getting it wrong is silent in
+      // both directions: `../LICENSE` would resolve to a path outside the
+      // venture and be reported as dead, while a sibling `har-diff.mjs` would
+      // resolve to the venture root and be judged present when the file the
+      // browser actually asks for is one level down.
+      const base = path.posix.dirname(path.posix.join(slug, file));
+      const resolved = path.posix.normalize(path.posix.join(base, target));
       const candidate = resolved.endsWith('/') ? `${resolved}index.html` : resolved;
       if (!present.has(candidate)) {
         problems.push(`${slug}/${file} → "${href}" (no ${candidate} in the mirror)`);
@@ -1215,7 +1350,7 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
       throw new Error(`${slug} has no index.html — it cannot be an entry in STARTER_SET`);
     }
     for (const file of names) {
-      if (!ROUTABLE_FILE.test(file)) {
+      if (!ROUTABLE_SUBPATH.test(file)) {
         throw new Error(
           `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
         );

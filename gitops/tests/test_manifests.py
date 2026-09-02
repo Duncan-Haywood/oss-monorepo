@@ -1076,8 +1076,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
             f"OWNER_CHECKLIST.md claims a mirror of {value} tools, actual is {actual}"
         )
 
-    other_tools = re.findall(r"working funnel for the other\s+(\d+)\s", checklist)
-    assert other_tools, "OWNER_CHECKLIST.md's 'the other N' sentence not found or reworded"
+    # Reworded 2026-09-02. This used to pin "working funnel for the other N",
+    # and the arithmetic it checks was always the point — but the sentence
+    # carrying it also claimed the seal was what turned the front door into a
+    # working funnel at all, which CLAUDE.md corrects at length: the apex
+    # already serves the tools and its cards already work. Pinning a count
+    # inside a sentence that is wrong about what the count means keeps the
+    # number honest and the claim stale, so the wording moved and this pattern
+    # moved with it. The check itself is unchanged.
+    other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools", checklist)
+    assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
     for value in other_tools:
         assert int(value) == total - actual, (
             f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
