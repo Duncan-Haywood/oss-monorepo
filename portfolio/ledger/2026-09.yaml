@@ -3001,3 +3001,77 @@ entries:
         pushing: `pytest gitops/tests` (252 passed), `node --test
         ventures/pool-route-pricing/*.test.mjs` (41 passed), a full site
         build (169 tools, 538 pages) and `check.mjs` ("no dead links").
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, standing brief (deploy/CI-CD priority, Hetzner
+        marketing, Codex built-in-quota dev work). 0 open PRs at start, so
+        the three-PR merge quota was met by an empty queue; checked the six
+        remote branches carrying unique commits before starting new work.
+        Four are already on `main` via squash merges
+        (`gitops/prod/networkpolicy.yaml`,
+        `payment-reconciliation-workbench/vs-synder.html`,
+        `platform/ci/branch_cleanup.py`,
+        `etsy-profit-calculator/vs-etsys-listing-form-calculator.html` all
+        present on `main`); two are stale against an old base and would
+        regress merged work if opened
+        (`gitops-governor-rbac-narrow-jobs-pods-verbs` re-adds the `patch`
+        verb #2736 removed, `claude/fix-sweep-embed-chrome-false-positive`
+        reverts the `sweep.mjs` CI note). Re-confirmed the two owner seals
+        are unchanged and already queued as `codex-governor-enable` (row 12)
+        and the site's `portfolio-site-repo` -- no duplicate row added.
+      - >-
+        Shipped and merged PR #2763: the apex front door pointed its
+        `og:image` at `https://tools.marisstella.dev/social-card.png`, on
+        the host whose pods fail closed on the unsealed clone token. So the
+        portfolio's only reachable surface had been handing every link
+        preview -- Slack, LinkedIn, iMessage, forum embeds -- an image URL
+        that does not resolve, and `summary_large_image` degrades to a bare
+        text row without one. Invisible from the page itself, which is why
+        it survived several sessions of work on this exact file. The apex
+        now draws and serves its own card (same dependency-free encoder
+        `build.mjs` uses for the hub, so one mark across both hostnames),
+        kustomize carries it as `binaryData` in the ConfigMap the Deployment
+        already mounts, and `default.conf` answers `/social-card.png`
+        explicitly. That last part is load-bearing: the catch-all `location
+        /` returns `index.html` for every path, so without it the card would
+        have been served as 200 + `text/html` + 16 KB of markup even with
+        the bytes in the volume.
+      - >-
+        Shipped and merged PR #2765: `injectMirrorTags` strips a pre-existing
+        `<link rel="canonical">` but never did the same for `robots`, so 24
+        of the 45 mirrored pages went out carrying `noindex,follow` on line 4
+        and the venture's own `index, follow` on line 8. Not a live indexing
+        incident -- Google takes the most restrictive of conflicting
+        directives, and `default.conf` sets `X-Robots-Tag: noindex` on these
+        paths independently of the markup -- but it made the module header's
+        "invisible to crawlers structurally" claim rest on every crawler
+        resolving a contradiction we shipped the way one of them documents.
+        Mirror shrank 1,052 bytes to 674,490.
+      - >-
+        Finding worth keeping - a verification method, not a blocker. Both
+        PRs were checked against real infrastructure rather than reasoned
+        about: installed kustomize v5.6.0 (the version CI pins) and nginx
+        1.24, built the manifest and served its ConfigMap contents through
+        an actual nginx. That is what established the `/social-card.png`
+        defect as fact rather than inference -- the pre-change config
+        returns `200 text/html` 16,473 bytes for that path, reproduced --
+        and what confirmed the fix serves byte-identical PNG bytes with the
+        right content type while `/`, `/healthz`, `/nope` and the three
+        mirrored-tool routes stay unchanged. Both tools install cleanly in a
+        Claude-on-the-web container; the Docker daemon is absent, so the
+        deployed `nginxinc/nginx-unprivileged:1.27-alpine` image itself
+        still cannot be exercised. Worth reaching for before shipping
+        anything that touches the one hostname that currently serves
+        strangers.
+      - >-
+        Finding - `_generated_configmaps` in `gitops/tests/test_manifests.py`
+        read every generator input with `read_text()`, so all three ConfigMap
+        ceiling checks stopped being able to parse the tree the moment a
+        binary file entered it. It now sizes binary keys as the base64 the
+        applied object actually carries: the share card is 5,984 bytes on
+        disk and 7,980 in the object, so measuring the file would have
+        understated every binary key by a third. Failing loudly rather than
+        under-measuring was the good direction for that bug to fail in.
