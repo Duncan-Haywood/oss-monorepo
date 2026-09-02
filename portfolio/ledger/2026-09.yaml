@@ -4728,3 +4728,61 @@ entries:
         not repeated, and a test asserts no dollar figure for the vendor
         appears on the page.
     mrr_end: null
+  - venture: deck-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session on the standing "prioritize deployment/CI-CD and
+        marketing materials on Hetzner, and set up Codex CLI to spend its
+        quota" instruction. Found 0 open PRs at the start. `git branch -r`
+        listed 216 remote branches; filtering to ones with commits not
+        reachable from `origin/main` (`git merge-base --is-ancestor`) cut
+        that to 84. Ran `portfolio/ledger/supersede_check.py` against a
+        sample plus a background sweep (48 of 84 checked before this entry,
+        6 timed out on large diffs with a 40s-per-branch cap): 31 came back
+        SUPERSEDED by the identical-merge proof, and every one of the 7 the
+        line-scanner called NOT SUPERSEDED that I read by hand (funny-
+        archimedes-2hd9yp/6av5kj/7qv0f4/9u0s0t, intelligent-knuth-mz9kgu,
+        optimistic-heisenberg-v07yn7) turned out to be the RENAME-SUSPECTED
+        case CLAUDE.md describes: the same feature already shipped on
+        `main` under different wording (e.g. `optimistic-heisenberg-v07yn7`'s
+        `vs-synder.html` duplicates #2724's page of the same name; funny-
+        archimedes-9u0s0t's "count settled reports" duplicates #996's
+        "count settled quotes"). No genuinely repairable existing branch
+        found, so the "if none exist, start new work" clause applied.
+      - >-
+        Confirmed rather than re-derived, matching the prior session's
+        finding two entries up: the Codex-on-Hetzner worker stack
+        (`gitops/agents/`, decision-queue row 12 `codex-governor-enable`)
+        and the `portfolio-site-repo` site seal are fully built and tested,
+        blocked solely on owner `kubeseal` actions no session can perform
+        remotely. CI/CD is healthy right now — `main`'s last 30 workflow
+        runs are all green on real runners, `hetzner-gitops CI` passes, and
+        `front-door-tools.mjs --check` (the marketing mirror) reports in
+        sync. No duplicate owner ask added.
+      - >-
+        114 of 163 ventures had no comparison ("vs-X") page, the SEO/AI-
+        discovery pattern this portfolio already uses on dozens of others.
+        Shipped and merged three: #2853 `deck-bid-calculator` vs-QuoteIQ,
+        #2854 `attic-insulation-bid-calculator` vs-FieldCamp, #2855
+        `basement-waterproofing-bid-calculator` vs-Oblyss. Each: factual
+        comparison table, affiliation disclaimer, standard footer, FAQPage
+        JSON-LD with visible-text parity, and a test asserting no invented
+        competitor price (the competitors' own sites are blocked by this
+        session's egress proxy, so pricing came only from WebSearch
+        snippets, which the established `vs-synder.html`/`vs-fence-cloud.html`
+        discipline treats as unverifiable). Verified per PR: full venture
+        `node --test` (94, 106, 76 passing respectively), repo-wide
+        `platform/marketing/*.test.mjs` (89/89), `clauses.mjs` and
+        `faq-duplicate.mjs` clean, `build.mjs`+`check.mjs` clean before the
+        first push. All three PRs went green on real GitHub Actions runners
+        and were squash-merged per this repo's no-review-gate rule.
+      - >-
+        Also reviewed and merged #2856 (`appliance-repair-quote-calculator`
+        vs-Housecall Pro), a concurrent session's PR on a different venture
+        with no overlap — 13 checks green, well-documented local
+        verification, front-door-tools mirror regenerated correctly. Four
+        PRs merged this run in total (#2853-2856); repo had 0 open PRs at
+        both start and end.
+    mrr_end: null
