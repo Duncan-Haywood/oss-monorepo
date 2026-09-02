@@ -611,14 +611,11 @@ candidates:
   - slug: vendor-change-evidence
     name: Vendor-change evidence monitor
     doc: candidates/vendor-change-evidence.md
-    verdict: probe
-    probe_status: >-
-      step 1 partially run: local section-aware snapshot-diff tool built and
-      tested (7 tests) against fixtures, not live pages. Scheduled fetch/hash
-      loop, the 10-page replay, and step 3 (10 practitioner conversations, one
-      paid pilot) are unstarted.
+    verdict: graduated
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-29
+    initiated_path: ventures/vendor-change-watch
     scores:
       ai_leverage: 7
       autonomous_ops: 9
