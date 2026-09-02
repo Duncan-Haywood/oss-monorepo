@@ -221,6 +221,15 @@ def test_both_credentials_stay_usable_and_the_free_one_wins_a_tie() -> None:
     api_key = text.index('if [[ -n "${OPENAI_API_KEY:-}" ]]')
     assert subscription < api_key, "the non-billing credential should be tried first"
     assert "bills per token" in text
+    # Branch order alone is not the win. `codex exec` inherits this script's
+    # environment, so leaving OPENAI_API_KEY in it hands the CLI a metered
+    # credential on a run that reported itself as the plan's -- and which one
+    # the CLI prefers is not ours to decide. The behavioural pair lives in
+    # test_worker_run.py; this keeps the mechanism from being deleted as dead
+    # code by someone reading only the branch order.
+    assert "unset OPENAI_API_KEY" in text, (
+        "the plan route must remove the metered key from codex's environment"
+    )
     template = (AGENTS / "secrets" / "codex-token.template.yaml").read_text()
     assert "OPENAI_API_KEY: CHANGE_ME" in template
     assert "CODEX_AUTH_JSON" in template

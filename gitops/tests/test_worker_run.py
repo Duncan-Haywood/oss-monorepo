@@ -598,6 +598,70 @@ def test_a_rejected_credential_reports_the_auth_marker_and_exits_43(world) -> No
     assert not world["pr"].exists()
 
 
+def test_the_plan_credential_wins_a_tie_in_the_environment_codex_actually_sees(
+    world,
+) -> None:
+    # The owner's instruction for this fleet is to spend the ChatGPT plan's
+    # included quota, so a tick costs nothing extra. `configure_auth` picks the
+    # subscription first and logs "subscription" -- but picking a branch in
+    # bash does nothing to the process environment, and `OPENAI_API_KEY` was
+    # still exported into it when `codex exec` ran.
+    #
+    # Which credential the CLI then prefers is not something this repository
+    # controls, and the failure is silent in the direction that costs money: a
+    # run that announces the plan while billing the metered key. `codex-secrets`
+    # can hold both -- codex-token.template.yaml carries both keys, and
+    # secrets/README.md documents sealing the template by hand with kubeseal.
+    #
+    # So assert on the environment the CLI is handed, not on which branch the
+    # script took. The stub records whether the key reached it.
+    seen = world["tmp"] / "codex-env.txt"
+    _codex_stub(
+        world["bin"],
+        script=f'printf "%s" "${{OPENAI_API_KEY-<unset>}}" > "{seen}"',
+    )
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-tie"},
+        env_extra={
+            "CODEX_AUTH_JSON": '{"tokens":{"access_token":"stub"}}',
+            "OPENAI_API_KEY": "sk-would-bill",
+        },
+    )
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "subscription" in proc.stdout, proc.stdout
+    assert seen.exists(), "the codex stub never ran:\n" + proc.stdout + proc.stderr
+    assert seen.read_text() == "<unset>", (
+        "codex was handed a metered OPENAI_API_KEY on a run that reported "
+        f"itself as the plan's: {seen.read_text()!r}"
+    )
+
+
+def test_the_metered_key_still_reaches_codex_when_it_is_the_only_credential(
+    world,
+) -> None:
+    # The other half of the pair. Unsetting the key on the plan route must not
+    # unset it on the route infra/OWNER_CHECKLIST.md actually walks the owner
+    # through -- a Secret carrying only OPENAI_API_KEY has to keep working.
+    seen = world["tmp"] / "codex-env.txt"
+    _codex_stub(
+        world["bin"],
+        script=f'printf "%s" "${{OPENAI_API_KEY-<unset>}}" > "{seen}"',
+    )
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-apikey"},
+        env_extra={"OPENAI_API_KEY": "sk-metered"},
+    )
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "bills per token" in proc.stdout, proc.stdout
+    assert seen.read_text() == "sk-metered", seen.read_text()
+
+
 def test_no_credential_mounted_reports_the_auth_marker_before_spending_anything(
     world,
 ) -> None:
