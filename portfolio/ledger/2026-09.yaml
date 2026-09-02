@@ -1734,10 +1734,25 @@ entries:
         was empty. Both were true and green throughout. The two regression
         tests added assert the classification and, separately, that the
         related-tool offer at the foot of the page is trade work, which is
-        the thing a visitor actually experiences. Worth a sweep of the other
-        168 slugs against the same question; this run checked the six
-        non-`trades` categories by eye and found no second case, but by eye
-        is what missed this one for as long as it existed.
+        the thing a visitor actually experiences.
+      - >-
+        Swept the other 168 slugs against the same question -- each tool's
+        category read against its own meta description -- and found no
+        second case of this severity, but two softer ones, both left alone
+        deliberately and recorded here rather than fixed, because unlike
+        `cut-list` they are judgment calls rather than a tool filed into the
+        wrong industry. (1) `tender-bid-readiness` and `tender-radar` sit in
+        the `more` catch-all while `contractor-bid-readiness` -- the same
+        shape of tool, and both tender pages name small contractors as their
+        reader -- sits in `trades`. (2) `music-lesson-break-even` is in
+        `backoffice` because its slug ends in `break-even`, but it prices a
+        teacher's lessons, which is the `services` blurb's exact job ("price
+        a visit, a route, a booking... for the service businesses that quote
+        work without bidding a construction job") rather than backoffice's
+        ("the arithmetic that happens after the job is won"). Neither is
+        wrong the way `cut-list` was: the catch-all is an honest home, and
+        `break-even` is a real back-office shape. Both are worth a decision;
+        neither is worth widening this PR for.
       - >-
         Shipped #2693 (part 2): a comparison page against optiCutter and
         CutList Optimizer, the two named hosted incumbents -- the
