@@ -20,6 +20,9 @@ npx http-server ventures/attic-insulation-bid-calculator -p 8080
 cd ventures/attic-insulation-bid-calculator && node --test
 ```
 
+See [this calculator vs. FieldCamp](vs-fieldcamp.html) for which job fits a
+one-off bid check versus an ongoing, paid job-management platform.
+
 After using this, you can now **quote blown-in attic insulation from areas,
 existing versus target R-value, and bag yield instead of a flat house
 price**, which used to take a spreadsheet that still hid the bag count and
