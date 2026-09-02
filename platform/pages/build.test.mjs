@@ -57,6 +57,7 @@ import {
   SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
+  repairLinks,
   pageHasOwnShareControl,
   categoryPagePath,
   CATEGORY_PATH_PREFIX,
@@ -647,10 +648,12 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Five trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, catalog.json, the sitemap, the Atom feed and
-  // the source repo — so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 5);
+  // Four trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, catalog.json, the sitemap and the Atom feed
+  // — so the count is tools plus those. A fifth, "Source", used to point at
+  // this repository's GitHub URL; the repository is private, so that link
+  // 404s for every real visitor and was removed rather than left false.
+  assert.equal(bullets.length, surfaces.length + 4);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1448,17 +1451,38 @@ test('renderRobots allows crawling', () => {
 });
 
 test('links that escape the site are repointed at the repository, not left broken', async () => {
-  const { repairs } = await site();
-  assert.ok(repairs.length > 0, 'the portfolio does contain such links today');
+  // This used to read a naturally-occurring case out of real venture content
+  // (ai-engineering-academy's own README link). That coupled the test to
+  // whatever venture happened to have such a link, which is how it went
+  // silent the day the portfolio's last one was fixed: this repository is
+  // private, so every one of those was a 404 for every real visitor (see
+  // CLAUDE.md and #2720), and by the time that was cleaned up across the
+  // site, zero remained for this test to find. Build an isolated case
+  // instead, so the fallback itself -- point at the repository rather than
+  // leave a raw broken relative link -- stays covered on its own.
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-repair-root-'));
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-repair-out-'));
+  const ventureDir = path.join(repoRoot, 'ventures', 'widget-co');
+  const siteDir = path.join(ventureDir, 'site');
+  await fs.mkdir(siteDir, { recursive: true });
+  // Stands in for a CLI-only module or test payload: it exists in the repo,
+  // but this build never publishes it.
+  await fs.writeFile(path.join(ventureDir, 'cli.py'), '# not published');
+  await fs.writeFile(path.join(siteDir, 'index.html'), '<a href="../cli.py">the CLI</a>');
 
-  // The concrete case: a tool published from a nested directory links to the
-  // venture README that sits one level above its own published root.
-  const academy = await read('ai-engineering-academy', 'index.html');
+  const destination = path.join(outDir, 'widget-co');
+  await fs.mkdir(destination, { recursive: true });
+  await fs.copyFile(path.join(siteDir, 'index.html'), path.join(destination, 'index.html'));
+
+  const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
+  assert.ok(repairs.length > 0, 'a link to a genuinely unpublished file should be repointed, not left broken');
+
+  const built = await fs.readFile(path.join(destination, 'index.html'), 'utf8');
   assert.ok(
-    academy.includes(`${SOURCE_URL_PREFIX}ventures/ai-engineering-academy/README.md`),
-    'the README link should resolve on GitHub instead of 404ing',
+    built.includes(`${SOURCE_URL_PREFIX}ventures/widget-co/cli.py`),
+    'the escaping link should point at the file in the repository',
   );
-  assert.ok(!academy.includes('href="../README.md"'));
+  assert.ok(!built.includes('href="../cli.py"'));
 });
 
 test('repair leaves working in-site links untouched', async () => {
