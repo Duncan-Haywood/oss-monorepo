@@ -3858,3 +3858,48 @@ test('the catch-all holds only what no section claims', async () => {
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });
+
+test('no link to a published venture is repaired out to the private repository', async () => {
+  // `repairLinks` decides "inside the site" by whether the target exists on
+  // disk. It used to run inside the copy loop, so a link to a sibling venture
+  // that sorts later alphabetically was tested before that sibling had been
+  // copied, judged to escape the site, and repointed at GitHub. This repository
+  // is private, so every one of those was a 404 for every visitor -- and
+  // `check.mjs` never saw it, because by then the link is absolute and it does
+  // not follow those.
+  //
+  // Ten links were affected and all seven distinct targets were live pages:
+  // no-show-fee-calculator, where-to-sell-calculator,
+  // walmart-marketplace-calculator, tiktok-shop-fee-calculator,
+  // shopify-fee-calculator, quote-margin-check, and one
+  // invoice-payment-terms-calculator page.
+  //
+  // Asserted over the whole built site rather than over those seven, so the
+  // same mistake cannot return through a venture nobody was watching.
+  const { surfaces, outDir } = await site();
+  const published = new Set(surfaces.map((s) => s.slug));
+  const offenders = [];
+
+  for (const file of await listFiles(outDir)) {
+    if (!file.endsWith('.html')) continue;
+    const html = await fs.readFile(file, 'utf8');
+    for (const [, target] of html.matchAll(
+      new RegExp(`${SOURCE_URL_PREFIX.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}ventures/([^"'\\s>]+)`, 'g'),
+    )) {
+      const [slug, ...rest] = target.split('/');
+      if (!published.has(slug)) continue;
+      // A link into a published venture is only legitimate when it names a file
+      // that venture does not publish -- its README or LICENCE, say.
+      const asPublished = path.join(outDir, slug, ...rest);
+      const candidates = rest.length ? [asPublished] : [path.join(outDir, slug, 'index.html')];
+      for (const candidate of candidates) {
+        try {
+          await fs.access(candidate);
+          offenders.push(`${path.relative(outDir, file)} -> ventures/${target}`);
+        } catch { /* genuinely unpublished: the repair is correct */ }
+      }
+    }
+  }
+
+  assert.deepEqual(offenders, [], `links sent off-site to a private repo: ${offenders.slice(0, 8).join(', ')}`);
+});
