@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 150 files, 554263 bytes
 #   portfolio-front-tools-1: 152 files, 556248 bytes
 #   portfolio-front-tools-2: 149 files, 546123 bytes
-#   portfolio-front-tools-3: 112 files, 546707 bytes
+#   portfolio-front-tools-3: 113 files, 550681 bytes
 #   portfolio-front-tools-4: 118 files, 554888 bytes
 #   portfolio-front-tools-5: 117 files, 555116 bytes
 #   portfolio-front-tools-6: 113 files, 553328 bytes
@@ -567,6 +567,7 @@ configMapGenerator:
       - basement-finishing-bid-calculator__proposal.mjs.gz=basement-finishing-bid-calculator__proposal.mjs.gz
       - basement-finishing-bid-calculator__share.mjs.gz=basement-finishing-bid-calculator__share.mjs.gz
       - basement-finishing-bid-calculator__usage.mjs.gz=basement-finishing-bid-calculator__usage.mjs.gz
+      - basement-finishing-bid-calculator__vs-buildxact.html.gz=basement-finishing-bid-calculator__vs-buildxact.html.gz
       - basement-waterproofing-bid-calculator__LICENSE.gz=basement-waterproofing-bid-calculator__LICENSE.gz
       - basement-waterproofing-bid-calculator__calc.mjs.gz=basement-waterproofing-bid-calculator__calc.mjs.gz
       - basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz=basement-waterproofing-bid-calculator__how-much-to-charge-for-basement-waterproofing.html.gz
