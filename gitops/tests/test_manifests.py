@@ -719,6 +719,31 @@ def test_portfolio_front_probes_a_path_that_is_not_the_page() -> None:
     assert "access_log off;" in conf
 
 
+def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
+    # This file's own header comment calls `X-Frame-Options: DENY` unconditional
+    # ("nothing embeds this page ... X-Frame-Options: DENY below is
+    # unconditional here"), but `add_header` does not merge across nginx
+    # levels: a `location` that sets any `add_header` drops the server block's
+    # default rather than inheriting it (the comment on `location /` in this
+    # same file says so). Each content-serving `location` therefore has to
+    # repeat the header itself, and the mirrored `LICENSE` block once did not —
+    # a plain-text response served with no clickjacking protection, silently
+    # weaker than the equivalent path on `tools.marisstella.dev` (which falls
+    # through to a `location /` that does carry it). `/healthz` is the one
+    # deliberate exception: it returns a bare "ok" with no headers at all,
+    # which `test_portfolio_front_probes_a_path_that_is_not_the_page` already
+    # pins, so it is excluded here rather than silently satisfied.
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    blocks = re.split(r"(?=^\s*location\b)", conf, flags=re.MULTILINE)
+    content_blocks = [
+        b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b
+    ]
+    assert len(content_blocks) >= 5, "fewer content locations than expected — check the split"
+    for block in content_blocks:
+        header = block.splitlines()[0].strip()
+        assert "X-Frame-Options DENY" in block, f"{header} does not send X-Frame-Options: DENY"
+
+
 def test_portfolio_front_access_log_records_no_visitor() -> None:
     # The same structural privacy property the site's own log_format carries:
     # a page with no account and no cookie must not write an address, a user
