@@ -5,6 +5,65 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled routine session. The owner's prompt asked specifically for
+        three things: deployment/CI-CD kept as a top priority, marketing
+        materials built and deployed on the Hetzner VMs, and the Codex CLI
+        set up to spend its built-in (ChatGPT-plan) quota on unattended dev
+        work on the Hetzner box, following a mandate similar to this
+        session's own. Checked all three against the actual repo state
+        rather than the ledger's account of them: `gitops/agents/queue/`
+        already carries `deploy-cicd-readiness` (priority 7) and
+        `marketing-distribution` (priority 6) as the two highest-priority
+        enabled queue items, reordered there on 2026-09-01 on this exact
+        prior instruction; `gitops/agents/governor/` and
+        `gitops/agents/workers/worker.sh` already implement a budget-governed
+        Codex worker that authenticates via `CODEX_AUTH_JSON` (the
+        "built-in-plan-quota" route) and runs `mandate.md`, a standing
+        product-first brief modelled on this repo's own `CLAUDE.md` /
+        `AGENTS.md`. All of it is code-complete and covered by 234 passing
+        `gitops/tests`. None of it runs yet: `governor/policy.json` reads
+        `enabled: false` and `governor/cronjob.yaml` reads `suspend: true`,
+        both correctly fail-closed pending the one action only the owner can
+        take -- sealing `codex-secrets` (`CODEX_AUTH_JSON` from a `codex
+        login`, plus a scoped `GH_TOKEN`) via
+        `./bootstrap/scripts/seal-owner-secrets.sh agents`, then flipping the
+        two switches above. `infra/OWNER_CHECKLIST.md` items 12/13 and
+        `decision_queue.py` rows 12/13 already state this precisely; this
+        session found no drift to correct there.
+      - >-
+        Reviewed the PR queue first, per the merge-quota mandate: 0 open PRs
+        at session start (so the quota's "if none exist, start new work
+        after the overlap check" branch applied), then reviewed, verified
+        green CI on, and merged #2732 (front-door usage-tracking fix from a
+        concurrent session) the moment it appeared.
+      - >-
+        Looked for a genuine, non-duplicative `deploy-cicd-readiness`
+        candidate rather than re-picking ground the concurrent fleet was
+        already covering at high frequency (dozens of stale-count and
+        comparison-page PRs landed on `main` during this session alone,
+        roughly one every few minutes). Found one: `governor.py`'s
+        `pick_item()` docstring named every queue item against its
+        pre-2026-09-01 priority (open-pr-repair-merge 7, branch-pr-drain 6,
+        deploy-cicd-readiness 5, ...) and quoted an undated 13/25ths weight
+        figure -- the identical staleness `worker.sh`'s matching comment had
+        just been fixed for in #2725, except that fix never touched this
+        file's own copy of the same numbers. Corrected the list to today's
+        actual priorities (verified against `gitops/agents/queue/*.yaml`),
+        dated the historical figure, and added the same "re-derive from the
+        queue YAMLs" pointer `worker.sh` carries. Comment-only, no functional
+        change. Shipped as #2733: 234 gitops tests, pyflakes, and all 7 CI
+        checks green before merge.
+      - >-
+        Two PRs merged this session (#2732, #2733). No new venture started --
+        the highest-value work available was confirming the owner's
+        deploy/CI-CD/Codex priorities are already correctly encoded and
+        naming the exact remaining step, not adding a twelfth reprioritization
+        of an already-correctly-prioritized queue.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Made the front door shipped earlier this session measurable, which it
         deliberately was not at merge. `usage/aggregate.py` selected
         `app=portfolio-site`, and `slug_for("/index.html")` returns the hub key
