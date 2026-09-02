@@ -44,6 +44,43 @@ def test_all_yaml_parses() -> None:
         assert docs, path
 
 
+def _find_volumes(node):
+    if isinstance(node, dict):
+        if isinstance(node.get("volumes"), list):
+            yield from node["volumes"]
+        for value in node.values():
+            yield from _find_volumes(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _find_volumes(item)
+
+
+def test_tmp_emptydir_volumes_carry_a_size_limit() -> None:
+    # portfolio-site.yaml's own comment on its sized volumes explains why:
+    # "An emptyDir that fills does not fail the write -- the kubelet evicts
+    # the pod." Every nginx-unprivileged workload in gitops/prod mounts a
+    # `tmp` emptyDir at /tmp because readOnlyRootFilesystem forces nginx's
+    # pid file and temp buffers there -- portfolio-site.yaml and landing.yaml
+    # both cap it (64Mi and 16Mi). portfolio-front.yaml shipped the same
+    # volume with no sizeLimit at all, on the one node that also runs the
+    # k3s control plane, ingress, and cert-manager, and no test caught it.
+    for path in REPO.glob("gitops/**/*.yaml"):
+        if "tests" in path.parts:
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if not doc:
+                continue
+            for volume in _find_volumes(doc):
+                if not isinstance(volume, dict) or volume.get("name") != "tmp":
+                    continue
+                empty_dir = volume.get("emptyDir")
+                if empty_dir is None:
+                    continue
+                assert isinstance(empty_dir, dict) and "sizeLimit" in empty_dir, (
+                    f"{path}: 'tmp' emptyDir volume has no sizeLimit"
+                )
+
+
 def test_no_live_secrets_in_git() -> None:
     for path in list(ROOT.rglob("*")) + list((REPO / "infra").glob("*.tf")) + list(
         (REPO / "bootstrap").rglob("*")
