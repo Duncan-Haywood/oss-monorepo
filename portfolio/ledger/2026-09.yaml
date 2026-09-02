@@ -2790,3 +2790,73 @@ entries:
         the two top-priority queued infra/marketing items were the
         highest-value non-duplicative work available under an empty PR queue
         and the owner-blocked Codex governor and site-repo seal.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine. Shipped four merged PRs against the apex front
+        door -- the portfolio's only reachable surface while
+        `tools.marisstella.dev` waits on the `portfolio-site-repo` seal.
+        Started from the standing owner prompt (deploy/CI-CD priority,
+        marketing on the Hetzner boxes, Codex CLI on its built-in quota);
+        found all three already correctly encoded and owner-blocked, added
+        no duplicate ask, and spent the session on the live surface instead.
+      - >-
+        #2748 -- the seven category cards on `marisstella.dev` were the
+        page's primary navigation and every one linked into
+        `tools.marisstella.dev/c/<id>/`, which serves nothing. 12 of the
+        page's 29 links led into the dark host. Cards now link to the tools
+        this host actually mirrors, with honest counts ("116 tools - 8 you
+        can open here now"); a category with none is an unlinked heading
+        saying so rather than spending a visitor's click to reveal it.
+        Clickable dead links 12 -> 4. Same class of defect #2739 fixed for
+        the hero copy, still live one element down.
+      - >-
+        #2753 -- `BYTE_CEILING` stood at 640 KiB with the mirror at 98% of
+        it, and its stated rationale was wrong: it claimed the mirror
+        "shares the pod with portfolio-front-html rather than the whole
+        budget", but those are two ConfigMaps and etcd's 1 MiB cap is per
+        object. Measured the built manifest (no prior session had a
+        kustomize binary to do this): 643,465 bytes of content serialise to
+        667,371 bytes, 63.6% of the cap. The ceiling was refusing builds at
+        under two thirds of the real constraint, and the next two marketing
+        pages would have tripped an error telling a session to drop a
+        working tool from the live front door. Raised to 800 KiB against the
+        measurement, and added the check that was missing -- the file-bytes
+        ceiling is a proxy, so a new gitops test measures the object that
+        actually gets applied, plus a guard that the two ceilings keep their
+        order.
+      - >-
+        #2754 -- took the one-line follow-up #2744 had named for exactly
+        that condition ("re-add translator-project-quote once the ceiling
+        has real headroom again ... verified with a real kustomize build").
+        All seven category cards now lead to a working tool for the first
+        time; mirror 17 -> 18 tools, 82% of the new ceiling.
+      - >-
+        #2755 -- learning worth keeping. #2744's trade rested on a
+        miscount: it dropped the set's only `services` tool believing it
+        was a fourth, having read three entries whose `why` string says
+        "services" for slugs `categoryFor` sorts under `trades`. Six of
+        eighteen `why` strings disagreed with `categoryFor`. Prose in this
+        file reads like documentation and gets used as data, so correcting
+        the six was not enough -- a test now pins every `why` to
+        `categoryFor`, verified by reintroducing the exact label #2744 used
+        and watching it fail.
+      - >-
+        PR queue drained to empty and stayed there. Reviewed and
+        independently verified #2740, #2741 and #2742 (ruff + 33 tests; 29
+        marketing + 246 gitops tests; claims checked against `main`) --
+        concurrent sessions merged all three mid-verification, so they are
+        theirs, not this session's. Merged #2750 after checking its
+        competitor page carries non-affiliation, trademark and both 5b
+        clauses and makes no pricing claim. Every merge gated on
+        `ci_starvation.py` confirming a real runner rather than on a green
+        badge.
+      - >-
+        Not verified: the public route. This environment's egress proxy
+        denies `marisstella.dev:443`, so no session running here can fetch
+        the page it just deployed. Everything upstream of the pod was
+        verified (kustomize build, the Deployment resolving to the new
+        content-hashed ConfigMap). Worth knowing before a future session
+        claims public verification it cannot actually perform.
