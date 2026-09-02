@@ -253,26 +253,6 @@ def added_lines(merge_base: str, head: str, path: str) -> list[str]:
     ]
 
 
-def binary_paths(merge_base: str, head: str) -> set[str]:
-    """Paths whose diff between `merge_base` and `head` is binary.
-
-    `git diff --numstat` reports `-\t-\t<path>` for a binary file instead of
-    add/delete counts -- the one place this distinction is available without
-    reading file content, which is the thing that crashes on a binary file
-    (`base_tree_lines` decodes `git show` output as UTF-8). A `.gz` mirror
-    shard is not an edge case here: `platform/marketing/front-door-tools.mjs`
-    commits one alongside almost every venture change, so any PR touching a
-    mirrored venture's `index.html` carries one.
-    """
-    out = _git("diff", "--numstat", f"{merge_base}..{head}")
-    paths: set[str] = set()
-    for line in out.splitlines():
-        parts = line.split("\t", 2)
-        if len(parts) == 3 and parts[0] == "-" and parts[1] == "-":
-            paths.add(parts[2])
-    return paths
-
-
 def base_tree_lines(base: str, paths: list[str]) -> set[str]:
     """Every stripped line reachable from the base commit, for the paths given.
 
@@ -508,17 +488,16 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
 
     merge_base = _find_merge_base(base, head, fetch=fetch)
 
-    all_paths = [p for p in _git(
-        "diff", "--name-only", f"{merge_base}..{head}"
-    ).splitlines() if p]
-
-    # Binary files (chiefly the `.gz` front-door mirror shards regenerated
-    # alongside most venture changes) carry no text lines to compare and
-    # crash `base_tree_lines`'s UTF-8 decode if included. Excluded from the
-    # line-based proof entirely; `merges_to_base`'s replay still covers them
-    # since it operates on the real git trees, not on decoded text.
-    skip = binary_paths(merge_base, head)
-    paths = [p for p in all_paths if p not in skip]
+    # --numstat reports "-\t-\tpath" for a binary file instead of line counts.
+    # Binary paths (generated mirror .gz blobs, mainly) have no line-level
+    # content to compare, and `git show` on one crashes _git()'s text=True
+    # decode the moment its bytes are not valid UTF-8 -- so they are excluded
+    # here rather than fed to the line-based analysis below.
+    paths = [
+        line.split("\t", 2)[2]
+        for line in _git("diff", "--numstat", f"{merge_base}..{head}").splitlines()
+        if line and not line.startswith("-\t-\t")
+    ]
 
     base_lines = base_tree_lines(base, paths)
     existing_paths = {
