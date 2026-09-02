@@ -5635,3 +5635,120 @@ entries:
         at that point. #2894 (this session's own new work) was opened and
         merged after, for two merges total this run.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/happy-wozniak-l5j2hc`. Owner's standing added direction, same
+        as the two preceding sessions: prioritise deployment/CI-CD, build and
+        deploy marketing materials on the Hetzner VMs, and set up the Codex
+        CLI to spend its built-in plan quota there. PR queue at start: zero
+        open PRs, confirmed rather than assumed (`list_pull_requests` empty),
+        so the three-PR quota was satisfied vacuously under the mandate's own
+        "if none exist, start new work" clause. Two PRs opened and merged this
+        run (#2899, #2901), plus a full review of a third (#2900) that its own
+        session merged mid-review.
+      - >-
+        Shipped the run's product work on the one live surface: a client-side
+        filter over the 156 mirrored tools on `marisstella.dev` (#2899,
+        merged). Since #2886 the front door's payload has been a flat run of
+        156 card titles under seven headings -- fine to browse, poor to
+        search, and searching is what a visitor arriving from "roofing bid
+        calculator" is doing. Ctrl-F covers that on a desktop and does not
+        exist on a phone, which is where a contractor pricing a job is. Type a
+        trade, a marketplace, a category or the job to be done and the list
+        narrows, with a live count, folding category groups, and an empty
+        state naming the vocabulary that works. Progressive enhancement: the
+        box ships `hidden` and the script reveals it, so a reader without
+        JavaScript still gets all 156 links and never meets a dead control.
+        No dependency and no build step (Argo CD delivers this page as a
+        ConfigMap), and the haystack is built in the browser from what the
+        page already displays rather than written per card -- the whole
+        feature is +2.3 KB gzipped, against ~4 KB for the naive shape.
+      - >-
+        Two real defects found by *measuring the rendered page* rather than
+        reading the diff, both fixed inside #2899 before it merged. (1) The
+        search field bordered with `--rule`, which measures 1.36:1 against the
+        page in light and 1.54:1 in dark -- fine for a card, whose shape a
+        reader gets from its fill, and a failure of WCAG 2.1 SC 1.4.11 for the
+        one control on the page, where the boundary is what says "you can type
+        here". New `--field-edge` token, re-measured at 3.59:1 and 3.96:1.
+        (2) Hiding a category's `ul.grid` did nothing, because the UA sheet's
+        `[hidden] { display: none }` loses to *any* author `display`
+        declaration and `.grid` sets `display: grid`. Filtering to one trade
+        left six emptied lists still rendering -- invisible to a sighted
+        reader, since a grid with no visible items has no height, and read out
+        by a screen reader as six empty lists between the heading and the one
+        result. The generalisable lesson: on this page every element a script
+        hides needs its own `[hidden]` rule, and a headless pass is what
+        catches both of these, since neither is visible in the diff or in the
+        markup.
+      - >-
+        Verification worth reusing. Playwright is not a repo dependency, but
+        the environment ships Chromium at
+        `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`; installing
+        `playwright` into the scratchpad with
+        `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` and pointing `executablePath` at
+        it gives a real browser in about a minute. Ran 20 journey checks at a
+        390px viewport including a no-JS pass, and 10 computed-contrast checks
+        across light and dark. Also installed `nginx-light` via apt, which
+        turns the 7 skipped cases in `gitops/tests/test_front_door_serving.py`
+        (added by #2893 the same day) into real runs -- and then drove the
+        whole funnel through that production config: apex, type `normalizer`,
+        filter to one card, click, and a working calculator comes back
+        (`/tools/3pl-quote-normalizer/`, 34 form controls, ES module loaded).
+        Both installs are worth repeating in future sessions; neither is in
+        the repo's own tooling.
+      - >-
+        Reviewed #2900 (`explainIneligible`, reporting which ventures the
+        mirror does not serve and why) in full rather than by title. Its
+        design is sound -- the drop log records which fixpoint *pass* dropped
+        each venture, which is the difference between "this page is
+        unmirrorable" and "this page is collateral", and that cannot be
+        recovered by re-checking a venture in isolation. Found one factual
+        defect by running the tool instead of reading it: the doc comment says
+        19 ventures have no flat `index.html` where the function prints 21 and
+        the PR's own description says 21. That doc is explicitly addressed to
+        future sessions -- it tells them which exclusions not to spend a run
+        trying to close -- so a wrong number there costs a re-derivation.
+        Pushed the fix to #2900's branch; its own session merged #2900 four
+        minutes later, so the correction landed separately as #2901 (merged).
+        The other three figures in that comment (28 excluded; the pass-1
+        versus collateral split; three finished calculators held out by one
+        `src/app.mjs` subdirectory reference) all check out against live
+        output.
+      - >-
+        Re-confirmed the two owner-blocked asks rather than restating the
+        prior sessions' reads. The Codex-CLI-on-Hetzner ask is fully built
+        (`gitops/agents/`: governor, workers, RBAC, network policy, quota,
+        queue) and gated solely on one interactive step no agent session can
+        perform -- `codex login` producing `CODEX_AUTH_JSON`, which is exactly
+        the "spend the built-in plan quota" mode the owner asked for, and is
+        queued as decision-queue item 12 (`codex-governor-enable`). Nothing to
+        build. Deployment/CI-CD is healthy: Actions assigned real runners to
+        every job this session (`ci_starvation.py --run` exit 0, runner ids in
+        the `10000448xx` range), `publish_surface.py --check` matches its
+        snapshot, and the Argo `prod` Application auto-syncs on merge to
+        `main`, so #2899 deploys itself with no owner action. The one seal
+        still blocking remains `portfolio-site-repo`.
+      - >-
+        Environment limits found this run, for the next session. (1) Public
+        verification is not possible from these web sessions: the egress proxy
+        denies CONNECT to `marisstella.dev`, `www.` and `tools.` alike
+        (`connect_rejected`, organisation policy), so "verified live" cannot
+        honestly be claimed from here -- serving the committed ConfigMap bytes
+        behind the committed nginx config is the closest available substitute
+        and is what this session did. (2) `git push --delete` of a remote
+        branch failed four times on a transport error (`send-pack: unexpected
+        disconnect`) while ordinary pushes succeeded throughout, and the
+        GitHub tools available here expose no branch-delete; a push that
+        re-created the already-deleted `claude/happy-wozniak-cabmcx` therefore
+        could not be undone by hand and was left to `branch-cleanup.yml`. It
+        carries no unique work. (3) `/root/.local/bin/pytest` is a `uv` tool
+        install with its own isolated interpreter and no `pyyaml`, so the
+        `gitops / pytest` step under `run_workflow_locally.py` fails with
+        `ModuleNotFoundError: yaml` on a tree that is fine -- use `python3 -m
+        pytest` to get the real answer (267/267 here).
+    mrr_end: null
