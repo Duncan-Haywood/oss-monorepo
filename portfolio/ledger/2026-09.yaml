@@ -5971,3 +5971,62 @@ entries:
         do. Confirmed via `decision_queue.py` before starting new work and
         did not re-add the ask.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
+        `claude/optimistic-heisenberg-7fqq2w`. PR queue at start: one open
+        PR (#2911, ev-charger-bid-calculator vs-ServiceTitan), merged
+        concurrently by another process before this session's review
+        finished. Two more PRs (#2912, #2913) appeared mid-session from
+        concurrent sessions; reviewed both (sound, non-overlapping,
+        checks green) and merged them directly.
+      - >-
+        Shipped a `vs-servicetitan.html` comparison page for
+        `boiler-replacement-bid-calculator` (opened as #2914). A
+        concurrent session opened an equivalent page for the same venture
+        seconds later as #2916, with a genuinely stronger implementation
+        (canonical convention matched this venture's own sibling pages;
+        comparison table covered all three of the tool's actual
+        comparisons vs. this session's one). Closed #2914 as a duplicate
+        pointing to #2916 after verifying #2916 was still open, rather
+        than merging a weaker page.
+      - >-
+        Found and fixed a live production defect: #2916's own
+        "consolidate the two implementations" commit (`3c599c637`) landed
+        on `main` with **unresolved git conflict markers** literally
+        committed into `ventures/boiler-replacement-bid-calculator/index.html`
+        (two near-duplicate footer paragraphs still wrapped in
+        `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main`) plus a
+        duplicated sitemap entry. This is exactly the failure mode
+        `platform/ci/check_conflict_markers.py` exists to catch (see its
+        own docstring re: #1032, 2026-08-26) — the check *did* fail on
+        that commit (confirmed from its job log), but the PR was merged
+        anyway. The bug was live: it broke `page-integrity` CI
+        (`check_pages.mjs`: "1 of 586 pages would not render correctly
+        in a browser") on two unrelated concurrent PRs (#2918, #2919)
+        that had merged `main` and inherited it, and was served as raw
+        conflict syntax by the front-door mirror Argo CD deploys from
+        `main`. Fixed and merged as #2920 (all 13 checks green,
+        including `check_conflict_markers.py` clean). Two other
+        concurrent sessions independently found and fixed the same bug
+        (#2922, #2923); both self-resolved as closed duplicates of #2920
+        once it landed first — no action needed from this session there.
+      - >-
+        Lesson for future sessions: a green `check_conflict_markers.py`
+        run does not by itself prove a commit is clean — this repo's
+        pace means a check can fail on the exact commit that gets merged
+        moments later if the merge does not wait for CI. When
+        reconciling two concurrent implementations of the same file (the
+        pattern several sessions used today for `vs-*` duplicate races),
+        re-run `check_conflict_markers.py` and the venture's own test
+        suite locally on the final resolved tree before pushing, not
+        just before opening the PR.
+      - >-
+        Codex-on-Hetzner and the `tools.marisstella.dev` seal remain
+        exactly as documented in `infra/OWNER_CHECKLIST.md` — fully
+        built, gated only on owner secret-sealing. Confirmed via
+        `decision_queue.py`; no duplicate ask added.
+    mrr_end: null
