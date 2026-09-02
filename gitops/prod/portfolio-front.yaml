@@ -233,6 +233,8 @@ spec:
                   name: portfolio-front-tools-5
               - configMap:
                   name: portfolio-front-tools-6
+              - configMap:
+                  name: portfolio-front-tools-7
         - name: conf
           configMap:
             name: portfolio-front-nginx

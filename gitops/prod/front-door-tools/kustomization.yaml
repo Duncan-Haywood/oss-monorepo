@@ -29,7 +29,8 @@
 #   portfolio-front-tools-3: 47 files, 715610 bytes
 #   portfolio-front-tools-4: 88 files, 714723 bytes
 #   portfolio-front-tools-5: 67 files, 712911 bytes
-#   portfolio-front-tools-6: 64 files, 711201 bytes
+#   portfolio-front-tools-6: 64 files, 711449 bytes
+#   portfolio-front-tools-7: 1 files, 10756 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -520,3 +521,6 @@ configMapGenerator:
       - fence-bid-calculator__proposal.mjs=fence-bid-calculator__proposal.mjs
       - fence-bid-calculator__share.mjs=fence-bid-calculator__share.mjs
       - fence-bid-calculator__usage.mjs=fence-bid-calculator__usage.mjs
+  - name: portfolio-front-tools-7
+    files:
+      - fence-bid-calculator__vs-fence-cloud.html=fence-bid-calculator__vs-fence-cloud.html

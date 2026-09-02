@@ -1184,6 +1184,17 @@ def test_the_apex_tool_mirror_is_the_case_that_ceiling_is_about() -> None:
     # only check on the delivery path — and the annotation left behind would
     # look like decoration to the next reader rather than the thing that made
     # #2739 deliverable at all.
+    #
+    # Not every shard is that subject. Next-fit packing in declaration order
+    # can leave one trailing shard well under the ceiling (a venture's file
+    # lands just past a full shard and opens a small new one of its own) even
+    # while every other shard is near `SHARD_BYTE_CEILING` — first true on
+    # 2026-09-02 for `portfolio-front-tools-7`
+    # (`fence-bid-calculator__vs-fence-cloud.html` alone, well under the cap).
+    # `front-door-tools.mjs` stopped annotating a shard that small, so this
+    # asserts the annotation exactly where size requires it, both directions,
+    # rather than on every shard unconditionally — and still requires at
+    # least one shard over the ceiling, so the rule above stays exercised.
     shards = _mirror_shard_names()
     mirror = {
         name: (body, annotations)
@@ -1191,15 +1202,22 @@ def test_the_apex_tool_mirror_is_the_case_that_ceiling_is_about() -> None:
         if name in shards
     }
     assert sorted(mirror) == sorted(shards), f"{set(shards) - set(mirror)} did not build"
+    over_ceiling = 0
     for name in shards:
         body, annotations = mirror[name]
-        # Every shard, not just the first: an annotation present on shard 0 and
-        # missing on shard 3 is the same outage three shards later, and the
-        # failure would look like "some tools 404" rather than like a bad apply.
-        assert len(body) > CLIENT_SIDE_APPLY_CEILING, name
-        assert annotations["argocd.argoproj.io/sync-options"] == "ServerSideApply=true", name
         # And still inside the ceiling that comment tree already knew about.
         assert len(body) < ETCD_OBJECT_CEILING, name
+        needs_annotation = len(body) > CLIENT_SIDE_APPLY_CEILING
+        if needs_annotation:
+            over_ceiling += 1
+        # Every shard that needs it, not just the first: an annotation present
+        # on shard 0 and missing on shard 3 (when shard 3 needs it too) is the
+        # same outage, three shards later. A shard that does not need it
+        # carries no such decoration either.
+        assert annotations.get("argocd.argoproj.io/sync-options") == (
+            "ServerSideApply=true" if needs_annotation else None
+        ), name
+    assert over_ceiling > 0, "no shard is over the client-side apply cap, so the rule above is untested"
 
 
 def test_generated_configmaps_stay_under_the_etcd_object_ceiling() -> None:

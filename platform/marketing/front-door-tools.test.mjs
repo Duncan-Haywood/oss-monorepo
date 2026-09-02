@@ -278,32 +278,53 @@ test('the mirror asks for the apply mode its size actually requires', async () =
   // `kubectl.kubernetes.io/last-applied-configuration` annotation, and the API
   // server rejects any object whose annotations total more than 262144 bytes.
   //
-  // At ~600 KB the mirror is over that by more than a factor of two, so without
-  // `ServerSideApply=true` the ConfigMap never applies at all — the front door
-  // keeps serving its old, toolless pods and `prod` sits Degraded. That is the
-  // whole point of the annotation, so pin both halves: that it is emitted, and
-  // that the size making it necessary is real rather than assumed.
+  // At ~600 KB most shards are over that by more than a factor of two, so
+  // without `ServerSideApply=true` those ConfigMaps never apply at all — the
+  // front door keeps serving its old, toolless pods and `prod` sits Degraded.
+  //
+  // Next-fit packing in declaration order can also leave one trailing shard
+  // well under the ceiling: a venture's file lands just past a full shard and
+  // opens a small new one of its own, and that shard does not need the
+  // annotation to apply client-side. This test used to assert the annotation
+  // on every shard unconditionally, which broke the day that first happened
+  // (`fence-bid-calculator__vs-fence-cloud.html`, 10756 bytes, alone in
+  // `portfolio-front-tools-7`) — asserting an annotation that guards nothing
+  // on a shard that never needed it. `renderKustomization` now emits the
+  // annotation per shard rather than for the whole mirror, so pin the real
+  // invariant instead: a shard carries the annotation exactly when its size
+  // requires it, never more and never less.
   const { shards } = await buildMirror();
-  for (const shard of shards) {
-    assert.ok(
-      shard.bytes > CLIENT_SIDE_APPLY_CEILING,
-      `${shard.name} is ${shard.bytes} bytes, under the ${CLIENT_SIDE_APPLY_CEILING}-byte ` +
-        'client-side apply cap — if that is deliberate, this test and the annotation it ' +
-        'guards can go',
-    );
-  }
   const kustomization = renderKustomization(shards);
+  const needsIt = shards.filter((s) => s.bytes > CLIENT_SIDE_APPLY_CEILING);
   const annotations = kustomization.match(
     new RegExp(`${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}`, 'g'),
-  );
-  // One per generator, not just one somewhere in the file: an annotation on
-  // the first shard and not the fourth is the same outage, three shards later.
-  assert.equal(annotations.length, shards.length);
-  // Under `options:`, not as a stray top-level key that kustomize would reject.
-  assert.match(
-    kustomization,
-    /\n    options:\n      annotations:\n        argocd\.argoproj\.io\/sync-options: ServerSideApply=true\n/,
-  );
+  ) ?? [];
+  // One per generator that needs it, not just one somewhere in the file: an
+  // annotation on the first shard and not the fourth (when the fourth needs
+  // it too) is the same outage, three shards later.
+  assert.equal(annotations.length, needsIt.length);
+  for (const shard of shards) {
+    const shardBlock = kustomization.slice(kustomization.indexOf(`  - name: ${shard.name}\n`));
+    const nextShard = shardBlock.indexOf('\n  - name: ', 1);
+    const block = nextShard === -1 ? shardBlock : shardBlock.slice(0, nextShard);
+    const annotated = block.includes(SYNC_OPTIONS_ANNOTATION);
+    assert.equal(
+      annotated,
+      shard.bytes > CLIENT_SIDE_APPLY_CEILING,
+      `${shard.name} is ${shard.bytes} bytes ` +
+        (annotated
+          ? `— carries ${SYNC_OPTIONS_ANNOTATION} but is under the ${CLIENT_SIDE_APPLY_CEILING}-byte client-side apply cap, so it does not need it`
+          : `— over the ${CLIENT_SIDE_APPLY_CEILING}-byte client-side apply cap but missing ${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}`),
+    );
+    if (annotated) {
+      // Under this shard's own `options:`, not as a stray top-level key that
+      // kustomize would reject.
+      assert.match(
+        block,
+        /\n    options:\n      annotations:\n        argocd\.argoproj\.io\/sync-options: ServerSideApply=true\n/,
+      );
+    }
+  }
 });
 
 test('buildMirror refuses a set whose links leave the mirror', async () => {
