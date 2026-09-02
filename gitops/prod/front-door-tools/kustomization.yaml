@@ -33,16 +33,16 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 150 files, 554280 bytes
-#   portfolio-front-tools-1: 152 files, 556254 bytes
-#   portfolio-front-tools-2: 154 files, 556455 bytes
-#   portfolio-front-tools-3: 114 files, 551541 bytes
-#   portfolio-front-tools-4: 118 files, 554886 bytes
-#   portfolio-front-tools-5: 117 files, 555120 bytes
-#   portfolio-front-tools-6: 120 files, 556872 bytes
-#   portfolio-front-tools-7: 110 files, 532844 bytes
-#   portfolio-front-tools-8: 103 files, 543645 bytes
-#   portfolio-front-tools-9: 105 files, 520164 bytes
+#   portfolio-front-tools-0: 150 files, 554263 bytes
+#   portfolio-front-tools-1: 152 files, 556248 bytes
+#   portfolio-front-tools-2: 149 files, 546123 bytes
+#   portfolio-front-tools-3: 112 files, 546707 bytes
+#   portfolio-front-tools-4: 118 files, 554888 bytes
+#   portfolio-front-tools-5: 117 files, 555116 bytes
+#   portfolio-front-tools-6: 113 files, 553328 bytes
+#   portfolio-front-tools-7: 107 files, 555971 bytes
+#   portfolio-front-tools-8: 112 files, 556652 bytes
+#   portfolio-front-tools-9: 89 files, 436214 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -516,14 +516,6 @@ configMapGenerator:
       - fence-bid-calculator__share.mjs.gz=fence-bid-calculator__share.mjs.gz
       - fence-bid-calculator__usage.mjs.gz=fence-bid-calculator__usage.mjs.gz
       - fence-bid-calculator__vs-fence-cloud.html.gz=fence-bid-calculator__vs-fence-cloud.html.gz
-      - appointment-deposit-calculator__LICENSE.gz=appointment-deposit-calculator__LICENSE.gz
-      - appointment-deposit-calculator__app.mjs.gz=appointment-deposit-calculator__app.mjs.gz
-      - appointment-deposit-calculator__calc.mjs.gz=appointment-deposit-calculator__calc.mjs.gz
-      - appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz=appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz
-      - appointment-deposit-calculator__index.html.gz=appointment-deposit-calculator__index.html.gz
-      - appointment-deposit-calculator__style.css.gz=appointment-deposit-calculator__style.css.gz
-      - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
-      - appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz=appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz
       - artificial-turf-bid-calculator__LICENSE.gz=artificial-turf-bid-calculator__LICENSE.gz
       - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
       - artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz=artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz
@@ -531,18 +523,19 @@ configMapGenerator:
       - artificial-turf-bid-calculator__proposal.mjs.gz=artificial-turf-bid-calculator__proposal.mjs.gz
       - artificial-turf-bid-calculator__share.mjs.gz=artificial-turf-bid-calculator__share.mjs.gz
       - artificial-turf-bid-calculator__usage.mjs.gz=artificial-turf-bid-calculator__usage.mjs.gz
+      - asphalt-driveway-pave-bid-calculator__LICENSE.gz=asphalt-driveway-pave-bid-calculator__LICENSE.gz
+      - asphalt-driveway-pave-bid-calculator__calc.mjs.gz=asphalt-driveway-pave-bid-calculator__calc.mjs.gz
+      - asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz=asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - asphalt-driveway-pave-bid-calculator__LICENSE.gz=asphalt-driveway-pave-bid-calculator__LICENSE.gz
-      - asphalt-driveway-pave-bid-calculator__calc.mjs.gz=asphalt-driveway-pave-bid-calculator__calc.mjs.gz
-      - asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz=asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz
       - asphalt-driveway-pave-bid-calculator__index.html.gz=asphalt-driveway-pave-bid-calculator__index.html.gz
       - asphalt-driveway-pave-bid-calculator__proposal.mjs.gz=asphalt-driveway-pave-bid-calculator__proposal.mjs.gz
       - asphalt-driveway-pave-bid-calculator__share.mjs.gz=asphalt-driveway-pave-bid-calculator__share.mjs.gz
       - asphalt-driveway-pave-bid-calculator__usage.mjs.gz=asphalt-driveway-pave-bid-calculator__usage.mjs.gz
+      - asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz=asphalt-driveway-pave-bid-calculator__vs-jobnimbus.html.gz
       - asphalt-sealcoat-bid-calculator__LICENSE.gz=asphalt-sealcoat-bid-calculator__LICENSE.gz
       - asphalt-sealcoat-bid-calculator__calc.mjs.gz=asphalt-sealcoat-bid-calculator__calc.mjs.gz
       - asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz=asphalt-sealcoat-bid-calculator__how-much-to-charge.html.gz
@@ -974,15 +967,6 @@ configMapGenerator:
       - moving-bid-calculator__share.mjs.gz=moving-bid-calculator__share.mjs.gz
       - moving-bid-calculator__usage.mjs.gz=moving-bid-calculator__usage.mjs.gz
       - moving-bid-calculator__vs-smartmoving.html.gz=moving-bid-calculator__vs-smartmoving.html.gz
-      - no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz=no-show-fee-calculator__24h-vs-48h-cancellation-notice.html.gz
-      - no-show-fee-calculator__LICENSE.gz=no-show-fee-calculator__LICENSE.gz
-      - no-show-fee-calculator__app.mjs.gz=no-show-fee-calculator__app.mjs.gz
-      - no-show-fee-calculator__calc.mjs.gz=no-show-fee-calculator__calc.mjs.gz
-      - no-show-fee-calculator__index.html.gz=no-show-fee-calculator__index.html.gz
-      - no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz=no-show-fee-calculator__should-i-overbook-or-charge-a-no-show-fee.html.gz
-      - no-show-fee-calculator__style.css.gz=no-show-fee-calculator__style.css.gz
-      - no-show-fee-calculator__usage.mjs.gz=no-show-fee-calculator__usage.mjs.gz
-      - no-show-fee-calculator__vs-acuity-scheduling.html.gz=no-show-fee-calculator__vs-acuity-scheduling.html.gz
       - parking-lot-striping-bid-calculator__LICENSE.gz=parking-lot-striping-bid-calculator__LICENSE.gz
       - parking-lot-striping-bid-calculator__calc.mjs.gz=parking-lot-striping-bid-calculator__calc.mjs.gz
       - parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz=parking-lot-striping-bid-calculator__how-much-to-charge-to-stripe-a-parking-lot.html.gz
@@ -1005,14 +989,6 @@ configMapGenerator:
       - paver-patio-bid-calculator__proposal.mjs.gz=paver-patio-bid-calculator__proposal.mjs.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
       - paver-patio-bid-calculator__usage.mjs.gz=paver-patio-bid-calculator__usage.mjs.gz
-      - payment-reconciliation-workbench__LICENSE.gz=payment-reconciliation-workbench__LICENSE.gz
-      - payment-reconciliation-workbench__app.mjs.gz=payment-reconciliation-workbench__app.mjs.gz
-      - payment-reconciliation-workbench__export.mjs.gz=payment-reconciliation-workbench__export.mjs.gz
-      - payment-reconciliation-workbench__index.html.gz=payment-reconciliation-workbench__index.html.gz
-      - payment-reconciliation-workbench__reconcile.mjs.gz=payment-reconciliation-workbench__reconcile.mjs.gz
-      - payment-reconciliation-workbench__usage.mjs.gz=payment-reconciliation-workbench__usage.mjs.gz
-      - payment-reconciliation-workbench__vs-synder.html.gz=payment-reconciliation-workbench__vs-synder.html.gz
-      - payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz=payment-reconciliation-workbench__why-does-one-payout-show-up-as-two-bank-deposits.html.gz
       - pergola-bid-calculator__LICENSE.gz=pergola-bid-calculator__LICENSE.gz
       - pergola-bid-calculator__calc.mjs.gz=pergola-bid-calculator__calc.mjs.gz
       - pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz=pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz
@@ -1020,11 +996,6 @@ configMapGenerator:
       - pergola-bid-calculator__proposal.mjs.gz=pergola-bid-calculator__proposal.mjs.gz
       - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
       - pest-control-bid-calculator__LICENSE.gz=pest-control-bid-calculator__LICENSE.gz
-  - name: portfolio-front-tools-7
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - pest-control-bid-calculator__calc.mjs.gz=pest-control-bid-calculator__calc.mjs.gz
       - pest-control-bid-calculator__how-much-to-charge.html.gz=pest-control-bid-calculator__how-much-to-charge.html.gz
       - pest-control-bid-calculator__index.html.gz=pest-control-bid-calculator__index.html.gz
@@ -1035,6 +1006,11 @@ configMapGenerator:
       - plantation-shutter-bid-calculator__LICENSE.gz=plantation-shutter-bid-calculator__LICENSE.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
+  - name: portfolio-front-tools-7
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
       - plantation-shutter-bid-calculator__proposal.mjs.gz=plantation-shutter-bid-calculator__proposal.mjs.gz
       - plantation-shutter-bid-calculator__share.mjs.gz=plantation-shutter-bid-calculator__share.mjs.gz
@@ -1135,11 +1111,6 @@ configMapGenerator:
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__LICENSE.gz=shopify-fee-calculator__LICENSE.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
-  - name: portfolio-front-tools-8
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
       - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
       - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
@@ -1147,6 +1118,11 @@ configMapGenerator:
       - shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz=shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz
       - shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz=shopify-fee-calculator__should-i-add-a-shopify-upsell.html.gz
       - shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz=shopify-fee-calculator__should-i-buy-shopify-shipping-labels.html.gz
+  - name: portfolio-front-tools-8
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz=shopify-fee-calculator__should-i-collect-duties-on-shopify.html.gz
       - shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz=shopify-fee-calculator__should-i-fight-a-shopify-chargeback.html.gz
       - shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-local-delivery-on-shopify.html.gz
@@ -1243,11 +1219,6 @@ configMapGenerator:
       - sunroom-bid-calculator__LICENSE.gz=sunroom-bid-calculator__LICENSE.gz
       - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
       - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
-  - name: portfolio-front-tools-9
-    options:
-      annotations:
-        argocd.argoproj.io/sync-options: ServerSideApply=true
-    files:
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
       - sunroom-bid-calculator__proposal.mjs.gz=sunroom-bid-calculator__proposal.mjs.gz
       - sunroom-bid-calculator__share.mjs.gz=sunroom-bid-calculator__share.mjs.gz
@@ -1264,6 +1235,11 @@ configMapGenerator:
       - tree-service-bid-calculator__LICENSE.gz=tree-service-bid-calculator__LICENSE.gz
       - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
       - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
+  - name: portfolio-front-tools-9
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - tree-service-bid-calculator__index.html.gz=tree-service-bid-calculator__index.html.gz
       - tree-service-bid-calculator__proposal.mjs.gz=tree-service-bid-calculator__proposal.mjs.gz
       - tree-service-bid-calculator__usage.mjs.gz=tree-service-bid-calculator__usage.mjs.gz
