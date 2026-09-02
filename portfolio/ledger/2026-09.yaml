@@ -4048,3 +4048,55 @@ entries:
         0 open PRs at session start; #2816 (gitops front-door gzip) opened
         concurrently but touches unrelated files, not a duplicate.
     mrr_end: null
+  - venture: fence-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, candidate #2 again (a comparison
+        page vs a genuine named incumbent with no comparison page yet).
+        Measured first: `build.mjs` reports "Added an embed offer to 169
+        tool entry page(s)" against 169 built tools, so candidate #1 (embed
+        widget) is still fully covered -- no re-pick. Checked open PRs (only
+        #2819, an unrelated einvoice-preflight fix) and recent `main`
+        history for overlap before starting.
+      - >-
+        Enumerated every `*-bid-calculator`/`*-calculator` venture against
+        every `compare`/`vs-*` file in the tree: ~90 still had none.
+        `fence-bid-calculator` had none, and fencing has a genuine dedicated
+        incumbent -- Fence Cloud, a cloud-based CRM/estimating platform
+        built specifically for fence contractors. Shipped `vs-fence-cloud.html`.
+      - >-
+        `fence.cloud` is unreachable from this session (WebFetch returned
+        `EGRESS_BLOCKED`, confirmed live). Two independent WebSearch queries
+        (a separate tool, not blocked) corroborated the same identity facts
+        from Fence Cloud's own marketing copy -- lead/project tracking,
+        material-breakdown estimating across chain link/wood/vinyl/
+        ornamental/agricultural-split-rail fence, auto-filled contracts and
+        gate cut sheets, subscription-account model. A single third-party
+        review site mentioned a monthly price; since it could not be
+        verified against Fence Cloud's own pricing page it is not stated on
+        the new page -- same discipline `vs-rfms.html` and
+        `vs-marketsharp.html` use for their own unreachable incumbents. A
+        test pins that no `$<digit>`-shaped claim about Fence Cloud exists.
+      - >-
+        Verified: `node --test` in the venture directory (104/104, 8 new);
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs` (169 tools built) + `check.mjs` (169
+        products, 7 category pages, 554 pages, no dead links). No `gitops/`
+        files touched, so `pytest gitops/tests` wasn't needed. Opened as
+        #2820; `get_check_runs` showed `build`, `check`, `site-test`,
+        `link-contrast`, and `page-integrity` all green on real runners. One
+        `validate` check was red, but it fails identically running
+        `front-door-tools.test.mjs` locally on the unmodified merge-base with
+        `origin/main` (4/28 subtests fail on an apex-mirror ConfigMap-sizing
+        assertion, `platform/marketing/front-door-tools.test.mjs:274`,
+        unrelated to any file this PR touches) -- a pre-existing failure on
+        `main` itself, not a regression from this branch, confirmed before
+        merging rather than assumed. Not yet recorded elsewhere in this
+        ledger or `portfolio/ledger/verifications.yaml` as of this session;
+        worth a follow-up session's attention since it means `validate` is
+        currently red on `main` for every PR.
+      - >-
+        Merged (squash) as #2820.
+    mrr_end: null

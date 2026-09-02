@@ -72,3 +72,17 @@ test("matching IBAN and BIC countries pass through checkInvoice", () => {
 test("omitted BIC stays silent", () => {
   assert.deepEqual(inspectPaymentBic(invoice({ iban: "DE89370400440532013000" })), []);
 });
+
+test("BIC country mismatch is still caught against a wrong-length IBAN", () => {
+  // The IBAN is truncated (20 chars, DE needs 22) and gets its own INV-024
+  // finding elsewhere, but its country prefix is still readable, and a
+  // mismatched BIC country is a second, independent typo the truncation
+  // does not excuse. This used to be silently skipped because
+  // looksLikeCompleteIban read any wrong-length IBAN as "no IBAN here".
+  const findings = inspectPaymentBic(invoice({
+    iban: "DE893704004405320130",
+    bic: "BARCGB22",
+  }));
+  assert.deepEqual(findings.map((item) => item.rule), ["INV-027"]);
+  assert.equal(findings[0].path, "/payment/bic");
+});
