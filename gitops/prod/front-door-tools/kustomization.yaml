@@ -105,9 +105,11 @@ configMapGenerator:
       - chargeback-evidence-packet__packet.mjs=chargeback-evidence-packet__packet.mjs
       - chargeback-evidence-packet__test.mjs=chargeback-evidence-packet__test.mjs
       - chargeback-evidence-packet__vs-chargeflow.html=chargeback-evidence-packet__vs-chargeflow.html
-      - translator-project-quote__LICENSE=translator-project-quote__LICENSE
-      - translator-project-quote__calc.mjs=translator-project-quote__calc.mjs
-      - translator-project-quote__how-to-quote-a-translation-project.html=translator-project-quote__how-to-quote-a-translation-project.html
-      - translator-project-quote__index.html=translator-project-quote__index.html
-      - translator-project-quote__share.mjs=translator-project-quote__share.mjs
-      - translator-project-quote__usage.mjs=translator-project-quote__usage.mjs
+      - str-host-payout-calculator__LICENSE=str-host-payout-calculator__LICENSE
+      - str-host-payout-calculator__airbnb-host-fee-2026.html=str-host-payout-calculator__airbnb-host-fee-2026.html
+      - str-host-payout-calculator__airbnb-vs-vrbo-host-fees.html=str-host-payout-calculator__airbnb-vs-vrbo-host-fees.html
+      - str-host-payout-calculator__calc.mjs=str-host-payout-calculator__calc.mjs
+      - str-host-payout-calculator__index.html=str-host-payout-calculator__index.html
+      - str-host-payout-calculator__share.mjs=str-host-payout-calculator__share.mjs
+      - str-host-payout-calculator__usage.mjs=str-host-payout-calculator__usage.mjs
+      - str-host-payout-calculator__vs-airbnb-earnings-estimator.html=str-host-payout-calculator__vs-airbnb-earnings-estimator.html

@@ -123,10 +123,14 @@ const SERVABLE_NAMES = new Set(['LICENSE']);
  * set spans as many of the front door's category cards as it can, so a visitor
  * arriving from any card meets something that works.
  *
- * Marketplace-seller tools are the conspicuous omission: `ebay-fee-calculator`
- * alone is 136 KB and the category's other entries are comparable, so one of
- * them would cost a fifth of the ceiling. The front door says plainly that the
- * mirror is a subset rather than implying the category is covered.
+ * Marketplace-seller tools were the conspicuous omission until
+ * `str-host-payout-calculator` was added: every other marketplace venture
+ * either costs a fifth of the ceiling on its own (`ebay-fee-calculator` at
+ * 136 KB, `amazon-fba-calculator`, `shopify-fee-calculator`) or links out of
+ * the mirror to sibling marketplace tools (`marketplace-fee-compare`,
+ * `delivery-app-margin-calculator`) and so fails `validateLinks`. The front
+ * door says plainly that the mirror is a subset rather than implying the
+ * category is fully covered.
  */
 export const STARTER_SET = [
   { slug: 'change-order-margin-calculator', why: 'trades — the highest-traffic bid-side tool small enough to mirror' },
@@ -145,7 +149,16 @@ export const STARTER_SET = [
   { slug: 'medical-courier-route-margin', why: 'logistics — the only category card otherwise unrepresented' },
   { slug: 'owner-operator-cpm-calculator', why: 'logistics — a second logistics tool, weekly not per-delivery' },
   { slug: 'chargeback-evidence-packet', why: 'evidence — a third evidence tool, the seller-facing one' },
-  { slug: 'translator-project-quote', why: 'services — a fourth services tool, project-based not contract-based' },
+  { slug: 'str-host-payout-calculator', why: 'marketplace — the only self-contained tool in the category; ebay/amazon/shopify/etsy alone cost a fifth of the ceiling each' },
+  // translator-project-quote (services, a 4th services tool) traded out for the
+  // line above: adding both blew the ceiling (663,662 of 655,360 bytes), and
+  // marketplace had zero coverage while services already had three. This
+  // module's own priority — "the set spans as many of the front door's
+  // category cards as it can" — says breadth wins that trade. Re-add
+  // translator-project-quote once the ceiling has real headroom again (a
+  // venture drops out, or BYTE_CEILING is deliberately raised with a real
+  // `kustomize build` verifying the whole ConfigMap against etcd's 1 MiB cap —
+  // not verifiable in every sandbox this module runs in).
 ];
 
 /**
