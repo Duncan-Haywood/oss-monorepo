@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 120 files, 552255 bytes
 #   portfolio-front-tools-5: 116 files, 554784 bytes
 #   portfolio-front-tools-6: 119 files, 555710 bytes
-#   portfolio-front-tools-7: 115 files, 550083 bytes
+#   portfolio-front-tools-7: 116 files, 554384 bytes
 #   portfolio-front-tools-8: 104 files, 550941 bytes
 #   portfolio-front-tools-9: 110 files, 536853 bytes
 #
@@ -1111,6 +1111,7 @@ configMapGenerator:
       - security-camera-bid-calculator__proposal.mjs.gz=security-camera-bid-calculator__proposal.mjs.gz
       - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
       - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
+      - security-camera-bid-calculator__vs-d-tools.html.gz=security-camera-bid-calculator__vs-d-tools.html.gz
       - septic-pumping-bid-calculator__LICENSE.gz=septic-pumping-bid-calculator__LICENSE.gz
       - septic-pumping-bid-calculator__calc.mjs.gz=septic-pumping-bid-calculator__calc.mjs.gz
       - septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz=septic-pumping-bid-calculator__how-much-to-charge-to-pump-a-septic-tank.html.gz
