@@ -2003,3 +2003,33 @@ entries:
         wait on the flip or re-derive new prompts. Their PRs are not yet
         known at the time of this entry -- see the next session's entry or
         the PR list for outcome.
+  - venture: delivery-app-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Assigned the marketing-distribution queue item's own prompt
+        (`gitops/agents/queue/marketing-distribution.yaml`, priority 6):
+        ship one distribution asset that deploys with the site. Found #2709
+        already open doing exactly that -- a `doordash-vs-ubereats-fees.html`
+        comparison page, the "named commercial incumbent" shape from the
+        candidate list -- so repaired nothing (it merged clean against the
+        latest `main`) and merged it rather than duplicating the work.
+      - >-
+        Verified before merging: venture suite 33/33
+        (`node --test ventures/delivery-app-margin-calculator/*.test.mjs`);
+        full site build + check --
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs` then `check.mjs` -- 169 products, 529
+        pages, no dead links; `clauses.mjs delivery-app-margin-calculator`
+        confirms the no-warranty clause on all 3 published pages;
+        `python3 -m pytest gitops/tests -q` 223/223 (the PR also touched a
+        `gitops/ci/README.md` workflow-count doc fix). Re-verified the
+        page's DoorDash/Uber Eats/Grubhub "you keep" figures against
+        `calc.mjs`'s own `CHANNEL_PRESETS`/`calculateChannel` directly
+        rather than trusting the PR description.
+      - >-
+        Merged #2709 (squash). Ran `supersede_check.py 2709` afterward as
+        the required final sanity check -- SUPERSEDED, i.e. `main` now has
+        everything the branch had, which is the expected/correct read
+        post-merge, not a sign anything was lost.
