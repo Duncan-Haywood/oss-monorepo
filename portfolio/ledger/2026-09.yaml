@@ -3997,3 +3997,54 @@ entries:
         worker and governor suites pass 95/95 today -- so both seals land on
         tested code, not on a promise.
     mrr_end: null
+  - venture: janitorial-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, candidate #2 (a comparison page
+        vs a genuine named incumbent with no comparison page yet). Measured
+        first: `build.mjs` + `check.mjs` confirmed candidate #1 (embed
+        widget) already covers all 169 entry pages, the 7 `/c/` category
+        hubs match `CATEGORY_PAGE_COPY` with `trades` already subgrouped,
+        and `/about/` computes its privacy claims from the built surfaces
+        rather than hand-written prose. `faq-coverage.mjs` and
+        `guide-coverage.mjs` both still report 169/169.
+      - >-
+        Cross-referenced every `*-bid-calculator` venture against every
+        `vs-*.html` in the tree: 89 of 102 still had none (down from ~90
+        before #2804/#2810 merged earlier the same day). Shipped
+        `vs-cleanguru.html` for janitorial-bid-calculator -- CleanGuru, via
+        its own public product pages (cleanguru.com/cleanbid), names itself
+        "Janitorial Bidding Calculator" software with work-loading, a
+        mobile app, and invoicing/checklist modules, the same search shape
+        as Moraware/countertop and PaintScout/exterior-painting.
+      - >-
+        `www.cleanguru.com` is unreachable from this session (WebFetch
+        returned `EGRESS_BLOCKED`; confirmed the block is general, not
+        CleanGuru-specific, against four controls -- www.moraware.com,
+        www.homelight.com, docs.github.com, en.wikipedia.org -- all blocked
+        identically). WebSearch (routed differently, not blocked) surfaced
+        CleanGuru's own product pages confirming identity and features, but
+        no pricing page, so no dollar figure for CleanGuru appears anywhere
+        on the new page -- only well-documented, non-numeric identity facts,
+        same discipline as `vs-moraware.html` and
+        `vs-amazon-revenue-calculator.html`. A test pins that no
+        `$<digit>`-shaped claim about CleanGuru exists.
+      - >-
+        Verified: `node --test` in the venture directory (224/224, 9 new);
+        `PAGES_BASE_URL=... node platform/pages/build.mjs` + `check.mjs`
+        (169 products, 7 category pages, 552 pages, no dead links, up from
+        551); `node platform/pages/faq-visible.test.mjs` (4/4, after fixing
+        one punctuation divergence between the visible copy and the
+        FAQPage JSON-LD that the test itself caught); `node --test` across
+        all of `platform/pages` (856/856); `clauses.mjs` (541 published
+        pages across 169 surfaces carry the no-warranty clause, up from
+        540). Opened as #2815; all 7 real CI checks came back green on real
+        runners (`build` x2, `check`, `link-contrast`, `page-integrity`,
+        `site-test`, `validate`; `deploy` correctly skipped as write-gated).
+        Merged (squash) as #2815.
+      - >-
+        0 open PRs at session start; #2816 (gitops front-door gzip) opened
+        concurrently but touches unrelated files, not a duplicate.
+    mrr_end: null
