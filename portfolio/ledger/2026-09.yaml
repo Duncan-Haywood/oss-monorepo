@@ -2961,3 +2961,43 @@ entries:
         "no action needed." Did not force a marginal product PR into an area
         four-plus concurrent sessions had already covered in the preceding
         two hours to manufacture a shipped artifact.
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same standing brief (deploy/CI-CD priority,
+        Hetzner marketing, Codex built-in-quota dev work) plus an explicit
+        ask to confirm status on all three. 0 open PRs at start, so the
+        merge quota was trivially met. Independently re-confirmed the
+        Codex-on-Hetzner pipeline (`gitops/agents/`) and the site deploy
+        (`gitops/prod/portfolio-site.yaml`) are both still fully built in
+        code and blocked on the same two owner-only seals
+        (`infra/OWNER_CHECKLIST.md` items 8 and "Publish
+        tools.marisstella.dev" step 1) -- no new decision-queue row added,
+        per the standing rule against duplicate asks.
+      - >-
+        Shipped and merged PR #2762 (squash, all 14 real check-runs green
+        on real runners, `mergeable_state: clean`). Two independent fixes,
+        run as this session's own pass through the two live queue items
+        the disabled Hetzner worker would otherwise have picked up first:
+        (1) `deploy-cicd-readiness` -- `gitops/ci/README.md` claimed "All
+        247 runs-on lines across 221 workflows" read the self-hosted-runner
+        switch; #2740 had since added a job and pushed the true count to
+        248 (246 switch + 2 documented Docker exceptions) without the
+        sentence being touched, the same doc-drift class fixed by hand at
+        least four times before (#2713, #2662, #2690, #2564). Reworded the
+        sentence and added `test_readme_runs_on_count_matches_reality` to
+        `gitops/tests/test_ci_runner.py` so it can't drift silently again.
+        (2) `marketing-distribution` -- measured all four candidates
+        against a fresh `build.mjs`/`check.mjs` run per the item's own
+        rule before picking; comparison pages were the one real remaining
+        gap, and `ventures/pool-route-pricing` had none against its
+        well-known incumbent, Skimmer. Added `vs-skimmer.html` (facts
+        verified via live web search of getskimmer.com, zero pricing
+        claims, FAQPage JSON-LD, non-affiliation language) plus 8 new
+        tests mirroring `no-show-fee-calculator`'s existing
+        `vs-acuity-scheduling.html`/test pair. Verified locally before
+        pushing: `pytest gitops/tests` (252 passed), `node --test
+        ventures/pool-route-pricing/*.test.mjs` (41 passed), a full site
+        build (169 tools, 538 pages) and `check.mjs` ("no dead links").
