@@ -20,6 +20,9 @@ import { fileURLToPath } from 'node:url';
 
 import {
   BYTE_CEILING,
+  CLIENT_SIDE_APPLY_CEILING,
+  SYNC_OPTIONS,
+  SYNC_OPTIONS_ANNOTATION,
   ROUTABLE_FILE,
   ROUTABLE_SLUG,
   OUTPUT_DIR,
@@ -153,6 +156,33 @@ test('the mirror stays under the ConfigMap ceiling', async () => {
   // broken link for a broken apex.
   const { bytes } = await buildMirror();
   assert.ok(bytes <= BYTE_CEILING, `${bytes} bytes is over the ${BYTE_CEILING} ceiling`);
+});
+
+test('the mirror asks for the apply mode its size actually requires', async () => {
+  // 1 MiB is not the first ceiling this hits, which is what the test above and
+  // every size comment in the tree missed. Argo CD applies client-side by
+  // default: `kubectl apply` copies the whole object into the
+  // `kubectl.kubernetes.io/last-applied-configuration` annotation, and the API
+  // server rejects any object whose annotations total more than 262144 bytes.
+  //
+  // At ~460 KB the mirror is over that by a factor of nearly two, so without
+  // `ServerSideApply=true` the ConfigMap never applies at all — the front door
+  // keeps serving its old, toolless pods and `prod` sits Degraded. That is the
+  // whole point of the annotation, so pin both halves: that it is emitted, and
+  // that the size making it necessary is real rather than assumed.
+  const { files, bytes } = await buildMirror();
+  assert.ok(
+    bytes > CLIENT_SIDE_APPLY_CEILING,
+    `the mirror is ${bytes} bytes, under the ${CLIENT_SIDE_APPLY_CEILING}-byte client-side ` +
+      'apply cap — if that is deliberate, this test and the annotation it guards can go',
+  );
+  const kustomization = renderKustomization(files);
+  assert.match(kustomization, new RegExp(`${SYNC_OPTIONS_ANNOTATION}: ${SYNC_OPTIONS}`));
+  // Under `options:`, not as a stray top-level key that kustomize would reject.
+  assert.match(
+    kustomization,
+    /\n    options:\n      annotations:\n        argocd\.argoproj\.io\/sync-options: ServerSideApply=true\n/,
+  );
 });
 
 test('buildMirror refuses a set whose links leave the mirror', async () => {
