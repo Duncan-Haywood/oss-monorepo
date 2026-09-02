@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 149 files, 556957 bytes
 #   portfolio-front-tools-3: 115 files, 554383 bytes
 #   portfolio-front-tools-4: 123 files, 555506 bytes
-#   portfolio-front-tools-5: 110 files, 539230 bytes
+#   portfolio-front-tools-5: 111 files, 543192 bytes
 #   portfolio-front-tools-6: 110 files, 556238 bytes
 #   portfolio-front-tools-7: 108 files, 553786 bytes
 #   portfolio-front-tools-8: 111 files, 553656 bytes
@@ -825,6 +825,7 @@ configMapGenerator:
       - gutter-install-bid-calculator__index.html.gz=gutter-install-bid-calculator__index.html.gz
       - gutter-install-bid-calculator__proposal.mjs.gz=gutter-install-bid-calculator__proposal.mjs.gz
       - gutter-install-bid-calculator__usage.mjs.gz=gutter-install-bid-calculator__usage.mjs.gz
+      - gutter-install-bid-calculator__vs-jobnimbus.html.gz=gutter-install-bid-calculator__vs-jobnimbus.html.gz
       - hardwood-refinishing-bid-calculator__LICENSE.gz=hardwood-refinishing-bid-calculator__LICENSE.gz
       - hardwood-refinishing-bid-calculator__calc.mjs.gz=hardwood-refinishing-bid-calculator__calc.mjs.gz
       - hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz=hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz
