@@ -27,6 +27,8 @@ import {
   ROUTABLE_SLUG,
   OUTPUT_DIR,
   STARTER_SET,
+  WHY_CATEGORY_WORD,
+  claimedCategory,
   TOOLS_URL,
   buildMirror,
   canonicalUrl,
@@ -236,4 +238,30 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   // the first matching regex location.
   assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('([A-Za-z0-9._-]+)$"'));
   assert.match(conf, /X-Robots-Tag "noindex"/);
+});
+
+test('every why names the category categoryFor actually sorts the slug into', async () => {
+  // Not a documentation nit. These strings read like documentation, so they
+  // get read as data: #2744 dropped the set's only `services` tool believing
+  // it was a fourth, having counted three entries whose `why` said "services"
+  // for slugs `categoryFor` sorts under `trades`. That left the services card
+  // on the live front door with nothing behind it. Six of eighteen `why`
+  // strings disagreed with `categoryFor` when this was first measured.
+  const { categoryFor } = await import('../pages/build.mjs');
+  for (const { slug, why } of STARTER_SET) {
+    const expected = WHY_CATEGORY_WORD[categoryFor(slug).id];
+    assert.equal(
+      claimedCategory(why),
+      expected,
+      `${slug}'s why opens "${claimedCategory(why)}" but categoryFor puts it in ` +
+        `${categoryFor(slug).id} ("${expected}"). Fix the string — someone will count these.`,
+    );
+  }
+});
+
+test('the category words a why may use are exactly the categories that exist', async () => {
+  // Guards the other direction: a new category in build.mjs with no entry here
+  // would make the test above throw `undefined` rather than report a mismatch.
+  const { ALL_CATEGORIES } = await import('../pages/build.mjs');
+  assert.deepEqual(Object.keys(WHY_CATEGORY_WORD).sort(), ALL_CATEGORIES.map((c) => c.id).sort());
 });

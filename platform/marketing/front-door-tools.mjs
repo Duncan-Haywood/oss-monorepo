@@ -203,21 +203,51 @@ const SERVABLE_NAMES = new Set(['LICENSE']);
  * `delivery-app-margin-calculator`) and so fails `validateLinks`. The front
  * door says plainly that the mirror is a subset rather than implying the
  * category is fully covered.
+ *
+ * **Each `why` opens with the category `categoryFor` actually puts the slug
+ * in, and `WHY_CATEGORY_WORD` plus a test hold it there.** These strings read
+ * like documentation, so they get read as data — which is how #2744 came to
+ * drop the set's only `services` tool believing it was the fourth, having
+ * counted three entries whose `why` said "services" for slugs `categoryFor`
+ * sorts under `trades`. Six of eighteen disagreed with `categoryFor` when that
+ * was measured. Prose that decides nothing can drift quietly; prose someone
+ * reasons about cannot, so this is pinned rather than trusted.
  */
+
+/**
+ * The word a `why` uses for each category id.
+ *
+ * A separate table because the two vocabularies differ in one place —
+ * `backoffice` reads as "back-office" in prose — and a test that assumed they
+ * were identical would fail on four correct entries.
+ */
+export const WHY_CATEGORY_WORD = {
+  trades: 'trades',
+  marketplace: 'marketplace',
+  services: 'services',
+  evidence: 'evidence',
+  backoffice: 'back-office',
+  logistics: 'logistics',
+  more: 'more',
+};
+
+/** The category a `why` string claims, for checking against `categoryFor`. */
+export const claimedCategory = (why) => why.split('—')[0].trim();
+
 export const STARTER_SET = [
   { slug: 'change-order-margin-calculator', why: 'trades — the highest-traffic bid-side tool small enough to mirror' },
   { slug: 'subcontractor-cashflow-planner', why: 'trades — pairs with the change-order tool on the same job' },
   { slug: 'contractor-bid-readiness', why: 'trades — the pre-bid check, no arithmetic to get wrong' },
-  { slug: 'construction-evidence-log', why: 'evidence — the category card needs a working example' },
-  { slug: 'tender-bid-readiness', why: 'evidence — smallest complete venture in the repo' },
-  { slug: 'job-margin-variance', why: 'back-office — the after-the-job review' },
+  { slug: 'construction-evidence-log', why: 'trades — the jobsite record side of a job, not the bid side' },
+  { slug: 'tender-bid-readiness', why: 'more — smallest complete venture in the repo, and the only thing behind that card' },
+  { slug: 'job-margin-variance', why: 'trades — the after-the-job review' },
   { slug: 'seller-net-sheet', why: 'back-office — highest standalone search intent in the category' },
   { slug: 'subscription-price-impact', why: 'back-office — the SaaS pricing question' },
   { slug: 'saas-seat-true-up', why: 'back-office — recurring use, not a one-off' },
   { slug: 'cam-reconciliation-check', why: 'back-office — annual, high-value, hard to do by hand' },
-  { slug: 'appliance-repair-quote-calculator', why: 'services — a trade that quotes without bidding construction' },
-  { slug: 'hvac-maintenance-contract-calculator', why: 'services — contract pricing, repeat visits' },
-  { slug: 'cleaning-dilution-calculator', why: 'services — used on the job, not before it' },
+  { slug: 'appliance-repair-quote-calculator', why: 'trades — a trade that quotes without bidding construction' },
+  { slug: 'hvac-maintenance-contract-calculator', why: 'trades — contract pricing, repeat visits' },
+  { slug: 'cleaning-dilution-calculator', why: 'trades — used on the job, not before it' },
   { slug: 'medical-courier-route-margin', why: 'logistics — the only category card otherwise unrepresented' },
   { slug: 'owner-operator-cpm-calculator', why: 'logistics — a second logistics tool, weekly not per-delivery' },
   { slug: 'chargeback-evidence-packet', why: 'evidence — a third evidence tool, the seller-facing one' },
