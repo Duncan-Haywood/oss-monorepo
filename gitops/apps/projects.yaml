@@ -106,12 +106,21 @@ spec:
     - namespace: staging
       server: https://kubernetes.default.svc
   clusterResourceWhitelist: []
+  # `apps` (Deployment/ReplicaSet/...) and `networking.k8s.io` (Ingress/
+  # NetworkPolicy) sat wildcarded here since the namespace was first adopted
+  # (#1486), same as every sibling project -- but `gitops/staging/` has never
+  # shipped anything but quota.yaml's ResourceQuota (group ""; see
+  # kustomization.yaml, one resource). Nothing here has ever exercised
+  # either group: the same shape of gap #2771 closed for `policy` on this
+  # exact list, just per-namespace rather than tree-wide, because `apps` and
+  # `networking.k8s.io` are real, load-bearing groups elsewhere (prod and ci
+  # both ship a Deployment and a NetworkPolicy) and were only ever unused
+  # *here*. Narrowed per the header comment's own rule -- add a group back
+  # in the same commit that first ships a resource needing it in this
+  # namespace. test_staging_appproject_whitelist_carries_no_group_staging_never_ships
+  # in gitops/tests/test_manifests.py pins this.
   namespaceResourceWhitelist:
     - group: ""
-      kind: "*"
-    - group: apps
-      kind: "*"
-    - group: networking.k8s.io
       kind: "*"
 ---
 apiVersion: argoproj.io/v1alpha1

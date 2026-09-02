@@ -146,6 +146,47 @@ def test_appproject_whitelist_carries_no_group_this_tree_never_ships() -> None:
         )
 
 
+def test_staging_appproject_whitelist_carries_no_group_staging_never_ships() -> None:
+    # Generalizes test_appproject_whitelist_carries_no_group_this_tree_never_ships
+    # to a per-namespace check rather than a tree-wide one. `apps` and
+    # `networking.k8s.io` are real, load-bearing groups elsewhere (prod ships
+    # a Deployment via `apps`, both prod and ci ship a NetworkPolicy via
+    # `networking.k8s.io`), so the tree-wide check above cannot see this gap
+    # -- it only catches a group nothing anywhere ever ships. `staging`
+    # wildcarded both anyway despite `gitops/staging/` shipping nothing but
+    # quota.yaml's ResourceQuota (group ""; kustomization.yaml lists exactly
+    # one resource) -- the same "whitelist wider than anything it guards"
+    # shape as `policy`, just scoped to one namespace's own directory rather
+    # than the whole tree, which is why it needs its own check instead of
+    # extending the one above.
+    #
+    # This does not assert staging must stay empty -- it asserts the
+    # whitelist stays in sync with what actually ships there. Deploying a
+    # Service or CronJob to staging should fail this test until the matching
+    # group is added back, per this file's own header comment: "Add it back,
+    # in whichever project needs it, the same commit a [resource] lands."
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    by_name = {d["metadata"]["name"]: d for d in docs if d}
+    whitelist = by_name["staging"]["spec"]["namespaceResourceWhitelist"]
+    whitelisted_groups = {e.get("group") for e in whitelist}
+    shipped_groups: set[str] = set()
+    for path in (ROOT / "staging").rglob("*.yaml"):
+        if path.name == "kustomization.yaml" or "secrets" in path.parts:
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if not doc or "kind" not in doc:
+                continue
+            api_version = doc.get("apiVersion", "")
+            group = api_version.split("/")[0] if "/" in api_version else ""
+            shipped_groups.add(group)
+    unused = whitelisted_groups - shipped_groups - {"*"}
+    assert not unused, (
+        f"staging AppProject wildcards {sorted(unused)} but gitops/staging/ "
+        f"ships no resource in {sorted(unused)} -- narrow the whitelist to "
+        "match, per this file's own header comment"
+    )
+
+
 def test_agents_project_cannot_dest_prod() -> None:
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}
