@@ -340,14 +340,16 @@ export function renderSocialCard(options = {}) {
 // Manifest
 // ---------------------------------------------------------------------------
 
-export function renderManifest(baseUrl, toolCount) {
+export function renderManifest(baseUrl, toolCount, hasExternalCallException = false) {
   return `${JSON.stringify(
     {
       name: 'Free Small-Business Calculators',
       short_name: 'Calculators',
       description:
         `${toolCount} free calculators for marketplace sellers, trade contractors, and small teams. ` +
-        'Everything runs in your browser, offline included — nothing you type is uploaded.',
+        (hasExternalCallException
+          ? 'Everything runs in your browser, offline included, except one lookup tool that checks a public API — see the About page for which one.'
+          : 'Everything runs in your browser, offline included — nothing you type is uploaded.'),
       start_url: baseUrl,
       scope: baseUrl,
       display: 'standalone',

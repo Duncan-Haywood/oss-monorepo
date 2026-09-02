@@ -409,6 +409,13 @@ export function toolCardFileFor(slug) {
 // a card is the wrong place to introduce a new one.
 export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded';
 
+// The one card-sized substitute for a card whose tool (or whose category,
+// because it holds that tool) is a documented `externalCallExceptions` entry
+// — currently just Sponsor Ready, filed under "more". Sized to fit the same
+// footer band as `CARD_FOOTER`; see the About page and the category page's
+// own `nothing you type is uploaded, except on…` for the unabbreviated claim.
+export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · one lookup checks a public API';
+
 export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
 
 /**
@@ -1452,6 +1459,15 @@ export function renderCategoryPage({ category, items, groups, baseUrl }) {
   // Every asset lives at the site root and this page is served two levels down.
   const toRoot = '../../';
   const subgroups = groupBySubcategory(category.id, items);
+  // Computed the same way the About page proves its own privacy claim, so a
+  // category that happens to hold the one tool with a documented external
+  // call (Sponsor Ready, filed under "more") does not have this page say
+  // "nothing you type is uploaded" for all of its tools when that is false
+  // for one of them.
+  const categoryExceptions = externalCallExceptions(items);
+  const countPrivacyClaim = categoryExceptions.length
+    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => x.title))}`
+    : 'nothing you type is uploaded';
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
 
   const renderCard = (surface) => `          <li class="card">
@@ -1552,7 +1568,7 @@ ${subItems.map(renderCard).join('\n')}
       <p class="eyebrow">${escapeHtml(category.title)}</p>
       <h1>${escapeHtml(copy.title)}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>
-      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
     </header>
 
     <main>
@@ -1723,7 +1739,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
     <header>
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type into them is uploaded anywhere.</p>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
     </header>
 
     <main class="prose">
@@ -4494,7 +4510,10 @@ export async function addOfflineSupport({
   const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
 
   await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
-  await fs.writeFile(path.join(outDir, 'manifest.webmanifest'), renderManifest(base, surfaces.length));
+  await fs.writeFile(
+    path.join(outDir, 'manifest.webmanifest'),
+    renderManifest(base, surfaces.length, externalCallExceptions(surfaces).length > 0),
+  );
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
@@ -4655,6 +4674,15 @@ export async function buildSite({
   // neither belongs to one category.
   await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
   // One card per category, tinted and headlined with the section's own name.
+  // A category holding a documented `externalCallExceptions` entry (today:
+  // "more", because Sponsor Ready lives there) gets the exception footer —
+  // otherwise this card would tell every social preview "nothing you type is
+  // uploaded" for a category where that is false for one of its tools.
+  const categoriesWithExceptions = new Set(
+    categoryGroups
+      .filter(({ items }) => externalCallExceptions(items).length)
+      .map(({ category }) => category.id),
+  );
   await Promise.all(
     ALL_CATEGORIES.map((category) =>
       fs.writeFile(
@@ -4663,7 +4691,7 @@ export async function buildSite({
           color: category.accent,
           headline: category.title,
           kicker: SITE_NAME,
-          footer: CARD_FOOTER,
+          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
         }),
       )),
   );
@@ -4686,7 +4714,10 @@ export async function buildSite({
         color: categoryFor(surface.slug).accent,
         headline: surface.title,
         kicker: SITE_NAME,
-        footer: CARD_FOOTER,
+        // Sponsor Ready's own card gets the exception footer — its whole job
+        // is a live lookup, so "nothing you type is uploaded" is the one
+        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
+        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
       }),
     );
   }
