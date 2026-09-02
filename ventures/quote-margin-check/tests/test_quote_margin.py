@@ -7,9 +7,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-SITE = Path(__file__).resolve().parent.parent / "site"
-
 from src.quote_margin import batch_csv_report, billing_model_note, billing_model_summary, calculate, change_order_price, compare_billing_models, csv_report, direct_cost_spike_scenarios, discount_ask_scenarios, load_quote, load_reports, main, markdown, overrun_scenarios, sensitivity, survives_overrun_percent, target_rate_ladder
+
+SITE = Path(__file__).resolve().parent.parent / "site"
 
 
 class QuoteMarginTests(unittest.TestCase):
