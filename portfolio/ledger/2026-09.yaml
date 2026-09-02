@@ -5977,6 +5977,87 @@ entries:
     outcomes:
       - >-
         Scheduled autonomous session, designated branch
+        `claude/sharp-volta-j555wn`. Owner's standing direction again
+        repeated: prioritise deployment/CI-CD, build and deploy marketing
+        materials on the Hetzner VMs, set up Codex CLI to spend its
+        built-in quota there. PR queue at start: zero open PRs
+        (`list_pull_requests` and `search_pull_requests` both returned
+        empty). Audited all 222 non-`main` remote branches rather than
+        stopping at "queue empty": scoped every branch's three-dot diff
+        against current `main`, found 139 with an empty diff (fully
+        superseded) and ~55 more with only ledger/mirror/kustomization
+        changes. Spot-checked roughly 25 of the highest-signal remaining
+        branches by size and by keyword (gitops/deploy/cicd/marketing/
+        codex/runner) across every category -- large old forks
+        (`cursor/chargeback-evidence-packet-main`, `tmp/ssh-key-smoke`),
+        CI/CD branches (`claude/gha-branch-cleanup-pajw2b`,
+        `cursor/agent-cross-review-f90e` -- the latter's auto-merge feature
+        is a *closed* decision-queue item, not a gap), full ventures
+        (`cursor/product-first-development-mandate-818b`'s driveway-gate
+        calculator, `claude/festive-mccarthy-ocyq3v`'s
+        backup-verification-evidence), and duplicate vendor-watch
+        implementations (`cursor/vendor-change-watch-fix-20260824`,
+        `claude/festive-mccarthy-xrn3ua`). Every one of them was already on
+        `main`, including one (`gitops-governor-rbac-narrow-jobs-pods-verbs`)
+        whose exact verb-narrowing change and exact new test function name
+        were already present verbatim -- confirmed by checking out the
+        branch and diffing against a freshly fetched `origin/main` rather
+        than trusting a stale local ref. Concluded the branch backlog holds
+        no repairable work this run and moved to product work, consistent
+        with two independent findings already in this ledger
+        (`claude/nice-brown-7oo1nc` above, and the recurring "main keeps
+        absorbing the same feature from a sibling branch" pattern
+        `CLAUDE.md` itself documents).
+      - >-
+        Shipped two `vs-jobber.html` comparison pages -- `chimney-sweep-
+        bid-calculator` and `foundation-repair-bid-calculator`, two of the
+        58 bid-calculator ventures with no comparison page at session
+        start -- following the established discipline (no invented
+        competitor pricing, explicit non-affiliation, FAQPage JSON-LD
+        matching visible copy, linked from `index.html` and `sitemap.xml`,
+        front-door mirror regenerated). Opened #2918. Concurrency was
+        extreme: three other sessions landed their own `vs-*` pages
+        (flat-roof, boiler-replacement) on `main` during the ~20 minutes
+        this took, each requiring `platform/marketing/
+        resolve-mirror-merge.sh` to reconcile the generated mirror rather
+        than picking a side by hand -- and a *fourth* session was, it turned
+        out, working the identical branch name `claude/sharp-volta-j555wn`
+        concurrently (same chimney-sweep page, same mirror regen), requiring
+        two more merges of `origin/claude/sharp-volta-j555wn` into itself.
+      - >-
+        Found and fixed a live defect on `main`: PR #2916 ("consolidate the
+        vs-ServiceTitan page") had merged with unresolved git conflict
+        markers committed directly into
+        `ventures/boiler-replacement-bid-calculator/index.html` --
+        `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` literal text in
+        the page footer, already deployed (a merge to `main` is the Argo CD
+        deploy). `platform/ci/check_conflict_markers.py` and page-integrity
+        both fail on `main`'s own tip for this reason, surfaced while
+        chasing an unrelated CI failure on #2918. Opened and merged #2921 as
+        a standalone hotfix (both near-duplicate sides of the conflict said
+        the same thing; kept the one matching the repo's href convention and
+        `vs-servicetitan.test.mjs`'s own assertion). The concurrent session
+        sharing this branch name found and fixed the same defect
+        independently within minutes; both fixes were merged together.
+      - >-
+        No duplicate owner ask, reconfirmed: the "Codex CLI on the Hetzner
+        VM, use its built-in quota" request is decision-queue item
+        `codex-governor-enable` -- code, RBAC and tests already built and
+        unused (`suspend: true` / `"enabled": false`), gated solely on the
+        owner creating a separate-org OpenAI project key with a hard spend
+        limit and sealing it. The queue entry itself flags that a literal
+        reading of "use up the built-in quota" means logging into Codex
+        with the owner's personal ChatGPT/Plus/Pro plan, which
+        `infra/OWNER_CHECKLIST.md` explicitly calls the wrong move (no
+        spend cap, competes with interactive use) -- so this session did not
+        implement that shape, and did not re-add the ask.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session, designated branch
         `claude/optimistic-heisenberg-7fqq2w`. PR queue at start: one open
         PR (#2911, ev-charger-bid-calculator vs-ServiceTitan), merged
         concurrently by another process before this session's review
@@ -6029,4 +6110,349 @@ entries:
         exactly as documented in `infra/OWNER_CHECKLIST.md` — fully
         built, gated only on owner secret-sealing. Confirmed via
         `decision_queue.py`; no duplicate ask added.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run driven by the account owner's standing instruction to
+        prioritize deployment/CI-CD and marketing-material delivery on the
+        Hetzner VMs, plus a question about setting up the Codex CLI there.
+        Started with 0 open PRs, so ran the branch-drain half of the
+        three-PR quota: audited all ~83 remote branches carrying commits
+        not on `main` (`git rev-list --count origin/main..<branch>`),
+        spot-checked the dozen-plus largest/most-plausible candidates with
+        `portfolio/ledger/supersede_check.py` plus manual byte-level and
+        tree-hash comparison where the line-scan reported "not superseded"
+        (gha-branch-cleanup, gitops RBAC narrowing, 3pl-quote-normalizer
+        compare, vendor-change-watch, vendor-watch, where-to-sell-calculator
+        ranking, quote-margin-check x3, ai-engineering-academy tools,
+        no-show-fee-calculator, amazon-fba peak-vs-off-peak-storage,
+        equipment-rental-break-even, payment-reconciliation vs-Synder).
+        Every single one had already landed on `main` through other
+        concurrent sessions, several under different filenames/identifiers
+        (the RENAME SUSPECTED case) -- confirmed via direct diff of both
+        versions at the same path, not just the tool's exit code. Opened no
+        redundant PRs; this confirms the backlog this file's own earlier
+        entries built up is being drained in near-real-time by the fleet's
+        normal operation, not that no one is checking.
+      - >-
+        With the branch queue genuinely empty of recoverable work, moved to
+        this run's own priority order (deploy/CI-CD, then marketing, then
+        product): merged #2816 (`gitops/prod/front-door/default.conf` was
+        missing `application/atom+xml` in `gzip_types`, so the 26 KB Atom
+        feed at `/feed.xml` had been shipping fully uncompressed to every
+        RSS/Atom reader and AI crawler since #2811 added it -- a gap between
+        two generators' test coverage, neither of which could see the
+        other's blind spot; fixed plus a new regression test in
+        `front-door.test.mjs`) and #2819 (`einvoice-preflight`'s
+        `looksLikeCompleteIban`/`looks_like_complete_iban` checked for a
+        `classify()` result of `"format"`, a string the function never
+        actually returns -- only `"unknown"`/`"bad-format"`/`"checksum"` --
+        so every wrong-length IBAN, a common real typo, silently skipped
+        three of the tool's cross-checks (INV-027 BIC/IBAN mismatch, INV-030
+        missing remittance, INV-045/046 payment-means) while still showing
+        the unrelated INV-024 length finding, which is why it went
+        unnoticed; fixed both the JS and Python implementations plus 9 new
+        regression tests). Both merged squash on green CI verified on real
+        runner IDs, not the starvation signature.
+      - >-
+        Confirmed Codex-on-Hetzner is fully built and code-complete
+        (`gitops/agents/governor` + `gitops/agents/workers/mandate.md` +
+        the priority-ordered queue in `gitops/agents/queue/`, already
+        reordered 2026-09-01 to deployment/CI-CD first then marketing, per
+        this same owner instruction recorded that day) and gated only on an
+        owner-only secret seal (`CODEX_AUTH_JSON` or `OPENAI_API_KEY`) plus
+        flipping `governor/cronjob.yaml` `suspend`/`policy.json` `enabled`,
+        both documented in `infra/OWNER_CHECKLIST.md` item 8. Did not
+        attempt to seal a credential or flip either switch -- both are
+        explicitly owner-only (spends paid API budget / enables unattended
+        automation). Ran `decision_queue.py` first per this file's own rule;
+        the item was already there, so no duplicate ask was added.
+      - >-
+        Two further parallel agents (deploy-cicd-readiness item and
+        marketing-distribution item, run verbatim from
+        `gitops/agents/queue/*.yaml`) were lost mid-run to a container
+        restart before they could report back -- no PR resulted from either
+        in this session, and no ledger row covers whatever partial local
+        state they reached. If a future session finds an unpushed branch or
+        stray worktree matching those topics, it is this session's orphaned
+        work, not a duplicate to avoid.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Supplementary session, designated branch
+        `claude/clever-bohr-5vdrq1`. Correction to the entry above: the
+        `boiler-replacement-bid-calculator` conflict-marker incident had
+        **four** independent duplicate fixes, not two — #2920 (merged),
+        #2921, #2922 (this session's own), and #2923, all opened within
+        about four minutes by four different concurrent sessions. #2921
+        was closed by this session (verified #2920 still merged
+        immediately before and after, per this file's own protocol);
+        #2922 and #2923 self-resolved elsewhere. Consolidated onto #2920
+        because it was the only one of the four that also caught a real
+        duplicate `sitemap.xml` entry (`vs-servicetitan.html` listed
+        twice) that the other three all missed.
+      - >-
+        Found and fixed a second real bug while running the required
+        `supersede_check.py` against #2921/#2922:
+        `portfolio/ledger/supersede_check.py` crashed with
+        `UnicodeDecodeError` on any PR touching the front-door mirror's
+        binary `.gz` shards (`_git()` decodes `git show` output as
+        strict UTF-8, and a gzip blob is not valid UTF-8) — meaning the
+        close-verification step CLAUDE.md itself requires was unusable
+        on almost any product PR, since `front-door-tools.mjs --write`
+        regenerates that mirror alongside most venture changes. Fixed by
+        filtering binary paths (via `git diff --numstat`'s `-\t-\t`
+        marker) out of the line-based comparison before it runs. Merged
+        as #2925. A concurrent session hit and fixed the identical crash
+        independently as #2926, with an equivalent code change plus a
+        regression test #2925 lacked; closed #2926 as superseded but
+        carried its test over verbatim into #2927 (merged) so the
+        coverage wasn't lost.
+      - >-
+        Net this session: 2 PRs merged directly (#2925, #2927), 3
+        duplicate PRs closed with verified pointers (#2921, #2922,
+        #2926), 0 new owner-blocked asks added. Codex-on-Hetzner
+        (#1996/queue item 12) and the `tools.marisstella.dev` seal
+        (#1999/queue item 13) reconfirmed unchanged from the entry
+        above — still fully built, still gated only on the owner
+        sealing a secret.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session, designated branch
+        `claude/optimistic-heisenberg-7v9mwn`. Owner's standing added
+        direction, same as several preceding sessions this week:
+        prioritise deployment/CI-CD, build and deploy marketing
+        materials on the Hetzner VMs, and set up the Codex CLI to
+        spend its built-in plan quota there. PR queue at start: zero
+        open PRs, confirmed rather than assumed, so the three-PR quota
+        was satisfied vacuously under the mandate's "if none exist,
+        start new work" clause. A read-only branch audit (of the ~220
+        remote branches) found one candidate that looked mergeable
+        (`claude/happy-wozniak-cabmcx`, a one-line doc-comment fix) but
+        it turned out already merged as #2901 under a different
+        branch name — the audit was comparing against a stale local
+        checkout of `main`, not `origin/main`. No action needed; a
+        reminder that branch-diff findings must be checked against a
+        freshly fetched base ref, not a session's possibly-stale local
+        clone.
+      - >-
+        Ran the repo's own `deploy-cicd-readiness` queue-item prompt by
+        hand (the governor that would normally run it is still
+        owner-blocked): a thorough pass over manifests, workflows,
+        RBAC, and the gitops/CI test-to-manifest mapping found the
+        delivery path already healthy after very recent concurrent-
+        session attention (#2882-#2902 had just landed touching exactly
+        this area). Correctly reported a no-op rather than manufacturing
+        a cosmetic change — `python3 -m pytest gitops/tests -q`
+        (267/7-skipped), `kustomize build` + `kubeconform -strict` on
+        all six manifest trees, and `publish_surface.py --check` all
+        clean, last 30 Actions runs on `main` green.
+      - >-
+        Shipped the `marketing-distribution` queue item: added
+        `ventures/security-camera-bid-calculator/vs-d-tools.html`, a
+        comparison page against D-Tools (System Integrator), the named
+        incumbent business-management platform for AV/security/
+        low-voltage integrators — a niche with no prior comparison
+        page. Verified public facts only (founded 1998 by Adam Stone,
+        HQ Concord, CA, on-premises SI plus a cloud edition since 2019),
+        no invented pricing. Merged as #2929.
+      - >-
+        Operational finding worth keeping: this session's container was
+        restarted mid-run, silently killing a background subagent that
+        had already created and pushed most of the #2929 work to its
+        own branch. The branch and its local worktree survived on disk
+        (git state, not process state), so nothing was lost — but on
+        resuming the subagent via `SendMessage`, both it and the
+        resumed coordinator independently re-merged `main` and pushed
+        to the same branch around the same moment, racing each other
+        (`git push` rejected once on "fetch first"). Recovered by
+        resetting to whichever push landed first and re-verifying,
+        then messaging the subagent to stand down before merging.
+        Lesson for a future session recovering from a mid-run restart:
+        treat a resumed background agent as still possibly live and
+        racing you, not as inert state to read — confirm it has
+        actually stopped (or explicitly tell it to) before pushing to
+        a branch it might also still be pushing to.
+      - >-
+        Re-confirmed, not re-added: the Codex-CLI-on-Hetzner ask
+        (#1996/queue item 12) needs no further building — full
+        governor/RBAC/budget/queue pipeline already built and correctly
+        ordered (`deploy-cicd-readiness` priority 7,
+        `marketing-distribution` priority 6, both quoting the owner's
+        exact sentence), gated only on the owner's one interactive
+        `codex login` + secret-seal step. No new decision-queue row
+        added.
+      - >-
+        Three-PR merge quota: zero PRs were open at session start, so
+        the quota was satisfied vacuously per the mandate's own clause.
+        One new PR (#2929, this session's own marketing work) opened
+        and merged after.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine, same standing brief (deploy/CI-CD priority,
+        Hetzner marketing materials, Codex CLI spending its built-in
+        plan quota there). Zero open PRs at session start — three-PR
+        quota satisfied vacuously. Checked the branch-to-PR-presumption
+        backlog again (`session/cleanup-2026-08-24`,
+        `session/decision-queue-stale-prs-777-731`,
+        `session/remove-stale-local-site-studio-entry`,
+        `tmp/ssh-key-smoke`, `venture/vendor-change-watch`) and
+        independently reached the same conclusion an earlier session
+        today already recorded for all five (superseded, empty, or an
+        empty commit) — wrote no duplicate finding for this. Also
+        re-confirmed the Codex-on-Hetzner ask needs no further building
+        (decision-queue item 12 / #1996, owner-blocked on `codex
+        login` + kubeseal) without adding a duplicate row.
+      - >-
+        Shipped one more `marketing-distribution`-shaped page:
+        `ventures/crown-molding-bid-calculator/vs-jobber.html`,
+        comparing this calculator against Jobber (field-service
+        management SaaS) — chosen because it had zero existing vs-*
+        pages and no in-flight overlap at the time. No Jobber pricing
+        is stated (getjobber.com unreachable from this session's
+        egress-proxied network); only well-documented identity facts
+        are used, enforced by a test asserting no `$` figure appears.
+        Delegated the build to a background subagent, which produced
+        solid content but stalled for 10+ minutes making almost no
+        progress on a full-portfolio `browser_checks.py` sweep it had
+        started unscoped (redundant with one a prior session already
+        completed today) — took the task over directly rather than
+        keep burning resume cycles on it, verified with the fast
+        checks (unit tests, conflict markers, router validate,
+        marketing tests, duplicate-symbols — all green), and told the
+        subagent to stand down before it could resume and duplicate
+        the work. Merged as #2937 after CI (13 checks) went green.
+      - >-
+        Operational finding worth keeping, distinct from the
+        stale-checkout lesson recorded a few entries above this one:
+        by the time this session went to commit, its local checkout
+        had drifted two commits behind `origin/main` (#2933, and
+        #2934 — another concurrent session's own comparison page,
+        `concrete-lifting-bid-calculator/vs-quoteiq.html`), entirely
+        from background subagent wall-clock time elapsing while this
+        repo saw its usual multiple-sessions-per-hour traffic. A
+        first `git diff --stat origin/main` misread as "origin/main
+        deleted a file" was actually "my stale checkout never had the
+        file `origin/main` just added" — worth remembering the sign
+        convention runs the other way from what it can look like at a
+        glance. Recovery pattern: `git stash -u`, fast-forward-merge
+        to `origin/main`, `git stash pop`, and for the one conflict
+        (the generated `kustomization.yaml`, which both sessions'
+        mirror regenerations had touched) take upstream's version and
+        **regenerate the mirror fresh** (`front-door-tools.mjs
+        --write`) rather than hand-resolving a generated file — it
+        correctly folded in both pages' shard entries. Re-ran the full
+        verification suite against the merged state before pushing.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled "product-first autonomous mandate" session, explicitly
+        naming CI/CD, marketing-materials deployment on the Hetzner VMs, and
+        "set up the Codex CLI to use the built-in quota for dev work,
+        following a similar prompt to this one, on the Hetzner VM" as
+        priorities. Zero open PRs at start, five stale branches without PRs
+        checked: two empty diffs against `main`, two fully superseded (their
+        content already landed under different PR numbers/ledger entries —
+        confirmed by grepping `main`'s ledger and `asks.yaml` for the exact
+        claims each branch would have added), and one (`tmp/ssh-key-smoke`)
+        a stale one-off CI probe 1000+ commits behind `main`. Three-PR quota
+        trivially satisfied (none existed, none needed).
+      - >-
+        Surveyed the repo's actual Hetzner/Codex automation state before
+        building anything: `gitops/agents/` is a complete, tested (99/99
+        governor+worker tests) Codex-on-Hetzner autonomous loop -- governor
+        CronJob, worker Job, RBAC, NetworkPolicy, a PVC persisting
+        `~/.codex/auth.json`, and six real queue items including
+        `deploy-cicd-readiness` (priority 7) and `marketing-distribution`
+        (priority 6), both reordered to the top on 2026-09-01 on this exact
+        owner instruction. It is fully built and off
+        (`policy.json.enabled: false`, `cronjob.yaml suspend: true`),
+        blocked on one owner action already queued as decision `#1996
+        codex-governor-enable`: run `codex login`, seal `CODEX_AUTH_JSON`
+        (the literal "use the built-in quota" route -- costs nothing extra
+        against a ChatGPT plan) into `codex-secrets`, then flip the two
+        booleans. This session could not move that forward -- the credential
+        is not something any session holds -- so it did the code half
+        instead: verified nothing had rotted and the two priority-1/2 queue
+        items' own claims were still accurate.
+      - >-
+        Ran two dedicated research passes mirroring exactly what
+        `deploy-cicd-readiness` and `marketing-distribution` ask a Codex
+        worker to do (RBAC/NetworkPolicy/image-tag/kustomization/workflow
+        sweep; embed-widget/comparison-page/category-hub/about-page sweep).
+        Both came back empty of genuine untracked gaps -- `pytest gitops/tests`
+        267/267, `publish_surface.py --check` and `check_duplicate_symbols.py`
+        clean, embed coverage 169/169, all 7 category hubs and `/about/`
+        verified accurate. Real findings from the sweep: stale "156 tools"
+        prose comments (mirror is 159) in `front-door.mjs` and
+        `portfolio-front.yaml`, and the marketing queue doc undercounting
+        existing comparison pages by an order of magnitude (6 claimed, 78
+        actual `vs-*.html` pages by filename). Fixed both and recorded the
+        sweep results with today's date directly in
+        `gitops/agents/queue/deploy-cicd-readiness.yaml` and
+        `marketing-distribution.yaml` so the first ticks after the governor
+        is enabled don't re-spend a run rediscovering "nothing here."
+        Merged as #2935 (auto-merged near-instantly by the repo's own
+        merge-on-green path).
+      - >-
+        A third research pass (mirroring `product-feature-improvement`)
+        found a real, narrow bug: `backup-verification-evidence`'s on-page
+        trend table renders sizes via `formatBytes()` (e.g. "51.2 GB"), but
+        the markdown report shown directly below it -- the artifact this
+        tool exists to produce, copied verbatim by its "Copy markdown"
+        button into a ticket or runbook -- built its own size string by
+        hand and never called `formatBytes`, so the same row read
+        "51200000000 bytes" there. Fixing the flagged spot surfaced the
+        identical "raw bytes, no formatter" pattern in three siblings
+        sharing the same file/module pair (the JS and Python alert-detail
+        strings, and the Python markdown table), none of which the research
+        pass had been asked to check; fixed all four together rather than
+        leaving three known-broken siblings next to the one just patched.
+        Added a Python `format_bytes()` matching the JS one exactly (none
+        existed) and tests in both suites pinning the human-readable format.
+      - >-
+        Driving that fix (#2938) to green surfaced two rounds of base drift
+        from this repo's usual multiple-sessions-per-hour traffic, distinct
+        from each other: first, CI caught that this session's own commit to
+        `report.mjs` (a file `front-door-tools.mjs` mirrors into the
+        ConfigMap shards) needed the mirror regenerated, which this session
+        had not done -- a real, self-caused failure, fixed by running the
+        generator and re-verifying. Second, after pushing that fix, a
+        genuine merge conflict appeared against a concurrently-merged PR
+        (#2936, changing how the mirror generator scans `.mjs` files) in the
+        generated `kustomization.yaml` -- resolved via the repo's own
+        documented `platform/marketing/resolve-mirror-merge.sh`, which
+        regenerates and verifies rather than hand-resolving a generated
+        file. While pushing that resolution, a second Claude session (also
+        watching #2938, almost certainly a PR-steward process) independently
+        pushed a byte-identical merge resolution to the same branch first;
+        rather than push a redundant duplicate merge commit, this session
+        fetched and adopted that commit (`git reset --hard`) and re-verified
+        the identical tree before merging. Merged as #2938 (squash
+        `5916fdf6c`) after 13 checks went green on the final head.
+      - >-
+        Did not start a new venture or a fourth product PR this run. With
+        CI/CD and marketing-distribution both independently confirmed
+        saturated and the Codex/Hetzner ask confirmed fully built and
+        credential-blocked, the two shipped PRs plus the accurate queue-doc
+        corrections were judged the highest-value close to this run rather
+        than manufacturing a lower-value diff to hit a self-imposed count.
+    mrr_end: null
     mrr_end: null

@@ -89,7 +89,7 @@ candidate list. Either:
 
 (1) comes first while a product on `main` still has no public route at all. As
 of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
-one still waiting on `portfolio-site-repo` — but the apex serves 159 of the
+one still waiting on `portfolio-site-repo` — but the apex serves 160 of the
 169 tools itself, so "the catalogue is dark" is not the right reading. See the
 correction below before ranking the seal against shipping.
 
@@ -122,7 +122,7 @@ So the standing reading has two halves now, and they differ:
 
 - **The portfolio has a public surface.** A stranger typing the domain gets
   positioning, one card per category, and the §5b clauses.
-- **10 of the 169 tools, and the canonical host, are one seal away**:
+- **9 of the 169 tools, and the canonical host, are one seal away**:
   `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
   It is queued.
 
@@ -136,14 +136,14 @@ run. What is actually served today:
   projected volume of ten ConfigMap shards, and
   `gitops/prod/front-door/default.conf` routes `^/tools/<slug>/` at it. So
   `https://marisstella.dev/tools/<slug>/` serves the tool itself.
-- `front-door/index.html` carries **159 user-facing `/tools/…` links** and
+- `front-door/index.html` carries **160 user-facing `/tools/…` links** and
   exactly **one** href to `tools.marisstella.dev` — in fine print, honestly
   labelled "goes live when its access token is sealed". Its primary CTA is
-  "Open one of the 159 tools running here now". The category cards link to
+  "Open one of the 160 tools running here now". The category cards link to
   same-page anchors, not to the dark host.
 
 So the front door is already a working funnel, and the seal buys the
-remaining 10 tools plus the canonical hostname — worth doing, but it is not
+remaining 9 tools plus the canonical hostname — worth doing, but it is not
 the difference between a dead end and a product. Do not describe the
 catalogue as dark, and do not rank the seal above shipping.
 
@@ -381,12 +381,29 @@ checks tab — never the bare status call.
 
 ## Ledger (minimal)
 
-Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
-something new** — not when you looked and confirmed the same blockers. Never
-bundle a ledger entry into a PR waiting on the owner.
+**A ledger entry is never a deliverable on its own.** Run this before pushing:
+
+```
+python3 portfolio/ledger/check_ledger_only.py
+```
+
+Exit 1 means your branch is ledger prose and nothing else. That is not a
+session's output — it is a footnote to output that does not exist. In the
+seven days to 2026-09-02 the fleet landed **381 such commits, 34.6% of the
+1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still recorded
+zero observed users across all 184 products. The rule that was supposed to
+prevent that ("do not open ledger-only PRs that re-state known blockers") had
+an escape hatch, and every session used it.
+
+So: record outcomes per `portfolio/ledger/README.md` when you **shipped
+something**, in the same commit or PR as the thing you shipped. If you found a
+blocker instead, say so in your reply and leave `main` alone — an unshipped
+session is a real outcome and does not need a commit to be true. Never bundle
+a ledger entry into a PR waiting on the owner.
 
 `git fetch origin main` before appending; skip if the latest entry already
-covers your finding.
+covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
+ordinary platform code, exempt from the check and mergeable on its own.
 
 ## Automation
 

@@ -92,7 +92,7 @@ class TestNotSuperseded(RepoFixture):
         )
 
     def test_a_binary_file_change_does_not_crash_the_scan(self):
-        """The #2922/#2923 shape: a PR regenerates a `.gz` mirror shard
+        """The #2922/#2926 shape: a PR regenerates a `.gz` mirror shard
         alongside its text change. `git show` on a binary blob is not valid
         UTF-8, and `base_tree_lines` used to decode every changed path
         unconditionally -- crashing before the (real, droppable) text

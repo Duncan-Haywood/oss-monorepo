@@ -70,35 +70,59 @@ prompt: |
   the depth or coverage gap within the candidate rather than re-building the
   mechanism from scratch:
 
+  **Re-verified 2026-09-02, all four, by a dedicated research pass -- none
+  had a genuine shippable gap.** Read this before spending a run re-checking
+  the same four:
+
   1. **An embeddable widget.** Done in #2561 (`platform/pages/embed.mjs`,
      `injectEmbedWidget`, `pf-embed.js`/`pf-embed.css` at the site root,
      17 passing tests in `embed.test.mjs`). Every entry page already carries
      a copyable `<iframe>` snippet in its footer chrome. **Do not re-pick
      this** unless you find entry pages it is silently skipping (check
      `result.embedded.length` against the entry-page count in a real
-     `build.mjs` run) or a defect in the framing detection.
+     `build.mjs` run) or a defect in the framing detection. **Checked
+     2026-09-02: 169/169, none skipped** (`Added an embed offer to 169 tool
+     entry page(s)` on a fresh build).
   2. **A comparison or "alternatives" page** for a tool whose niche has an
      obvious incumbent people search by name. High search intent, and the
      honest version is genuinely useful. Compare on facts you can verify from
      public documentation and cite them; if you cannot verify a competitor's
      number, leave the row out rather than estimating it. Never disparage.
-     Several ventures already have one (`marketplace-fee-compare`,
-     `3pl-quote-normalizer/compare.mjs`, `cut-list-optimizer`,
-     `shopify-permission-drift/site/compare.mjs`,
-     `mcp-supply-chain-watch/site/compare.mjs`, `seller-net-sheet`) --
-     the remaining gap is a tool with a genuine named incumbent and no
-     comparison page yet, not the mechanism itself.
+     **This list undercounted badly and is corrected 2026-09-02: it is not
+     6, it is 78 and climbing** (a snapshot -- re-run
+     `find ventures -maxdepth 2 -iname "vs-*.html" -not -iname "*test*" | wc -l`
+     rather than trusting this number for long). The convention is a
+     `vs-<competitor>.html` page (not
+     `compare.mjs`, which only a handful use), e.g.
+     `cash-runway-planner/vs-quickbooks-cash-flow-planner.html`,
+     `str-host-payout-calculator/vs-airbnb-earnings-estimator.html`,
+     `amazon-fba-calculator/vs-amazon-revenue-calculator.html`. Every
+     household-name incumbent a search turned up already has one --
+     ServiceTitan/Jobber/JobNimbus/AcuLynx across ~15 trade-software
+     ventures, QuickBooks x2, Airbnb, Amazon's own Revenue Calculator,
+     Buildertrend, Bonsai, LevelSet, Baremetrics. The ~110 ventures still
+     without one were checked individually: none has a household-name
+     third-party competitor that is both distinct from the venture itself
+     (`seller-net-sheet` computes a marketplace's *own* fee schedule, not a
+     rival product) and verifiable without outbound web access, which this
+     environment does not have. **Do not re-pick this** without a specific
+     new incumbent name and a citable public source for its facts --
+     "find a comparison gap" alone will not turn up work.
   3. **A category hub that reads as a landing page** rather than a list. The
      7 hubs under `/c/` (`CATEGORY_PAGE_COPY` in `build.mjs`) already each
      carry a `title`/`description`/`intro`/`audience` naming the problem and
      who it is for. Re-read all 7 against a fresh `check.mjs` run before
      calling any of them weak -- the copy is deliberately data, not prose, so
      a "gap" here is more likely a stale reading of this file than a real one.
+     **Checked 2026-09-02: all 7 (including `more`, a genuine 4-tool
+     catch-all with no shared theme) read as substantive, not stale.**
   4. **A press kit section on `/about/`** -- `renderAboutPage` in `build.mjs`
      already has the one-liner, the paragraph, the facts list, the licence
      and source link, and share-card meta tags (`og:image`, `SOCIAL_CARD_FILE`).
      A real remaining gap here is narrow (e.g. a claim that has drifted from
-     what the build actually emits), not a missing section.
+     what the build actually emits), not a missing section. **Checked
+     2026-09-02: its numeric claims are computed live from `surfaces`/
+     `groups`, not hardcoded, so nothing has drifted.**
 
   Whatever you pick, it has to be finished, not scaffolded: real content or
   real behaviour, the liability disclaimer every user-facing surface here
