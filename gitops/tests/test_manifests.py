@@ -959,6 +959,80 @@ def test_the_mirror_is_sharded_because_one_object_could_not_hold_it() -> None:
     assert len(_mirror_shard_names()) > 1
 
 
+def _mirrored_venture_slugs() -> set:
+    """Distinct venture slugs the apex mirror actually serves.
+
+    `front-door-tools/kustomization.yaml`'s `files` entries are each
+    `<slug>__<filename>=<slug>__<filename>` (see `MIRROR_SEPARATOR` in
+    `front-door-tools.mjs` and `aggregate.py`) — the slug is everything
+    before the first `__`, and no real venture slug or mirrored filename
+    contains that separator itself.
+    """
+    parsed = yaml.safe_load(
+        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+    )
+    slugs = set()
+    for entry in parsed["configMapGenerator"]:
+        for file_entry in entry["files"]:
+            key = file_entry.split("=", 1)[0]
+            slug, _, _ = key.partition("__")
+            slugs.add(slug)
+    return slugs
+
+
+def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
+    # The mirror grew from the ~20 ventures a single ConfigMap could hold to
+    # 53 once it was sharded (see the comment atop
+    # front-door-tools/kustomization.yaml) -- but `front-door/index.html`,
+    # which recomputes its own "N of the 169 tools" line from the actual
+    # mirrored set on every regeneration (front-door.test.mjs fails on a
+    # stale commit), was not the only place that number was written down.
+    # `infra/OWNER_CHECKLIST.md` and `gitops/prod/usage/aggregate.py`'s
+    # comment both still said "14" -- the pre-sharding figure -- with nothing
+    # to notice the mirror had grown to more than double that. Same failure
+    # mode `test_readme_runs_on_count_matches_reality` in test_ci_runner.py
+    # exists to catch, on a different piece of hand-written prose: a number
+    # that is only ever typed, never recomputed, has no way to notice the
+    # thing it describes changed size.
+    actual = len(_mirrored_venture_slugs())
+    total = 169  # `infra/OWNER_CHECKLIST.md`'s own "N of the 169 tools" wording.
+
+    checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
+
+    mirrors_of = re.findall(r"mirrors (\d+) of the (\d+) tools directly", checklist)
+    assert mirrors_of, "OWNER_CHECKLIST.md's 'mirrors N of the M tools' sentence not found or reworded"
+    for mirrored, whole in mirrors_of:
+        assert int(mirrored) == actual, (
+            f"OWNER_CHECKLIST.md claims {mirrored} mirrored tools, actual is {actual}"
+        )
+        assert int(whole) == total, (
+            f"OWNER_CHECKLIST.md claims {whole} total tools, expected {total}"
+        )
+
+    static_mirror_of = re.findall(r"static mirror of (\d+) tools at", checklist)
+    assert static_mirror_of, "OWNER_CHECKLIST.md's 'static mirror of N tools' sentence not found or reworded"
+    for value in static_mirror_of:
+        assert int(value) == actual, (
+            f"OWNER_CHECKLIST.md claims a mirror of {value} tools, actual is {actual}"
+        )
+
+    other_tools = re.findall(r"working funnel for the other\s+(\d+)\s", checklist)
+    assert other_tools, "OWNER_CHECKLIST.md's 'the other N' sentence not found or reworded"
+    for value in other_tools:
+        assert int(value) == total - actual, (
+            f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
+            f"actual is {total - actual}"
+        )
+
+    aggregate = (REPO / "gitops" / "prod" / "usage" / "aggregate.py").read_text()
+    aggregate_match = re.search(r"mirrors (\d+) complete ventures", aggregate)
+    assert aggregate_match, "aggregate.py's 'mirrors N complete ventures' comment not found or reworded"
+    assert int(aggregate_match.group(1)) == actual, (
+        f"aggregate.py's comment claims {aggregate_match.group(1)} mirrored ventures, "
+        f"actual is {actual}"
+    )
+
+
 def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # A Deployment mounts these, so the generated name has to change with the
     # content or a regenerated page never reaches a running pod. The usage
