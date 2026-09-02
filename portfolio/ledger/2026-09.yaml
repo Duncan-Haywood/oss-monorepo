@@ -3592,3 +3592,56 @@ entries:
         `hcloud-scope`, `validate`, `site-test`, Portfolio Pages) came back
         green on real runners. Merged (squash) as #2794.
     mrr_end: null
+  - venture: portfolio-gitops
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        deploy-cicd-readiness, run directly (governor still owner-gated).
+        Checked open PRs and the decision queue first: #2795 (already
+        merged by the time this session got there) had just fixed a
+        different stale-comment gap in the same queue item, so this pass
+        looked for a second, distinct defect rather than duplicating it.
+        Found one worth fixing after auditing RBAC, image tags, probes,
+        resource quotas, NetworkPolicy egress CIDRs and the self-hosted CI
+        stack and finding all of them already correct: `gitops/tests/
+        test_manifests.py`'s `_prod_networkpolicies()` helper only ever
+        read `gitops/prod/networkpolicy.yaml`, so
+        `test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy`
+        kept asserting an exact three-name set that was true when #2727
+        wrote it and stayed syntactically true after #2730 added a fourth
+        prod NetworkPolicy (`portfolio-front-egress`) inside
+        `portfolio-front.yaml` instead of the shared file -- the helper
+        never saw it, so the test's own name ("portfolio-site is the only
+        ... with a NetworkPolicy") had been false since that commit
+        without anything failing. Separately, no test anywhere pinned that
+        `portfolio-front-egress`'s podSelector actually matches the
+        Deployment's pod labels, the way the sibling site policy already
+        is.
+      - >-
+        Fix: `_prod_networkpolicies()` now scans every `gitops/prod/*.yaml`
+        file for `NetworkPolicy` documents instead of one hard-coded path,
+        so a policy written into its own workload's manifest is counted
+        the same way from now on. Renamed the stale-named test to state
+        what is still true (`landing` is the only prod workload *without*
+        one) and widened its assertion to the real four-policy set; added
+        a new test pinning `portfolio-front-egress`'s podSelector match
+        and its deny-all `egress: []`. No manifest changed -- only what an
+        existing test suite checks, so nothing sealed, relaxed, or flipped.
+      - >-
+        Verified: `python3 -m pytest gitops/tests -q` -- 258 passed (257
+        on `main`; net +1 from splitting one stale test into two).
+        `kustomize build gitops/{apps,platform,prod,staging,agents,ci}`
+        (v5.6.0) -- all six build clean, byte-identical to `main`'s output.
+        `kubeconform -strict -kubernetes-version 1.31.0
+        -ignore-missing-schemas` on all six -- 66 valid, 0 invalid, 0
+        errors. `pyflakes gitops/agents/governor/governor.py` clean;
+        `infra/tests/test_infra_layout.py` + `test_hcloud_scope.py` --
+        14 + 5 passed. Opened as #2801; all seven real CI checks (`check`,
+        `gitops`, `duplicate-symbols`, `scripts`, `hcloud-scope`, `tofu`,
+        `preflight` skipped as expected on a non-dispatch push) came back
+        green on real runners -- confirmed via each check-run's `runner_id`
+        rather than assumed, since a 3-6s runner_id:0 result would have
+        been the known starvation signature, not a regression. Merged
+        (squash) as #2801.
+    mrr_end: null
