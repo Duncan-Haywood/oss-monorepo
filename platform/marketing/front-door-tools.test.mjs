@@ -14,6 +14,7 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import zlib from 'node:zlib';
@@ -35,6 +36,9 @@ import {
   ROUTABLE_FILE,
   ROUTABLE_SLUG,
   OUTPUT_DIR,
+  FRONT_DOOR_DEPLOYMENT,
+  renderMountSources,
+  writeMountList,
   STARTER_SET,
   WHY_CATEGORY_WORD,
   claimedCategory,
@@ -764,4 +768,97 @@ test('a collateral drop names a later pass than the venture that caused it', asy
   for (const entry of excluded.filter((e) => e.kind === 'dead-link')) {
     assert.equal(entry.pass, 1, `${entry.slug} is a first-pass drop but reports pass ${entry.pass}`);
   }
+});
+
+// --- the Deployment's mount list -------------------------------------------
+//
+// `writeMirror` regenerates the shards and the Deployment that mounts them in
+// one call, because a tree carrying only half of that is the exact state
+// `test_portfolio_front_mounts_every_generated_mirror_shard` rejects. These
+// pin the writer against a copy of the file rather than the real one, so a
+// failing test can never leave `gitops/prod/portfolio-front.yaml` rewritten.
+
+const deploymentFixture = async (shardNames) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mount-list-'));
+  const file = path.join(dir, 'portfolio-front.yaml');
+  const sources = shardNames
+    .map((name) => `              - configMap:\n                  name: ${name}\n`)
+    .join('');
+  await fs.writeFile(
+    file,
+    '        - name: tools\n' +
+      '          # a comment the writer must not disturb\n' +
+      '          projected:\n' +
+      '            sources:\n' +
+      sources +
+      '        - name: conf\n',
+  );
+  return file;
+};
+
+test('the mount list is rewritten when the shard count grows', async () => {
+  // The case this automation exists for: one more comparison page tips the
+  // packer over SHARD_BYTE_CEILING and opens a shard nothing mounted.
+  const file = await deploymentFixture([shardName(0), shardName(1)]);
+  const result = await writeMountList([0, 1, 2].map((i) => ({ name: shardName(i) })), file);
+  assert.equal(result.changed, true);
+  const after = await fs.readFile(file, 'utf8');
+  assert.match(after, new RegExp(`name: ${shardName(2)}`));
+  assert.equal((after.match(/- configMap:/g) || []).length, 3);
+});
+
+test('the mount list is rewritten when the shard count shrinks', async () => {
+  // The other direction, which is the one that wedges the cluster: a mounted
+  // ConfigMap nothing generates leaves the pods in ContainerCreating.
+  const file = await deploymentFixture([0, 1, 2].map((i) => shardName(i)));
+  const result = await writeMountList([{ name: shardName(0) }], file);
+  assert.equal(result.changed, true);
+  const after = await fs.readFile(file, 'utf8');
+  assert.doesNotMatch(after, new RegExp(`name: ${shardName(1)}`));
+  assert.equal((after.match(/- configMap:/g) || []).length, 1);
+});
+
+test('rewriting the mount list leaves the surrounding file intact', async () => {
+  // The volume's long comment explains why it is projected at all; a
+  // structural YAML round-trip would reflow it away, so the writer is a
+  // targeted replacement and this is what says so.
+  const file = await deploymentFixture([shardName(0)]);
+  await writeMountList([{ name: shardName(0) }, { name: shardName(1) }], file);
+  const after = await fs.readFile(file, 'utf8');
+  assert.match(after, /# a comment the writer must not disturb/);
+  assert.match(after, /^ {8}- name: conf$/m);
+});
+
+test('an unchanged mount list is reported as unchanged and not rewritten', async () => {
+  const file = await deploymentFixture([shardName(0), shardName(1)]);
+  const before = await fs.readFile(file, 'utf8');
+  const result = await writeMountList([{ name: shardName(0) }, { name: shardName(1) }], file);
+  assert.equal(result.changed, false);
+  assert.equal(await fs.readFile(file, 'utf8'), before);
+});
+
+test('a restructured volume fails loudly rather than silently writing nothing', async () => {
+  // If someone reshapes the volume, the writer must not quietly no-op and let
+  // a stale mount list reach the cluster wearing a successful --write.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mount-list-'));
+  const file = path.join(dir, 'portfolio-front.yaml');
+  await fs.writeFile(file, '        - name: tools\n          emptyDir: {}\n');
+  await assert.rejects(() => writeMountList([{ name: shardName(0) }], file), /could not find/);
+});
+
+test('the committed Deployment already mounts exactly the committed shards', async () => {
+  // The staleness assertion for this file, matching how the mirror's own
+  // freshness is pinned above: the real file must equal what the writer would
+  // produce from the shards actually committed in kustomization.yaml.
+  const kustomization = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const generated = [...new Set(kustomization.match(/portfolio-front-tools-\d+/g) || [])].sort(
+    (a, b) => Number(a.split('-').pop()) - Number(b.split('-').pop()),
+  );
+  assert.ok(generated.length > 1, 'expected the committed mirror to be sharded');
+  const deployment = await fs.readFile(FRONT_DOOR_DEPLOYMENT, 'utf8');
+  assert.ok(
+    deployment.includes(renderMountSources(generated.map((name) => ({ name })))),
+    'gitops/prod/portfolio-front.yaml does not mount exactly the committed shards — ' +
+      'regenerate with `node platform/marketing/front-door-tools.mjs --write`',
+  );
 });
