@@ -130,12 +130,31 @@ SEAL_PLAINTEXT=()
 # Ask GitHub whether the token can actually do the one thing its pod needs.
 # This is the difference between finding out now and finding out from a
 # CrashLoopBackOff after the next Argo sync.
+#
+# GET /repos/{owner}/{repo} is NOT that check, and used to be what this
+# function called. Every fine-grained PAT with any access to a repository
+# carries "Metadata: Read-only" automatically -- it is mandatory and cannot be
+# unchecked when the token is minted -- and that single mandatory permission
+# is all `/repos/{owner}/{repo}` needs to return 200. So the probe passed for
+# a token scoped to nothing at all: it proved the token exists and can see
+# the repository, never that it can read the repository's *contents*, which
+# is the one permission `git clone` (what the site's `fetch` init container
+# actually runs) is gated on for a fine-grained token. An owner who minted the
+# token and missed the "Contents" checkbox -- the exact mistake this probe
+# exists to catch before a seal -- got "token can read $REPO_SLUG" and a
+# CrashLoopBackOff on the next sync anyway.
+#
+# `GET /repos/{owner}/{repo}/contents/{path}` is gated on "Contents: Read",
+# per GitHub's fine-grained PAT permissions reference, so probing it for a
+# file this repository is guaranteed to carry (its own README) actually
+# exercises the permission a clone needs rather than the one every token has
+# by default.
 probe_can_read_repo() {
   local token="$1" code
   code="$(curl -sS -o /dev/null -w '%{http_code}' \
     -H "Authorization: Bearer $token" \
     -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/repos/$REPO_SLUG" 2>/dev/null || echo 000)"
+    "https://api.github.com/repos/$REPO_SLUG/contents/README.md" 2>/dev/null || echo 000)"
   [[ "$code" == "200" ]]
 }
 
