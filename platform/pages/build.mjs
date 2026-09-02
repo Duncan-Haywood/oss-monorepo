@@ -1801,10 +1801,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
-          your browser, in JavaScript you can read — use <em>View Source</em>,
-          or read the same file
-          <a href="https://github.com/Duncan-Haywood/monorepo-projects">in the
-          public source repository</a>. Specifically:
+          your browser, in JavaScript you can read with your browser's own
+          <em>View Source</em> or developer tools — no build step, no
+          minification, nothing hidden from you. Specifically:
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
@@ -1864,7 +1863,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <ul>
         <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
-        <li><strong>Open source</strong> under the MIT licence — <a href="https://github.com/Duncan-Haywood/monorepo-projects">github.com/Duncan-Haywood/monorepo-projects</a>.</li>
+        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
       <p>
@@ -4317,7 +4316,6 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
       license: 'MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
-      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
       // The feed carries the newest FEED_MAX_ENTRIES tools; this file carries
       // every tool with the same dates, which is what lets `check.mjs` prove
@@ -4424,7 +4422,6 @@ export function renderLlmsTxt(surfaces, baseUrl) {
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
-    `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
     '',
   ].join('\n');
 
@@ -4630,6 +4627,31 @@ export async function buildSite({
   // follow those.
   for (const surface of discovered) {
     await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
+  }
+
+  // A handful of ventures (currently: ai-engineering-academy, tender-radar,
+  // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
+  // equipment-rental-break-even) publish from a `site/` subdirectory, so their
+  // own root LICENSE sits one level above `sourceDir` and never gets copied
+  // above. Every one of those tools still links to its own LICENSE (an
+  // `<a href="LICENSE">` footer), and until now that link "escaped the site"
+  // and `repairLinks`, below, correctly-by-its-own-logic repointed it at this
+  // private GitHub repository -- a 404 for every visitor, same defect #2720
+  // fixed for cross-venture links. Publishing the file here, ahead of
+  // `repairLinks`, means the link resolves locally and `repairLinks` leaves it
+  // alone: this fixes it without touching that function's matching logic.
+  //
+  // README.md is deliberately NOT part of this: `EXCLUDED_FILES` and
+  // `NON_WEB_EXTENSIONS` keep every venture's README.md out of the published
+  // tree on purpose (`check.mjs` fails a build that publishes one, as "repo
+  // bookkeeping"), so copying it here for six ventures while `copyTree` drops
+  // it for the other 163 would both contradict that policy and make this
+  // build fail its own check.
+  for (const surface of discovered) {
+    const from = path.join(venturesDir, surface.slug, 'LICENSE');
+    const to = path.join(outDir, surface.slug, 'LICENSE');
+    if (existsSync(to) || !(await exists(from))) continue;
+    await fs.copyFile(from, to);
   }
 
   // Pass 2: everything that has to read a complete site.
