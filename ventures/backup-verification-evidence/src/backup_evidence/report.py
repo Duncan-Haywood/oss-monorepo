@@ -313,6 +313,19 @@ def _artifact_size_bytes(record: dict[str, Any]) -> int | None:
     return int(size)
 
 
+def format_bytes(size: int | float | None) -> str:
+    """Human-readable size, matching report.mjs's formatBytes exactly."""
+    if size is None:
+        return "unknown"
+    if size >= 1_000_000_000:
+        return f"{size / 1_000_000_000:.1f} GB"
+    if size >= 1_000_000:
+        return f"{size / 1_000_000:.1f} MB"
+    if size >= 1_000:
+        return f"{size / 1_000:.1f} KB"
+    return f"{size} bytes"
+
+
 def _median(values: list[int]) -> float:
     ordered = sorted(values)
     count = len(ordered)
@@ -378,7 +391,7 @@ def build_trend(
                         "detail": (
                             f"{finding.get('finished_at')} is {abs(size_change_pct):.1f}% smaller "
                             f"than the previous run ({previous_finished}) -- "
-                            f"{previous_size} bytes to {size} bytes"
+                            f"{format_bytes(previous_size)} to {format_bytes(size)}"
                         ),
                     }
                 )
@@ -395,7 +408,7 @@ def build_trend(
                         "detail": (
                             f"{finding.get('finished_at')} is {drop_pct:.1f}% below the "
                             f"median of the previous {len(prior_sizes)} night(s) "
-                            f"({int(median)} bytes to {size} bytes)"
+                            f"({format_bytes(int(median))} to {format_bytes(size)})"
                         ),
                     }
                 )
@@ -513,7 +526,7 @@ def markdown_report(report: dict[str, Any]) -> str:
             ]
         )
         for row in trend["rows"]:
-            size = "unknown" if row["size_bytes"] is None else f"{row['size_bytes']} bytes"
+            size = format_bytes(row["size_bytes"])
             change = "—" if row["size_change_pct"] is None else f"{row['size_change_pct']:+.1f}%"
             flags = []
             if row["shrinking_vs_previous"]:

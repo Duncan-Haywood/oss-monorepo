@@ -22,9 +22,25 @@
 //
 // Reading the *sources* rather than a built site is the point. The build takes
 // seconds and needs the whole tree; this walks the venture directories
-// directly, so it is cheap enough to run from a venture's own CI -- the only
-// place a PR that adds a venture reliably gets checked, since PRs opened with
-// GITHUB_TOKEN do not trigger the portfolio-wide workflows.
+// directly, so it is cheap enough to run from a venture's own CI, scoped to
+// just that slug (`node platform/pages/clauses.mjs <slug>`, wired into every
+// venture-ci.yml) -- a second, redundant check next to `portfolio-validate.yml`
+// running the same command unscoped over every venture on any PR touching
+// `ventures/**/*.html`.
+//
+// That redundancy is deliberate, not leftover: this comment used to justify
+// the venture-scoped run as "the only place a PR that adds a venture reliably
+// gets checked, since PRs opened with GITHUB_TOKEN do not trigger the
+// portfolio-wide workflows." Neither half held. `portfolio-validate.yml`'s own
+// `pull_request.paths` already covers `ventures/**/*.html`, and an agent PR
+// here authenticates with a fine-grained PAT (`GH_TOKEN`), not the in-workflow
+// `secrets.GITHUB_TOKEN` GitHub's no-recursion rule applies to, so it triggers
+// `pull_request` workflows the same as a human's PR (see CLAUDE.md's "Absent
+// CI is not failed CI"). The venture-scoped run stays worth keeping anyway:
+// it is the faster, narrower signal on the PR that actually adds the venture,
+// and it still catches the omission if `portfolio-validate.yml`'s own path
+// list ever falls behind a new publishable extension the way it once did for
+// `.css`/`.js` (see that workflow's own trigger comment).
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';

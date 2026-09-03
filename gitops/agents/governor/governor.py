@@ -698,20 +698,29 @@ def build_job_manifest(
                     # this container from gaining *more* than it starts with, and
                     # worker.sh never execs a setuid binary to escalate through.
                     #
-                    # `capabilities.drop: ["ALL"]`, `runAsNonRoot` and
-                    # `readOnlyRootFilesystem` are deliberately NOT set, unlike
-                    # every sibling above. `worker.sh`'s `install_tools()` runs
-                    # `apt-get install` against the base `node:22-bookworm` image
-                    # (root, not started as a fixed non-root UID) to add `gh` and
-                    # `git`, and dpkg's maintainer scripts for a fresh install can
-                    # need capabilities beyond the ones a dropped-to-ALL root
-                    # process retains (CAP_CHOWN, CAP_SETUID/CAP_SETGID for the
-                    # packages that provision a system user). `npm install -g` and
-                    # the clone into `mktemp -d` both write outside the two
-                    # read-only mounts below, so the root filesystem cannot be
-                    # read-only either. Narrowing those three needs a prebuilt
-                    # image with `gh`/`git`/`codex` baked in and a fixed non-root
-                    # user -- a bigger change than this fix.
+                    # `capabilities.drop: ["ALL"]` IS now set, on the container
+                    # below. It was not, and the reason given here was dpkg:
+                    # `install_tools()` ran `apt-get install` to add `gh`, and a
+                    # fresh install's maintainer scripts can need capabilities a
+                    # dropped-to-ALL root process no longer has (CAP_CHOWN,
+                    # CAP_SETUID/CAP_SETGID for packages that provision a system
+                    # user). That reason is gone: `install_tools()` no longer
+                    # uses a package manager at all. It fetches one checksum-
+                    # pinned `gh` tarball over HTTPS -- which it had to, because
+                    # `worker-egress` allows no port-80 egress and Debian's
+                    # mirrors are plain HTTP, so the apt path could never have
+                    # succeeded in this namespace in the first place. curl, tar,
+                    # `install(1)` into $HOME, `npm install -g` into $HOME and a
+                    # `git clone` need no capability between them.
+                    #
+                    # `runAsNonRoot` and `readOnlyRootFilesystem` are still NOT
+                    # set. `npm install -g` and the clone into `mktemp -d` both
+                    # write outside the two read-only mounts below, so the root
+                    # filesystem cannot be read-only; and the image starts as
+                    # root with $HOME=/root rather than at a fixed non-root UID,
+                    # so pinning one needs a writable HOME chosen here. Both are
+                    # now ordinary follow-ups rather than blocked on a prebuilt
+                    # image -- removing apt was the part that needed the image.
                     "securityContext": {
                         "seccompProfile": {"type": "RuntimeDefault"},
                     },
@@ -745,6 +754,7 @@ def build_job_manifest(
                             ],
                             "securityContext": {
                                 "allowPrivilegeEscalation": False,
+                                "capabilities": {"drop": ["ALL"]},
                             },
                             "resources": {
                                 "requests": {"cpu": "500m", "memory": "1Gi"},

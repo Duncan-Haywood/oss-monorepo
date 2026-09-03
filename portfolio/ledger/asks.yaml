@@ -148,7 +148,7 @@ decisions:
     request reaches the API and comes back `HTTP 401 ...
     {"type":"authentication_error","message":"OAuth access token has been
     revoked."}`. An unset value would have exited at the workflow's own
-    preflight check (line ~100) before any request, and does not.
+    preflight check (its `-z` guard on the key) before any request, and does not.
 
     So the choice is now between: **yes**, mint a fresh token on the routine's
     API trigger at https://claude.ai/code/routines and update the existing
@@ -163,7 +163,7 @@ decisions:
     direction is right and the cost is real, but both figures were about 5x
     and 17x too high, because they assume the run loops. It does not. On 401
     `fire()` returns 2, and the loop's `case` does `2) exit 1` on that value
-    (workflow lines ~157-170), so the run aborts on its *first* fire and
+    (the `2) exit 1` arm of the loop's `case`), so the run aborts on its *first* fire and
     never reaches the four remaining slots or their 240s sleeps.
 
     Measured, not inferred: five consecutive runs (33553452882, 33551039615,
@@ -188,6 +188,25 @@ decisions:
     At ~$17/month it is affordable to leave red while the owner decides,
     which is the difference between "delete this today" and "answer it when
     you get to it".
+
+    **The spend and the noise both stopped on 2026-09-02; the decision did
+    not.** The `fire` job now carries
+    `if: github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED
+    == 'true'`, and the repository variable is unset, so a scheduled run is
+    skipped before a runner is assigned -- no minute billed, no red check. The
+    workflow file is untouched otherwise and `workflow_dispatch` still runs
+    unconditionally, so a fresh token can be tested from the Actions tab
+    without flipping anything.
+
+    Read that as the bleeding stopped, not the question answered. **Yes** is
+    now three steps rather than one: mint the token, update
+    `CLAUDETRIGGERAPIKEY`, dispatch the workflow once to confirm it reports
+    `fired:`, then set the variable `ROUTINE_TRIGGER_ENABLED` to `true` under
+    Settings -> Secrets and variables -> Actions -> Variables. The variable is
+    last on purpose -- it is what re-arms the schedule, and re-arming it before
+    the token works just restores the old burn. **No** is unchanged and still
+    the owner's alone: delete the workflow file. Leaving it exactly as it is
+    now is a third, cost-free option this row did not previously have.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,

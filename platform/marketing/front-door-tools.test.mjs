@@ -14,11 +14,18 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
+import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 import {
+  GZIP_HEADER,
+  compress,
+  storedKey,
+  discoverEligible,
+  explainIneligible,
   MIRROR_BYTE_CEILING,
   SHARD_BYTE_CEILING,
   packShards,
@@ -28,7 +35,14 @@ import {
   SYNC_OPTIONS_ANNOTATION,
   ROUTABLE_FILE,
   ROUTABLE_SLUG,
+  ROUTABLE_SUBPATH,
+  STRIPPED_LINK_RELS,
+  blankStrippedLinks,
   OUTPUT_DIR,
+  FRONT_DOOR_DEPLOYMENT,
+  renderMountSources,
+  writeMountList,
+  assertNoConflictMarkers,
   STARTER_SET,
   WHY_CATEGORY_WORD,
   claimedCategory,
@@ -36,6 +50,10 @@ import {
   buildMirror,
   canonicalUrl,
   injectMirrorTags,
+  injectMirrorNav,
+  blankScriptBodies,
+  dynamicLinks,
+  NAV_CLASS,
   APEX_ROOT_PATHS,
   FAVICON_FILE,
   mirrorUrl,
@@ -52,20 +70,28 @@ const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
 test('the committed mirror matches what the generator produces', async () => {
   const { files } = await buildMirror();
   for (const file of files) {
-    const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.key), 'utf8').catch(() => null);
-    assert.notEqual(onDisk, null, `${file.key} is missing from the commit — run \`${REGENERATE}\``);
-    assert.equal(onDisk, file.contents, `${file.key} is stale — run \`${REGENERATE}\``);
+    const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.stored)).catch(() => null);
+    assert.notEqual(onDisk, null, `${file.stored} is missing from the commit — run \`${REGENERATE}\``);
+    assert.ok(onDisk.equals(file.bytes), `${file.stored} is stale — run \`${REGENERATE}\``);
+    // What is committed is compressed, so a byte comparison alone would pass
+    // for two files that are both wrong in the same way. Inflating proves the
+    // stored bytes are the page a visitor is actually served.
+    assert.equal(
+      zlib.gunzipSync(onDisk).toString('utf8'),
+      file.contents,
+      `${file.stored} does not inflate to the page it mirrors — run \`${REGENERATE}\``,
+    );
   }
 });
 
 test('the mirror directory holds nothing the generator did not write', async () => {
   const { files } = await buildMirror();
-  const expected = new Set([...files.map((f) => f.key), 'kustomization.yaml']);
+  const expected = new Set([...files.map((f) => f.stored), 'kustomization.yaml']);
   const actual = await fs.readdir(OUTPUT_DIR);
   for (const name of actual) {
     assert.ok(
       expected.has(name),
-      `${name} is left over from a venture no longer in STARTER_SET — run \`${REGENERATE}\``,
+      `${name} is left over from a venture the mirror no longer serves — run \`${REGENERATE}\``,
     );
   }
   assert.equal(actual.length, expected.size, `run \`${REGENERATE}\``);
@@ -166,7 +192,10 @@ test('every mirrored path is one nginx can actually route', async () => {
   const { files } = await buildMirror();
   for (const { slug, file } of files) {
     assert.match(slug, ROUTABLE_SLUG, `${slug} is not routable`);
-    assert.match(file, ROUTABLE_FILE, `${slug}/${file} is not routable`);
+    // `ROUTABLE_SUBPATH`, not `ROUTABLE_FILE`: a mirrored file may sit one
+    // page subdirectory down (`tool/index.html`). Two levels is still refused,
+    // because only one separator is decoded on the nginx side.
+    assert.match(file, ROUTABLE_SUBPATH, `${slug}/${file} is not routable`);
   }
   const conf = await fs.readFile(
     path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
@@ -231,9 +260,84 @@ test('packShards refuses a file no shard could hold', () => {
   // the packer has to say so rather than emit a shard over the cap — which
   // would apply cleanly right up until etcd rejected it.
   assert.throws(
-    () => packShards([{ key: 'a__big.mjs', contents: 'x'.repeat(2048) }], 1024),
+    () => packShards([{ key: 'a__big.mjs', bytes: Buffer.alloc(2048) }], 1024),
     /larger than the 1024-byte shard ceiling/,
   );
+});
+
+test('a trailing runt shard is absorbed rather than mounted as its own ConfigMap', () => {
+  // Declaration-order packing can leave a last shard holding almost nothing —
+  // too small to need `ServerSideApply`, but carrying the annotation anyway,
+  // which the "asks for the apply mode its size actually requires" test below
+  // refuses. Previous sessions fixed each occurrence by hunting a STARTER_SET
+  // position that happened not to fragment, or by spending a few more KiB of
+  // ceiling; both come back the next time a mirrored venture gains a page.
+  // The packer now pulls files back from the previous shard instead.
+  const ceiling = 1000;
+  const runt = 150;
+  const files = [
+    { key: 'a__1.mjs', bytes: Buffer.alloc(600) },
+    { key: 'a__2.mjs', bytes: Buffer.alloc(350) },
+    // 950 + 100 overflows, so without absorption this lands alone in a
+    // 100-byte second shard.
+    { key: 'b__1.mjs', bytes: Buffer.alloc(100) },
+  ];
+  const shards = packShards(files, ceiling, runt);
+  const last = shards[shards.length - 1];
+  assert.ok(
+    last.bytes > runt,
+    `the trailing shard was left as a ${last.bytes}-byte runt instead of absorbing from its predecessor`,
+  );
+  // Absorption must not lose or duplicate a file.
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+  // Every shard still respects the ceiling it was packed against.
+  for (const shard of shards) {
+    assert.ok(shard.bytes <= ceiling, `${shard.name} is ${shard.bytes} bytes, over the ${ceiling} ceiling`);
+    assert.ok(shard.files.length > 0, `${shard.name} is empty and would mount as an empty ConfigMap`);
+  }
+});
+
+test('absorbing a runt never pushes the receiving shard over the ceiling', () => {
+  // The donor shard shrinks monotonically, so it is safe by inspection; the
+  // *receiving* shard grows, and nothing about the loop bounds that except
+  // the guard. A donor file large enough to breach the ceiling must stop the
+  // transfer and leave the runt in place — a small ConfigMap is a cosmetic
+  // problem, one over etcd's object cap is an outage.
+  const ceiling = 1000;
+  const runt = 150;
+  const files = [
+    { key: 'a__1.mjs', bytes: Buffer.alloc(100) },
+    // The only file the donor could give back is 900 bytes, which would take
+    // the 120-byte runt to 1020 — over the ceiling. The runt has to stay.
+    { key: 'a__2.mjs', bytes: Buffer.alloc(900) },
+    { key: 'b__1.mjs', bytes: Buffer.alloc(120) },
+  ];
+  const shards = packShards(files, ceiling, runt);
+  for (const shard of shards) {
+    assert.ok(shard.bytes <= ceiling, `${shard.name} is ${shard.bytes} bytes, over the ${ceiling} ceiling`);
+  }
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+});
+
+test('absorbing a runt never drains its donor to an empty shard', () => {
+  // A projected volume with an empty ConfigMap source is a wasted object at
+  // best; draining the donor entirely would also renumber every shard after
+  // it. The donor keeps at least one file however small the runt stays.
+  const ceiling = 1000;
+  const runt = 150;
+  const files = [
+    // The donor holds exactly one file, so giving it back would empty it.
+    { key: 'a__1.mjs', bytes: Buffer.alloc(900) },
+    { key: 'b__1.mjs', bytes: Buffer.alloc(150) },
+  ];
+  const shards = packShards(files, ceiling, runt);
+  for (const shard of shards) {
+    assert.ok(shard.files.length > 0, `${shard.name} is empty and would mount as an empty ConfigMap`);
+  }
+  const packed = shards.flatMap((s) => s.files.map((f) => f.key));
+  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
 });
 
 test('a duplicate ConfigMap key is refused rather than mounted', () => {
@@ -242,8 +346,8 @@ test('a duplicate ConfigMap key is refused rather than mounted', () => {
   // rather than a visible failure. Cheaper to catch here.
   assert.throws(
     () => packShards([
-      { key: 'a__index.html', contents: 'x' },
-      { key: 'a__index.html', contents: 'y' },
+      { key: 'a__index.html', bytes: Buffer.alloc(1) },
+      { key: 'a__index.html', bytes: Buffer.alloc(1) },
     ]),
     /appears twice in the mirror/,
   );
@@ -347,16 +451,123 @@ test('the nginx config serves every shape of path the mirror produces', async ()
     path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
     'utf8',
   );
-  assert.match(conf, /location ~ "\^\/tools\/\(\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$"/);
-  assert.match(conf, /try_files \/\$1__index\.html =404;/);
-  assert.match(conf, /try_files \/\$1__\$2 =404;/);
+  assert.match(conf, /location ~ "\^\/tools\/\(\?<slug>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$"/);
+  assert.match(conf, /rewrite \^ \/\$\{slug\}__index\.html break;/);
+
+  // The four properties a gz-only mirror needs from every `/tools/` location,
+  // each of which is a silent whole-mirror 404 if it is missing.
+  const toolBlocks = conf.match(/location ~ "\^\/tools\/[\s\S]*?\n  \}/g) ?? [];
+  // Eight since page subdirectories landed: four for a flat venture (root,
+  // `.mjs`, `LICENSE`, anything else) and the same four one level down.
+  assert.equal(toolBlocks.length, 8, 'the mirror is routed by eight location blocks');
+  for (const block of toolBlocks) {
+    // `gzip_static always`, not `on`: `on` only consults the stored `.gz` when
+    // the client sent `Accept-Encoding: gzip`, and falls through to a plain
+    // file that a gz-only mirror does not have.
+    assert.match(block, /gzip_static always;/, `a /tools/ block does not serve the stored .gz:\n${block}`);
+    // `gunzip on`, or every client that did not ask for gzip gets bytes it
+    // cannot read with a 200.
+    assert.match(block, /gunzip on;/, `a /tools/ block cannot answer a non-gzip client:\n${block}`);
+    // `try_files` stats the *uncompressed* name, which does not exist here, so
+    // it would 404 before `gzip_static` ran. This is the trap, and it looks
+    // correct.
+    assert.doesNotMatch(block, /try_files/, `a /tools/ block still uses try_files:\n${block}`);
+    // A positional `$1` in a `rewrite` replacement refers to the rewrite's own
+    // regex (`^`, which captures nothing), not to the location's — so it
+    // resolves to the empty string and asks for `__index.html`.
+    assert.doesNotMatch(
+      block,
+      /rewrite \^ \/\$\d/,
+      `a /tools/ block uses a positional capture in its rewrite, which resolves empty:\n${block}`,
+    );
+    assert.match(block, /X-Robots-Tag "noindex"/);
+  }
+
   // `.mjs` must be typed, or the module is refused and every calculator is an
   // inert form that still returns 200.
-  assert.match(conf, /\\\.mjs\)\$"[\s\S]{0,200}default_type text\/javascript;/);
+  assert.match(conf, /\\\.mjs\)\$"[\s\S]{0,900}default_type text\/javascript;/);
   // ...and its block must come before the general file rule, since nginx takes
   // the first matching regex location.
-  assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('([A-Za-z0-9._-]+)$"'));
-  assert.match(conf, /X-Robots-Tag "noindex"/);
+  assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('<any_file>[A-Za-z0-9._-]+)$"'));
+  // The same ordering one level down, where the same trap applies: the
+  // subdirectory `.mjs` rule is the only one of the three that can set a type,
+  // so a general subdirectory rule placed above it would serve every sub-tool's
+  // modules untyped and the page would render inert with a 200.
+  assert.ok(
+    conf.indexOf('<sdm_file>[A-Za-z0-9._-]+\\.mjs)$"') <
+      conf.indexOf('<sda_file>[A-Za-z0-9._-]+)$"'),
+    'the subdirectory .mjs rule must precede the general subdirectory rule',
+  );
+  // The directory-index rule takes the trailing slash and rewrites to
+  // `index.html`, for the same reason the venture-root rule does: a flattened
+  // key has no `index.html` to append.
+  assert.match(
+    conf,
+    /rewrite \^ \/\$\{sd_slug\}__\$\{sd_dir\}__index\.html break;/,
+    'the subdirectory index rule must rewrite to __index.html',
+  );
+  // Both segments of a subdirectory path are captured with the *slug* class,
+  // not the filename class. That is what keeps `/tools/<slug>/calc.mjs` and
+  // `/tools/<slug>/LICENSE` from ever being read as a directory: neither a dot
+  // nor an uppercase letter can match it.
+  for (const prefix of ['sd', 'sdm', 'sdl', 'sda']) {
+    assert.ok(
+      conf.includes(`(?<${prefix}_dir>${ROUTABLE_SLUG.source.replace(/^\^|\$$/g, '')})`),
+      `the ${prefix} block's directory capture is not ROUTABLE_SLUG's class`,
+    );
+  }
+});
+
+test('every stored key is one the nginx rewrites reconstruct', async () => {
+  // The encoding lives in two places that cannot import each other: the
+  // generator writes `<slug>__<file>.gz`, and `gzip_static` finds it by
+  // appending `.gz` to the URI the `rewrite` produced. This walks the real
+  // mirror and rebuilds each key the way nginx would, so a change to either
+  // side without the other fails here rather than as a 404 in production.
+  const { files } = await buildMirror();
+  for (const file of files) {
+    const url = mirrorUrl(file.slug, file.file);
+    const [, slug, tail] = url.match(/^\/tools\/([^/]+)\/(.*)$/);
+    // Rebuilt the way the `location` blocks do: every `/` in the tail becomes
+    // the same `__` separator that joins the slug, and an empty tail (or one
+    // that is only a directory) is `index.html` rather than an empty filename.
+    // That last case is why the trailing-slash rules exist at all — a
+    // flattened key cannot have `index.html` appended to it by nginx.
+    const segments = tail.split('/');
+    if (segments[segments.length - 1] === '') segments[segments.length - 1] = 'index.html';
+    assert.equal(`${slug}__${segments.join('__')}.gz`, file.stored);
+    assert.equal(storedKey(file.slug, file.file), file.stored);
+  }
+});
+
+test('the stored bytes inflate to the page, with a gzip header that does not drift', async () => {
+  // The mirror is committed, so its bytes have to be reproducible or the
+  // staleness check fails on every regeneration. Node writes a fixed header —
+  // no mtime, no filename — and this pins it so a runtime upgrade that changed
+  // it shows up here rather than as an unexplained multi-megabyte diff.
+  const sample = '<!doctype html><html><head><title>x</title></head><body>hello</body></html>';
+  const gz = compress(sample);
+  assert.ok(gz.subarray(0, GZIP_HEADER.length).equals(GZIP_HEADER), gz.subarray(0, 10).toString('hex'));
+  assert.equal(zlib.gunzipSync(gz).toString('utf8'), sample);
+  assert.ok(compress(sample).equals(gz), 'compression is not deterministic');
+});
+
+test('discovery admits every venture the mirror can serve, and no curated one twice', async () => {
+  // `STARTER_SET` is the order and the argued-for core; discovery appends
+  // everything else that is flat, routable and self-contained. The mirror is
+  // worth having only if that second half is substantially larger than the
+  // first — that is the whole reason compression was worth doing.
+  const discovered = await discoverEligible();
+  const curated = new Set(STARTER_SET.map((entry) => entry.slug));
+  for (const slug of discovered) {
+    assert.ok(!curated.has(slug), `${slug} is both curated and discovered, so it would mirror twice`);
+    assert.match(slug, ROUTABLE_SLUG);
+  }
+  assert.deepEqual(discovered, discovered.slice().sort(), 'discovery order must be stable');
+  assert.ok(
+    discovered.length > curated.size,
+    `discovery found ${discovered.length} ventures beyond the ${curated.size} curated ones`,
+  );
 });
 
 test('the front door compresses every non-HTML type the mirror actually serves', async () => {
@@ -473,4 +684,579 @@ test('a root-absolute link is checked against the apex root, not the mirror', ()
   ]);
   assert.equal(dead.length, 1);
   assert.match(dead[0], /apex document root serves only/);
+});
+
+test('an href built from a template string in a script is not a dead link', () => {
+  // The defect: `validateLinks` ran one regex over the whole document, so a
+  // page building hrefs in JS was judged on its unexpanded source. That is
+  // what held `marketplace-fee-compare` — a finished, linked-to comparison
+  // page — off the apex, for a link that resolves fine in a browser.
+  const page = {
+    slug: 'a',
+    file: 'index.html',
+    contents: '<script>el.innerHTML = `<a href="../${tool}/">go</a>`;</script>',
+  };
+  assert.deepEqual(validateLinks([page]), []);
+  // Not judged is not the same as unseen: it is still reported, advisorily.
+  assert.deepEqual(dynamicLinks([page]), ['a/index.html → "../${tool}/"']);
+});
+
+test('a fully literal href inside a script is still checked', () => {
+  // The detection the previous revision was protecting when it left the whole
+  // document in scope. Narrowing to skip script bodies wholesale would lose
+  // it; resolving the literal ones keeps it.
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<script>x = `<a href="../gone/">g</a>`;</script>' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /no gone\/index\.html in the mirror/);
+
+  // And the same literal resolves when the target is present.
+  assert.deepEqual(
+    validateLinks([
+      { slug: 'a', file: 'index.html', contents: '<script>x = `<a href="../b/">g</a>`;</script>' },
+      { slug: 'b', file: 'index.html', contents: '<p>b</p>' },
+    ]),
+    [],
+  );
+});
+
+test('a dead link in ordinary markup is still caught', () => {
+  // The regression guard that matters most: blanking script bodies must not
+  // blank anything else.
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<a href="missing.html">x</a>' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /no a\/missing\.html in the mirror/);
+});
+
+test('blanking a script body preserves the rest of the document and its length', () => {
+  const html = '<a href="keep.html">k</a><script>`<a href="../drop/">d</a>`</script><b>after</b>';
+  const blanked = blankScriptBodies(html);
+  assert.equal(blanked.length, html.length, 'byte offsets must not shift');
+  assert.ok(blanked.includes('href="keep.html"'));
+  assert.ok(!blanked.includes('../drop/'));
+  assert.ok(blanked.includes('<b>after</b>'), 'markup after the script survives');
+  assert.ok(blanked.includes('<script>') && blanked.includes('</script>'), 'tags survive');
+});
+
+test('a style body is blanked too', () => {
+  // `url(...)` in CSS is not an href/src attribute, but a stylesheet quoting
+  // one in a string would read as markup to the attribute scan.
+  const blanked = blankScriptBodies('<style>.a{background:url("../gone/x.png")}</style>');
+  assert.ok(!blanked.includes('../gone/x.png'));
+});
+
+test('marketplace-fee-compare is served by the mirror', async () => {
+  // The tool the fix above buys. Its seven `deepTool` links are what made
+  // admitting it correct rather than merely quieter, so assert those resolve
+  // in the mirror too — that is the property that would make serving the page
+  // a disservice if it broke.
+  const { files } = await buildMirror();
+  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
+  assert.ok(present.has('marketplace-fee-compare/index.html'));
+  for (const slug of [
+    'ebay-fee-calculator',
+    'etsy-profit-calculator',
+    'amazon-fba-calculator',
+    'walmart-marketplace-calculator',
+    'tiktok-shop-fee-calculator',
+    'shopify-fee-calculator',
+    'faire-wholesale-calculator',
+  ]) {
+    assert.ok(present.has(`${slug}/index.html`), `${slug} is linked at runtime but not mirrored`);
+  }
+});
+
+test('every mirrored page carries a way back to the front door', async () => {
+  // The defect this guards: before the return link, a mirrored page's only
+  // links were its own siblings, its LICENSE, and a canonical to a host that
+  // serves nothing. Every one of the tools the apex serves was a cul-de-sac,
+  // so the portfolio's one working funnel was a single page deep. Asserted
+  // over what is committed rather than over `injectMirrorNav` alone, because
+  // the unit test would still pass if `buildMirror` stopped calling it.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    assert.ok(
+      page.contents.includes(`<a class="${NAV_CLASS}" href="/">`),
+      `${page.key} has no link back to the front door`,
+    );
+    assert.ok(
+      page.contents.includes(`.${NAV_CLASS}{`),
+      `${page.key} carries the return link with no rule to style it`,
+    );
+  }
+});
+
+test('the return link names the number of tools the mirror actually holds', async () => {
+  // A hard-coded count would go stale the first time STARTER_SET changes, and
+  // the front door's own copy already states a number a visitor can check by
+  // counting the cards. Two surfaces disagreeing about how many free tools
+  // exist is the kind of small untruth that costs trust on a page whose whole
+  // pitch is that the arithmetic is honest.
+  const { files, tools } = await buildMirror();
+  for (const page of files.filter((f) => f.file.endsWith('.html'))) {
+    assert.ok(
+      page.contents.includes(`All ${tools.length} free tools on this site`),
+      `${page.key} states a tool count other than ${tools.length}`,
+    );
+  }
+});
+
+test('the return link is hidden when a venture page is printed', () => {
+  // Every mirrored venture's print stylesheet hides `header, main, footer`
+  // with `!important` so that printing yields the customer proposal alone.
+  // A bar that survived that would print "All 53 free tools" across the top
+  // of a contractor's bid — the one page of this portfolio a stranger's own
+  // customer sees.
+  const html = '<head><meta charset="utf-8"></head><body><main>x</main></body>';
+  const out = injectMirrorNav(injectMirrorTags(html, { slug: 'demo', file: 'index.html' }), {
+    toolCount: 53,
+  });
+  assert.match(out, /@media print\{\.fd-back\{display:none!important\}\}/);
+});
+
+test('the return link sits inside the body it belongs to', () => {
+  const html = '<html><head><meta charset="utf-8"></head><body class="x">\n<header>h</header></body></html>';
+  const out = injectMirrorNav(html, { toolCount: 7 });
+  assert.ok(out.indexOf('<body class="x">') < out.indexOf(`class="${NAV_CLASS}"`));
+  assert.ok(out.indexOf(`class="${NAV_CLASS}"`) < out.indexOf('<header>'));
+  assert.ok(out.includes('All 7 free tools'));
+});
+
+test('injectMirrorNav refuses a document with no body rather than inventing one', () => {
+  // Prepending to a bodyless file would put the anchor outside <html>, where
+  // it renders but no stylesheet in the document reaches it.
+  assert.throws(() => injectMirrorNav('<head><meta charset="utf-8"></head>', { toolCount: 1 }), {
+    message: /no <body> tag/,
+  });
+});
+
+test('no venture source already uses the return link class', async () => {
+  // The rule is injected near the top of <head>, ahead of the venture's own
+  // <style>, so a venture that used this class would win the cascade and the
+  // return link would inherit whatever that class means to it.
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (!file.endsWith('.html')) continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      assert.ok(
+        !raw.includes(NAV_CLASS),
+        `${slug}/${file} already uses "${NAV_CLASS}" — rename NAV_CLASS rather than shipping the collision`,
+      );
+    }
+  }
+});
+
+test('every unmirrored venture is explained, and a collateral drop is not blamed on itself', async () => {
+  // The report is only worth having if its reasons are the fixpoint's real
+  // ones. Re-checking an excluded venture on its own does not give those: in
+  // isolation every cross-venture link reads as dead, so a page that is merely
+  // collateral would be reported as broken and a session would go "fix" a
+  // page that is fine. `discoverEligible`'s drop log is what prevents that,
+  // and this is what keeps it wired up.
+  const excluded = await explainIneligible();
+  const served = new Set([...STARTER_SET.map((e) => e.slug), ...(await discoverEligible())]);
+  for (const entry of excluded) {
+    assert.ok(!served.has(entry.slug), `${entry.slug} is both served and reported as excluded`);
+    assert.ok(entry.reason, `${entry.slug} has no reason`);
+    assert.notEqual(
+      entry.kind,
+      'unexplained',
+      `${entry.slug} is excluded but the drop log does not know why — discovery and the report disagree`,
+    );
+  }
+  // Every venture is either served or explained; nothing falls between them.
+  const dirs = (await fs.readdir(path.join(REPO_ROOT, 'ventures'), { withFileTypes: true }))
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
+  const accounted = new Set([...served, ...excluded.map((e) => e.slug)]);
+  for (const slug of dirs) {
+    assert.ok(accounted.has(slug), `${slug} is neither mirrored nor explained`);
+  }
+});
+
+test('a collateral drop names a later pass than the venture that caused it', async () => {
+  // The distinction the report exists to make. `appointment-deposit-calculator`
+  // is fine on its own and drops only because `no-show-fee-calculator` loads
+  // `src/app.mjs` from a subdirectory the flat key encoding cannot represent —
+  // one venture costing three off the front door. If that ever stops being
+  // true this test should be updated to whatever the new shape is, not deleted:
+  // the property under test is that pass 1 and pass 2+ mean different things.
+  const excluded = await explainIneligible();
+  for (const entry of excluded.filter((e) => e.kind === 'collateral')) {
+    assert.ok(entry.pass > 1, `${entry.slug} is collateral but dropped on pass ${entry.pass}`);
+    assert.match(entry.reason, /collateral \(pass \d+\)/);
+  }
+  for (const entry of excluded.filter((e) => e.kind === 'dead-link')) {
+    assert.equal(entry.pass, 1, `${entry.slug} is a first-pass drop but reports pass ${entry.pass}`);
+  }
+});
+
+// --- the Deployment's mount list -------------------------------------------
+//
+// `writeMirror` regenerates the shards and the Deployment that mounts them in
+// one call, because a tree carrying only half of that is the exact state
+// `test_portfolio_front_mounts_every_generated_mirror_shard` rejects. These
+// pin the writer against a copy of the file rather than the real one, so a
+// failing test can never leave `gitops/prod/portfolio-front.yaml` rewritten.
+
+const deploymentFixture = async (shardNames) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mount-list-'));
+  const file = path.join(dir, 'portfolio-front.yaml');
+  const sources = shardNames
+    .map((name) => `              - configMap:\n                  name: ${name}\n`)
+    .join('');
+  await fs.writeFile(
+    file,
+    '        - name: tools\n' +
+      '          # a comment the writer must not disturb\n' +
+      '          projected:\n' +
+      '            sources:\n' +
+      sources +
+      '        - name: conf\n',
+  );
+  return file;
+};
+
+test('the mount list is rewritten when the shard count grows', async () => {
+  // The case this automation exists for: one more comparison page tips the
+  // packer over SHARD_BYTE_CEILING and opens a shard nothing mounted.
+  const file = await deploymentFixture([shardName(0), shardName(1)]);
+  const result = await writeMountList([0, 1, 2].map((i) => ({ name: shardName(i) })), file);
+  assert.equal(result.changed, true);
+  const after = await fs.readFile(file, 'utf8');
+  assert.match(after, new RegExp(`name: ${shardName(2)}`));
+  assert.equal((after.match(/- configMap:/g) || []).length, 3);
+});
+
+test('the mount list is rewritten when the shard count shrinks', async () => {
+  // The other direction, which is the one that wedges the cluster: a mounted
+  // ConfigMap nothing generates leaves the pods in ContainerCreating.
+  const file = await deploymentFixture([0, 1, 2].map((i) => shardName(i)));
+  const result = await writeMountList([{ name: shardName(0) }], file);
+  assert.equal(result.changed, true);
+  const after = await fs.readFile(file, 'utf8');
+  assert.doesNotMatch(after, new RegExp(`name: ${shardName(1)}`));
+  assert.equal((after.match(/- configMap:/g) || []).length, 1);
+});
+
+test('rewriting the mount list leaves the surrounding file intact', async () => {
+  // The volume's long comment explains why it is projected at all; a
+  // structural YAML round-trip would reflow it away, so the writer is a
+  // targeted replacement and this is what says so.
+  const file = await deploymentFixture([shardName(0)]);
+  await writeMountList([{ name: shardName(0) }, { name: shardName(1) }], file);
+  const after = await fs.readFile(file, 'utf8');
+  assert.match(after, /# a comment the writer must not disturb/);
+  assert.match(after, /^ {8}- name: conf$/m);
+});
+
+test('an unchanged mount list is reported as unchanged and not rewritten', async () => {
+  const file = await deploymentFixture([shardName(0), shardName(1)]);
+  const before = await fs.readFile(file, 'utf8');
+  const result = await writeMountList([{ name: shardName(0) }, { name: shardName(1) }], file);
+  assert.equal(result.changed, false);
+  assert.equal(await fs.readFile(file, 'utf8'), before);
+});
+
+test('a restructured volume fails loudly rather than silently writing nothing', async () => {
+  // If someone reshapes the volume, the writer must not quietly no-op and let
+  // a stale mount list reach the cluster wearing a successful --write.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mount-list-'));
+  const file = path.join(dir, 'portfolio-front.yaml');
+  await fs.writeFile(file, '        - name: tools\n          emptyDir: {}\n');
+  await assert.rejects(() => writeMountList([{ name: shardName(0) }], file), /could not find/);
+});
+
+test('the committed Deployment already mounts exactly the committed shards', async () => {
+  // The staleness assertion for this file, matching how the mirror's own
+  // freshness is pinned above: the real file must equal what the writer would
+  // produce from the shards actually committed in kustomization.yaml.
+  const kustomization = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const generated = [...new Set(kustomization.match(/portfolio-front-tools-\d+/g) || [])].sort(
+    (a, b) => Number(a.split('-').pop()) - Number(b.split('-').pop()),
+  );
+  assert.ok(generated.length > 1, 'expected the committed mirror to be sharded');
+  const deployment = await fs.readFile(FRONT_DOOR_DEPLOYMENT, 'utf8');
+  assert.ok(
+    deployment.includes(renderMountSources(generated.map((name) => ({ name })))),
+    'gitops/prod/portfolio-front.yaml does not mount exactly the committed shards — ' +
+      'regenerate with `node platform/marketing/front-door-tools.mjs --write`',
+  );
+});
+
+// --- conflict markers -------------------------------------------------------
+
+test('a page carrying a conflict marker is refused, not mirrored', () => {
+  // The regression this exists for: on 2026-09-02 a conflict hunk reached
+  // main in a venture's index.html and the next regeneration packed it into
+  // the shard the apex serves, so visitors saw `<<<<<<< HEAD` and the
+  // paragraph twice. The venture's own suite passed throughout, because its
+  // assertions matched links present on both sides of the hunk.
+  const files = [{ key: 'demo__index.html', contents: '<p>a</p>\n<<<<<<< HEAD\n<p>b</p>\n' }];
+  assert.throws(() => assertNoConflictMarkers(files), /unresolved merge-conflict marker/);
+});
+
+test('each conflict marker git writes is caught', () => {
+  for (const marker of ['<<<<<<< HEAD', '=======', '>>>>>>> origin/main']) {
+    assert.throws(
+      () => assertNoConflictMarkers([{ key: 'demo__index.html', contents: `<p>a</p>\n${marker}\n` }]),
+      /unresolved merge-conflict marker/,
+      `${marker} was not caught`,
+    );
+  }
+});
+
+test('prose that merely contains angle brackets is not a conflict', () => {
+  // The check is anchored to the line start. A page explaining a diff, or one
+  // with `=======` inside a sentence, is legitimate content and must build.
+  const files = [
+    { key: 'demo__index.html', contents: '<p>compare a &gt;&gt;&gt;&gt;&gt;&gt;&gt; b</p>\n' },
+    { key: 'demo__faq.html', contents: '<p>the ======= rule is a horizontal one</p>\n' },
+  ];
+  assert.doesNotThrow(() => assertNoConflictMarkers(files));
+});
+
+test('no committed mirror page carries a conflict marker', async () => {
+  // The end-to-end form, over what is actually committed. `buildMirror` itself
+  // now throws on one, so this asserts the committed tree is clean rather than
+  // just that the guard exists.
+  const { files } = await buildMirror();
+  assert.doesNotThrow(() => assertNoConflictMarkers(files));
+});
+
+// ---------------------------------------------------------------------------
+// Page subdirectories, and the `<link>` rels the mirror strips.
+//
+// Both of these landed on 2026-09-02 to close the same gap from two sides:
+// three finished, tested, free static tools were being held off the apex by
+// `discoverEligible`, not because anything about them was wrong but because
+// the mirror could not express what their pages linked to. Two of the three
+// are now served. The tests below are the regression guards for each half.
+// ---------------------------------------------------------------------------
+
+test('a <link> the mirror strips is not held against the venture that carries it', () => {
+  // `einvoice-preflight/index.html` carries `<link rel="sitemap" href=
+  // "sitemap.xml">`. `sitemap.xml` is deliberately not mirrored — it describes
+  // the tools host's URLs — so `validateLinks` reported a dead link and the
+  // whole venture was dropped. It is not a dead link: `injectMirrorTags`
+  // deletes the element, so no browser ever resolves that href.
+  const page =
+    '<html><head><meta charset="utf-8">' +
+    '<link rel="sitemap" type="application/xml" href="sitemap.xml">' +
+    '<link rel="canonical" href="nowhere.html">' +
+    '<link rel="icon" href="missing.png">' +
+    '</head><body><a href="index.html">home</a></body></html>';
+  const files = [{ slug: 'demo', file: 'index.html', contents: page }];
+  assert.deepEqual(validateLinks(files), []);
+
+  // ...and the reason it is not a problem is that the tag really is gone.
+  const mirrored = injectMirrorTags(page, { slug: 'demo', file: 'index.html' });
+  assert.ok(!/rel=["']sitemap["']/i.test(mirrored), 'the sitemap link survived injectMirrorTags');
+  assert.ok(!mirrored.includes('nowhere.html'), 'the venture canonical survived');
+  assert.ok(!mirrored.includes('missing.png'), 'the venture icon survived');
+
+  // A real navigable link to something absent is still a problem — the point
+  // is to stop policing tags the mirror removes, not to stop policing.
+  assert.equal(
+    validateLinks([
+      { slug: 'demo', file: 'index.html', contents: '<a href="gone.html">g</a>' },
+    ]).length,
+    1,
+  );
+});
+
+test('blanking a stripped link preserves every byte offset around it', () => {
+  // Same contract as `blankScriptBodies`: only the element's own characters
+  // change, so anything downstream that indexes into the document still points
+  // where a human reading the source would look.
+  const html = '<head><link rel="icon" href="a.png"><title>t</title></head>';
+  const blanked = blankStrippedLinks(html);
+  assert.equal(blanked.length, html.length);
+  assert.equal(blanked.indexOf('<title>'), html.indexOf('<title>'));
+  assert.ok(!blanked.includes('a.png'));
+});
+
+test('every rel the mirror strips is one validateLinks also ignores', () => {
+  // The two used to be written out independently, and the drift cost a venture
+  // its place in the mirror. Derived from one set now; this asserts the set is
+  // what both actually use rather than trusting that they still agree.
+  for (const rel of STRIPPED_LINK_RELS) {
+    const html = `<head><link rel="${rel}" href="absent-${rel}.html"></head>`;
+    assert.deepEqual(
+      validateLinks([{ slug: 'demo', file: 'index.html', contents: html }]),
+      [],
+      `rel="${rel}" is stripped but still policed`,
+    );
+    assert.ok(
+      !injectMirrorTags(html, { slug: 'demo', file: 'index.html' }).includes(`absent-${rel}.html`),
+      `rel="${rel}" is ignored by validateLinks but not actually stripped`,
+    );
+  }
+});
+
+test('a subdirectory is mirrored only when it is a page, not a source tree', async () => {
+  // The rule is "it holds its own index.html". Everything `ventures/` calls
+  // `src`, `tests`, `examples`, `scripts` or `docs` fails it, which is what
+  // keeps a Node source tree from being published and from spending the
+  // mirror's byte ceiling on files no visitor can use.
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'fd-subdir-'));
+  const venture = path.join(root, 'demo');
+  for (const dir of ['src', 'tests', 'tool', '.hidden']) {
+    await fs.mkdir(path.join(venture, dir), { recursive: true });
+  }
+  await fs.writeFile(path.join(venture, 'index.html'), '<html></html>');
+  await fs.writeFile(path.join(venture, 'src', 'lib.mjs'), 'export const a = 1;');
+  await fs.writeFile(path.join(venture, 'tests', 'run.mjs'), 'export const b = 2;');
+  await fs.writeFile(path.join(venture, 'tool', 'index.html'), '<html></html>');
+  await fs.writeFile(path.join(venture, 'tool', 'calc.mjs'), 'export const c = 3;');
+  await fs.writeFile(path.join(venture, 'tool', 'calc.test.mjs'), 'test');
+  // A page directory nginx could not route is refused rather than shipped dark.
+  await fs.writeFile(path.join(venture, '.hidden', 'index.html'), '<html></html>');
+
+  const names = await ventureFiles('demo', root);
+  assert.deepEqual(names, ['index.html', 'tool/calc.mjs', 'tool/index.html']);
+  await fs.rm(root, { recursive: true, force: true });
+});
+
+test('a link inside a page subdirectory resolves from its own directory', () => {
+  // `consent-change-record/tool/index.html` links `../LICENSE`. Resolved from
+  // the venture root instead of the file's own directory that escapes the
+  // venture and reads as dead; and a sibling module would resolve one level
+  // too high and read as present when the browser asks for a file that is not
+  // there. Both directions are silent, so both are pinned.
+  const files = [
+    { slug: 'demo', file: 'LICENSE', contents: 'MIT' },
+    { slug: 'demo', file: 'tool/calc.mjs', contents: '' },
+    {
+      slug: 'demo',
+      file: 'tool/index.html',
+      contents: '<a href="../LICENSE">l</a><a href="calc.mjs">c</a>',
+    },
+  ];
+  assert.deepEqual(validateLinks(files), []);
+
+  const wrong = [
+    { slug: 'demo', file: 'calc.mjs', contents: '' },
+    { slug: 'demo', file: 'tool/index.html', contents: '<a href="calc.mjs">c</a>' },
+  ];
+  assert.deepEqual(validateLinks(wrong), [
+    'demo/tool/index.html → "calc.mjs" (no demo/tool/calc.mjs in the mirror)',
+  ]);
+});
+
+test('the two ventures these fixes admitted are actually in the committed mirror', async () => {
+  // The end-to-end assertion. Both were reported by `explainIneligible` as
+  // held out by a link the mirror could not follow, and both are pages a
+  // stranger can now open on the apex.
+  const { files } = await buildMirror();
+  const keys = new Set(files.map((f) => f.key));
+  assert.ok(keys.has('einvoice-preflight__index.html'), 'einvoice-preflight is not mirrored');
+  assert.ok(
+    keys.has('consent-change-record__tool__index.html'),
+    'the consent-change-record sub-tool is not mirrored',
+  );
+  // Its modules have to come with it, or the page renders and does nothing.
+  for (const mod of ['har-diff', 'trackers', 'usage']) {
+    assert.ok(keys.has(`consent-change-record__tool__${mod}.mjs`), `${mod}.mjs is missing`);
+  }
+  // And it must not have dragged the venture's `test/` directory along.
+  assert.ok(
+    ![...keys].some((k) => k.startsWith('consent-change-record__test__')),
+    'the venture test directory was mirrored',
+  );
+});
+
+test('every mirrored URL routes to its own stored key through the real config', async () => {
+  // ## Why this test exists
+  //
+  // `default.conf` is delivered to a pod by Argo CD, so no test in this tree
+  // executes it and `nginx -t` is not available in the sessions that change it.
+  // Every other assertion about routing in this file compares the config's
+  // *text* against a pattern — which catches a typo and misses the thing that
+  // actually breaks: two `location` blocks whose regexes overlap, so a request
+  // is answered by the wrong one. That failure is invisible in review and
+  // silent in production, because the wrong block still returns 200 for some
+  // paths and 404 for others.
+  //
+  // So this walks the mirror's real URLs through nginx's own rule — regex
+  // `location` blocks are tried in file order and the first match wins — and
+  // asserts each one lands on the block that reconstructs its stored key.
+  //
+  // The regexes are PCRE in nginx and RegExp here. The patterns in this file
+  // use only character classes, anchors and named captures, which mean the same
+  // thing in both, so the simulation is faithful for what it is asked to judge.
+  const conf = await fs.readFile(
+    path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
+    'utf8',
+  );
+  const blocks = [...conf.matchAll(/location ~ "([^"]+)" \{\n([\s\S]*?)\n  \}/g)].map(
+    ([, pattern, body]) => ({
+      pattern: new RegExp(pattern),
+      rewrite: body.match(/rewrite \^ \/(\S+) break;/)?.[1] ?? null,
+      typed: /default_type text\/javascript;/.test(body),
+    }),
+  );
+  assert.ok(blocks.length >= 8, `only ${blocks.length} regex locations parsed out of the config`);
+
+  const route = (url) => {
+    for (const block of blocks) {
+      const m = block.pattern.exec(url);
+      if (!m) continue;
+      // nginx substitutes `${name}` in the rewrite replacement from the
+      // location's own named captures.
+      const key = block.rewrite.replace(/\$\{(\w+)\}/g, (_, name) => {
+        assert.ok(name in (m.groups ?? {}), `\${${name}} is not a capture of the block that matched`);
+        return m.groups[name];
+      });
+      return { key, typed: block.typed };
+    }
+    return null;
+  };
+
+  const { files } = await buildMirror();
+  let subdirChecked = 0;
+  for (const file of files) {
+    const hit = route(mirrorUrl(file.slug, file.file));
+    assert.ok(hit, `no location block matches ${mirrorUrl(file.slug, file.file)}`);
+    // `gzip_static` appends `.gz` to whatever the rewrite produced, so this is
+    // the exact filename the pod opens.
+    assert.equal(`${hit.key}.gz`, file.stored, `${mirrorUrl(file.slug, file.file)} routes to the wrong key`);
+    // A module served without an explicit JavaScript type is refused by the
+    // browser, and the page renders inert with a 200 in the log.
+    assert.equal(
+      hit.typed,
+      file.file.endsWith('.mjs'),
+      `${mirrorUrl(file.slug, file.file)} is ${hit.typed ? '' : 'not '}typed as JavaScript`,
+    );
+    if (file.file.includes('/')) subdirChecked += 1;
+  }
+  assert.ok(subdirChecked > 0, 'no page-subdirectory file was exercised, so those blocks are unproven');
+
+  // The directory-index form: a trailing slash has to reach `__index.html`,
+  // because a flattened key has nothing for nginx to append `index.html` to.
+  assert.equal(route('/tools/consent-change-record/').key, 'consent-change-record__index.html');
+  assert.equal(
+    route('/tools/consent-change-record/tool/').key,
+    'consent-change-record__tool__index.html',
+  );
+
+  // The overlap that would be silent: a flat file must never be captured as a
+  // directory by the deeper blocks, and a deep path must never be answered by
+  // a flat one. Both are asserted through the same first-match-wins walk.
+  assert.equal(route('/tools/demo/calc.mjs').key, 'demo__calc.mjs');
+  assert.equal(route('/tools/demo/LICENSE').key, 'demo__LICENSE');
+  assert.equal(route('/tools/demo/tool/calc.mjs').key, 'demo__tool__calc.mjs');
+  assert.equal(route('/tools/demo/tool/LICENSE').key, 'demo__tool__LICENSE');
+  assert.ok(route('/tools/demo/calc.mjs').typed, 'a flat module lost its JavaScript type');
+  assert.ok(route('/tools/demo/tool/calc.mjs').typed, 'a nested module lost its JavaScript type');
+  assert.ok(!route('/tools/demo/tool/LICENSE').typed, 'a LICENSE was typed as JavaScript');
+
+  // Two levels is refused rather than answered wrongly: `ventureFiles` never
+  // generates one, and the blocks decode exactly one separator.
+  assert.equal(route('/tools/demo/a/b/c.html'), null, 'a two-level path found a block to answer it');
 });

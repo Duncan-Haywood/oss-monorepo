@@ -117,8 +117,9 @@ spec:
   # both ship a Deployment and a NetworkPolicy) and were only ever unused
   # *here*. Narrowed per the header comment's own rule -- add a group back
   # in the same commit that first ships a resource needing it in this
-  # namespace. test_staging_appproject_whitelist_carries_no_group_staging_never_ships
-  # in gitops/tests/test_manifests.py pins this.
+  # namespace. test_appproject_whitelist_carries_no_group_its_own_namespace_never_ships
+  # in gitops/tests/test_manifests.py pins this (generalized 2026-09-02 to
+  # cover every venture namespace, not just this one -- see that test).
   namespaceResourceWhitelist:
     - group: ""
       kind: "*"
@@ -141,8 +142,26 @@ spec:
   namespaceResourceWhitelist:
     - group: ""
       kind: "*"
-    - group: apps
-      kind: "*"
+    # `apps` (Deployment/ReplicaSet/StatefulSet/DaemonSet) sat wildcarded
+    # here since the namespace was first adopted (#1486), same as every
+    # sibling project -- but `gitops/agents/` has never shipped a resource in
+    # that group: the governor runs as a `batch/v1` CronJob, and neither it
+    # nor the Codex worker is a long-running workload of its own (the worker
+    # is a Job governor.py's own `build_job_manifest` creates directly, never
+    # a Deployment). This is the same shape of gap #2771 closed for `policy`
+    # tree-wide and the one just above closed for `staging`'s own
+    # `apps`/`networking.k8s.io` -- a convenience group real elsewhere (prod
+    # and ci both ship a Deployment) left wildcarded here purely because
+    # nothing had occasion to narrow it, widening what a compromised sync
+    # could place in this namespace (an unreviewed Deployment or DaemonSet)
+    # beyond anything a real manifest needs. `networking.k8s.io` stays
+    # wildcarded below: it is real and load-bearing here (three
+    # NetworkPolicies in `gitops/agents/networkpolicy.yaml`). Narrowed per
+    # the header comment's own rule -- add `apps` back, in this project, the
+    # same commit that first ships a Deployment (or sibling kind) under
+    # `gitops/agents/`.
+    # test_appproject_whitelist_carries_no_group_its_own_namespace_never_ships
+    # in gitops/tests/test_manifests.py pins this.
     - group: batch
       kind: "*"
     - group: networking.k8s.io

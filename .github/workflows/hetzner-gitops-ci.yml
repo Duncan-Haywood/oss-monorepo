@@ -73,6 +73,20 @@ jobs:
           node-version: "22"
       - name: Install test deps
         run: pip install -r gitops/tests/requirements.txt pyflakes
+      # `test_front_door_serving.py` boots a real nginx over the front door's
+      # own built ConfigMaps and fetches from it. That is the only check in the
+      # tree that can tell whether the apex actually serves a tool page — the
+      # rest read the config as text, and both ways the gz-only mirror could go
+      # dark (`try_files` on an absent uncompressed name, a positional capture
+      # in a `rewrite`) are textually clean. It skips with a reason when nginx
+      # is missing, so this step is what stops it skipping here.
+      #
+      # `|| true` because the self-hosted image has no apt and no sudo (same
+      # reason `setup-node` is explicit above). There the test skips, which is
+      # the honest answer; `test_it_did_not_skip_on_the_runner_that_is_supposed
+      # _to_run_it` fails if it ever skips on a *hosted* runner instead.
+      - name: Install nginx
+        run: sudo apt-get install -y --no-install-recommends nginx-light || true
       - name: pyflakes governor
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest

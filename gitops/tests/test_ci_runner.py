@@ -263,6 +263,48 @@ def test_runner_cannot_reach_the_cluster() -> None:
     assert pod["automountServiceAccountToken"] is False
 
 
+def test_runner_internet_egress_is_scoped_to_https() -> None:
+    # Regression: this rule had no `ports:` at all, which in NetworkPolicy
+    # semantics means every port to any allowed destination -- not the
+    # HTTPS-only egress this file's header always claimed, and not what
+    # `gitops/agents/networkpolicy.yaml`'s `worker-egress` and
+    # `gitops/prod/networkpolicy.yaml`'s `portfolio-site-egress` each already
+    # enforce for the identical rule shape (both cite this file as already
+    # fixed the same way -- it never was). `test_runner_cannot_reach_the_
+    # cluster` above checked the `except:` CIDR list but never checked
+    # `ports`, so a workflow step could open a connection to any address on
+    # the internet on any port and nothing here would say so.
+    policy = _ci_docs()["NetworkPolicy"]["spec"]
+    internet_rule = policy["egress"][0]
+    assert internet_rule["to"][0]["ipBlock"]["cidr"] == "0.0.0.0/0"
+    assert internet_rule.get("ports") == [{"protocol": "TCP", "port": 443}], internet_rule.get("ports")
+
+
+def test_runner_ssh_carveout_is_scoped_to_the_two_boxes_on_port_22_only() -> None:
+    # hetzner-gitops-ci.yml's `preflight` job SSHes to the two Hetzner boxes
+    # and reads the same `vars.CI_RUNNER` switch as every other job, so it
+    # needs port 22 to exactly those two addresses once CI_RUNNER is ever
+    # flipped to self-hosted -- the 443-only rule above does not cover it.
+    # Pinned narrowly so a future edit cannot quietly widen this into a
+    # second general-internet rule instead of a two-address carve-out.
+    policy = _ci_docs()["NetworkPolicy"]["spec"]
+    ssh_rules = [
+        r
+        for r in policy["egress"]
+        if r.get("ports") == [{"protocol": "TCP", "port": 22}]
+    ]
+    assert len(ssh_rules) == 1, ssh_rules
+    cidrs = {block["ipBlock"]["cidr"] for block in ssh_rules[0]["to"]}
+    assert cidrs == {"89.167.29.39/32", "157.180.80.188/32"}, cidrs
+
+    # Both addresses are the literal ones the preflight job itself SSHes to,
+    # so the policy cannot silently drift from what the workflow actually
+    # needs.
+    workflow = (REPO / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
+    assert "89.167.29.39" in workflow
+    assert "157.180.80.188" in workflow
+
+
 def test_runner_pod_runs_as_the_images_own_unprivileged_user() -> None:
     # Every other workload in this repo (portfolio-site's three containers,
     # its refresh and usage CronJobs, the governor, prod's landing page) pins

@@ -37,6 +37,14 @@
        ever shipped. The button inverts instead: pale fill, dark ink. */
     --cta-bg: #12506b;
     --cta-fg: #ffffff;
+    /* The search field's edge, and the one border on this page that is not
+       --rule. --rule measures 1.36:1 against --paper in light and 1.54:1 in
+       dark: fine for a card, whose shape a reader gets from its fill and its
+       content, and a failure of WCAG 2.1 SC 1.4.11 for a text input, where
+       the boundary is the only thing saying "you can type here". A headless
+       pass over the rendered page caught it before this shipped; both values
+       below clear 3:1 against --paper. */
+    --field-edge: #8a8379;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -48,6 +56,7 @@
       --link: #7fc4e2;
       --cta-bg: #7fc4e2;
       --cta-fg: #10161a;
+      --field-edge: #6f7780;
     }
   }
   * { box-sizing: border-box; }
@@ -100,6 +109,34 @@
   footer a { color: var(--link); }
   footer p { max-width: 52rem; }
   .fine strong { color: var(--ink); }
+  /* The filter over the mirrored tools. Revealed by script — see
+     FILTER_SCRIPT — so a reader without JavaScript never meets a box that
+     does nothing.
+
+     Every element the filter hides needs a rule here, and the reason is the
+     cascade rather than specificity: the UA sheet's [hidden] { display: none }
+     loses to ANY author display declaration, however weak. .filter and .grid
+     both set display: grid, so without these two selectors the hidden element
+     keeps its box. For .grid that was not hypothetical — it was measured in a
+     browser: filtering to one trade left the six emptied category lists still
+     rendering. Nothing was visible, because a grid with no visible items has
+     no height, so the page looked right and a screen reader read six empty
+     lists between the heading and the one result. */
+  .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; }
+  .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; }
+  .filter label { font-size: 0.88rem; color: var(--ink-soft); }
+  .filter input {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--field-edge);
+    border-radius: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    width: 100%;
+  }
+  .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+  .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
+  .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
 </style>
 <script type="application/ld+json">
 {
@@ -161,7 +198,7 @@
 <header>
   <h1>169 free tools for people who quote, sell and bill</h1>
   <p class="lede">Free, no signup, no account. Each tool runs in your browser — where one needs to look something up online, its own page says so before you use it.</p>
-  <p><a class="cta" href="#open-now">Open one of the 53 tools running here now</a></p>
+  <p><a class="cta" href="#open-now">Open one of the 162 tools running here now</a></p>
   <p class="fine">The full catalogue of 169 is at <a href="https://tools.marisstella.dev/">tools.marisstella.dev</a>, which goes live when its access token is sealed.</p>
 </header>
 <main>
@@ -169,22 +206,22 @@
   <ul class="grid">
         <li class="card" style="--accent: #5c4412">
           <h3><a href="#open-trades">Trade &amp; contractor bids</a></h3>
-          <span class="count">116 tools · 13 you can open here now</span>
+          <span class="count">116 tools · 115 you can open here now</span>
           <p>Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.</p>
         </li>
         <li class="card" style="--accent: #5c2a1f">
           <h3><a href="#open-evidence">Compliance checks &amp; evidence records</a></h3>
-          <span class="count">14 tools · 10 you can open here now</span>
+          <span class="count">14 tools · 12 you can open here now</span>
           <p>Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.</p>
         </li>
         <li class="card" style="--accent: #12594a">
           <h3><a href="#open-marketplace">Marketplace seller tools</a></h3>
-          <span class="count">12 tools · 8 you can open here now</span>
+          <span class="count">12 tools · 11 you can open here now</span>
           <p>Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.</p>
         </li>
         <li class="card" style="--accent: #1f5c35">
           <h3><a href="#open-backoffice">Back-office money &amp; contracts</a></h3>
-          <span class="count">11 tools · 8 you can open here now</span>
+          <span class="count">11 tools · 10 you can open here now</span>
           <p>Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.</p>
         </li>
         <li class="card" style="--accent: #1d4a5c">
@@ -206,184 +243,517 @@
 
 
   <h2 id="open-now">Open one now, on this page's own host</h2>
-  <p class="lede-sm">53 of the 169 tools are served directly from this domain, so they work whether or not the catalogue host is up. They are the complete tools, not previews.</p>
-  <h3 class="group" id="open-trades">Trade &amp; contractor bids</h3>
-  <ul class="grid">
-        <li class="card">
+  <p class="lede-sm">162 of the 169 tools are served directly from this domain, so they work whether or not the catalogue host is up. They are the complete tools, not previews.</p>
+  <div class="filter" id="tool-filter" hidden>
+    <label for="tool-search">Find a tool</label>
+    <input id="tool-search" type="search" autocomplete="off" spellcheck="false" placeholder="roofing, ebay, cash flow…" aria-describedby="tool-filter-status">
+    <p class="filter-status" id="tool-filter-status" role="status"></p>
+  </div>
+  <p class="filter-empty" id="tool-filter-empty" hidden>No tool here matches that. Try a trade (&quot;roofing&quot;, &quot;fence&quot;), a marketplace (&quot;ebay&quot;, &quot;shopify&quot;), or the job to be done (&quot;bid&quot;, &quot;fee&quot;, &quot;cash flow&quot;).</p>
+  <h3 class="group" id="open-trades" data-group="trades">Trade &amp; contractor bids</h3>
+  <ul class="grid" data-group="trades">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/change-order-margin-calculator/">Change Order Margin Calculator — Price the Added Work</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades" data-alt="cashflow">
           <h3><a href="/tools/subcontractor-cashflow-planner/">Subcontractor Cash Flow Planner — Payment Delay Gap</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/contractor-bid-readiness/">Free Contractor Bid Readiness Checklist</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/construction-evidence-log/">Construction Daily Log and Change Order Evidence Pack</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades" data-alt="margin">
           <h3><a href="/tools/job-margin-variance/">Job Cost Variance Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/appliance-repair-quote-calculator/">Appliance Repair Quote Calculator — Repair vs Replace</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/hvac-maintenance-contract-calculator/">HVAC Maintenance Contract Pricing Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/cleaning-dilution-calculator/">Cleaning Chemical Dilution Cost Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/roofing-bid-calculator/">Roofing Bid Calculator — Price a Reroof by the Square</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/painting-bid-calculator/">Painting Bid Calculator — Interior Price Per Sq Ft</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/concrete-bid-calculator/">Concrete Bid Calculator — Driveway &amp; Patio by Cubic Yard</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/lawn-care-bid-calculator/">Lawn Care Bid Calculator — Price a Mowing Stop</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="trades">
           <h3><a href="/tools/fence-bid-calculator/">Fence Bid Calculator — Posts, Gates, and Tear-Out</a></h3>
         </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/artificial-turf-bid-calculator/">Artificial Turf Bid Calculator — Landscape vs Pet vs Green</a></h3>
+        </li>
+        <li class="card" data-cat="trades" data-alt="pave">
+          <h3><a href="/tools/asphalt-driveway-pave-bid-calculator/">Asphalt Driveway Paving Bid Calculator — Price by the Ton</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/asphalt-sealcoat-bid-calculator/">Asphalt Sealcoating Bid Calculator — Driveway &amp; Lot Price</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/attic-insulation-bid-calculator/">Attic Insulation Bid Calculator — Price the Bags, Not Attic</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/automatic-driveway-gate-bid-calculator/">Automatic Driveway Gate Bid Calculator — Price Operators</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/basement-finishing-bid-calculator/">Basement Finishing Bid Calculator — Price to Finish It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/basement-waterproofing-bid-calculator/">Basement Waterproofing Bid Calculator — Wells, Sump, Drain</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/boiler-replacement-bid-calculator/">Boiler Replacement Bid Calculator — Price to Replace It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/cabinet-refinishing-bid-calculator/">Cabinet Refinishing Bid Calculator — Doors, Drawers, Prep</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/carpet-cleaning-bid-calculator/">Carpet Cleaning Bid Calculator — Price the Stop, Not Room</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/carpet-install-bid-calculator/">Carpet Installation Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/chimney-sweep-bid-calculator/">Chimney Sweep Bid Calculator</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/concrete-lifting-bid-calculator/">Concrete Lifting Bid Calculator — Void, Method, and Access</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/countertop-bid-calculator/">Quartz &amp; Granite Countertop Bid Calculator — Slabs &amp; Cuts</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/crawl-space-encapsulation-bid-calculator/">Crawl Space Encapsulation Bid Calculator — Price It Right</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/crown-molding-bid-calculator/">Crown Molding Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/cut-list-optimizer/">Cut List Optimizer — Compare Sheet Sizes and Board Lengths</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/deck-bid-calculator/">Deck Bid Calculator</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/deck-staining-bid-calculator/">Deck Staining Bid Calculator — Rails, Stairs, and Coats</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/dryer-vent-bid-calculator/">Dryer Vent Bid Calculator — Stories, Run, and Roof Cap</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/drywall-bid-calculator/">Drywall Bid Calculator — Price the Finish Level, Not Sheets</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/duct-cleaning-bid-calculator/">Duct Cleaning Bid Calculator — Systems, Vents, and Coil</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/egress-window-bid-calculator/">Egress Window Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/electrical-panel-upgrade-bid-calculator/">Electrical Panel Upgrade Bid Calculator — Feeder, Circuits</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/entry-door-bid-calculator/">Entry Door Bid Calculator — Opening, Lights, and Rot</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/epoxy-garage-floor-bid-calculator/">Epoxy Garage Floor Bid Calculator — Flake and Polyaspartic</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/ev-charger-bid-calculator/">EV Charger Installation Bid Calculator — Level 2 EVSE Cost</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/exterior-painting-bid-calculator/">Exterior Painting Bid Calculator — Elevation and Scrape</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/fireplace-insert-bid-calculator/">Fireplace Insert Bid Calculator — Liner, Hearth, Stack</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/flat-roof-bid-calculator/">Flat Roof Bid Calculator — Price a TPO or EPDM Roof</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/flooring-bid-calculator/">Flooring Bid Calculator</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/foundation-repair-bid-calculator/">Foundation Repair Bid Calculator — Access, Depth, Straps</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/freelance-retainer-calculator/">Freelance Retainer Calculator — Retainer vs Hourly</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/french-drain-bid-calculator/">French Drain Bid Calculator — Trench, Outlet, and Soil</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/furnace-bid-calculator/">Furnace Bid Calculator — Attic, Coil, and Gas Line</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/garage-door-bid-calculator/">Garage Door Bid Calculator — Spring, Door, and Drive</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/gravel-driveway-bid-calculator/">Gravel Driveway Bid Calculator — Price It by the Yard</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/gutter-cleaning-bid-calculator/">Gutter Cleaning Bid Calculator — Stories, Guards, Spouts</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/gutter-guard-bid-calculator/">Gutter Guard Bid Calculator — Feet, Stories, and Mesh</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/gutter-install-bid-calculator/">Gutter Install Bid Calculator — Corners, Drops, Stories</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/hardwood-refinishing-bid-calculator/">Hardwood Refinishing Bid Calculator — Stairs and Closets</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/holiday-light-bid-calculator/">Holiday Light Bid Calculator — Price to Hang the Lights</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/home-elevator-bid-calculator/">Home Elevator Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/hood-cleaning-bid-calculator/">Kitchen Hood Cleaning Bid Calculator — Exhaust Price</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/hot-tub-bid-calculator/">Hot Tub Bid Calculator — Crane, Pad, and Circuit</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/interior-door-bid-calculator/">Interior Door Bid Calculator — Price to Replace Doors</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/irrigation-install-bid-calculator/">Irrigation Install Bid Calculator — Zones and Backflow</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/irrigation-winterization-bid-calculator/">Irrigation Winterization Bid Calculator — Blowout Price</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/janitorial-bid-calculator/">Janitorial Bid Calculator — Commercial Price Per Month</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/junk-removal-bid-calculator/">Junk Removal Bid Calculator — Price the Dump Ticket</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/kitchen-tile-backsplash-bid-calculator/">Kitchen Tile Backsplash Bid Calculator — Price It Right</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/landscape-lighting-bid-calculator/">Landscape Lighting Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/metal-roof-bid-calculator/">Metal Roof Bid Calculator — Price a Metal Roof Job</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/mini-split-bid-calculator/">Mini-Split Install Bid Calculator — Price Per Head</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/mobile-detailing-bid-calculator/">Mobile Detailing Bid Calculator — Price a Detail Job</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/mold-remediation-bid-calculator/">Mold Remediation Bid Calculator — Containment and Demo</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/moving-bid-calculator/">Moving Company Bid Calculator — Stairs and Long Carry</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/no-show-fee-calculator/">No-Show Fee Calculator for Service Businesses</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/parking-lot-striping-bid-calculator/">Parking Lot Striping Bid Calculator — Price to Stripe It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/patio-door-bid-calculator/">Patio Door Bid Calculator — Panels, Glass, and Opening</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/paver-patio-bid-calculator/">Paver Patio Bid Calculator — Base, Waste, and Edge</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/pergola-bid-calculator/">Pergola Bid Calculator — Price to Build a Pergola</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/pest-control-bid-calculator/">Pest Control Bid Calculator — Price Drive and Stations</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/plantation-shutter-bid-calculator/">Plantation Shutter Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/pole-barn-bid-calculator/">Pole Barn Bid Calculator — Price to Build a Pole Barn</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/pool-plaster-bid-calculator/">Pool Plaster Bid Calculator — Walls, Chip-Off, Finish</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/popcorn-ceiling-bid-calculator/">Popcorn Ceiling Bid Calculator — Price to Remove It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/pressure-washing-bid-calculator/">Pressure Washing Bid Calculator — Price the Drive</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/radon-mitigation-bid-calculator/">Radon Mitigation Bid Calculator — Suction and Membrane</a></h3>
+        </li>
+        <li class="card" data-cat="trades" data-alt="cashflow">
+          <h3><a href="/tools/retainage-cashflow-calculator/">Construction Retainage Calculator</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/retaining-wall-bid-calculator/">Retaining Wall Bid Calculator — Height and Drainage</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/screened-porch-bid-calculator/">Screened Porch Bid Calculator — Price to Screen It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/security-camera-bid-calculator/">Security Camera Installation Bid Calculator — CCTV Storage</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/septic-pumping-bid-calculator/">Septic Pumping Bid Calculator — Lid, Hose, Extra Gallons</a></h3>
+        </li>
+        <li class="card" data-cat="trades" data-alt="hydrojet">
+          <h3><a href="/tools/sewer-hydrojet-bid-calculator/">Hydro-Jet and Sewer Camera Bid Calculator — Footage, Access</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/sewer-line-replace-bid-calculator/">Sewer Line Replacement Bid Calculator — Open-Cut vs CIPP</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/shed-install-bid-calculator/">Shed Install Bid Calculator — Price to Install a Shed</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/shop-rate-calculator/">Shop Rate Calculator</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/siding-bid-calculator/">Siding Bid Calculator</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/skylight-install-bid-calculator/">Skylight Install Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/snow-removal-bid-calculator/">Snow Removal Bid Calculator — Per-Push vs Seasonal</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/sod-install-bid-calculator/">Sod Installation Bid Calculator — Price to Install It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/soffit-fascia-bid-calculator/">Soffit and Fascia Bid Calculator — Price the Job Right</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/solar-pv-bid-calculator/">Solar PV Install Bid Calculator — Price Per Watt</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/spray-foam-bid-calculator/">Spray Foam Bid Calculator — Price the Insulation Job</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/stair-lift-bid-calculator/">Stair Lift Bid Calculator — Price to Install a Lift</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/standby-generator-bid-calculator/">Standby Generator Installation Bid Calculator — House Cost</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/stucco-repair-bid-calculator/">Stucco Repair Bid Calculator — Cracks, Tear-Off, Stories</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/sump-pump-bid-calculator/">Sump Pump Bid Calculator — Pit, Discharge, and Backup</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/sunroom-bid-calculator/">Sunroom Bid Calculator — Price to Build a Sunroom</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/toilet-replacement-bid-calculator/">Toilet Replacement Bid Calculator — Price to Replace It</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/tree-service-bid-calculator/">Tree Service Bid Calculator — Removal by DBH and Access</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/tuckpointing-bid-calculator/">Tuckpointing Bid Calculator — Price for Brick Pointing</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/vinyl-liner-bid-calculator/">Vinyl Liner Bid Calculator — Price to Replace a Liner</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/walk-in-shower-bid-calculator/">Walk-In Shower Bid Calculator — Drain, Slope, Overtime</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/walk-in-tub-bid-calculator/">Walk-In Tub Bid Calculator — Price to Install a Tub</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/water-heater-bid-calculator/">Water Heater Replacement Bid Calculator — Tank vs Tankless</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/water-softener-bid-calculator/">Water Softener Bid Calculator — Run, Copper, and Iron</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/well-pump-bid-calculator/">Well Pump Bid Calculator — Depth, Pitless, and Tank</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/wheelchair-ramp-bid-calculator/">Wheelchair Ramp Bid Calculator — ADA Slope, Landings, Rails</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/window-cleaning-bid-calculator/">Window Cleaning Bid Calculator — Price Per Visit</a></h3>
+        </li>
+        <li class="card" data-cat="trades">
+          <h3><a href="/tools/window-replacement-bid-calculator/">Window Replacement Bid Calculator — Price the Opening</a></h3>
+        </li>
   </ul>
-  <h3 class="group" id="open-evidence">Compliance checks &amp; evidence records</h3>
-  <ul class="grid">
-        <li class="card">
+  <h3 class="group" id="open-evidence" data-group="evidence">Compliance checks &amp; evidence records</h3>
+  <ul class="grid" data-group="evidence">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/chargeback-evidence-packet/">Chargeback Evidence Packet Builder for Ecommerce Sellers</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/grant-reporting-tracker/">Free Grant Reporting Deadline Tracker for Small Nonprofits</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/vendor-change-evidence/">Vendor Change Evidence — free vendor policy diff checker</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/public-record-watch/">Public-Record Watch — free public register change checker</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/fifo-pick-evidence/">FIFO Pick Evidence — Free Warehouse Pick-Log Report</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/backup-verification-evidence/">Backup Verification Evidence — Compare It to Last Night</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence" data-alt="repository hygiene">
           <h3><a href="/tools/repository-branch-hygiene/">Git branch cleanup review — which stale branches are safe to delete?</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/npm-deployment-evidence/">npm Deployment Evidence — Free Lockfile Surface Report</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence">
           <h3><a href="/tools/grant-deadline-tracker/">Grant Deadline Tracker for Small Nonprofits</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="evidence" data-alt="a11y">
           <h3><a href="/tools/shopify-a11y-evidence/">Shopify Accessibility Evidence Report</a></h3>
         </li>
+        <li class="card" data-cat="evidence">
+          <h3><a href="/tools/consent-change-record/">Consent Change Record</a></h3>
+        </li>
+        <li class="card" data-cat="evidence" data-alt="einvoice">
+          <h3><a href="/tools/einvoice-preflight/">E-invoice Preflight — Check JSON, UBL, CII, or Factur-X</a></h3>
+        </li>
   </ul>
-  <h3 class="group" id="open-marketplace">Marketplace seller tools</h3>
-  <ul class="grid">
-        <li class="card">
+  <h3 class="group" id="open-marketplace" data-group="marketplace">Marketplace seller tools</h3>
+  <ul class="grid" data-group="marketplace">
+        <li class="card" data-cat="marketplace" data-alt="str">
           <h3><a href="/tools/str-host-payout-calculator/">Airbnb vs Vrbo Host Payout Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace">
           <h3><a href="/tools/ebay-fee-calculator/">eBay Fee &amp; Profit Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace">
           <h3><a href="/tools/amazon-fba-calculator/">Amazon FBA vs FBM Profit Calculator — Placement vs Freight</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace">
           <h3><a href="/tools/etsy-profit-calculator/">Etsy Profit Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace">
           <h3><a href="/tools/walmart-marketplace-calculator/">Walmart Marketplace Fee Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace">
           <h3><a href="/tools/tiktok-shop-fee-calculator/">TikTok Shop Fee Calculator — Affiliate and Returns</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace">
           <h3><a href="/tools/reverb-fee-calculator/">Reverb Fee Calculator — Offer vs List, Cash vs Consign</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="marketplace" data-alt="wholesale">
           <h3><a href="/tools/faire-wholesale-calculator/">Faire Seller Fee Calculator — First Order vs Reorder</a></h3>
         </li>
+        <li class="card" data-cat="marketplace" data-alt="compare">
+          <h3><a href="/tools/marketplace-fee-compare/">Marketplace Fee Comparison — Which Channel Nets Most</a></h3>
+        </li>
+        <li class="card" data-cat="marketplace">
+          <h3><a href="/tools/shopify-fee-calculator/">Shopify Fee Calculator — Payments vs PayPal vs Grow</a></h3>
+        </li>
+        <li class="card" data-cat="marketplace">
+          <h3><a href="/tools/where-to-sell-calculator/">Where to Sell Calculator — eBay vs Etsy vs Amazon</a></h3>
+        </li>
   </ul>
-  <h3 class="group" id="open-backoffice">Back-office money &amp; contracts</h3>
-  <ul class="grid">
-        <li class="card">
+  <h3 class="group" id="open-backoffice" data-group="backoffice">Back-office money &amp; contracts</h3>
+  <ul class="grid" data-group="backoffice">
+        <li class="card" data-cat="backoffice">
           <h3><a href="/tools/seller-net-sheet/">Seller Net Sheet Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice" data-alt="subscription">
           <h3><a href="/tools/subscription-price-impact/">SaaS Price Increase Churn Calculator — Price Impact</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice">
           <h3><a href="/tools/saas-seat-true-up/">SaaS Seat True-Up Calculator — Find Unused Spend</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice" data-alt="check">
           <h3><a href="/tools/cam-reconciliation-check/">CAM Reconciliation Calculator for Commercial Leases</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice">
           <h3><a href="/tools/invoice-payment-terms-calculator/">Invoice Payment Terms Calculator — Net 30 Late Fee</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice">
           <h3><a href="/tools/cash-runway-planner/">Cash Runway Planner for Small Businesses</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice" data-alt="vendor">
           <h3><a href="/tools/vendor-rate-break-even/">Supplier Rate Break-Even Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="backoffice" data-alt="break even">
           <h3><a href="/tools/music-lesson-break-even/">Music Lesson Pricing Calculator</a></h3>
         </li>
+        <li class="card" data-cat="backoffice">
+          <h3><a href="/tools/appointment-deposit-calculator/">Appointment Deposit Calculator for Service Businesses</a></h3>
+        </li>
+        <li class="card" data-cat="backoffice" data-alt="workbench">
+          <h3><a href="/tools/payment-reconciliation-workbench/">Payment Reconciliation — Match Payouts to Bank Deposits</a></h3>
+        </li>
   </ul>
-  <h3 class="group" id="open-services">Service business pricing &amp; quotes</h3>
-  <ul class="grid">
-        <li class="card">
+  <h3 class="group" id="open-services" data-group="services">Service business pricing &amp; quotes</h3>
+  <ul class="grid" data-group="services">
+        <li class="card" data-cat="services">
           <h3><a href="/tools/pool-route-pricing/">Pool Route Pricing Calculator — Price Weekly Accounts</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="services">
           <h3><a href="/tools/translator-project-quote/">Translator Project Quote Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="services" data-alt="portable">
           <h3><a href="/tools/portable-restroom-event-quote/">Porta Potty Event Quote Calculator — Restroom Rental Bid</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="services" data-alt="license">
           <h3><a href="/tools/commercial-photo-license-calculator/">Commercial Photography Licensing Quote Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="services" data-alt="trip quote">
           <h3><a href="/tools/notary-trip-quote/">Mobile Notary &amp; Loan Signing Fee Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="services">
           <h3><a href="/tools/booth-rent-vs-commission/">Booth Rent vs Commission Calculator</a></h3>
         </li>
   </ul>
-  <h3 class="group" id="open-logistics">Logistics, freight &amp; cloud cost</h3>
-  <ul class="grid">
-        <li class="card">
+  <h3 class="group" id="open-logistics" data-group="logistics">Logistics, freight &amp; cloud cost</h3>
+  <ul class="grid" data-group="logistics">
+        <li class="card" data-cat="logistics" data-alt="margin">
           <h3><a href="/tools/medical-courier-route-margin/">Medical Courier Route Calculator — Per-Stop Pricing</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="logistics">
           <h3><a href="/tools/owner-operator-cpm-calculator/">Owner Operator CPM Calculator — Deadhead-Adjusted Rate</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="logistics" data-alt="quote normalizer">
           <h3><a href="/tools/3pl-quote-normalizer/">3PL Cost Calculator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="logistics">
           <h3><a href="/tools/freight-accessorial-auditor/">Freight Accessorial Invoice Auditor</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="logistics">
           <h3><a href="/tools/ltl-freight-class-estimator/">LTL Freight Class Estimator</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="logistics">
           <h3><a href="/tools/cloud-egress-calculator/">Cloud Egress Cost Calculator for S3 Storage</a></h3>
         </li>
   </ul>
-  <h3 class="group" id="open-more">More free tools</h3>
-  <ul class="grid">
-        <li class="card">
+  <h3 class="group" id="open-more" data-group="more">More free tools</h3>
+  <ul class="grid" data-group="more">
+        <li class="card" data-cat="more">
           <h3><a href="/tools/tender-bid-readiness/">Tender Bid Readiness Checker for Small Contractors</a></h3>
         </li>
-        <li class="card">
+        <li class="card" data-cat="more">
           <h3><a href="/tools/sponsor-ready/">Sponsor Ready — free GitHub Sponsors readiness checklist</a></h3>
         </li>
   </ul>
@@ -405,9 +775,99 @@
   </ul>
 </main>
 <footer>
-  <p><a href="#open-now">The 53 tools on this host</a> · <a href="/feed.xml" type="application/atom+xml">New tools feed</a> · <a href="/llms.txt">llms.txt</a></p>
+  <p><a href="#open-now">The 162 tools on this host</a> · <a href="/feed.xml" type="application/atom+xml">New tools feed</a> · <a href="/llms.txt">llms.txt</a></p>
   <p class="fine"><strong>No warranty.</strong> These tools are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, engineering or professional advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
   <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
 </footer>
+<script>
+(function () {
+  var box = document.getElementById('tool-filter');
+  var input = document.getElementById('tool-search');
+  var status = document.getElementById('tool-filter-status');
+  var empty = document.getElementById('tool-filter-empty');
+  if (!box || !input || !status || !empty) return;
+
+  var cards = Array.prototype.slice.call(document.querySelectorAll('li.card[data-cat]'));
+  if (!cards.length) return;
+  var groups = Array.prototype.slice.call(document.querySelectorAll('[data-group]'));
+  var total = cards.length;
+  var announced = null;
+
+  function flatten(text) { return (text || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+
+  // The category words, once per category rather than once per card.
+  var catText = {};
+  for (var h = 0; h < groups.length; h++) {
+    var key = groups[h].getAttribute('data-group');
+    if (groups[h].tagName === 'H3') catText[key] = flatten(groups[h].textContent);
+  }
+
+  // Each card's haystack, built once. Rebuilding it per keystroke would walk
+  // 159 subtrees on every character typed.
+  var hay = [];
+  for (var c = 0; c < cards.length; c++) {
+    hay.push(
+      ' ' +
+        flatten(cards[c].textContent) +
+        ' ' +
+        flatten(cards[c].getAttribute('data-alt')) +
+        ' ' +
+        (catText[cards[c].getAttribute('data-cat')] || ''),
+    );
+  }
+
+  function plural(n) { return n === 1 ? 'tool' : 'tools'; }
+
+  function apply() {
+    var query = flatten(input.value);
+    var terms = query ? query.split(' ') : [];
+    var shown = 0;
+    var perGroup = {};
+
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      var haystack = hay[i];
+      var match = true;
+      for (var t = 0; t < terms.length; t++) {
+        if (haystack.indexOf(' ' + terms[t]) === -1) { match = false; break; }
+      }
+      card.hidden = !match;
+      if (match) {
+        shown++;
+        var group = card.getAttribute('data-cat') || '';
+        perGroup[group] = (perGroup[group] || 0) + 1;
+      }
+    }
+
+    for (var g = 0; g < groups.length; g++) {
+      var id = groups[g].getAttribute('data-group');
+      groups[g].hidden = !perGroup[id];
+    }
+
+    empty.hidden = shown !== 0;
+    var message = !terms.length
+      ? 'Showing all ' + total + ' ' + plural(total) + '.'
+      : shown === 0
+        ? 'No tool matches that.'
+        : shown + ' of ' + total + ' ' + plural(total) + ' match.';
+    if (message !== announced) {
+      status.textContent = message;
+      announced = message;
+    }
+  }
+
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && input.value) {
+      input.value = '';
+      apply();
+      event.preventDefault();
+    }
+  });
+
+  box.hidden = false;
+  apply();
+})();
+</script>
 </body>
 </html>

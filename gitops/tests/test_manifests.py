@@ -44,6 +44,43 @@ def test_all_yaml_parses() -> None:
         assert docs, path
 
 
+def _find_volumes(node):
+    if isinstance(node, dict):
+        if isinstance(node.get("volumes"), list):
+            yield from node["volumes"]
+        for value in node.values():
+            yield from _find_volumes(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _find_volumes(item)
+
+
+def test_tmp_emptydir_volumes_carry_a_size_limit() -> None:
+    # portfolio-site.yaml's own comment on its sized volumes explains why:
+    # "An emptyDir that fills does not fail the write -- the kubelet evicts
+    # the pod." Every nginx-unprivileged workload in gitops/prod mounts a
+    # `tmp` emptyDir at /tmp because readOnlyRootFilesystem forces nginx's
+    # pid file and temp buffers there -- portfolio-site.yaml and landing.yaml
+    # both cap it (64Mi and 16Mi). portfolio-front.yaml shipped the same
+    # volume with no sizeLimit at all, on the one node that also runs the
+    # k3s control plane, ingress, and cert-manager, and no test caught it.
+    for path in REPO.glob("gitops/**/*.yaml"):
+        if "tests" in path.parts:
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if not doc:
+                continue
+            for volume in _find_volumes(doc):
+                if not isinstance(volume, dict) or volume.get("name") != "tmp":
+                    continue
+                empty_dir = volume.get("emptyDir")
+                if empty_dir is None:
+                    continue
+                assert isinstance(empty_dir, dict) and "sizeLimit" in empty_dir, (
+                    f"{path}: 'tmp' emptyDir volume has no sizeLimit"
+                )
+
+
 def test_no_live_secrets_in_git() -> None:
     for path in list(ROOT.rglob("*")) + list((REPO / "infra").glob("*.tf")) + list(
         (REPO / "bootstrap").rglob("*")
@@ -146,45 +183,68 @@ def test_appproject_whitelist_carries_no_group_this_tree_never_ships() -> None:
         )
 
 
-def test_staging_appproject_whitelist_carries_no_group_staging_never_ships() -> None:
+def test_appproject_whitelist_carries_no_group_its_own_namespace_never_ships() -> None:
     # Generalizes test_appproject_whitelist_carries_no_group_this_tree_never_ships
-    # to a per-namespace check rather than a tree-wide one. `apps` and
-    # `networking.k8s.io` are real, load-bearing groups elsewhere (prod ships
-    # a Deployment via `apps`, both prod and ci ship a NetworkPolicy via
-    # `networking.k8s.io`), so the tree-wide check above cannot see this gap
-    # -- it only catches a group nothing anywhere ever ships. `staging`
-    # wildcarded both anyway despite `gitops/staging/` shipping nothing but
-    # quota.yaml's ResourceQuota (group ""; kustomization.yaml lists exactly
-    # one resource) -- the same "whitelist wider than anything it guards"
-    # shape as `policy`, just scoped to one namespace's own directory rather
-    # than the whole tree, which is why it needs its own check instead of
-    # extending the one above.
+    # to a per-namespace check rather than a tree-wide one, and to every
+    # venture namespace rather than just `staging`. `apps` and
+    # `networking.k8s.io` are real, load-bearing groups *somewhere* (prod
+    # ships a Deployment via `apps`, prod/ci/agents all ship a NetworkPolicy
+    # via `networking.k8s.io`), so the tree-wide check above cannot see a
+    # group that is unused in one specific namespace's own directory while
+    # real in a sibling's -- it only catches a group nothing anywhere ever
+    # ships.
     #
-    # This does not assert staging must stay empty -- it asserts the
-    # whitelist stays in sync with what actually ships there. Deploying a
-    # Service or CronJob to staging should fail this test until the matching
-    # group is added back, per this file's own header comment: "Add it back,
-    # in whichever project needs it, the same commit a [resource] lands."
+    # Two live cases this caught before this generalization existed:
+    # `staging` wildcarded both `apps` and `networking.k8s.io` despite
+    # `gitops/staging/` shipping nothing but quota.yaml's ResourceQuota
+    # (group ""), and `agents` wildcarded `apps` despite `gitops/agents/`
+    # never shipping anything but a `batch/v1` CronJob, RBAC, NetworkPolicies
+    # and core-group objects -- no Deployment, StatefulSet, ReplicaSet or
+    # DaemonSet. Both are the same "whitelist wider than anything it guards"
+    # shape as `policy` above, just scoped to one namespace's own directory
+    # rather than the whole tree, which is why this needs a per-namespace
+    # check instead of only the tree-wide one.
+    #
+    # This does not assert a namespace must stay empty -- it asserts each
+    # whitelist stays in sync with what actually ships (or is deliberately
+    # pre-provisioned for) in its own directory. Deploying a Service or
+    # CronJob to staging, or a Deployment to agents, should fail this test
+    # until the matching group is added back, per this file's own header
+    # comment: "Add it back, in whichever project needs it, the same commit
+    # a [resource] lands."
+    #
+    # `bitnami.com`/SealedSecret is the one deliberate exception: prod, ci
+    # and agents each whitelist it ahead of an actual SealedSecret landing,
+    # for a `secrets/*.template.yaml` waiting on an owner to seal it (see
+    # test_every_project_with_a_secrets_template_can_receive_a_sealed_secret
+    # above) -- the template itself is excluded from the scan the same way
+    # that test excludes it, being a CHANGE_ME placeholder rather than a real
+    # manifest, so `bitnami.com` would otherwise read as unused right up
+    # until the seal lands.
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}
-    whitelist = by_name["staging"]["spec"]["namespaceResourceWhitelist"]
-    whitelisted_groups = {e.get("group") for e in whitelist}
-    shipped_groups: set[str] = set()
-    for path in (ROOT / "staging").rglob("*.yaml"):
-        if path.name == "kustomization.yaml" or "secrets" in path.parts:
-            continue
-        for doc in yaml.safe_load_all(path.read_text()):
-            if not doc or "kind" not in doc:
+    for venture in ("prod", "staging", "agents", "ci"):
+        whitelist = by_name[venture]["spec"]["namespaceResourceWhitelist"]
+        whitelisted_groups = {e.get("group") for e in whitelist}
+        shipped_groups: set[str] = set()
+        for path in (ROOT / venture).rglob("*.yaml"):
+            if path.name == "kustomization.yaml" or "secrets" in path.parts:
                 continue
-            api_version = doc.get("apiVersion", "")
-            group = api_version.split("/")[0] if "/" in api_version else ""
-            shipped_groups.add(group)
-    unused = whitelisted_groups - shipped_groups - {"*"}
-    assert not unused, (
-        f"staging AppProject wildcards {sorted(unused)} but gitops/staging/ "
-        f"ships no resource in {sorted(unused)} -- narrow the whitelist to "
-        "match, per this file's own header comment"
-    )
+            for doc in yaml.safe_load_all(path.read_text()):
+                if not doc or "kind" not in doc:
+                    continue
+                api_version = doc.get("apiVersion", "")
+                group = api_version.split("/")[0] if "/" in api_version else ""
+                shipped_groups.add(group)
+        if list((ROOT / venture).glob("secrets/*.template.yaml")):
+            shipped_groups.add("bitnami.com")
+        unused = whitelisted_groups - shipped_groups - {"*"}
+        assert not unused, (
+            f"{venture} AppProject wildcards {sorted(unused)} but "
+            f"gitops/{venture}/ ships no resource in {sorted(unused)} -- "
+            "narrow the whitelist to match, per this file's own header "
+            "comment"
+        )
 
 
 def test_agents_project_cannot_dest_prod() -> None:
@@ -943,8 +1003,8 @@ def test_portfolio_front_mounts_every_generated_mirror_shard() -> None:
     assert mounted == generated, (
         f"portfolio-front.yaml mounts {mounted} but front-door-tools/kustomization.yaml "
         f"generates {generated}. Regenerate with `node "
-        "platform/marketing/front-door-tools.mjs --write` and update the projected "
-        "volume's source list to match."
+        "platform/marketing/front-door-tools.mjs --write`, which rewrites both files "
+        "in the same call, and commit the result."
     )
     # Named by index from zero, with no gaps: the generator's `shardName`, and
     # what makes a missing shard obvious to a human scanning either file.
@@ -1016,8 +1076,16 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
             f"OWNER_CHECKLIST.md claims a mirror of {value} tools, actual is {actual}"
         )
 
-    other_tools = re.findall(r"working funnel for the other\s+(\d+)\s", checklist)
-    assert other_tools, "OWNER_CHECKLIST.md's 'the other N' sentence not found or reworded"
+    # Reworded 2026-09-02. This used to pin "working funnel for the other N",
+    # and the arithmetic it checks was always the point — but the sentence
+    # carrying it also claimed the seal was what turned the front door into a
+    # working funnel at all, which CLAUDE.md corrects at length: the apex
+    # already serves the tools and its cards already work. Pinning a count
+    # inside a sentence that is wrong about what the count means keeps the
+    # number honest and the claim stale, so the wording moved and this pattern
+    # moved with it. The check itself is unchanged.
+    other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools", checklist)
+    assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
     for value in other_tools:
         assert int(value) == total - actual, (
             f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
@@ -1238,15 +1306,26 @@ def test_the_mirror_byte_ceiling_trips_before_this_one_does() -> None:
     # were ever raised past what this budget allows, the earlier and more useful
     # error would stop firing and the first sign of trouble would move to CI.
     #
-    # 1.05 is a deliberately generous stand-in for the serialisation overhead
-    # measured on the real object (3.7% for 95 keys: 643,465 bytes of content
-    # serialise to 667,371). Being generous here is the safe direction — it
-    # makes this test complain sooner, not later.
+    # 1.40 is a deliberately generous stand-in for the serialisation overhead,
+    # and the number changed by an order of magnitude on 2026-09-02.
+    #
+    # It was 1.05, standing in for the 3.7% measured on the real object (643,465
+    # bytes of content serialising to 667,371) — correct while the mirror was
+    # text under `data`, where the only overhead is JSON string escaping. The
+    # mirror is now gzipped, gzip output is not valid UTF-8, and kustomize puts
+    # a key it cannot decode under `binaryData` as base64. That is a 4/3
+    # expansion, so a 1.05 factor would have under-predicted the applied object
+    # by 27% and left this check passing on a ceiling that could not actually be
+    # delivered — a ceiling test that no longer predicts the thing it guards is
+    # worse than none, because it reads like coverage.
+    #
+    # 1.40 is 4/3 plus room for the JSON keys and the object envelope. Being
+    # generous here is the safe direction: it makes this test complain sooner.
     source = (REPO / "platform" / "marketing" / "front-door-tools.mjs").read_text()
     match = re.search(r"SHARD_BYTE_CEILING = (\d+) \* 1024", source)
     assert match, "front-door-tools.mjs no longer declares SHARD_BYTE_CEILING in KiB"
     byte_ceiling = int(match.group(1)) * 1024
-    assert byte_ceiling * 1.05 < ETCD_OBJECT_BUDGET, (
+    assert byte_ceiling * 1.40 < ETCD_OBJECT_BUDGET, (
         f"SHARD_BYTE_CEILING is {byte_ceiling} bytes of content, which could serialise past the "
         f"{ETCD_OBJECT_BUDGET}-byte budget here. Lower it, or lower it and raise this budget "
         "together — never leave the object check as the only one that fires."
