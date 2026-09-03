@@ -139,3 +139,49 @@ for.
 - **Publishing outward is the owner's**, per `CLAUDE.md`. Building an asset
   here is always allowed; submitting the portfolio to a directory, opening an
   account, or posting under its name is not.
+
+## The embed offer on the apex
+
+`platform/pages/embed.mjs` calls itself "Priority 1 of the
+marketing-distribution queue item", and until 2026-09-03 it shipped only on
+`tools.marisstella.dev` — the host that fails closed on the unsealed
+`portfolio-site-repo` Secret and has never served a byte. So the portfolio's
+best organic-distribution asset reached nobody, while the apex served all 169
+tools with no way for a stranger's page to host one. Same shape as the
+`ENTRY_OVERRIDES` bug in `CLAUDE.md`: a surface the canonical build knows how
+to make, on a host that does not serve.
+
+Three pieces, and none of them is a second copy of the widget:
+
+- `injectMirrorEmbed` (in `front-door-tools.mjs`) gives a mirrored entry page
+  the `pf-chrome-foot` that the real `injectEmbedWidget` attaches to, then
+  calls it. The box, the snippet, the stylesheet link and the script tag stay
+  defined in `embed.mjs` alone.
+- `front-door.mjs --write` writes `pf-embed.js` and `pf-embed.css` to the apex
+  document root from `renderEmbedModule`/`renderEmbedStyle`. `front-door.test.mjs`
+  fails on a stale commit, so an edit to the widget cannot leave the apex
+  serving last week's runtime.
+- `front-door/default.conf` maps `?pfEmbed=1` to a framable response on the
+  tool entry page **and nowhere else**. `X-Frame-Options: DENY` is enforced
+  before any page script runs, so without this the feature would ship correct
+  HTML, a correct runtime, a green test suite, and an iframe every browser
+  refuses.
+
+The snippet points at `mirrorCanonicalUrl` — "the address that actually
+serves", which is the apex today and the tools host after the seal. Not
+`canonicalUrl`: a snippet is copied once into someone's page and then outlives
+every deploy here, so naming a dark host would hand out iframes that render
+blank and stay blank.
+
+Framing these pages is safe in a way it would not be for an application. Every
+mirrored tool is static, computes in the visitor's own browser, and has no
+account, no cookie and no server-side state, so there is no authenticated
+action for a clickjacking overlay to borrow. The narrowness is pinned by
+`test_nothing_but_a_tool_entry_page_is_framable`, which runs against real
+nginx.
+
+Embedded views are counted: nginx writes `$portfolio_embed_view` as the log's
+fourth field, and `gitops/prod/usage/aggregate.py` already folds it under its
+`EMBED_PREFIX`. That answers the question raw hit counts cannot — whether 300
+views are 300 searchers or one popular embed on a trade forum, which imply
+opposite next moves.

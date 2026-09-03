@@ -931,10 +931,50 @@ def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
     content_blocks = [
         b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b
     ]
+    #
+    # Changed 2026-09-03, and deliberately narrowed rather than relaxed. The
+    # tool entry page became framable for `?pfEmbed=1` only, so that one block
+    # sends `$portfolio_frame_options` instead of a literal. The invariant is
+    # now three things, all of which this test pins:
+    #
+    #   1. every content location still sends the header, literal or mapped;
+    #   2. *exactly one* block is allowed to send the mapped form, and it is the
+    #      tool entry page — a second one appearing (say, a future edit copying
+    #      the line into the `LICENSE` or subpage block) fails here rather than
+    #      quietly making the whole mirror framable;
+    #   3. the map's default row is DENY, so every request that does not carry
+    #      `?pfEmbed=1` gets exactly the header it got before this change.
+    #
+    # Without (2) and (3) this test would pass on a config that framed
+    # everything, which is the failure mode worth catching.
     assert len(content_blocks) >= 5, "fewer content locations than expected — check the split"
+    mapped = []
     for block in content_blocks:
         header = block.splitlines()[0].strip()
-        assert "X-Frame-Options DENY" in block, f"{header} does not send X-Frame-Options: DENY"
+        literal = "X-Frame-Options DENY" in block
+        variable = "X-Frame-Options $portfolio_frame_options" in block
+        assert literal or variable, f"{header} does not send X-Frame-Options at all"
+        if variable:
+            mapped.append(header)
+            assert "Content-Security-Policy $portfolio_frame_ancestors" in block, (
+                f"{header} relaxes X-Frame-Options without the matching "
+                "frame-ancestors CSP — modern browsers read the CSP, older ones "
+                "the header, and shipping one without the other frames on some "
+                "and not others"
+            )
+
+    assert mapped == ['location ~ "^/tools/(?<slug>[a-z0-9][a-z0-9-]*)/?$" {'], (
+        "exactly one block — the tool entry page — may use the conditional "
+        f"framing map; found {mapped}"
+    )
+
+    # The default row is what makes every other request identical to before.
+    assert re.search(
+        r"map \$arg_pfEmbed \$portfolio_frame_options \{\s*default DENY;", conf
+    ), "the framing map's default row must be DENY"
+    assert re.search(
+        r"map \$arg_pfEmbed \$portfolio_frame_ancestors \{\s*default \"\";", conf
+    ), "the frame-ancestors map must default to sending nothing"
 
 
 def test_portfolio_front_access_log_records_no_visitor() -> None:

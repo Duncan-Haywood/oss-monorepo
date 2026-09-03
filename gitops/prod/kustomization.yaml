@@ -102,6 +102,21 @@ configMapGenerator:
       # generated set under the 1 MiB object ceiling so this cannot grow past
       # it unnoticed.
       - catalog.json=front-door/catalog.json
+      # The embed runtime and its stylesheet, generated from
+      # `platform/pages/embed.mjs` by `front-door.mjs --write`. Same reason
+      # again for riding here: every mirrored entry page links them absolutely
+      # at `/pf-embed.js` and `/pf-embed.css`, so they have to sit at the
+      # document root, and two ConfigMaps cannot mount at one `mountPath`.
+      #
+      # These are the only keys in this ConfigMap that a *mirrored* page
+      # references rather than the front page — the mirror's shards mount
+      # elsewhere, but the browser resolves these two against the document
+      # root, which is this volume. Shipping the mirror without them would
+      # serve 169 pages whose embed box is unstyled and whose copy button is
+      # dead. ~4 KB together; `front-door.test.mjs` holds the whole generated
+      # set under the 1 MiB object ceiling.
+      - pf-embed.js=front-door/pf-embed.js
+      - pf-embed.css=front-door/pf-embed.css
       # The seven category browse pages. Same reason as everything above for
       # riding in this ConfigMap: they are served from the document root (the
       # `^/c/(?<cat>…)/?$` block in `front-door/default.conf` rewrites

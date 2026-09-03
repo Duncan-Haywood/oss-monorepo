@@ -93,6 +93,24 @@ import { FEED_MAX_ENTRIES, feedUpdatedAt, isIsoDate, orderForFeed } from '../pag
 // and the tools host show one mark rather than two pictures that drift.
 import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, THEME_COLOR, renderSocialCard } from '../pages/offline.mjs';
 
+// The embed runtime and its stylesheet, imported rather than restated.
+//
+// `platform/pages/embed.mjs` calls itself "Priority 1 of the
+// marketing-distribution queue item", and until now it shipped only on
+// `tools.marisstella.dev` -- the host that fails closed on the unsealed
+// `portfolio-site-repo` Secret and has never served a byte. So the portfolio's
+// best organic-distribution asset reached nobody, while the apex served all
+// 169 tools with no way for a stranger's page to host one. That is the same
+// shape as the `ENTRY_OVERRIDES` bug `CLAUDE.md` records: a surface the
+// canonical build knows how to make, on a host that does not serve.
+//
+// Imported, never copied, for the reason `CLAUDE.md` gives twice: restating a
+// rule that lives in another module froze the wrong half of it in place and
+// cost live product both times. The runtime is already host-agnostic -- it
+// reads `data-pf-embed-url`/`-title`/`-slug` off its own script tag -- so the
+// apex needs the same bytes, not a variant of them.
+import { renderEmbedModule, renderEmbedStyle, EMBED_MODULE_FILE, EMBED_STYLE_FILE } from '../pages/embed.mjs';
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
 
@@ -476,6 +494,33 @@ export const CATALOG_OUTPUT_FILE = path.join(
   'prod',
   'front-door',
   CATALOG_FILE,
+);
+
+/**
+ * Where `--write` puts the embed runtime and its stylesheet.
+ *
+ * At the apex document root, one copy for all 169 mirrored tools, on the same
+ * precedent `pf-rates.js` set on the tools host: every mirrored entry page
+ * links these two absolute paths, so a per-tool copy would be 169 identical
+ * files in a ConfigMap with an 8 MB ceiling.
+ *
+ * They live beside the front page rather than inside `front-door-tools/`
+ * because that is which nginx block serves them — the mirror's shards are
+ * routed under `/tools/…`, and these answer at `/`.
+ */
+export const EMBED_MODULE_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  EMBED_MODULE_FILE,
+);
+export const EMBED_STYLE_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  EMBED_STYLE_FILE,
 );
 
 /**
@@ -1787,6 +1832,22 @@ if (isMain) {
     // pointing a model at a path this host answers with the front page.
     await fs.writeFile(CATALOG_OUTPUT_FILE, catalog);
     console.log(`wrote ${path.relative(REPO_ROOT, CATALOG_OUTPUT_FILE)} (${catalog.length} bytes)`);
+    // And once more, for the reason every write above gives: each mirrored
+    // entry page links these two absolute paths, so a run that wrote the
+    // mirror without them would ship 169 pages whose embed box is unstyled and
+    // whose copy button does nothing -- the catch-all `location /` would answer
+    // both requests with the front page's HTML, and a stylesheet and an ES
+    // module served as HTML are refused rather than merely mistyped.
+    const embedModule = renderEmbedModule();
+    await fs.writeFile(EMBED_MODULE_OUTPUT_FILE, embedModule);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, EMBED_MODULE_OUTPUT_FILE)} (${embedModule.length} bytes)`,
+    );
+    const embedStyle = renderEmbedStyle();
+    await fs.writeFile(EMBED_STYLE_OUTPUT_FILE, embedStyle);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, EMBED_STYLE_OUTPUT_FILE)} (${embedStyle.length} bytes)`,
+    );
     // The category pages, for the same reason as everything above: the page's
     // own cards and its JSON-LD `hasPart` name these seven URLs, so a run that
     // wrote the front page without them would ship the exact defect this

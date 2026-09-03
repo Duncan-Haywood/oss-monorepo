@@ -16,6 +16,8 @@ import {
   FRONT_DOOR_URL,
   CATALOG_FILE,
   CATALOG_OUTPUT_FILE,
+  EMBED_MODULE_OUTPUT_FILE,
+  EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
   OUTPUT_FILE,
@@ -308,6 +310,75 @@ test('the nginx rewrite and the ConfigMap key agree about where a category page 
     // must be the key the generator writes.
     const served = categoryPagePath(page.id).replace(/^c\/([a-z0-9-]+)\/$/, 'c__$1.html');
     assert.equal(served, categoryPageKey(page.id));
+  }
+});
+
+test('the committed embed runtime and stylesheet match what embed.mjs renders', async () => {
+  // The same staleness guard every other generated file here gets, and it
+  // matters more for these two than for a document: they are *imported* from
+  // `platform/pages/embed.mjs` rather than written here, so an edit to the
+  // widget on the tools host would otherwise leave the apex serving last
+  // week's runtime with no test anywhere noticing. `CLAUDE.md` records two
+  // occasions where a copied-instead-of-imported rule cost live product; this
+  // is the check that keeps the import honest at the file level too.
+  const { renderEmbedModule, renderEmbedStyle } = await import('../pages/embed.mjs');
+
+  const committedModule = await fs.readFile(EMBED_MODULE_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    committedModule,
+    renderEmbedModule(),
+    'gitops/prod/front-door/pf-embed.js is stale — run `node platform/marketing/front-door.mjs --write`',
+  );
+
+  const committedStyle = await fs.readFile(EMBED_STYLE_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    committedStyle,
+    renderEmbedStyle(),
+    'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/front-door.mjs --write`',
+  );
+});
+
+test('nginx serves the embed runtime and stylesheet as their own types', async () => {
+  // The catch-all `location /` answers every path with the front page's HTML,
+  // and a browser *refuses* a stylesheet and an ES module served as
+  // `text/html` rather than merely mistyping them — the offer box would render
+  // unstyled and the copy button would do nothing, with a 200 in the log. So
+  // an exact-match block per file, each setting its own type.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  for (const [file, type] of [
+    ['pf-embed.js', 'text/javascript'],
+    ['pf-embed.css', 'text/css'],
+  ]) {
+    assert.ok(
+      conf.includes(`location = /${file} {`),
+      `default.conf must answer /${file} with its own block, not the catch-all`,
+    );
+    // Sliced to the block's own closing brace at the location's indent level,
+    // not to the first `}` — these blocks open with `types { }`, whose brace
+    // would end the slice before `default_type` was ever in it.
+    const from = conf.indexOf(`location = /${file} {`);
+    const block = conf.slice(from, conf.indexOf('\n  }', from));
+    assert.ok(
+      block.includes(`default_type ${type};`),
+      `/${file} must be served as ${type}`,
+    );
+  }
+});
+
+test('the kustomization mounts the embed runtime and stylesheet', async () => {
+  // Generated into `front-door/` and linked absolutely from every mirrored
+  // entry page, so they have to reach the document-root volume. Without these
+  // two lines the mirror ships 169 pages referencing paths the catch-all
+  // answers with the front page.
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  for (const key of ['pf-embed.js', 'pf-embed.css']) {
+    assert.ok(
+      kustomization.includes(`- ${key}=front-door/${key}`),
+      `gitops/prod/kustomization.yaml must mount ${key}; without it the embed offer is inert`,
+    );
   }
 });
 

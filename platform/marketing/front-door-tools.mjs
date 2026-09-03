@@ -90,6 +90,17 @@ import { fileURLToPath } from 'node:url';
 // copy here has twice gone stale against the original.
 import { ENTRY_CANDIDATES, ENTRY_OVERRIDES } from '../pages/build.mjs';
 
+// The embed offer, imported whole rather than reproduced for this host.
+//
+// `injectEmbedWidget` writes the box, the copyable `<iframe>` snippet, the
+// stylesheet link and the runtime's script tag. Every one of those is a rule
+// that already exists, and `CLAUDE.md` records two separate occasions where
+// restating a rule from a sibling module instead of importing it cost live
+// product. So `injectMirrorEmbed` below contributes exactly one thing the
+// original cannot know — where the box attaches on a mirrored page — and
+// borrows the rest.
+import { EMBED_MODULE_FILE, EMBED_STYLE_FILE, injectEmbedWidget } from '../pages/embed.mjs';
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
 
@@ -1096,6 +1107,12 @@ export const APEX_ROOT_PATHS = new Set([
   `/${FAVICON_FILE}`,
   `/${SOCIAL_CARD_FILE}`,
   '/healthz',
+  // The embed runtime and its stylesheet, written to the apex document root by
+  // `front-door.mjs --write` and linked absolutely from every mirrored entry
+  // page. Named from `embed.mjs`'s own constants so this allowlist cannot
+  // drift from the filenames the injector writes.
+  `/${EMBED_MODULE_FILE}`,
+  `/${EMBED_STYLE_FILE}`,
 ]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);
@@ -1449,7 +1466,15 @@ export const NAV_CLASS = 'fd-back';
 export const NAV_STYLE =
   `<style>.${NAV_CLASS}{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;` +
   `color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}` +
-  `@media print{.${NAV_CLASS}{display:none!important}}</style>`;
+  `@media print{.${NAV_CLASS}{display:none!important}}` +
+  // Hidden when this page is the one inside someone else's iframe. The embed
+  // runtime puts `.pf-embed` on <html> and replaces the site nav with a single
+  // "open the full tool" bar; `renderEmbedStyle` does this for the chrome
+  // `build.mjs` writes, and cannot know about a class that belongs to the
+  // mirror. Kept here, beside the rule it overrides, rather than appended to
+  // the shared stylesheet — this is the mirror's own nav, so its visibility
+  // rules stay in one place.
+  `.pf-embed .${NAV_CLASS}{display:none}</style>`;
 
 /**
  * Give every mirrored page a way back to the front door.
@@ -1503,6 +1528,62 @@ export function injectMirrorNav(html, { toolCount }) {
   }
   const at = html.indexOf(body[0]) + body[0].length;
   return html.slice(0, at) + nav + html.slice(at);
+}
+
+/**
+ * Offer the embed on a mirrored entry page.
+ *
+ * ## Why the mirror needs its own entry point into `embed.mjs`
+ *
+ * `injectEmbedWidget` attaches the offer inside the `<aside class="pf-chrome
+ * pf-chrome-foot">` that `build.mjs`'s `injectChrome` writes, and returns the
+ * page untouched when there is none. The mirror does not run `injectChrome` —
+ * it writes one anchor (`injectMirrorNav`) and nothing else, on purpose — so
+ * every mirrored page hit that guard and the offer appeared on none of them.
+ *
+ * The fix is to give the page the footer the offer expects rather than to
+ * reimplement the offer. An empty `pf-chrome-foot` immediately before
+ * `</body>` is that footer, and passing it through the real
+ * `injectEmbedWidget` means the box, the snippet, the stylesheet link and the
+ * script tag all stay defined in exactly one place. The alternative — a second
+ * copy of `offerMarkup` shaped for this host — is the mistake `CLAUDE.md`
+ * documents twice.
+ *
+ * It also buys the framed-view behaviour for free: `renderEmbedStyle` hides
+ * `.pf-chrome-foot` under `.pf-embed`, so the box disappears when this page is
+ * itself the one inside someone's iframe. An embedded calculator does not need
+ * instructions for embedding a calculator.
+ *
+ * ## Which URL the snippet points at
+ *
+ * `mirrorCanonicalUrl`, which is "the address that actually serves" — the apex
+ * while `TOOLS_HOST_SERVES` is false, the tools host after the seal. Not
+ * `canonicalUrl`: a snippet is copied once into a stranger's page and then
+ * outlives every deploy here, so pointing it at a host that answers nothing
+ * would hand out iframes that render blank and stay blank. This is the same
+ * defect `portfolio-site.yaml`'s framing map exists to prevent, one layer out.
+ *
+ * Entry pages only. The deep subpages inside a tool are articles, not the
+ * calculator, and `injectEmbedWidget` gates on `isEntry` for that reason.
+ */
+export function injectMirrorEmbed(html, { slug, file, title } = {}) {
+  if (file !== 'index.html') return html;
+  const body = html.match(/<\/body>/i);
+  if (!body) {
+    throw new Error('a mirrored entry page has no </body>, so the embed offer has nowhere to go');
+  }
+  const withFoot = html.replace(/<\/body>/i, '<aside class="pf-chrome pf-chrome-foot"></aside></body>');
+  return injectEmbedWidget(withFoot, {
+    slug,
+    // Absolute, not `./`: the runtime and its stylesheet are one copy at the
+    // apex document root, and a mirrored page can be served from either
+    // `/tools/<slug>/` or `/tools/<slug>/<dir>/`, so a relative path would
+    // resolve to a different (missing) file depending on the page's depth.
+    toRoot: '/',
+    canonical: mirrorCanonicalUrl(slug, file),
+    title,
+    isEntry: true,
+  });
 }
 
 /**
@@ -1690,8 +1771,16 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
         );
       }
       const raw = await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8');
+      // The title is read from the venture's own markup before any pass runs.
+      // `pageTitle` is applied to the *injected* contents further down for the
+      // feed, and either would do here — but taking it from `raw` keeps the
+      // snippet's title independent of what the mirror's own passes add, which
+      // is what a stranger's page ends up displaying.
       const contents = file.endsWith('.html')
-        ? injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length })
+        ? injectMirrorEmbed(
+            injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length }),
+            { slug, file, title: file === 'index.html' ? pageTitle(raw) : undefined },
+          )
         : raw;
       files.push({
         slug,
