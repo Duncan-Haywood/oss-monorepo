@@ -185,6 +185,16 @@ jobs:
             sed -i 's/\\r\\n/\n/g; s/\\n/\n/g' "${HOME}/.ssh/id_hetzner"
             echo "normalized literal \n escapes in the secret"
           fi
+          # Real CR bytes are the other half of the case the comment above
+          # names. A key pasted from a Windows editor arrives with genuine
+          # CRLF endings, never reaches the escape branch (its \r is a byte,
+          # not the two characters that branch greps for), and ssh-keygen
+          # rejects it with the same unhelpful error this block replaces.
+          CR="$(printf '\r')"
+          if grep -q "${CR}" "${HOME}/.ssh/id_hetzner"; then
+            sed -i "s/${CR}\$//" "${HOME}/.ssh/id_hetzner"
+            echo "normalized CRLF line endings in the secret"
+          fi
           if grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "${HOME}/.ssh/id_hetzner"; then
             echo "HETZNERSSHKEY holds a public key, not a private key." >&2
             echo "A public key cannot open an SSH session — store the matching private key instead." >&2
