@@ -115,6 +115,15 @@ export const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 /** Where `--write` puts the mirror; a kustomization in the same directory reads it. */
 export const OUTPUT_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door-tools');
 
+/**
+ * The front door's own directory — `default.conf` and the pages `front-door.mjs`
+ * writes. `writeMirror` puts the generated alias map here rather than in
+ * `OUTPUT_DIR` because it is nginx configuration, not mirrored content, and it
+ * has to land in the `portfolio-front-nginx` ConfigMap beside the config that
+ * reads it.
+ */
+export const FRONT_DOOR_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door');
+
 /** The canonical host every tool page belongs to; see `build.mjs`. */
 export const TOOLS_URL = 'https://tools.marisstella.dev/';
 
@@ -345,52 +354,62 @@ export const MIRROR_BYTE_CEILING = 8 * 1024 * 1024;
  * catalogue is the portfolio's entire public surface and the fleet adds tools
  * daily, so that is a stop-the-world failure arriving with no notice.
  *
- * Measured 2026-09-03: 173 tools, 6,397,664 stored bytes, 76.3% of the
- * ceiling, ~36,981 stored bytes per tool. At that rate the wall is ~53 tools
- * out. Nothing in the tree was tracking the number, which is how it got to
- * three quarters unremarked.
+ * Measured 2026-09-03, before deduplication: 173 tools, 6,416,254 stored bytes,
+ * 76.5% of the ceiling, ~37,088 stored bytes per tool. At that rate the wall
+ * was ~53 tools out, which at the fleet's rate of four or so a day was about a
+ * fortnight. Nothing in the tree was tracking the number, which is how it got
+ * to three quarters unremarked.
  *
  * 85% is chosen so the report fires with roughly a third of the runway still
- * unspent — ~19 tools before it trips, ~34 more between it and the wall. That
- * is enough room for the remedy below to land as an ordinary reviewed change
- * rather than an emergency, and it is far enough above today's 76.3% that
- * nothing fails on the day this ships.
+ * unspent. That is enough room for a remedy to land as an ordinary reviewed
+ * change rather than an emergency.
  *
- * ## What the remedy is, when it fires
+ * ## The remedy has since been implemented, and this is what it bought
  *
  * Not "drop a venture", which is what the wall's message used to say. That
  * advice predates the mirror covering the whole catalogue: dropping a tool to
  * publish a tool is a wash, and `STARTER_SET` is no longer where the bulk is.
  *
- * The measured answer is `duplicateBytes` below: **18.5% of the mirror
- * (1,186,041 stored bytes on 2026-09-03) is byte-identical duplicate
- * content.** Ventures here are deliberately self-contained — each ships its
- * own copy of the shared helpers — so `proposal.mjs` is stored 104 times
- * identically (760,552 redundant bytes), `share.mjs` 37 times (224,964),
- * `LICENSE` 161 times (104,960) and `proposal-terms.mjs` 21 times (82,940).
- * Every one of those files is genuinely referenced by the pages that ship
- * beside it, so none can simply be dropped from the mirror.
+ * The measured answer was `duplicateBytes` below: **18.5% of the mirror
+ * (1,186,041 stored bytes) was byte-identical duplicate content.** Ventures
+ * here are deliberately self-contained — each ships its own copy of the shared
+ * helpers — so `proposal.mjs` was stored 104 times identically (760,552
+ * redundant bytes), `share.mjs` 37 times (224,964), `LICENSE` 161 times
+ * (104,960) and `proposal-terms.mjs` 21 times (82,940). Every one of those
+ * files is genuinely referenced by the pages that ship beside it, so none
+ * could simply be dropped.
  *
- * Recovering them means storing one copy and presenting it under many names.
- * Two mechanisms exist and neither is a one-line change, which is why this
- * reports rather than guesses:
+ * `dedupeMirror` now stores one copy of each and `renderMirrorAliases` writes
+ * an nginx `map` that points the other names at it, with an identity default so
+ * only duplicated keys are affected. **Result, same day: 5,230,213 stored bytes,
+ * 62.3% of the ceiling, ~104 tools of runway rather than ~53, and 12 shards
+ * down to 10.** All 1,439 mirrored URLs were served from the real `default.conf`
+ * before and after and compared byte-for-byte: identical status, content type
+ * and sha256 on every one.
  *
- * - **Project one ConfigMap key to many paths.** A projected volume's
- *   `items: [{key, path}]` can list the same key under several paths, so the
- *   stored object shrinks by the full 18.5% while the pod's tmpfs still
- *   materialises every filename. That fixes the ceiling this constant guards
- *   (repository and ConfigMap bytes) and not the memory cost, so the two
- *   would need separating first.
- * - **An nginx `map` from `<slug>__<file>` to a canonical stored key**, with
- *   an identity default so only duplicated files are affected. This shrinks
- *   both costs, and it edits the routing that serves all 173 tools — which
- *   wants an environment that can actually run nginx against the built
- *   mirror. This one cannot: no nginx binary and no Docker daemon, verified
- *   2026-09-03.
+ * The other mechanism considered was **projecting one ConfigMap key to many
+ * paths** (`items: [{key, path}]` in the projected volume). It was not chosen:
+ * it recovers the repository and ConfigMap bytes but not the pod's memory,
+ * because the kubelet still materialises every path into the tmpfs the mirror
+ * is charged against — so the two costs would have had to be split and
+ * separately bounded first — and it spends ~670 lines of generated YAML inside
+ * the Deployment spec. The `map` recovers both costs at once and keeps the
+ * generated bulk in a config file.
  *
- * Do not raise `MIRROR_BYTE_CEILING` to clear this report without reading its
- * comment above: both costs it names are real, and 18.5% of the mirror is
- * recoverable without spending either.
+ * An earlier revision of this comment ruled the `map` out because it "wants an
+ * environment that can actually run nginx against the built mirror. This one
+ * cannot: no nginx binary and no Docker daemon, verified 2026-09-03." That was
+ * true of the session that wrote it and false of the repository:
+ * `apt-get install nginx-light` supplies nginx 1.24 built
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`, which is
+ * everything this config uses. `gitops/tests/test_front_door_serving.py` had in
+ * fact been carrying a full nginx harness the whole time — it was *skipping*
+ * for want of the binary, so eleven serving tests silently did not run. Check
+ * what the tree already has before recording a limit as a property of it.
+ *
+ * Do not raise `MIRROR_BYTE_CEILING` to clear this report: both costs its
+ * comment names are real, and the duplicate bytes are now recovered
+ * automatically, so a future breach is genuine growth rather than waste.
  */
 export const MIRROR_HEADROOM_WARN_RATIO = 0.85;
 
@@ -2057,20 +2076,30 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // candidate rather than something the apex serves.
   assertNoConflictMarkers(files);
 
-  const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
+  // Deduplication happens before every measurement below, because after it the
+  // aliased copies are not written anywhere: not to `gitops/prod/front-door-tools/`,
+  // not into a shard, and not into either replica's tmpfs. `bytes` is therefore
+  // what the mirror actually costs, which is what `MIRROR_BYTE_CEILING` bounds.
+  const { stored, aliases } = dedupeMirror(files);
+  const bytes = stored.reduce((sum, f) => sum + f.bytes.length, 0);
+  // What the same catalogue would have cost stored one-copy-per-name. Reported
+  // rather than checked: it is the number that says whether the alias map is
+  // still earning its place, and nothing stores it.
+  const undedupedBytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
     // Name the measured remedy, not a guess. This message used to say "drop a
     // venture from STARTER_SET", which stopped being the answer when the
     // mirror grew to cover the whole catalogue: dropping a tool to publish a
-    // tool is a wash, and the bulk is no longer in `STARTER_SET`. The
-    // duplicate figure is computed here rather than quoted from a comment so
-    // it cannot go stale, and it is worth more than any single venture.
-    const dup = duplicateBytes(files);
+    // tool is a wash, and the bulk is no longer in `STARTER_SET`. It then named
+    // byte-identical duplication, which `dedupeMirror` above now recovers
+    // automatically — so by the time this throws, that remedy is already spent
+    // and quoting it again would send a session after bytes that are gone.
+    const dup = duplicateBytes(stored);
     throw new Error(
       `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling.\n` +
-        `${dup.redundant} of those bytes (${(100 * (dup.redundant / bytes)).toFixed(1)}%) are ` +
-        `byte-identical duplicates across ${dup.groups} group(s) — see MIRROR_HEADROOM_WARN_RATIO ` +
-        `for the two mechanisms that recover them.\n` +
+        `Aliasing has already recovered ${undedupedBytes - bytes} bytes across ${aliases.length} ` +
+        `duplicate name(s); ${dup.redundant} bytes in ${dup.groups} group(s) remain duplicated and ` +
+        `are content the alias map deliberately does not touch (see dedupeMirror).\n` +
         `Do not raise MIRROR_BYTE_CEILING without reading its comment: both costs it names are real.`,
     );
   }
@@ -2079,7 +2108,16 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // place, and it has no ceiling of its own because nothing stores it.
   const sourceBytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
 
-  return { files, tools, bytes, sourceBytes, shards: packShards(files) };
+  return {
+    files,
+    stored,
+    aliases,
+    tools,
+    bytes,
+    undedupedBytes,
+    sourceBytes,
+    shards: packShards(stored),
+  };
 }
 
 /**
@@ -2135,6 +2173,192 @@ export function duplicateBytes(files) {
   };
 }
 
+/**
+ * Split the mirror into the bytes actually stored and the aliases that point
+ * at them.
+ *
+ * ## What this recovers, and why it is worth a mechanism
+ *
+ * `duplicateBytes` above measures the problem: ventures here are deliberately
+ * self-contained, so `proposal.mjs` is stored 104 times identically, `LICENSE`
+ * 161 times, `share.mjs` 37. On 2026-09-03 that was 1,186,041 stored bytes —
+ * 18.5% of the whole mirror — spent on content the mirror already had.
+ *
+ * Every one of those files is genuinely referenced by the pages beside it, so
+ * none can be dropped. What can change is how many times the *same* bytes are
+ * stored: keep one copy, and have nginx resolve the other 103 names to it.
+ * `renderMirrorAliases` writes that resolution as a `map`, and the six asset
+ * `location` blocks in `front-door/default.conf` route through it.
+ *
+ * ## Why the alias goes in nginx rather than the projected volume
+ *
+ * A projected volume's `items: [{key, path}]` can also present one key under
+ * many paths, and `MIRROR_HEADROOM_WARN_RATIO` named it first. It recovers the
+ * repository and ConfigMap bytes and *not* the pod's memory, because the
+ * kubelet still materialises every path into the tmpfs the mirror is charged
+ * against — so the two costs would have to be split and separately bounded
+ * before it helped. It also spends ~670 lines of generated YAML inside the
+ * Deployment spec.
+ *
+ * The `map` recovers both costs at once: an aliased file is not written to the
+ * volume at all, so it is absent from git, from etcd and from both replicas'
+ * tmpfs. That is why this is the mechanism chosen.
+ *
+ * `MIRROR_HEADROOM_WARN_RATIO` recorded that the `map` "wants an environment
+ * that can actually run nginx against the built mirror. This one cannot: no
+ * nginx binary and no Docker daemon, verified 2026-09-03." That was true of the
+ * session that wrote it and is not a property of the repository:
+ * `apt-get install nginx-light` supplies nginx 1.24 with both
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`, which is
+ * everything the front door's config uses. `mirror-nginx.test.mjs` now serves
+ * the real `default.conf` over the real generated mirror and asserts every
+ * mirrored URL byte-for-byte, which is a stronger check than either mechanism
+ * had before.
+ *
+ * ## Why `index.html` is never aliased
+ *
+ * Entry and subpage documents carry slug-specific injected content — the
+ * canonical link, `og:url`, the return nav — so two of them cannot be
+ * byte-identical, and today none are. The guard below makes that structural
+ * rather than incidental: the two `index.html` `location` blocks in
+ * `default.conf` are deliberately left routing straight to their stored key,
+ * so a future injection change that somehow made two entry pages identical
+ * would cost duplicate bytes rather than 404 a tool's front page.
+ *
+ * The canonical copy is the member whose key sorts first, so the choice is
+ * stable across runs and independent of venture discovery order — a mirror
+ * regenerated on an unchanged tree produces an identical alias file.
+ */
+export function dedupeMirror(files) {
+  const hashes = new Map();
+  const byHash = new Map();
+  for (const file of files) {
+    if (file.file === 'index.html' || file.file.endsWith('/index.html')) continue;
+    const hash = createHash('sha256').update(file.bytes).digest('hex');
+    hashes.set(file, hash);
+    const group = byHash.get(hash);
+    if (group) group.push(file);
+    else byHash.set(hash, [file]);
+  }
+
+  const canonical = new Map();
+  for (const [hash, group] of byHash) {
+    canonical.set(
+      hash,
+      group.reduce((best, file) => (file.key < best.key ? file : best)),
+    );
+  }
+
+  const stored = [];
+  const aliases = [];
+  for (const file of files) {
+    const head = hashes.has(file) ? canonical.get(hashes.get(file)) : null;
+    if (!head || head === file) {
+      stored.push(file);
+    } else {
+      aliases.push({ key: file.key, canonical: head.key, bytes: file.bytes.length });
+    }
+  }
+  return { stored, aliases };
+}
+
+/**
+ * The generated nginx `map` that resolves an aliased mirror key to its stored one.
+ *
+ * ## Why the name starts with `00-`
+ *
+ * This file sets `map_hash_bucket_size`, and nginx accepts that directive only
+ * *before* the first `map` block it parses — afterwards the value is already
+ * fixed and setting it again is rejected as `"map_hash_bucket_size" directive
+ * is duplicate`, which is a refusal to start, not a warning. `default.conf`
+ * opens with three `map` blocks of its own (`$portfolio_embed_view` and the two
+ * framing maps), and nginx's `include /etc/nginx/conf.d/*.conf` expands the
+ * glob in sorted order — so a file named `mirror-alias.conf` is parsed after
+ * `default.conf` and the front door does not boot.
+ *
+ * The `00-` prefix is what orders this ahead of it. It is load-bearing, not
+ * decoration: `front-door-tools.test.mjs` asserts the name still sorts before
+ * `default.conf`, because renaming it to something tidier is a change that
+ * looks cosmetic and takes the apex down.
+ */
+export const MIRROR_ALIAS_FILE = '00-mirror-alias.conf';
+
+/**
+ * The nginx variable the asset `location` blocks set, and the one they rewrite
+ * to. Named here so `default.conf`, the generated map and the tests cannot
+ * drift apart.
+ */
+export const ALIAS_SOURCE_VAR = 'fd_flat';
+export const ALIAS_TARGET_VAR = 'fd_stored';
+
+/**
+ * Render the alias map.
+ *
+ * Always emitted, even with no aliases at all: `default.conf` references
+ * `$fd_stored` unconditionally, and nginx refuses to start on an unknown
+ * variable. A map carrying only its `default` is the correct empty state, not
+ * a missing file.
+ *
+ * `default $fd_flat` is what makes this safe to route *every* asset request
+ * through: a key with no alias resolves to itself, so the map can only ever
+ * redirect the names it explicitly lists.
+ */
+export function renderMirrorAliases(aliases) {
+  const entries = [...aliases]
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map((a) => `  "${a.key}"  "${a.canonical}";`)
+    .join('\n');
+  const recovered = aliases.reduce((sum, a) => sum + a.bytes, 0);
+  // nginx sizes a map's hash buckets at startup and *refuses to start* if a key
+  // does not fit — `could not build map_hash, you should increase
+  // map_hash_bucket_size`. The default is one cache line (64 bytes on x86-64)
+  // and these keys are `<slug>__<file>`, already 59 bytes at their longest, so
+  // the default is not enough and the failure mode is the front door not
+  // booting at all. Computed from the longest key actually emitted, rounded up
+  // to the next power of two and floored at the default, so it tracks the
+  // catalogue instead of being a constant someone has to remember to raise.
+  // The headroom is not slack: nginx stores each key in an `ngx_hash_elt_t`
+  // alongside its length and a value pointer, and pads the entry, so a bucket
+  // has to hold rather more than the key's own bytes. 16 is comfortably past
+  // that overhead on 64-bit, and rounding to a power of two keeps the value one
+  // of the sizes nginx's own documentation uses. Measured: 59-byte keys need
+  // 128; 64 is what nginx refuses.
+  const longest = aliases.reduce((max, a) => Math.max(max, a.key.length), 0);
+  const bucket = Math.max(64, 2 ** Math.ceil(Math.log2(longest + 16)));
+  return `# Generated by \`node platform/marketing/front-door-tools.mjs --write\`.
+# Do not hand-edit: \`platform/marketing/front-door-tools.test.mjs\` regenerates
+# this file beside the mirror and fails if the commit is stale.
+#
+# Ventures in this repository are self-contained by design — each ships its own
+# copy of the shared helpers — which is right for the product and free on the
+# canonical host, where every venture is served from its own tree. The mirror
+# flattens them all into one key space under one ceiling, so the 104th
+# identical copy of \`proposal.mjs\` spends bytes the other tools share.
+#
+# This map is how the mirror stores one copy and serves it under every name.
+# The six asset \`location\` blocks in \`default.conf\` set \`$${ALIAS_SOURCE_VAR}\`
+# to the \`<slug>__<file>\` key the request resolves to, then rewrite to
+# \`$${ALIAS_TARGET_VAR}\` — this map — instead of to the key directly. The
+# \`default\` below is the identity, so a key that is not listed here resolves to
+# itself and routing is unchanged for it.
+#
+# \`index.html\` keys never appear here. Entry pages carry slug-specific injected
+# content and cannot be byte-identical; \`dedupeMirror\` refuses to alias them so
+# that a tool's front page can never depend on this file being right.
+#
+# ${aliases.length} alias(es), ${recovered} stored bytes recovered.
+#
+# Sized for the longest key above (${longest} bytes). nginx refuses to start if a
+# map key does not fit its bucket, so this tracks the catalogue rather than
+# being a constant to remember.
+map_hash_bucket_size ${bucket};
+map $${ALIAS_SOURCE_VAR} $${ALIAS_TARGET_VAR} {
+  default $${ALIAS_SOURCE_VAR};
+${entries}
+}
+`;
+}
+
 /** The file name every one of these `<slug>__<file>` keys shares, or the first key. */
 function sharedFileName(keys) {
   const names = new Set(keys.map((key) => key.slice(key.lastIndexOf('__') + 2)));
@@ -2158,9 +2382,15 @@ function sharedFileName(keys) {
  * more" well enough to tell a comfortable margin from a tight one, which is
  * the decision it exists to inform.
  */
-export function mirrorHeadroom({ files, tools, bytes }) {
+export function mirrorHeadroom({ files, stored, aliases, tools, bytes, undedupedBytes }) {
   const remaining = MIRROR_BYTE_CEILING - bytes;
   const perTool = tools.length ? bytes / tools.length : 0;
+  // `stored`/`aliases` are what `buildMirror` returns today. The fallbacks keep
+  // this callable with a bare `{ files, tools, bytes }` — which several tests
+  // and `--headroom`'s own error paths still build by hand — rather than making
+  // every caller construct a deduped mirror to ask a question about size.
+  const kept = stored ?? files;
+  const aliased = aliases ?? [];
   return {
     bytes,
     ceiling: MIRROR_BYTE_CEILING,
@@ -2172,7 +2402,13 @@ export function mirrorHeadroom({ files, tools, bytes }) {
     // runway is short enough that the remedy has to start now to land before
     // the wall.
     tight: bytes / MIRROR_BYTE_CEILING >= MIRROR_HEADROOM_WARN_RATIO,
-    duplicates: duplicateBytes(files),
+    // Residual duplication only — what aliasing has *not* recovered. Measured
+    // over `stored` rather than `files` on purpose: reporting the raw catalogue
+    // duplication here would keep advertising 18.5% of recoverable bytes that
+    // `dedupeMirror` has already recovered, and send a session after them.
+    duplicates: duplicateBytes(kept),
+    aliases: aliased.length,
+    recovered: (undedupedBytes ?? bytes) - bytes,
   };
 }
 
@@ -2535,9 +2771,19 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
-  for (const file of built.files) {
+  // `built.stored`, not `built.files`: an aliased copy is deliberately never
+  // written, which is the whole saving. `renderMirrorAliases` below is what
+  // keeps its URL working.
+  for (const file of built.stored) {
     await fs.writeFile(path.join(outputDir, file.stored), file.bytes);
   }
+  // The alias map rides in the nginx ConfigMap beside `default.conf`, not in
+  // this directory: it is configuration for the server, not content for it to
+  // serve, and `gitops/prod/kustomization.yaml` generates the two together.
+  await fs.writeFile(
+    path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
+    renderMirrorAliases(built.aliases),
+  );
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
   // Same call, same commit: the shards and the Deployment that mounts them are
   // one artifact, and a tree where only half of it was regenerated is exactly
@@ -2571,10 +2817,16 @@ const headroomSummary = (headroom) => {
     `mirror headroom: ${bytes} of ${ceiling} stored bytes (${(100 * ratio).toFixed(1)}%), ` +
       `${remaining} left — roughly ${toolsRemaining} more tools at ${perTool} bytes each`,
   ];
+  if (headroom.recovered) {
+    lines.push(
+      `  ${headroom.recovered} bytes already recovered by aliasing ${headroom.aliases} duplicate ` +
+        `name(s) onto stored copies — see dedupeMirror and front-door/${MIRROR_ALIAS_FILE}`,
+    );
+  }
   if (duplicates.groups) {
     lines.push(
       `  ${duplicates.redundant} of those bytes (${(100 * (duplicates.redundant / bytes)).toFixed(1)}%) ` +
-        `are byte-identical duplicates in ${duplicates.groups} group(s):`,
+        `are byte-identical duplicates still stored in ${duplicates.groups} group(s):`,
     );
     for (const group of duplicates.largest.slice(0, 5)) {
       lines.push(

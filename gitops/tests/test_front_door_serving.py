@@ -154,6 +154,14 @@ def front_door(tmp_path_factory) -> str:
     # `front-door-tools.test.mjs` is what proves every key is present and
     # inflates correctly; the merged view is still checked in memory above.
     served = {key: tools[key] for _, _, key in _sample_paths()}
+    # An aliased name has no stored bytes of its own — `dedupeMirror` keeps one
+    # copy and `00-mirror-alias.conf` points the other names at it — so serving
+    # it exercises a route the sampled keys above cannot: the `map` lookup. The
+    # canonical key is what has to be on disk for it to resolve.
+    alias_sample = _alias_sample()
+    if alias_sample:
+        _, canonical_key = alias_sample
+        served[canonical_key] = tools[canonical_key]
     root = tmp_path_factory.mktemp("front-door")
     for sub, keys in (
         ("html", maps["portfolio-front-html"]),
@@ -194,7 +202,7 @@ http {{
   fastcgi_temp_path {root}/tmp;
   uwsgi_temp_path {root}/tmp;
   scgi_temp_path {root}/tmp;
-  include {root}/conf/default.conf;
+  include {root}/conf/*.conf;
 }}
 """
     )
@@ -271,6 +279,74 @@ def _sample_paths() -> tuple[tuple[str, str, str], ...]:
         slug, _, tail = key[: -len(".gz")].partition("__")
         picks.append((f"/tools/{slug}/{'' if tail == 'index.html' else tail}", content_type, key))
     return tuple(picks)
+
+
+@functools.lru_cache(maxsize=1)
+def _alias_sample() -> tuple[str, str] | None:
+    """(url path, canonical mirror key) for one aliased file, or None if there are none.
+
+    Ventures ship their own copies of the shared helpers, so the flattened
+    mirror held `proposal.mjs` 104 times and `LICENSE` 161 times identically.
+    `dedupeMirror` stores one copy of each and `00-mirror-alias.conf` maps the
+    other names onto it, which is 18.5% of the mirror recovered from git, etcd
+    and both replicas' tmpfs.
+
+    That saving is only correct if the aliased URL still serves the same bytes,
+    and nothing else in this suite would notice if the map went missing: every
+    key `_sample_paths` picks is a *stored* one, which resolves to itself
+    through the map's identity default whether the map is loaded or not. So the
+    one route the alias mechanism actually adds is the one route that had no
+    test. This supplies it.
+
+    Returns None rather than failing when the mirror happens to hold no
+    duplicates at all — that is a legitimate state (it is what a catalogue of
+    entirely distinct files looks like), not a regression.
+    """
+    conf = _front_door_configmaps()["portfolio-front-nginx"].get(b"00-mirror-alias.conf")
+    if conf is None:
+        conf = _front_door_configmaps()["portfolio-front-nginx"].get("00-mirror-alias.conf")
+    assert conf is not None, (
+        "the nginx ConfigMap carries no 00-mirror-alias.conf. `front-door/default.conf` "
+        "rewrites six asset locations to `$fd_stored`, which only this file defines, so "
+        "without it nginx refuses to start with `unknown \"fd_stored\" variable`."
+    )
+    text = conf.decode() if isinstance(conf, bytes) else conf
+    stored = set(_mirror())
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith('"'):
+            continue
+        parts = [p for p in line.rstrip(";").split('"') if p.strip()]
+        if len(parts) != 2:
+            continue
+        alias, canonical = parts[0], parts[1]
+        if f"{canonical}.gz" not in stored:
+            continue
+        slug, _, tail = alias.partition("__")
+        # Only the two-segment shape, so the URL is `/tools/<slug>/<file>`; a
+        # subdirectory alias would need the third segment split out and adds no
+        # coverage of the map itself.
+        if "__" in tail:
+            continue
+        return f"/tools/{slug}/{tail}", f"{canonical}.gz"
+    return None
+
+
+def test_an_aliased_file_serves_the_bytes_of_its_stored_copy(front_door: str) -> None:
+    sample = _alias_sample()
+    if sample is None:
+        return
+    url_path, canonical_key = sample
+    status, _, body = _get(front_door + url_path, gzip_ok=True)
+    assert status == 200, (
+        f"{url_path} returned {status}. It is an aliased name with no stored bytes of its "
+        "own, so it resolves only through the `map` in 00-mirror-alias.conf — a 404 here "
+        "means the map is missing, misordered in conf.d, or names a key the mirror dropped."
+    )
+    assert body == gzip.decompress(_mirror()[canonical_key]), (
+        f"{url_path} served something other than the copy it aliases ({canonical_key}). "
+        "Deduplication is only sound while every aliased name serves byte-identical content."
+    )
 
 
 def test_every_shape_of_mirrored_path_is_served(front_door: str) -> None:
