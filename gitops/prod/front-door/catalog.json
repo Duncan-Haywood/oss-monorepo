@@ -736,7 +736,7 @@
       "url": "https://marisstella.dev/tools/entry-door-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",
@@ -1248,7 +1248,7 @@
       "url": "https://marisstella.dev/tools/skylight-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new cut-in, asphalt versus tile/metal versus low-slope, and extras — plus the walk-away price an $800 / unit special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "snow-removal-bid-calculator",
@@ -1376,7 +1376,7 @@
       "url": "https://marisstella.dev/tools/walk-in-shower-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.",
-      "pages": 5
+      "pages": 6
     },
     {
       "slug": "walk-in-tub-bid-calculator",
@@ -1416,7 +1416,7 @@
       "url": "https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "where-to-sell-calculator",
