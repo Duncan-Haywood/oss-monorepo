@@ -122,3 +122,11 @@ test('the optional labor-rate and job-price fields are wired into the form, the 
   assert.match(catchBlock, /getElementById\('marginSection'\)\.hidden\s*=\s*true/, 'marginSection is not hidden on a rejected input');
   assert.match(catchBlock, /getElementById\('laborCostLabel'\)\.hidden\s*=\s*true/, 'laborCostLabel is not hidden on a rejected input');
 });
+
+test('the review-signals panel is announced to screen readers on every update', () => {
+  // #headline, the dl entries and #errors all rewrite on every keystroke
+  // without a page reload; without aria-live="polite" on their shared
+  // container a screen-reader user hears nothing when the review changes.
+  const html = page('index.html');
+  assert.match(html, /<section aria-live="polite"><h2>Review signals<\/h2>/);
+});
