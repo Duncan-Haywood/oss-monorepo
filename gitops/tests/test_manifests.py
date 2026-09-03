@@ -410,6 +410,27 @@ def test_every_queue_item_prompt_inherits_the_mandate() -> None:
     assert "runner_id: 0" in mandate
 
 
+def test_the_mandate_does_not_teach_the_retired_absent_ci_excuse() -> None:
+    # The mandate is the standing prompt for every worker run, so a stale claim
+    # here is one every tick inherits. It used to say "PRs opened with
+    # `GITHUB_TOKEN` do not trigger Actions here", which names the wrong
+    # mechanism -- an agent PR authenticates with a fine-grained PAT
+    # (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
+    # no-recursion rule applies to, so it triggers `pull_request` workflows
+    # like anyone else's. `platform/pages/clauses.mjs` had already retired the
+    # same sentence in its own comment; this file was the last place carrying
+    # it, and the one where it does the most damage: a worker told to expect a
+    # blank check list shrugs at one instead of going to look.
+    mandate = (AGENTS / "workers" / "mandate.md").read_text()
+    assert "`GITHUB_TOKEN` do not\n  trigger Actions here" not in mandate
+    assert "GH_TOKEN" in mandate, "the correct credential should be named"
+
+    # And the distinction that makes a blank list actionable rather than an
+    # excuse: the commit-status API reports total_count 0 on a PR whose checks
+    # are red, so "no checks" read from it is not evidence of anything.
+    assert "check-runs" in mandate, "the endpoint that actually answers must be named"
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
