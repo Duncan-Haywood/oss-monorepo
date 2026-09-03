@@ -1128,12 +1128,14 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # that is only ever typed, never recomputed, has no way to notice the
     # thing it describes changed size.
     actual = len(_mirrored_venture_slugs())
-    # 170 since 2026-09-03: `real-estate-agent-photo-app` gained a static
-    # `site/index.html` (the MLS listing-photo preflight), which both
-    # `build.mjs` and the mirror pick up on the standard entry path. This
-    # constant is the one number here that is typed rather than computed, so it
-    # moves whenever a venture gains or loses a public surface.
-    total = 170  # `infra/OWNER_CHECKLIST.md`'s own "N of the 170 tools" wording.
+    # 171 since 2026-09-03, having been 169 that morning. Two ventures whose
+    # only surface was inside a Next.js app gained a static `site/index.html`
+    # that both `build.mjs` and the mirror pick up on the standard entry path:
+    # `real-estate-agent-photo-app` (the MLS listing-photo preflight) and
+    # `print-atelier` (the print-file preflight). This constant is the one
+    # number here that is typed rather than computed, so it moves whenever a
+    # venture gains or loses a public surface.
+    total = 171  # `infra/OWNER_CHECKLIST.md`'s own "N of the 171 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

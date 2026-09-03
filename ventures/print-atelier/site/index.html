@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Print File Preflight — free DPI and print-size checker for artists</title>
+<meta name="description" content="Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='2' fill='%231f5c35'/%3E%3Crect x='9' y='9' width='14' height='14' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Print File Preflight — free DPI and print-size checker" />
+<meta property="og:description" content="Check implied DPI at a print size and compare up to five masters before ordering a proof. Free, private, runs entirely in your browser." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="." />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Print File Preflight",
+  "applicationCategory": "DesignApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free, local-first print-file preflight for artists preparing a print master. Checks format, byte size, web-export filename tokens, implied DPI at a named print size, and crop match, then ranks up to five candidate masters against one target size and exports a dated technical record. Artwork is never uploaded."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What DPI does a print master need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This tool checks a documented floor of 150 DPI at the print size named in the filename. That is a conservative floor for fine-art and photographic printing rather than an ideal: many labs prefer 240 or 300 DPI, and some accept less for large pieces viewed from a distance. Implied DPI is simply your pixel dimensions divided by the physical print size, so the same file is print-ready at 8x10 and far below the floor at 24x36."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the tool know what size I am printing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It reads a size token out of the filename. A file called harbor-11x14.jpg is checked as an 11x14 print, and the named size is matched in either orientation, so a landscape file is measured against 14x11. If no supported size appears in the filename, the tool falls back to a conservative floor of 1500 pixels on the short edge instead of guessing a print size. The compare view lets you pick any supported size explicitly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the tool block a file for its filename?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Filenames containing web, thumbnail, lowres, instagram, or facebook are almost always a web export that was resized and recompressed for a screen. Such a file can still have enough pixels to clear the DPI floor, which is exactly why it is worth flagging: the resolution looks fine while the file has already lost the detail a print needs. It is a filename convention check, so rename the file if it is genuinely your print master."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my artwork uploaded anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The files are opened by your own browser to read their pixel dimensions, and nothing is transmitted. There is no server, no account, and no upload step. You can disconnect from the network and the tool still works."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a passing preflight mean my print will look good?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. This is limited automated evidence, not a print-ready warranty or lab approval. It reads dimensions, byte size, format and filename — it cannot judge colour accuracy, sharpness, noise, colour profile, paper choice, or how a specific press and stock will render your image. Order a proof and confirm requirements with your printer before committing to a run."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030; --warn: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+  .lede { color: var(--muted); margin: 0 0 1.25rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; }
+  .hint { color: var(--muted); font-size: 0.88rem; margin: 0.35rem 0 0; }
+  a { color: var(--accent); }
+  button, select {
+    font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  #drop {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 1.75rem 1rem;
+    text-align: center; background: var(--panel);
+  }
+  #drop.over { border-color: var(--accent); }
+  #drop p { margin: 0.4rem 0; }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; margin-top: 1rem; }
+  .controls label { display: block; font-size: 0.88rem; color: var(--muted); margin-bottom: 0.2rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; align-items: center; }
+  .verdict { border: 1px solid var(--border); border-left-width: 4px; border-radius: 6px; padding: 0.7rem 0.9rem; margin-top: 1rem; background: var(--panel); }
+  .verdict.win { border-left-color: var(--good); }
+  .verdict.tie { border-left-color: var(--warn); }
+  .table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  td.file { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86rem; word-break: break-all; }
+  tr.recommended td { background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .sev-blocking { color: var(--bad); font-weight: 600; }
+  .sev-degrading { color: var(--warn); font-weight: 600; }
+  .sev-pass { color: var(--good); font-weight: 600; }
+  .status { margin-top: 1rem; }
+  .status.error { color: var(--bad); border: 1px solid var(--bad); border-radius: 6px; padding: 0.6rem 0.8rem; }
+  [hidden] { display: none !important; }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; margin-top: 1.25rem; }
+  code { background: var(--panel); padding: 0.05rem 0.3rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Print file preflight</h1>
+  <p class="lede">
+    Before you pay for a proof: check whether an export has the resolution for
+    the size you mean to print, and compare up to five candidate masters
+    head-to-head. Your artwork is read in this browser and never uploaded.
+    Free, no signup.
+  </p>
+
+  <section class="panel" aria-labelledby="pick-heading">
+    <h2 id="pick-heading" style="margin-top:0">Choose your print masters</h2>
+    <div id="drop">
+      <p><strong>Drop up to five JPEG or PNG files here</strong></p>
+      <p class="hint">or</p>
+      <p><input type="file" id="files" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" /></p>
+      <p class="hint">
+        Name a file like <code>harbor-11x14.jpg</code> and it is checked at
+        that print size. Nothing leaves your device.
+      </p>
+    </div>
+
+    <div class="controls">
+      <div>
+        <label for="target">Target print size (inches)</label>
+        <select id="target"></select>
+      </div>
+      <button type="button" id="reset" disabled>Clear</button>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+  </section>
+
+  <section id="results" hidden aria-labelledby="results-heading">
+    <h2 id="results-heading">Which master to print</h2>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+
+    <div class="table-scroll">
+      <table>
+        <caption class="hint" style="text-align:left;caption-side:bottom;padding-top:0.4rem">
+          Ranked at the target size above. A blocked file is never recommended,
+          even when it has the most pixels.
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">#</th><th scope="col">File</th><th scope="col">Pixels</th>
+            <th scope="col">DPI at target</th><th scope="col">Crop delta</th><th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody id="ranking"></tbody>
+      </table>
+    </div>
+
+    <h2>Findings per file</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">File</th><th scope="col">Rule</th><th scope="col">Severity</th><th scope="col">Detail</th></tr>
+        </thead>
+        <tbody id="findings"></tbody>
+      </table>
+    </div>
+
+    <h2>Take the record with you</h2>
+    <p class="hint">
+      The export states what was and was not checked, so the limitation travels
+      with the file to your printer.
+    </p>
+    <div class="actions">
+      <button type="button" class="primary" id="download-json">Download dated record (JSON)</button>
+      <span id="copy-status" class="hint" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <h2>What this checks</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th scope="col">Rule</th><th scope="col">Floor</th><th scope="col">Severity</th></tr></thead>
+      <tbody>
+        <tr><td>Implied DPI</td><td>At least 150 DPI at the named print size</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Pixel floor</td><td>Short edge at least 1500px when no size is named</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Format</td><td>JPEG or PNG</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>File size</td><td>At most 50 MiB</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Web filename</td><td>No <code>web</code>, <code>thumbnail</code>, <code>lowres</code>, <code>instagram</code>, <code>facebook</code></td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Named crop</td><td>Aspect within 4% of the named size</td><td class="sev-degrading">review</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What this does not check</h2>
+  <p>
+    This reads dimensions, byte size, format and filename. It is blind to
+    everything that actually decides how a print looks:
+  </p>
+  <ul>
+    <li><strong>Colour.</strong> No profile inspection, no gamut check, no soft proof. A file can pass here and print with a colour cast.</li>
+    <li><strong>Sharpness and noise.</strong> An upscaled or heavily denoised file has the pixel count without the detail, and nothing here can tell the difference.</li>
+    <li><strong>Paper, press and finish.</strong> The same file on matte, glossy and canvas is three different results, and each lab has its own requirements.</li>
+  </ul>
+  <p>
+    So clearing the floor means the file is not obviously too small — nothing
+    more. Order a proof.
+  </p>
+
+  <h2>Questions</h2>
+  <h3>What DPI does a print master need?</h3>
+  <p>
+    This tool checks a documented floor of 150 DPI at the print size named in
+    the filename. That is a conservative floor for fine-art and photographic
+    printing rather than an ideal: many labs prefer 240 or 300 DPI, and some
+    accept less for large pieces viewed from a distance. Implied DPI is simply
+    your pixel dimensions divided by the physical print size, so the same file
+    is print-ready at 8x10 and far below the floor at 24x36.
+  </p>
+  <h3>How does the tool know what size I am printing?</h3>
+  <p>
+    It reads a size token out of the filename. A file called
+    harbor-11x14.jpg is checked as an 11x14 print, and the named size is
+    matched in either orientation, so a landscape file is measured against
+    14x11. If no supported size appears in the filename, the tool falls back to
+    a conservative floor of 1500 pixels on the short edge instead of guessing a
+    print size. The compare view lets you pick any supported size explicitly.
+  </p>
+  <h3>Why does the tool block a file for its filename?</h3>
+  <p>
+    Filenames containing web, thumbnail, lowres, instagram, or facebook are
+    almost always a web export that was resized and recompressed for a screen.
+    Such a file can still have enough pixels to clear the DPI floor, which is
+    exactly why it is worth flagging: the resolution looks fine while the file
+    has already lost the detail a print needs. It is a filename convention
+    check, so rename the file if it is genuinely your print master.
+  </p>
+  <h3>Is my artwork uploaded anywhere?</h3>
+  <p>
+    No. The files are opened by your own browser to read their pixel
+    dimensions, and nothing is transmitted. There is no server, no account, and
+    no upload step. You can disconnect from the network and the tool still
+    works.
+  </p>
+  <h3>Does a passing preflight mean my print will look good?</h3>
+  <p>
+    No. This is limited automated evidence, not a print-ready warranty or lab
+    approval. It reads dimensions, byte size, format and filename — it cannot
+    judge colour accuracy, sharpness, noise, colour profile, paper choice, or
+    how a specific press and stock will render your image. Order a proof and
+    confirm requirements with your printer before committing to a run.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not printing,
+      production, colour-management, or professional advice, and it does not
+      replace a qualified printer or colour manager. <strong>You are
+      responsible for reviewing and verifying its output before relying on
+      it</strong>, and for meeting any obligation it helps you prepare for. To
+      the maximum extent permitted by law, the authors accept no liability for
+      any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your artwork is never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This page
+      counts anonymous, local feature-use events (e.g. "files were compared")
+      in your own browser's <code>localStorage</code> — never filenames,
+      images, or anything identifying — only to help this project's maintainers
+      tell whether the tool is used at all. Nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      MIT licensed — see <a href="LICENSE">LICENSE</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a>
+      if this saved you a wasted proof — entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import {
+    MAX_COMPARE_FILES, MIN_IMPLIED_DPI, PREFLIGHT_DISCLAIMER,
+    buildBatchPreflightExportRecord, batchPreflightExportFileName,
+    comparePreflightCandidates, defaultCompareSize, formatBytes,
+    listPrintSizes, preflightImage, summarizeFindings,
+  } from "./preflight.mjs";
+  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const filesInput = $("files");
+  const drop = $("drop");
+  const targetSelect = $("target");
+  const statusEl = $("status");
+  const resultsEl = $("results");
+  const verdictEl = $("verdict");
+  const rankingEl = $("ranking");
+  const findingsEl = $("findings");
+  const resetBtn = $("reset");
+  const copyStatus = $("copy-status");
+
+  // The last completed run, so the export and the tables can never disagree.
+  let results = [];
+
+  for (const size of listPrintSizes()) {
+    const option = document.createElement("option");
+    option.value = size;
+    option.textContent = size.replace("x", " × ") + " in";
+    targetSelect.append(option);
+  }
+
+  function setStatus(message, isError = false) {
+    statusEl.textContent = message;
+    statusEl.classList.toggle("error", Boolean(isError));
+  }
+
+  function clearRun() {
+    results = [];
+    resultsEl.hidden = true;
+    rankingEl.replaceChildren();
+    findingsEl.replaceChildren();
+    verdictEl.replaceChildren();
+    copyStatus.textContent = "";
+    resetBtn.disabled = true;
+    setStatus("");
+  }
+
+  function cell(text, className) {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (className) td.className = className;
+    return td;
+  }
+
+  /**
+   * Reads pixel dimensions by letting the browser decode the image, then
+   * revokes the object URL either way — a rejected load leaks it otherwise,
+   * and someone comparing several batches in one sitting would accumulate them.
+   */
+  function readImageSize(file) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      image.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve({ width: image.naturalWidth, height: image.naturalHeight });
+      };
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error(`${file.name} could not be opened as an image.`));
+      };
+      image.src = objectUrl;
+    });
+  }
+
+  function renderVerdict(comparison) {
+    verdictEl.className = "verdict " + (comparison.recommendedFileName ? "win" : "tie");
+    const strong = document.createElement("strong");
+    strong.textContent = comparison.recommendedFileName
+      ? `Print ${comparison.recommendedFileName}`
+      : "No clear winner";
+    const reason = document.createElement("p");
+    reason.className = "hint";
+    reason.textContent = comparison.reason;
+    const caveat = document.createElement("p");
+    caveat.className = "hint";
+    caveat.textContent = PREFLIGHT_DISCLAIMER;
+    verdictEl.replaceChildren(strong, reason, caveat);
+  }
+
+  function renderRanking(comparison) {
+    rankingEl.replaceChildren(...comparison.rows.map((row) => {
+      const tr = document.createElement("tr");
+      if (row.recommended) tr.className = "recommended";
+      const status = row.passed
+        ? (row.meetsDpiFloor ? "passes" : `below ${MIN_IMPLIED_DPI} DPI`)
+        : `${row.blockingCount} blocking`;
+      tr.append(
+        cell(String(row.rank)),
+        cell(row.fileName, "file"),
+        cell(`${row.width} × ${row.height}`),
+        cell(`${Math.round(row.dpiAtTarget)}`, row.meetsDpiFloor ? "sev-pass" : "sev-blocking"),
+        cell(`${(row.aspectDelta * 100).toFixed(1)}%`),
+        cell(status, row.passed ? "sev-pass" : "sev-blocking"),
+      );
+      return tr;
+    }));
+  }
+
+  function renderFindings() {
+    const rows = [];
+    for (const result of results) {
+      if (result.findings.length === 0) {
+        const tr = document.createElement("tr");
+        tr.append(cell(result.fileName, "file"), cell("—"), cell("no findings", "sev-pass"),
+          cell(`${result.format.toUpperCase()}, ${formatBytes(result.bytes)}, ${result.width}×${result.height}`));
+        rows.push(tr);
+        continue;
+      }
+      for (const finding of result.findings) {
+        const tr = document.createElement("tr");
+        tr.append(
+          cell(result.fileName, "file"),
+          cell(finding.rule),
+          cell(finding.severity === "degrading" ? "review" : finding.severity, `sev-${finding.severity}`),
+          cell(finding.detail),
+        );
+        rows.push(tr);
+      }
+    }
+    findingsEl.replaceChildren(...rows);
+  }
+
+  function render() {
+    if (results.length === 0) return;
+    const comparison = comparePreflightCandidates(results, targetSelect.value);
+    renderVerdict(comparison);
+    renderRanking(comparison);
+    renderFindings();
+    resultsEl.hidden = false;
+    resetBtn.disabled = false;
+  }
+
+  async function handleFiles(fileList) {
+    const selected = Array.from(fileList);
+    if (selected.length === 0) return;
+
+    if (selected.length > MAX_COMPARE_FILES) {
+      setStatus(
+        `Comparing ${selected.length} files at once is more than this view ranks — pick your best ${MAX_COMPARE_FILES} masters and try again.`,
+        true,
+      );
+      return;
+    }
+
+    setStatus(`Reading ${selected.length} file${selected.length === 1 ? "" : "s"}…`);
+    try {
+      const measured = await Promise.all(selected.map(async (file) => {
+        const { width, height } = await readImageSize(file);
+        return preflightImage(file, width, height);
+      }));
+      results = measured;
+      // Prefer the size the files themselves name, so the first render answers
+      // the question the artist already asked by naming their exports.
+      targetSelect.value = defaultCompareSize(results);
+      render();
+
+      const blocked = results.filter((r) => !summarizeFindings(r).passed).length;
+      setStatus(
+        blocked === 0
+          ? `Checked ${results.length} file${results.length === 1 ? "" : "s"}. None blocked.`
+          : `Checked ${results.length} file${results.length === 1 ? "" : "s"}. ${blocked} blocked before printing.`,
+      );
+      recordEvent("files_compared");
+    } catch (error) {
+      clearRun();
+      resetBtn.disabled = false;
+      const detail = error instanceof Error && error.message.trim()
+        ? error.message.trim()
+        : "The browser could not read one or more files.";
+      setStatus(`${detail} Try selecting them again, or re-export as JPEG or PNG.`, true);
+    }
+  }
+
+  filesInput.addEventListener("change", () => handleFiles(filesInput.files));
+  targetSelect.addEventListener("change", () => {
+    if (results.length > 0) render();
+  });
+
+  for (const type of ["dragenter", "dragover"]) {
+    drop.addEventListener(type, (event) => {
+      event.preventDefault();
+      drop.classList.add("over");
+    });
+  }
+  for (const type of ["dragleave", "drop"]) {
+    drop.addEventListener(type, () => drop.classList.remove("over"));
+  }
+  drop.addEventListener("drop", (event) => {
+    event.preventDefault();
+    if (event.dataTransfer?.files?.length) handleFiles(event.dataTransfer.files);
+  });
+
+  resetBtn.addEventListener("click", () => {
+    filesInput.value = "";
+    clearRun();
+  });
+
+  $("download-json").addEventListener("click", () => {
+    if (results.length === 0) return;
+    const generatedAt = new Date().toISOString();
+    const record = buildBatchPreflightExportRecord(results, targetSelect.value, generatedAt);
+    const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = batchPreflightExportFileName(targetSelect.value, generatedAt);
+    document.body.append(a);
+    a.click();
+    a.remove();
+    // Revoked on the next frame: some browsers have not started reading the
+    // blob by the time click() returns.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+    copyStatus.textContent = "Downloaded.";
+    recordEvent("record_exported");
+  });
+
+  const usageToggle = $("usage-toggle");
+  const usageStatusEl = $("usage-status");
+  function renderUsageToggle() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn local usage counting back on";
+    usageStatusEl.textContent = on ? "" : " Local counting is off.";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageToggle();
+  });
+  renderUsageToggle();
+
+  recordEvent("page_viewed");
+</script>
+</body>
+</html>

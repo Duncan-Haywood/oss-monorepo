@@ -6,6 +6,26 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: print-atelier
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          files_compared: 0
+          record_exported: 0
+        note: >-
+          First public route. The print-file preflight existed as a tested
+          TypeScript library and a React component inside the venture's
+          Next.js app, so `build.mjs` never published it and no artist could
+          reach it -- one of the 14 ventures still without a public URL after
+          #3075. Ported to dependency-free ESM at `site/`, which the canonical
+          build and the front-door mirror both pick up, so it now serves from
+          the apex at `/tools/print-atelier/`. Counts are zero because the
+          page is new, not because nothing was measured: `files_compared` is
+          the activation event (comparing masters is what the tool is for; a
+          page view is not), and the apex nginx log feeds the nightly
+          `portfolio-site-usage` job for the server-side half.
   - slug: music-lesson-break-even
     surface: static-page-in-repo
     readings:
