@@ -49,6 +49,7 @@ import base64
 import functools
 import gzip
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -310,14 +311,37 @@ def test_a_gzip_client_gets_the_stored_bytes_rather_than_a_re_compression(front_
     )
 
 
+def _tools_host_serves() -> bool:
+    """`TOOLS_HOST_SERVES` from the mirror generator, which owns the premise.
+
+    Read from the source rather than restated here so this suite cannot drift
+    from the markup: the header and the meta tag disagreeing is precisely the
+    failure being guarded against, and it fails silently in the direction that
+    costs traffic, because a header beats the markup.
+    """
+    source = (ROOT.parent / "platform" / "marketing" / "front-door-tools.mjs").read_text()
+    match = re.search(r"^export const TOOLS_HOST_SERVES = (true|false);", source, re.M)
+    assert match, "TOOLS_HOST_SERVES is no longer declared where this test reads it"
+    return match.group(1) == "true"
+
+
 def test_the_security_headers_survive_every_mirrored_location(front_door: str) -> None:
     # `add_header` does not merge across levels: a location that sets any
     # header drops the server block's defaults instead of inheriting them, so
     # each block has to repeat them and each block can silently lose one.
-    for url_path, _, _ in _sample_paths():
+    sealed = _tools_host_serves()
+    for url_path, content_type, _ in _sample_paths():
         _, headers, _ = _get(front_door + url_path, gzip_ok=True)
-        assert headers.get("X-Robots-Tag") == "noindex", (
-            f"{url_path} is indexable, which undoes the canonical consolidation onto the tools host"
+        # A page is `noindex` only while the tools host serves and is therefore
+        # the canonical. `.mjs` and `LICENSE` are source files rather than
+        # search results, so they stay `noindex` either way — nobody searches
+        # for a raw module, and one in an index is noise.
+        is_page = content_type == "text/html"
+        want = "noindex" if (sealed or not is_page) else None
+        assert headers.get("X-Robots-Tag") == want, (
+            f"{url_path} sends X-Robots-Tag={headers.get('X-Robots-Tag')!r}, expected {want!r}. "
+            "A header disagreeing with the page's own robots meta wins silently: it would "
+            "either drop the catalogue out of the index or expose it against the seal."
         )
         assert headers.get("X-Content-Type-Options") == "nosniff", url_path
         assert headers.get("X-Frame-Options") == "DENY", url_path
