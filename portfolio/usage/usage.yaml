@@ -1512,6 +1512,18 @@ products:
   - slug: pole-barn-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added a "This calculator vs. JobTread" comparison page for organic
+          distribution. Live today at
+          https://marisstella.dev/tools/pole-barn-bid-calculator/vs-jobtread.html
+          via the apex front-door mirror -- the prior reading's "public URL
+          remains owner-gated" note is stale: the apex serves all 169 tools
+          itself, front-door mirror included, per CLAUDE.md's corrected
+          front-door section.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
@@ -2330,6 +2342,11 @@ products:
   - slug: walk-in-tub-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a "This calculator vs. Housecall Pro" comparison page for organic distribution. Live today at https://marisstella.dev/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html via the apex front-door mirror.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
@@ -2768,6 +2785,11 @@ products:
   - slug: spray-foam-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a "This calculator vs. Jobber" comparison page for organic distribution. Also reachable today at https://marisstella.dev/tools/spray-foam-bid-calculator/vs-jobber.html via the apex front-door mirror, not owner-gated as the earlier reading below said.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -3054,6 +3076,20 @@ products:
           calculator onto current main. Public URL remains owner-gated;
           the local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded workload,
+          callback, and margin inputs), following the same pattern already
+          used by 83 other ventures, so a contractor can hand an editable
+          maintenance-plan quote to a partner or the office instead of
+          only static summary text. Also reachable today at
+          https://marisstella.dev/tools/hvac-maintenance-contract-calculator/
+          via the apex front-door mirror -- the "Public URL remains
+          owner-gated" note above predates that mirror and is stale for
+          this venture, as it was for others corrected earlier this month.
 
   - slug: subcontractor-cashflow-planner
     surface: static-page-in-repo
@@ -3484,6 +3520,20 @@ products:
         note: >-
           Shipped a local deck staining / sealing bid calculator with a
           copyable proposal summary; public URL remains owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded job inputs,
+          decoded and applied on load ahead of the built-in defaults),
+          following the same pattern already used by 84 other ventures, so a
+          crew can hand an editable bid to a partner or the office instead of
+          only static summary text. Also reachable today at
+          https://marisstella.dev/tools/deck-staining-bid-calculator/ via the
+          apex front-door mirror -- the "public URL remains owner-gated" note
+          above predates that mirror and is stale for this venture, as it was
+          for others corrected earlier this month.
 
   - slug: concrete-lifting-bid-calculator
     surface: static-page-in-repo
@@ -4135,6 +4185,21 @@ products:
           Shipped a local gutter-cleaning bid calculator (stories, guards,
           downspouts, minimum stop, seasonal contract); public URL remains
           owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded runs and
+          cost inputs; share link outranks the default three-run starting
+          example on load), following the same pattern already used by 82
+          other ventures, so a crew lead can hand an editable bid to a
+          partner or the office instead of only static summary text. Also
+          reachable today at
+          https://marisstella.dev/tools/gutter-cleaning-bid-calculator/ via
+          the apex front-door mirror -- the "public URL remains owner-gated"
+          note above predates that mirror and is stale for this venture, as
+          it was for others corrected earlier this month.
 
   - slug: snow-removal-bid-calculator
     surface: static-page-in-repo
@@ -4148,6 +4213,21 @@ products:
           ice events, break-even storm count, copyable proposal summary).
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded stops,
+          rates, and winter assumptions; share link outranks the default
+          eight-driveway starting example on load), following the same
+          pattern already used by 79 other ventures, so a crew lead can
+          hand an editable winter bid to a partner or the office instead
+          of only static summary text. Also reachable today at
+          https://marisstella.dev/tools/snow-removal-bid-calculator/ via
+          the apex front-door mirror -- the "public URL remains
+          owner-gated" note above predates that mirror and is stale for
+          this venture, as it was for others corrected earlier this month.
 
   - slug: tree-service-bid-calculator
     surface: static-page-in-repo

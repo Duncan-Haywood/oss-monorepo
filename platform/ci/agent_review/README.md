@@ -51,6 +51,18 @@ In **Settings → Rules → Rulesets → main**:
 - `required_approving_review_count`: **2**
 - Keep `require_last_push_approval`: **on**
 - Do **not** add reviewer Apps to the bypass list (they should go through review like everyone else)
+- **Require status checks (strongly recommended).** Under *Require status checks
+  to pass* add the CI checks every code PR runs: `build`, `validate`, `check`,
+  `test`, and `gitops`. Turn on *Require branches to be up to date before
+  merging*. Without this, the ruleset gates only on **approvals**, so any
+  actor — an agent session merging a `ventures/*` product PR, or the auto-merge
+  bot on an internal one — can merge a PR whose slow checks (`build`,
+  `validate`) have not finished. That is not hypothetical: on 2026-09-03 a
+  ventures PR was merged after its fast checks were green but before `build`
+  ran, landing a red `platform/pages` suite on `main`. Required status checks
+  are what make GitHub itself refuse such a merge. `review.py` also gates on
+  `mergeable_state` as defense-in-depth (see `mergeable_state_ok`), but that
+  only covers the auto-merge path; the ruleset covers every merge.
 
 Copilot code review does **not** count toward required approvals.
 

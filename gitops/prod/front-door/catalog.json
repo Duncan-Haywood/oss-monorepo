@@ -1080,7 +1080,7 @@
       "url": "https://marisstella.dev/tools/pole-barn-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away price a $45-a-foot ag special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "pool-plaster-bid-calculator",
@@ -1264,7 +1264,7 @@
       "url": "https://marisstella.dev/tools/spray-foam-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price residential spray foam from the board feet an attic-square-foot special cannot see, the rim, the cell, and the ignition coating — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "stair-lift-bid-calculator",
@@ -1360,7 +1360,7 @@
       "url": "https://marisstella.dev/tools/walk-in-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "water-heater-bid-calculator",

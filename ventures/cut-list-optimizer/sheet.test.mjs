@@ -366,6 +366,27 @@ test('an on-hand piece bigger than the configured sheet size is not marked overs
   assertCuttable(result);
 });
 
+test('a second piece that only fits an already-consumed on-hand offcut is reported oversize, not a crash', () => {
+  // Both required pieces fit the 100x100 on-hand offcut but neither fits a
+  // fresh purchased sheet on its own. Whichever one the packer places first
+  // consumes the offcut's free space, so the second reaches the "no existing
+  // free rect fits" branch with nothing left that can hold it -- regression
+  // for a bug where that branch always assumed a fresh sheet would fit and
+  // threw reading `.width` off an undefined orientation option instead.
+  const result = optimizeSheets({
+    sheetWidth: 48,
+    sheetHeight: 96,
+    trim: 1,
+    kerf: 0.125,
+    onHand: [{ width: 100, height: 100 }],
+    panels: parsePanels('A: 90 x 90\nB: 95 x 95'),
+  });
+  assert.equal(result.oversize.length, 1);
+  assert.equal(result.sheets.length, 1);
+  assert.equal(result.sheets[0].source, 'on-hand');
+  assertCuttable(result);
+});
+
 test('rejects an on-hand list that is not an array, or a non-positive piece in it', () => {
   const panels = parsePanels('10 x 10');
   assert.throws(() => optimizeSheets({ sheetWidth: 96, sheetHeight: 48, panels, onHand: 'nope' }), /must be a list/);
