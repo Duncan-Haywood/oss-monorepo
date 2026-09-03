@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 148 files, 544884 bytes
+#   portfolio-front-tools-0: 149 files, 549542 bytes
 #   portfolio-front-tools-1: 124 files, 555234 bytes
 #   portfolio-front-tools-2: 160 files, 544360 bytes
 #   portfolio-front-tools-3: 126 files, 546486 bytes
@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 108 files, 550744 bytes
 #   portfolio-front-tools-7: 124 files, 555821 bytes
 #   portfolio-front-tools-8: 120 files, 552275 bytes
-#   portfolio-front-tools-9: 102 files, 550119 bytes
+#   portfolio-front-tools-9: 103 files, 555208 bytes
 #   portfolio-front-tools-10: 90 files, 463776 bytes
 #   portfolio-front-tools-11: 57 files, 262540 bytes
 #
@@ -103,6 +103,7 @@ configMapGenerator:
       - seller-net-sheet__index.html.gz=seller-net-sheet__index.html.gz
       - seller-net-sheet__offer-comparison.html.gz=seller-net-sheet__offer-comparison.html.gz
       - seller-net-sheet__usage.mjs.gz=seller-net-sheet__usage.mjs.gz
+      - seller-net-sheet__vs-title-company-net-sheet.html.gz=seller-net-sheet__vs-title-company-net-sheet.html.gz
       - subscription-price-impact__LICENSE.gz=subscription-price-impact__LICENSE.gz
       - subscription-price-impact__calc.mjs.gz=subscription-price-impact__calc.mjs.gz
       - subscription-price-impact__how-much-can-i-raise-my-saas-price.html.gz=subscription-price-impact__how-much-can-i-raise-my-saas-price.html.gz
@@ -1290,6 +1291,7 @@ configMapGenerator:
       - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
+      - shop-rate-calculator__vs-servicetitan.html.gz=shop-rate-calculator__vs-servicetitan.html.gz
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__LICENSE.gz=shopify-fee-calculator__LICENSE.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
