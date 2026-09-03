@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 125 files, 555860 bytes
 #   portfolio-front-tools-8: 109 files, 553731 bytes
 #   portfolio-front-tools-9: 113 files, 552401 bytes
-#   portfolio-front-tools-10: 69 files, 333472 bytes
+#   portfolio-front-tools-10: 70 files, 337789 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1434,6 +1434,7 @@ configMapGenerator:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__proposal.mjs.gz=well-pump-bid-calculator__proposal.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
+      - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - wheelchair-ramp-bid-calculator__LICENSE.gz=wheelchair-ramp-bid-calculator__LICENSE.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz
       - wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz=wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz
