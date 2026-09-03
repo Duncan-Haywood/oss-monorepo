@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 114 files, 552435 bytes
 #   portfolio-front-tools-7: 122 files, 554412 bytes
 #   portfolio-front-tools-8: 103 files, 550102 bytes
-#   portfolio-front-tools-9: 78 files, 395608 bytes
+#   portfolio-front-tools-9: 79 files, 399669 bytes
 #   portfolio-front-tools-10: 59 files, 278045 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1289,6 +1289,7 @@ configMapGenerator:
       - standby-generator-bid-calculator__proposal.mjs.gz=standby-generator-bid-calculator__proposal.mjs.gz
       - standby-generator-bid-calculator__share.mjs.gz=standby-generator-bid-calculator__share.mjs.gz
       - standby-generator-bid-calculator__usage.mjs.gz=standby-generator-bid-calculator__usage.mjs.gz
+      - standby-generator-bid-calculator__vs-servicetitan.html.gz=standby-generator-bid-calculator__vs-servicetitan.html.gz
       - stucco-repair-bid-calculator__LICENSE.gz=stucco-repair-bid-calculator__LICENSE.gz
       - stucco-repair-bid-calculator__calc.mjs.gz=stucco-repair-bid-calculator__calc.mjs.gz
       - stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz=stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz
