@@ -433,6 +433,7 @@
         sections: readSections(),
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
+        materialPreset: presetSelect.value,
       };
     }
 
@@ -441,6 +442,7 @@
       COST_IDS.forEach(id => {
         if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
       });
+      if (payload.materialPreset !== undefined) presetSelect.value = payload.materialPreset;
       if (Array.isArray(payload.sections) && payload.sections.length) {
         sectionsHost.innerHTML = '';
         payload.sections.forEach(addSectionRow);

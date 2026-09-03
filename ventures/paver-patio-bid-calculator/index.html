@@ -351,6 +351,8 @@
       return {
         ...values,
         haulAway: el('haulAway').checked,
+        patternId: el('patternId').value,
+        useId: el('useId').value,
       };
     }
 
@@ -484,6 +486,8 @@
         el(id).value = payload[id];
       }
       if (payload.haulAway !== undefined) el('haulAway').checked = Boolean(payload.haulAway);
+      if (payload.patternId !== undefined) el('patternId').value = payload.patternId;
+      if (payload.useId !== undefined) el('useId').value = payload.useId;
       // A shared link already carries explicit waste/labor/depth figures, so
       // treat them as user-edited: switching the pattern or use preset after
       // opening a shared link must not silently overwrite what was shared.

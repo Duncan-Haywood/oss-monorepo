@@ -36,6 +36,11 @@ test('a shared link keeps pitch, tear-off layers, waste, and margin', () => {
   assert.equal(restored.proposedPrice, 18500);
 });
 
+test('a shared link keeps the chosen covering, not just its derived costs', () => {
+  const restored = decodeShare(encodeShare({ ...sample, materialPreset: '2' }));
+  assert.equal(restored.materialPreset, '2');
+});
+
 test('unknown keys never survive encoding or decoding', () => {
   const encoded = encodeShare(sample);
   assert.equal(encoded.includes('drop-me'), false);
@@ -64,7 +69,7 @@ test('empty or broken fragments are absent, not a crash', () => {
 });
 
 test('SHARE_FIELDS includes the lines a dropped field would silently change', () => {
-  for (const key of ['sections', 'wastePercent', 'targetMargin', 'proposedPrice', 'permitFee']) {
+  for (const key of ['sections', 'wastePercent', 'targetMargin', 'proposedPrice', 'permitFee', 'materialPreset']) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
 });
