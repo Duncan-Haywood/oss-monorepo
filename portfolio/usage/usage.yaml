@@ -3443,6 +3443,22 @@ products:
           onto current main. Labor is hours times hourly rate (words/hour is
           productivity only). Public URL remains owner-gated; local counting
           honors DNT/GPC and a visible opt-out.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          page_viewed: 0
+          quote_summary_copied: 0
+          proposal_printed: 0
+        note: >-
+          Adopted platform/proposal, so the tool now produces the document the
+          client receives rather than stopping at a number: language pair,
+          project scope, deposit split, price-held date, signature line. First
+          venture outside the 102 bid calculators to adopt it. `proposal_printed`
+          is the new signal and the one that matters — a print is a translator
+          about to send a real quote, which is closer to an outcome than a page
+          view. Served publicly at https://marisstella.dev/tools/translator-project-quote/
+          via the front-door mirror; the canonical host still waits on the
+          `portfolio-site-repo` seal.
 
   - slug: wheelchair-ramp-bid-calculator
     surface: static-page-in-repo
