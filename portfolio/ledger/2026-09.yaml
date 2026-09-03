@@ -6789,3 +6789,56 @@ entries:
         own CI). PR #2966 merged (squash, commit 767b62702) under this
         repo's no-review-ceremony rule for `ventures/*` product PRs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Made the apex tool catalogue indexable. All 577 mirrored pages
+        under `marisstella.dev/tools/` carried `noindex` in markup and an
+        `X-Robots-Tag: noindex` header, with every canonical pointing at
+        `tools.marisstella.dev` -- a host that serves nothing and is
+        blocked on the owner-only `portfolio-site-repo` seal. That posture
+        was correct when written (two hosts serving the same bytes undoes
+        the canonical consolidation `build.mjs` stamps in) but its premise
+        never arrived, so the portfolio's entire public catalogue was
+        excluded from search on behalf of a host that does not exist,
+        while `PRODUCT_PLAYBOOK.md` names organic search and AI discovery
+        as the acquisition channel and `usage.yaml` records zero observed
+        users across 184 products.
+      - >-
+        The premise is now one named constant, `TOOLS_HOST_SERVES` in
+        `platform/marketing/front-door-tools.mjs`. It drives the robots
+        directive (`MIRROR_ROBOTS_CONTENT`), the canonical
+        (`mirrorCanonicalUrl`, which now names the host that actually
+        answers), and whether `renderSitemap` lists the mirror. The apex
+        sitemap went from 1 URL to 578 -- the 168 tools plus the 409
+        comparison, how-to and question pages that are the long-tail
+        search assets. `robots.txt` and `llms.txt` restated to match.
+        `default.conf` keeps `X-Robots-Tag: noindex` on the `.mjs` and
+        `LICENSE` blocks only: those are source files, not search results.
+      - >-
+        Flipping the constant back to `true` restores the previous state
+        exactly -- verified by flipping it and re-reading the outputs
+        (`noindex,follow`, the tools-host canonical, and 0 tool entries in
+        the sitemap). A new test, "an indexable mirror never also ships a
+        noindex header", pins `default.conf`'s page blocks to the constant
+        in both directions, because a header silently beats the markup and
+        fails in the direction that costs traffic.
+      - >-
+        Verified with `node --test` in `platform/marketing` (144/144, up
+        from 143; 8 tests rewritten to assert against the switch rather
+        than either answer), `publish_surface.py --check`,
+        `portfolio/router/validate.py` (182 files), and a brace/parse
+        check over `default.conf` plus the suite's own eight-location
+        block parse. `nginx -t` was not run: no Docker daemon in this
+        environment, and the edit is four `add_header` deletions inside
+        existing blocks.
+      - >-
+        No PRs were merged this run: the open-PR queue was empty (0 open),
+        and every branch carrying unmerged commits was verified as already
+        squash-merged onto `main` -- `explainIneligible`, the
+        branch-cleanup hardening and all six vs-* marketing pages checked
+        present. Merging any of those stale branches would have deleted
+        thousands of files.
+    mrr_end: null
