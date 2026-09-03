@@ -235,6 +235,63 @@ def test_every_job_that_runs_shellcheck_installs_it() -> None:
     assert not failures, "\n".join(failures)
 
 
+_THIRD_PARTY_IMPORT = re.compile(
+    r"(?:^|\n)\s*(?:import|from)\s+(yaml|requests|jinja2|dateutil|bs4|numpy|pandas)\b"
+)
+_PIP_INSTALL = re.compile(r"pip3?\s+install\s+([^\n]*)")
+# PyPI's distribution name differs from the import name for some of these, and
+# the check compares against what a `pip install` line actually says.
+_DIST_NAMES = {
+    "yaml": ("pyyaml",),
+    "dateutil": ("python-dateutil",),
+    "bs4": ("beautifulsoup4", "bs4"),
+}
+
+
+def test_setup_python_jobs_install_the_modules_they_import() -> None:
+    # The third variant of the same mistake, and the one that actually shipped
+    # red: `actions/setup-python` installs a *clean* interpreter from the tool
+    # cache. GitHub's *system* python3 carries PyYAML; the tool-cache one does
+    # not. So ubuntu-agent-server-ci.yml's `yaml-sanity` job, which was given
+    # a setup-python step precisely to survive a CI_RUNNER flip, started
+    # failing on `import yaml` under the interpreter that fix installed --
+    # trading a break that would happen later for one that was happening
+    # already.
+    #
+    # Nothing caught it because the workflow only triggers on
+    # `ventures/ubuntu-agent-server/**` or its own file, and neither had
+    # changed since the fix landed. It surfaced only when this PR edited that
+    # file for an unrelated reason. A job nobody runs is a job nobody checks,
+    # which is exactly what a repo-wide scan is for.
+    #
+    # Scope note: this looks only at third-party modules imported directly in
+    # `run:` blocks, and treats an `-r <file>` install as covering everything
+    # (the requirements file is the declaration in that case).
+    failures: list[str] = []
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        spec = yaml.safe_load(path.read_text())
+        for name, job in (spec.get("jobs") or {}).items():
+            steps = job.get("steps") or []
+            if not any(
+                (s.get("uses") or "").startswith("actions/setup-python") for s in steps
+            ):
+                continue
+            body = "\n".join(s.get("run") or "" for s in steps)
+            modules = set(_THIRD_PARTY_IMPORT.findall(body))
+            if not modules:
+                continue
+            installed = " ".join(_PIP_INSTALL.findall(body)).lower()
+            if "-r " in installed:
+                continue
+            for module in sorted(modules):
+                names = _DIST_NAMES.get(module, (module,))
+                if not any(n in installed for n in names):
+                    failures.append(
+                        f"{path.name}:{name} imports `{module}` but no pip install provides it"
+                    )
+    assert not failures, "\n".join(failures)
+
+
 def test_the_switch_defaults_to_github_hosted() -> None:
     # With the variable unset the expression must fall back to ubuntu-latest,
     # so merging this changes nothing until an owner opts in. `vars.CI_RUNNER`

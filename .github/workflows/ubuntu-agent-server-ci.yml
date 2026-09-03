@@ -96,6 +96,14 @@ jobs:
           python-version: "3.12"
       - name: config/repos.yml parses and has the expected shape
         run: |
+          # `setup-python` above installs a *clean* interpreter from the tool
+          # cache, which has no PyYAML. GitHub's system python3 does, so the
+          # fix that made this job survive a CI_RUNNER flip simultaneously
+          # broke it under the interpreter it had just installed -- and
+          # nothing noticed, because this workflow only triggers on
+          # `ventures/ubuntu-agent-server/**` or its own file and neither had
+          # changed since. Install what the script imports.
+          pip install pyyaml
           python3 -c "
           import yaml
           data = yaml.safe_load(open('config/repos.yml'))
