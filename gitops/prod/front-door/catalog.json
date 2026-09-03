@@ -16,43 +16,43 @@
     {
       "id": "trades",
       "name": "Trade & contractor bids",
-      "url": "https://marisstella.dev/#open-trades",
+      "url": "https://marisstella.dev/c/trades/",
       "tool_count": 116
     },
     {
       "id": "evidence",
       "name": "Compliance checks & evidence records",
-      "url": "https://marisstella.dev/#open-evidence",
+      "url": "https://marisstella.dev/c/evidence/",
       "tool_count": 14
     },
     {
       "id": "marketplace",
       "name": "Marketplace seller tools",
-      "url": "https://marisstella.dev/#open-marketplace",
+      "url": "https://marisstella.dev/c/marketplace/",
       "tool_count": 12
     },
     {
       "id": "backoffice",
       "name": "Back-office money & contracts",
-      "url": "https://marisstella.dev/#open-backoffice",
+      "url": "https://marisstella.dev/c/backoffice/",
       "tool_count": 11
     },
     {
       "id": "services",
       "name": "Service business pricing & quotes",
-      "url": "https://marisstella.dev/#open-services",
+      "url": "https://marisstella.dev/c/services/",
       "tool_count": 6
     },
     {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/#open-logistics",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     },
     {
       "id": "more",
       "name": "More free tools",
-      "url": "https://marisstella.dev/#open-more",
+      "url": "https://marisstella.dev/c/more/",
       "tool_count": 4
     }
   ],
