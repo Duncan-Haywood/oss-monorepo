@@ -2330,6 +2330,11 @@ products:
   - slug: walk-in-tub-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a "This calculator vs. Housecall Pro" comparison page for organic distribution. Live today at https://marisstella.dev/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html via the apex front-door mirror.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
