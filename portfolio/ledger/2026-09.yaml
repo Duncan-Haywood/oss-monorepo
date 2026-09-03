@@ -7325,3 +7325,41 @@ entries:
         once its checks went green, under this repo's no-review-ceremony
         rule for `ventures/*` product PRs.
     mrr_end: null
+  - venture: spray-foam-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "This calculator vs. Jobber" comparison page, matching the
+        pattern already shipped for other trades calculators
+        (foundation-repair-bid-calculator, chimney-sweep-bid-calculator,
+        gutter-guard-bid-calculator). This venture was one of 57 in the
+        front-door mirror with no comparison page at all -- a real gap in
+        the "get in front of people" workstream this account owner
+        specifically asked this run to prioritise (deployment/CI-CD and
+        marketing-materials distribution). Honest, non-numeric identity
+        facts only (Jobber's founding year, HQ city, category, and its own
+        published >200,000-user figure); no dollar amount for Jobber
+        appears anywhere on the page, consistent with the discipline the
+        other vs-* pages already use since Jobber's pricing page is not
+        reachable from this session to verify.
+      - >-
+        Live today at
+        https://marisstella.dev/tools/spray-foam-bid-calculator/vs-jobber.html
+        with no owner action needed -- this venture is already in the
+        front-door mirror (`gitops/prod/front-door-tools/`), which was
+        regenerated (`--write`) and committed in the same change, along
+        with the apex's own sitemap/catalog/llms.txt
+        (`platform/marketing/front-door.mjs --write`), since those list
+        every page under every mirrored tool.
+      - >-
+        Verified with `node --test` in the venture (73/73, 8 new tests),
+        `node --test "platform/marketing/*.test.mjs"` (173/173, front-door
+        mirror and apex-page consistency), the full site build and check
+        (`platform/pages/build.mjs` + `check.mjs`, 169 tools / 619 pages,
+        no dead links), that suite's own tests (`build.test.mjs` +
+        `check.test.mjs`, 320/320), and the gitops manifest tests (80
+        passed). Opened as a PR and merged once its checks went green,
+        under this repo's no-review-ceremony rule for `ventures/*` product
+        PRs.
+    mrr_end: null
