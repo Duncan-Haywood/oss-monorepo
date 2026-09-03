@@ -204,4 +204,4 @@ not linked — a link there would resolve to nothing today.
 ## Optional
 
 - [Atom feed](https://marisstella.dev/feed.xml): these tools as they are published, newest first. Poll this rather than re-reading this file to find out what is new.
-- [Sitemap](https://marisstella.dev/sitemap.xml): the indexable page on this host.
+- [Sitemap](https://marisstella.dev/sitemap.xml): every indexable page on this host.

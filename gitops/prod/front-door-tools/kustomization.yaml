@@ -33,17 +33,17 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 147 files, 553963 bytes
-#   portfolio-front-tools-1: 145 files, 555700 bytes
-#   portfolio-front-tools-2: 158 files, 556431 bytes
-#   portfolio-front-tools-3: 120 files, 552320 bytes
-#   portfolio-front-tools-4: 131 files, 551629 bytes
-#   portfolio-front-tools-5: 119 files, 549688 bytes
-#   portfolio-front-tools-6: 114 files, 552169 bytes
-#   portfolio-front-tools-7: 125 files, 556001 bytes
-#   portfolio-front-tools-8: 109 files, 553856 bytes
-#   portfolio-front-tools-9: 113 files, 552512 bytes
-#   portfolio-front-tools-10: 69 files, 333555 bytes
+#   portfolio-front-tools-0: 147 files, 553709 bytes
+#   portfolio-front-tools-1: 145 files, 555439 bytes
+#   portfolio-front-tools-2: 159 files, 556869 bytes
+#   portfolio-front-tools-3: 119 files, 551520 bytes
+#   portfolio-front-tools-4: 131 files, 551479 bytes
+#   portfolio-front-tools-5: 119 files, 549521 bytes
+#   portfolio-front-tools-6: 114 files, 552022 bytes
+#   portfolio-front-tools-7: 125 files, 555860 bytes
+#   portfolio-front-tools-8: 109 files, 553731 bytes
+#   portfolio-front-tools-9: 113 files, 552401 bytes
+#   portfolio-front-tools-10: 69 files, 333472 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -526,12 +526,12 @@ configMapGenerator:
       - appointment-deposit-calculator__style.css.gz=appointment-deposit-calculator__style.css.gz
       - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
       - appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz=appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz
+      - artificial-turf-bid-calculator__LICENSE.gz=artificial-turf-bid-calculator__LICENSE.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - artificial-turf-bid-calculator__LICENSE.gz=artificial-turf-bid-calculator__LICENSE.gz
       - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
       - artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz=artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz
       - artificial-turf-bid-calculator__index.html.gz=artificial-turf-bid-calculator__index.html.gz

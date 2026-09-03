@@ -51,10 +51,11 @@
  * mirrors a curated set of complete ventures into this host's own ConfigMap,
  * and `renderFrontDoor`'s `mirrored` argument is the section that names them.
  *
- * That does not reopen the two-hosts-one-canonical question above: every
- * mirrored page carries `noindex` and a canonical pointing back at its
- * `tools.marisstella.dev` URL, so the mirror is reachable by people and
- * invisible to crawlers. Read that module's header for the full argument.
+ * That does not reopen the two-hosts-one-canonical question above, because
+ * there are not two hosts: `tools.marisstella.dev` serves nothing pending an
+ * owner-only seal, so the apex is the sole host answering for these pages and
+ * each one's canonical says so. `TOOLS_HOST_SERVES` in that module is the
+ * switch, and its header carries the full argument.
  *
  * `mirrored` defaults to empty, so deleting the mirror after the seal removes
  * this section without touching anything here.
@@ -214,34 +215,35 @@ export const FEED_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-do
  *
  * ## Why `Allow: /` and not a `Disallow` on the mirror
  *
- * The obvious-looking line to add here is `Disallow: /tools/`, since
- * `front-door-tools.mjs` is emphatic that the mirrored pages are copies whose
- * canonical lives on the tools host and must not compete in search. That line
- * would be a mistake, and the reason is the standard trap:
+ * The obvious-looking line to add here is `Disallow: /tools/`, and while the
+ * mirrored pages were `noindex` on behalf of the tools host it looked like the
+ * tidy way to say so. It would have been a mistake then and is plainly one now
+ * that those pages are the apex's own to index, and the reason it was never
+ * right is the standard trap:
  *
  * `robots.txt` governs *crawling*, not *indexing*. A crawler that is
  * disallowed from `/tools/` never fetches those pages, and therefore never
- * sees the `<meta name="robots" content="noindex,follow">` that
- * `injectMirrorTags` puts in each one, nor the `X-Robots-Tag: noindex` header
- * `default.conf` sets on the same paths. A URL that is blocked from crawling
- * but linked to from an indexable page can still be indexed URL-only — title
- * and bare link, no content, no way to consolidate onto the canonical.
+ * reads the robots meta `injectMirrorTags` puts in each one. A URL blocked
+ * from crawling but linked to from an indexable page can still be indexed
+ * URL-only — title and bare link, no content.
  *
- * So blocking the crawl would *weaken* exactly the consolidation the mirror is
- * careful to preserve. Letting crawlers fetch the mirror is what makes its
- * `noindex` effective, because a directive is only obeyed by a crawler allowed
- * to read it. `Allow: /` here and `noindex` there are the same policy stated
- * in the layer that can actually enforce it.
+ * That cut both ways, which is why the line was always wrong. While the pages
+ * were `noindex` it would have *weakened* the exclusion, because a directive
+ * is only obeyed by a crawler allowed to read it. Now that they are indexable
+ * it would block the catalogue outright. `Allow: /` is what lets the pages'
+ * own directive — whichever one `MIRROR_ROBOTS_CONTENT` currently says —
+ * reach the only layer that can enforce it.
  */
 export const ROBOTS_TXT = `# ${FRONT_DOOR_URL}${ROBOTS_FILE}
 #
-# Crawling is unrestricted on purpose. The mirrored tools under /tools/ are
-# copies whose canonical lives on ${TOOLS_URL}
-# and they must not be indexed here. That is enforced by a noindex meta on
-# every mirrored page and an X-Robots-Tag: noindex header on every /tools/
-# response -- NOT by a Disallow. A disallowed page is never fetched, so its
-# noindex is never read, and the URL can still be indexed bare. Allowing the
-# crawl is what makes the noindex work.
+# Crawling is unrestricted on purpose, and so is indexing. This host serves
+# the tools under /tools/ itself, so it is their canonical home and they say
+# so; the sitemap lists every one of them. See TOOLS_HOST_SERVES in
+# platform/marketing/front-door-tools.mjs for when that changes back.
+#
+# A Disallow would be the wrong tool either way. robots.txt governs crawling,
+# not indexing: a disallowed page is never fetched, so a directive inside it
+# is never read, and the URL can still be indexed bare.
 User-agent: *
 Allow: /
 
@@ -249,16 +251,37 @@ Sitemap: ${FRONT_DOOR_URL}${SITEMAP_FILE}
 `;
 
 /**
- * The sitemap: one URL, because this host has exactly one indexable page.
+ * The sitemap: the apex page, plus every mirrored page the apex may index.
  *
- * Every other path the apex serves is either an asset (`/social-card.png`,
- * `/favicon.svg`) or a mirrored tool page under `/tools/`, and all of the
- * latter carry `noindex` plus a canonical pointing at the tools host. Listing
- * a `noindex` URL in a sitemap is a direct contradiction — the sitemap asks a
- * crawler to index what the page then tells it not to — and search consoles
- * report it as an error rather than resolving it in either direction. So the
- * mirror stays out, and this file grows a second entry only when the apex
- * grows a second page of its own.
+ * ## Why this is no longer one URL
+ *
+ * It was, and the reasoning was sound on its own premise: listing a `noindex`
+ * URL in a sitemap is a direct contradiction — the sitemap asks a crawler to
+ * index what the page then tells it not to — and search consoles report that
+ * as an error rather than resolving it in either direction. So while every
+ * mirrored page carried `noindex`, the mirror had to stay out, and this file
+ * held the apex alone.
+ *
+ * `front-door-tools.mjs`'s `TOOLS_HOST_SERVES` is the premise that changed.
+ * The mirrored pages were `noindex` on behalf of `tools.marisstella.dev`,
+ * which serves nothing and is blocked on an owner-only seal; the apex is the
+ * only host answering for those 168 tools. They are indexable there now, and
+ * carry a canonical naming the apex, so listing them is the sitemap agreeing
+ * with the pages rather than contradicting them.
+ *
+ * The contradiction rule still holds and is what keeps this honest in the
+ * other direction: `pages` is supplied by the caller from the same mirror
+ * build that stamps the robots meta, so when `TOOLS_HOST_SERVES` flips back to
+ * `true` the pages go `noindex` and `buildFrontDoor` stops passing them here
+ * in the same commit. The two cannot disagree.
+ *
+ * ## Why every page and not just the 168 entry points
+ *
+ * 409 of the 577 mirrored pages are comparison pages, how-to guides and
+ * question pages — the long-tail assets that earn a search visit for a
+ * specific query. Listing only the tool index pages would omit exactly the
+ * documents most likely to rank, and a crawler reaching them by link alone
+ * discovers them slower and revisits them less.
  *
  * No `<lastmod>`. The honest value would be the commit date of
  * `front-door/index.html`, which this generator cannot read without making its
@@ -269,12 +292,19 @@ Sitemap: ${FRONT_DOOR_URL}${SITEMAP_FILE}
  * worse than none, since crawlers weight it and a date that moves without the
  * content moving is a signal that trains them to stop trusting it.
  */
-export function renderSitemap() {
+export function renderSitemap({ pages = [] } = {}) {
+  // Root-relative (`/tools/<slug>/`) is what the mirror deals in; the protocol
+  // requires absolute URLs, and `FRONT_DOOR_URL` carries its own trailing
+  // slash, so the leading one is dropped rather than doubled.
+  const origin = FRONT_DOOR_URL.replace(/\/$/, '');
+  // Sorted and de-duplicated so a regeneration that changed nothing writes
+  // byte-identical output — the same property `<lastmod>`'s absence buys
+  // below, and what lets the staleness test pass twice.
+  const locs = [FRONT_DOOR_URL, ...new Set(pages.map((p) => `${origin}${p}`))].sort();
+  const entries = locs.map((loc) => `  <url>\n    <loc>${loc}</loc>\n  </url>`).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>${FRONT_DOOR_URL}</loc>
-  </url>
+${entries}
 </urlset>
 `;
 }
@@ -325,11 +355,12 @@ export function renderSitemap() {
  * who follows one concludes the project is abandoned rather than that one
  * hostname is pending.
  *
- * The SEO cost of that choice is nil, which is the reason it is available at
- * all: the mirrored pages carry `noindex` in markup and in the `X-Robots-Tag`
- * header, so search consolidation onto the canonical is unaffected by what a
- * feed reader is handed. A feed is read by people and aggregators, and both
- * want the URL that works.
+ * There is no SEO cost to that choice, and there no longer needs to be an
+ * argument for why: the apex URL a feed entry carries is now also the page's
+ * canonical, so the feed and the crawler are pointed at the same place. (While
+ * the mirror was `noindex` the cost was nil for a different reason — nothing
+ * there was eligible to consolidate at all.) A feed is read by people and
+ * aggregators, and both want the URL that works.
  *
  * ## Scope
  *
@@ -497,7 +528,7 @@ export function renderFrontDoorLlms({ mirrored = [], total = 0, categories = ALL
     '## Optional',
     '',
     `- [Atom feed](${FRONT_DOOR_URL}${FEED_FILE}): these tools as they are published, newest first. Poll this rather than re-reading this file to find out what is new.`,
-    `- [Sitemap](${FRONT_DOOR_URL}${SITEMAP_FILE}): the indexable page on this host.`,
+    `- [Sitemap](${FRONT_DOOR_URL}${SITEMAP_FILE}): every indexable page on this host.`,
     '',
   ].join('\n');
 
@@ -1248,13 +1279,22 @@ export async function buildFrontDoor() {
   // The mirror is imported lazily so `front-door.mjs` keeps working — and its
   // own tests keep running — if `front-door-tools.mjs` is ever deleted, which
   // is exactly what should happen once `portfolio-site-repo` is sealed.
-  const { buildMirror } = await import('./front-door-tools.mjs');
-  const { tools } = await buildMirror();
+  const { buildMirror, TOOLS_HOST_SERVES, mirrorUrl } = await import('./front-door-tools.mjs');
+  const { tools, files } = await buildMirror();
   const launched = await launchedDates();
   const slugs = await publishedSlugs();
+  // Every mirrored HTML page, which is what the apex may now index — see
+  // `renderSitemap`. When the tools host is sealed these pages go `noindex`
+  // again, and the sitemap has to empty in the same commit or it starts
+  // asking crawlers to index what the pages refuse: hence the guard here
+  // rather than a second copy of the premise inside `renderSitemap`.
+  const indexablePages = TOOLS_HOST_SERVES
+    ? []
+    : files.filter((f) => f.file.endsWith('.html')).map((f) => mirrorUrl(f.slug, f.file));
   return {
     html: renderFrontDoor({ slugs, mirrored: tools }),
     feed: renderFrontDoorFeed({ mirrored: tools, launched }),
+    sitemap: renderSitemap({ pages: indexablePages }),
     // The same category ordering the page uses — biggest first — so a model
     // reading llms.txt and a person reading the page meet the collection in
     // one order rather than two.
@@ -1269,7 +1309,7 @@ export async function buildFrontDoor() {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const { html, feed, llms } = await buildFrontDoor();
+  const { html, feed, llms, sitemap } = await buildFrontDoor();
   if (process.argv.includes('--write')) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
@@ -1291,7 +1331,6 @@ if (isMain) {
     // is the `og:image` defect one layer out.
     await fs.writeFile(ROBOTS_OUTPUT_FILE, ROBOTS_TXT);
     console.log(`wrote ${path.relative(REPO_ROOT, ROBOTS_OUTPUT_FILE)} (${ROBOTS_TXT.length} bytes)`);
-    const sitemap = renderSitemap();
     await fs.writeFile(SITEMAP_OUTPUT_FILE, sitemap);
     console.log(
       `wrote ${path.relative(REPO_ROOT, SITEMAP_OUTPUT_FILE)} (${sitemap.length} bytes)`,

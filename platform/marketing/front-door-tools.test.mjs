@@ -54,6 +54,9 @@ import {
   SOCIAL_CARD_HEIGHT,
   buildMirror,
   canonicalUrl,
+  mirrorCanonicalUrl,
+  MIRROR_ROBOTS_CONTENT,
+  TOOLS_HOST_SERVES,
   apexUrl,
   injectMirrorTags,
   injectMirrorNav,
@@ -126,22 +129,21 @@ test('no mirrored page links to something the mirror does not serve', async () =
   assert.deepEqual(validateLinks(files), []);
 });
 
-test('every mirrored page is noindex and points its canonical at the tools host', async () => {
+test('every mirrored page carries the robots directive and canonical the switch names', async () => {
   // `portfolio-apex.yaml` is right that two hostnames serving the same bytes
-  // undoes the canonical consolidation `build.mjs` stamps in. These two tags
-  // are why that argument does not apply to the mirror: no copy here is
-  // eligible to be indexed, and any signal that leaks consolidates on the
-  // tools host. `front-door/default.conf` repeats the first as a header.
+  // undoes the canonical consolidation `build.mjs` stamps in — but that binds
+  // only while two hosts actually serve. `TOOLS_HOST_SERVES` is that premise,
+  // and this asserts against it rather than against either answer, so the test
+  // keeps its meaning when the seal lands and the switch flips.
   const { files } = await buildMirror();
   const pages = files.filter((f) => f.file.endsWith('.html'));
   assert.ok(pages.length >= STARTER_SET.length);
   for (const page of pages) {
-    assert.match(
-      page.contents,
-      /<meta name="robots" content="noindex,follow">/,
-      `${page.key} is missing its noindex`,
+    assert.ok(
+      page.contents.includes(`<meta name="robots" content="${MIRROR_ROBOTS_CONTENT}">`),
+      `${page.key} does not carry the ${MIRROR_ROBOTS_CONTENT} directive`,
     );
-    const canonical = canonicalUrl(page.slug, page.file);
+    const canonical = mirrorCanonicalUrl(page.slug, page.file);
     assert.ok(
       page.contents.includes(`<link rel="canonical" href="${canonical}">`),
       `${page.key} should be canonical to ${canonical}`,
@@ -151,7 +153,40 @@ test('every mirrored page is noindex and points its canonical at the tools host'
       1,
       `${page.key} has more than one canonical, which leaves the crawler to pick`,
     );
-    assert.ok(canonical.startsWith(TOOLS_URL));
+    // The point of the switch: the canonical must name a host that answers.
+    // A canonical pointing at the dark tools host is the defect this replaced,
+    // and it is silent — a crawler discards the hint and the `noindex` beside
+    // it then decides alone.
+    assert.ok(canonical.startsWith(TOOLS_HOST_SERVES ? TOOLS_URL : APEX_URL));
+  }
+});
+
+test('an indexable mirror never also ships a noindex header, in markup or nginx', async () => {
+  // The two layers disagreeing is the failure this whole change exists to
+  // remove, and it fails in the expensive direction: a header silently beats
+  // the markup, so the pages would be excluded while every generated artifact
+  // claimed otherwise. Whichever way `TOOLS_HOST_SERVES` points, the page
+  // blocks in `default.conf` and `MIRROR_ROBOTS_CONTENT` must agree.
+  const conf = await fs.readFile(
+    path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
+    'utf8',
+  );
+  // The blocks that serve pages, as opposed to the `.mjs` and `LICENSE` blocks
+  // which stay noindex either way because a raw module is not a search result.
+  const pageBlocks = [...conf.matchAll(/location ~ "\^\/tools\/[^"]*"\s*\{[^}]*\}/g)]
+    .map((m) => m[0])
+    .filter((b) => !/\\\.mjs|LICENSE/.test(b));
+  assert.ok(pageBlocks.length >= 4, `expected the page-serving blocks, found ${pageBlocks.length}`);
+  for (const block of pageBlocks) {
+    const hasHeader = /X-Robots-Tag "noindex"/.test(block);
+    assert.equal(
+      hasHeader,
+      TOOLS_HOST_SERVES,
+      hasHeader
+        ? 'a page block sends X-Robots-Tag: noindex while the mirror claims to be indexable — ' +
+            'the header wins and the catalogue silently leaves the index'
+        : 'the mirror is noindex in markup but a page block no longer says so to a header-only crawler',
+    );
   }
 });
 
@@ -163,7 +198,11 @@ test('the charset declaration survives the injection inside the first 1024 bytes
   const html = '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body></body></html>';
   const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
   assert.ok(out.indexOf('<meta charset="utf-8">') < 1024);
-  assert.ok(out.indexOf('charset') < out.indexOf('noindex'));
+  // The injected block is located by the tag the switch actually wrote, not
+  // by a hardcoded 'noindex' — that literal stopped appearing when the mirror
+  // became indexable, and `indexOf` returning -1 made this pass or fail for
+  // reasons unrelated to charset placement.
+  assert.ok(out.indexOf('charset') < out.indexOf(`content="${MIRROR_ROBOTS_CONTENT}"`));
 });
 
 test('a pre-existing canonical is replaced rather than duplicated', () => {
@@ -183,7 +222,9 @@ test('a venture-declared robots directive is replaced, not contradicted', () => 
   const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
   const robots = out.match(/<meta[^>]*name="robots"[^>]*>/g);
   assert.equal(robots.length, 1, 'two robots directives let the crawler choose which one to believe');
-  assert.equal(robots[0], '<meta name="robots" content="noindex,follow">');
+  assert.equal(robots[0], `<meta name="robots" content="${MIRROR_ROBOTS_CONTENT}">`);
+  // The venture's own spacing ("index, follow") must be gone whichever
+  // directive replaced it — that is what "replaced, not contradicted" means.
   assert.ok(!out.includes('index, follow'));
 });
 
@@ -195,7 +236,7 @@ test('no mirrored page ships more than one robots directive', async () => {
   for (const { slug, file, contents } of files.filter((f) => f.file.endsWith('.html'))) {
     const robots = contents.match(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi) ?? [];
     assert.equal(robots.length, 1, `${slug}/${file} has ${robots.length} robots directives`);
-    assert.match(robots[0], /noindex/);
+    assert.ok(robots[0].includes(MIRROR_ROBOTS_CONTENT));
   }
 });
 
@@ -216,16 +257,21 @@ test('a venture-declared og:url is repointed at the URL this host actually serve
   assert.equal(tags[0], '<meta property="og:url" content="https://marisstella.dev/tools/demo/vs-jobber.html">');
 });
 
-test('og:url names the apex, while the canonical still names the tools host', () => {
-  // These two tags disagree on purpose and the disagreement is the point: a
-  // crawler consolidating on `tools.marisstella.dev` is correct, and a person
-  // clicking a share card needs the host that answers today. Asserted together
-  // so a future session cannot "fix" one into the other without this failing.
+test('og:url and the canonical both name a host that answers', () => {
+  // These two used to disagree on purpose: the canonical named
+  // `tools.marisstella.dev` for consolidation while `og:url` named the apex so
+  // a share card resolved. With `TOOLS_HOST_SERVES` false they agree, because
+  // the apex is both the host that answers and the canonical home — and the
+  // property worth pinning was never that they differ, but that neither ever
+  // names a dead host.
   const html = '<head><meta charset="utf-8"><meta property="og:url" content="https://example.invalid/d/"></head>';
   const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
-  assert.ok(out.includes(`<link rel="canonical" href="${canonicalUrl('demo', 'index.html')}">`));
+  assert.ok(out.includes(`<link rel="canonical" href="${mirrorCanonicalUrl('demo', 'index.html')}">`));
   assert.ok(out.includes(`<meta property="og:url" content="${apexUrl('demo', 'index.html')}">`));
   assert.ok(canonicalUrl('demo', 'index.html').startsWith(TOOLS_URL));
+  assert.ok(
+    mirrorCanonicalUrl('demo', 'index.html').startsWith(TOOLS_HOST_SERVES ? TOOLS_URL : APEX_URL),
+  );
   assert.ok(apexUrl('demo', 'index.html').startsWith(APEX_URL));
   // `index.html` drops off both, so neither advertises a second URL for the
   // page the directory itself already answers.
@@ -620,7 +666,11 @@ test('the nginx config serves every shape of path the mirror produces', async ()
       /rewrite \^ \/\$\d/,
       `a /tools/ block uses a positional capture in its rewrite, which resolves empty:\n${block}`,
     );
-    assert.match(block, /X-Robots-Tag "noindex"/);
+    // The `X-Robots-Tag` assertion that used to sit here moved to
+    // 'an indexable mirror never also ships a noindex header': it is a policy
+    // that follows `TOOLS_HOST_SERVES` and differs between the page blocks and
+    // the source-file blocks, where every property above is a routing
+    // invariant that holds for all eight regardless.
   }
 
   // `.mjs` must be typed, or the module is refused and every calculator is an

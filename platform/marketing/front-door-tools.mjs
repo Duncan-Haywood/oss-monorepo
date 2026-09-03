@@ -49,23 +49,24 @@
  * `portfolio-apex.yaml` argues at length that two hostnames must not serve the
  * same bytes: `build.mjs` stamps one canonical host into all 524 pages, and a
  * second copy in front of a crawler undoes that consolidation. That argument is
- * about *crawlers*, and it is correct, so this mirror is built to be invisible
- * to them and visible only to people:
+ * about *crawlers*, and it is correct — but it binds only while two hosts
+ * actually serve. `TOOLS_HOST_SERVES` is the switch that says whether they do,
+ * and today they do not: the apex is the only host answering for these tools,
+ * so it is their canonical and they are indexable there.
  *
- * - every mirrored page carries `<meta name="robots" content="noindex,follow">`
- *   and *only* that one — `injectMirrorTags` strips whatever the venture
- *   source already declared, so no page ships two directives that disagree;
- *   so no copy here is eligible to be indexed at all; and
- * - every mirrored page carries a `<link rel="canonical">` pointing at its own
- *   `tools.marisstella.dev/<slug>/` URL, so any signal that does reach a
- *   crawler consolidates exactly where the existing design intends.
+ * - every mirrored page carries one `<meta name="robots">` and *only* one —
+ *   `injectMirrorTags` strips whatever the venture source already declared, so
+ *   no page ships two directives that disagree — reading
+ *   `MIRROR_ROBOTS_CONTENT`; and
+ * - every mirrored page carries a `<link rel="canonical">` from
+ *   `mirrorCanonicalUrl`, naming the host that actually serves it.
  *
- * `front-door/default.conf` adds `X-Robots-Tag: noindex` on these paths too, so
- * the claim holds for a crawler that never parses the HTML.
+ * Flip `TOOLS_HOST_SERVES` when `portfolio-site-repo` is sealed and both move
+ * back to the tools host together, which is the state the paragraph above
+ * describes. `front-door/default.conf` keeps its `X-Robots-Tag` in step by
+ * hand; a test pins the two together so they cannot drift.
  *
- * The consequence worth stating plainly: these pages are a fallback for humans,
- * not a second front in search. They win nothing in rankings and are not meant
- * to. When `portfolio-site-repo` is sealed, the mirror becomes redundant and
+ * When `portfolio-site-repo` is sealed, the mirror becomes redundant and
  * can be deleted in one commit — `STARTER_SET` is the only thing to remove.
  *
  * ## Usage
@@ -965,6 +966,76 @@ export const canonicalUrl = (slug, file) =>
 export const apexUrl = (slug, file) => `${APEX_URL.replace(/\/$/, '')}${mirrorUrl(slug, file)}`;
 
 /**
+ * Whether `tools.marisstella.dev` serves anything yet.
+ *
+ * This is the premise the mirror's whole search posture rests on, and until
+ * 2026-09-03 it was stated nowhere and assumed everywhere. Flip it to `true`
+ * in the same commit that seals `portfolio-site-repo`, and the canonical, the
+ * robots meta and the apex sitemap all move back together.
+ *
+ * ## Why this exists
+ *
+ * The mirror was built as a stopgap for a host that was about to go live, and
+ * every SEO decision in this module was made for the world one commit after
+ * the seal: mark the copies `noindex`, canonicalise them to the tools host,
+ * and the crawler consolidates on the real home the moment it appears. That is
+ * the correct design *if the seal is imminent*, and `portfolio-apex.yaml` is
+ * right that two hosts serving the same bytes undoes the consolidation
+ * `build.mjs` stamps in.
+ *
+ * The seal was not imminent. It is owner-only (decision-queue
+ * `portfolio-site-hetzner-deploy`, #1999), has been queued for weeks, and no
+ * session can perform it. Meanwhile the apex serves 168 of the 169 tools
+ * itself, and the standing posture pointed every one of their canonicals at a
+ * hostname that answers nothing while telling crawlers, twice — a `noindex`
+ * meta and an `X-Robots-Tag` header — not to index the copies that do answer.
+ *
+ * The net effect was that the portfolio's entire public catalogue was
+ * deliberately excluded from search, on behalf of a host that does not exist
+ * yet. `PRODUCT_PLAYBOOK.md` names organic search and AI discovery as the
+ * acquisition channel, and `portfolio/usage/usage.yaml` has recorded zero
+ * observed users across all 184 products. Those two facts are the same fact:
+ * a catalogue nothing may index earns no organic visit, however good it is.
+ *
+ * ## Why flipping is safe, and cheaper to reverse than to leave
+ *
+ * The duplicate-content risk this guarded against needs two hosts serving the
+ * same bytes *at the same time*, and that state never arrives. The mirror is a
+ * stopgap that `MIRROR_BYTE_CEILING`'s comment expects to be "deletable in one
+ * commit" the day the seal lands — so the tools host replaces the mirror
+ * rather than competing with it.
+ *
+ * A canonical pointing at a URL that does not resolve is not a neutral
+ * placeholder either: it is a hint a crawler discards, leaving the `noindex`
+ * to decide alone. So the pre-flip state bought no consolidation and paid the
+ * full cost of exclusion.
+ *
+ * Reversing costs one boolean and a regeneration. Leaving it costs every
+ * organic visit the catalogue would have earned in the meantime.
+ */
+export const TOOLS_HOST_SERVES = false;
+
+/**
+ * What `injectMirrorTags` writes into every mirrored page's robots meta.
+ *
+ * `follow` in both directions: the mirrored pages link to each other and back
+ * to the front door, and a crawler that will not follow them cannot discover
+ * the catalogue even when it is allowed to index it.
+ */
+export const MIRROR_ROBOTS_CONTENT = TOOLS_HOST_SERVES ? 'noindex,follow' : 'index,follow';
+
+/**
+ * The canonical a mirrored page claims: the address that actually serves it.
+ *
+ * A canonical naming a host that answers nothing is worse than none — see
+ * `TOOLS_HOST_SERVES`. While the tools host is dark the apex *is* the tool's
+ * home, so it says so; once sealed, `canonicalUrl` names the long-run home
+ * again and consolidation happens against a host that responds.
+ */
+export const mirrorCanonicalUrl = (slug, file) =>
+  TOOLS_HOST_SERVES ? canonicalUrl(slug, file) : apexUrl(slug, file);
+
+/**
  * A test file, by either convention this repository uses to name one.
  *
  * `.test.` catches `calc.test.mjs`, which is what most ventures write and what
@@ -1288,8 +1359,8 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
  */
 export function injectMirrorTags(html, { slug, file }) {
   const tags =
-    `<meta name="robots" content="noindex,follow">` +
-    `<link rel="canonical" href="${canonicalUrl(slug, file)}">` +
+    `<meta name="robots" content="${MIRROR_ROBOTS_CONTENT}">` +
+    `<link rel="canonical" href="${mirrorCanonicalUrl(slug, file)}">` +
     `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">` +
     `<meta property="og:image" content="${APEX_URL.replace(/\/$/, '')}/${SOCIAL_CARD_FILE}">` +
     `<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">` +

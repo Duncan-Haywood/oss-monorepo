@@ -579,9 +579,14 @@ test('the committed robots.txt and sitemap match what this generator produces', 
     ROBOTS_TXT,
     'gitops/prod/front-door/robots.txt is stale — run: node platform/marketing/front-door.mjs --write',
   );
+  // Through `buildFrontDoor` rather than a bare `renderSitemap()`, because the
+  // sitemap's contents now depend on the mirror build — the same source that
+  // decides each page's robots directive, which is what keeps the two from
+  // ever contradicting each other.
+  const { sitemap } = await buildFrontDoor();
   assert.equal(
     await fs.readFile(SITEMAP_OUTPUT_FILE, 'utf8'),
-    renderSitemap(),
+    sitemap,
     'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/front-door.mjs --write',
   );
 });
@@ -625,16 +630,28 @@ test('robots.txt is plain ASCII, so no crawler has to guess an encoding', () => 
   );
 });
 
-test('the sitemap lists the one indexable URL and no noindex page', () => {
-  const xml = renderSitemap();
+test('the sitemap lists every indexable page and never a noindex one', async () => {
+  const { sitemap: xml } = await buildFrontDoor();
   assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
   assert.match(xml, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
   const locs = [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs, [FRONT_DOOR_URL]);
-  // A sitemap entry for a `noindex` page asks a crawler to index what the page
-  // then forbids; consoles report the pair as an error rather than picking a
-  // winner. Every /tools/ page is noindex, so none of them belongs here.
-  assert.ok(!xml.includes('/tools/'));
+  assert.ok(locs.includes(FRONT_DOOR_URL), 'the apex is missing from its own sitemap');
+  assert.deepEqual(locs, [...locs].sort(), 'the sitemap is not in a stable order');
+  assert.equal(new Set(locs).size, locs.length, 'the sitemap lists a URL twice');
+  for (const loc of locs) assert.ok(loc.startsWith(FRONT_DOOR_URL), `${loc} is not on this host`);
+
+  // The invariant that outlives the switch: a sitemap entry for a `noindex`
+  // page asks a crawler to index what the page then forbids, and consoles
+  // report the pair as an error rather than picking a winner. So the tool
+  // pages belong here exactly when they are indexable, and the premise is read
+  // from the mirror rather than restated.
+  const { TOOLS_HOST_SERVES } = await import('./front-door-tools.mjs');
+  const toolLocs = locs.filter((l) => l.includes('/tools/'));
+  if (TOOLS_HOST_SERVES) {
+    assert.equal(toolLocs.length, 0, 'the mirror is noindex again but still listed for indexing');
+  } else {
+    assert.ok(toolLocs.length > 100, `expected the mirrored catalogue, got ${toolLocs.length}`);
+  }
   // No `<lastmod>`: the only value available at build time is the build's own
   // clock, which would move on every regeneration and make the staleness test
   // above unpassable while training crawlers to distrust the field.
