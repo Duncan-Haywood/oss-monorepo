@@ -14,6 +14,13 @@ eventual canonical address, is not serving yet, and is named here only so it
 is not mistaken for a fuller index — a link there would resolve to nothing
 today.
 
+Every tool above can be embedded in another site's page, free, including on
+commercial sites: load its URL with ?pfEmbed=1 inside an <iframe>
+(1400px is a reasonable starting height). The embedded view keeps the same
+arithmetic and the same disclaimer as the full page and links back to it, runs
+entirely in the visitor's browser, and adds no tracking of any kind to the
+page that hosts it.
+
 ## Trade & contractor bids
 
 - [Change Order Margin Calculator — Price the Added Work](https://marisstella.dev/tools/change-order-margin-calculator/): Price a construction change order from loaded labor, materials, subs, schedule delay and overhead — and see what your contract's markup cap actually leaves you.

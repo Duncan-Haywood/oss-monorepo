@@ -109,7 +109,14 @@ import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, THEME_COLOR, renderSocialCard } 
 // cost live product both times. The runtime is already host-agnostic -- it
 // reads `data-pf-embed-url`/`-title`/`-slug` off its own script tag -- so the
 // apex needs the same bytes, not a variant of them.
-import { renderEmbedModule, renderEmbedStyle, EMBED_MODULE_FILE, EMBED_STYLE_FILE } from '../pages/embed.mjs';
+import {
+  renderEmbedModule,
+  renderEmbedStyle,
+  EMBED_MODULE_FILE,
+  EMBED_STYLE_FILE,
+  EMBED_QUERY_PARAM,
+  DEFAULT_EMBED_HEIGHT,
+} from '../pages/embed.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -597,6 +604,31 @@ export function renderFrontDoorCatalog({
       collection_total: total,
       feed: `${FRONT_DOOR_URL}${FEED_FILE}`,
       sitemap: `${FRONT_DOOR_URL}${SITEMAP_FILE}`,
+      // Every tool below is embeddable, and until this key existed nothing
+      // machine-readable said so. That is a distribution gap rather than a
+      // documentation one: this file is the artifact `llms.txt` tells a model
+      // to parse instead of scraping, so an assistant asked "is there a free
+      // calculator for X I can put on my site" had the tools and no way to
+      // learn the answer to the second half of the question.
+      //
+      // Every claim here is checkable against something that fails CI:
+      // `EMBED_QUERY_PARAM` and `DEFAULT_EMBED_HEIGHT` are imported from
+      // `embed.mjs` rather than typed, the URL pattern is the one
+      // `test_the_entry_page_is_framable_only_with_the_embed_parameter`
+      // exercises against real nginx, and the privacy sentence says only what
+      // the pages actually do — the calculator computes in the visitor's
+      // browser and this origin sets nothing on the host page.
+      embed: {
+        supported: true,
+        url_pattern: `${base}/tools/{slug}/?${EMBED_QUERY_PARAM}=1`,
+        how: `Load any tool URL below with ?${EMBED_QUERY_PARAM}=1 inside an <iframe>.`,
+        suggested_min_height_px: DEFAULT_EMBED_HEIGHT,
+        cost: 'free, including on commercial sites',
+        privacy:
+          'The calculator runs in the visitor’s browser and computes nothing on our servers. ' +
+          'Embedding adds no tracking of any kind to the host page.',
+        keeps: 'the same arithmetic and the same disclaimer as the full page, and links back to it',
+      },
       // `/c/<id>/` rather than the front page's `#open-<id>` fragment. This
       // was the fragment until the apex grew real category pages, on the
       // reasoning that "a `/c/<id>/` URL would be the tools host's collection
@@ -744,6 +776,34 @@ collection runs to ${total} tools and will be published at ${catalogue}; that
 hostname is not serving yet, so it is named here for context and deliberately
 not linked — a link there would resolve to nothing today.`;
 
+  // Every tool here is embeddable, and until this paragraph existed nothing a
+  // model reads said so.
+  //
+  // That is a distribution gap rather than a documentation one. The whole
+  // argument for the embed widget is that a trade association's resource page
+  // or a supplier's blog post is an inbound link and an audience that already
+  // exists — and the single most likely way anyone now discovers that these
+  // tools *can* go on their page is an assistant answering "is there a free
+  // calculator for X I could put on my site". Without this, such an assistant
+  // has all 169 tools listed above and no way to answer the second half.
+  //
+  // Body prose rather than an `## Optional` link, because it is a property of
+  // every entry in the list rather than another document to go and fetch, and
+  // because "Optional" is defined as the material an assistant may skip when
+  // it is short of context — which is exactly when this sentence still needs
+  // to be true.
+  //
+  // The parameter and the height are imported from `embed.mjs`, never typed:
+  // this file is read by something that will act on it, so a stale parameter
+  // name here would publish an instruction that silently produces an
+  // unembeddable iframe. Hard-wrapped to match the body prose above it.
+  const embedding = `Every tool above can be embedded in another site's page, free, including on
+commercial sites: load its URL with ?${EMBED_QUERY_PARAM}=1 inside an <iframe>
+(${DEFAULT_EMBED_HEIGHT}px is a reasonable starting height). The embedded view keeps the same
+arithmetic and the same disclaimer as the full page and links back to it, runs
+entirely in the visitor's browser, and adds no tracking of any kind to the
+page that hosts it.`;
+
   // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
   // short of context. Every entry is a path this host actually serves — see the
   // note in the block comment above about `catalog.json`, which now is one.
@@ -766,6 +826,8 @@ advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
 ${coverage}
+
+${embedding}
 
 ${sections.join('\n')}
 ${optional}`;
