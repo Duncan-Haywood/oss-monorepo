@@ -38,12 +38,12 @@
 #   portfolio-front-tools-2: 159 files, 556869 bytes
 #   portfolio-front-tools-3: 119 files, 551520 bytes
 #   portfolio-front-tools-4: 131 files, 551479 bytes
-#   portfolio-front-tools-5: 119 files, 549521 bytes
+#   portfolio-front-tools-5: 120 files, 553695 bytes
 #   portfolio-front-tools-6: 114 files, 552022 bytes
 #   portfolio-front-tools-7: 125 files, 555860 bytes
 #   portfolio-front-tools-8: 109 files, 553731 bytes
 #   portfolio-front-tools-9: 113 files, 552401 bytes
-#   portfolio-front-tools-10: 69 files, 333472 bytes
+#   portfolio-front-tools-10: 70 files, 337789 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -902,6 +902,7 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__index.html.gz=hardwood-refinishing-bid-calculator__index.html.gz
       - hardwood-refinishing-bid-calculator__proposal.mjs.gz=hardwood-refinishing-bid-calculator__proposal.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
+      - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
       - holiday-light-bid-calculator__LICENSE.gz=holiday-light-bid-calculator__LICENSE.gz
       - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
@@ -1434,6 +1435,7 @@ configMapGenerator:
       - well-pump-bid-calculator__index.html.gz=well-pump-bid-calculator__index.html.gz
       - well-pump-bid-calculator__proposal.mjs.gz=well-pump-bid-calculator__proposal.mjs.gz
       - well-pump-bid-calculator__usage.mjs.gz=well-pump-bid-calculator__usage.mjs.gz
+      - well-pump-bid-calculator__vs-servicetitan.html.gz=well-pump-bid-calculator__vs-servicetitan.html.gz
       - wheelchair-ramp-bid-calculator__LICENSE.gz=wheelchair-ramp-bid-calculator__LICENSE.gz
       - wheelchair-ramp-bid-calculator__calc.mjs.gz=wheelchair-ramp-bid-calculator__calc.mjs.gz
       - wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz=wheelchair-ramp-bid-calculator__how-much-to-charge-to-build-a-wheelchair-ramp.html.gz
