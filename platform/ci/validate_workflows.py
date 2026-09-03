@@ -45,6 +45,17 @@ Five invariants:
    at could never have published a page. Nothing was red; it was found by
    reading the file. `secrets.GITHUB_TOKEN` is GitHub's own and is allowed.
 
+6. Every job declares a `timeout-minutes`. A job with none rides GitHub's
+   default 360-minute ceiling, so a hung pip install, a stalled API call, or a
+   stuck checkout burns up to six hours of Actions minutes before it fails.
+   That is the metered allowance whose exhaustion caused the 2026-08-26 CI
+   starvation (see CLAUDE.md), which makes an uncapped job a portfolio-wide
+   cost risk, not just a slow one. #3040 capped the eight workflows that gate
+   every PR; this invariant keeps every other job -- and every job added later
+   -- from reintroducing the gap. A job that only calls a reusable workflow
+   (`uses:`) is exempt: it has no `runs-on` and GitHub does not accept a job
+   timeout on it; the timeout belongs in the called workflow's own jobs.
+
 Usage: python3 platform/ci/validate_workflows.py
 """
 import re
@@ -138,6 +149,24 @@ def check(path, errors):
                 f"(missing at top level and on job(s): {', '.join(jobs_without_scope)}) "
                 "-- add `permissions:` (e.g. `contents: read`) to pin least privilege"
             )
+
+    # Invariant 6: every job caps its own runtime. A reusable-workflow caller
+    # (`uses:` at job level) is exempt -- GitHub rejects a job timeout there and
+    # the cap belongs in the called workflow.
+    uncapped = [
+        name
+        for name, body in jobs.items()
+        if isinstance(body, dict)
+        and "timeout-minutes" not in body
+        and "uses" not in body
+    ]
+    if uncapped:
+        err(
+            f"job(s) {', '.join(uncapped)} declare no `timeout-minutes`, so they "
+            "ride GitHub's 360-minute default -- a hung step there can burn hours "
+            "of the metered Actions allowance before failing. Add a job-level "
+            "`timeout-minutes:` sized with headroom over the job's real runtime"
+        )
 
     for expr in sorted(reserved_github_refs(data)):
         err(
