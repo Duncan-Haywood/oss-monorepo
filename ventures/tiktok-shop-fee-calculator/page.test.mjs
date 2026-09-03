@@ -110,6 +110,32 @@ test("null figures are rendered defensively", () => {
   );
 });
 
+test("the verdict banner never calls .toFixed on expectedMargin directly", () => {
+  // expectedMargin is null on a 100% return rate, which does not imply
+  // belowBreakEven (a SKU with no per-order costs to lose breaks exactly
+  // even). The verdict banner used to interpolate
+  // result.expectedMargin.toFixed(1) straight into that branch and threw
+  // an uncaught TypeError -- every occurrence must instead route through a
+  // null-checked local.
+  const verdictBlock = scriptSource.match(/const verdict = el\("verdict"\);[\s\S]*?\n      \}\n/);
+  assert.ok(verdictBlock, "verdict banner block not found");
+  // The one legitimate use is the null-checked local itself
+  // (`expectedMargin === null ? "n/a" : ...expectedMargin.toFixed...`);
+  // strip that assignment before checking the three innerHTML branches below
+  // it never call .toFixed on the raw field.
+  const afterGuard = verdictBlock[0].replace(/const marginText = result\.expectedMargin === null[^\n]*\n/, "");
+  assert.doesNotMatch(
+    afterGuard,
+    /result\.expectedMargin\.toFixed/,
+    "expectedMargin.toFixed is called without a null check in the verdict banner",
+  );
+  assert.match(
+    verdictBlock[0],
+    /marginText = result\.expectedMargin === null/,
+    "expected the verdict banner to render expectedMargin through a null-checked marginText local",
+  );
+});
+
 test("the landing copy names the affiliate-return problem in the first screen", () => {
   assert.match(markup, /The 6% is not what you keep/);
   assert.match(markup, /affiliate-commission-on-returns\.html/);
