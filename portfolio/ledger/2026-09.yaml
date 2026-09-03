@@ -6897,3 +6897,46 @@ entries:
         re-describing it as unbuilt or attempting to seal secrets this
         session does not hold.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped: seven pages that were on `main` but public nowhere are now
+        served. `ai-engineering-academy`'s hub and its six electronics
+        calculators (resistor, LED resistor, voltage divider, 555 timer, RC
+        filter, RC time constant) reach strangers at
+        `marisstella.dev/tools/ai-engineering-academy/`. All six were already
+        complete -- calc + tests, disclaimers, usage tracking, JSON-LD, 149
+        passing tests -- and had simply never been routed.
+      - >-
+        Root cause: `platform/pages/build.mjs` resolves a venture's entry point
+        through ENTRY_CANDIDATES *and* ENTRY_OVERRIDES; the apex mirror
+        restated the first list and never learned the second existed. This is
+        the second instance of that divergence on 2026-09-03 -- the first
+        (162 -> 168) was fixed by copying the candidate list across, which is
+        exactly what froze the override half wrong. `venturePageRoot` now
+        imports both lists rather than restating either.
+      - >-
+        Guard added, not just the fix: a test walks the real venture tree
+        asserting every venture the canonical build publishes is one the mirror
+        can resolve. Confirmed it fails when the override lookup is removed, so
+        a third divergence is a red check rather than a silent absence.
+      - >-
+        Correction with owner impact: `infra/OWNER_CHECKLIST.md` and
+        `CLAUDE.md` both recorded this as "the remaining 1 tool the
+        `portfolio-site-repo` seal will deliver". It was never waiting on the
+        seal. The apex now serves 169 of 169; Step 1 buys the canonical
+        hostname and indexability, not any tool's reachability. Both files
+        corrected.
+      - >-
+        Deployment: a merge to `main` is the deploy (Argo syncs the kustomize
+        ConfigMaps). Public verification through the live route remains
+        impossible from a session -- the egress proxy refuses arbitrary
+        outbound HTTPS with `CONNECT tunnel failed, response 403` -- so
+        evidence is from the manifests and generated output.
+      - >-
+        Codex-on-Hetzner ask re-checked and unchanged: still fully built and
+        still blocked only on the owner sealing `codex-secrets` and flipping
+        `suspend: false` / `enabled: true`. Nothing for a session to build.
+    mrr_end: null
