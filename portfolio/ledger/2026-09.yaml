@@ -7240,3 +7240,46 @@ entries:
         rather than an actual page load.
       - Public URL remains owner-gated; usage.yaml carries a dated reading.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked tender-radar as the least-built venture with a real,
+        unaddressed gap: its own VENTURE.yaml hypothesis is that
+        contractors "return to a fast shortlist workflow", and its kill
+        criteria measure repeated use within 90 days, but the page reset
+        to a blank form on every reload -- every pasted CSV and filter had
+        to be re-entered each visit, which works against the venture's own
+        premise. Checked `git log --since="3 hours ago"` first; no
+        concurrent activity on this venture.
+      - >-
+        Shipped local draft persistence (new draft.mjs, same pattern as
+        quote-margin-check's) that saves the pasted CSV and all four
+        filters after a shortlist is created, restores and re-filters
+        automatically on the next visit with a "Restored your last
+        shortlist inputs." status line, and a "Clear saved data" button to
+        wipe it. Nothing is uploaded; same local-only guarantee the CSV
+        itself already had.
+      - >-
+        Also added a "Days left" column beside the deadline date (exported
+        the existing private daysUntil() from calc.mjs) so triage doesn't
+        require doing date arithmetic by hand, and a matching FAQ
+        entry (JSON-LD + visible copy) documenting the persistence.
+      - >-
+        Tested: venture suite 24/24 including a new page test that checks
+        every authored FAQPage question/answer pair against the visible
+        page text. Verified end-to-end in headless Chromium over a local
+        HTTP server (file:// module imports are CORS-blocked): create a
+        shortlist, reload and confirm CSV/filters/results restore, clear
+        and confirm a further reload stays empty. Regenerated both
+        front-door mirrors since visible copy changed; full
+        platform/marketing (173/173) and platform/pages (867/867, incl.
+        the whole-portfolio FAQ-visibility scan) suites, plus
+        clauses.mjs, faq-duplicate.mjs, browser-signals.mjs,
+        check_form_defaults.py, check_input_bounds.py, and
+        publish_surface.py --check all clean after merging origin/main.
+      - >-
+        Public URL remains owner-gated (`deploy-settings`); usage.yaml is
+        unaffected by this change (no new counted event names).
+    mrr_end: null

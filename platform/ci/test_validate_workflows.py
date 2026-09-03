@@ -41,6 +41,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo hi
 """
@@ -58,11 +59,15 @@ jobs:
   deploy:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo a
   notify:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo b
 """
@@ -164,11 +169,15 @@ jobs:
   build:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo a
   deploy:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo b
 """
@@ -177,6 +186,86 @@ jobs:
     def test_non_mapping_top_level_is_flagged(self):
         errs = errors_for("- just\n- a\n- list\n")
         self.assertTrue(any("top level must be a mapping" in e for e in errs))
+
+
+class JobTimeoutTest(unittest.TestCase):
+    """Invariant 6: every job caps its own runtime with `timeout-minutes`."""
+
+    def test_a_job_without_a_timeout_is_flagged(self):
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+"""
+        errs = [e for e in errors_for(text) if "timeout-minutes" in e]
+        self.assertEqual(len(errs), 1, errs)
+        self.assertIn("build", errs[0])
+
+    def test_one_uncapped_job_among_capped_ones_is_flagged(self):
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo a
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo b
+"""
+        errs = [e for e in errors_for(text) if "timeout-minutes" in e]
+        self.assertEqual(len(errs), 1, errs)
+        self.assertIn("deploy", errs[0])
+        # The capped job must not be named as missing.
+        self.assertNotIn("build", errs[0])
+
+    def test_a_reusable_workflow_caller_is_exempt(self):
+        # A job that only calls a reusable workflow has no runs-on and GitHub
+        # rejects a job timeout on it; the cap belongs in the called workflow.
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  call:
+    uses: ./.github/workflows/reusable.yml
+"""
+        self.assertEqual([e for e in errors_for(text) if "timeout-minutes" in e], [])
+
+    def test_the_real_workflow_tree_caps_every_job(self):
+        # Regression guard for the live tree: #3040 capped the eight PR-gating
+        # workflows, and the fleet's ~200 venture CI jobs were capped alongside
+        # this invariant. No job on main may ride the 360-minute default again.
+        workflows_dir = REPO_ROOT / ".github" / "workflows"
+        offenders = {}
+        for path in sorted(
+            p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
+        ):
+            data = yaml.safe_load(path.read_text())
+            if not isinstance(data, dict):
+                continue
+            uncapped = [
+                name
+                for name, body in (data.get("jobs") or {}).items()
+                if isinstance(body, dict)
+                and "timeout-minutes" not in body
+                and "uses" not in body
+            ]
+            if uncapped:
+                offenders[path.name] = uncapped
+        self.assertEqual(offenders, {})
 
 
 class CheckUniqueNamesTest(unittest.TestCase):
@@ -246,6 +335,7 @@ jobs:
   deploy:
     if: ${{ vars.GITHUB_PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo hi
 """

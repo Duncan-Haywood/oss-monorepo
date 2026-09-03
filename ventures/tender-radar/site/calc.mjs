@@ -102,7 +102,7 @@ export function filterTenders(rows, { category = "", minimum = 0, through = "", 
 // Days from `today` to `deadline`, both "YYYY-MM-DD". Parsed as UTC calendar
 // dates (not `new Date(string)`, which is DST/timezone-sensitive) so a
 // deadline of "tomorrow" reads as 1 regardless of the visitor's offset.
-function daysUntil(deadline, today) {
+export function daysUntil(deadline, today) {
   const toUTCDays = (value) => {
     const [year, month, day] = String(value).split("-").map(Number);
     return Date.UTC(year, month - 1, day) / 86400000;
