@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 120 files, 553695 bytes
 #   portfolio-front-tools-6: 115 files, 556457 bytes
 #   portfolio-front-tools-7: 124 files, 556244 bytes
-#   portfolio-front-tools-8: 110 files, 542761 bytes
+#   portfolio-front-tools-8: 111 files, 547406 bytes
 #   portfolio-front-tools-9: 112 files, 555613 bytes
 #   portfolio-front-tools-10: 72 files, 349680 bytes
 #
@@ -1188,6 +1188,7 @@ configMapGenerator:
       - retaining-wall-bid-calculator__index.html.gz=retaining-wall-bid-calculator__index.html.gz
       - retaining-wall-bid-calculator__proposal.mjs.gz=retaining-wall-bid-calculator__proposal.mjs.gz
       - retaining-wall-bid-calculator__usage.mjs.gz=retaining-wall-bid-calculator__usage.mjs.gz
+      - retaining-wall-bid-calculator__vs-aspire.html.gz=retaining-wall-bid-calculator__vs-aspire.html.gz
       - screened-porch-bid-calculator__LICENSE.gz=screened-porch-bid-calculator__LICENSE.gz
       - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
       - screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz=screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz
