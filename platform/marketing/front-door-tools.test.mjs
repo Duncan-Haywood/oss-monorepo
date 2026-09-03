@@ -60,10 +60,14 @@ import {
   apexUrl,
   injectMirrorTags,
   injectMirrorNav,
+  injectMirrorRelated,
   blankScriptBodies,
   dynamicLinks,
   NAV_CLASS,
   NAV_STYLE,
+  RELATED_CLASS,
+  RELATED_LIMIT,
+  RELATED_STYLE,
   APEX_ROOT_PATHS,
   decodeCharacterReferences,
   FAVICON_FILE,
@@ -78,7 +82,11 @@ import {
   SOCIAL_CARD_ALT as FRONT_DOOR_SOCIAL_CARD_ALT,
   renderFrontDoor,
 } from './front-door.mjs';
-import { SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD, discoverSurfaces } from '../pages/build.mjs';
+import {
+  SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD,
+  discoverSurfaces,
+  relatedTools,
+} from '../pages/build.mjs';
 import {
   SOCIAL_CARD_WIDTH as OFFLINE_CARD_WIDTH,
   SOCIAL_CARD_HEIGHT as OFFLINE_CARD_HEIGHT,
@@ -1038,6 +1046,183 @@ test('no venture source already uses the return link class', async () => {
       assert.ok(
         !raw.includes(NAV_CLASS),
         `${slug}/${file} already uses "${NAV_CLASS}" — rename NAV_CLASS rather than shipping the collision`,
+      );
+    }
+  }
+});
+
+test('every mirrored entry page offers sibling tools, and no other page does', async () => {
+  // The defect this guards is the one `injectMirrorNav` half-fixed: the return
+  // link reaches the catalogue, but it asks a visitor who has just got their
+  // number to go back to a page of 169 and work out which others apply to
+  // them. Asserted over what is committed rather than over
+  // `injectMirrorRelated` alone, because the unit test below would still pass
+  // if `buildMirror` stopped calling it.
+  //
+  // The negative half matters as much: a venture's sub-pages are its own
+  // articles and comparisons, and a block of other trades' calculators at the
+  // foot of each would be 375 more places to go stale for no added reach the
+  // entry page does not already give.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    const has = page.contents.includes(`<nav class="${RELATED_CLASS}"`);
+    if (page.file === 'index.html') {
+      assert.ok(has, `${page.key} is an entry page with no sibling tools offered`);
+      assert.ok(
+        page.contents.includes(`.${RELATED_CLASS}{`),
+        `${page.key} offers siblings with no rule to style them`,
+      );
+      assert.equal(
+        page.contents.match(new RegExp(`<nav class="${RELATED_CLASS}"`, 'g')).length,
+        1,
+        `${page.key} carries more than one sibling block`,
+      );
+    } else {
+      assert.ok(!has, `${page.key} is not an entry page but offers sibling tools`);
+      assert.ok(
+        !page.contents.includes(`.${RELATED_CLASS}{`),
+        `${page.key} pays for the sibling rule with no element to match it`,
+      );
+    }
+  }
+});
+
+test('every tool a mirrored page offers is one the mirror actually serves', async () => {
+  // `validateLinks` already refuses a dead *relative* link. These are
+  // root-absolute `/tools/<slug>/`, which it used to wave through against the
+  // apex root allowlist — so this is the assertion that makes the new links as
+  // checked as a venture's own. A stranger following one to a 404 on the one
+  // page the portfolio can show them is the failure being ruled out.
+  const { files } = await buildMirror();
+  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
+  let offered = 0;
+  for (const page of files.filter((f) => f.file === 'index.html')) {
+    const block = page.contents.match(
+      new RegExp(`<nav class="${RELATED_CLASS}"[\\s\\S]*?</nav>`),
+    );
+    assert.ok(block, `${page.key} has no sibling block to check`);
+    const hrefs = [...block[0].matchAll(/href="([^"]*)"/g)].map(([, href]) => href);
+    assert.equal(hrefs.length, RELATED_LIMIT, `${page.key} offers ${hrefs.length} tools`);
+    for (const href of hrefs) {
+      const slug = href.replace(/^\/tools\//, '').replace(/\/$/, '');
+      assert.ok(present.has(`${slug}/index.html`), `${page.key} offers ${href}, which is not mirrored`);
+      assert.notEqual(slug, page.slug, `${page.key} offers itself`);
+      offered += 1;
+    }
+  }
+  assert.ok(offered > 0);
+});
+
+test('validateLinks catches a sibling offer the mirror does not serve', () => {
+  // The guarantee above is only worth having if the checker can actually fail.
+  // Without the `/tools/` branch this link was measured against the apex root
+  // allowlist and reported as "the document root serves only /, /favicon.svg,
+  // …" — a true sentence about the wrong address space, and one that would
+  // have been silenced by adding the path to that allowlist.
+  const problems = validateLinks([
+    {
+      slug: 'demo',
+      file: 'index.html',
+      contents: '<body><a href="/tools/not-mirrored/">gone</a></body>',
+    },
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /no not-mirrored\/index\.html in the mirror/);
+});
+
+test('the tools a page offers come from build.mjs’ ranking, not a second one here', () => {
+  // `CLAUDE.md` records two occasions where restating a `build.mjs` rule in
+  // this module cost live product, so the ranking is imported. This asserts
+  // the import is load-bearing: same sub-group first is what makes a fence
+  // page offer another outdoor trade rather than whichever four a flat
+  // rotation lands on.
+  const surfaces = [
+    { slug: 'fence-bid-calculator', title: 'Fence' },
+    { slug: 'deck-bid-calculator', title: 'Deck' },
+    { slug: 'pergola-bid-calculator', title: 'Pergola' },
+    { slug: 'ebay-fee-calculator', title: 'eBay' },
+    { slug: 'etsy-profit-calculator', title: 'Etsy' },
+  ];
+  const picked = relatedTools(surfaces, 'fence-bid-calculator', RELATED_LIMIT).map((s) => s.slug);
+  assert.ok(!picked.includes('fence-bid-calculator'));
+  // The marketplace tools are in a different category, so they rank last.
+  assert.ok(
+    picked.indexOf('ebay-fee-calculator') > picked.indexOf('deck-bid-calculator'),
+    `a trades page offered a marketplace tool ahead of a trades one: ${picked.join(', ')}`,
+  );
+});
+
+test('the sibling block states its own layout rather than inheriting a venture’s', async () => {
+  // The hazard is not hypothetical and specificity alone does not close it.
+  // These rules are injected ahead of the venture's own <style>, so a class
+  // selector beats a bare element one — but only for properties the class
+  // rule states. Three mirrored ventures set `display` on a bare `nav`, `ul`
+  // or `p`: `faire-wholesale-calculator`'s `nav{display:flex}` would lay the
+  // heading beside the list, and a bare `p{display:none}` would delete the
+  // heading. Both reach the block through a property an unstated rule leaves
+  // open.
+  for (const selector of [RELATED_CLASS, `${RELATED_CLASS} p`, `${RELATED_CLASS} ul`]) {
+    assert.match(
+      RELATED_STYLE,
+      new RegExp(`\\.${selector.replace(' ', ' \\.?')}\\{[^}]*display:`),
+      `.${selector} does not state a display, so a venture's bare element rule decides it`,
+    );
+  }
+  // And the hazard is still live in the mirror — if it ever stops being, this
+  // assertion is what says the guard above may be reconsidered rather than
+  // quietly kept forever.
+  const risky = [];
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (file !== 'index.html') continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      if (/(?:^|[;{}>\s])(?:nav|ul|p)\s*\{[^}]*display\s*:/.test(raw)) risky.push(slug);
+    }
+  }
+  assert.ok(risky.length > 0, 'no venture styles a bare nav/ul/p display any more');
+});
+
+test('the sibling block is hidden when a venture page is printed or embedded', () => {
+  // Same two reasons as the return link. A contractor's printed bid is the one
+  // page of this portfolio a stranger's own customer sees, and it must not
+  // carry a list of other calculators; and an embedded calculator inside
+  // someone else's page has no business advertising the rest of this site.
+  assert.match(RELATED_STYLE, /@media print\{\.fd-related\{display:none!important\}\}/);
+  assert.ok(RELATED_STYLE.includes(`.pf-embed .${RELATED_CLASS}{display:none}`));
+});
+
+test('injectMirrorRelated refuses a document with no closing body', () => {
+  assert.throws(
+    () =>
+      injectMirrorRelated('<body><main>x</main>', {
+        file: 'index.html',
+        related: [{ slug: 'demo', title: 'Demo' }],
+      }),
+    { message: /no <\/body>/ },
+  );
+});
+
+test('injectMirrorRelated leaves a page alone when there is nothing to offer', () => {
+  // A one-venture mirror (every fixture-driven test in this file) has no
+  // siblings to name, and an empty list rendered as an empty <ul> would be a
+  // heading promising links that are not there.
+  const html = '<body><main>x</main></body>';
+  assert.equal(injectMirrorRelated(html, { file: 'index.html', related: [] }), html);
+  assert.equal(injectMirrorRelated(html, { file: 'guide.html', related: [{ slug: 'a', title: 'A' }] }), html);
+});
+
+test('no venture source already uses the sibling block class', async () => {
+  // Same cascade hazard as the return link: the rule is injected near the top
+  // of <head>, ahead of the venture's own <style>.
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (!file.endsWith('.html')) continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      assert.ok(
+        !raw.includes(RELATED_CLASS),
+        `${slug}/${file} already uses "${RELATED_CLASS}" — rename RELATED_CLASS rather than shipping the collision`,
       );
     }
   }
