@@ -6670,3 +6670,90 @@ entries:
         regeneration, a targeted Playwright round-trip confirming
         `materialPreset` now survives a share/reload cycle).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the mandatory PR/branch drain against a repo state of zero
+        open PRs (verified live via list_pull_requests, not an earlier
+        session's stale count). Checked all recently-created remote
+        branches touching CI/CD, gitops, or marketing for unmerged unique
+        work rather than trusting the empty PR list alone: four looked
+        real (`ci/hetzner-ssh-key-diagnostic`,
+        `gitops-governor-rbac-narrow-jobs-pods-verbs`,
+        `gitops/regen-front-door-mirror`,
+        `marketing/vs-smartmoving-moving-bid-calculator`, plus
+        `pr/where-to-sell-rank-by-profit-per-day`) but a direct
+        `git diff --stat origin/main...` against each showed zero
+        remaining delta -- every one had already landed under a different
+        branch/PR name. Opened one anyway
+        (`ci/hetzner-ssh-key-diagnostic`, PR #2964) since its diff looked
+        unmerged at a file level; `supersede_check.py 2964` returned the
+        identical-merge proof against #2958 (already on `main` as
+        77a0c9355, and strictly more thorough -- it also normalizes real
+        CRLF bytes, not just literal `\n` escapes). Closed #2964 with the
+        proof and the superseding commit named in the close comment, per
+        CLAUDE.md's rule against silent closes.
+      - >-
+        Verified the CI/CD delivery path directly rather than trusting
+        the 2026-09-02 sweep note: `python3 -m pytest gitops/tests -q`
+        (269 passed, 7 skipped, all environment-only -- no regression from
+        the documented 267/7 baseline), `platform/ci/publish_surface.py
+        --check` (clean, matches the snapshot: 2 hostnames serving
+        content, matching CLAUDE.md's documented Argo surface), and the
+        last 30 GitHub Actions runs on `main` (29 success, 1 expected
+        `skipped` on the routine-trigger workflow, via
+        actions_list/list_workflow_runs) -- no red checks, nothing to
+        fix.
+      - >-
+        Confirmed the "Codex CLI on the Hetzner VM, spending its own
+        subscription quota, on a prompt similar to this mandate" request
+        is already fully built in two independent places and needs no new
+        code: `ventures/ubuntu-agent-server/` (Ansible-provisioned
+        systemd-timer runner; `config/repos.yml` already configures
+        `tool: codex` with `self_directed: true` and a self-directed
+        prompt this exact owner instruction widened on 2026-08-29 to
+        include CI/CD and marketing) and `gitops/agents/` (a cluster-
+        native Codex worker: `codex-home.yaml` PVC, `secrets/` template
+        for a ChatGPT-plan auth token, `workers/worker.sh` running `codex
+        exec --sandbox workspace-write`, a budget-gating governor
+        CronJob). Both are deliberately `dry_run: true` /
+        `enabled: false` until an owner seals a secret and flips a
+        switch (interactive `codex login`, sudo access, or a sealed PAT)
+        -- correctly gated, not incomplete. Nothing to add without
+        credentials this session cannot create.
+    mrr_end: null
+  - venture: irrigation-winterization-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped this venture's first comparison/distribution page,
+        `vs-jobber.html`, comparing it against Jobber (a field-service
+        management SaaS covering irrigation and lawn-care contractors
+        among other trades) -- one of ~30 bid-calculator ventures with no
+        comparison page at all as of this session (85 existed
+        repo-wide out of 185 ventures). Picked deliberately conservative
+        factual content: no founding year, founder name, headquarters, user
+        count, or dollar figure is stated for Jobber anywhere on the page
+        (unlike two earlier sibling `vs-jobber.html` pages already on
+        `main` that do cite specifics), because this session could not
+        independently verify those figures itself (outbound egress to
+        arbitrary vendor sites is proxy-blocked) and chose not to repeat
+        unverified specifics rather than match precedent by assumption.
+        Added the matching test file, a footer link from the venture's
+        own `index.html`, and a `sitemap.xml` entry, following the
+        `vs-jobnimbus.html` template used elsewhere in the portfolio.
+      - >-
+        Verified with `node --test` in the venture (92/92 passed). First
+        CI push failed `validate` for a real reason (confirmed via
+        `ci_starvation.py` against a real runner, not the starvation
+        signature): the apex front-door tool mirror
+        (`gitops/prod/front-door-tools/`) was stale against the new page.
+        Regenerated it (`platform/marketing/front-door-tools.mjs
+        --write`) and repushed; all 13 checks went green (including
+        `platform/marketing` 136/136), and PR #2965 was merged (squash,
+        commit b8b6fc678) under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
