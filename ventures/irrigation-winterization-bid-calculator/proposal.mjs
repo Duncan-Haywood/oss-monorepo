@@ -68,7 +68,30 @@ function number(value, name, { min = 0, max = Infinity } = {}) {
   return result;
 }
 
-export function money(value) {
+/**
+ * A figure for the customer's copy.
+ *
+ * `currency` defaults to `'$'`, which is what every trade in this portfolio
+ * quotes in and what all 102 adopters rendered before it was a parameter — so
+ * an unchanged caller gets a byte-identical document.
+ *
+ * It exists because the document is not only a US construction bid. A
+ * freelancer quoting a translation names their own currency on the page, and
+ * printing `$1,200.00` on a quote the client will pay in euros is not a display
+ * nicety: it misstates the price on the one sheet that is meant to settle it.
+ * The venture passes whatever its own currency field says.
+ *
+ * A label is spaced from the figure and a symbol is not — `USD 1,200.00` but
+ * `$1,200.00` and `€1,200.00` — decided by whether the currency ends in a
+ * letter, which is the only difference a reader would notice between the two.
+ *
+ * That space is a non-breaking one, written as an escape so it cannot be
+ * mistaken for an ordinary space by anyone reading this file or matching
+ * against its output. A quote is a printed document with a narrow price
+ * column, and "USD" left stranded at the end of a line with its figure on the
+ * next is the one place this layout can break in a way the customer sees.
+ */
+export function money(value, currency = '$') {
   // Sign goes outside the currency symbol: "-$9.24", not "$-9.24". The old
   // spelling put it inside, which is what interpolating a negative straight
   // after a "$" gets you, and it reads as a typo on a document a contractor
@@ -84,7 +107,8 @@ export function money(value) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
-  return `${sign}$${amount}`;
+  const unit = text(currency) || '$';
+  return `${sign}${unit}${/[A-Za-z]$/.test(unit) ? '\u00a0' : ''}${amount}`;
 }
 
 /**
@@ -339,9 +363,12 @@ function paragraphs(value) {
  * @param {object} [options]
  * @param {string} [options.disclaimer] Sentence to print in the footer. The
  *   caller supplies it so each trade can name its own regulator and scope.
+ * @param {string} [options.currency] Prefix for every figure on the sheet.
+ *   Defaults to `'$'`; see `money`.
  */
-export function renderProposalHtml(proposal, { disclaimer = '' } = {}) {
+export function renderProposalHtml(proposal, { disclaimer = '', currency = '$' } = {}) {
   const { company, client, job, pricing } = proposal;
+  const amount = (value) => money(value, currency);
 
   const contact = [company.phone, company.email, company.address]
     .filter(Boolean)
@@ -353,8 +380,8 @@ export function renderProposalHtml(proposal, { disclaimer = '' } = {}) {
     : '';
 
   const depositRow = pricing.depositPercent > 0
-    ? `<tr><td>Deposit due on acceptance (${pricing.depositPercent}%)</td><td>${money(pricing.depositAmount)}</td></tr>
-       <tr><td>Balance due on completion</td><td>${money(pricing.balanceAmount)}</td></tr>`
+    ? `<tr><td>Deposit due on acceptance (${pricing.depositPercent}%)</td><td>${amount(pricing.depositAmount)}</td></tr>
+       <tr><td>Balance due on completion</td><td>${amount(pricing.balanceAmount)}</td></tr>`
     : '';
 
   return `
@@ -388,7 +415,7 @@ export function renderProposalHtml(proposal, { disclaimer = '' } = {}) {
 
       <table class="pr-price">
         <tbody>
-          <tr class="pr-total"><td>Total price</td><td>${money(pricing.price)}</td></tr>
+          <tr class="pr-total"><td>Total price</td><td>${amount(pricing.price)}</td></tr>
           ${depositRow}
         </tbody>
       </table>
