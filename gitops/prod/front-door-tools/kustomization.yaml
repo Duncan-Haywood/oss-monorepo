@@ -40,10 +40,10 @@
 #   portfolio-front-tools-4: 131 files, 551479 bytes
 #   portfolio-front-tools-5: 119 files, 549521 bytes
 #   portfolio-front-tools-6: 114 files, 552022 bytes
-#   portfolio-front-tools-7: 125 files, 555860 bytes
-#   portfolio-front-tools-8: 109 files, 553731 bytes
-#   portfolio-front-tools-9: 113 files, 552401 bytes
-#   portfolio-front-tools-10: 69 files, 333472 bytes
+#   portfolio-front-tools-7: 124 files, 556244 bytes
+#   portfolio-front-tools-8: 110 files, 542761 bytes
+#   portfolio-front-tools-9: 112 files, 555613 bytes
+#   portfolio-front-tools-10: 71 files, 345363 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1085,6 +1085,7 @@ configMapGenerator:
       - paver-patio-bid-calculator__proposal.mjs.gz=paver-patio-bid-calculator__proposal.mjs.gz
       - paver-patio-bid-calculator__share.mjs.gz=paver-patio-bid-calculator__share.mjs.gz
       - paver-patio-bid-calculator__usage.mjs.gz=paver-patio-bid-calculator__usage.mjs.gz
+      - paver-patio-bid-calculator__vs-aspire.html.gz=paver-patio-bid-calculator__vs-aspire.html.gz
       - payment-reconciliation-workbench__LICENSE.gz=payment-reconciliation-workbench__LICENSE.gz
       - payment-reconciliation-workbench__app.mjs.gz=payment-reconciliation-workbench__app.mjs.gz
       - payment-reconciliation-workbench__export.mjs.gz=payment-reconciliation-workbench__export.mjs.gz
@@ -1158,13 +1159,13 @@ configMapGenerator:
       - quote-margin-check__report.mjs.gz=quote-margin-check__report.mjs.gz
       - quote-margin-check__review.mjs.gz=quote-margin-check__review.mjs.gz
       - quote-margin-check__should-i-send-a-fixed-quote-or-bill-hourly.html.gz=quote-margin-check__should-i-send-a-fixed-quote-or-bill-hourly.html.gz
-      - quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz=quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz
-      - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz=quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz
+      - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
       - quote-margin-check__usage.mjs.gz=quote-margin-check__usage.mjs.gz
       - radon-mitigation-bid-calculator__LICENSE.gz=radon-mitigation-bid-calculator__LICENSE.gz
       - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
@@ -1273,12 +1274,12 @@ configMapGenerator:
       - skylight-install-bid-calculator__LICENSE.gz=skylight-install-bid-calculator__LICENSE.gz
       - skylight-install-bid-calculator__calc.mjs.gz=skylight-install-bid-calculator__calc.mjs.gz
       - skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz=skylight-install-bid-calculator__how-much-to-charge-to-install-a-skylight.html.gz
-      - skylight-install-bid-calculator__index.html.gz=skylight-install-bid-calculator__index.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - skylight-install-bid-calculator__index.html.gz=skylight-install-bid-calculator__index.html.gz
       - skylight-install-bid-calculator__proposal.mjs.gz=skylight-install-bid-calculator__proposal.mjs.gz
       - skylight-install-bid-calculator__share.mjs.gz=skylight-install-bid-calculator__share.mjs.gz
       - skylight-install-bid-calculator__usage.mjs.gz=skylight-install-bid-calculator__usage.mjs.gz
@@ -1390,13 +1391,13 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__proposal.mjs.gz=vinyl-liner-bid-calculator__proposal.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - walk-in-shower-bid-calculator__LICENSE.gz=walk-in-shower-bid-calculator__LICENSE.gz
-      - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
-      - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
+      - walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz=walk-in-shower-bid-calculator__how-much-to-charge-to-install-a-walk-in-shower.html.gz
       - walk-in-shower-bid-calculator__index.html.gz=walk-in-shower-bid-calculator__index.html.gz
       - walk-in-shower-bid-calculator__proposal.mjs.gz=walk-in-shower-bid-calculator__proposal.mjs.gz
       - walk-in-shower-bid-calculator__share.mjs.gz=walk-in-shower-bid-calculator__share.mjs.gz
