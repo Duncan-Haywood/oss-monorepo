@@ -160,14 +160,23 @@ export function compareCompensation(input) {
   //     - rent - other
   const keepAdvantage = 1 - cardRate - backbarRate - commissionRate;
   const retailAdvantage = retailGross * (1 - cardRate - retailCostRate - retailCommissionRate);
+  // Marginal booth advantage per extra client. A $0 average ticket zeroes this
+  // out just as surely as a non-positive keepAdvantage does — an extra client
+  // worth nothing on the ticket cannot close a gap either, and the old check
+  // (`averageTicket > 0 && keepAdvantage > 0` / `keepAdvantage <= 0`) had a gap
+  // between its two branches at averageTicket === 0: neither branch ran, so a
+  // book with a $0 average ticket got no break-even number and
+  // boothNeverBeatsOnVolume stayed false, and the UI silently showed "n/a"
+  // instead of "volume cannot close this gap".
+  const marginalBoothAdvantage = averageTicket * keepAdvantage;
   let breakEvenClients = null;
   let boothNeverBeatsOnVolume = false;
-  if (averageTicket > 0 && keepAdvantage > 0) {
-    breakEvenClients = (rentWeekly + otherWeeklyCost - retailAdvantage) / (averageTicket * keepAdvantage);
+  if (marginalBoothAdvantage > 0) {
+    breakEvenClients = (rentWeekly + otherWeeklyCost - retailAdvantage) / marginalBoothAdvantage;
     if (breakEvenClients < 0) breakEvenClients = 0;
-  } else if (keepAdvantage <= 0) {
-    // Each extra client helps commission as much or more than booth — adding
-    // volume cannot close a booth-rent gap.
+  } else {
+    // Each extra client helps commission as much or more than booth (or is
+    // worth nothing at all) — adding volume cannot close a booth-rent gap.
     boothNeverBeatsOnVolume = weeklyDifference <= 0;
   }
 

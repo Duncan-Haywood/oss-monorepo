@@ -148,6 +148,14 @@ permissions:
 jobs:
   validate:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # This job runs on every PR that touches any of the paths above and chains
+    # roughly fifty checks and unit-test modules in sequence; it has taken
+    # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled
+    # step anywhere in that chain would ride GitHub's default 360-minute
+    # ceiling instead of failing fast -- see hetzner-gitops-ci.yml's own
+    # timeout-minutes addition for why that matters on a metered-minutes
+    # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -255,6 +263,10 @@ jobs:
       - name: Workflow-validator unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
+
+      - name: Agent cross-review unit tests
+        working-directory: platform/ci/agent_review
+        run: python3 -m unittest test_review
 
       # The local workflow runner is what sessions verify with while no
       # runner picks up a job here, so its own tests have to run somewhere.

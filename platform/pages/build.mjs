@@ -74,10 +74,12 @@ import {
 } from './link.mjs';
 import {
   DEFAULT_EMBED_HEIGHT,
+  EMBED_HOST_FILE,
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
@@ -104,10 +106,24 @@ export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-proje
 const PLACEHOLDER_ORIGIN = 'https://example.invalid/';
 
 // Where a venture's public entry point may live, in preference order.
-const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
+//
+// Exported because this build is not the only thing that has to answer "is
+// this venture a static page, and where does it start?". The apex tool mirror
+// (`platform/marketing/front-door-tools.mjs`) answers the same question for
+// the front door, and every time the two have disagreed the apex has silently
+// dropped ventures this build publishes — six of them on 2026-09-03, when the
+// mirror knew only the flat `index.html`. Importing the rule is what keeps a
+// third divergence from being possible.
+export const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 
 // Ventures whose public surface is not at one of the standard paths.
-const ENTRY_OVERRIDES = {
+//
+// Exported for the same reason as ENTRY_CANDIDATES, and it is the half that
+// actually went wrong: the mirror grew the `site/` candidate but never learned
+// that overrides exist at all, so `ai-engineering-academy`'s hub and its six
+// calculators were reported as "not a static page the mirror can serve" while
+// this build was publishing all seven.
+export const ENTRY_OVERRIDES = {
   // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
@@ -4490,6 +4506,10 @@ export async function collectOfflineBundle(outDir, surfaces) {
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
+    // Not loaded by any page on this site — it runs on the embedder's — but
+    // precached all the same so the snippet's second line is served from the
+    // same revision as the first.
+    EMBED_HOST_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -4718,9 +4738,13 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
   await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
-  // The embed-widget runtime and its stylesheet, on the same terms.
+  // The embed-widget runtime and its stylesheet, on the same terms. The
+  // resizer joins them because the snippet every entry page offers names it
+  // absolutely: a build that wrote the snippet without the file would hand
+  // embedders a `<script src>` that 404s.
   await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
   await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
+  await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 

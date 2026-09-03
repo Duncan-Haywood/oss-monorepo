@@ -140,6 +140,33 @@ test('break-even storm count is how a cheap seasonal dies', () => {
   assert.equal(atCost.walkAwaySeasonal, atCost.seasonalCost);
 });
 
+test('an ice-only route (zero plow cost) reports an unbounded break-even, not a crash', () => {
+  // A site that is salt/ice-only has no plow minutes and no deadhead, so
+  // costPerSnowEvent lands on exactly 0 — snow-event count no longer bounds
+  // the seasonal at all, only ice does. calculateSeason must say "null"
+  // (unbounded) here rather than dividing by zero, and it must say so both
+  // at the top level and inside the proposedSeasonal view the page renders.
+  const iceOnly = {
+    sites: [{ name: 'Salt-only stop', minutesPerPush: 0, sidewalkMinutes: 0, saltBags: 0 }],
+    operatorWage: 22,
+    burdenRate: 30,
+    truckHourly: 45,
+    deadheadMinutesPerSite: 0,
+    saltCostPerBag: 8,
+    overheadRate: 15,
+    targetMargin: 20,
+    expectedSnowEvents: 10,
+    expectedIceEvents: 6,
+    passesPerSnowEvent: 1,
+    proposedSeasonal: 500,
+  };
+  const result = calculateSeason(iceOnly);
+  assert.equal(result.costPerSnowEvent, 0);
+  assert.equal(result.breakEvenSnowEvents, null);
+  assert.ok(result.proposedSeasonal, 'proposedSeasonal view must still be built');
+  assert.equal(result.proposedSeasonal.breakEvenSnowEvents, null);
+});
+
 test('a nameless site still reports under a stable label', () => {
   const result = calculateSeason({
     ...route(),

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 159 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 169 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -33,6 +33,15 @@
     <updated>2026-08-27T00:00:00Z</updated>
     <category term="Back-office money &amp; contracts"/>
     <summary type="text">Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.</summary>
+  </entry>
+  <entry>
+    <title>Marketplace Fee Comparison — Which Channel Nets Most</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/marketplace-fee-compare/"/>
+    <id>tag:marisstella.dev,2026:tool/marketplace-fee-compare</id>
+    <published>2026-08-27T00:00:00Z</published>
+    <updated>2026-08-27T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.</summary>
   </entry>
   <entry>
     <title>Sponsor Ready — free GitHub Sponsors readiness checklist</title>
@@ -242,13 +251,22 @@
     <summary type="text">Price a mudjacking or polyjacking job from slab area, void depth, method, access path, extra holes, and joint seal — not a published $4.50-per-square-foot special. See the walk-away number before you match a cheaper quote.</summary>
   </entry>
   <entry>
+    <title>Consent Change Record</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/consent-change-record/"/>
+    <id>tag:marisstella.dev,2026:tool/consent-change-record</id>
+    <published>2026-08-26T00:00:00Z</published>
+    <updated>2026-08-26T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Compare before-and-after consent browser traces and create a local request and storage change record.</summary>
+  </entry>
+  <entry>
     <title>Construction Daily Log and Change Order Evidence Pack</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/construction-evidence-log/"/>
     <id>tag:marisstella.dev,2026:tool/construction-evidence-log</id>
     <published>2026-08-26T00:00:00Z</published>
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser.</summary>
+    <summary type="text">Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.</summary>
   </entry>
   <entry>
     <title>Free Contractor Bid Readiness Checklist</title>
@@ -305,6 +323,15 @@
     <summary type="text">Price a deck stain or seal from walking surface, picket-rail lineal feet, stairs, prep, coats, and access — not a published $2.50-per-square-foot special. See the walk-away number before you match a cheaper quote.</summary>
   </entry>
   <entry>
+    <title>DoorDash Fee Calculator for Restaurants — Delivery Margin</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/delivery-app-margin-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/delivery-app-margin-calculator</id>
+    <published>2026-08-26T00:00:00Z</published>
+    <updated>2026-08-26T00:00:00Z</updated>
+    <category term="Marketplace seller tools"/>
+    <summary type="text">Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.</summary>
+  </entry>
+  <entry>
     <title>Dryer Vent Bid Calculator — Stories, Run, and Roof Cap</title>
     <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/dryer-vent-bid-calculator/"/>
     <id>tag:marisstella.dev,2026:tool/dryer-vent-bid-calculator</id>
@@ -339,32 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a 100A to 200A electrical panel or service upgrade from feeder feet, circuit landing, AFCI/GFCI, underground vs overhead, grounding, meter socket, and temporary power — not a published price per amp. See the walk-away number before you match a cheaper panel-swap quote.</summary>
-  </entry>
-  <entry>
-    <title>Entry Door Bid Calculator — Opening, Lights, and Rot</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/entry-door-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/entry-door-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.</summary>
-  </entry>
-  <entry>
-    <title>Epoxy Garage Floor Bid Calculator — Flake and Polyaspartic</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/epoxy-garage-floor-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price an epoxy or polyaspartic garage floor from grind hours, flake load, waste, cracks, and travel — not a $4/sq ft special. See kit cost, walk-away price, and whether a proposed number loses money.</summary>
-  </entry>
-  <entry>
-    <title>EV Charger Installation Bid Calculator — Level 2 EVSE Cost</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/ev-charger-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/ev-charger-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.</summary>
   </entry>
 </feed>

@@ -105,7 +105,7 @@ EMBED_PREFIX = "embed/"
 # key for the whole pod, not a path breakdown, because there is only ever one
 # path: that pod's nginx does `try_files /index.html =404`, so every request it
 # counts logs the same URI. A per-path split would be fiction." That was true
-# and is not any more. `front-door-tools.mjs` mirrors 159 complete ventures onto
+# and is not any more. `front-door-tools.mjs` mirrors 169 complete ventures onto
 # that same pod, so it now serves the front page *and* those tools, and folding
 # them all onto one key would recreate — inside this pod — exactly the
 # conflation this key was added to prevent: "did anyone find the portfolio" and
@@ -134,6 +134,18 @@ FRONT_TOOL_PREFIX = f"{FRONT_KEY}/"
 # logged `/job-margin-variance__index.html` for a request to
 # `/tools/job-margin-variance/`.
 MIRROR_SEPARATOR = "__"
+
+# How a category browse page's logged `$uri` maps back to its category.
+#
+# Same mechanism as `MIRROR_SEPARATOR` above and the same reason: nginx logs
+# `$uri` after `try_files`, and the apex's `^/c/(?<cat>…)/?$` block resolves
+# `/c/trades/` to the flattened ConfigMap key `/c__trades.html`. A ConfigMap key
+# cannot contain `/`, which is why the URL and the key differ at all.
+#
+# `c` is a reserved path prefix on the catalogue host (see `CATEGORY_PATH_PREFIX`
+# in `platform/pages/build.mjs`, which reserves it precisely so a venture can
+# never be called `c`), so this prefix cannot collide with a mirrored tool.
+FRONT_CATEGORY_PREFIX = f"c{MIRROR_SEPARATOR}"
 
 # Which key a pod's counted lines belong to, chosen by its `app` label.
 #
@@ -254,7 +266,20 @@ def fold_for_app(counts: dict[str, int], app: str | None) -> dict[str, int]:
         return dict(counts)
     folded: dict[str, int] = {}
     for slug, hits in counts.items():
-        if MIRROR_SEPARATOR in slug:
+        if slug.startswith(FRONT_CATEGORY_PREFIX):
+            # A category browse page. It carries `MIRROR_SEPARATOR` like a
+            # mirrored tool does — `/c/trades/` resolves through `try_files` to
+            # `/c__trades.html` — but splitting on the separator the way the
+            # branch below does would put all seven onto one `_front/c` row,
+            # which reads in the stored history as a venture called `c` that
+            # does not exist. Which category a visitor browses is the same kind
+            # of signal as which tool they open, so each keeps its own row.
+            #
+            # Spelled `_front/c/<id>` so it sorts beside the tools it lists and
+            # matches the `c/<id>` key `slug_for` already gives these pages on
+            # the catalogue host — one page, one name, whichever host served it.
+            row = f"{FRONT_TOOL_PREFIX}c/{slug[len(FRONT_CATEGORY_PREFIX):]}"
+        elif MIRROR_SEPARATOR in slug:
             # `slug_for` has already stripped `.html`, so a mirrored entry page
             # arrives as `<slug>__index` and a sub-page as `<slug>__<name>`.
             # Both belong to the venture, matching how the tools host rolls a
@@ -279,8 +304,9 @@ def merge_days(existing: dict[str, Any], day: str, counts: dict[str, int]) -> di
         "schema": 1,
         "note": (
             "Aggregate page views of the public tool site, plus the apex "
-            "front door under the key _front and each tool the apex mirrors "
-            "under _front/<slug>. No addresses, user agents, referrers or "
+            "front door under the key _front, each tool the apex mirrors "
+            "under _front/<slug>, and each category browse page it serves "
+            "under _front/c/<category>. No addresses, user agents, referrers or "
             "query strings are logged upstream, so no field here derives "
             "from one. See portfolio/usage/README.md."
         ),

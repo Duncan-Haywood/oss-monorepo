@@ -1,23 +1,32 @@
 # Free calculators and checks for people who run a small business
 
-> 159 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 169 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool listed below is linked at a URL this host serves. The wider
-collection runs to 169 tools and will be published at tools.marisstella.dev; that
-hostname is not serving yet, so it is named here for context and deliberately
-not linked — a link there would resolve to nothing today.
+Every tool in the collection is listed below — all 169 of them — and
+every one is linked at a URL this host serves. Nothing is held back for
+another hostname: tools.marisstella.dev is reserved as this collection's
+eventual canonical address, is not serving yet, and is named here only so it
+is not mistaken for a fuller index — a link there would resolve to nothing
+today.
+
+Every tool above can be embedded in another site's page, free, including on
+commercial sites: load its URL with ?pfEmbed=1 inside an <iframe>
+(1400px is a reasonable starting height). The embedded view keeps the same
+arithmetic and the same disclaimer as the full page and links back to it, runs
+entirely in the visitor's browser, and adds no tracking of any kind to the
+page that hosts it.
 
 ## Trade & contractor bids
 
 - [Change Order Margin Calculator — Price the Added Work](https://marisstella.dev/tools/change-order-margin-calculator/): Price a construction change order from loaded labor, materials, subs, schedule delay and overhead — and see what your contract's markup cap actually leaves you.
 - [Subcontractor Cash Flow Planner — Payment Delay Gap](https://marisstella.dev/tools/subcontractor-cashflow-planner/): Free subcontractor cash flow planner: see the funding gap from payment terms, retention and late payment — what bridging it costs, and which lever closes it.
 - [Free Contractor Bid Readiness Checklist](https://marisstella.dev/tools/contractor-bid-readiness/): Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and browser-local.
-- [Construction Daily Log and Change Order Evidence Pack](https://marisstella.dev/tools/construction-evidence-log/): Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser.
+- [Construction Daily Log and Change Order Evidence Pack](https://marisstella.dev/tools/construction-evidence-log/): Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.
 - [Job Cost Variance Calculator](https://marisstella.dev/tools/job-margin-variance/): Compare estimated and actual job hours and costs to find the largest job cost variance before your next contractor quote.
 - [Appliance Repair Quote Calculator — Repair vs Replace](https://marisstella.dev/tools/appliance-repair-quote-calculator/): Price an appliance repair service call, then see whether finishing the repair still beats recommending replace — customer cost per remaining year versus what you keep if they decline.
 - [HVAC Maintenance Contract Pricing Calculator](https://marisstella.dev/tools/hvac-maintenance-contract-calculator/): Free HVAC maintenance contract pricing calculator. Price preventive visits, callbacks, parts reserve, overhead, and target margin without underbidding the agreement.
@@ -95,6 +104,7 @@ not linked — a link there would resolve to nothing today.
 - [Pool Plaster Bid Calculator — Walls, Chip-Off, Finish](https://marisstella.dev/tools/pool-plaster-bid-calculator/): Price a pool replaster from floor-plus-wall surface, finish (white plaster, quartz, pebble, glass), chip-out, spa, steps, waterline tile, and coping — not the homeowner's length × width. See the walk-away number before you match a cheaper water-surface quote.
 - [Popcorn Ceiling Bid Calculator — Price to Remove It](https://marisstella.dev/tools/popcorn-ceiling-bid-calculator/): Price popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot versus vaulted versus two-story access, and extras — plus the walk-away price a $1.50 / sq ft special cannot see.
 - [Pressure Washing Bid Calculator — Price the Drive](https://marisstella.dev/tools/pressure-washing-bid-calculator/): Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.
+- [Quote Margin Check — free effective hourly rate calculator for freelancers](https://marisstella.dev/tools/quote-margin-check/): Free calculator for freelancers and small agencies: turn a proposed price, delivery hours, admin/revision time, overhead, and subcontractor cost into your real effective hourly rate before you send the quote. Runs entirely in your browser.
 - [Radon Mitigation Bid Calculator — Suction and Membrane](https://marisstella.dev/tools/radon-mitigation-bid-calculator/): Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.
 - [Construction Retainage Calculator](https://marisstella.dev/tools/retainage-cashflow-calculator/): Free construction retainage calculator for contractors and subcontractors. See retainage withheld, unpaid cash, carrying cost, when retainage typically releases, and copy a factual payment follow-up draft.
 - [Retaining Wall Bid Calculator — Height and Drainage](https://marisstella.dev/tools/retaining-wall-bid-calculator/): Price a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then see price per foot, crew hours, and the walk-away number.
@@ -142,6 +152,10 @@ not linked — a link there would resolve to nothing today.
 - [npm Deployment Evidence — Free Lockfile Surface Report](https://marisstella.dev/tools/npm-deployment-evidence/): Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side.
 - [Grant Deadline Tracker for Small Nonprofits](https://marisstella.dev/tools/grant-deadline-tracker/): Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
 - [Shopify Accessibility Evidence Report](https://marisstella.dev/tools/shopify-a11y-evidence/): Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
+- [Consent Change Record](https://marisstella.dev/tools/consent-change-record/): Compare before-and-after consent browser traces and create a local request and storage change record.
+- [E-invoice Preflight — Check JSON, UBL, CII, or Factur-X](https://marisstella.dev/tools/einvoice-preflight/): Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.
+- [MCP Supply-Chain Watch](https://marisstella.dev/tools/mcp-supply-chain-watch/): Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.
+- [Shopify Permission Drift Record](https://marisstella.dev/tools/shopify-permission-drift/): Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.
 
 ## Marketplace seller tools
 
@@ -153,6 +167,8 @@ not linked — a link there would resolve to nothing today.
 - [TikTok Shop Fee Calculator — Affiliate and Returns](https://marisstella.dev/tools/tiktok-shop-fee-calculator/): Free TikTok Shop profit calculator. See referral fees, creator commission, returns that keep the affiliate payout, and the announced 1 Oct 2026 8% + 1.5% schedule on the same SKU.
 - [Reverb Fee Calculator — Offer vs List, Cash vs Consign](https://marisstella.dev/tools/reverb-fee-calculator/): See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.
 - [Faire Seller Fee Calculator — First Order vs Reorder](https://marisstella.dev/tools/faire-wholesale-calculator/): Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare first orders, Faire Direct, Open House, Promoted Listings after last-click organic, next-day payout after carrying cost, Pay Now leftover after Faire remittance wait, and whether a keep-it credit still beats taking a return.
+- [DoorDash Fee Calculator for Restaurants — Delivery Margin](https://marisstella.dev/tools/delivery-app-margin-calculator/): Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.
+- [Marketplace Fee Comparison — Which Channel Nets Most](https://marisstella.dev/tools/marketplace-fee-compare/): Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.
 - [Shopify Fee Calculator — Payments vs PayPal vs Grow](https://marisstella.dev/tools/shopify-fee-calculator/): Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.
 - [Where to Sell Calculator — eBay vs Etsy vs Amazon](https://marisstella.dev/tools/where-to-sell-calculator/): Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, your own store, and a local sale.
 
@@ -167,6 +183,7 @@ not linked — a link there would resolve to nothing today.
 - [Supplier Rate Break-Even Calculator](https://marisstella.dev/tools/vendor-rate-break-even/): Free supplier, subcontractor, and equipment rate break-even calculator. Compare fixed fees, per-job costs, savings, and payback volume.
 - [Music Lesson Pricing Calculator](https://marisstella.dev/tools/music-lesson-break-even/): Free music lesson pricing calculator for independent teachers. Include cancellations, preparation, travel, studio costs, and target pay to find a sustainable lesson price.
 - [Appointment Deposit Calculator for Service Businesses](https://marisstella.dev/tools/appointment-deposit-calculator/): Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.
+- [Equipment Rental Break-Even Calculator](https://marisstella.dev/tools/equipment-rental-break-even/): Free private equipment rental break-even calculator. Include ownership, delivery, cleaning, damage reserve, and utilization costs before quoting a booking.
 - [Payment Reconciliation — Match Payouts to Bank Deposits](https://marisstella.dev/tools/payment-reconciliation-workbench/): Free private CSV tool for small businesses to match Stripe, Square, or PayPal payouts to bank deposits and find reconciliation gaps without QuickBooks.
 
 ## Service business pricing & quotes
@@ -191,8 +208,11 @@ not linked — a link there would resolve to nothing today.
 
 - [Tender Bid Readiness Checker for Small Contractors](https://marisstella.dev/tools/tender-bid-readiness/): Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.
 - [Sponsor Ready — free GitHub Sponsors readiness checklist](https://marisstella.dev/tools/sponsor-ready/): Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.
+- [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
+- [Tender Radar](https://marisstella.dev/tools/tender-radar/): Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.
 
 ## Optional
 
 - [Atom feed](https://marisstella.dev/feed.xml): these tools as they are published, newest first. Poll this rather than re-reading this file to find out what is new.
-- [Sitemap](https://marisstella.dev/sitemap.xml): the indexable page on this host.
+- [Sitemap](https://marisstella.dev/sitemap.xml): every indexable page on this host.
+- [Machine-readable catalogue](https://marisstella.dev/catalog.json): the same tools as JSON, with a category and a description each. Parse this instead of this file if you want to filter rather than read.

@@ -176,10 +176,10 @@
           <input id="monthlyOrders" type="number" min="1" step="1" value="50">
         </div>
       </div>
-      <p id="errors" class="errors" role="status"></p>
+      <p id="errors" class="errors" role="status" aria-live="polite"></p>
     </section>
 
-    <section id="resultSection">
+    <section id="resultSection" aria-live="polite">
       <h2>What each channel leaves you</h2>
       <p id="verdict" class="verdict"></p>
       <div class="scroll">
@@ -201,7 +201,7 @@
       <div class="actions">
         <button id="copy" type="button">Copy this comparison</button>
         <button id="copyShare" type="button">Copy share link</button>
-        <span id="copyStatus" class="fine" role="status"></span>
+        <span id="copyStatus" class="fine" role="status" aria-live="polite"></span>
       </div>
 
       <details>

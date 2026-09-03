@@ -7,7 +7,7 @@
   <meta name="description" content="Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal, see the ice-event drain, and the storm count where a cheap seasonal goes underwater.">
   <meta property="og:title" content="Snow Removal Bid Calculator">
   <meta property="og:description" content="Bid snow removal from the route, not the driveway. See per-push, seasonal, ice events, and how many storms a cheap seasonal can actually survive.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Snow Removal Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-site plow and sidewalk minutes, deadhead, loaded operator-and-truck hourly, salt, ice events, second-pass storms, seasonal vs per-push price, walk-away price, break-even storm count, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Snow Removal Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-site plow and sidewalk minutes, deadhead, loaded operator-and-truck hourly, salt, ice events, second-pass storms, seasonal vs per-push price, walk-away price, break-even storm count, proposed-price margin check, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a snow removal contract?","acceptedAnswer":{"@type":"Answer","text":"Time each stop (plow + sidewalk + drive time), price those minutes at a loaded operator-and-truck hourly, add salt, then multiply by the storms and ice events you actually expect. Margin is a share of the seasonal price, not a markup on one driveway."}},{"@type":"Question","name":"Is a seasonal snow removal contract better than per push?","acceptedAnswer":{"@type":"Answer","text":"Seasonal is only better for the contractor if the quote covers a long winter plus ice events. A $350 driveway seasonal that looked fine at eight storms often loses money at fourteen, especially with unlimited ice."}},{"@type":"Question","name":"How many snow events should I estimate?","acceptedAnswer":{"@type":"Answer","text":"Use your own trigger depth and last few winters, not a national average. In many Northeast and Midwest metros a 1-inch trigger fires more often than a 2-inch trigger. This tool does not forecast weather — it prices the event count you enter."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #e8eef5; }
@@ -210,6 +210,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -271,7 +272,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a weather forecast and it does not replace a qualified professional. Verify every figure against your own payroll, insurance, fuel, and material costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your route, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. &ldquo;Copy share link&rdquo; encodes your stops, rates, and expected winter into this page&rsquo;s own URL hash so a partner or the office can open the same bid &mdash; nothing is sent to a server. Usage counts are anonymous tallies of which features were used, stored locally, and never include your route, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge.html">How much to charge for snow removal</a> &middot; <a href="vs-aspire.html">This calculator vs. Aspire</a>.</p>
     <p class="support">Free and open source. If it wins you a winter, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -279,6 +280,7 @@
   <script type="module">
     import { calculateSeason, SITE_PRESETS, ICE_MINUTE_FACTOR, ICE_SALT_FACTOR } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -471,9 +473,12 @@
       const verdict = el('verdict');
       const parts = [];
       if (result.proposedSeasonal) {
+        const survives = result.proposedSeasonal.breakEvenSnowEvents === null
+          ? 'an unlimited number of'
+          : `about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)}`;
         parts.push(result.proposedSeasonal.belowBreakEven
-          ? `At ${money(result.proposedSeasonal.price)} seasonal this winter <strong>loses ${money(Math.abs(result.proposedSeasonal.profit))}</strong>. It survives about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)} snow events after ice is paid. Walk-away is ${money(result.walkAwaySeasonal)}.`
-          : `At ${money(result.proposedSeasonal.price)} seasonal you keep <strong>${money(result.proposedSeasonal.profit)}</strong> — a ${result.proposedSeasonal.margin.toFixed(1)}% margin, surviving about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)} snow events.`);
+          ? `At ${money(result.proposedSeasonal.price)} seasonal this winter <strong>loses ${money(Math.abs(result.proposedSeasonal.profit))}</strong>. It survives ${survives} snow events after ice is paid. Walk-away is ${money(result.walkAwaySeasonal)}.`
+          : `At ${money(result.proposedSeasonal.price)} seasonal you keep <strong>${money(result.proposedSeasonal.profit)}</strong> — a ${result.proposedSeasonal.margin.toFixed(1)}% margin, surviving ${survives} snow events.`);
       }
       if (result.proposedPerPush) {
         parts.push(result.proposedPerPush.belowBreakEven
@@ -533,6 +538,32 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied.';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     el('addSite').addEventListener('click', () => {
       addSiteRow({ name: 'Two-car driveway', minutesPerPush: 12, sidewalkMinutes: 8, saltBags: 1.5 });
       count('site_added');
@@ -553,8 +584,18 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
-    STARTING_SITES.forEach(addSiteRow);
+    // A share link takes priority over the built-in starting sites: opening a
+    // link someone sent means seeing the winter they sent, not the default
+    // eight-driveway example.
+    const shared = decodeShare(location.hash);
+    (shared?.sites?.length > 0 ? shared.sites : STARTING_SITES).forEach(addSiteRow);
+    if (shared) {
+      COST_IDS.forEach(id => { if (shared[id] !== undefined) el(id).value = shared[id]; });
+    }
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

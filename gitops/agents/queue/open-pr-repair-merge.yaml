@@ -54,21 +54,29 @@ prompt: |
   a record of specific closes that destroyed finished work, and the rules
   in it are not optional.
 
-  Your job this run is to take ONE existing open pull request from
-  wherever it is to merged. Not to review it, not to comment on it, not to
-  triage the queue: to finish it.
+  Your job this run is to take existing open pull requests from wherever
+  they are to merged. Not to review them, not to comment on them, not to
+  triage the queue: to finish them.
 
   List the open PRs. If there are none, stop and say so -- do not invent
   work, and do not fall through to opening a new PR of your own. That is
   what the other queue items are for.
 
-  Otherwise pick ONE. Prefer, in order: a PR that is closest to
-  mergeable, a PR carrying real user-facing product value, and the one
-  that has been open longest. Skip a PR whose only blocker is an owner
-  action you cannot take (a sealed secret, a repository variable, an
-  account) -- say which PR and which action, and pick another.
+  Otherwise merge as many as you can, to a minimum of three:
 
-  Then carry it:
+  - Three or more open PRs: merge at least three before you stop, and keep
+    going past three while repairable ones remain.
+  - Fewer than three: process all of them.
+  - Only merges count. A review, a comment, a draft conversion, or a PR
+    "left for the author" does not.
+  - A PR whose only blocker is an owner action you cannot take (a sealed
+    secret, a repository variable, an account) does not count toward the
+    three. Say which PR and which action, then pick another.
+
+  Take them in order: a PR that is closest to mergeable, then one carrying
+  real user-facing product value, then the one open longest.
+
+  Then carry each one:
 
   1. Read the whole diff for correctness, user value, security, privacy,
      and whether it keeps the liability disclaimer and usage tracking
@@ -93,8 +101,14 @@ prompt: |
     the known Actions starvation, not a regression in the PR. Confirm with
     `python3 platform/ci/ci_starvation.py --run <run_id>`; exit 1 means no
     runner was ever assigned.
-  - No checks at all is not failed checks. PRs opened with `GITHUB_TOKEN`
-    do not trigger Actions here.
+  - No checks at all is not failed checks either -- but do not *expect* a
+    blank list. An agent PR here authenticates with a fine-grained PAT
+    (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
+    no-recursion rule applies to, so it triggers `pull_request` workflows
+    exactly as a human's PR does. Measured twice: #2856 created 13 check
+    runs, and #3033 created 9, all on real runners. So a blank check list
+    is a thing to go and verify, never the state to assume; when it really
+    is blank, verify locally and record what you ran.
   - Use the check-runs endpoint, not `/commits/<sha>/status`. The commit
     status API reports `total_count: 0` on a PR that has red check runs,
     and absent CI and red CI call for different handling.
@@ -112,4 +126,4 @@ prompt: |
   immediately before closing and again after: two sessions have each
   closed their PR pointing at the other's, and nothing shipped.
 
-  Do not start unrelated new work in this run. One PR, merged.
+  Do not start unrelated new work in this run. Merged PRs, not triage.

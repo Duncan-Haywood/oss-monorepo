@@ -410,6 +410,39 @@ def test_every_queue_item_prompt_inherits_the_mandate() -> None:
     assert "runner_id: 0" in mandate
 
 
+def test_the_mandate_does_not_teach_the_retired_absent_ci_excuse() -> None:
+    # The mandate is the standing prompt for every worker run, so a stale claim
+    # here is one every tick inherits. It used to say "PRs opened with
+    # `GITHUB_TOKEN` do not trigger Actions here", which names the wrong
+    # mechanism -- an agent PR authenticates with a fine-grained PAT
+    # (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
+    # no-recursion rule applies to, so it triggers `pull_request` workflows
+    # like anyone else's. `platform/pages/clauses.mjs` had already retired the
+    # same sentence in its own comment, and this test used to say the mandate
+    # was "the last place carrying it". It was not: `queue/open-pr-repair-merge
+    # .yaml` still had it on 2026-09-03, because this test only ever read
+    # mandate.md. Fixing a rule in one file while a copy of it survives in
+    # another is the exact failure CLAUDE.md records twice against the
+    # front-door mirror -- so the assertion below now walks every queue prompt
+    # too, and a new item inherits the check by existing.
+    mandate = (AGENTS / "workers" / "mandate.md").read_text()
+    assert "`GITHUB_TOKEN` do not\n  trigger Actions here" not in mandate
+    assert "GH_TOKEN" in mandate, "the correct credential should be named"
+
+    # Every queue item's prompt is read by a worker the same way the mandate
+    # is, so the claim is just as wrong there.
+    for item in sorted((AGENTS / "queue").glob("*.yaml")):
+        prompt = yaml.safe_load(item.read_text()).get("prompt") or ""
+        assert "GITHUB_TOKEN` do not trigger Actions" not in prompt, (
+            f"{item.name} teaches the retired absent-CI excuse"
+        )
+
+    # And the distinction that makes a blank list actionable rather than an
+    # excuse: the commit-status API reports total_count 0 on a PR whose checks
+    # are red, so "no checks" read from it is not evidence of anything.
+    assert "check-runs" in mandate, "the endpoint that actually answers must be named"
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
@@ -910,10 +943,50 @@ def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
     content_blocks = [
         b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b
     ]
+    #
+    # Changed 2026-09-03, and deliberately narrowed rather than relaxed. The
+    # tool entry page became framable for `?pfEmbed=1` only, so that one block
+    # sends `$portfolio_frame_options` instead of a literal. The invariant is
+    # now three things, all of which this test pins:
+    #
+    #   1. every content location still sends the header, literal or mapped;
+    #   2. *exactly one* block is allowed to send the mapped form, and it is the
+    #      tool entry page — a second one appearing (say, a future edit copying
+    #      the line into the `LICENSE` or subpage block) fails here rather than
+    #      quietly making the whole mirror framable;
+    #   3. the map's default row is DENY, so every request that does not carry
+    #      `?pfEmbed=1` gets exactly the header it got before this change.
+    #
+    # Without (2) and (3) this test would pass on a config that framed
+    # everything, which is the failure mode worth catching.
     assert len(content_blocks) >= 5, "fewer content locations than expected — check the split"
+    mapped = []
     for block in content_blocks:
         header = block.splitlines()[0].strip()
-        assert "X-Frame-Options DENY" in block, f"{header} does not send X-Frame-Options: DENY"
+        literal = "X-Frame-Options DENY" in block
+        variable = "X-Frame-Options $portfolio_frame_options" in block
+        assert literal or variable, f"{header} does not send X-Frame-Options at all"
+        if variable:
+            mapped.append(header)
+            assert "Content-Security-Policy $portfolio_frame_ancestors" in block, (
+                f"{header} relaxes X-Frame-Options without the matching "
+                "frame-ancestors CSP — modern browsers read the CSP, older ones "
+                "the header, and shipping one without the other frames on some "
+                "and not others"
+            )
+
+    assert mapped == ['location ~ "^/tools/(?<slug>[a-z0-9][a-z0-9-]*)/?$" {'], (
+        "exactly one block — the tool entry page — may use the conditional "
+        f"framing map; found {mapped}"
+    )
+
+    # The default row is what makes every other request identical to before.
+    assert re.search(
+        r"map \$arg_pfEmbed \$portfolio_frame_options \{\s*default DENY;", conf
+    ), "the framing map's default row must be DENY"
+    assert re.search(
+        r"map \$arg_pfEmbed \$portfolio_frame_ancestors \{\s*default \"\";", conf
+    ), "the frame-ancestors map must default to sending nothing"
 
 
 def test_portfolio_front_access_log_records_no_visitor() -> None:
@@ -1076,13 +1149,45 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
             f"OWNER_CHECKLIST.md claims a mirror of {value} tools, actual is {actual}"
         )
 
-    other_tools = re.findall(r"working funnel for the other\s+(\d+)\s", checklist)
-    assert other_tools, "OWNER_CHECKLIST.md's 'the other N' sentence not found or reworded"
-    for value in other_tools:
-        assert int(value) == total - actual, (
-            f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
-            f"actual is {total - actual}"
+    # Reworded 2026-09-02. This used to pin "working funnel for the other N",
+    # and the arithmetic it checks was always the point — but the sentence
+    # carrying it also claimed the seal was what turned the front door into a
+    # working funnel at all, which CLAUDE.md corrects at length: the apex
+    # already serves the tools and its cards already work. Pinning a count
+    # inside a sentence that is wrong about what the count means keeps the
+    # number honest and the claim stale, so the wording moved and this pattern
+    # moved with it. The check itself is unchanged.
+    #
+    # `tools?` rather than `tools` since 2026-09-03. The remainder reached 1
+    # when the mirror learned `site/index.html` entry points, and the only
+    # grammatical English for that is "the remaining 1 tool" — which the plural
+    # pattern could not match, so this assertion failed on the sentence being
+    # *correct*. A checker that forces prose to be ungrammatical to pass is
+    # checking the wrong thing; the count is what matters and it is still
+    # pinned exactly.
+    #
+    # The remainder reached 0 on 2026-09-03, when the mirror learned
+    # `ENTRY_OVERRIDES` and picked up `ai-engineering-academy`. There is no
+    # grammatical sentence of this shape for zero — "publishes the remaining 0
+    # tools" is not English, and the paragraph now says the seal buys the
+    # canonical hostname and search rather than any tool's reachability, which
+    # is the true claim. So at parity the requirement inverts: the sentence
+    # must be *absent*, and any surviving "remaining N" claim is a stale
+    # number to catch. Below parity it is required and pinned exactly, as
+    # before. Both branches assert; neither is a hole.
+    other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools?", checklist)
+    if total == actual:
+        assert not other_tools, (
+            "the mirror serves every tool, but OWNER_CHECKLIST.md still claims "
+            f"{other_tools} remain unmirrored"
         )
+    else:
+        assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
+        for value in other_tools:
+            assert int(value) == total - actual, (
+                f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
+                f"actual is {total - actual}"
+            )
 
     aggregate = (REPO / "gitops" / "prod" / "usage" / "aggregate.py").read_text()
     aggregate_match = re.search(r"mirrors (\d+) complete ventures", aggregate)
@@ -1091,6 +1196,27 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
         f"aggregate.py's comment claims {aggregate_match.group(1)} mirrored ventures, "
         f"actual is {actual}"
     )
+
+    # `default.conf`'s own comments restate the count twice more, in prose
+    # explaining why the mirrored pages carry no `X-Robots-Tag`. Neither is
+    # read by nginx or by kustomize -- both are free text -- but that is
+    # exactly why they drift silently: nothing about serving the site fails
+    # when they go stale. They did, the same day the mirror grew from 168 to
+    # 169 (`ai-engineering-academy`'s ENTRY_OVERRIDES fix): the commit that
+    # bumped OWNER_CHECKLIST.md and aggregate.py's comment above left these
+    # two unchanged. Pinning them here closes the same gap this test already
+    # closes for the other two files.
+    conf = (REPO / "gitops" / "prod" / "front-door" / "default.conf").read_text()
+    conf_matches = re.findall(r"filter (\d+) tools by category", conf)
+    conf_matches += re.findall(r"served all (\d+) tools", conf)
+    assert len(conf_matches) == 2, (
+        "default.conf's two 'N tools' comments not found or reworded "
+        f"(found {len(conf_matches)})"
+    )
+    for value in conf_matches:
+        assert int(value) == actual, (
+            f"default.conf's comment claims {value} mirrored tools, actual is {actual}"
+        )
 
 
 def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
