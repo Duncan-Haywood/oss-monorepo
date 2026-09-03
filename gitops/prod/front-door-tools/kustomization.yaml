@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 152 files, 556249 bytes
 #   portfolio-front-tools-2: 154 files, 556449 bytes
 #   portfolio-front-tools-3: 122 files, 555950 bytes
-#   portfolio-front-tools-4: 135 files, 547966 bytes
+#   portfolio-front-tools-4: 136 files, 549972 bytes
 #   portfolio-front-tools-5: 116 files, 547782 bytes
 #   portfolio-front-tools-6: 116 files, 545981 bytes
 #   portfolio-front-tools-7: 128 files, 550583 bytes
@@ -780,6 +780,7 @@ configMapGenerator:
       - equipment-rental-break-even__index.html.gz=equipment-rental-break-even__index.html.gz
       - equipment-rental-break-even__model.mjs.gz=equipment-rental-break-even__model.mjs.gz
       - equipment-rental-break-even__share.mjs.gz=equipment-rental-break-even__share.mjs.gz
+      - equipment-rental-break-even__usage.mjs.gz=equipment-rental-break-even__usage.mjs.gz
       - ev-charger-bid-calculator__LICENSE.gz=ev-charger-bid-calculator__LICENSE.gz
       - ev-charger-bid-calculator__calc.mjs.gz=ev-charger-bid-calculator__calc.mjs.gz
       - ev-charger-bid-calculator__how-much-to-charge.html.gz=ev-charger-bid-calculator__how-much-to-charge.html.gz
