@@ -7642,3 +7642,101 @@ entries:
         confirms green, under this repo's no-review-ceremony rule for
         `ventures/*` product PRs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Waited out its in-progress CI (18 checks, all green on real
+        runners), confirmed `mergeable_state: clean`, and merged it. Per
+        the "fewer than three exist, process all of them" rule the queue
+        was then empty -- re-checked after merge and confirmed zero open
+        PRs.
+      - >-
+        Branch-to-PR audit, targeted rather than exhaustive: this repo
+        carries ~98 remote branches with commits not on `main` and no
+        open PR, and three independent sessions this month
+        (`portfolio/ledger/2026-09.yaml`'s own earlier entries) have
+        already run `supersede_check.py`-equivalent sweeps against
+        double-digit samples of it and found every one fully absorbed by
+        the fleet's fast-absorption pattern -- the same feature landing
+        under a different branch before the original branch's session
+        returns. Rather than re-run that same sweep a fourth time, spot
+        checked 4 branches thematically relevant to this session's
+        deploy/CI/CD and marketing brief:
+        `agent/cam-reconciliation-gross-up` (unique-commit diff against
+        `main` is empty -- fully superseded by #3046),
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus` (its
+        `vs-jobnimbus.html` diff against `main` is 0 lines -- already
+        landed), `agent/deploy-cicd-ledger-2868` (its only unique commits
+        are ledger prose; `main`'s ledger has moved thousands of lines
+        past what the branch would add -- superseded), and
+        `ci/hetzner-ssh-key-diagnostic` (its one commit's exact change,
+        the malformed-`HETZNERSSHKEY` classification in
+        `hetzner-gitops-ci.yml`, is byte-identical on `main` already).
+        All 4 confirm the pattern rather than contradict it; no PRs
+        needed. Not claiming the full ~98-branch backlog is clear --
+        recording the sample so a future session does not re-derive it.
+      - >-
+        Checked the scheduled brief's explicit asks (deploy/CI/CD
+        priority, marketing materials on Hetzner, Codex CLI on Hetzner
+        spending its included plan quota) against what already exists.
+        All three are already built and already correctly queued, not
+        duplicated here: `gitops/agents/queue/deploy-cicd-readiness.yaml`
+        was re-verified 2026-09-02 with no new gap found and explicitly
+        says not to re-run that exhaustive sweep on a routine tick;
+        `gitops/agents/queue/marketing-distribution.yaml` was likewise
+        re-verified 2026-09-02, is priority 6, and is what today's several
+        vs-X comparison-page merges from other sessions are already
+        executing; the Codex-on-Hetzner pipeline
+        (`gitops/agents/governor/`, RBAC, budget policy, six-item queue)
+        is fully built and tested, reading `policy.json:
+        "enabled": false` and `cronjob.yaml: suspend: true`, gated only on
+        decision-queue item #12 (`codex-governor-enable`, PR #1996) --
+        the owner running `codex login` once and sealing the result,
+        which no agent session can do. No duplicate ask added.
+      - >-
+        Extended the same shareable-quote-link pattern #3052 shipped to
+        `hvac-maintenance-contract-calculator` (see the separate entry
+        below) as this session's product contribution, since it needed no
+        outbound web access to verify (unlike a new vs-X comparison page,
+        several of which other sessions landed today) and is now on
+        84/165 form-bearing ventures.
+    mrr_end: null
+  - venture: hvac-maintenance-contract-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "Copy share link" button (URL-fragment-encoded workload,
+        callback, overhead, margin, and proposed-price inputs), following
+        the same allowlisted-JSON-hash pattern used by 83 other ventures,
+        so a contractor can hand an editable maintenance-plan quote to a
+        partner or the office instead of retyping it. A share link takes
+        priority over the form's baked-in defaults on load. Corrected the
+        FAQ (visible copy and JSON-LD) that previously said nothing about
+        the link, and corrected `usage.yaml`'s "Public URL remains
+        owner-gated" note in a new reading (the venture is already served
+        at https://marisstella.dev/tools/hvac-maintenance-contract-calculator/
+        via the apex front-door mirror) rather than rewriting the
+        original row in place. Regenerated
+        `gitops/prod/front-door-tools/` so the change reaches that mirror
+        on merge, no owner action needed.
+      - >-
+        Verified with `node --test` in the venture (27/27, 6 new in
+        `share.test.mjs`; the existing strict `page.test.mjs` regexes
+        against the `ids` array and the error-handling catch block were
+        preserved unchanged), `node --test "platform/marketing/*.test.mjs"`
+        (173/173 after regenerating the mirror -- 3 failed before
+        regeneration, confirming the mirror-consistency tests actually
+        catch a stale mirror), a full `platform/pages/build.mjs` +
+        `check.mjs --dist=platform/pages/dist` run (169 tools / 620 pages,
+        no dead links), that suite's own tests (`build.test.mjs` +
+        `check.test.mjs`, 320/320), `python3 portfolio/usage/validate_usage.py`
+        (valid, 181 products, 356 readings), `python3
+        platform/ci/check_duplicate_symbols.py` and `python3
+        platform/ci/publish_surface.py --check` (both clean). `pytest`
+        was not importable in this session's environment (no module
+        named pytest); the venture and platform-marketing suites above
+        cover the change, and `gitops/` manifests were not touched.
+    mrr_end: null
