@@ -171,6 +171,33 @@ jobs:
           mkdir -p "${HOME}/.ssh"
           printf '%s\n' "${KEY}" > "${HOME}/.ssh/id_hetzner"
           chmod 600 "${HOME}/.ssh/id_hetzner"
+          # A malformed secret (a public key pasted by mistake, literal \n
+          # escapes from a JSON paste, or CRLF line endings) used to fail
+          # here with a bare, unhelpful ssh-keygen error. Classify the
+          # format first and normalize escaped newlines, so a bad rotation
+          # of HETZNERSSHKEY says exactly what is wrong instead of just
+          # "invalid format".
+          python3 -c '
+          from pathlib import Path
+          p = Path.home() / ".ssh/id_hetzner"
+          raw = p.read_bytes()
+          # printf always appends one trailing real newline, so a secret
+          # pasted as a single JSON-escaped line still shows one \n byte
+          # here. More than that means it already has real line breaks
+          # and escaping it further would corrupt a valid key.
+          if b"\\n" in raw and raw.count(b"\n") <= 1:
+              p.write_bytes(raw.replace(b"\\r\\n", b"\n").replace(b"\\n", b"\n"))
+              print("normalized literal \\n escapes in the secret")
+          '
+          if grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "${HOME}/.ssh/id_hetzner"; then
+            echo "HETZNERSSHKEY holds a public key, not a private key." >&2
+            echo "A public key cannot open an SSH session — store the matching private key instead." >&2
+            exit 1
+          fi
+          if ! grep -q "BEGIN .*PRIVATE KEY" "${HOME}/.ssh/id_hetzner"; then
+            echo "HETZNERSSHKEY is not an OpenSSH/PEM private key after normalization." >&2
+            exit 1
+          fi
           ssh-keygen -y -f "${HOME}/.ssh/id_hetzner" >/dev/null
           eval "$(ssh-agent -s)"
           ssh-add "${HOME}/.ssh/id_hetzner"
