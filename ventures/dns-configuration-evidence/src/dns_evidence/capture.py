@@ -379,14 +379,24 @@ def plan_from_cli(
     authorized: bool,
     queries: list[str],
     resolvers: list[str],
-    timeout: float,
+    timeout: float | None,
     plan_path: Path | None,
 ) -> dict[str, Any]:
+    # `timeout` is `None` when `--timeout` was not passed on the command line,
+    # never a numeric sentinel. Comparing against the flag's own default (as
+    # this used to) cannot tell "not specified" apart from "specified as
+    # exactly the default": `--plan plan.json --timeout 3` silently kept
+    # plan.json's own timeout instead of applying the 3s the caller typed.
+    # Routing every override back through `load_plan` also means a CLI
+    # timeout is bounds-checked the same as a plan file's — previously an
+    # override skipped that check entirely, so `--timeout 999` (or a
+    # negative number) reached the resolver socket unclamped.
     if plan_path is not None:
         plan = load_plan(plan_path)
         if domain or queries or resolvers:
             raise CaptureError("use a plan file or CLI flags, not both")
-        plan["timeout"] = timeout if timeout != 3.0 else plan["timeout"]
+        if timeout is not None:
+            plan = load_plan(raw={**plan, "timeout": timeout})
         return plan
     if not authorized:
         raise CaptureError("capture requires --authorized (or authorized: true in the plan)")
@@ -396,12 +406,12 @@ def plan_from_cli(
             raise CaptureError("each --query must be name:TYPE, for example example.test:A")
         name, rtype = item.rsplit(":", 1)
         parsed_queries.append({"name": name, "type": rtype})
-    return load_plan(
-        raw={
-            "authorized": True,
-            "domain": domain,
-            "queries": parsed_queries,
-            "resolvers": resolvers,
-            "timeout": timeout,
-        }
-    )
+    raw: dict[str, Any] = {
+        "authorized": True,
+        "domain": domain,
+        "queries": parsed_queries,
+        "resolvers": resolvers,
+    }
+    if timeout is not None:
+        raw["timeout"] = timeout
+    return load_plan(raw=raw)
