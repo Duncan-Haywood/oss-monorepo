@@ -384,9 +384,16 @@ const CATEGORY_RULES = [
     title: 'Compliance checks & evidence records',
     accent: '#5c2a1f',
     blurb: 'Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.',
+    // `real-estate-agent-photo-app` is a listing-photo preflight that exports a
+    // dated evidence record and refuses to call itself an acceptance decision —
+    // this section's exact job. Its slug names the venture (an iPhone
+    // photography app) rather than the surface, so neither the `preflight$`
+    // suffix nor any prefix above catches it, and it landed in the catch-all
+    // where an agent reading "Compliance checks & evidence records" never saw
+    // it.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo)/.test(slug),
   },
   {
     id: 'backoffice',

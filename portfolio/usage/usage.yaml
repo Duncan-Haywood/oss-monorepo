@@ -1413,6 +1413,26 @@ products:
           PRs #1333, #1358, and #1385 — those export the evidence record;
           this tells the photographer which rooms to recapture. Public URL
           remains owner-gated (`deploy-settings`).
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          check_completed: 0
+          record_exported_json: 0
+          record_exported_markdown: 0
+          handoff_copied: 0
+        note: >-
+          First public route. The preflight existed three times over (a
+          Python probe, a TypeScript library, a React component) and every
+          copy sat behind a CLI or a Next.js build, so `build.mjs` never
+          published it and no stranger could reach it. Ported to
+          dependency-free ESM at `site/`, which the canonical build and the
+          front-door mirror both pick up, so it now serves from the apex at
+          `/tools/real-estate-agent-photo-app/` — the 170th tool, and the
+          first of the 15 previously unreachable ventures to get a public
+          URL. Counts are zero because the page is new, not because nothing
+          was measured: the event names above are the local ones the page
+          records, and the apex nginx log feeds the nightly
+          `portfolio-site-usage` job for the server-side half.
   - slug: carpet-install-bid-calculator
     surface: static-page-in-repo
     readings:

@@ -8062,3 +8062,72 @@ entries:
         pytest" dependency-install gap in unrelated Python probe suites,
         not caused by this change).
     mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met — zero open PRs existed at session
+        start (`list_pull_requests`, state=open, 100/page: empty). Swept
+        every remote branch ahead of `main` for unique work after
+        `git fetch --unshallow`; the recent ones (2026-09-02/03) have an
+        empty three-dot diff against `main` and the older ones carry
+        commit subjects naming already-merged PR numbers, so they are
+        squash-merge leftovers, not a repairable queue. The one branch
+        with genuinely unique content, `agent/deploy-cicd-ledger-2868`,
+        adds only a ledger block, which CLAUDE.md excludes from being a
+        deliverable — no PR opened for it.
+      - >-
+        Audited the delivery path before picking work, since the owner's
+        standing direction names deployment and CI/CD first. It is
+        sound: the front-door mirror was current (87/87
+        front-door-tools tests green, no regenerated drift), all 615
+        sitemap tool URLs resolved to a shard, robots.txt allows
+        indexing with the apex as canonical, and server-side usage
+        aggregation is already deployed as a nightly CronJob over the
+        narrowed nginx access log. The codex-on-Hetzner worker is
+        likewise fully built and blocked only on owner seals already in
+        the decision queue. No duplicate asks added.
+      - >-
+        Shipped the highest-value deploy-first gap that audit turned up:
+        of 184 ventures, 169 were reachable and 15 were not, and one of
+        those 15 held a finished, tested product with no public route at
+        all. `real-estate-agent-photo-app` carried a complete MLS
+        listing-photo preflight checker (header-only format, byte size,
+        long-edge, aspect, branding-filename and staged-pairing checks
+        plus a dated evidence record) implemented three times over — a
+        Python probe, a TypeScript library, and a React component —
+        every copy of it inside a CLI or a Next.js app that
+        `build.mjs` cannot publish. Ported the rule set and the report
+        builders to dependency-free ESM under `site/`, which is a
+        standard entry candidate, so the existing pipeline publishes it
+        with no new mechanism. The tool is now the 170th at
+        `https://marisstella.dev/tools/real-estate-agent-photo-app/`.
+      - >-
+        Added `parity.test.mjs`, which reads the TypeScript source as
+        text and pins every constant and every emitted rule id against
+        this port. CLAUDE.md records that copying a rule instead of
+        importing it has already cost live product twice; importing is
+        not available across the Next.js boundary, so the test is the
+        substitute. Placed the venture in the `evidence` category — its
+        slug names an iPhone photography app, so neither the
+        `preflight$` suffix nor any prefix caught it and it landed in
+        the catch-all, away from the readers of "Compliance checks &
+        evidence records".
+      - >-
+        Verified: 46/46 new venture tests, 867/867 platform/pages,
+        182/182 platform/marketing, 271 passed / 12 skipped in
+        gitops/tests, `check_duplicate_symbols.py` and
+        `publish_surface.py --check` both clean, full-site build and
+        `check.mjs` clean (170 products, 627 pages, no dead links, up
+        from 169/616). Mirror regenerated to 170 tools / 1421 files at
+        76% of the byte ceiling; re-ran the sitemap-to-shard
+        cross-check at 616/616 resolving. Exercised the primary journey
+        against the shipped modules on a realistic seven-file delivery
+        folder: every rule fired on the intended file, the non-photo
+        was skipped, and all three exports were sound. Two repo guards
+        caught real defects during the run and both were fixed rather
+        than worked around — the doc/mirror count drift test, and
+        `faq-visible.test.mjs`, which requires FAQ JSON-LD to match the
+        visible prose verbatim.
+    mrr_end: null
