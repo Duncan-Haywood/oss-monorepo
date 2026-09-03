@@ -1130,6 +1130,39 @@ test('llms.txt states the real counts, and both come from the caller', () => {
   assert.ok(!renderFrontDoorLlms({ mirrored: MIRROR, total: 4 }).includes('169'));
 });
 
+test('llms.txt claims a wider collection only while one actually exists', () => {
+  // The regression this pins: the coverage paragraph was unconditional, so
+  // once the two 2026-09-03 mirror fixes brought `mirrored` up to `total` it
+  // told every crawler the 169 tools it had just linked were a subset, and
+  // that their real home was a hostname serving nothing. `llms.txt` is read
+  // by a model that paraphrases it, so a false "there are more, elsewhere"
+  // becomes a confident recommendation of a dead end.
+  const partial = renderFrontDoorLlms({ mirrored: MIRROR, total: MIRROR.length + 1 });
+  assert.match(partial, /The wider\s+collection runs to/, 'a real subset still says so');
+
+  const complete = renderFrontDoorLlms({ mirrored: MIRROR, total: MIRROR.length });
+  assert.ok(
+    !/wider\s+collection/.test(complete),
+    'a complete mirror must not claim tools it is not showing',
+  );
+  assert.ok(
+    !/will be published at/.test(complete),
+    'the tools are published here — saying they are yet to be sends readers away',
+  );
+  assert.match(complete, new RegExp(`all ${MIRROR.length} of them`));
+
+  // The invariant that holds either way, and the reason this test asserts on
+  // both branches rather than swapping the paragraph out: the catalogue host
+  // is named so a model meeting it elsewhere knows not to send anyone there,
+  // and is never linked. A future flip of `TOOLS_HOST_SERVES` is what retires
+  // this pair, not a count change.
+  for (const txt of [partial, complete]) {
+    assert.ok(txt.includes('tools.marisstella.dev'), 'the catalogue host is still named');
+    assert.ok(!txt.includes('](https://tools.'), 'and still never linked');
+    assert.match(txt, /not serving yet/);
+  }
+});
+
 test('the committed llms.txt matches what this generator produces', async () => {
   const { llms } = await buildFrontDoor();
   assert.equal(
