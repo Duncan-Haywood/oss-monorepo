@@ -77,7 +77,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'linear-print', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'linear-oversize', 'plan', 'copy-plan', 'linear-print', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -110,6 +110,13 @@ test('the sheet-goods inputs and result fields are present', () => {
 test('the sheet-goods on-hand offcut field is parsed, drafted, and wired to a render', () => {
   assert.match(scriptSource, /onHand:\s*parseOnHandSheets\(\$\('sheet-onhand'\)\.value\)/, 'renderSheet does not pass the on-hand offcut field into optimizeSheets');
   assert.match(scriptSource, /DRAFT_FIELDS\s*=\s*\[[^\]]*'sheet-onhand'[^\]]*\]/s, 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft loses it');
+});
+
+// A cut too long for any stock on hand or to buy no longer throws away the
+// rest of the plan (see calc.mjs); the page must actually surface it instead
+// of silently dropping it.
+test('an oversize cut on the linear tab is rendered, not silently dropped', () => {
+  assert.match(scriptSource, /\$\('linear-oversize'\)\.innerHTML\s*=\s*result\.oversize\.length/, 'renderLinear does not read result.oversize into #linear-oversize');
 });
 
 test('every id list the script iterates names a real element', () => {
