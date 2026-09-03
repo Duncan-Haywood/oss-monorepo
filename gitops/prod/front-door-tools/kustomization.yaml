@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 147 files, 537338 bytes
-#   portfolio-front-tools-1: 125 files, 556474 bytes
+#   portfolio-front-tools-1: 125 files, 556919 bytes
 #   portfolio-front-tools-2: 161 files, 552408 bytes
 #   portfolio-front-tools-3: 130 files, 555011 bytes
 #   portfolio-front-tools-4: 127 files, 556608 bytes
@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 112 files, 551021 bytes
 #   portfolio-front-tools-7: 120 files, 556392 bytes
 #   portfolio-front-tools-8: 120 files, 551065 bytes
-#   portfolio-front-tools-9: 104 files, 554227 bytes
+#   portfolio-front-tools-9: 105 files, 555484 bytes
 #   portfolio-front-tools-10: 73 files, 371522 bytes
 #   portfolio-front-tools-11: 58 files, 266851 bytes
 #
@@ -1336,6 +1336,7 @@ configMapGenerator:
       - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
       - snow-removal-bid-calculator__index.html.gz=snow-removal-bid-calculator__index.html.gz
       - snow-removal-bid-calculator__proposal.mjs.gz=snow-removal-bid-calculator__proposal.mjs.gz
+      - snow-removal-bid-calculator__share.mjs.gz=snow-removal-bid-calculator__share.mjs.gz
       - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
       - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
       - sod-install-bid-calculator__LICENSE.gz=sod-install-bid-calculator__LICENSE.gz

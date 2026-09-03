@@ -7325,6 +7325,46 @@ entries:
         once its checks went green, under this repo's no-review-ceremony
         rule for `ventures/*` product PRs.
     mrr_end: null
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a shareable quote link (`share.mjs` + a "Copy share link"
+        button next to "Copy bid summary"), following the same
+        encode/decode-with-a-fixed-allowlist pattern already used by 79
+        other ventures (roofing-bid-calculator, cash-runway-planner,
+        commercial-photo-license-calculator, and others). The only way to
+        hand a winter bid to a partner or the office was "Copy bid
+        summary", which copies finished prose with no way back to the
+        editable form; the new link encodes every stop's plow/sidewalk
+        minutes, salt bags and ice figures plus the season's cost and
+        margin assumptions into the page's own URL fragment -- never sent
+        to a server, never in the query string. Opening a shared link now
+        takes priority over the default eight-driveway starting example,
+        matching the convention used elsewhere.
+      - >-
+        This venture is one of the 169 the apex front-door mirror already
+        serves in full, so the feature is live today at
+        https://marisstella.dev/tools/snow-removal-bid-calculator/ with no
+        further owner action -- the mirror was regenerated (`--write`) and
+        committed in the same change. The prior usage.yaml reading's
+        "public URL remains owner-gated" note was stale against that;
+        corrected in the new reading rather than rewritten in place, same
+        as the correction made earlier this month for other ventures.
+      - >-
+        Verified with `node --test` in the venture (78/78, 7 new tests in
+        `share.test.mjs`) and `node --test "platform/marketing/*.test.mjs"`
+        (173/173, front-door mirror consistency, no shard reshuffling since
+        no page was added or removed). Also ran the full site build and
+        check (`platform/pages/build.mjs` + `check.mjs`, 169 tools / 618
+        pages, no dead links, "shareable bid link" count rose by one) and
+        that suite's own tests (`build.test.mjs` + `check.test.mjs`,
+        320/320) and the gitops manifest/serving tests (81 passed, 12
+        skipped -- k8s-only). Opened as a PR and merged once its checks
+        went green, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
   - venture: spray-foam-bid-calculator
     agent_spend_usd: null
     human_hours: 0

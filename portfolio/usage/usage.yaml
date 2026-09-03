@@ -4153,6 +4153,21 @@ products:
           ice events, break-even storm count, copyable proposal summary).
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded stops,
+          rates, and winter assumptions; share link outranks the default
+          eight-driveway starting example on load), following the same
+          pattern already used by 79 other ventures, so a crew lead can
+          hand an editable winter bid to a partner or the office instead
+          of only static summary text. Also reachable today at
+          https://marisstella.dev/tools/snow-removal-bid-calculator/ via
+          the apex front-door mirror -- the "public URL remains
+          owner-gated" note above predates that mirror and is stale for
+          this venture, as it was for others corrected earlier this month.
 
   - slug: tree-service-bid-calculator
     surface: static-page-in-repo
