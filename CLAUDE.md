@@ -12,6 +12,14 @@ Usage — the metric while everything is free — is specified in
 
 `README.md` covers repo layout.
 
+Four agent families (GitHub Actions, Kilo, Cursor, Claude) also run an
+automated cross-review layer — see `.github/prompts/review-open-prs-first.md`
+and `platform/ci/agent_review/README.md`. It posts APPROVE/REQUEST_CHANGES
+reviews via dedicated reviewer GitHub Apps and can auto-merge internal
+(non-`ventures/*`) PRs once two of them approve and CI is green. It assists
+the "Duplicate PRs" workflow below; it does not replace the judgment calls in
+"Ship without review ceremony".
+
 ## Product-first default
 
 Every session should move a venture closer to something strangers can use for
