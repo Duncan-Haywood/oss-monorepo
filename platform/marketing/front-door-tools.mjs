@@ -96,6 +96,19 @@ export const OUTPUT_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door-too
 /** The canonical host every tool page belongs to; see `build.mjs`. */
 export const TOOLS_URL = 'https://tools.marisstella.dev/';
 
+/**
+ * The host this mirror is actually served from — `front-door.mjs`'s
+ * `FRONT_DOOR_URL`, restated rather than imported because these two generators
+ * share no module and the front door's own constant is about its page, not
+ * about the mirror mounted beside it.
+ *
+ * Distinct from `TOOLS_URL` on purpose, and the two are not interchangeable:
+ * `TOOLS_URL` is where a page *belongs* (what a crawler should consolidate on),
+ * this is where a page *is* (what a person who follows a link today reaches).
+ * See `injectMirrorTags` for the one tag that wants the second answer.
+ */
+export const APEX_URL = 'https://marisstella.dev/';
+
 /** The apex path the mirror is served under. Matches `front-door/default.conf`. */
 export const MIRROR_PREFIX = 'tools/';
 
@@ -948,6 +961,9 @@ export const mirrorUrl = (slug, file) =>
 export const canonicalUrl = (slug, file) =>
   `${TOOLS_URL}${slug}/${file === 'index.html' ? '' : file}`;
 
+/** The absolute URL a mirrored file answers on today. `mirrorUrl`, with an origin. */
+export const apexUrl = (slug, file) => `${APEX_URL.replace(/\/$/, '')}${mirrorUrl(slug, file)}`;
+
 /**
  * A test file, by either convention this repository uses to name one.
  *
@@ -1173,6 +1189,52 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
  * documents is not structural. Bing and the AI crawlers do not all publish a
  * conflict rule, and "most restrictive wins" is not the only plausible one;
  * "last tag wins" would have indexed all 24.
+ *
+ * ## `og:url` is the third tag with the same story, fixed 2026-09-03
+ *
+ * The two paragraphs above are each about a tag the venture source already
+ * carried, which the mirror had to reconcile rather than merely prepend. The
+ * argument was never carried to `og:url` either, and there it was not a
+ * hardening: 52 mirrored pages went out declaring
+ * `<meta property="og:url" content="https://example.invalid/...">`.
+ *
+ * That placeholder is deliberate in the sources — it predates the portfolio
+ * having any origin at all, and `build.mjs` overwrites it with the real one
+ * when it publishes to the canonical host (`PLACEHOLDER_ORIGIN` there names
+ * it). This mirror is the *other* publisher, and it never learned that step.
+ *
+ * Unlike the robots conflict, nothing downstream rescues this. A share card is
+ * built from `og:url` alone: paste a mirrored tool's link into Slack, LinkedIn,
+ * Facebook or WhatsApp and the scraper keys the card to `example.invalid`, a
+ * reserved-by-RFC-2606 domain that resolves nowhere. `X-Robots-Tag` does not
+ * apply — this is not a crawler path — and the `rel="canonical"` two lines
+ * above does not either, because a scraper reads `og:url` in preference to it.
+ * `build.mjs`'s own comment calls organic sharing into trade groups a named
+ * acquisition channel here, so this is that channel broken on the only surface
+ * the portfolio actually serves.
+ *
+ * ## Why the apex URL and not the canonical
+ *
+ * `canonicalUrl` is `tools.marisstella.dev`, which serves nothing until
+ * `portfolio-site-repo` is sealed. `renderFrontDoorFeed` faced this exact
+ * choice and its comment settles it: a link a reader follows must work, and "a
+ * feed whose every entry is a dead link is worse than no feed". A share card is
+ * the same object — a human clicks it — so it gets `apexUrl`, the address that
+ * answers today, while `rel="canonical"` keeps naming the long-run home. The
+ * SEO cost is nil for the reason the feed gives: these pages are `noindex` in
+ * markup and in the header, so nothing here competes for consolidation.
+ *
+ * ## Repair, never insert
+ *
+ * Only a page that already has the tag gets one. A page with no `og:url` lets
+ * the scraper key the card to the pasted URL, which is the working apex URL
+ * already — strictly better than what the 52 had, and free. Injecting the tag
+ * everywhere would spend mirror bytes (`MIRROR_BYTE_CEILING` is the binding
+ * constraint) to buy nothing.
+ *
+ * The matcher is `build.mjs`'s whole-tag form rather than `[^>]*`: a
+ * hand-written `og:description` may contain a bare `>` ("net > 0"), and a
+ * matcher that stops at it would mangle the tag it lands on.
  */
 export function injectMirrorTags(html, { slug, file }) {
   const tags =
@@ -1182,7 +1244,12 @@ export function injectMirrorTags(html, { slug, file }) {
     NAV_STYLE;
   const stripped = html
     .replace(STRIPPED_LINK, '')
-    .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '');
+    .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '')
+    .replace(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, (tag) =>
+      /\bproperty=["']og:url["']/i.test(tag)
+        ? `<meta property="og:url" content="${apexUrl(slug, file)}">`
+        : tag,
+    );
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
     const at = stripped.indexOf(charset[0]) + charset[0].length;
