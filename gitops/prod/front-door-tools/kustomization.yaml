@@ -35,8 +35,8 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 147 files, 537338 bytes
 #   portfolio-front-tools-1: 125 files, 556474 bytes
-#   portfolio-front-tools-2: 161 files, 556712 bytes
-#   portfolio-front-tools-3: 129 files, 548229 bytes
+#   portfolio-front-tools-2: 161 files, 552408 bytes
+#   portfolio-front-tools-3: 130 files, 555011 bytes
 #   portfolio-front-tools-4: 127 files, 556608 bytes
 #   portfolio-front-tools-5: 127 files, 555060 bytes
 #   portfolio-front-tools-6: 112 files, 551021 bytes
@@ -457,6 +457,7 @@ configMapGenerator:
       - commercial-photo-license-calculator__app.mjs.gz=commercial-photo-license-calculator__app.mjs.gz
       - commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html.gz=commercial-photo-license-calculator__how-much-more-does-a-national-or-worldwide-license-cost.html.gz
       - commercial-photo-license-calculator__index.html.gz=commercial-photo-license-calculator__index.html.gz
+      - commercial-photo-license-calculator__share.mjs.gz=commercial-photo-license-calculator__share.mjs.gz
       - commercial-photo-license-calculator__style.css.gz=commercial-photo-license-calculator__style.css.gz
       - commercial-photo-license-calculator__vs-fotoquote.html.gz=commercial-photo-license-calculator__vs-fotoquote.html.gz
       - notary-trip-quote__LICENSE.gz=notary-trip-quote__LICENSE.gz
@@ -509,12 +510,12 @@ configMapGenerator:
       - lawn-care-bid-calculator__how-to-price-lawn-mowing.html.gz=lawn-care-bid-calculator__how-to-price-lawn-mowing.html.gz
       - lawn-care-bid-calculator__index.html.gz=lawn-care-bid-calculator__index.html.gz
       - lawn-care-bid-calculator__proposal-terms.mjs.gz=lawn-care-bid-calculator__proposal-terms.mjs.gz
-      - lawn-care-bid-calculator__proposal.mjs.gz=lawn-care-bid-calculator__proposal.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - lawn-care-bid-calculator__proposal.mjs.gz=lawn-care-bid-calculator__proposal.mjs.gz
       - lawn-care-bid-calculator__share.mjs.gz=lawn-care-bid-calculator__share.mjs.gz
       - lawn-care-bid-calculator__usage.mjs.gz=lawn-care-bid-calculator__usage.mjs.gz
       - lawn-care-bid-calculator__vs-lmn.html.gz=lawn-care-bid-calculator__vs-lmn.html.gz
