@@ -177,18 +177,14 @@ jobs:
           # format first and normalize escaped newlines, so a bad rotation
           # of HETZNERSSHKEY says exactly what is wrong instead of just
           # "invalid format".
-          python3 -c '
-          from pathlib import Path
-          p = Path.home() / ".ssh/id_hetzner"
-          raw = p.read_bytes()
-          # printf always appends one trailing real newline, so a secret
-          # pasted as a single JSON-escaped line still shows one \n byte
-          # here. More than that means it already has real line breaks
-          # and escaping it further would corrupt a valid key.
-          if b"\\n" in raw and raw.count(b"\n") <= 1:
-              p.write_bytes(raw.replace(b"\\r\\n", b"\n").replace(b"\\n", b"\n"))
-              print("normalized literal \\n escapes in the secret")
-          '
+          # printf above always appends one trailing real newline, so a
+          # secret pasted as a single JSON-escaped line still shows one
+          # newline here. More than that means it already has real line
+          # breaks and escaping it further would corrupt a valid key.
+          if grep -qF '\n' "${HOME}/.ssh/id_hetzner" && [ "$(grep -c '' "${HOME}/.ssh/id_hetzner")" -le 1 ]; then
+            sed -i 's/\\r\\n/\n/g; s/\\n/\n/g' "${HOME}/.ssh/id_hetzner"
+            echo "normalized literal \n escapes in the secret"
+          fi
           if grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "${HOME}/.ssh/id_hetzner"; then
             echo "HETZNERSSHKEY holds a public key, not a private key." >&2
             echo "A public key cannot open an SSH session — store the matching private key instead." >&2
