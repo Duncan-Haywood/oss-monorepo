@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 122 files, 555950 bytes
 #   portfolio-front-tools-4: 136 files, 549972 bytes
 #   portfolio-front-tools-5: 116 files, 547782 bytes
-#   portfolio-front-tools-6: 116 files, 545981 bytes
+#   portfolio-front-tools-6: 117 files, 550090 bytes
 #   portfolio-front-tools-7: 128 files, 550635 bytes
 #   portfolio-front-tools-8: 106 files, 553922 bytes
 #   portfolio-front-tools-9: 109 files, 529437 bytes
@@ -960,6 +960,7 @@ configMapGenerator:
       - irrigation-winterization-bid-calculator__proposal.mjs.gz=irrigation-winterization-bid-calculator__proposal.mjs.gz
       - irrigation-winterization-bid-calculator__share.mjs.gz=irrigation-winterization-bid-calculator__share.mjs.gz
       - irrigation-winterization-bid-calculator__usage.mjs.gz=irrigation-winterization-bid-calculator__usage.mjs.gz
+      - irrigation-winterization-bid-calculator__vs-jobber.html.gz=irrigation-winterization-bid-calculator__vs-jobber.html.gz
       - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
       - janitorial-bid-calculator__LICENSE.gz=janitorial-bid-calculator__LICENSE.gz
       - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
