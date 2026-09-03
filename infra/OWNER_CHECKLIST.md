@@ -274,8 +274,16 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 162 of the 169 tools directly. Step 1
-below is what publishes the remaining 7 tools, plus the canonical hostname.
+"You decide" below), and it mirrors 168 of the 169 tools directly. Step 1
+below is what publishes the remaining 1 tool, plus the canonical hostname.
+
+**Changed 2026-09-03:** that read "162 ... the remaining 7" until the mirror
+learned the same entry-point rule `platform/pages/build.mjs` already used
+(`index.html`, then `site/index.html`). Five ventures keeping a flat static
+site in `site/` were being reported as apps with a build step, and a sixth
+dropped as collateral for linking to one of them. Step 1 is still worth
+doing — it is what makes `tools.marisstella.dev` itself resolve — but it is
+now worth one tool and the canonical hostname, not seven tools.
 
 **Corrected 2026-09-02.** This paragraph used to end "every category card on
 it links into `tools.marisstella.dev`, which still serves nothing until the
@@ -403,7 +411,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 162 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 168 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
