@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 112 files, 551021 bytes
 #   portfolio-front-tools-7: 120 files, 556392 bytes
 #   portfolio-front-tools-8: 120 files, 551065 bytes
-#   portfolio-front-tools-9: 105 files, 554993 bytes
+#   portfolio-front-tools-9: 106 files, 556250 bytes
 #   portfolio-front-tools-10: 71 files, 366698 bytes
 #   portfolio-front-tools-11: 58 files, 266851 bytes
 #
@@ -1336,6 +1336,7 @@ configMapGenerator:
       - snow-removal-bid-calculator__how-much-to-charge.html.gz=snow-removal-bid-calculator__how-much-to-charge.html.gz
       - snow-removal-bid-calculator__index.html.gz=snow-removal-bid-calculator__index.html.gz
       - snow-removal-bid-calculator__proposal.mjs.gz=snow-removal-bid-calculator__proposal.mjs.gz
+      - snow-removal-bid-calculator__share.mjs.gz=snow-removal-bid-calculator__share.mjs.gz
       - snow-removal-bid-calculator__usage.mjs.gz=snow-removal-bid-calculator__usage.mjs.gz
       - snow-removal-bid-calculator__vs-aspire.html.gz=snow-removal-bid-calculator__vs-aspire.html.gz
       - sod-install-bid-calculator__LICENSE.gz=sod-install-bid-calculator__LICENSE.gz
