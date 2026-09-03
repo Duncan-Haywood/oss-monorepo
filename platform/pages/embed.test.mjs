@@ -2,11 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  EMBED_HOST_FILE,
+  EMBED_MESSAGE_SOURCE,
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
+  MAX_EMBED_HEIGHT,
+  MIN_EMBED_HEIGHT,
   embedSnippet,
   injectEmbedWidget,
+  renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
@@ -51,6 +56,35 @@ test('embedSnippet appends the query param correctly when the URL already has on
   const snippet = embedSnippet('https://tools.marisstella.dev/x/?utm=1', TITLE);
   assert.ok(snippet.includes(`&${EMBED_QUERY_PARAM}=1"`));
   assert.ok(!snippet.includes(`??${EMBED_QUERY_PARAM}`));
+});
+
+test('embedSnippet offers the resizer from the same origin as the frame', () => {
+  // Hard-coding either hostname here would break the other: the mirrored entry
+  // pages carry an apex canonical, `build.mjs` carries the tools host's. The
+  // snippet has to name whichever origin is actually serving the frame it
+  // sits next to, or the resizer is a 404 on every page that pastes it.
+  for (const canonical of [
+    'https://marisstella.dev/tools/roofing-bid-calculator/',
+    'https://tools.marisstella.dev/roofing-bid-calculator/',
+  ]) {
+    const snippet = embedSnippet(canonical, TITLE);
+    const { origin } = new URL(canonical);
+    assert.ok(
+      snippet.includes(`<script src="${origin}/${EMBED_HOST_FILE}" async></script>`),
+      `${canonical} produced a resizer tag pointing somewhere else`,
+    );
+  }
+});
+
+test('the iframe alone is still a complete embed without the resizer line', () => {
+  // A CMS or forum that strips `<script>` from pasted HTML — many do — must
+  // degrade to the embed this feature shipped with, not to a broken one. So
+  // the fallback height stays on the iframe itself rather than moving into
+  // the script.
+  const [iframe, script] = embedSnippet(CANONICAL, TITLE).split('\n');
+  assert.ok(iframe.startsWith('<iframe '));
+  assert.ok(iframe.includes('min-height:'), 'the iframe must carry its own fallback height');
+  assert.ok(script.startsWith('<script '), 'the resizer must be a separate, droppable line');
 });
 
 // ---------------------------------------------------------------------------
@@ -262,4 +296,160 @@ test('every control this widget injects is inside .pf-chrome, so the sweep does 
     `${controls.length - inRoot.length} injected control(s) sit outside .pf-chrome, `
     + 'where sweep.mjs would count them as the venture\'s own',
   );
+});
+
+// ---------------------------------------------------------------------------
+// The resizer, which runs on somebody else's page
+// ---------------------------------------------------------------------------
+
+/**
+ * Run the shipped resizer against a fake host page and return a `post`
+ * function that delivers one `message` event to it.
+ *
+ * This executes the real generated source rather than asserting on substrings
+ * of it, because every interesting property of this file is a decision it
+ * makes at runtime about a message it should refuse. A string match cannot
+ * tell a working origin check from a commented-out one.
+ */
+function hostPage(frames, { href = 'https://someone-elses-blog.example/post' } = {}) {
+  let listener = null;
+  const window = {
+    addEventListener: (type, fn) => { if (type === 'message') listener = fn; },
+  };
+  const document = { getElementsByTagName: (tag) => (tag === 'iframe' ? frames : []) };
+  new Function('window', 'document', 'location', 'URL', renderEmbedHostModule())(
+    window, document, { href }, URL,
+  );
+  assert.ok(listener, 'the resizer registered no message listener at all');
+  return (event) => listener(event);
+}
+
+/** A stand-in for one `<iframe>` on that page. */
+const frameAt = (src) => ({
+  src,
+  contentWindow: { name: src },
+  style: { height: '', minHeight: `${1400}px` },
+  getAttribute(name) { return name === 'src' ? this.src : null; },
+});
+
+const heightMessage = (frame, height, origin) => ({
+  origin: origin ?? new URL(frame.src).origin,
+  source: frame.contentWindow,
+  data: { source: EMBED_MESSAGE_SOURCE, slug: 'roofing-bid-calculator', height },
+});
+
+test('the resizer sizes the frame that reported, and drops its fallback floor', () => {
+  const frame = frameAt('https://marisstella.dev/tools/roofing-bid-calculator/?pfEmbed=1');
+  const post = hostPage([frame]);
+  post(heightMessage(frame, 2310));
+  assert.equal(frame.style.height, '2310px');
+  assert.equal(
+    frame.style.minHeight,
+    '0',
+    'the snippet’s fallback height would otherwise be a floor the frame cannot shrink below',
+  );
+});
+
+test('the resizer ignores a report whose origin is not the frame’s own', () => {
+  // The attack this exists to stop: `message` is a shared event, so any frame
+  // on the host page — an ad, another widget, anything — can post to it. A
+  // report is only honoured when the browser says it came from the very frame
+  // it would resize.
+  const frame = frameAt('https://marisstella.dev/tools/roofing-bid-calculator/?pfEmbed=1');
+  const post = hostPage([frame]);
+  post(heightMessage(frame, 2310, 'https://evil.example'));
+  assert.equal(frame.style.height, '', 'a cross-origin report resized the frame');
+});
+
+test('the resizer ignores a report from a window that is not on the page', () => {
+  const frame = frameAt('https://marisstella.dev/tools/roofing-bid-calculator/?pfEmbed=1');
+  const post = hostPage([frame]);
+  post({
+    origin: 'https://marisstella.dev',
+    source: { name: 'some other window' },
+    data: { source: EMBED_MESSAGE_SOURCE, height: 2310 },
+  });
+  assert.equal(frame.style.height, '');
+});
+
+test('the resizer touches only the frame that reported, never its neighbours', () => {
+  const mine = frameAt('https://marisstella.dev/tools/roofing-bid-calculator/?pfEmbed=1');
+  const other = frameAt('https://marisstella.dev/tools/fence-bid-calculator/?pfEmbed=1');
+  const post = hostPage([other, mine]);
+  post(heightMessage(mine, 1990));
+  assert.equal(mine.style.height, '1990px');
+  assert.equal(other.style.height, '', 'a sibling embed was resized by another frame’s report');
+});
+
+test('the resizer ignores messages that are not height reports', () => {
+  const frame = frameAt('https://marisstella.dev/tools/roofing-bid-calculator/?pfEmbed=1');
+  const post = hostPage([frame]);
+  const origin = 'https://marisstella.dev';
+  const source = frame.contentWindow;
+  for (const data of [
+    null,
+    undefined,
+    'pf-embed',
+    { height: 900 },                                   // no discriminator
+    { source: 'someone-else', height: 900 },
+    { source: EMBED_MESSAGE_SOURCE },                  // no height
+    { source: EMBED_MESSAGE_SOURCE, height: '900' },   // a string, not a number
+    { source: EMBED_MESSAGE_SOURCE, height: NaN },
+    { source: EMBED_MESSAGE_SOURCE, height: Infinity },
+    { source: EMBED_MESSAGE_SOURCE, height: MIN_EMBED_HEIGHT - 1 },
+    { source: EMBED_MESSAGE_SOURCE, height: MAX_EMBED_HEIGHT + 1 },
+  ]) {
+    post({ origin, source, data });
+    assert.equal(
+      frame.style.height,
+      '',
+      `a message with data ${JSON.stringify(data)} resized the frame`,
+    );
+  }
+});
+
+test('the resizer reads nothing from the host page and sends nothing anywhere', () => {
+  // The offer box tells an embedder this adds "no tracking of any kind to your
+  // page". This file is the only one in the portfolio that could break that
+  // promise, because it is the only one that runs where they can't see it.
+  const source = renderEmbedHostModule();
+  for (const forbidden of [
+    'document.cookie', 'localStorage', 'sessionStorage', 'indexedDB',
+    'fetch(', 'XMLHttpRequest', 'navigator.sendBeacon', 'new Image',
+    'document.referrer', 'navigator.userAgent', 'postMessage',
+  ]) {
+    assert.equal(
+      source.includes(forbidden),
+      false,
+      `the resizer references ${forbidden}; it may only read a height and set one`,
+    );
+  }
+  assert.equal(/https?:\/\//.test(source), false, 'the resizer names another origin');
+});
+
+test('the shipped resizer is syntactically valid JavaScript', () => {
+  assert.doesNotThrow(() => new Function(renderEmbedHostModule()));
+});
+
+test('the embedded page reports its height so the host has something to act on', () => {
+  // The other half of the same feature: without this the resizer above never
+  // fires and every embed stays at the fallback height.
+  const script = renderEmbedModule();
+  assert.ok(script.includes('postMessage'), 'the framed page reports no height');
+  assert.ok(script.includes(`source: '${EMBED_MESSAGE_SOURCE}'`));
+  assert.ok(script.includes('scrollHeight'));
+  assert.ok(
+    script.includes('ResizeObserver'),
+    'a height measured once at load goes stale the moment someone uses the calculator',
+  );
+});
+
+test('a canonical the resizer URL cannot be derived from yields the iframe alone', () => {
+  // Never a broken second line. `injectEmbedWidget` already refuses a page
+  // with no canonical at all, so this is the narrower case of one that is
+  // present but not an absolute URL.
+  const snippet = embedSnippet('/roofing-bid-calculator/', TITLE);
+  assert.ok(snippet.startsWith('<iframe '));
+  assert.equal(snippet.includes('<script'), false);
+  assert.equal(snippet.includes('\n'), false, 'a one-line snippet is expected here');
 });

@@ -33,17 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 147 files, 530201 bytes
-#   portfolio-front-tools-1: 125 files, 555539 bytes
-#   portfolio-front-tools-2: 163 files, 552990 bytes
-#   portfolio-front-tools-3: 125 files, 552941 bytes
-#   portfolio-front-tools-4: 135 files, 554936 bytes
-#   portfolio-front-tools-5: 122 files, 556646 bytes
-#   portfolio-front-tools-6: 108 files, 553909 bytes
-#   portfolio-front-tools-7: 122 files, 548295 bytes
-#   portfolio-front-tools-8: 115 files, 556856 bytes
-#   portfolio-front-tools-9: 110 files, 546794 bytes
-#   portfolio-front-tools-10: 112 files, 555279 bytes
+#   portfolio-front-tools-0: 147 files, 532424 bytes
+#   portfolio-front-tools-1: 125 files, 556474 bytes
+#   portfolio-front-tools-2: 163 files, 555310 bytes
+#   portfolio-front-tools-3: 125 files, 554410 bytes
+#   portfolio-front-tools-4: 135 files, 556504 bytes
+#   portfolio-front-tools-5: 121 files, 554151 bytes
+#   portfolio-front-tools-6: 108 files, 555815 bytes
+#   portfolio-front-tools-7: 123 files, 553538 bytes
+#   portfolio-front-tools-8: 114 files, 545385 bytes
+#   portfolio-front-tools-9: 109 files, 552335 bytes
+#   portfolio-front-tools-10: 56 files, 298840 bytes
+#   portfolio-front-tools-11: 58 files, 266851 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -907,12 +908,12 @@ configMapGenerator:
       - gutter-cleaning-bid-calculator__proposal.mjs.gz=gutter-cleaning-bid-calculator__proposal.mjs.gz
       - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
       - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
-      - gutter-cleaning-bid-calculator__vs-jobber.html.gz=gutter-cleaning-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gutter-cleaning-bid-calculator__vs-jobber.html.gz=gutter-cleaning-bid-calculator__vs-jobber.html.gz
       - gutter-guard-bid-calculator__LICENSE.gz=gutter-guard-bid-calculator__LICENSE.gz
       - gutter-guard-bid-calculator__calc.mjs.gz=gutter-guard-bid-calculator__calc.mjs.gz
       - gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz=gutter-guard-bid-calculator__how-much-to-charge-to-install-gutter-guards.html.gz
@@ -1020,12 +1021,12 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__index.html.gz=kitchen-tile-backsplash-bid-calculator__index.html.gz
       - kitchen-tile-backsplash-bid-calculator__proposal.mjs.gz=kitchen-tile-backsplash-bid-calculator__proposal.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__share.mjs.gz=kitchen-tile-backsplash-bid-calculator__share.mjs.gz
-      - kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz
       - kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
       - landscape-lighting-bid-calculator__LICENSE.gz=landscape-lighting-bid-calculator__LICENSE.gz
@@ -1267,12 +1268,12 @@ configMapGenerator:
       - shopify-fee-calculator__LICENSE.gz=shopify-fee-calculator__LICENSE.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
-      - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
       - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
       - shopify-fee-calculator__share.mjs.gz=shopify-fee-calculator__share.mjs.gz
       - shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz=shopify-fee-calculator__shopify-pos-vs-online-fees.html.gz
@@ -1381,13 +1382,13 @@ configMapGenerator:
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
       - sunroom-bid-calculator__LICENSE.gz=sunroom-bid-calculator__LICENSE.gz
-      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
-      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
+      - sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz=sunroom-bid-calculator__how-much-to-charge-to-build-a-sunroom.html.gz
       - sunroom-bid-calculator__index.html.gz=sunroom-bid-calculator__index.html.gz
       - sunroom-bid-calculator__proposal.mjs.gz=sunroom-bid-calculator__proposal.mjs.gz
       - sunroom-bid-calculator__share.mjs.gz=sunroom-bid-calculator__share.mjs.gz
@@ -1442,6 +1443,11 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
       - walk-in-tub-bid-calculator__proposal.mjs.gz=walk-in-tub-bid-calculator__proposal.mjs.gz
+  - name: portfolio-front-tools-11
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
+    files:
       - walk-in-tub-bid-calculator__share.mjs.gz=walk-in-tub-bid-calculator__share.mjs.gz
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
       - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
