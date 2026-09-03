@@ -6,6 +6,30 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: cra-evidence-desk
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          sbom_matched: 0
+          record_exported: 0
+        note: >-
+          First public route. The SBOM/advisory matcher existed only as a
+          Python CLI, so nobody could reach it without cloning the repo -- one
+          of the 13 ventures still without a public URL after #3076. It also
+          only accepted a bespoke component-list shape that no tool emits, so
+          even a reader who installed it had to hand-convert their SBOM first.
+          This run added CycloneDX/SPDX/OSV support to the canonical Python
+          core and ported the rules to dependency-free ESM at `site/`, which
+          the canonical build and the front-door mirror both pick up, so it now
+          serves from the apex at `/tools/cra-evidence-desk/`. Counts are zero
+          because the page is new, not because nothing was measured:
+          `sbom_matched` is the activation event (running a match is what the
+          tool is for; a page view is not), and the apex nginx log feeds the
+          nightly `portfolio-site-usage` job for the server-side half. Local
+          counting deliberately records only that a match ran, never which
+          components or advisories were in it.
   - slug: print-atelier
     surface: static-page-in-repo
     readings:
