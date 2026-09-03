@@ -226,6 +226,46 @@ test('loaded miles to cover the week never goes negative when accessorials alone
   assert.equal(result.loadedMilesToBreakEven, 0);
 });
 
+test('rate for target take-home never goes negative when accessorials alone clear the target', () => {
+  // Same 100-hour detention week as the loadedMilesToBreakEven case above,
+  // now with a target take-home on top. accessorialNet clears weeklyCost by
+  // itself, so (weeklyCost - accessorialNet + targetWeeklyTakeHome) goes
+  // negative — dividing that straight through used to tell a driver who
+  // already beat their target that they needed to charge a *negative*
+  // $/mile, which reads as "we owe the broker" rather than "you already
+  // cleared this."
+  const result = calculateWeek({
+    ...week(),
+    detentionHours: 100,
+    detentionPayPerHour: 50,
+    targetWeeklyTakeHome: 800,
+    offeredLoadedRate: '',
+  });
+  assert.ok(result.accessorialNet > result.weeklyCost + 800);
+  assert.equal(result.rateForTarget, 0);
+
+  // At the floor, an offer of $0/mile should already meet (or beat) the
+  // target once accessorials are counted.
+  const atFloor = calculateWeek({
+    ...week(),
+    detentionHours: 100,
+    detentionPayPerHour: 50,
+    targetWeeklyTakeHome: 800,
+    offeredLoadedRate: 0,
+  });
+  assert.ok(atFloor.offered.weeklyProfit >= 800);
+});
+
+test('rate for target take-home still solves the normal case unclamped', () => {
+  // Sanity check the fix did not disturb the ordinary (positive numerator)
+  // path already covered above — same inputs, restated with a large
+  // negative-numerator guard nearby to make sure Math.max(0, ...) is a
+  // no-op here.
+  const result = calculateWeek({ ...week(), targetWeeklyTakeHome: 800, offeredLoadedRate: '' });
+  assert.ok(result.rateForTarget > 0);
+  close(result.rateForTarget, (result.weeklyCost + 800) / 1800 / 0.97);
+});
+
 test('detention hours to cover are null when the miles-only week already keeps money', () => {
   const compared = compareAccessorials({
     ...week(),
