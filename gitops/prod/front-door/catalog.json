@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 172,
-  "collection_total": 172,
+  "served_here": 173,
+  "collection_total": 173,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 4
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -1425,6 +1425,14 @@
       "category": "Marketplace seller tools",
       "description": "Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, your own store, and a local sale.",
       "pages": 4
+    },
+    {
+      "slug": "which-job-first",
+      "name": "Which Job First? Free Pairwise Job Priority Ranker for Contractors",
+      "url": "https://marisstella.dev/tools/which-job-first/",
+      "category": "More free tools",
+      "description": "Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.",
+      "pages": 1
     },
     {
       "slug": "window-cleaning-bid-calculator",
