@@ -165,6 +165,34 @@ test('when booth keeps less of each ticket than commission, volume cannot close 
   assert.equal(result.dollarWinner, 'commission');
 });
 
+test('a $0 average ticket cannot be closed by volume, even with a positive keepAdvantage', () => {
+  // Retail alone keeps booth ahead here, so extra clients (worth $0 each on
+  // the ticket) genuinely cannot be the reason — and previously this input
+  // fell between the two branches of the break-even check and reported
+  // neither a break-even count nor boothNeverBeatsOnVolume.
+  const losing = compareCompensation({
+    ...midBook(),
+    averageTicket: 0,
+    retailPerWeek: 10,
+  });
+  assert.equal(losing.breakEvenClients, null);
+  assert.equal(losing.extraClientsNeeded, null);
+  assert.equal(losing.boothNeverBeatsOnVolume, true);
+  assert.equal(losing.dollarWinner, 'commission');
+
+  // Same $0 ticket, but retail alone already puts booth ahead — no volume
+  // message is needed because there is nothing left to close.
+  const winning = compareCompensation({
+    ...midBook(),
+    averageTicket: 0,
+    clientsPerWeek: 0,
+    retailPerWeek: 10000,
+  });
+  assert.equal(winning.breakEvenClients, null);
+  assert.equal(winning.boothNeverBeatsOnVolume, false);
+  assert.equal(winning.dollarWinner, 'booth');
+});
+
 test('inputs that would silently produce a nonsense comparison are rejected', () => {
   assert.throws(() => compareCompensation({ ...midBook(), averageTicket: 'abc' }), /Average ticket must be a number/);
   assert.throws(() => compareCompensation({ ...midBook(), clientsPerWeek: -1 }), /Clients per week must be at least 0/);
