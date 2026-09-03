@@ -7240,3 +7240,45 @@ entries:
         rather than an actual page load.
       - Public URL remains owner-gated; usage.yaml carries a dated reading.
     mrr_end: null
+  - venture: commercial-photo-license-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a shareable quote link (`share.mjs` + a "Copy share link"
+        button), following the encode/decode-with-a-fixed-allowlist
+        pattern already used by `vendor-rate-break-even`,
+        `cash-runway-planner`, and `retainage-cashflow-calculator`. The
+        only way to hand a scoped quote to someone else was "Copy draft",
+        which copies finished prose with no way back to the editable
+        form; the new link encodes currency, creative fee, image count,
+        term, territory, exclusivity, rush, client/photographer names,
+        and selected channels into the page's own URL fragment -- never
+        sent to a server, never in the query string. Opening a shared
+        link now takes priority over a locally saved draft, matching the
+        convention used elsewhere. This was one of only two ventures in
+        the repo with zero test files in its own directory (the other,
+        `no-show-fee-calculator`, is not in the front-door mirror); this
+        one's tests live in `test/`, which an earlier scan missed.
+      - >-
+        This venture is one of the 169 the apex front-door mirror already
+        serves in full (`platform/marketing/front-door-tools.mjs`'s
+        `STARTER_SET`), so the feature is live today at
+        https://marisstella.dev/tools/commercial-photo-license-calculator/
+        with no further owner action -- the mirror was regenerated
+        (`--write`) and committed in the same change. The prior usage.yaml
+        reading's "public distribution remains owner-gated" note was
+        stale against that; corrected in the new reading rather than
+        rewritten in place.
+      - >-
+        Verified with `node --test` in the venture (27/27, 12 new tests)
+        and `node --test "platform/marketing/*.test.mjs"` (173/173,
+        front-door mirror consistency, no shard reshuffling since no page
+        was added or removed). Also ran the full site build and check
+        (`platform/pages/build.mjs` + `check.mjs`, 169 tools / 618 pages,
+        no dead links) and that suite's own tests (`build.test.mjs` +
+        `check.test.mjs`, 320/320) and the gitops manifest/serving tests
+        (81 passed, 12 skipped -- k8s-only). Opened as a PR and merged
+        once its checks went green, under this repo's no-review-ceremony
+        rule for `ventures/*` product PRs.
+    mrr_end: null
