@@ -7532,3 +7532,41 @@ entries:
         sound, under this repo's no-review-ceremony rule for
         `ventures/*` product PRs.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a genuine crash in the sheet-goods (2D) packer's core logic,
+        following this fleet's `product-feature-improvement` queue item.
+        `optimizeSheets()`'s pre-check for "does this panel fit anywhere"
+        tests each panel against every on-hand offcut's *original* size,
+        not against what is still free on it once earlier placements have
+        consumed part of it. When a panel's only fit is a large on-hand
+        offcut whose free space is already spoken for by an earlier
+        placement, the "open a fresh purchased sheet" fallback assumed a
+        fresh sheet would always fit and read `.width` off an `undefined`
+        orientation option, throwing `TypeError: Cannot read properties
+        of undefined (reading 'width')` instead of returning a plan.
+        Reproduced directly: a 48x96 sheet (1" trim) with a 100x100
+        on-hand offcut and two panels (90x90 and 95x95, each too big for
+        a fresh sheet but not for the offcut) crashed every time before
+        the fix.
+      - >-
+        The fix checks whether a fresh purchased sheet can actually hold
+        the piece before opening one; when it cannot, the piece now lands
+        in the existing `oversize` report (already how the tool handles
+        "does not fit anywhere new") instead of throwing. No UI, schema,
+        or disclaimer change -- `oversize` already had this exact shape
+        and every consumer (`index.html`, `formatSheetPlan`,
+        `compareSheetSizes`) already handled it.
+      - >-
+        Verified with `node --test *.test.mjs` in the venture (112/112,
+        including one new regression test reproducing the crash
+        scenario above and asserting the plan comes back cuttable
+        instead), and confirmed no other venture imports
+        `optimizeSheets` (`grep -r optimizeSheets` outside this venture's
+        own files and this ledger). Opened as a PR and merged once green,
+        under this repo's no-review-ceremony rule for `ventures/*`
+        product PRs.
+    mrr_end: null
