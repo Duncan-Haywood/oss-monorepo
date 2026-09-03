@@ -23,9 +23,11 @@ on:
     workflows: [Agent cross-review]
     types: [completed]
 
+# File-level floor is read-only; the one job that needs to write declares
+# that itself below, rather than the grant being an accident of which file
+# the job lives in.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   auto-merge:
@@ -33,6 +35,9 @@ jobs:
       github.event_name != 'pull_request_review' ||
       github.event.review.state == 'APPROVED'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
