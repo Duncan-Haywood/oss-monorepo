@@ -7623,6 +7623,114 @@ entries:
       - >-
         Three-PR quota: only one open PR existed at session start (#3052,
         "gutter-cleaning-bid-calculator: add a shareable quote link").
+        Reviewed the complete diff (share.mjs allowlist encode/decode, 6
+        new tests, FAQ/JSON-LD correction, regenerated front-door mirror,
+        ledger entry) -- all four cross-agent reviewer checks
+        (review-claude/gh/cursor/kilo) had already passed and every other
+        check was green; waited out the two still-running checks (build,
+        validate) rather than merging early, confirmed both went green,
+        then merged. That emptied the open-PR queue. Per the "fewer than
+        three exist, process all of them" rule, the quota phase is
+        complete with zero PRs remaining.
+      - >-
+        Sampled the branch-to-PR backlog for real (non-auto-generated-name)
+        work relevant to this session's explicit brief -- deploy/CI/CD and
+        marketing distribution on Hetzner -- rather than trusting the prior
+        session's own triage claim at face value: `ci/hetzner-ssh-key-
+        diagnostic`, `agent/marketing-distribution-gutter-guard-vs-
+        jobnimbus`, `gitops-governor-rbac-narrow-jobs-pods-verbs` /
+        `fix/governor-rbac-narrow-jobs-pods-verbs` (a duplicate pair),
+        `gitops/regen-front-door-mirror`, and `agent/deploy-cicd-ledger-
+        2868`. All six were confirmed already merged or fully superseded
+        by content already on `main` (the SSH diagnostic as #2958, the
+        vs-JobNimbus page as #2907, the RBAC narrowing already in
+        `gitops/agents/governor/rbac.yaml` with its own test on `main`,
+        and the mirror regen already current -- `front-door-tools.test.mjs`
+        passes clean without it; the ledger branch was stale prose from an
+        earlier session's own quota phase). No PRs opened for these --
+        opening one would have been a guaranteed-closed duplicate.
+      - >-
+        Verified this session's explicit brief item by item against actual
+        repo state rather than re-asking it: (1) deploy/CI/CD readiness --
+        `pytest gitops/tests -q`: 271 passed / 12 skipped, matching the
+        `deploy-cicd-readiness` queue item's own 2026-09-02 sweep exactly,
+        so no new gap since; that queue item's own text says not to re-run
+        its exhaustive sweep on a routine tick absent evidence something
+        changed, and nothing had. (2) Marketing materials on Hetzner -- the
+        `marketing-distribution` queue item (priority 6, directly below
+        deploy-cicd-readiness at 7, both reordered 2026-09-01 quoting this
+        session's brief almost verbatim) reports all four of its own
+        candidate categories (embed widget, comparison pages, category
+        hubs, /about/ press kit) as re-verified with no shippable gap as of
+        2026-09-02; its one open thread (comparison pages needing outbound
+        fact-verification this environment cannot do) was correctly left
+        alone. (3) Codex CLI on the Hetzner VM spending its own included
+        subscription quota on unattended dev work under a mandate mirroring
+        this one -- confirmed `gitops/agents/` is a complete, tested
+        pipeline (governor CronJob, RBAC, budget policy, a worker mandate
+        that itself points at this repo's own CLAUDE.md/DIRECTION.md, and a
+        6-item priority queue) reading `policy.json: "enabled": false` and
+        `cronjob.yaml: suspend: true` exactly as designed, gated on
+        decision-queue item `codex-governor-enable` (#1996, 5 days old,
+        still current -- names the exact three owner-only steps: choose a
+        credential mode, seal it into `codex-secrets` per
+        `gitops/agents/secrets/codex-token.template.yaml`, then flip both
+        switches). Did not duplicate this ask; it is already the single
+        precisely-worded row this session's brief maps to.
+      - >-
+        With the deploy/CI/CD and marketing-mechanism lanes both confirmed
+        clean, picked the depth-work sibling of what #3052 shipped:
+        extended the "Copy share link" pattern (now used by 84 ventures)
+        to `deck-staining-bid-calculator`, a single-job bid calculator with
+        24 numeric fields, 3 selects, and 1 checkbox but no share link yet.
+        Added `share.mjs` (a flat allowlist covering every priced field --
+        prep/finish/access choice, deck/rail/stair dimensions, and every
+        rate) and `share.test.mjs` (6 tests), wired a "Copy share link"
+        button next to "Copy bid summary", made a shared link's fields
+        apply ahead of the form's baked-in defaults on load, added the
+        feature to the FAQPage JSON-LD and visible "Is my data uploaded
+        anywhere?" answer (this venture's FAQ never claimed "no share
+        link" the way gutter-cleaning's did, so this is an addition, not a
+        correction), added it to the SoftwareApplication `featureList`,
+        regenerated the front-door mirror, and corrected the venture's
+        `usage.yaml` "public URL remains owner-gated" note the same way
+        done for other ventures this month.
+      - >-
+        Verified with `node --test` in the venture (73/73, 6 new in
+        `share.test.mjs`), `node --test platform/marketing/*.test.mjs`
+        (173/173 -- confirms the regenerated mirror and kustomization
+        exactly match the generator's output, and that the auto-injected
+        generic share-link chrome correctly stepped aside for the
+        venture's own control), `node --test platform/pages/link.test.mjs`
+        (49/49 -- deck-staining is not one of the 8 runtime-built
+        "itemised" calculators that test pins by name, so no count needed
+        updating there; its own control is detected structurally), a full
+        `platform/pages/build.mjs` + `check.mjs` run (169 tools / 620
+        pages, no dead links; "Added a shareable bid link to 151 page(s)"
+        confirms the platform's generic control deferred to this venture's
+        own), `node --test platform/pages/build.test.mjs
+        platform/pages/check.test.mjs` (320/320), `python3 -m pytest
+        gitops/tests/test_manifests.py gitops/tests/
+        test_front_door_serving.py` (81 passed, 12 skipped -- k8s-only),
+        and `python3 portfolio/usage/validate_usage.py` (valid, 181
+        products, 356 readings). Caught and corrected a local-branch
+        staleness bug mid-session: an earlier `git merge --ff-only` had
+        fast-forwarded the checked-out branch but not the local `main`
+        ref, so a `checkout -b ... main` silently branched off 416 commits
+        behind `origin/main` (missing `platform/marketing/` entirely) --
+        found via a failing directory listing rather than a test failure,
+        fixed by stashing the in-progress files and rebuilding the branch
+        from a hard reset to `origin/main` before re-applying them, and
+        re-checked for concurrent overlap on `deck-staining-bid-calculator`
+        before proceeding (none). Opened as a PR and will merge once CI
+        confirms green, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Waited out its in-progress CI (18 checks, all green on real
         runners), confirmed `mergeable_state: clean`, and merged it. Per
         the "fewer than three exist, process all of them" rule the queue
