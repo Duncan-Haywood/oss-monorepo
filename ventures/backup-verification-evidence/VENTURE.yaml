@@ -1,0 +1,27 @@
+name: backup-verification-evidence
+description: A free local CLI and browser page that turns a backup job's real exit code and artifact stat into a source-linked verified/suspicious/failed/inconclusive record, and compares nights so a shrinking-but-green archive is visible.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Freelance sysadmins, MSPs, and small teams running cron-scheduled backups (restic, borg, pg_dump, rsync, tar) will run a free evidence check because "did last night's backup actually work" is a recurring, high-cost-if-wrong question they cannot answer from an exit code alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A portable, dated verification record is valuable enough on its own (peace of mind, client SLA proof, cyber-insurance questionnaires) to support a paid tier once a scheduling/notification layer exists.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified sysadmins/MSPs identify this as a real, recurring problem after ten conversations.
+  - No practitioner values a portable verification record over just watching cron/systemd exit codes directly.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radon Mitigation Bid Calculator — Suction and Membrane</title>
+  <meta name="description" content="Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.">
+  <meta property="og:title" content="Radon Mitigation Bid Calculator">
+  <meta property="og:description" content="A 1,200 sq ft walk-out basement with one suction is not the same job as a slab-and-crawl combo with two pits and a membrane. Bid the suction and the circuit.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Radon Mitigation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Basement versus crawl versus slab versus mixed foundation, extra suction points over the included pit, crawl membrane, roof versus sidewall discharge, high-suction fan, new dedicated circuit, firestops, permit, post-mitigation test, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does entering a 1,200 square foot footprint add nothing to the price?","acceptedAnswer":{"@type":"Answer","text":"Because 1,200 sq ft is the included footprint for a single-point system, and one suction point is also included. Neither adds a charge until you exceed it. A larger slab, or a floor plan that needs a second suction point to draw properly, is where the price starts moving — the square footage on its own does not."}},{"@type":"Question","name":"Is $0.93 per square foot a useful number?","acceptedAnswer":{"@type":"Answer","text":"Only as a comparison against someone else’s per-square-foot quote. It is $1,121.98 divided by 1,200 sq ft, and it is dominated by fixed items: a $185 fan, $145 of pipe, $85 of travel, and five hours of loaded labor. Double the footprint without adding a suction point and the per-foot figure nearly halves while the work is virtually identical. Radon systems price by suction points and discharge routing, not by area."}},{"@type":"Question","name":"What does the default system actually include?","acceptedAnswer":{"@type":"Answer","text":"A basement foundation, one suction point, a standard fan, and sidewall discharge — five hours of work all in, including one hour of site time. Roof discharge, a high-suction fan, a crawlspace membrane, a dedicated electrical circuit, firestopping, and a permit are all off by default. Sidewall discharge in particular is not permitted everywhere; check your local code before quoting it."}},{"@type":"Question","name":"Is a post-mitigation radon test included?","acceptedAnswer":{"@type":"Answer","text":"No — it is an option and it is off on the defaults. That matters because a mitigation job is not finished until a follow-up test shows the level actually came down, and many jurisdictions and real-estate contracts require that document. If your quote is being compared against one that includes the retest, turn it on so you are comparing the same scope."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a28; background: #e7efe8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0f6b4c; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4d4c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #14241a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5a52; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #93a89a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #93a89a; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1e2a28; }
+    button:hover { background: #dce9e0; }
+    .result { position: sticky; top: 15px; background: #16352c; color: #eef8f2; border-color: #16352c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fd6a8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5a52; }
+    footer a { color: #0f6b4c; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5a52; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #16352c; --pr-accent: #0f6b4c;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR LICENSED RADON MITIGATORS</p>
+    <h1>Bid the suction, the membrane, and the circuit.</h1>
+    <p>Price a radon mitigation install the way the trade actually loses money: the included footprint, then the extra suction pit, the crawl membrane, a roof stack, a high-suction fan, a new circuit, firestops, a permit, and a post-mitigation test. You get the bid, the price per square foot of footprint, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing foundation or fan never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting house…</option>
+            </select>
+          </label>
+          <label>Foundation
+            <select id="foundation">
+              <option value="basement" selected>Basement — sub-slab depressurization</option>
+              <option value="crawl">Crawl space — depressurization</option>
+              <option value="slab">Slab-on-grade — tight-slab SSD</option>
+              <option value="mixed">Mixed basement + crawl / walk-out</option>
+            </select>
+          </label>
+          <label>Footprint (sq ft) <input id="footprintSqFt" type="number" min="1" step="50" value="1200"></label>
+          <label>Suction points <input id="suctionPoints" type="number" min="1" step="1" value="1"></label>
+          <label>Fan
+            <select id="fan">
+              <option value="standard" selected>Standard radon fan</option>
+              <option value="high-suction">High-suction / tight-slab fan</option>
+            </select>
+          </label>
+          <label>Discharge
+            <select id="discharge">
+              <option value="sidewall" selected>Sidewall discharge</option>
+              <option value="roof">Roof penetration / above-eave stack</option>
+            </select>
+          </label>
+          <label>Crawl membrane (sq ft) <input id="membraneSqFt" type="number" min="0" step="25" value="0"></label>
+          <label>Firestops through living space <input id="firestopCount" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="crawlMembrane" type="checkbox"> Install crawl-space membrane</label>
+          <label class="check"><input id="newCircuit" type="checkbox"> New dedicated 20A circuit</label>
+          <label class="check"><input id="postTest" type="checkbox"> Post-mitigation test</label>
+          <label class="check"><input id="permit" type="checkbox"> Permit / notification</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Sq ft included in the base system <input id="includedFootprint" type="number" min="1" step="50" value="1200"></label>
+          <label>Suction points included <input id="includedSuctionPoints" type="number" min="1" step="1" value="1"></label>
+          <label>Hours for a base system <input id="hoursBaseSystem" type="number" min="0" step="0.25" value="4"></label>
+          <label>Hours / extra 100 sq ft <input id="hoursPerExtra100SqFt" type="number" min="0" step="0.05" value="0.2"></label>
+          <label>Hours / extra suction point <input id="hoursPerExtraSuction" type="number" min="0" step="0.25" value="2.5"></label>
+          <label>Hours for a crawl membrane <input id="hoursCrawlMembrane" type="number" min="0" step="0.25" value="4"></label>
+          <label>Hours for a roof discharge <input id="hoursRoofDischarge" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours for a high-suction fan <input id="hoursHighSuctionFan" type="number" min="0" step="0.25" value="0"></label>
+          <label>Hours for a new circuit <input id="hoursNewCircuit" type="number" min="0" step="0.25" value="2"></label>
+          <label>Hours for a post-mitigation test <input id="hoursPostTest" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Hours for a permit <input id="hoursPermit" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Hours / firestop <input id="hoursPerFirestop" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="1"></label>
+          <label>Fan kit <input id="fanCost" type="number" min="0" step="5" value="185"></label>
+          <label>Pipe, fittings, and slab seal <input id="pipeAndSealCost" type="number" min="0" step="5" value="145"></label>
+          <label>Extra suction pit kit <input id="extraSuctionMaterial" type="number" min="0" step="5" value="95"></label>
+          <label>Membrane $ / sq ft <input id="membranePerSqFt" type="number" min="0" step="0.05" value="0.45"></label>
+          <label>New circuit materials <input id="circuitCost" type="number" min="0" step="5" value="185"></label>
+          <label>Post-test kit <input id="testKitCost" type="number" min="0" step="5" value="45"></label>
+          <label>Permit / notification fee <input id="permitFee" type="number" min="0" step="5" value="85"></label>
+          <label>Firestop each <input id="firestopCostEach" type="number" min="0" step="5" value="35"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="34"></label>
+          <label>Travel, manometer, PPE <input id="travelAndEquipment" type="number" min="0" step="5" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 1195"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $42/h tech loaded at 34% is $56.28. Quoting the raw wage on a published radon special is how a mixed slab-and-crawl job that looked fine turns into a loss after the first extra suction pit.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">mitigation price</div>
+      <dl>
+        <dt>Footprint and suction</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Fan + kits + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per sq ft of footprint</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and kit rates are common ballpark figures, not an industry standard, a radon design, or a health determination &mdash; replace them with your own takeoff.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Subslab Radon Services LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="Radon mitigation cert. #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Single-point sub-slab depressurisation with sidewall discharge&#10;Seal the sump and slab cracks"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Foundation or drainage repair&#10;Re-testing beyond the first post-mitigation test"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="System monitor fitted; a post-mitigation test follows 24 hours after start-up."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Why does entering a 1,200 square foot footprint add nothing to the price?</h3>
+      <p>Because 1,200 sq ft is the included footprint for a single-point system, and one suction point
+        is also included. Neither adds a charge until you exceed it. A larger slab, or a floor plan that
+        needs a second suction point to draw properly, is where the price starts moving &mdash; the
+        square footage on its own does not.</p>
+
+      <h3>Is $0.93 per square foot a useful number?</h3>
+      <p>Only as a comparison against someone else&rsquo;s per-square-foot quote. It is $1,121.98 divided
+        by 1,200 sq ft, and it is dominated by fixed items: a $185 fan, $145 of pipe, $85 of travel, and
+        five hours of loaded labor. Double the footprint without adding a suction point and the per-foot
+        figure nearly halves while the work is virtually identical. Radon systems price by suction
+        points and discharge routing, not by area.</p>
+
+      <h3>What does the default system actually include?</h3>
+      <p>A basement foundation, one suction point, a standard fan, and sidewall discharge &mdash; five
+        hours of work all in, including one hour of site time. Roof discharge, a high-suction fan, a
+        crawlspace membrane, a dedicated electrical circuit, firestopping, and a permit are all off by
+        default. Sidewall discharge in particular is not permitted everywhere; check your local code
+        before quoting it.</p>
+
+      <h3>Is a post-mitigation radon test included?</h3>
+      <p>No &mdash; it is an option and it is off on the defaults. That matters because a mitigation job
+        is not finished until a follow-up test shows the level actually came down, and many jurisdictions
+        and real-estate contracts require that document. If your quote is being compared against one that
+        includes the retest, turn it on so you are comparing the same scope.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not radon, environmental, construction, health, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footprint, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-for-radon-mitigation.html">How much to charge for radon mitigation</a>.</p>
+    <p class="support">Free and open source. If it wins you a system, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedFoundationHours,
+      suggestedFan,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+
+    const FIELD_IDS = [
+      'footprintSqFt','suctionPoints','membraneSqFt','firestopCount',
+      'includedFootprint','includedSuctionPoints',
+      'hoursBaseSystem','hoursPerExtra100SqFt','hoursPerExtraSuction',
+      'hoursCrawlMembrane','hoursRoofDischarge','hoursHighSuctionFan',
+      'hoursNewCircuit','hoursPostTest','hoursPermit','hoursPerFirestop','siteHours',
+      'fanCost','pipeAndSealCost','extraSuctionMaterial','membranePerSqFt',
+      'circuitCost','testKitCost','permitFee','firestopCostEach',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['crawlMembrane','newCircuit','postTest','permit'];
+    const SELECT_IDS = ['foundation','fan','discharge'];
+    const SUGGESTED_FOUNDATION_IDS = ['hoursBaseSystem'];
+    const SUGGESTED_FAN_IDS = ['fanCost','hoursHighSuctionFan'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyFoundationHours(force) {
+      const rates = suggestedFoundationHours(el('foundation').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyFan(force) {
+      const rates = suggestedFan(el('fan').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('foundation').value = job.foundation;
+      el('fan').value = job.fan;
+      applyFoundationHours(true);
+      applyFan(true);
+      [...SUGGESTED_FOUNDATION_IDS, ...SUGGESTED_FAN_IDS].forEach(id => { el(id).dataset.edited = ''; });
+      el('footprintSqFt').value = job.footprintSqFt;
+      el('suctionPoints').value = job.suctionPoints;
+      el('discharge').value = job.discharge;
+      el('membraneSqFt').value = job.membraneSqFt;
+      el('firestopCount').value = job.firestopCount;
+      el('crawlMembrane').checked = job.crawlMembrane;
+      el('newCircuit').checked = job.newCircuit;
+      el('postTest').checked = job.postTest;
+      el('permit').checked = job.permit;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'mitigation price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'mitigation price';
+      el('scope').textContent = `${result.footprintSqFt.toLocaleString('en-US')} sq ft · ${result.suctionPoints} suction${result.suctionPoints === 1 ? '' : 's'}`;
+      const extraBits = [
+        result.foundation,
+        result.highSuction ? 'high-suction fan' : 'standard fan',
+        result.roofDischarge ? 'roof discharge' : 'sidewall discharge',
+        result.extraSuctionPoints ? `${result.extraSuctionPoints} extra suction${result.extraSuctionPoints === 1 ? '' : 's'}` : null,
+        result.crawlMembrane ? `${result.membraneSqFt} sq ft membrane` : null,
+        result.newCircuit ? 'new circuit' : null,
+        result.postTest ? 'post-test' : null,
+        result.permit ? 'permit' : null,
+        result.firestopCount ? `${result.firestopCount} firestop${result.firestopCount === 1 ? '' : 's'}` : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard basement SSD';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : money(result.pricePerSqFt);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Base system', result.hourShares.system],
+        ['Footprint + extra suction + membrane', result.hourShares.access],
+        ['Roof + fan + circuit + test + permit + firestops', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Fan + kits + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('foundation').addEventListener('change', () => {
+      applyFoundationHours(false);
+      count('bid_calculated');
+      update();
+    });
+    el('fan').addEventListener('change', () => {
+      applyFan(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_FOUNDATION_IDS, ...SUGGESTED_FAN_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('discharge').addEventListener('change', () => {
+      count('bid_calculated');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'radon-mitigation-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Mitigation aims to reduce radon below the action level; the only measure of the result is a post-mitigation test, and no reduction can be guaranteed in advance.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{foundationLabel} — {suctionPoints} suction point{suctionPoints+s} under {footprintSqFt~0} sq ft",
+        "Fit a {fanLabel} with a system monitor",
+        "Discharge: {dischargeLabel}",
+        {
+          "line": "Seal and lay {membraneSqFt~0} sq ft of crawl-space membrane",
+          "when": "crawlMembrane"
+        },
+        {
+          "line": "Run a dedicated circuit for the fan",
+          "when": "newCircuit"
+        },
+        {
+          "line": "Firestop {firestopCount} floor or wall penetration{firestopCount+s}",
+          "when": "firestopCount"
+        },
+        "Seal the sump, floor cracks and slab penetrations",
+        {
+          "line": "Post-mitigation radon test 24 hours after start-up",
+          "when": "postTest"
+        }
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "foundationLabel": el('foundation')?.selectedOptions?.[0]?.textContent?.trim(),
+        "fanLabel": el('fan')?.selectedOptions?.[0]?.textContent?.trim(),
+        "dischargeLabel": el('discharge')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Radon mitigation — {suctionPoints} suction point{suctionPoints+s}'], proposalFields(result))[0] || 'Radon mitigation — suction point',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

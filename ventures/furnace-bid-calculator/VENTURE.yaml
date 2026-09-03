@@ -1,0 +1,32 @@
+name: furnace-bid-calculator
+description: A private browser calculator for HVAC shops that prices a furnace or heat-pump replacement from extra duct past the included run, attic versus basement, a matching coil, a gas upsize, haul-away of the old unit, and a thermostat — and shows the price per extra duct foot, the hours the first attic set actually consumes, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent HVAC shops will use a location-and-coil bid calculator because the generic "$2,495 installed" furnace special they are shopped on cannot see that a 60k 80% AFUE basement swap is a different job from a 100k 96% attic set with a matching coil, a gas upsize, and haul-away.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published per-job special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper furnace-replacement quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating extra duct, attic versus basement, coil, gas, haul-away, and a thermostat as their own hours, instead of a blended add-on to a trip charge, changes the bid enough that shops notice which part of a high number is the first attic condensate run.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified HVAC shops use the calculator twice within 90 days.
+  - Shops report that splitting attic, coil, and gas versus a basement-only special is more work than their existing trip-charge method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

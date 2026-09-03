@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crown Molding Bid Calculator — Price to Install It</title>
+  <meta name="description" content="Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.">
+  <meta property="og:title" content="Crown Molding Bid Calculator">
+  <meta property="og:description" content="Bid a crown run the way the trade does — feet, corners, and extras, not a published special — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Crown Molding Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Linear feet, paint-grade vs stain-grade, simple cove vs colonial vs built-up comparison, foyer and LED extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a competitor advertise “$8 a foot installed”?","acceptedAnswer":{"@type":"Answer","text":"Usually because the special is written around one specific job, and that job is a preset here: 80 linear feet of paint-grade simple cove, 8 inside corners, one flat 8-ft room. It really does price low. What the per-foot number cannot see is grade, profile, ceiling type, ceiling height, corners, and extras like demo, blocking, an LED cove, or matching existing casing. Price your actual room beside the special and the gap becomes a list of line items instead of an argument about who is honest."}},{"@type":"Question","name":"Why does stain-grade cost more than paint-grade for the same linear footage?","acceptedAnswer":{"@type":"Answer","text":"Because caulk can hide a rough miter and paint-grade relies on it. Stain-grade crown has to be coped at every inside corner — cut to fit the exact profile of the adjoining piece — because there is no caulk line to hide a gap once it is stained instead of painted. Coping takes longer per corner than caulking a mitered paint-grade joint, and that time is billed per inside corner, not folded into the linear-foot rate."}},{"@type":"Question","name":"Why does a two-story foyer change the price so much for similar linear footage?","acceptedAnswer":{"@type":"Answer","text":"Because the access, not the crown, is the job. A standard 8-ft ceiling only needs a ladder. A 9–10 ft ceiling needs stilts or a rolling scaffold. A two-story foyer needs scaffolding built and moved around the room, which adds hours that have nothing to do with how many feet of crown are going up once the crew is finally standing at the right height."}},{"@type":"Question","name":"Why are inside and outside corners counted separately from linear feet?","acceptedAnswer":{"@type":"Answer","text":"Because coping or mitering a corner takes a fixed amount of time per corner, independent of how long the runs on either side of it are. A short run with 14 corners can take longer than a long run with two. Cathedral and tray ceilings add their own hours on top — a cathedral ceiling changes the spring angle at every cut, and a tray or coffered ceiling adds extra returns and steps that a flat-ceiling rate does not include."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit, and the optional usage counter records only which features were used and the day, never your room dimensions, wages, or prices."}},{"@type":"Question","name":"What’s the difference between the bid price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The bid price already includes your target margin on top of labor, materials, and overhead. The walk-away price is the total cost underneath it — linear feet, corners, ceiling and height extras, demo, blocking, LED cove, and casing match — the point below which the job stops being profitable at all. Typing a price you are considering shows you the margin or the loss before you send it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2c2620; background: #efe8dc; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a4a22; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d4c8b4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2c26200d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a8b74; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9a8b74; background: #f6efe4; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2c2620; }
+    button:hover { background: #eadfcd; }
+    .result { position: sticky; top: 15px; background: #3a2a1c; color: #f6efe4; border-color: #3a2a1c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #d8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4a06a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #7a4a22; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #ecd8b8; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #d8e6a9; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3a2a1c; --pr-accent: #7a4a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR FINISH CARPENTERS</p>
+    <h1>Bid the run, the corners, and the extras.</h1>
+    <p>Price a crown-molding install the way the trade actually loses money: 80 lf of paint-grade simple cove versus a stain-grade built-up foyer with 14 coped insides and an LED cove — not the published $8-a-foot special. You get the job price, what it works out to per linear foot, and the number below which the run loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The run</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with a millwork invoice and a crew you have timed. Changing grade, profile, ceiling, or height fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Grade <select id="grade"></select></label>
+          <label>Profile <select id="profile"></select></label>
+          <label>Ceiling <select id="ceiling"></select></label>
+          <label>Height <select id="height"></select></label>
+          <label>Linear feet <input id="linearFeet" type="number" min="0" step="1" value="80"></label>
+          <label>Inside corners <input id="insideCorners" type="number" min="0" step="1" value="8"></label>
+          <label>Outside corners <input id="outsideCorners" type="number" min="0" step="1" value="0"></label>
+          <label>Rooms <input id="rooms" type="number" min="0" step="1" value="1"></label>
+          <label>Travel miles <input id="travelMiles" type="number" min="0" step="1" value="8"></label>
+        </div>
+        <div class="checks">
+          <label><input id="includeDemo" type="checkbox"> Demo existing crown</label>
+          <label><input id="includeBlocking" type="checkbox"> Add blocking / nailer</label>
+          <label><input id="includeLedCove" type="checkbox"> LED cove</label>
+          <label><input id="includeCasingMatch" type="checkbox"> Match existing casing</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and material rates</h2>
+        <p class="hint">These start from the grade, profile, ceiling, and height you picked. They are ballpark crew figures, not a millwork catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Hours / mile <input id="hoursPerMile" type="number" min="0" step="0.01"></label>
+          <label>Hours / lf <input id="hoursPerLf" type="number" min="0" step="0.01"></label>
+          <label>Hours / inside corner <input id="hoursPerInside" type="number" min="0" step="0.05"></label>
+          <label>Hours / outside corner <input id="hoursPerOutside" type="number" min="0" step="0.05"></label>
+          <label>Hours / stacked piece <input id="hoursPerPiece" type="number" min="0" step="0.05"></label>
+          <label>Ceiling hours / lf <input id="hoursCeilingPerLf" type="number" min="0" step="0.005"></label>
+          <label>Access hours <input id="hoursAccess" type="number" min="0" step="0.1"></label>
+          <label>Demo hours / lf <input id="hoursDemoPerLf" type="number" min="0" step="0.01"></label>
+          <label>Blocking hours / lf <input id="hoursBlockingPerLf" type="number" min="0" step="0.01"></label>
+          <label>LED hours / lf <input id="hoursLedPerLf" type="number" min="0" step="0.01"></label>
+          <label>Casing-match hours <input id="hoursCasingMatch" type="number" min="0" step="0.1"></label>
+          <label>Hours / room <input id="hoursPerRoom" type="number" min="0" step="0.05"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Grade hour factor <input id="gradeHourFactor" type="number" min="0.1" step="0.05"></label>
+          <label>Molding $ / lf <input id="moldingPerLf" type="number" min="0" step="0.1"></label>
+          <label>Grade material factor <input id="gradeMaterialFactor" type="number" min="0.1" step="0.05"></label>
+          <label>Finish / caulk $ <input id="finishInvoice" type="number" min="0" step="1"></label>
+          <label>Ceiling hardware $ <input id="ceilingHardware" type="number" min="0" step="1"></label>
+          <label>Access / scaffold $ <input id="accessInvoice" type="number" min="0" step="1"></label>
+          <label>Demo $ / lf <input id="demoPerLf" type="number" min="0" step="0.1"></label>
+          <label>Blocking $ / lf <input id="blockingPerLf" type="number" min="0" step="0.1"></label>
+          <label>LED $ / lf <input id="ledPerLf" type="number" min="0" step="0.1"></label>
+          <label>Casing-match $ <input id="casingMatchInvoice" type="number" min="0" step="1"></label>
+          <label>Travel $ / mile <input id="travelPerMile" type="number" min="0" step="0.1"></label>
+          <label>Waste factor (%) <input id="wasteFactor" type="number" min="0" step="0.5"></label>
+          <label>Waste lf / inside <input id="wastePerInside" type="number" min="0" step="0.1"></label>
+          <label>Waste lf / outside <input id="wastePerOutside" type="number" min="0" step="0.1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="65"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 640"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how an $8/ft crown that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">crown-molding price</div>
+      <dl>
+        <dt>Run</dt><dd id="area"></dd>
+        <dt>Corners</dt><dd id="zoneCount"></dd>
+        <dt>Travel</dt><dd id="travel"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Molding and finish</dt><dd id="finishCost"></dd>
+        <dt>Foyer, LED, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per lf</dt><dd id="perLf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same run, three profiles</strong></p>
+      <table>
+        <thead><tr><th>Profile</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Cornice &amp; Case Carpentry LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install 180 lf of primed MDF crown in four rooms&#10;Caulk and fill ready for paint"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Painting the installed moulding&#10;Ceiling or drywall repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Corners coped rather than mitred where the walls are out of square."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can a competitor advertise &ldquo;$8 a foot installed&rdquo;?</h3>
+      <p>Usually because the special is written around one specific job, and that job is a preset here: 80
+        linear feet of paint-grade simple cove, 8 inside corners, one flat 8-ft room. It really does price
+        low. What the per-foot number cannot see is grade, profile, ceiling type, ceiling height, corners,
+        and extras like demo, blocking, an LED cove, or matching existing casing. Price your actual room
+        beside the special and the gap becomes a list of line items instead of an argument about who is
+        honest.</p>
+
+      <h3>Why does stain-grade cost more than paint-grade for the same linear footage?</h3>
+      <p>Because caulk can hide a rough miter and paint-grade relies on it. Stain-grade crown has to be
+        coped at every inside corner &mdash; cut to fit the exact profile of the adjoining piece &mdash;
+        because there is no caulk line to hide a gap once it is stained instead of painted. Coping takes
+        longer per corner than caulking a mitered paint-grade joint, and that time is billed per inside
+        corner, not folded into the linear-foot rate.</p>
+
+      <h3>Why does a two-story foyer change the price so much for similar linear footage?</h3>
+      <p>Because the access, not the crown, is the job. A standard 8-ft ceiling only needs a ladder. A
+        9&ndash;10 ft ceiling needs stilts or a rolling scaffold. A two-story foyer needs scaffolding built
+        and moved around the room, which adds hours that have nothing to do with how many feet of crown are
+        going up once the crew is finally standing at the right height.</p>
+
+      <h3>Why are inside and outside corners counted separately from linear feet?</h3>
+      <p>Because coping or mitering a corner takes a fixed amount of time per corner, independent of how
+        long the runs on either side of it are. A short run with 14 corners can take longer than a long run
+        with two. Cathedral and tray ceilings add their own hours on top &mdash; a cathedral ceiling changes
+        the spring angle at every cut, and a tray or coffered ceiling adds extra returns and steps that a
+        flat-ceiling rate does not include.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit, and the optional
+        usage counter records only which features were used and the day, never your room dimensions,
+        wages, or prices.</p>
+
+      <h3>What&rsquo;s the difference between the bid price and the walk-away price?</h3>
+      <p>The bid price already includes your target margin on top of labor, materials, and overhead. The
+        walk-away price is the total cost underneath it &mdash; linear feet, corners, ceiling and height
+        extras, demo, blocking, LED cove, and casing match &mdash; the point below which the job stops
+        being profitable at all. Typing a price you are considering shows you the margin or the loss before
+        you send it.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not millwork, structural, paint-spec, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your run, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-crown-molding.html">how much to charge to install crown molding</a>? The article walks the run-versus-corner math this calculator uses. Comparing tools? See <a href="vs-jobber.html">this calculator vs. Jobber</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareProfile,
+      formatBidSummary,
+      suggestedProfileKit,
+      suggestedGradeKit,
+      suggestedCeilingKit,
+      suggestedHeightKit,
+      suggestedExtraKit,
+      GRADE_PRESETS,
+      PROFILE_PRESETS,
+      CEILING_PRESETS,
+      HEIGHT_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
+
+    const JOB_IDS = [
+      'grade', 'profile', 'ceiling', 'height', 'linearFeet', 'insideCorners',
+      'outsideCorners', 'rooms', 'travelMiles',
+    ];
+    const FLAG_IDS = ['includeDemo', 'includeBlocking', 'includeLedCove', 'includeCasingMatch'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerLf', 'hoursPerInside', 'hoursPerOutside',
+      'hoursPerPiece', 'hoursCeilingPerLf', 'hoursAccess', 'hoursDemoPerLf',
+      'hoursBlockingPerLf', 'hoursLedPerLf', 'hoursCasingMatch', 'hoursPerRoom',
+      'siteHours', 'gradeHourFactor', 'moldingPerLf', 'gradeMaterialFactor',
+      'finishInvoice', 'ceilingHardware', 'accessInvoice', 'demoPerLf',
+      'blockingPerLf', 'ledPerLf', 'casingMatchInvoice', 'travelPerMile',
+      'wasteFactor', 'wastePerInside', 'wastePerOutside',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const PROFILE_RATE_IDS = ['hoursPerLf', 'moldingPerLf', 'hoursPerPiece'];
+    const GRADE_RATE_IDS = ['hoursPerInside', 'hoursPerOutside', 'gradeHourFactor', 'gradeMaterialFactor', 'finishInvoice'];
+    const CEILING_RATE_IDS = ['hoursCeilingPerLf', 'ceilingHardware'];
+    const HEIGHT_RATE_IDS = ['hoursAccess', 'accessInvoice'];
+    const EXTRA_RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursDemoPerLf', 'hoursBlockingPerLf',
+      'hoursLedPerLf', 'hoursCasingMatch', 'siteHours', 'hoursPerRoom',
+      'demoPerLf', 'blockingPerLf', 'ledPerLf', 'casingMatchInvoice',
+      'travelPerMile', 'wasteFactor', 'wastePerInside', 'wastePerOutside',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('grade', GRADE_PRESETS);
+    fillSelect('profile', PROFILE_PRESETS);
+    fillSelect('ceiling', CEILING_PRESETS);
+    fillSelect('height', HEIGHT_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyProfileKit() {
+      applyKit(suggestedProfileKit(el('profile').value), PROFILE_RATE_IDS);
+    }
+
+    function applyGradeKit() {
+      applyKit(suggestedGradeKit(el('grade').value), GRADE_RATE_IDS);
+    }
+
+    function applyCeilingKit() {
+      applyKit(suggestedCeilingKit(el('ceiling').value), CEILING_RATE_IDS);
+    }
+
+    function applyHeightKit() {
+      applyKit(suggestedHeightKit(el('height').value), HEIGHT_RATE_IDS);
+    }
+
+    function applyExtraKit() {
+      applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'crown-molding price';
+      ['area','zoneCount','travel','hours','labor','finishCost','extra','soft','overhead','cost','profit','perLf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'crown-molding price';
+      el('area').textContent = `${result.linearFeet.toLocaleString('en-US')} lf`;
+      el('zoneCount').textContent = `${result.insideCorners} in / ${result.outsideCorners} out`;
+      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('finishCost').textContent = money(result.runMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perLf').textContent = result.pricePerLf === null ? 'n/a' : `$${result.pricePerLf.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Travel', result.hourShares.travel],
+        ['Run', result.hourShares.run],
+        ['Inside corners', result.hourShares.inside],
+        ['Outside corners', result.hourShares.outside],
+        ['Stacked pieces', result.hourShares.stacked],
+        ['Ceiling', result.hourShares.ceiling],
+        ['Access', result.hourShares.access],
+        ['Rooms', result.hourShares.rooms],
+        ['Demo', result.hourShares.demo],
+        ['Blocking', result.hourShares.blocking],
+        ['LED cove', result.hourShares.led],
+        ['Casing match', result.hourShares.casing],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the run has linear feet.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = compareProfile(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Crown molding');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('linearFeet').value = job.linearFeet;
+      el('insideCorners').value = job.insideCorners;
+      el('outsideCorners').value = job.outsideCorners;
+      el('rooms').value = job.rooms;
+      el('grade').value = job.grade;
+      el('profile').value = job.profile;
+      el('ceiling').value = job.ceiling;
+      el('height').value = job.height;
+      el('travelMiles').value = job.travelMiles;
+      el('includeDemo').checked = job.includeDemo;
+      el('includeBlocking').checked = job.includeBlocking;
+      el('includeLedCove').checked = job.includeLedCove;
+      el('includeCasingMatch').checked = job.includeCasingMatch;
+      applyProfileKit();
+      applyGradeKit();
+      applyCeilingKit();
+      applyHeightKit();
+      applyExtraKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('profile').addEventListener('change', () => {
+      applyProfileKit();
+      count('profile_changed');
+      update();
+    });
+    el('grade').addEventListener('change', () => {
+      applyGradeKit();
+      count('grade_changed');
+      update();
+    });
+    el('ceiling').addEventListener('change', () => {
+      applyCeilingKit();
+      count('ceiling_changed');
+      update();
+    });
+    el('height').addEventListener('change', () => {
+      applyHeightKit();
+      count('height_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'grade' || id === 'profile' || id === 'ceiling' || id === 'height') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyProfileKit();
+    applyGradeKit();
+    applyCeilingKit();
+    applyHeightKit();
+    applyExtraKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['grade', 'profile', 'ceiling', 'height'];
+    const BID_SPEC = {
+      key: 'crown-molding-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'crown-molding-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Out-of-level ceilings and out-of-square corners are normal in existing houses and are scribed to, not corrected.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Install {linearFeet~0} lf of {profileLabel} crown moulding in {rooms} room{rooms+s}",
+        "Material: {gradeLabel}",
+        "Ceiling: {ceilingLabel}, {heightLabel}",
+        "Cut and fit {insideCorners} inside and {outsideCorners} outside corner{outsideCorners+s}",
+        {
+          "line": "Remove the existing moulding and dispose of it",
+          "when": "includeDemo"
+        },
+        {
+          "line": "Install backing/blocking where the framing does not land",
+          "when": "includeBlocking"
+        },
+        {
+          "line": "Build an LED cove detail",
+          "when": "includeLedCove"
+        },
+        {
+          "line": "Match the existing casing profile",
+          "when": "includeCasingMatch"
+        },
+        "Fill, caulk and sand every joint ready for paint"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "gradeLabel": el('grade')?.selectedOptions?.[0]?.textContent?.trim(),
+        "profileLabel": ({"simple-cove":"Simple cove profile","colonial":"Colonial / dentil profile","built-up":"Built-up profile, stacked pieces"})[el('profile')?.value],
+        "ceilingLabel": ({"flat":"Flat ceiling","cathedral":"Cathedral / vaulted ceiling","tray":"Tray / coffered ceiling"})[el('ceiling')?.value],
+        "heightLabel": el('height')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Crown moulding — {billedFeet~0} lf'], proposalFields(result))[0] || 'Crown moulding — lf',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

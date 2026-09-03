@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>./</loc></url>
+  <url><loc>./does-a-cdn-cut-s3-egress.html</loc></url>
+  <url><loc>./does-a-replica-beat-cross-region-pull.html</loc></url>
+  <url><loc>./does-infrequent-access-still-beat-standard.html</loc></url>
+  <url><loc>./vs-aws-pricing-calculator.html</loc></url>
+  <url><loc>./vs-google-cloud-pricing-calculator.html</loc></url>
+  <url><loc>./vs-azure-pricing-calculator.html</loc></url>
+</urlset>

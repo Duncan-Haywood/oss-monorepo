@@ -172,6 +172,34 @@ class AskHostExtraction(unittest.TestCase):
     def test_a_repo_file_ending_in_md_is_still_a_file(self):
         self.assertEqual(self.extract("per `channel-inventory.md`"), set())
 
+    def test_a_file_outside_this_repo_is_not_a_host(self):
+        """The regression that put `Portfolio validate` red on `main`.
+
+        `auth.json` lives on the owner's laptop, so `_tracked_basenames()`
+        cannot recognise it and every other rule accepts it as a host.
+        """
+        self.assertEqual(
+            self.extract("worker.sh learned to seed `auth.json` from a Secret"),
+            set(),
+        )
+
+    def test_non_tld_suffixes_cover_the_shapes_this_repo_writes(self):
+        for token in ("policy.json", "group_vars.yml", "build.mjs",
+                      "config.toml", "robots.txt"):
+            with self.subTest(token=token):
+                self.assertEqual(self.extract(f"see `{token}` for it"), set())
+
+    def test_the_non_tld_set_never_swallows_a_real_cctld(self):
+        """The trap the extension blocklist fell into the first time.
+
+        `.md` and `.sh` are Moldova and St Helena, so an entry for either
+        would silently drop `obsidian.md` and `formulae.brew.sh` — the
+        failure this checker exists to catch.
+        """
+        delegated = {"md", "sh", "py", "io", "ai", "co", "so", "is", "it",
+                     "me", "tv", "cc", "ws", "to", "gg", "dev", "app", "org"}
+        self.assertEqual(check_ask_hosts._NOT_TLDS & delegated, set())
+
     def test_versions_and_criteria_are_not_hosts(self):
         self.assertEqual(self.extract("`next@16.3.1` fixes `1.4.3`"), set())
 
@@ -188,6 +216,52 @@ class AsksAreBackedByMeasurements(unittest.TestCase):
         defect that would have wasted the owner's one allowlist decision."""
         text = open(check_ask_hosts.ASKS).read()
         self.assertIn("euvdservices.enisa.europa.eu", text)
+
+
+class PublicationHostsAreNotEgress(unittest.TestCase):
+    """A host the portfolio serves on is the other direction from egress.
+
+    The deployment asks added on 2026-08-29 name `tools.marisstella.dev`,
+    which nothing fetches and nothing can measure. Left unexempted it failed
+    this check, and `main` carried that failure unnoticed because no Actions
+    runner ran a job here between 2026-08-26 and the 2026-09-01 recovery.
+    """
+
+    def extract(self, text):
+        return check_ask_hosts.hostnames_in(text, filenames=set())
+
+    def test_the_site_host_is_not_demanded_of_the_egress_table(self):
+        self.assertEqual(self.extract("serve it on `tools.marisstella.dev`"), set())
+
+    def test_the_pages_origin_is_not_demanded_either(self):
+        self.assertEqual(self.extract("`duncan-haywood.github.io` is the base"), set())
+
+    def test_the_exemption_is_not_a_blanket(self):
+        """A third-party host in the very same sentence is still checked."""
+        found = self.extract(
+            "publish to `tools.marisstella.dev` after fetching `api.wordpress.org`"
+        )
+        self.assertEqual(found, {"api.wordpress.org"})
+
+    def test_every_exempt_host_is_one_this_repository_publishes_on(self):
+        """Guards against the list growing into an escape hatch: each entry
+        must be justified by something committed, not by prose in an ask."""
+        ingress = open(os.path.join(
+            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
+        build = open(os.path.join(
+            check_ask_hosts.REPO, "platform", "pages", "build.mjs")).read()
+        infra = open(os.path.join(
+            check_ask_hosts.REPO, "infra", "README.md")).read()
+        haystack = ingress + build + infra
+        for host in check_ask_hosts.PUBLICATION_HOSTS:
+            self.assertIn(host, haystack, f"{host} is exempt but unpublished")
+
+    def test_the_deploy_target_is_still_the_ingress_host(self):
+        """If the site ever moves, this fails rather than silently exempting a
+        name nothing serves any more."""
+        ingress = open(os.path.join(
+            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
+        self.assertIn("tools.marisstella.dev", ingress)
 
 
 if __name__ == "__main__":

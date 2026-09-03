@@ -1,0 +1,28 @@
+name: medical-courier-route-margin
+description: A browser-local route pricing calculator for independent medical couriers covering stops, paid wait, deadhead, loaded labor, vehicle cost, temperature-control consumables and overhead, and reporting the per-stop rate the route needs to break even or clear a target margin.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent medical couriers will use a route margin calculator because per-mile pricing hides paid wait, stop handling, and vehicle overhead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing contribution margin per vehicle-hour helps couriers reject or renegotiate underpriced broker and facility routes before running them.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified medical couriers use the calculator twice within 90 days of public distribution.
+  - Couriers cannot reconcile the estimate to a completed route closely enough to change a bid.
+  - Users ask for patient, specimen, or chain-of-custody data storage; the product must remain a pricing tool, not a medical logistics record.
+links:
+  production: null
+  analytics: null

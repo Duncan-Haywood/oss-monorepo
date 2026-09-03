@@ -26,6 +26,9 @@ export function SiteFooter() {
             <Link href="/terms" className="hover:text-zinc-900">
               Terms
             </Link>
+            <Link href="/accessibility-evidence" className="hover:text-zinc-900">
+              Evidence
+            </Link>
             <Link href="/docs" className="hover:text-zinc-900">
               Docs
             </Link>

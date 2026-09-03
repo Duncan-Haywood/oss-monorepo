@@ -1,0 +1,27 @@
+name: consent-change-record
+description: A browser-local before-and-after record of observable requests and storage keys around a consent choice.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Web agencies and small publishers will reuse a portable consent trace when reviewing customer sites.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Source-linked request and storage diffs are more useful in recurring reviews than a generic consent badge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 50
+  protected: true
+kill_criteria:
+  - Fewer than three qualified agencies identify a recurring consent evidence workflow after ten conversations.
+  - Users mistake an observation report for a compliance determination during the first pilot.
+links:
+  production: null
+  analytics: null

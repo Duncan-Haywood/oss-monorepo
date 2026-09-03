@@ -1,0 +1,32 @@
+name: window-cleaning-bid-calculator
+description: A private browser calculator for window-cleaning operators that prices a visit from panes × minutes-per-pane × sides, plus the travel-and-setup block that does not shrink on a small stop — then shows the visit price, price per pane, effective hourly rate, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent window cleaners will use a pane-and-travel bid calculator because the generic per-window flyers they copy cannot see that French panes, third-story access, and a 25-minute drive are most of the cost on the jobs that look cheapest on a flyer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The travel share of visit hours and the walk-away price are the two numbers an operator actually decides on when a homeowner asks them to match $6 a window, more than the visit price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A minimum job charge, shown as a lift off a calculated price rather than a mystery floor, changes what an operator quotes on stops under about 20 panes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified window-cleaning operators use the calculator twice within 90 days.
+  - Operators report that splitting glass by type is more work than their existing per-window method without changing the price they would have bid.
+  - The starting minutes-per-pane prove so far from real stops that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

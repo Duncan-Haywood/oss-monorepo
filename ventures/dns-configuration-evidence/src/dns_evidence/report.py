@@ -13,8 +13,11 @@ REQUIRED = ("name", "type", "resolver", "observed_at")
 UNCERTAIN = {"timeout", "disagreement", "dnssec_failure", "refused", "error"}
 
 
-def load_snapshot(path: str | Path) -> dict[str, Any]:
-    snapshot = json.loads(Path(path).read_text(encoding="utf-8"))
+def load_snapshot(source: str | Path | dict[str, Any]) -> dict[str, Any]:
+    if isinstance(source, dict):
+        snapshot = source
+    else:
+        snapshot = json.loads(Path(source).read_text(encoding="utf-8"))
     if snapshot.get("authorized") is not True:
         raise ValueError("input must declare authorized: true")
     if not snapshot.get("domain"):
@@ -22,12 +25,29 @@ def load_snapshot(path: str | Path) -> dict[str, Any]:
     observations = snapshot.get("observations")
     if not isinstance(observations, list):
         raise ValueError("input must include an observations list")
+    identities: set[tuple[str, str, str]] = set()
     for observation in observations:
+        if not isinstance(observation, dict):
+            raise ValueError("each observation must be an object")
         missing = [key for key in REQUIRED if not observation.get(key)]
         if missing:
             raise ValueError(f"observation missing required fields: {', '.join(missing)}")
+        try:
+            datetime.fromisoformat(observation["observed_at"].replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError("observation observed_at must be an ISO 8601 timestamp") from error
         if "answers" not in observation and observation.get("status") not in UNCERTAIN:
             raise ValueError("successful observations require answers; failures require a known status")
+        identity = _key(observation)
+        if identity in identities:
+            raise ValueError("snapshot contains duplicate name/type/resolver observations")
+        identities.add(identity)
+    captured_at = snapshot.get("captured_at")
+    if captured_at:
+        try:
+            datetime.fromisoformat(captured_at.replace("Z", "+00:00"))
+        except ValueError as error:
+            raise ValueError("captured_at must be an ISO 8601 timestamp") from error
     return snapshot
 
 
@@ -81,13 +101,28 @@ def build_report(before: dict[str, Any], after: dict[str, Any]) -> dict[str, Any
     }
 
 
+def _escape_cell(value: str) -> str:
+    """Keep arbitrary DNS text inside a Markdown table cell."""
+    return value.replace("&", "&amp;").replace("|", "&#124;").replace("`", "&#96;").replace("\n", "<br>")
+
+
+def _display_answers(answers: list[str] | None, status: str) -> str:
+    if answers is None:
+        return f"{status} (not observed)"
+    if not answers:
+        return "(no answers)"
+    return "<br>".join(f"`{_escape_cell(answer)}`" for answer in answers)
+
+
 def markdown_report(report: dict[str, Any]) -> str:
     lines = [f"# DNS evidence: `{report['domain']}`", "", "This is an observation record, not a security, deliverability, or compliance warranty.", "", "## Summary", ""]
     counts = report["finding_counts"]
     lines.append(" · ".join(f"**{key}:** {counts.get(key, 0)}" for key in ("changed", "unchanged", "inconclusive")))
-    lines.extend(["", "## Findings", "", "| Name | Type | Resolver | Result |", "|---|---|---|---|"])
+    lines.extend(["", "## Findings", "", "| Name | Type | Resolver | Result | Before | After |", "|---|---|---|---|---|---|"])
     for finding in report["findings"]:
-        lines.append(f"| `{finding['name']}` | `{finding['type']}` | `{finding['resolver']}` | **{finding['status']}** |")
+        before = _display_answers(finding["before_answers"], finding["before_status"])
+        after = _display_answers(finding["after_answers"], finding["after_status"])
+        lines.append(f"| `{finding['name']}` | `{finding['type']}` | `{finding['resolver']}` | **{finding['status']}** | {before} | {after} |")
     lines.extend(["", "## Limits", ""])
     lines.extend(f"- {limit}" for limit in report["limitations"])
     return "\n".join(lines) + "\n"

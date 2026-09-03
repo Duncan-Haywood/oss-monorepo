@@ -1,0 +1,32 @@
+name: str-host-payout-calculator
+description: A private browser calculator for short-term rental hosts that puts one stay through Airbnb’s 2026 host-only fee, the retired 3% split, Vrbo, and a direct booking — and reports host payout, guest-paid total, the listed-price raise that restores the old deposit, and the occupancy a host can lose going direct and still break even.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Hosts who were migrated onto Airbnb’s 15.5% host-only fee will use a same-stay comparison with Vrbo and direct booking because the 3% mental model no longer holds and generic “15% vs 8%” pages mix fee bases.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The occupancy-keep break-even for going direct changes the listing decision more often than the per-stay fee gap, because a cheaper channel that loses nights is not cheaper.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The listed-price raise that restores the old 3% payout is the number hosts act on after the 2026 migration, more than the annual ranking itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified hosts use the comparison twice within 90 days.
+  - Hosts report that the winning available channel is always the one they already list on, so the comparison changes no decision.
+  - The starting 2026 rates prove so far from real payout statements that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

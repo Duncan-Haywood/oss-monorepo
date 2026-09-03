@@ -1,0 +1,27 @@
+name: delivery-app-margin-calculator
+description: A private browser calculator that puts one restaurant ticket through dine-in, pickup, DoorDash, Uber Eats, Grubhub, and first-party delivery, then reports net after commission, packaging, and extra labor — plus the delivery-menu price each app needs to match dine-in.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent restaurants will use a same-ticket comparison of dine-in vs delivery apps when the output includes packaging, extra labor, and the menu price needed to keep dine-in profit, not just the headline commission percentage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing monthly cash given up versus dine-in changes whether an operator keeps, reprices, or drops a marketplace, rather than confirming a decision already made.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three operators run the comparison twice within 90 days.
+  - Operators report that the app they already use always "wins" after they raise the delivery price, so the comparison changes no decision.
+links:
+  production: null
+  analytics: null

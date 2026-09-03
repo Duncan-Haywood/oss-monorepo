@@ -1,0 +1,27 @@
+name: shopify-permission-drift
+description: A local, read-only evidence record for customer-authorized Shopify app permissions, webhooks, and authorization changes.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Shopify agencies and merchants will reuse a source-linked permission inventory when reviewing installed apps.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A portable before-and-after record helps teams investigate permission changes without inspecting customer data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Shopify operators run the local fixture workflow within 90 days.
+  - No pilot operator returns with a second inventory comparison within 90 days.
+links:
+  production: null
+  analytics: null

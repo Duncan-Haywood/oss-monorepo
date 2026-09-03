@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I use eBay Global Shipping Program? | GSP vs you-ship</title>
+  <meta name="description" content="Compare eBay Global Shipping Program with buying the international label yourself. See leftover after hub postage, the extra international fee, and the claim rate that still ties GSP.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-use-ebay-global-shipping-program.html">
+  <meta property="og:title" content="Should I use eBay Global Shipping Program?">
+  <meta property="og:description" content="See whether shipping to the eBay hub still beats buying the international label — and when a 0% claim rate or a cheaper label flips the table.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay Global Shipping Program vs you-ship",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Global Shipping Program vs you-ship after sell-through, claim rate that ties GSP, you-ship sell-through that ties GSP, expected listing profit after returns"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I use eBay Global Shipping Program?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Global Shipping Program ships to a US hub on your domestic label. The buyer pays eBay the international bill. You-ship collects that postage and buys the label. On the calculator defaults ($40 item, $6 domestic shipping charged, 13.25% final value fee, $12 cost, $5 hub label, $1 pack, 6% GSP returns, 40% GSP sell-through, $22 you-ship postage, $18 international label, 1.65% international fee, 10% you-ship returns, 8% claims, 55% you-ship sell-through) GSP expects $7.86 and you-ship expects $6.54. GSP keeps $1.32 more after sell-through. On leftover — if the international sale completes — GSP leaves $19.65 and you-ship leaves $11.89, $7.76 more, because an 8% claim never returns the item. Claims have to stay at about 2.8%, or you-ship has to convert about 66.1%, before those paths match. That is arithmetic on your inputs, not advice to enroll."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does buying the international label beat Global Shipping Program?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the extra postage you collect covers the label, the extra international fee, and the claims. On the same $40 listing, a 0% claim rate expects $8.59 against $7.86 GSP. A 70% you-ship sell-through flips ($8.32 vs $7.86). A $10 international label flips harder ($10.94). Matching the 40% GSP close rate already loses ($4.75). A 30% GSP close rate — sticker shock — loses to the default you-ship path ($5.89 vs $6.54)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Global Shipping Program the same as Standard Envelope or Authenticity Guarantee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Standard Envelope is cheap domestic postage versus an item-not-received claim. Authenticity Guarantee is a hub label for authentication. Combined shipping is two already-sold domestic boxes. Global Shipping Program is how an international buyer receives one item."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether Global Shipping Program still beats buying the label.</h1>
+    <p>
+      Global Shipping Program is not the same decision as offering
+      international at all, Standard Envelope, or Authenticity
+      Guarantee. Envelope is cheap domestic postage versus a claim.
+      Authenticity Guarantee is a hub label for authentication.
+      Here an international buyer already wants the item; only who
+      buys the overseas label changes.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>The listing and the international path</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Domestic shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Hub / domestic label <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>GSP return postage <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>GSP return rate (%) <input id="gspReturnRatePercent" type="number" min="0" max="100" step="0.1" value="6"></label>
+        <label>GSP sell-through (%) <input id="gspSellThroughPct" type="number" min="0" max="100" step="1" value="40"></label>
+        <label>You-ship shipping charged <input id="selfShipShippingCharged" type="number" min="0" step="0.01" value="22"></label>
+        <label>You-ship international label <input id="selfShipShippingCost" type="number" min="0" step="0.01" value="18"></label>
+        <label>You-ship return postage <input id="selfShipReturnShippingCost" type="number" min="0" step="0.01" value="18"></label>
+        <label>You-ship international fee (%) <input id="selfShipIntlFeeRate" type="number" min="0" step="0.01" value="1.65"></label>
+        <label>You-ship return rate (%) <input id="selfShipReturnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>You-ship claim rate (%) <input id="selfShipClaimRatePercent" type="number" min="0" max="100" step="0.1" value="8"></label>
+        <label>You-ship sell-through (%) <input id="selfShipSellThroughPct" type="number" min="0" max="100" step="1" value="55"></label>
+        <label>International listings per month <input id="monthlyGspListings" type="number" min="0" step="1" value="20"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>GSP vs you-ship</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by Global Shipping Program versus you-ship</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>GSP after sell-through</dt><dd id="gspExpected"></dd>
+        <dt>You-ship after sell-through</dt><dd id="selfExpected"></dd>
+        <dt>If the GSP sale completes</dt><dd id="gspIfSells"></dd>
+        <dt>If you-ship completes</dt><dd id="selfIfSells"></dd>
+        <dt>Claim leftover (item gone)</dt><dd id="claimOutcome"></dd>
+        <dt>Claim rate that still ties GSP</dt><dd id="breakEvenClaim"></dd>
+        <dt>You-ship sell-through that still ties GSP</dt><dd id="breakEvenSelfSt"></dd>
+        <dt>Packed leftover gap</dt><dd id="packedGap"></dd>
+        <dt>Monthly gap vs you-ship</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, two ways to ship internationally</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Collected</th>
+            <th scope="col">Close rate</th>
+            <th scope="col">Loss rate</th>
+            <th scope="col">If they keep it</th>
+            <th scope="col">Expected after sell-through</th>
+            <th scope="col">vs GSP</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">The postage, extra international fee, both close rates, and the claim rate are inputs — not eBay’s GSP schedule.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Clothing, card, and small-goods sellers search “should I
+      use eBay Global Shipping Program” because the hub looks
+      expensive and the buyer-facing GSP rate looks like it
+      kills conversion. Turning GSP off looks like you keep the
+      international postage. You also buy the overseas label
+      and eat the boxes that never arrive.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 domestic shipping charged,
+      13.25% final value fee, $0.30 fixed, $12 cost, $5 hub
+      label, $1 pack, $5 GSP return label, 6% GSP returns, 40%
+      GSP sell-through, $22 you-ship postage, $18 international
+      label, $18 you-ship return, 1.65% international fee, 10%
+      you-ship returns, 8% claims, 55% you-ship sell-through,
+      twenty listings — Global Shipping Program expects $7.86
+      and you-ship expects $6.54. GSP keeps $1.32 more on this
+      decision and $26.44 across twenty listings. Claims have
+      to stay at about 2.8%, or you-ship has to convert about
+      66.1%, before those paths match. If the international
+      sale completes, leftover on GSP is $19.65 versus $11.89
+      when you buy the label — $7.76 more — because an 8% claim
+      never returns the item. That claim still costs $31.00
+      (cost of goods plus the international label and pack).
+    </p>
+    <p>
+      Zero claims already flip. Keep the same listing and hold
+      the claim rate at 0%. You-ship expects $8.59; GSP still
+      expects $7.86. A 70% you-ship sell-through flips ($8.32
+      vs $7.86). A $10 international label flips harder
+      ($10.94). Matching the 40% GSP close rate already loses
+      ($4.75). A 30% GSP close rate — the sticker-shock case —
+      loses to the default you-ship path ($5.89 vs $6.54). The
+      postage you thought you collected did not cover the boxes
+      that never arrived.
+    </p>
+    <p>
+      It does not tell you to enroll, and it is not tax or
+      financial advice. Standard Envelope, Authenticity
+      Guarantee, combined shipping, and a return-<em>rate</em>
+      mix are different questions. Compare
+      <a href="should-i-offer-international-shipping-on-ebay.html">domestic versus worldwide at this list</a>,
+      <a href="is-ebay-standard-envelope-worth-it.html">Standard Envelope versus a tracked label</a>,
+      <a href="is-ebay-authenticity-guarantee-worth-it.html">Authenticity Guarantee versus skip-AG</a>,
+      <a href="should-i-offer-ebay-combined-shipping.html">combined shipping versus two labels</a>,
+      <a href="should-i-offer-ebay-local-pickup.html">local pickup versus the label</a>,
+      <a href="should-i-require-immediate-payment-on-ebay.html">immediate payment versus unpaid checkouts</a>,
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction versus Buy It Now</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I use eBay Global Shipping Program?</h3>
+  <p>Global Shipping Program ships to a US hub on your domestic label. The buyer pays eBay the international bill. You-ship collects that postage and buys the label. On the calculator defaults ($40 item, $6 domestic shipping charged, 13.25% final value fee, $12 cost, $5 hub label, $1 pack, 6% GSP returns, 40% GSP sell-through, $22 you-ship postage, $18 international label, 1.65% international fee, 10% you-ship returns, 8% claims, 55% you-ship sell-through) GSP expects $7.86 and you-ship expects $6.54. GSP keeps $1.32 more after sell-through. On leftover — if the international sale completes — GSP leaves $19.65 and you-ship leaves $11.89, $7.76 more, because an 8% claim never returns the item. Claims have to stay at about 2.8%, or you-ship has to convert about 66.1%, before those paths match. That is arithmetic on your inputs, not advice to enroll.</p>
+  <h3>When does buying the international label beat Global Shipping Program?</h3>
+  <p>When the extra postage you collect covers the label, the extra international fee, and the claims. On the same $40 listing, a 0% claim rate expects $8.59 against $7.86 GSP. A 70% you-ship sell-through flips ($8.32 vs $7.86). A $10 international label flips harder ($10.94). Matching the 40% GSP close rate already loses ($4.75). A 30% GSP close rate — sticker shock — loses to the default you-ship path ($5.89 vs $6.54).</p>
+  <h3>Is Global Shipping Program the same as Standard Envelope or Authenticity Guarantee?</h3>
+  <p>No. Standard Envelope is cheap domestic postage versus an item-not-received claim. Authenticity Guarantee is a hub label for authentication. Combined shipping is two already-sold domestic boxes. Global Shipping Program is how an international buyer receives one item.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from buying an international label when the hub still paid, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareGlobalShipping, globalShippingNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "finalValueRate", "fixedFee",
+      "costOfGoods", "shippingCost", "packagingCost", "returnShippingCost",
+      "gspReturnRatePercent", "gspSellThroughPct", "selfShipShippingCharged",
+      "selfShipShippingCost", "selfShipReturnShippingCost", "selfShipIntlFeeRate",
+      "selfShipReturnRatePercent", "selfShipClaimRatePercent",
+      "selfShipSellThroughPct", "monthlyGspListings",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareGlobalShipping(readInput());
+        const extra = result.extraKeptOnGsp;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by Global Shipping Program versus you-ship" :
+          extra < 0 ? "Global Shipping Program keeps less than you-ship" :
+          "Global Shipping Program and you-ship keep the same";
+        document.getElementById("summary").textContent = globalShippingNote(result);
+        document.getElementById("gspExpected").textContent = money(result.gsp.expectedProfit);
+        document.getElementById("selfExpected").textContent = money(result.selfShip.expectedProfit);
+        document.getElementById("gspIfSells").textContent = money(result.gsp.soldExpectedProfit);
+        document.getElementById("selfIfSells").textContent = money(result.selfShip.soldExpectedProfit);
+        document.getElementById("claimOutcome").textContent = money(result.claimProfit);
+        document.getElementById("breakEvenClaim").textContent = Number.isFinite(result.breakEvenClaimRate)
+          ? `${result.breakEvenClaimRate.toFixed(1)}%`
+          : "none";
+        document.getElementById("breakEvenSelfSt").textContent = Number.isFinite(result.breakEvenSelfShipSellThroughPct)
+          ? `${result.breakEvenSelfShipSellThroughPct.toFixed(1)}%`
+          : "none";
+        document.getElementById("packedGap").textContent = money(result.extraPackedOnGsp);
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnGsp >= 0
+            ? `${money(result.monthlyExtraOnGsp)} more`
+            : `${money(-result.monthlyExtraOnGsp)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${money(row.shippingCharged)}</td><td>${row.sellThroughPct}%</td><td>${row.lossRatePercent}% ${row.lossKind}</td><td>${money(row.soldExpectedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["gspExpected", "selfExpected", "gspIfSells", "selfIfSells", "claimOutcome", "breakEvenClaim", "breakEvenSelfSt", "packedGap", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "global_shipping_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

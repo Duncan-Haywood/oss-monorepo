@@ -1,0 +1,27 @@
+name: grant-deadline-tracker
+description: Free browser-local grant deadline tracker that also compares hiring a grant writer against the cash a late report puts at risk.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small nonprofits will use a focused grant deadline and reporting tracker to avoid missed funder obligations.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A browser-local tracker with CSV export is easier to adopt than a $95-plus monthly grant management suite.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat use or organic repository traffic after 60 days of public availability.
+  - No evidence within 90 days that the tracker helped a coordinator surface an upcoming obligation.
+links:
+  production: null
+  analytics: null

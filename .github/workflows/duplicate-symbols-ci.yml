@@ -1,0 +1,68 @@
+name: Duplicate symbols
+
+# Fails a pull request whose Python defines the same top-level name twice.
+#
+# Python rebinds silently: two `def check_thing(...)` in one module, or two
+# `CONSTANT = ...`, are not an error. The later one wins and the earlier becomes
+# dead code that still reads as live.
+#
+# What it is here to catch: on 2026-08-26 two sessions independently wrote the
+# same invariant into `platform/ci/publish_surface.py` and both defined a
+# module-level `PAGES_DEPLOY_ACTIONS`. Neither PR touched the other's lines, so
+# git merged them with no conflict and nothing to review, and the later constant
+# rebound the earlier -- leaving one function matching three actions while its
+# own docstring and tests said one. Every check was green: both functions had
+# tests and each passed, because each was tested against itself.
+#
+# Sibling of `conflict-markers-ci.yml`, for the same reason and with the same
+# shape: both exist because a fast-moving `main` produces defects that no test
+# suite is positioned to see, and neither can know in advance which file will
+# carry one. Separate workflows so a red check names its own cause.
+#
+# Filtered to Python because that is where the failure is silent. A second
+# top-level `const X` in an ES module is a parse-time SyntaxError, so
+# `platform/pages/build.mjs` -- the other file this fleet collides on -- cannot
+# reach `main` carrying one.
+#
+# It publishes nothing, pushes nothing, and calls no paid API -- a test runner,
+# not the unattended-automation kind of workflow CLAUDE.md gates.
+
+on:
+  pull_request:
+    paths:
+      - "**/*.py"
+      - ".github/workflows/duplicate-symbols-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "**/*.py"
+      - ".github/workflows/duplicate-symbols-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: duplicate-symbols-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Named for what it checks, not `check`: the job name is what appears in the
+  # PR's check list, and `conflict-markers-ci.yml`'s job is already called
+  # `check`. Two rows both reading "check" defeats the reason this has its own
+  # workflow -- that a red result should name its own cause without opening it.
+  duplicate-symbols:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check no tracked Python file defines a name twice
+        run: python3 platform/ci/check_duplicate_symbols.py
+
+      - name: Guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_duplicate_symbols

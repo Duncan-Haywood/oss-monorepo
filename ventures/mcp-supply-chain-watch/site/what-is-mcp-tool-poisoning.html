@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What is an MCP tool poisoning attack? | MCP Supply-Chain Watch</title>
+  <meta name="description" content="A plain explanation of MCP tool poisoning (a rug-pull attack on Model Context Protocol servers): what changes, why it works on the calling model instead of the human reviewer, and how to catch it from two manifest captures.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./what-is-mcp-tool-poisoning.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%234338ca'/%3E%3Cpath d='M8 16h16M16 8v16' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta property="og:title" content="What is an MCP tool poisoning attack?">
+  <meta property="og:description" content="How a Model Context Protocol server can add instructions aimed at the calling model after approval, and how to catch it from two manifest captures.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is an MCP tool poisoning attack?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "An MCP tool poisoning attack (sometimes called a rug-pull) is when a connected Model Context Protocol server changes a tool's description or inputSchema after an agent team has already reviewed and approved it. The new text targets the calling model, not the human who approved the tool — phrasing like an instruction to ignore prior guidance, or to send a result somewhere the human never authorized. Because the server was already trusted, the change can take effect on the very next call, with no fresh approval step in between."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does this target the description field specifically?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A tool's name and inputSchema are usually what a human reviewer scans when approving a server. The description is longer, more often skimmed than re-read on every call — and it is also text the calling model reads as part of deciding how to use the tool. A server that wants to influence the model rather than the reviewer has a direct incentive to put that influence where a human is least likely to notice it change."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How would I actually catch this?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Capture the full tool manifest — every tool's name, description, and inputSchema — at approval time and keep it. Before trusting the server again, or on a schedule, capture it a second time and diff the two. A description that changed and now reads like an instruction to the model is the signal to review first; a changed inputSchema is the next most sensitive; everything else is lower-priority drift. That diff needs no live connection to the server once both captures exist."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does catching a description change mean the server is malicious?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A legitimate server can rewrite a description for clarity, and the rewritten text can coincidentally match a phrase a pattern-based check flags. Treat a flagged change as something to review, not a verdict — look at the specific wording yourself before deciding whether to re-approve, roll back, or contact the server's maintainer."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e1b3a; background: #eef0fc; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 48px; line-height: 1.6; }
+    h1 { font-size: clamp(1.6rem, 4.5vw, 2.4rem); letter-spacing: -.03em; margin-bottom: 6px; }
+    h2 { margin-top: 1.8em; font-size: 1.2rem; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #4338ca; margin: 0 0 10px; }
+    .cta { display: inline-block; margin-top: 10px; padding: 10px 16px; border-radius: 8px; background: #4338ca; color: #fff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 40px; font-size: .82rem; color: #3a3670; border-top: 1px solid #c7caf0; padding-top: 16px; }
+    footer a { color: #4338ca; }
+    code { background: #f3f3fc; padding: .1em .35em; border-radius: 4px; font-size: .92em; }
+  </style>
+</head>
+<body>
+  <p class="eyebrow">MCP SUPPLY-CHAIN WATCH — REFERENCE</p>
+  <h1>What is an MCP tool poisoning attack?</h1>
+  <p>
+    An MCP tool poisoning attack (sometimes called a rug-pull) is when a
+    connected Model Context Protocol server changes a tool's
+    <code>description</code> or <code>inputSchema</code> after an agent team
+    has already reviewed and approved it. The new text targets the calling
+    model, not the human who approved the tool — phrasing like an
+    instruction to ignore prior guidance, or to send a result somewhere the
+    human never authorized. Because the server was already trusted, the
+    change can take effect on the very next call, with no fresh approval
+    step in between.
+  </p>
+
+  <h2>Why does this target the description field specifically?</h2>
+  <p>
+    A tool's name and <code>inputSchema</code> are usually what a human
+    reviewer scans when approving a server. The description is longer, more
+    often skimmed than re-read on every call — and it is also text the
+    calling model reads as part of deciding how to use the tool. A server
+    that wants to influence the model rather than the reviewer has a direct
+    incentive to put that influence where a human is least likely to notice
+    it change.
+  </p>
+
+  <h2>How would I actually catch this?</h2>
+  <p>
+    Capture the full tool manifest — every tool's name, description, and
+    <code>inputSchema</code> — at approval time and keep it. Before trusting
+    the server again, or on a schedule, capture it a second time and diff
+    the two. A description that changed and now reads like an instruction to
+    the model is the signal to review first; a changed <code>inputSchema</code>
+    is the next most sensitive; everything else is lower-priority drift. That
+    diff needs no live connection to the server once both captures exist.
+  </p>
+
+  <h2>Does catching a description change mean the server is malicious?</h2>
+  <p>
+    A legitimate server can rewrite a description for clarity, and the
+    rewritten text can coincidentally match a phrase a pattern-based check
+    flags. Treat a flagged change as something to review, not a verdict —
+    look at the specific wording yourself before deciding whether to
+    re-approve, roll back, or contact the server's maintainer.
+  </p>
+
+  <p><a class="cta" href="./index.html">Compare two manifest captures →</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is informational, not security or compliance advice. It does not replace a qualified professional, and it does not certify that any server or tool is safe.</p>
+    <p>Part of <a href="./">MCP Supply-Chain Watch</a>, a free, local-first manifest comparison tool. Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+  </footer>
+</body>
+</html>

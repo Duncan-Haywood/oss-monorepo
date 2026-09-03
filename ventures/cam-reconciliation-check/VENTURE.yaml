@@ -1,0 +1,27 @@
+name: cam-reconciliation-check
+description: A private browser worksheet for small commercial landlords and tenants to check common-area-maintenance reconciliation math before sending a factual review request.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small commercial landlords and tenants will return to a transparent CAM reconciliation worksheet when annual expense statements are difficult to audit in a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing the area-share math and billed-versus-modeled variance helps users catch arithmetic or input issues before a payment conversation.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified landlords or tenants use the worksheet twice within 90 days of public availability.
+  - Users do not report finding an arithmetic or input discrepancy in a CAM statement within 90 days.
+links:
+  production: null
+  analytics: null

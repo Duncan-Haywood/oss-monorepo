@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Are eBay Promoted Listings worth it? | Standard vs skip after extra sales</title>
+  <meta name="description" content="Compare eBay Promoted Listings Standard with skipping the campaign. See the ad cut on the sale you already had, the extra sales that still tie skip, and the rate that still pays after returns.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="are-ebay-promoted-listings-worth-it.html">
+  <meta property="og:title" content="Are eBay Promoted Listings worth it?">
+  <meta property="og:description" content="See whether a 5% Promoted Listings Standard campaign still pays after one extra sale — and when zero extra sales just take a cut of a sale you already had.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay Promoted Listings Standard vs skip",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Promoted Listings Standard vs skip after extra sales, extra-sale floor that ties skip, rate ceiling that ties skip, ad drag on the sale you already had, expected profit after returns"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Are eBay Promoted Listings worth it?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Promoted Listings Standard is a percent of a completed sale, including the sale you already would have made. Promoted Offsite is a campaign billed even if they bounce. On the calculator defaults (a $40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 5% Standard, one extra sale) skip expects $18.34 and Standard expects $32.55. Standard keeps $14.20 more. Extra sales have to stay at about 0.13 before Standard matches skip. That is arithmetic on your inputs, not advice to turn Promoted Listings on."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if Promoted Listings produce no extra sales?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Then the campaign only takes a cut of a sale you already had. On the same $40 listing, 5% of the $46 order is $2.30. After a 10% return mix that leaves $16.27 against $18.34 for skip — $2.07 less. Two percent of $46 is $0.92, not $0.80."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Promoted Listings Standard the same as Promoted Offsite?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Standard is a percent taken only when the listing sells. Offsite is a campaign spend billed even if they bounce. Extra Offsite sales can still pay Standard too if the listing is already promoted."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether Standard still pays after the cut on a sale you already had.</h1>
+    <p>
+      Promoted Listings Standard is not the same decision as
+      Promoted Offsite. Offsite is a bill either way. Standard
+      is a percent of a completed sale — including the one you
+      already would have made. A 5% campaign that actually
+      produces one extra sale can still pay. Zero extra sales
+      just take $2.07 off that $40 listing.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Listing and Standard campaign</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>Promoted Listings Standard (%) <input id="promotedStandardRate" type="number" min="0" max="100" step="0.1" value="5"></label>
+        <label>Extra Standard sales <input id="promotedStandardExtraOrders" type="number" min="0" step="0.1" value="1"></label>
+        <label>Listings per month <input id="monthlyPromotedListings" type="number" min="0" step="1" value="20"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Standard vs skip</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by Standard versus skip</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Skip after returns</dt><dd id="skipExpected"></dd>
+        <dt>Standard after the ad cut</dt><dd id="promoteExpected"></dd>
+        <dt>If they keep the extras</dt><dd id="promoteIfKeeps"></dd>
+        <dt>Extra sales after returns</dt><dd id="extraSales"></dd>
+        <dt>Ad fee on those sales</dt><dd id="adFee"></dd>
+        <dt>If extras are zero</dt><dd id="noLift"></dd>
+        <dt>Extra sales that still tie skip</dt><dd id="breakEvenOrders"></dd>
+        <dt>Rate that still ties skip</dt><dd id="breakEvenRate"></dd>
+        <dt>Monthly gap vs skip</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same listing, two ad paths</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Extra sales</th>
+            <th scope="col">Ad fee</th>
+            <th scope="col">Extra sales after returns</th>
+            <th scope="col">If they keep the extras</th>
+            <th scope="col">Expected after ads</th>
+            <th scope="col">vs skip</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Standard is a percent of a completed sale. Extra-sale counts and the rate are inputs — not eBay’s Promoted Listings attribution.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Resellers search “are eBay Promoted Listings worth it”
+      because 2% looks cheap until it is 2% of item plus
+      shipping. Standard takes that percent only when the
+      listing sells. Offsite bills the campaign even if they
+      bounce.
+    </p>
+    <p>
+      On the defaults — a $40 item, $6 shipping charged, 13.25%
+      final value fee, $0.30 fixed, $12 cost, $5 outbound, $1
+      pack, $5 return label, 10% returns, 5% Standard, one extra
+      sale — skip expects $18.34 and Standard expects $32.55.
+      Standard keeps $14.20 more (+$14.20) on this listing and
+      +$284.09 across twenty listings. Extra sales have to stay
+      at about 0.13, or the rate has to stay at about 22.16%,
+      before Standard matches skip.
+    </p>
+    <p>
+      Zero extra sales flips. Keep the same 5% campaign and get
+      no extra $40 sale. Skip still expects $18.34; Standard
+      expects $16.27 — $2.07 less. Five percent of $46 is $2.30,
+      not $2.00. The sale you already had paid the campaign.
+    </p>
+    <p>
+      It does not tell you to turn Promoted Listings on, and it
+      is not tax or financial advice. Promoted Offsite, combined
+      shipping, Standard Envelope, and a return-<em>rate</em>
+      mix are different questions.       Compare
+      <a href="are-ebay-promoted-listings-advanced-worth-it.html">Promoted Listings Advanced versus skip</a>,
+      <a href="is-ebay-promoted-offsite-worth-it.html">Promoted Offsite versus skip</a>,
+      <a href="should-i-offer-ebay-combined-shipping.html">combined shipping versus two labels</a>,
+      <a href="should-i-offer-an-ebay-quantity-discount.html">a quantity discount versus selling separately</a>,
+      <a href="is-ebay-standard-envelope-worth-it.html">Standard Envelope versus a tracked label</a>,
+      <a href="should-i-offer-ebay-local-pickup.html">local pickup versus the label</a>,
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      <a href="should-i-offer-a-partial-refund-on-ebay.html">a partial refund versus taking the return</a>,
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Are eBay Promoted Listings worth it?</h3>
+  <p>Promoted Listings Standard is a percent of a completed sale, including the sale you already would have made. Promoted Offsite is a campaign billed even if they bounce. On the calculator defaults (a $40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 5% Standard, one extra sale) skip expects $18.34 and Standard expects $32.55. Standard keeps $14.20 more. Extra sales have to stay at about 0.13 before Standard matches skip. That is arithmetic on your inputs, not advice to turn Promoted Listings on.</p>
+  <h3>What if Promoted Listings produce no extra sales?</h3>
+  <p>Then the campaign only takes a cut of a sale you already had. On the same $40 listing, 5% of the $46 order is $2.30. After a 10% return mix that leaves $16.27 against $18.34 for skip — $2.07 less. Two percent of $46 is $0.92, not $0.80.</p>
+  <h3>Is Promoted Listings Standard the same as Promoted Offsite?</h3>
+  <p>No. Standard is a percent taken only when the listing sells. Offsite is a campaign spend billed even if they bounce. Extra Offsite sales can still pay Standard too if the listing is already promoted.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from a 5% campaign that produced no extra sales, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { comparePromotedStandard, promotedStandardNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "finalValueRate", "fixedFee",
+      "costOfGoods", "shippingCost", "packagingCost", "returnShippingCost",
+      "returnRatePercent", "promotedStandardRate", "promotedStandardExtraOrders",
+      "monthlyPromotedListings",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = comparePromotedStandard(readInput());
+        const extra = result.extraKeptOnPromote;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by Standard versus skip" :
+          extra < 0 ? "Standard keeps less than skip" :
+          "Standard and skip keep the same";
+        document.getElementById("summary").textContent = promotedStandardNote(result);
+        document.getElementById("skipExpected").textContent = money(result.skip.expectedProfit);
+        document.getElementById("promoteExpected").textContent = money(result.promote.expectedProfit);
+        document.getElementById("promoteIfKeeps").textContent = money(result.promote.completedProfit);
+        document.getElementById("extraSales").textContent = money(result.promote.extraSalesProfit);
+        document.getElementById("adFee").textContent = money(result.promote.adFee);
+        document.getElementById("noLift").textContent = money(result.noLiftExpectedProfit);
+        document.getElementById("breakEvenOrders").textContent = Number.isFinite(result.breakEvenExtraOrders)
+          ? result.breakEvenExtraOrders.toFixed(2)
+          : "none";
+        document.getElementById("breakEvenRate").textContent = Number.isFinite(result.breakEvenPromotedRate)
+          ? `${result.breakEvenPromotedRate.toFixed(2)}%`
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnPromote >= 0
+            ? `${money(result.monthlyExtraOnPromote)} more`
+            : `${money(-result.monthlyExtraOnPromote)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${row.extraOrders}</td><td>${money(row.adFee)}</td><td>${money(row.extraSalesProfit)}</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["skipExpected", "promoteExpected", "promoteIfKeeps", "extraSales", "adFee", "noLift", "breakEvenOrders", "breakEvenRate", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "promoted_standard_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

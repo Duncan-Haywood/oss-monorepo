@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>What Did My Cookie Banner Actually Change?</title>
+  <meta name="description" content="A consent banner can render correctly and still load the same trackers. Compare a before-consent and after-consent browser trace and record which requests and storage keys really changed.">
+  <meta property="og:title" content="What Did My Cookie Banner Actually Change?">
+  <meta property="og:description" content="Compare two traces around the consent choice. Observable requests and storage keys, not a compliance badge.">
+  <link rel="canonical" href="./what-did-my-cookie-banner-actually-change.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I check what my cookie banner actually changes?","acceptedAnswer":{"@type":"Answer","text":"Capture what the page does before the consent choice and again after it, then compare the two. Record the outbound requests and the storage keys written in each state and diff them. That comparison answers the question the banner's own screenshot cannot: which third-party requests only appear after consent, which appear regardless, and which storage keys are written either way. A banner that renders correctly and blocks nothing is a common and entirely invisible failure."}},{"@type":"Question","name":"Why is a screenshot of the banner not enough?","acceptedAnswer":{"@type":"Answer","text":"A screenshot shows the interface, not the behaviour. Consent tooling is usually configured separately from the scripts it is supposed to gate, so a tag added later by a marketing team, a script loaded by another script, or a vendor that ignores the consent signal will keep firing behind a perfectly correct banner. Only observing the requests and storage in each state shows what the banner does."}},{"@type":"Question","name":"Does this prove my site is compliant?","acceptedAnswer":{"@type":"Answer","text":"No. It produces a dated record of observable differences between two traces you captured — request URLs and methods, and storage keys. It is evidence for a review, not a compliance badge, and it makes no determination under any privacy law. Only test sites you own or are authorized to test, and take advice from a qualified professional on what the observations mean for your obligations."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2530; background: #f3f3f0; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); letter-spacing: -.03em; line-height: 1.07; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1.02rem; margin-top: 1.5em; }
+    a { color: #9a3412; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1c2530; color: #f6f6f3; text-decoration: none; font-weight: 650; }
+    code { background: #e6e6e1; padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+    footer { margin-top: 2.5em; border-top: 1px solid #d7d7d1; padding-top: 16px; font-size: .85rem; color: #56606b; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Consent Change Record</a></p>
+  <h1>What did my cookie banner actually change?</h1>
+  <p>The banner renders. The buttons work. The vendor dashboard is green. None of that answers the question a client or a reviewer actually asks: when someone declines, what stops happening?</p>
+  <p>Frequently the answer is "less than you think." Consent tooling is configured separately from the scripts it is meant to gate, so a tag added later by a marketing team, a script loaded by another script, or a vendor that ignores the consent signal keeps firing behind a perfectly correct banner — invisibly, because the interface is not where the failure shows.</p>
+  <p><a class="cta" href="./">Open the free consent change record</a></p>
+
+  <h2>Compare two states, not one</h2>
+  <p>Capture what the page does <strong>before</strong> the consent choice and again <strong>after</strong> it, then diff the two. What you want out of the comparison is:</p>
+  <ul>
+    <li><strong>Requests that appear only after consent</strong> — the ones the banner is genuinely gating.</li>
+    <li><strong>Requests that appear in both states</strong> — the ones it is not.</li>
+    <li><strong>Storage keys written either way</strong> — the quieter half of the same question.</li>
+  </ul>
+  <p>A trace holds only metadata — <code>url</code>, <code>method</code>, and storage <code>key</code> values — plus the site, capture time, browser, and which sequence it is. That is enough to answer the question and deliberately not enough to carry page content.</p>
+
+  <h2>How to use it</h2>
+  <ol>
+    <li>Capture a before-consent and an after-consent trace of a site <strong>you own or are authorized to test</strong>.</li>
+    <li>Paste both into the page and choose <strong>Compare traces</strong>. Nothing is uploaded and there is no account.</li>
+    <li>Download the report as your dated review artifact.</li>
+    <li>If you already have DevTools HAR captures instead, the sibling <a href="./tool/">HAR comparison tool</a> diffs two HAR files and groups known tracker domains.</li>
+  </ol>
+
+  <h2>What the record is, and is not</h2>
+  <p>It is a dated, source-linked list of observable differences between two captures — useful in a client review, a handover, or a file you keep. It is not a compliance determination, and it does not claim a site is lawful under any privacy regime. The observations are the evidence; what they mean for your obligations is a question for a qualified professional.</p>
+
+  <h2>Common questions</h2>
+  <h3>How do I check what my cookie banner actually changes?</h3>
+  <p>Capture what the page does before the consent choice and again after it, then compare the two. Record the outbound requests and the storage keys written in each state and diff them. That comparison answers the question the banner's own screenshot cannot: which third-party requests only appear after consent, which appear regardless, and which storage keys are written either way. A banner that renders correctly and blocks nothing is a common and entirely invisible failure.</p>
+  <h3>Why is a screenshot of the banner not enough?</h3>
+  <p>A screenshot shows the interface, not the behaviour. Consent tooling is usually configured separately from the scripts it is supposed to gate, so a tag added later by a marketing team, a script loaded by another script, or a vendor that ignores the consent signal will keep firing behind a perfectly correct banner. Only observing the requests and storage in each state shows what the banner does.</p>
+  <h3>Does this prove my site is compliant?</h3>
+  <p>No. It produces a dated record of observable differences between two traces you captured — request URLs and methods, and storage keys. It is evidence for a review, not a compliance badge, and it makes no determination under any privacy law. Only test sites you own or are authorized to test, and take advice from a qualified professional on what the observations mean for your obligations.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not legal, privacy, or compliance advice, and it does not determine whether a site complies with the GDPR, the ePrivacy Directive, the CCPA, or any other law. It reports observable differences between traces you supply, which depend on how and when they were captured. Only test sites you own or are authorized to test. Verify with a qualified professional before relying on any record it produces. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and experimental and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+    <p><a href="./">Use the tool</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
+  </footer>
+</body>
+</html>

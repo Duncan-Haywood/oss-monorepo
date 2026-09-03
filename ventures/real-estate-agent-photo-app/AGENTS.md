@@ -48,6 +48,31 @@ it's a local `sharp` pipeline and not a paid cloud AI API.
 - **Run:** `npm run enhance -- --in <raw-dir> --out <delivery-dir> --listing "<address>"`
 - **Typecheck:** `npx tsc --noEmit` (strict mode).
 
+### MLS floor-spec preflight (`pipeline/src/preflight.ts`)
+
+Checks a delivery folder against the same MLS floor spec as the free browser
+tool at `/photo-check` (`research/src/lib/photo-spec.ts` — format, byte size,
+long edge, aspect ratio, branding-filename tokens, staged/original pairing).
+After the findings it prints a reshoot / desk-fix list from
+`buildReshootPlan` (same function the browser Copy shot list uses).
+Not a board-specific compliance guarantee; see `process/mls-compliance.ts`
+and `photo-spec.ts`'s `UNIMPLEMENTED_RULES` for what this does not check
+(visual watermark, burned-in contact info, board-specific extras).
+
+```bash
+cd pipeline
+npm run preflight -- --dir ./delivery \
+  [--agent-headshot <filename-in-dir>] [--agent-logo <filename-in-dir>]
+```
+
+`--agent-headshot`/`--agent-logo` mirror `cli-microsite.ts`'s flags of the
+same name — exclude those files from the check since they're the agent's
+own branding assets co-located for the microsite, not MLS-bound listing
+photos (without this, a complete enhance+Brand delivery always trips
+`branding_filename` on its own logo/headshot).
+
+Exits non-zero when any blocking finding is present.
+
 ### Property microsite (`pipeline/src/microsite.ts`)
 
 Generates a single self-contained `index.html` gallery microsite next to

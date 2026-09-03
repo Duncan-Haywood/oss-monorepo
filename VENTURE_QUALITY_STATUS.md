@@ -272,7 +272,13 @@ gap, if any, is still real and unverified rather than asserted either way.
 
 ## Quality Improvement Roadmap
 
-### Immediate (This Week)
+### Immediate (This Week) — deploy what is already built
+- **Portfolio**: Put at least one already-shipped user-facing product on a
+  public URL. Merged-to-`main` is not deployed. See
+  [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
+  The owner flip is `deploy-settings` — do not open a second ask.
+- **Do not** start another calculator, CLI, or quality-tier pass while
+  every usage reading is still a zero baseline with no live URL.
 - **All Ventures**: Ensure .gitignore is properly configured
 - **Foundation Ventures**: Document technology stack clearly
 - **Foundation+ Ventures**: Add ESLint/linting configuration
@@ -364,5 +370,5 @@ This document should be reviewed and updated:
 
 ---
 
-**Last Updated**: 2026-08-21  
-**Next Review**: 2026-08-28
+**Last Updated**: 2026-08-25  
+**Next Review**: 2026-09-01

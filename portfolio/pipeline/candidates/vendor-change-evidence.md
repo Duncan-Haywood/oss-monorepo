@@ -4,9 +4,10 @@
 subprocessor, and security pages, then sends a source-linked diff when a vendor
 changes them.
 
-**Verdict: probe.** The artifact is cheap and the liability boundary is clear,
-but distribution is unproven and the archive is only valuable for the vendors a
-customer actually watches.
+**Verdict: graduated from probe.** The artifact is cheap, deterministic, and the
+liability boundary is clear, but distribution is unproven and the archive is
+only valuable for the vendors a customer actually watches. The local capture
+and diff slice is now implemented; the practitioner experiment remains open.
 
 Scored 2026-08-24. Composite 6.75 · floor 4 (defensibility, distribution).
 
@@ -79,4 +80,5 @@ The floor scores require named mitigations before graduation. For
 defensibility, retain immutable customer-specific snapshots and export them in a
 portable format; measure whether a new entrant can reconstruct the same history
 without the customer's watch list. For distribution, secure one channel partner
-or a repeatable practitioner community before building a hosted product.
+or a repeatable practitioner community before building a hosted or scheduled
+component for distribution.

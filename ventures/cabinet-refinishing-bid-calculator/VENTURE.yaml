@@ -1,0 +1,32 @@
+name: cabinet-refinishing-bid-calculator
+description: A private browser calculator for cabinet painters that prices a kitchen refinish from doors, drawer fronts, face-frame openings, hardware remove-and-rehang, degrease, and a dark-to-light extra coat — and shows the price per door, the price per painted piece, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Cabinet painters will use a piece-count bid calculator because the generic price-per-door rules of thumb they are shopped on cannot see that eight drawer fronts, a greasy range wall, and a dark-to-light extra coat are a different job from ten shop-sprayed doors.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the price per painted piece (not per door) are the two numbers a contractor actually decides on when a homeowner asks them to match a cheaper per-door quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating extra coats as labor on removable pieces, and hardware as its own hours, instead of one blended "add 20%", changes the bid enough that contractors notice which part of a high number is time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified cabinet painters use the calculator twice within 90 days.
+  - Contractors report that splitting doors, drawers, frames, and hardware is more work than their existing per-door method without changing the price they would have bid.
+  - The starting hours prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

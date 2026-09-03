@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I offer local pickup on eBay? | Label vs meetup vs no-show</title>
+  <meta name="description" content="Compare shipping an eBay listing versus local pickup only. See the outbound label you skip, the meetup time you pay, the no-show rate, and the freight cost that still ties pickup.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-offer-ebay-local-pickup.html">
+  <meta property="og:title" content="Should I offer local pickup on eBay?">
+  <meta property="og:description" content="See whether skipping a $5 label still beats a 25-minute meetup after no-shows — and when an $85 freight label flips the table.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay local pickup vs the label",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "local pickup vs ship after no-shows, meetup time cost, expected listing profit, break-even outbound label"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I offer local pickup on eBay?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Local pickup skips the outbound label and return postage, then costs meetup time and a lower sell-through. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 70% ship sell-through vs 35% pickup, 20% no-show, 25 minutes at $18/hour) shipping expects $12.84 and pickup expects $3.52. Pickup keeps $9.32 less. The outbound label has to rise to about $18.31 before shipping matches pickup. That is arithmetic on your inputs, not advice to offer or refuse pickup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does eBay local pickup beat shipping?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the label is freight. On the same $40 SKU a $40 outbound label flips pickup ahead ($3.52 vs −$11.66). A $180 dresser with an $85 freight label, $8 pack, and $45 return postage expects −$5.89 if you ship it at 70% sell-through and $33.82 as local pickup at 50% sell-through with the same 20% no-show and $7.50 meetup."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does a no-show still cost me on eBay local pickup?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This page treats meetup time as paid on every scheduled pickup, including no-shows. Completed-sale profit is only counted when the buyer actually collects. Enter the minutes and wage from your last meetup; this is not eBay’s cancellation policy."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether local pickup still beats the label after no-shows.</h1>
+    <p>
+      Local pickup is not the same decision as a return rate or Authenticity
+      Guarantee. You skip the outbound label and return postage. You pay
+      meetup time and take a lower sell-through because only local buyers
+      can collect. A committed buyer still ghosts. The table keeps the
+      original sale, then drops postage and multiplies by sell-through
+      and the no-show rate.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, fees and pickup</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Ship sell-through (%) <input id="shipSellThroughPct" type="number" min="0" max="100" step="1" value="70"></label>
+        <label>Pickup sell-through (%) <input id="pickupSellThroughPct" type="number" min="0" max="100" step="1" value="35"></label>
+        <label>Pickup no-show (%) <input id="pickupNoShowPct" type="number" min="0" max="100" step="1" value="20"></label>
+        <label>Pickup minutes <input id="pickupMinutes" type="number" min="0" step="1" value="25"></label>
+        <label>Pickup hourly wage <input id="pickupHourlyWage" type="number" min="0" step="0.01" value="18"></label>
+        <label>Pickup fee charged <input id="pickupFeeCharged" type="number" min="0" step="0.01" value="0"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>Pickup return rate (%) <input id="pickupReturnRatePercent" type="number" min="0" max="100" step="0.1" value="2"></label>
+        <label>Pickup listings per month <input id="monthlyPickupListings" type="number" min="0" step="1" value="8"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Pickup vs the label</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by pickup versus shipping</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Ship expected listing profit</dt><dd id="shipExpected"></dd>
+        <dt>Pickup expected listing profit</dt><dd id="pickupExpected"></dd>
+        <dt>Meetup time on a scheduled pickup</dt><dd id="timeCost"></dd>
+        <dt>If they collect</dt><dd id="pickupIfSells"></dd>
+        <dt>Outbound label that still ties pickup</dt><dd id="breakEvenShippingCost"></dd>
+        <dt>Monthly gap vs shipping</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, two listing paths</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Sell-through</th>
+            <th scope="col">No-show</th>
+            <th scope="col">Time cost</th>
+            <th scope="col">If it sells</th>
+            <th scope="col">Expected after sell-through</th>
+            <th scope="col">vs ship</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Meetup time is paid on every scheduled pickup, including no-shows. Completed-sale profit is only counted when the buyer collects. Transparent arithmetic from your inputs — not eBay’s pickup or cancellation policy.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Resellers search “should I offer local pickup on eBay” because
+      skipping the label looks free and the meetup is easy to forget. A
+      25-minute handoff at $18/hour plus a 20% no-show rate can wipe the
+      postage you saved on a $40 SKU with a $5 label.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 shipping charged, 13.25% final value
+      fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack, $5 return label,
+      10% returns if you ship, 70% ship sell-through vs 35% pickup, 20%
+      no-show, 25 minutes at $18/hour — shipping expects $12.84 and
+      pickup expects $3.52. Pickup keeps $9.32 less (−$9.32) on this
+      listing and −$74.56 across eight listings. The outbound label has
+      to rise to about $18.31 before shipping matches pickup.
+      Set the outbound label to $40.00 (a freight box) and pickup
+      expects $3.52 against −$11.66 — $15.18 more.
+    </p>
+    <p>
+      The bulky case flips harder. A $180 dresser, $85 freight, $8 pack,
+      $45 return postage, and an 8% return rate expects −$5.89 if you
+      ship it at 70% sell-through. The same listing as local pickup at
+      50% sell-through, a 20% no-show rate, and the same $7.50 meetup
+      expects $33.82 — $39.72 more.
+    </p>
+    <p>
+      It does not tell you to offer or refuse pickup, and it is not tax
+      or financial advice. A return-<em>rate</em> mix on completed
+      orders, a one-case concession, Authenticity Guarantee, and listing
+      format are different questions. Compare
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>,
+      <a href="should-i-offer-a-partial-refund-on-ebay.html">a partial refund versus taking the return</a>,
+      <a href="is-ebay-authenticity-guarantee-worth-it.html">Authenticity Guarantee versus skip-AG</a>,
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>,
+      or
+      <a href="should-i-break-an-ebay-lot-into-individual-listings.html">a lot versus individual listings</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I offer local pickup on eBay?</h3>
+  <p>Local pickup skips the outbound label and return postage, then costs meetup time and a lower sell-through. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $1 pack, 10% returns, 70% ship sell-through vs 35% pickup, 20% no-show, 25 minutes at $18/hour) shipping expects $12.84 and pickup expects $3.52. Pickup keeps $9.32 less. The outbound label has to rise to about $18.31 before shipping matches pickup. That is arithmetic on your inputs, not advice to offer or refuse pickup.</p>
+  <h3>When does eBay local pickup beat shipping?</h3>
+  <p>When the label is freight. On the same $40 SKU a $40 outbound label flips pickup ahead ($3.52 vs −$11.66). A $180 dresser with an $85 freight label, $8 pack, and $45 return postage expects −$5.89 if you ship it at 70% sell-through and $33.82 as local pickup at 50% sell-through with the same 20% no-show and $7.50 meetup.</p>
+  <h3>Does a no-show still cost me on eBay local pickup?</h3>
+  <p>This page treats meetup time as paid on every scheduled pickup, including no-shows. Completed-sale profit is only counted when the buyer actually collects. Enter the minutes and wage from your last meetup; this is not eBay’s cancellation policy.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from a 25-minute meetup that a $5 label would have beaten, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareLocalPickup, localPickupNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "shipSellThroughPct", "pickupSellThroughPct",
+      "pickupNoShowPct", "pickupMinutes", "pickupHourlyWage", "pickupFeeCharged",
+      "finalValueRate", "fixedFee", "costOfGoods", "shippingCost", "packagingCost",
+      "returnShippingCost", "returnRatePercent", "pickupReturnRatePercent",
+      "monthlyPickupListings",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareLocalPickup(readInput());
+        const extra = result.extraKeptOnPickup;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by pickup versus shipping" :
+          extra < 0 ? "pickup keeps less than shipping" :
+          "pickup and shipping keep the same";
+        document.getElementById("summary").textContent = localPickupNote(result);
+        document.getElementById("shipExpected").textContent = money(result.ship.expectedProfit);
+        document.getElementById("pickupExpected").textContent = money(result.pickup.expectedProfit);
+        document.getElementById("timeCost").textContent = money(result.timeCost);
+        document.getElementById("pickupIfSells").textContent = money(result.pickup.soldExpectedProfit);
+        document.getElementById("breakEvenShippingCost").textContent = Number.isFinite(result.breakEvenShippingCost)
+          ? money(result.breakEvenShippingCost)
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnPickup >= 0
+            ? `${money(result.monthlyExtraOnPickup)} more`
+            : `${money(-result.monthlyExtraOnPickup)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${row.sellThroughPct}%</td><td>${row.noShowPct}%</td><td>${money(row.timeCost)}</td><td>${money(row.soldExpectedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["shipExpected", "pickupExpected", "timeCost", "pickupIfSells", "breakEvenShippingCost", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "local_pickup_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

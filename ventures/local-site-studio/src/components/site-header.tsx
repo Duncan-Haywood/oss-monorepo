@@ -4,6 +4,7 @@ import { brand } from "@/lib/brand";
 const navLinks = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#pricing", label: "Pricing" },
+  { href: "/accessibility-evidence", label: "Evidence" },
   { href: "/#faq", label: "FAQ" },
   { href: "/dashboard", label: "Dashboard" },
 ];

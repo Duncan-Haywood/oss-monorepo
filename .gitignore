@@ -22,3 +22,22 @@ out/
 coverage/
 
 tmp/
+
+# Local git-worktree scaffolding created by Claude Code's Agent tool
+# (isolation: "worktree"). Transient per-session tooling state, not content.
+/.claude/
+
+# OpenTofu (infra/)
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+infra/*.tfvars
+!infra/terraform.tfvars.example
+
+# Built GitHub Pages sites. Regenerated on every deploy; never committed.
+# `platform/pages/dist/` is what actually publishes (build.mjs, the documented
+# local command builds into it, ~230 files); `_site/` is the second builder's
+# output (platform/ci/build_pages_site.py), kept as a cross-check.
+/_site/
+/platform/pages/dist/
+/dist/

@@ -1,0 +1,27 @@
+name: subcontractor-cashflow-planner
+description: A local-first cash-flow planner for subcontractors who need to see when project invoices turn into cash, where a payment delay creates a funding gap, what bridging that gap costs, and which lever — a deposit, supplier terms, or shorter payment terms — closes it.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent subcontractors will revisit a simple payment-timing planner before accepting projects or ordering materials.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent timing scenario is more useful than a generic cash-flow spreadsheet because it separates invoice date, payment terms, retention, and collection risk.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified subcontractors run two scenarios within 90 days of public availability.
+  - Users do not report discovering a timing gap before taking a project.
+links:
+  production: null
+  analytics: null

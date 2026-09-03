@@ -1,0 +1,27 @@
+name: grant-reporting-tracker
+description: Free local-first grant reporting deadline tracker for small nonprofits that turns award dates and reporting intervals into an exportable review queue without uploading grant data.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small nonprofits managing several awards will return to a local deadline queue because it reduces missed reporting dates without requiring a grant-management subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers for nonprofit grant reporting calendar and grant deadline tracker will value a private CSV-exporting tool that works without an account or donor-data upload.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 10
+  protected: true
+kill_criteria:
+  - No measurable return usage or organic referral traffic 60 days after publishing.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: null
+  analytics: null

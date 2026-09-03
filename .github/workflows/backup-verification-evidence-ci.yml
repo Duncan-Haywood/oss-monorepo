@@ -1,0 +1,63 @@
+name: backup-verification-evidence CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/backup-verification-evidence/**"
+      - ".github/workflows/backup-verification-evidence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/backup-verification-evidence/**"
+      - ".github/workflows/backup-verification-evidence-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/backup-verification-evidence
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node --test report.test.mjs page.test.mjs
+
+  lint:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.15.8
+      - run: ruff check .
+      # The self-hosted runner image ships no Node (curl, jq, unzip and git
+      # only -- see gitops/ci/README.md). The clauses.mjs step below runs
+      # bare `node`, which exists on GitHub-hosted ubuntu-latest by default
+      # but not there, so flipping CI_RUNNER to self-hosted would turn this
+      # job red on that step alone. Same class of gap already found and
+      # fixed once in garmin-world-traveler-watchface-ci.yml.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page, and it is the half build.mjs cannot inject: what a tool is not
+      # advice *about* is written in the venture's own voice. So it stays the
+      # venture's to get right -- but nothing showed the author that until the
+      # Pages job went red on main, after the merge, naming a workflow they
+      # never touched. Checked here so the venture that needs the clause is the
+      # one that goes red, before the merge.
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs backup-verification-evidence

@@ -4,6 +4,7 @@ import { DOCS_PAGES } from "@/lib/docs/routes";
 import { DEMO_LEADS } from "@/lib/leads/demo-catalog";
 import { leadPreviewAbsoluteUrl } from "@/lib/leads/slug-path";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
+import { EAA_EVIDENCE_PATH } from "@/lib/pricing/eaa-evidence";
 import { isLeadPreviewIndexable, siteUrl } from "@/lib/seo";
 
 // Reads getLeads() (a live DB call), so it must not freeze at build time —
@@ -25,6 +26,8 @@ const CATEGORY_LANDING_ROUTES = CATEGORY_LANDING_PAGES.map((page) => page.href);
 const STATIC_ROUTES = [
   "",
   "/checkout",
+  EAA_EVIDENCE_PATH,
+  "/accessibility-evidence/preaudit",
   ...CATEGORY_LANDING_ROUTES,
   "/docs",
   ...DOCS_PAGES.map((page) => page.href),
@@ -42,7 +45,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: path === "" ? "weekly" : "monthly",
     // Category landing pages are direct-to-checkout acquisition surfaces,
     // same conversion tier as /checkout — rank above informational /docs.
-    priority: path === "" ? 1 : path === "/checkout" || CATEGORY_LANDING_ROUTE_SET.has(path) ? 0.9 : 0.5,
+    priority:
+      path === ""
+        ? 1
+        : path === "/checkout" ||
+            path === EAA_EVIDENCE_PATH ||
+            CATEGORY_LANDING_ROUTE_SET.has(path)
+          ? 0.9
+          : 0.5,
   }));
 
   const dbLeads = await getLeads();

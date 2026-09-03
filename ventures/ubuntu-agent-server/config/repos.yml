@@ -12,7 +12,100 @@
 # first to claim an issue (via the in-progress label) does the work, so
 # they naturally divide labor without colliding.
 
-repos: []
+repos:
+  # This monorepo itself. tool: codex uses the OpenAI Codex CLI's
+  # subscription-based OAuth login (ChatGPT Plus/Pro's included usage,
+  # not metered API billing — see README's "What this does NOT do": the
+  # login itself still has to happen once, interactively, on the box).
+  # self_directed_prompt points it at this repo's own product-portfolio
+  # conventions (CLAUDE.md, portfolio/DIRECTION.md) instead of the generic
+  # default below.
+  #
+  # The owner asked (2026-08-29) for this loop to spend the subscription
+  # quota on the same kind of work the scheduled cloud sessions do, and
+  # named deployment/CI-CD and marketing surfaces as priorities. The prompt
+  # below was widened to match: it may now work on CI, deployment manifests,
+  # and SEO/landing content, which the earlier version excluded outright.
+  #
+  # Three boundaries were deliberately NOT widened, because "similar prompt"
+  # is not the same as "same authority" and this path is unattended:
+  #
+  #   1. PR-only. The cloud-session mandate authorises merging on green CI;
+  #      agent_runner cannot merge and this does not change that. Nothing
+  #      here reaches `main` without a session or a human merging it.
+  #   2. Money and law stay out of scope — billing, pricing, payment rails,
+  #      licences, disclaimers-as-legal-text. Those are the owner's, and an
+  #      unattended loop editing them is a liability, not a feature.
+  #   3. Secrets stay out of scope. It may write a manifest that *reads* a
+  #      secret; it may not create, move, or print one.
+  #
+  # dry_run stays true — and the master switch
+  # (agent_runner_start_disabled in group_vars/all.yml) stays true — until
+  # a human has actually provisioned a box, logged the codex CLI in
+  # interactively, and watched a few dry runs behave. Flipping either is
+  # an owner action, not something this entry does by itself.
+  - repo: "Duncan-Haywood/monorepo-projects"
+    tool: codex
+    trigger_label: agent
+    base_branch: main
+    dry_run: true
+    self_directed: true
+    self_directed_cooldown_hours: 24
+    model_tier: null
+    self_directed_prompt: |
+      There is no specific issue assigned — you're finding your own next
+      task, following this repo's own working agreement: read README.md,
+      AGENTS.md, and CLAUDE.md at the repo root first.
+
+      This is a product portfolio. Its job is to ship free tools people
+      actually use, not to write plans about tools. Review recent commits,
+      portfolio/ledger/, and open issues, then use your judgment to make
+      ONE complete, high-value improvement and open a PR for it.
+
+      Pick the highest-value work available, in roughly this order:
+
+      1. Getting built products in front of users. 164 finished tools
+         under ventures/ are assembled into a public site by
+         platform/pages/build.mjs and served by
+         gitops/prod/portfolio-site.yaml. Anything that makes that path
+         more reliable, or fixes a tool that is broken once published,
+         beats new features nobody can reach.
+      2. CI and deployment. GitHub Actions and the Hetzner GitOps tree
+         (gitops/, infra/, bootstrap/) are in scope. A workflow that is
+         red for a real reason, a manifest that cannot apply, a deploy
+         step that only works by hand — those are product problems here.
+         Verify manifests locally (python3 -m pytest gitops/tests) rather
+         than assuming; you have no cluster.
+      3. Core usefulness of a shipped venture: a real bug, a half-built
+         slice finished end to end (logic, UI, tests, usage tracking), a
+         test-coverage gap, a small feature the existing code clearly
+         implies but never got.
+      4. Discoverability of something already live: page titles, meta
+         descriptions, structured data, sitemap and robots correctness,
+         landing copy that states plainly what the tool does. Describe
+         only what the product actually does — no invented benchmarks,
+         testimonials, traction, or endorsements.
+
+      Boundaries. These are narrower than the mandate a supervised
+      session runs under, on purpose, because nobody is watching this one:
+
+      - You only ever produce a PR. You cannot merge and cannot deploy.
+        A session or a human reviews it through the normal pipeline.
+      - Do not touch billing, pricing, payment rails, licences, or legal
+        and liability text. Those are the owner's.
+      - Do not create, move, rename, or print a secret, and do not add a
+        step that would. Referencing an existing secret by name from a
+        manifest is fine; handling its value is not.
+      - Do not enable, unsuspend, or widen the schedule of any automation
+        that spends money or pushes on its own — including this runner.
+      - Prefer leaving the repo unchanged over guessing at something
+        ambiguous. One finished, verified change beats three speculative
+        ones, and an honest "I found nothing worth doing" is a fine
+        outcome for a run.
+
+      Run whatever tests cover what you touched and say in the PR what
+      you ran and what it printed. Explain your reasoning so review can
+      evaluate the judgment call, not just the diff.
 
 # --- examples, commented out ---
 #

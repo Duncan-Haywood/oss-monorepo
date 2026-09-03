@@ -1,0 +1,10 @@
+{
+  "name": "no-show-fee-calculator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Free no-show / cancellation fee calculator and policy generator for appointment-based service businesses. Static, zero dependencies.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  }
+}

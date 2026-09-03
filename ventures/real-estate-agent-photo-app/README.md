@@ -1,8 +1,35 @@
 # Listing Lens — Real Estate Agent Photo App
 
-Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. The product focuses on guided capture, instant AI enhancement, optional cloud polish, MLS-ready delivery, lightweight 3D/video outputs, and agent branding.
+Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. Its free MLS listing photo preflight check lets agents download a dated, portable findings report before delivery, without uploading photos or using an account.
+
+The free **MLS listing photo preflight checker** is the first usable product
+surface: select JPEG/PNG delivery files, inspect a dated floor spec for
+resolution, size, format, aspect ratio, branding filenames, and staged-photo
+pairing, then download a portable JSON evidence record. This is a file check,
+not a promise that a particular MLS will accept a listing.
 
 **Status:** Concept / market validation
+
+## Free photo preflight
+
+The `/photo-check` browser tool checks JPEG and PNG listing files against the
+dated floor spec, then copies a short handoff summary or downloads a Markdown
+record of the observations. The
+record names what was checked and what was not checked; it is not a portal
+submission or an MLS acceptance guarantee.
+
+Everything in the browser tool runs locally. Photos are never uploaded, and
+there are no accounts, tracking cookies, or analytics vendors. Anonymous
+feature events are counted in local browser storage and can be removed by
+clearing site data.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not legal, tax, financial, medical, or
+engineering advice, and it does not replace a qualified professional. **You are
+responsible for reviewing and verifying its output before relying on it**, and
+for meeting any obligation it helps you prepare for. To the maximum extent
+permitted by law, the authors accept no liability for any loss or damage arising
+from its use.
 
 ## ⚠ Human action needed to unblock the next stage
 
@@ -60,7 +87,10 @@ real-estate-agent-photo-app/
 │       ├── cli-microsite.ts     # npm run microsite -- --dir --listing --agent-name
 │       ├── microsite.test.ts    # npm test — synthetic-delivery-folder self-test
 │       ├── log-lead.ts          # npm run log-lead -- ... (see AGENTS.md)
-│       └── log-lead.test.ts     # npm test
+│       ├── log-lead.test.ts     # npm test
+│       ├── preflight.ts         # MLS floor-spec check (research/src/lib/photo-spec.ts) on a delivery dir
+│       ├── cli-preflight.ts     # npm run preflight -- --dir <delivery-dir>
+│       └── preflight.test.ts    # npm test — synthetic-photo self-test
 ├── scripts/
 │   └── push-to-github.sh
 └── research/
@@ -145,6 +175,26 @@ npm run microsite -- --dir ./delivery --listing "123 Main St" \
   --agent-brokerage "Acme Realty"
 ```
 
+The same folder can be checked against the MLS floor spec. Findings print
+first; a reshoot / desk-fix list follows so you know which rooms to recapture
+versus which files to rename, recrop, or pair with an original:
+
+```bash
+npm run preflight -- --dir ./delivery
+```
+
+The browser tool at `/photo-check` runs the same rules in-tab (no upload) and
+lets you copy the shot list. This is file-header and filename evidence, not a
+warranty that any MLS will accept the photos. Visual watermarks, burned-in
+contact info, and board-specific extras are disclosed as unimplemented.
+
+**No advice-of-record.** The check reports what was tested and when. It does
+not say a listing is compliant, MLS-ready, or that a portal will accept it.
+
+**Best-effort hosting, no SLA.** Hosted URLs are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. Do not use this as a
+system of record. If you need the result later, copy the shot list.
+
 ## Research report commands
 
 ```bash
@@ -179,4 +229,4 @@ The static export is generated in `research/out/`.
 
 ## License
 
-Private / proprietary.
+MIT — see `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and does not change what the preflight check does.

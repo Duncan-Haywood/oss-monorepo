@@ -9,6 +9,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: >-
+      Obligated EU shops (≥10 employees or >€2M turnover) will pay a
+      fixed-price accessibility evidence job (€900–€1800) through this
+      venture's existing surfaces, buying a dated record rather than a
+      compliance certificate.
+    status: untested
+    checked: null
+    evidence: customer-contact
 
 economics:
   currency: USD
@@ -23,6 +31,10 @@ budget:
 kill_criteria:
   - No paid site sold within 90 days of checkout going live.
   - Checkout/Stripe integration cannot be completed and verified end-to-end.
+  - >-
+      EAA evidence product line: fewer than two of ten qualified
+      (non-microenterprise) shops take a paid audit, or AT verification
+      finds generated fixes close less than half of blocking issues.
 
 links:
   production: null

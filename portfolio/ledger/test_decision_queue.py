@@ -146,7 +146,11 @@ class Render(unittest.TestCase):
             decision(),
             decision(id="prs", asks=[], prs=[372, 368], gates="deployment"),
         ], TODAY)
-        self.assertIn("2 decisions, collapsed from 1 asks and 2 open", out)
+        # "related", not "open": this file's PR numbers are provenance, and
+        # calling them open had the queue overstating itself by seven closed
+        # pull requests. See the `prs` note in asks.yaml.
+        self.assertIn("2 decisions, collapsed from 1 asks and 2 related", out)
+        self.assertNotIn("open pull requests", out)
 
     def test_blocked_items_are_marked(self):
         out = render([
@@ -185,6 +189,78 @@ class RealFile(unittest.TestCase):
         for d in load():
             self.assertIn(d["gates"], GATES)
             self.assertIn(d["exposure"], EXPOSURES)
+
+    def test_product_prs_are_not_an_owner_decision(self):
+        ids = {d["id"] for d in load()}
+        self.assertNotIn("venture-gate-premise", ids)
+        self.assertNotIn("eaa-evidence-product-line", ids)
+
+    def test_no_two_rows_claim_the_same_pull_request(self):
+        # The 2026-08-29 regression: #2003 added `portfolio-site-hetzner-
+        # deploy` and #2006 added `hetzner-portfolio-site-live` -- one ask,
+        # two rows, both claiming PR 1999. `check` caught it, but only
+        # after the merge, and until it was fixed the queue printed
+        # nothing at all. Named separately from the generic `check` run
+        # above so a re-added duplicate says which rule it broke.
+        seen = {}
+        for d in load():
+            for pr in d["prs"]:
+                self.assertNotIn(
+                    pr, seen,
+                    f"PR #{pr} is claimed by both {seen.get(pr)!r} and "
+                    f"{d['id']!r}; one ask gets one row",
+                )
+                seen[pr] = d["id"]
+
+
+class MainDegradesGracefully(unittest.TestCase):
+    """A bookkeeping mistake must not hide the queue from the owner."""
+
+    def _run(self, decisions, argv):
+        import contextlib
+        import io
+        from unittest import mock
+
+        import decision_queue
+
+        out, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(decision_queue, "load", lambda: decisions), \
+                mock.patch("sys.argv", ["decision_queue.py", *argv]), \
+                contextlib.redirect_stdout(out), \
+                contextlib.redirect_stderr(err):
+            code = decision_queue.main()
+        return code, out.getvalue(), err.getvalue()
+
+    def test_clean_queue_renders_and_exits_zero(self):
+        code, out, _ = self._run([decision()], ["--today", "2026-08-24"])
+        self.assertEqual(code, 0)
+        self.assertIn("The account owner's decision queue", out)
+
+    def test_duplicate_pr_still_renders_the_queue_but_exits_one(self):
+        dupes = [decision(), decision(id="payout-rail-again", asks=[3], prs=[1])]
+        dupes[0]["prs"] = [1]
+        code, out, err = self._run(dupes, ["--today", "2026-08-24"])
+        self.assertEqual(code, 1, "a reported problem must still fail loudly")
+        self.assertIn("claimed by both", err)
+        # The point of the change: both decisions are still legible.
+        self.assertIn("payout-rail", out)
+        self.assertIn("payout-rail-again", out)
+
+    def test_check_stays_strict_and_prints_no_queue(self):
+        dupes = [decision(), decision(id="other", asks=[3], prs=[1])]
+        dupes[0]["prs"] = [1]
+        code, out, err = self._run(dupes, ["--check"])
+        self.assertEqual(code, 1)
+        self.assertIn("claimed by both", err)
+        self.assertNotIn("The account owner's decision queue", out)
+
+    def test_unrenderable_record_falls_back_instead_of_a_traceback(self):
+        broken = decision()
+        del broken["opened"]
+        code, out, err = self._run([broken], ["--today", "2026-08-24"])
+        self.assertEqual(code, 1)
+        self.assertIn("cannot render the queue", err)
+        self.assertNotIn("Traceback", out)
 
 
 if __name__ == "__main__":

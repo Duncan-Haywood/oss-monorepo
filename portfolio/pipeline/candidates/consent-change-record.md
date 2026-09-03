@@ -4,10 +4,27 @@
 before and after a consent choice, then produces a diff with request URLs,
 storage keys, and screenshots for the site operator to review.
 
-**Verdict: probe.** The artifact is useful without declaring a site compliant:
-it records observable browser behaviour and leaves the legal interpretation to
-the customer. The unresolved question is whether agencies and small publishers
-will pay for recurring evidence rather than rely on a one-off manual check.
+**Verdict: probe → graduated 2026-08-24 (ship-and-measure override).** The
+artifact is useful without declaring a site compliant: it records observable
+browser behaviour and leaves the legal interpretation to the customer. The
+unresolved question is whether agencies and small publishers will pay for
+recurring evidence rather than rely on a one-off manual check.
+
+**Graduated 2026-08-24, mitigation not yet satisfied.** This candidate's own
+mitigation ("secure a named web-agency or privacy-implementation partner
+before graduation") has not been met. Per the portfolio's 2026-08-24
+product-first direction — ship free value and measure real usage instead of
+running another pre-build validation round — it graduates directly to
+`ventures/consent-change-record` as a v0 rather than staying a paper probe.
+Scope was narrowed from the full "browser check that records live page
+loads" (screenshots, live automation) to a **HAR-diff tool**: the user
+exports two HAR captures themselves (a standard DevTools feature in every
+major browser) and this diffs them client-side. That is a smaller, honestly
+scoped, zero-network-risk v0 of the same underlying value — "what changed
+before vs. after a consent choice" — that does not require this session to
+build or operate live browser automation. Distribution and willingness to
+pay are unmeasured; the kill criteria in `ventures/consent-change-record/VENTURE.yaml`
+track exactly that gap.
 
 Scored 2026-08-24. Composite 6.125 · floor 4 (distribution).
 

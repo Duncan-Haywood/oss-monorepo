@@ -304,6 +304,12 @@ class ImportState:
             counts[name] = counts.get(name, 0) + 1
         return {name for name, count in counts.items() if count > 1}
 
+    def all_items(self) -> list[ImportItem]:
+        rows = self.connection.execute(
+            "SELECT path, status, attempts, last_error FROM imports ORDER BY path"
+        ).fetchall()
+        return [row_to_item(row) for row in rows]
+
 
 def row_to_item(row: sqlite3.Row) -> ImportItem:
     return ImportItem(
@@ -329,6 +335,33 @@ def file_is_ready(path: Path) -> bool:
         return path.exists() and path.stat().st_size > 0
     except OSError:
         return False
+
+
+def verify_manifest(state: ImportState) -> dict[str, object]:
+    """Check that every manifest file still exists and can be read."""
+    status_counts: dict[str, int] = {}
+    failures: list[dict[str, str]] = []
+    checked = 0
+    for item in state.all_items():
+        checked += 1
+        status_counts[item.status] = status_counts.get(item.status, 0) + 1
+        try:
+            size = item.path.stat().st_size
+            if size == 0:
+                failures.append({"path": str(item.path), "reason": "empty"})
+                continue
+            with item.path.open("rb") as handle:
+                if not handle.read(1):
+                    failures.append({"path": str(item.path), "reason": "unreadable"})
+        except OSError as error:
+            reason = "missing" if not item.path.exists() else "unreadable"
+            failures.append({"path": str(item.path), "reason": f"{reason}: {error}"})
+    return {
+        "checked": checked,
+        "healthy": checked - len(failures),
+        "failures": failures,
+        "status_counts": status_counts,
+    }
 
 
 def manifest_db_path(state_dir: Path, media_type: str) -> Path:
@@ -1070,7 +1103,7 @@ def format_summary(label: str, summary: dict[str, int]) -> str:
 
 def parse_args(argv: Iterable[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Resumable Apple Photos importer for JPEGs and RAW files")
-    parser.add_argument("command", choices=("init", "run", "status", "skip-uncertain", "preflight"))
+    parser.add_argument("command", choices=("init", "run", "status", "skip-uncertain", "preflight", "verify"))
     parser.add_argument(
         "--media-type",
         choices=tuple(MEDIA_SUFFIXES),
@@ -1099,6 +1132,7 @@ def parse_args(argv: Iterable[str]) -> argparse.Namespace:
     parser.add_argument("--photos-db", type=Path, default=DEFAULT_PHOTOS_DB)
     parser.add_argument("--scratch-dir", type=Path, default=None)
     parser.add_argument("--photos-preflight", action="store_true")
+    parser.add_argument("--json", action="store_true", help="Print verify results as JSON")
     return parser.parse_args(list(argv))
 
 
@@ -1138,15 +1172,22 @@ def main(argv: Iterable[str] = sys.argv[1:]) -> int:
                 "status_raw.json" if args.media_type == "raw" else "status.json"
             )
             if status_path.exists():
-                status = json.loads(status_path.read_text(encoding="utf-8"))
-                progress = status.get("progress", {})
-                errors = status.get("errors", {})
-                print(
-                    f"Strategy={progress.get('current_strategy')} batch={progress.get('current_batch_size')} "
-                    f"eta={progress.get('eta_human')} consecutive_failures={progress.get('consecutive_failures')}"
-                )
-                if errors.get("last_error"):
-                    print(f"Last error [{errors.get('last_error_category')}]: {errors.get('last_error')}")
+                try:
+                    status = json.loads(status_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    # Status is a convenience snapshot, not the source of truth.
+                    # Keep the manifest summary usable when a sync or interrupted
+                    # write leaves the snapshot unavailable.
+                    print("Progress snapshot unavailable; manifest summary is authoritative.")
+                else:
+                    progress = status.get("progress", {})
+                    errors = status.get("errors", {})
+                    print(
+                        f"Strategy={progress.get('current_strategy')} batch={progress.get('current_batch_size')} "
+                        f"eta={progress.get('eta_human')} consecutive_failures={progress.get('consecutive_failures')}"
+                    )
+                    if errors.get("last_error"):
+                        print(f"Last error [{errors.get('last_error_category')}]: {errors.get('last_error')}")
             return 0
         if args.command == "skip-uncertain":
             skipped = state.skip_uncertain("Skipped because previous Photos timeout may already have imported these files.")
@@ -1158,6 +1199,35 @@ def main(argv: Iterable[str] = sys.argv[1:]) -> int:
             print(f"Marked {marked} file(s) as already in Photos.")
             print(format_summary("Status", state.summary()))
             return 0
+        if args.command == "verify":
+            report = verify_manifest(state)
+            event_path = args.state_dir / f"events_{args.media_type}.jsonl"
+            event_path.parent.mkdir(parents=True, exist_ok=True)
+            with event_path.open("a", encoding="utf-8") as handle:
+                handle.write(
+                    json.dumps(
+                        {
+                            "time": iso_now(),
+                            "event": "verify_manifest",
+                            "media_type": args.media_type,
+                            "checked": report["checked"],
+                            "healthy": report["healthy"],
+                            "failure_count": len(report["failures"]),
+                        },
+                        sort_keys=True,
+                    )
+                    + "\n"
+                )
+            if args.json:
+                print(json.dumps(report, indent=2, sort_keys=True))
+            else:
+                print(
+                    f"Verify: checked={report['checked']} healthy={report['healthy']} "
+                    f"failed={len(report['failures'])}"
+                )
+                for failure in report["failures"]:
+                    print(f"  - {failure['reason']}: {failure['path']}")
+            return 0 if not report["failures"] else 1
         status_path = args.state_dir / (
             "status_raw.json" if args.media_type == "raw" else "status.json"
         )

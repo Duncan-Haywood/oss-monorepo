@@ -1,0 +1,10 @@
+{
+  "captured_at": "2026-08-24T12:00:00Z",
+  "api_version": "2026-07",
+  "source": "merchant-export",
+  "authorization_state": "active",
+  "apps": [
+    {"id": "app-analytics", "scopes": ["read_analytics", "read_reports"], "webhooks": ["app/uninstalled", "shop/update"]},
+    {"id": "app-shipping", "scopes": ["read_products"], "webhooks": []}
+  ]
+}

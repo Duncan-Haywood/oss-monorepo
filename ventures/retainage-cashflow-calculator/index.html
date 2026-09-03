@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Construction Retainage Calculator | Cash Flow Tool</title>
+  <meta name="description" content="Free construction retainage calculator for contractors and subcontractors. See retainage withheld, unpaid cash, carrying cost, when retainage typically releases, and copy a factual payment follow-up draft.">
+  <meta property="og:title" content="Construction Retainage Calculator"><meta property="og:description" content="Quantify cash tied up in retainage and unpaid construction invoices. Private, free, and browser-only.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Construction Retainage Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Retainage withheld, unpaid cash, carrying cost, cost of another day or 30 days, delay scenarios, modeled retainage reduction, 0%/5%/10% bid to keep progress cash, shareable worksheet link, partial retainage offer vs wait, factual payment follow-up draft"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much retainage will be withheld on my contract?","acceptedAnswer":{"@type":"Answer","text":"Retainage withheld is the contract value times your retainage percentage — it does not depend on how much has been paid to date. On the worksheet defaults, a $100,000 contract at 10% retainage withholds $10,000.00. The calculator separately tracks retainage still unpaid, which is capped at whichever is smaller: the full retainage withheld, or the earned-but-unpaid balance."}},{"@type":"Question","name":"Is retainage the same thing as an unpaid invoice?","acceptedAnswer":{"@type":"Answer","text":"No. Earned but unpaid is the contract value minus what has actually been paid — $25,000.00 on the defaults ($100,000 contract, $75,000 paid). Retainage still unpaid is a narrower figure inside that: the smaller of the retainage withheld ($10,000.00) or the earned-but-unpaid amount. On the defaults the full $10,000.00 of retainage is still inside that $25,000.00 owed, not on top of it."}},{"@type":"Question","name":"When does retainage typically release?","acceptedAnswer":{"@type":"Answer","text":"The calculator models a common AIA-style rule: the full retainage rate applies to billed work until the job passes a reduction point (50% complete by default), then the rate drops to a lower reduced rate (5% by default). On the worksheet defaults — a job 75% complete against that 50%-complete reduction point and 5% reduced rate — the modeled proper hold is $5,000.00 of the $7,500.00 progress retainage billed, meaning about $2,500.00 is typically already releasable. This is a planning model built from a common contract pattern, not a reading of your actual subcontract — check the release terms your contract actually states."}},{"@type":"Question","name":"What does a payment delay actually cost me?","acceptedAnswer":{"@type":"Answer","text":"The calculator applies your own annual carrying-cost assumption only to the earned-but-unpaid balance, not the full contract value. On the defaults — $25,000.00 earned but unpaid at a 12% annual carrying-cost assumption — each additional day models about $8.22, and another 30 days of delay models about $246.58. Over the 90 days already outstanding in the default scenario, that comes to $739.73 in modeled carrying cost on top of the $25,000.00 owed. This is a planning figure using your own rate assumption, not a contractual interest claim."}},{"@type":"Question","name":"Should I bid higher to cover retainage?","acceptedAnswer":{"@type":"Answer","text":"The calculator compares what it takes to keep the same progress-payment cash at 0%, 5%, and 10% retainage. On a $100,000 job at 10% retainage, keeping the same cash flow as a no-retainage job means bidding $111,111.11 — $11,111.11 more — because the withheld 10% has to be grossed back up from progress payments. That is different from the smaller economic add-on ($296.77 on the defaults) that only covers the modeled carrying cost of the hold. Most contractors price the cash-now gap, not just the interest, when retainage is negotiable."}},{"@type":"Question","name":"Should I take a partial retainage check now?","acceptedAnswer":{"@type":"Answer","text":"On the worksheet defaults — a $100,000 contract with 10% retainage, $75,000 paid, and a 12% carrying-cost assumption — waiting 60 days for the remaining $10,000 models $197.26 more carrying cost on that retainage, leaving $9,802.74. A $5,000 check that closes the rest is $4,802.74 behind that wait. If the other $5,000 still arrives in 60 days, taking the check now leaves $9,901.37. The calculator shows the arithmetic; it does not tell you to sign a waiver."}}]}</script>
+  <style>:root{font-family:system-ui,sans-serif;color:#17211b;background:#f4f0e8}body{max-width:960px;margin:auto;padding:2rem 1rem}header{border-left:6px solid #b85a2f;padding-left:1rem}h1{font-size:clamp(2rem,6vw,4rem);line-height:.95;margin:.2rem 0}.lede{font-size:1.2rem;max-width:50rem}main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1rem;margin-top:2rem}section{background:#fffdf8;border:1px solid #d8d0c0;padding:1.2rem;border-radius:12px;box-shadow:4px 4px 0 #ded5c4}.field{margin:1rem 0}label{display:block;font-weight:700}input,textarea,button{font:inherit;width:100%;box-sizing:border-box;padding:.7rem;margin-top:.35rem;border:1px solid #9d9689;border-radius:7px}button{background:#17211b;color:white;font-weight:700;cursor:pointer}button.secondary{background:#b85a2f}button.tertiary{background:#fffdf8;color:#17211b}.results{display:grid;gap:.7rem}.result{border-top:3px solid #b85a2f;padding-top:.5rem}.amount{font-size:1.8rem;font-weight:800}.notice{background:#f8eadf;padding:.8rem;border-radius:7px}.fine{font-size:.9rem;color:#514d46}#errors,#partialReleaseError{color:#a12819;font-weight:700;white-space:pre-line}.hidden{display:none}.scenarios{width:100%;border-collapse:collapse;margin-top:1rem}.scenarios th,.scenarios td{text-align:left;border-bottom:1px solid #d8d0c0;padding:.6rem .35rem}.scenarios th{font-size:.85rem}.scenarios tr.winner{background:#eef6ea;font-weight:700}.compare-verdict{margin-top:.8rem}.report-context{font-size:.95rem;color:#514d46;line-height:1.6;margin-bottom:1rem}.report-context strong{color:#17211b}.milestone{display:grid;gap:.5rem;margin:1rem 0;padding:1rem;border:1px solid #d8d0c0;border-radius:8px}@media(max-width:700px){main{grid-template-columns:1fr}body{padding:.9rem}.scenarios{font-size:.9rem}}@media print{body{max-width:none;padding:0;background:white}header{border-left:0;border-bottom:3px solid #b85a2f;padding:0 0 1rem}header .lede{font-size:1rem}main{display:block;margin-top:1rem}main>section:first-child,main>section:last-child,#copy,#download,#downloadSummary,#downloadRecord,#jsonSnapshot,#print,#share,#addMilestone,#downloadSchedule,#copyStatus,#usage,#remember,.field:has(#project),.field:has(#payer),.field:has(#invoice),.field:has(#due),.field:has(#partialOffer),.field:has(#waitDays){display:none!important}section{border:0;box-shadow:none;padding:.5rem 0;background:white}.hidden{display:block!important}textarea{border:0;padding:0;min-height:15rem;resize:none}h2{break-after:avoid}.notice,.fine{font-size:.8rem}}
+  </style>
+</head>
+<body>
+  <header><p>PRIVATE CASH-FLOW WORKSHEET</p><h1>See what retainage is costing your business.</h1><p class="lede">A construction retainage calculator for contractors and subcontractors. Turn your contract value, payment history, and days outstanding into a clear cash snapshot, a modeled release schedule, and a factual follow-up email.</p></header>
+  <main>
+    <section><h2>Your project figures</h2><form id="form"><div class="field"><label for="contractValue">Contract value</label><input id="contractValue" name="contractValue" type="number" min="0" step="0.01" value="100000" required></div><div class="field"><label for="retainagePct">Retainage withheld (%)</label><input id="retainagePct" name="retainagePct" type="number" min="0" max="100" step="0.1" value="10" required></div><div class="field"><label for="paidToDate">Paid to date</label><input id="paidToDate" name="paidToDate" type="number" min="0" step="0.01" value="75000" required></div><div class="field"><label for="daysOutstanding">Days since payment was due</label><input id="daysOutstanding" name="daysOutstanding" type="number" min="0" step="1" value="90" required></div><div class="field"><label for="annualCarryingRatePct">Annual carrying-cost assumption (%)</label><input id="annualCarryingRatePct" name="annualCarryingRatePct" type="number" min="0" max="100" step="0.1" value="12" required><p class="fine">Use your own borrowing or opportunity-cost assumption. This is a model, not an interest claim.</p></div><div class="field"><label for="percentComplete">Percent complete (%)</label><input id="percentComplete" name="percentComplete" type="number" min="0" max="100" step="0.1" value="75"><p class="fine">How far the job has progressed. Paid-to-date is cash received, not percent complete.</p></div><div class="field"><label for="reductionAtPct">Retainage usually reduces at (%)</label><input id="reductionAtPct" name="reductionAtPct" type="number" min="0" max="100" step="0.1" value="50"><p class="fine">Many contracts drop retainage after 50% complete. Check yours.</p></div><div class="field"><label for="reducedRetainagePct">Reduced retainage (%)</label><input id="reducedRetainagePct" name="reducedRetainagePct" type="number" min="0" max="100" step="0.1" value="5"><p class="fine">Typical reduction is from 10% to 5%. Use the figure in the contract.</p></div><div class="field"><label for="typicalHoldDays">Typical retainage hold (days)</label><input id="typicalHoldDays" name="typicalHoldDays" type="number" min="0" step="1" value="90"><p class="fine">Used only for the 0% / 5% / 10% bid comparison — how long you expect the withheld slice to sit before release. Not a contractual deadline.</p></div><button>Calculate cash exposure</button><p id="errors" role="alert"></p><label class="fine"><input id="remember" type="checkbox"> Remember this worksheet on this device</label></form></section>
+    <section id="output" class="hidden" aria-live="polite"><h2>Cash snapshot</h2><div class="results"><div class="result"><span>Retainage withheld</span><div id="retainage" class="amount"></div></div><div class="result"><span>Retainage still unpaid (modeled)</span><div id="retainageStillUnpaid" class="amount"></div></div><div class="result"><span>Earned but unpaid</span><div id="unpaid" class="amount"></div></div><div class="result"><span>Modeled cost per additional day</span><div id="daily" class="amount"></div></div><div class="result"><span>Modeled cost of another 30 days</span><div id="thirtyDay" class="amount"></div></div><div class="result"><span>Modeled carrying cost to date</span><div id="carrying" class="amount"></div></div><div class="result"><span>Total modeled cash outstanding</span><div id="total" class="amount"></div></div></div><p class="notice">The carrying-cost figures are only a user-supplied scenario. They do not establish a contractual interest rate, payment deadline, lien right, or entitlement.</p></section>
+    <section id="scenarioSection" class="hidden"><h2>If payment slips further</h2><p>See modeled cash outstanding if the current delay lasts another 30, 60, or 90 days. These are planning scenarios, not interest claims.</p><table class="scenarios"><thead><tr><th>Extra delay</th><th>Cash outstanding</th><th>Added carrying cost</th></tr></thead><tbody id="scenarios"></tbody></table></section>
+    <section id="releaseSection" class="hidden"><h2>When retainage typically releases</h2><p>Modeled against a common reduction rule. Your contract controls whether retainage actually drops, and when.</p><div class="results"><div class="result"><span>Proper hold at this percent complete</span><div id="properHold" class="amount"></div></div><div class="result"><span>Typically already releasable</span><div id="shouldRelease" class="amount"></div></div><div class="result"><span>Still held above the reduced rate</span><div id="overheld" class="amount"></div></div></div><p id="releaseNote" class="notice"></p></section>
+    <section id="rateSection" class="hidden"><h2>What bid keeps the same cash coming in?</h2><p>Treat the contract value as the price you would accept with <strong>no retainage</strong>. The table shows 0%, 5%, 10%, and this worksheet’s rate. <strong>Bid to keep progress cash</strong> is what most contractors add before they sign: it recovers the withheld slice from progress payments. The economic add-on only covers modeled carrying cost of the hold — usually a few hundred dollars, not the cash-now gap.</p><p id="rateNote" class="notice"></p><table class="scenarios" id="rateTable"><thead><tr><th scope="col">Retainage</th><th scope="col">Withheld</th><th scope="col">Progress cash</th><th scope="col">Carry over hold</th><th scope="col">Bid to keep progress cash</th><th scope="col">Extra to add</th></tr></thead><tbody id="rateRows"></tbody></table><p class="fine">100% retainage cannot be grossed up from progress payments. This is a planning model, not a reading of your subcontract or a claim that retainage is or is not lawful on this job.</p></section>
+    <section id="partialReleaseSection" class="hidden"><h2 id="partialReleaseCompare">Compare a partial retainage check</h2><p>General contractors often offer a check today against retainage. That check can close the rest (a waiver or discounted payoff) or only accelerate part of it. Carrying cost here is applied only to the retainage still unpaid — the cash in the offer — not to other earned-but-unpaid progress. <a href="should-i-take-partial-retainage-now.html">Should I take partial retainage now?</a></p><div class="field"><label for="partialOffer">Check offered today</label><input id="partialOffer" name="partialOffer" type="number" min="0" step="0.01" value="5000"></div><div class="field"><label for="waitDays">Days they say until full retainage</label><input id="waitDays" name="waitDays" type="number" min="0" step="1" value="60"></div><p id="partialReleaseError" class="hidden" role="alert"></p><table class="scenarios" id="partialReleaseTable" aria-describedby="partialReleaseNote"><thead><tr><th scope="col">Path</th><th scope="col">Cash from retainage</th><th scope="col">Added carrying</th><th scope="col">Net after carrying</th><th scope="col">Vs waiting</th></tr></thead><tbody id="partialReleaseRows"></tbody></table><p id="partialReleaseNote" class="compare-verdict notice"></p><p class="fine">This table does not tell you to accept, refuse, or sign. A waiver, change order, or lien release is a legal decision you review with your contract and counsel.</p></section>
+    <section id="draftSection" class="hidden"><h2>Private project report</h2><div id="reportContext" class="report-context"></div><h3>Factual payment follow-up</h3><div class="field"><label for="project">Project name (optional)</label><input id="project" placeholder="Main Street remodel"></div><div class="field"><label for="payer">Payer or GC (optional)</label><input id="payer" placeholder="Acme Construction"></div><div class="field"><label for="invoice">Invoice / pay application reference</label><input id="invoice" placeholder="Pay application #4"></div><div class="field"><label for="due">Due date</label><input id="due" placeholder="August 30, 2026"></div><textarea id="draft" aria-label="Retainage release request draft" rows="12" readonly></textarea><button id="copy" type="button" class="secondary">Copy draft</button><button id="download" type="button">Download worksheet</button><button id="downloadSummary" type="button" class="tertiary">Download cash summary</button><button id="downloadRecord" type="button" class="tertiary">Download cash-flow record</button><button id="jsonSnapshot" type="button" class="tertiary">Download JSON snapshot</button><button id="print" type="button" class="tertiary">Print or save report as PDF</button><button id="share" type="button" class="tertiary">Copy shareable worksheet link</button><p id="copyStatus" role="status" aria-live="polite"></p></section>
+    <section id="milestoneSection"><h2>Payment milestones</h2><p class="fine">Optional private schedule for checking your worksheet against billed and paid amounts. Add rows as needed; blank rows are ignored.</p><div id="milestones"></div><button id="addMilestone" type="button" class="secondary">Add milestone</button><button id="downloadSchedule" type="button">Download milestone schedule</button></section>
+    <section><h2>Use it safely</h2><p>Weighing this against Levelset or another payments/lien-rights platform? See <a href="vs-levelset.html">this calculator vs. Levelset</a>.</p><p>Everything runs in your browser. Your project data is never uploaded. If you opt in, the worksheet is stored only in this browser so you can return to it. We count only anonymous feature events in local storage (calculations, rate compares, draft copies, downloads, prints, saved drafts, link copies, and partial-offer compares), never people, content, IPs, or cookies. Counting honors Do Not Track and Global Privacy Control. Turn it off with the checkbox below.</p><label><input id="usage" type="checkbox" checked> Count anonymous local usage events</label><p class="fine"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p></section>
+  </main>
+  <script type="module">
+    import {parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, worksheetSummary, summaryText, cashFlowRecordText, evidenceSnapshot, paymentScheduleSummary, releaseSchedule, releaseNote, compareRetainageRates, rateComparisonNote, comparePartialReleaseOffer, partialReleaseNote} from './calc.mjs';
+    import {encodeInputs, decodeInputs, NUMBER_FIELD_IDS, TEXT_FIELD_IDS} from './share.mjs';
+    import {recordUsage, isUsageEnabled, setUsageEnabled} from './usage.mjs';
+    const $=id=>document.getElementById(id);
+    let result;
+    let release;
+    let lastPartialRelease = null;
+    let partialReleaseCounted = false;
+    const draftKey='retainage-cashflow:worksheet-draft';
+    const inputIds=[...NUMBER_FIELD_IDS, ...TEXT_FIELD_IDS];
+    const money=n=>n==null?'—':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(n);
+    const count=key=>{
+      const event=String(key).startsWith('retainage-cashflow:')?String(key).slice('retainage-cashflow:'.length):key;
+      recordUsage(event);
+    };
+    $('usage').checked=isUsageEnabled();
+    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl){$('usage').checked=false;$('usage').disabled=true;}
+    $('usage').addEventListener('change',()=>setUsageEnabled($('usage').checked));
+    const currentInputs=()=>Object.fromEntries(inputIds.map(id=>[id,$(id).value]));
+    function refreshDraft(){
+      if(!result)return;
+      $('draft').value=followUpDraft({projectName:$('project').value,payerName:$('payer').value,invoiceReference:$('invoice').value,dueDate:$('due').value,result});
+      $('reportContext').innerHTML=`<strong>${$('project').value.trim()||'Unnamed project'}</strong> · ${$('payer').value.trim()||'Payer / GC not provided'}<br>${$('invoice').value.trim()||'Invoice reference not provided'} · Due ${$('due').value.trim()||'date not provided'}`;
+    }
+    function rememberDraft(){
+      if(!$('remember').checked){localStorage.removeItem(draftKey);return;}
+      localStorage.setItem(draftKey,JSON.stringify(currentInputs()));
+      count('retainage-cashflow:draft-saved');
+    }
+    function applyInputs(values){
+      Object.entries(values||{}).forEach(([id,value])=>{if($(id))$(id).value=value;});
+    }
+    function vsWait(row, waitNet){
+      const delta = row.net - waitNet;
+      if (row.path === 'wait') return '—';
+      if (Math.abs(delta) < 1e-9) return 'Same as waiting';
+      return `${money(Math.abs(delta))} ${delta > 0 ? 'ahead' : 'behind'}`;
+    }
+    function renderPartialRelease(){
+      if (!result?.values) return;
+      try {
+        lastPartialRelease = comparePartialReleaseOffer(result.values, {partialOffer:$('partialOffer').value, waitDays:$('waitDays').value});
+        $('partialReleaseError').textContent = '';
+        $('partialReleaseError').classList.add('hidden');
+        $('partialReleaseRows').innerHTML = lastPartialRelease.rows.map(row => `<tr class="${lastPartialRelease.winner === row.path ? 'winner' : ''}"><td>${row.label}</td><td>${money(row.cash)}</td><td>${money(row.additionalCarrying)}</td><td>${money(row.net)}</td><td>${vsWait(row, lastPartialRelease.wait.net)}</td></tr>`).join('');
+        $('partialReleaseNote').textContent = partialReleaseNote(lastPartialRelease);
+        $('partialReleaseSection').classList.remove('hidden');
+        if (!partialReleaseCounted) {
+          partialReleaseCounted = true;
+          count('retainage-cashflow:partial-release-compared');
+        }
+      } catch (error) {
+        lastPartialRelease = null;
+        $('partialReleaseRows').innerHTML = '';
+        $('partialReleaseNote').textContent = '';
+        $('partialReleaseError').textContent = error instanceof Error ? error.message : 'Enter a non-negative check and a whole number of days.';
+        $('partialReleaseError').classList.remove('hidden');
+        $('partialReleaseSection').classList.remove('hidden');
+      }
+    }
+    function calculate({record=false, showErrors=false}={}){
+      const parsed=parseInputs(Object.fromEntries(new FormData($('form'))));
+      if(!parsed.ok){
+        if(showErrors)$('errors').textContent=parsed.errors.join('\n');
+        // A rejected figure used to leave every section -- the cash snapshot,
+        // delay scenarios, release schedule, rate comparison, and the
+        // downloadable report/draft -- showing the *last valid* worksheet.
+        // Nothing marked those numbers as stale, and the download/copy
+        // buttons in #draftSection would still hand out that stale figure.
+        // Hide them here regardless of showErrors so a currently-invalid
+        // worksheet never displays or exports numbers that don't match what
+        // is now in the form.
+        ['output','scenarioSection','releaseSection','rateSection','draftSection'].forEach(id=>$(id).classList.add('hidden'));
+        return false;
+      }
+      $('errors').textContent='';
+      result={...computeAll(parsed.values),values:parsed.values};
+      release=releaseSchedule(parsed.values);
+      $('retainage').textContent=money(result.retainageWithheld);
+      $('retainageStillUnpaid').textContent=money(result.retainageStillUnpaid);
+      $('unpaid').textContent=money(result.earnedUnpaid);
+      $('daily').textContent=money(result.dailyCarryingCost);
+      $('thirtyDay').textContent=money(result.thirtyDayDelayCost);
+      $('carrying').textContent=money(result.carryingCost);
+      $('total').textContent=money(result.totalCashOutstanding);
+      $('scenarios').innerHTML=delayScenarios(parsed.values).map(s=>`<tr><td>+${s.days} days</td><td>${money(s.totalCashOutstanding)}</td><td>${money(s.additionalCarryingCost)}</td></tr>`).join('');
+      $('properHold').textContent=money(release.properHold);
+      $('shouldRelease').textContent=money(release.shouldHaveReleased);
+      $('overheld').textContent=money(release.overheld);
+      $('releaseNote').textContent=releaseNote(release);
+      const rateRows=compareRetainageRates(parsed.values);
+      $('rateRows').innerHTML=rateRows.map(r=>`<tr${r.current?' style="font-weight:800"':''}><td>${r.retainagePct.toFixed(1)}%${r.current?' · this worksheet':''}</td><td>${money(r.withheld)}</td><td>${money(r.progressCash)}</td><td>${money(r.carryingCost)}</td><td>${money(r.bidToKeepProgress)}</td><td>${money(r.extraToKeepProgress)}</td></tr>`).join('');
+      $('rateNote').textContent=rateComparisonNote(rateRows);
+      ['output','scenarioSection','releaseSection','rateSection','draftSection'].forEach(id=>$(id).classList.remove('hidden'));
+      renderPartialRelease();
+      refreshDraft();
+      rememberDraft();
+      if(location.hash||location.search)history.replaceState(null,'',`${location.pathname}#${encodeInputs(currentInputs())}`);
+      if(record){
+        count('retainage-cashflow:calculated');
+        count('retainage-cashflow:rate-compared');
+      }
+      return true;
+    }
+    function restoreDraft(){
+      try{
+        const raw=localStorage.getItem(draftKey);
+        const draft=decodeDraft(raw);
+        if(!draft){if(raw)localStorage.removeItem(draftKey);return false;}
+        applyInputs(draft);
+        $('remember').checked=true;
+        return true;
+      }catch{localStorage.removeItem(draftKey);return false;}
+    }
+    $('form').addEventListener('submit',event=>{event.preventDefault();calculate({record:true,showErrors:true});});
+    NUMBER_FIELD_IDS.forEach(id=>$(id).addEventListener('input',()=>calculate()));
+    $('remember').addEventListener('change',rememberDraft);
+    TEXT_FIELD_IDS.forEach(id=>['input','change'].forEach(evt=>$(id).addEventListener(evt,()=>{refreshDraft();rememberDraft();if(location.hash||location.search)history.replaceState(null,'',`${location.pathname}#${encodeInputs(currentInputs())}`);})));
+    $('copy').addEventListener('click',async()=>{await navigator.clipboard.writeText($('draft').value);count('retainage-cashflow:draft-copies');$('copyStatus').textContent='Draft copied.';});
+    $('download').addEventListener('click',()=>{
+      const content=worksheetSummary({projectName:$('project').value,payerName:$('payer').value,invoiceReference:$('invoice').value,dueDate:$('due').value,values:result.values,result,scenarios:delayScenarios(result.values),release,partialRelease:lastPartialRelease,rateRows:compareRetainageRates(result.values)});
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(new Blob([content],{type:'text/plain'}));
+      link.download='retainage-worksheet.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count('retainage-cashflow:worksheet-downloads');
+    });
+    $('downloadSummary').addEventListener('click',()=>{
+      if(!result)return;
+      const content=summaryText({projectName:$('project').value,result});
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(new Blob([content],{type:'text/plain'}));
+      link.download='retainage-cash-flow-summary.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count('retainage-cashflow:summary-downloads');
+    });
+    $('downloadRecord').addEventListener('click',()=>{
+      if(!result)return;
+      const content=cashFlowRecordText({projectName:$('project').value,invoiceReference:$('invoice').value,dueDate:$('due').value,result});
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(new Blob([content],{type:'text/plain'}));
+      link.download='retainage-cash-flow-record.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count('retainage-cashflow:record-downloads');
+    });
+    function addMilestone(){const row=document.createElement('div');row.className='milestone';row.innerHTML='<label>Milestone <input class="milestone-label" placeholder="First progress payment"></label><label>Billed <input class="milestone-billed" type="number" min="0" step="0.01"></label><label>Paid <input class="milestone-paid" type="number" min="0" step="0.01"></label><button type="button" class="removeMilestone tertiary">Remove</button>';row.querySelector('.removeMilestone').addEventListener('click',()=>row.remove());$('milestones').append(row);}
+    $('addMilestone').addEventListener('click',addMilestone);
+    $('downloadSchedule').addEventListener('click',()=>{
+      const rows=[...document.querySelectorAll('.milestone')].map(row=>({label:row.querySelector('.milestone-label').value,billed:row.querySelector('.milestone-billed').value,paid:row.querySelector('.milestone-paid').value}));
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(new Blob([paymentScheduleSummary(rows)],{type:'text/plain'}));
+      link.download='payment-milestones.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count('retainage-cashflow:milestone-downloads');
+    });
+    addMilestone();
+    $('jsonSnapshot').addEventListener('click',()=>{
+      const snapshot=evidenceSnapshot({inputs:result.values||{},result,projectName:$('project').value,payerName:$('payer').value,invoiceReference:$('invoice').value,dueDate:$('due').value});
+      const link=document.createElement('a');
+      link.href=URL.createObjectURL(new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json'}));
+      link.download='retainage-cashflow-snapshot.json';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count('retainage-cashflow:snapshot-downloads');
+    });
+    $('print').addEventListener('click',()=>{count('retainage-cashflow:report-prints');window.print();});
+    $('share').addEventListener('click',async()=>{
+      const query=encodeInputs(currentInputs());
+      history.replaceState(null,'',`${location.pathname}#${query}`);
+      try{await navigator.clipboard.writeText(location.href);$('copyStatus').textContent='Link copied — it reopens this worksheet with the same figures.';}
+      catch{$('copyStatus').textContent='Link is in your address bar — copy it to share these figures.';}
+      count('retainage-cashflow:link-copies');
+    });
+    const fromLink=decodeInputs(location.hash||location.search);
+    if(Object.keys(fromLink).length)applyInputs(fromLink);
+    else restoreDraft();
+    calculate({record:false,showErrors:false});
+  </script>
+  <h2>Common questions</h2>
+  <h3>How much retainage will be withheld on my contract?</h3>
+  <p>Retainage withheld is the contract value times your retainage percentage — it does not depend on how much has been paid to date. On the worksheet defaults, a $100,000 contract at 10% retainage withholds $10,000.00. The calculator separately tracks retainage still unpaid, which is capped at whichever is smaller: the full retainage withheld, or the earned-but-unpaid balance.</p>
+  <h3>Is retainage the same thing as an unpaid invoice?</h3>
+  <p>No. Earned but unpaid is the contract value minus what has actually been paid — $25,000.00 on the defaults ($100,000 contract, $75,000 paid). Retainage still unpaid is a narrower figure inside that: the smaller of the retainage withheld ($10,000.00) or the earned-but-unpaid amount. On the defaults the full $10,000.00 of retainage is still inside that $25,000.00 owed, not on top of it.</p>
+  <h3>When does retainage typically release?</h3>
+  <p>The calculator models a common AIA-style rule: the full retainage rate applies to billed work until the job passes a reduction point (50% complete by default), then the rate drops to a lower reduced rate (5% by default). On the worksheet defaults — a job 75% complete against that 50%-complete reduction point and 5% reduced rate — the modeled proper hold is $5,000.00 of the $7,500.00 progress retainage billed, meaning about $2,500.00 is typically already releasable. This is a planning model built from a common contract pattern, not a reading of your actual subcontract — check the release terms your contract actually states.</p>
+  <h3>What does a payment delay actually cost me?</h3>
+  <p>The calculator applies your own annual carrying-cost assumption only to the earned-but-unpaid balance, not the full contract value. On the defaults — $25,000.00 earned but unpaid at a 12% annual carrying-cost assumption — each additional day models about $8.22, and another 30 days of delay models about $246.58. Over the 90 days already outstanding in the default scenario, that comes to $739.73 in modeled carrying cost on top of the $25,000.00 owed. This is a planning figure using your own rate assumption, not a contractual interest claim.</p>
+  <h3>Should I bid higher to cover retainage?</h3>
+  <p>The calculator compares what it takes to keep the same progress-payment cash at 0%, 5%, and 10% retainage. On a $100,000 job at 10% retainage, keeping the same cash flow as a no-retainage job means bidding $111,111.11 — $11,111.11 more — because the withheld 10% has to be grossed back up from progress payments. That is different from the smaller economic add-on ($296.77 on the defaults) that only covers the modeled carrying cost of the hold. Most contractors price the cash-now gap, not just the interest, when retainage is negotiable.</p>
+  <h3>Should I take a partial retainage check now?</h3>
+  <p>On the worksheet defaults — a $100,000 contract with 10% retainage, $75,000 paid, and a 12% carrying-cost assumption — waiting 60 days for the remaining $10,000 models $197.26 more carrying cost on that retainage, leaving $9,802.74. A $5,000 check that closes the rest is $4,802.74 behind that wait. If the other $5,000 still arrives in 60 days, taking the check now leaves $9,901.37. The calculator shows the arithmetic; it does not tell you to sign a waiver.</p>
+
+</body>
+</html>

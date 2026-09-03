@@ -3,6 +3,11 @@ import { Testimonials } from "@/components/marketing/testimonials";
 import { brand } from "@/lib/brand";
 import { CATEGORY_LANDING_PAGES } from "@/lib/marketing/category-landing";
 import { COMMERCE_ADDON, getBundle } from "@/lib/pricing/bundles";
+import {
+  EAA_EVIDENCE_PATH,
+  eaaJobPriceRangeLabel,
+  eaaRetestPriceRangeLabel,
+} from "@/lib/pricing/eaa-evidence";
 
 const steps = [
   {
@@ -263,6 +268,42 @@ export default function Home() {
               <p className="mt-4 text-center text-xs text-zinc-500">
                 Quote-based trades? Starter or Complete fits better than Commerce.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="eaa-evidence" className="border-t border-zinc-200">
+        <div className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
+            <div>
+              <p className="text-sm font-medium uppercase tracking-widest text-zinc-500">
+                New product line
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                Accessibility evidence for obligated EU shops
+              </h2>
+              <p className="mt-4 text-zinc-600">
+                A dated record of what was tested, changed, and left open — not a
+                compliance certificate. For shops with at least 10 employees or more than
+                €2 million turnover. Microenterprises are out of scope on purpose.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+              <p className="text-sm font-medium text-zinc-500">Evidence job</p>
+              <p className="mt-2 text-4xl font-semibold tracking-tight">
+                {eaaJobPriceRangeLabel()}
+              </p>
+              <p className="mt-2 text-sm text-zinc-600">
+                Indicative · {eaaRetestPriceRangeLabel()} to keep the record current ·
+                checkout not live
+              </p>
+              <Link
+                href={EAA_EVIDENCE_PATH}
+                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-full bg-zinc-900 font-medium text-white transition-colors hover:bg-zinc-700"
+              >
+                Read what is sold
+              </Link>
             </div>
           </div>
         </div>

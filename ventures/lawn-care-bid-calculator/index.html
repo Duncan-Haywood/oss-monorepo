@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lawn Care Bid Calculator — Price a Mowing Stop</title>
+  <meta name="description" content="Price a lawn care route stop from production rates: turf, beds, edging, travel time, fuel, dump, and margin — plus price per visit, in-season monthly, honest annual, and the walk-away number.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Lawn Care Bid Calculator">
+  <meta property="og:description" content="Bid the stop the way a crew actually runs it — turf, beds, and windshield time — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Lawn Care Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-service production-rate hours, travel as loaded labor, fuel and dump per visit, in-season monthly price, honest annual at growing-season weeks, price per visit, effective hourly rate, break-even walk-away price, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price lawn mowing for a residential yard?","acceptedAnswer":{"@type":"Answer","text":"Split the stop into services with their own rates — turf mowing, edging and blowing, beds — then add round-trip travel, fuel, and dump. Price from those hours plus overhead and the margin you intend to keep, not from lot size alone."}},{"@type":"Question","name":"Why is a price per acre a bad lawn care bid?","acceptedAnswer":{"@type":"Answer","text":"Two half-acre lots are not the same job. Beds, hedges, and an 18-minute drive each way often take more of the stop than the mow. A flat per-acre rule cannot see any of that."}},{"@type":"Question","name":"Should a lawn care contract be monthly times twelve?","acceptedAnswer":{"@type":"Answer","text":"Only if you actually service the property every month. Most growing-season routes run 28 to 36 weeks. Annual is the per-visit price times those weeks, not the in-season monthly times twelve."}},{"@type":"Question","name":"Why doesn’t adding a second crew member change the price?","acceptedAnswer":{"@type":"Answer","text":"Crew size only splits the clock time on site — how fast the stop gets done — not the cost. Labor is priced on total person-hours of work, and that total doesn’t shrink because two people share it. On the starting figures (10,000 sq ft turf, 25 minutes of edging, 350 sq ft of beds), one crew member clocks 1.79 hours on the property; a two-person crew clocks 0.90 hours to do the same work, but the bill stays $459.73 in-season monthly either way. A second person buys you a shorter stop and more stops per day, not a smaller number on this page — unless you also raise the wage field for a second body on the truck."}},{"@type":"Question","name":"What’s the difference between “In-season monthly” and “Year-round monthly equivalent”?","acceptedAnswer":{"@type":"Answer","text":"“In-season monthly” is what the stop actually bills during the weeks you show up — on the starting figures, $459.73 across the 32 growing-season weeks. “Year-round monthly equivalent” ($282.91 at those same figures) spreads the honest annual total evenly across all 12 months instead, which is the number to quote a customer who wants one flat payment in January and August alike. Both come from the same annual total; only the billing pattern differs."}},{"@type":"Question","name":"How much of the bid is travel time, not yard work?","acceptedAnswer":{"@type":"Answer","text":"Round-trip drive time counts as labor on every visit, and it can be a bigger share than any single service line. At an 18-minute one-way drive, travel is 0.6 hours of the 2.39-hour visit — about 25% of the billed time, more than either the edging or the bed-weeding line on the starting figures. A route with a short drive and a route with a long one doing identical yard work should not carry the same price; this field is why they don’t."}},{"@type":"Question","name":"What does the calculator say if I quote below the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"Type a number into “Monthly price you’re considering” and the verdict box compares it to the walk-away monthly (your cost with zero margin) and flags it red if it’s under. At the starting figures the walk-away is $344.80/month; a $90 quote shows a $254.80 monthly loss before the owner takes anything out of it — the field exists so that number shows up before the contract is signed, not after the season is half over."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a1c; background: #eef3e8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f6b32; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #cfd9c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a140d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b46; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b89a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .service-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .service-row select, .service-row input { padding: 10px 7px; }
+    .service-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6b52; }
+    .service-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b89a; background: #f3f7ee; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1e2a1c; }
+    button:hover { background: #e6eedc; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #1d3b1f; color: #f3f8ef; border-color: #1d3b1f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #8ed37a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b46; }
+    footer a { color: #2f6b32; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #c8e8b8; }
+    .more { margin-top: 10px; font-size: .9rem; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .service-head { display: none; }
+      .service-row { grid-template-columns: 1fr 1fr; border: 1px solid #dde6d4; border-radius: 9px; padding: 11px; }
+      .service-row label { font-size: .78rem; gap: 5px; }
+      .service-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .service-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4d5b46; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1d3b1f; --pr-accent: #2f6b32;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT LAWN CARE OPERATORS</p>
+    <h1>Bid the stop, not the lot size.</h1>
+    <p>Price a recurring lawn-care stop the way a crew actually runs it: turf, beds, and edging each at their own production rate, then windshield time, fuel, dump, and the margin you intend to keep. You get the price per visit, the in-season monthly, an annual that counts growing-season weeks rather than inventing winter, and the number below which the stop loses money.</p>
+    <p class="more">Background: <a href="how-to-price-lawn-mowing.html">how to price lawn mowing without a per-acre guess</a> &middot; <a href="vs-lmn.html">This calculator vs. LMN by Granum</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The property</h2>
+        <p class="hint">One row per service on the visit. Production rate is how much one person covers per hour in that row&rsquo;s unit. Pick a service to start from a common figure, then replace it with a rate timed from your own crew.</p>
+        <div class="service-row service-head" aria-hidden="true">
+          <span>Service</span><span>Quantity</span><span>Per hour</span><span></span>
+        </div>
+        <div id="services"></div>
+        <button type="button" id="addService">+ Add a service</button>
+      </section>
+
+      <section>
+        <h2>Route and season</h2>
+        <div class="fields">
+          <label>Visits per week <input id="visitsPerWeek" type="number" min="0" step="0.5" value="1"></label>
+          <label>Service weeks per year <input id="serviceWeeksPerYear" type="number" min="0" max="52" step="1" value="32"></label>
+          <label>One-way travel (minutes) <input id="oneWayMinutes" type="number" min="0" step="1" value="18"></label>
+          <label>Crew size <input id="crewSize" type="number" min="1" step="1" value="1"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Round-trip travel is loaded labor. Service weeks are the growing season you actually bill — 32 is a common temperate-US figure, not a recommendation. Annual is visit price × these weeks, not monthly × 12.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="18"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="25"></label>
+          <label>Fuel per visit <input id="fuelPerVisit" type="number" min="0" step="0.5" value="8"></label>
+          <label>Dump / disposal per visit <input id="dumpPerVisit" type="number" min="0" step="0.5" value="0"></label>
+          <label>Equipment share / month <input id="equipmentMonthly" type="number" min="0" step="1" value="40"></label>
+          <label>Other cost / month <input id="otherMonthly" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="12"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Monthly price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 180"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, and paid time off. Equipment share is this stop&rsquo;s piece of the mower payment, trailer, and shop — not the whole fleet.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">per visit</div>
+      <dl>
+        <dt>In-season monthly</dt><dd id="monthly"></dd>
+        <dt>Honest annual</dt><dd id="annual"></dd>
+        <dt>Year-round monthly equivalent</dt><dd id="smoothed"></dd>
+        <dt>On-property hours / visit</dt><dd id="onProperty"></dd>
+        <dt>Travel hours / visit</dt><dd id="travel"></dd>
+        <dt>Clock time on site</dt><dd id="clock"></dd>
+        <dt>Loaded labor / month</dt><dd id="labor"></dd>
+        <dt>Fuel &amp; dump / month</dt><dd id="consumables"></dd>
+        <dt>Equipment &amp; other</dt><dd id="equipment"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total in-season cost</dt><dd id="cost"></dd>
+        <dt>Monthly profit</dt><dd id="profit"></dd>
+        <dt>Price per acre / month</dt><dd id="perAcre"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away monthly</dt><dd id="breakEven"></dd>
+        <dt>Walk-away per visit</dt><dd id="breakEvenVisit"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Grovepoint Lawn &amp; Landscape LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="0"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Weekly mow, edge, and blow through the season&#10;Bed weeding twice a month"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Fertilisation, weed control, and pest applications&#10;Irrigation repair and seasonal shutdown"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Billed monthly at the same amount through the season. Please keep gates unlocked and pets in on service day."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <h2>Common questions</h2>
+  <h3>How do I price lawn mowing for a residential yard?</h3>
+  <p>Split the stop into services with their own rates — turf mowing, edging and blowing, beds — then add round-trip travel, fuel, and dump. Price from those hours plus overhead and the margin you intend to keep, not from lot size alone.</p>
+  <h3>Why is a price per acre a bad lawn care bid?</h3>
+  <p>Two half-acre lots are not the same job. Beds, hedges, and an 18-minute drive each way often take more of the stop than the mow. A flat per-acre rule cannot see any of that.</p>
+  <h3>Should a lawn care contract be monthly times twelve?</h3>
+  <p>Only if you actually service the property every month. Most growing-season routes run 28 to 36 weeks. Annual is the per-visit price times those weeks, not the in-season monthly times twelve.</p>
+  <h3>Why doesn&rsquo;t adding a second crew member change the price?</h3>
+  <p>Crew size only splits the <em>clock time on site</em> &mdash; how fast the stop gets done &mdash; not the cost. Labor is priced on total person-hours of work, and that total doesn&rsquo;t shrink because two people share it. On the starting figures (10,000 sq ft turf, 25 minutes of edging, 350 sq ft of beds), one crew member clocks 1.79 hours on the property; a two-person crew clocks 0.90 hours to do the same work, but the bill stays $459.73 in-season monthly either way. A second person buys you a shorter stop and more stops per day, not a smaller number on this page &mdash; unless you also raise the wage field for a second body on the truck.</p>
+  <h3>What&rsquo;s the difference between &ldquo;In-season monthly&rdquo; and &ldquo;Year-round monthly equivalent&rdquo;?</h3>
+  <p>&ldquo;In-season monthly&rdquo; is what the stop actually bills during the weeks you show up &mdash; on the starting figures, $459.73 across the 32 growing-season weeks. &ldquo;Year-round monthly equivalent&rdquo; ($282.91 at those same figures) spreads the honest annual total evenly across all 12 months instead, which is the number to quote a customer who wants one flat payment in January and August alike. Both come from the same annual total; only the billing pattern differs.</p>
+  <h3>How much of the bid is travel time, not yard work?</h3>
+  <p>Round-trip drive time counts as labor on every visit, and it can be a bigger share than any single service line. At an 18-minute one-way drive, travel is 0.6 hours of the 2.39-hour visit &mdash; about 25% of the billed time, more than either the edging or the bed-weeding line on the starting figures. A route with a short drive and a route with a long one doing identical yard work should not carry the same price; this field is why they don&rsquo;t.</p>
+  <h3>What does the calculator say if I quote below the walk-away price?</h3>
+  <p>Type a number into &ldquo;Monthly price you&rsquo;re considering&rdquo; and the verdict box compares it to the walk-away monthly (your cost with zero margin) and flags it red if it&rsquo;s under. At the starting figures the walk-away is $344.80/month; a $90 quote shows a $254.80 monthly loss before the owner takes anything out of it &mdash; the field exists so that number shows up before the contract is signed, not after the season is half over.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, fuel, insurance, and dump costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your property, wages, costs, or prices. A share link encodes only the quote fields in the page&rsquo;s URL hash rather than sending anything to a server.</p>
+    <p class="support">Free and open source. If it wins you a route, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, SERVICE_PRESETS, UNIT_LABELS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    const FIELD_IDS = ['visitsPerWeek','serviceWeeksPerYear','oneWayMinutes','crewSize','hourlyWage','burdenRate','fuelPerVisit','dumpPerVisit','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    // A typical suburban stop: enough rows that the hour split immediately
+    // shows why beds and travel cannot be priced at the turf rate.
+    const STARTING_SERVICES = [
+      { name: 'Turf mowing', quantity: 10000, productionRate: 20000 },
+      { name: 'Edging & blowing', quantity: 25, productionRate: 60 },
+      { name: 'Bed weeding / detail', quantity: 350, productionRate: 400 },
+    ];
+
+    const TYPE_OPTIONS = SERVICE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other service</option>';
+
+    const host = el('services');
+    let rowSeq = 0;
+
+    function addServiceRow(service) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'service-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Service</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="s-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-rate"><span class="lbl">Quantity per hour</span><input class="s-rate" id="${id}-rate" type="number" min="0.01" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this service</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const rateField = row.querySelector('.s-rate');
+      const presetIndex = SERVICE_PRESETS.findIndex(p => p.label === service.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.s-qty').value = service.quantity;
+      rateField.value = service.productionRate;
+
+      typeField.addEventListener('change', () => {
+        const preset = SERVICE_PRESETS[Number(typeField.value)];
+        if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        count('bid_calculated');
+        update();
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('service_removed');
+        update();
+      });
+      host.append(row);
+    }
+
+    function readServices() {
+      return [...host.querySelectorAll('.service-row')].map(row => {
+        const preset = SERVICE_PRESETS[Number(row.querySelector('.s-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          unit: preset ? preset.unit : 'sqft',
+          quantity: row.querySelector('.s-qty').value,
+          productionRate: row.querySelector('.s-rate').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'per visit';
+      ['monthly','annual','smoothed','onProperty','travel','clock','labor','consumables','equipment','overhead','cost','profit','perAcre','hourlyRate','breakEven','breakEvenVisit']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * The one place the job on screen is turned into a calculator input.
+     * `update`, the copied summary and the customer proposal all price the
+     * same object; separate literals at each call site is how they come to be
+     * priced from different fields. The default parameter lets `update` pass
+     * rows it has already read rather than reading them twice.
+     */
+    function readInput(services = readServices()) {
+      return {
+        services,
+        ...Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function update() {
+      const services = readServices();
+      if (services.length === 0) {
+        clearOutputs('Add a service to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one service above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(readInput(services));
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = result.pricePerVisit === null ? 'n/a' : money(result.pricePerVisit);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'per visit';
+      el('monthly').textContent = money(result.monthlyPrice);
+      el('annual').textContent = `${money(result.annualPrice)} (${result.serviceWeeksPerYear} weeks)`;
+      el('smoothed').textContent = money(result.smoothedMonthly);
+      el('onProperty').textContent = `${result.onPropertyHoursPerVisit.toFixed(2)} h`;
+      el('travel').textContent = `${result.travelHoursPerVisit.toFixed(2)} h`;
+      el('clock').textContent = `${result.clockHoursOnSite.toFixed(2)} h`;
+      el('labor').textContent = money(result.monthlyLaborCost);
+      el('consumables').textContent = money(result.monthlyFuel + result.monthlyDump);
+      el('equipment').textContent = money(result.equipmentMonthly + result.otherMonthly);
+      el('overhead').textContent = money(result.monthlyOverhead);
+      el('cost').textContent = money(result.monthlyCost);
+      el('profit').textContent = money(result.monthlyProfit);
+      el('perAcre').textContent = result.pricePerAcreMonth === null ? 'n/a' : `${money(result.pricePerAcreMonth)}/acre`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenMonthlyPrice);
+      el('breakEvenVisit').textContent = result.breakEvenPerVisit === null ? 'n/a' : money(result.breakEvenPerVisit);
+
+      const rows = [
+        ...result.services.filter(s => s.hoursPerVisit > 0).map(s => ({
+          name: `${s.name}${s.enteredUnit && UNIT_LABELS[s.enteredUnit] ? ` (${UNIT_LABELS[s.enteredUnit]})` : ''}`,
+          share: s.hoursShare,
+        })),
+      ];
+      if (result.travelHoursPerVisit > 0) rows.push({ name: 'Travel (round trip)', share: result.travelHoursShare });
+      el('split').innerHTML = rows.length === 0
+        ? '<li class="empty">No hours on this stop yet — add quantity or travel above.</li>'
+        : rows
+          .slice()
+          .sort((a, b) => b.share - a.share)
+          .map(row => `<li><span>${row.name}</span><span>${row.share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${row.share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} a month this stop <strong>loses ${money(Math.abs(result.proposed.profit))} a month</strong> before you take anything out of it. Your walk-away monthly is ${money(result.breakEvenMonthlyPrice)}.`
+          : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const lines = result.services
+        .filter(s => s.quantity > 0)
+        .map(s => `- ${s.name}: ${s.quantity} ${UNIT_LABELS[s.enteredUnit] || s.enteredUnit}`)
+        .join('\n');
+      return [
+        'LAWN CARE BID',
+        '',
+         `Proposed price per visit: ${result.pricePerVisit === null ? 'n/a' : money(result.pricePerVisit)}`,
+         `In-season monthly: ${money(result.monthlyPrice)}`,
+         `Annual at ${result.serviceWeeksPerYear} service weeks: ${money(result.annualPrice)}`,
+         `Monthly cost floor (walk-away): ${money(result.breakEvenMonthlyPrice)}`,
+         `Monthly profit at calculated price: ${money(result.monthlyProfit)}`,
+         `On-property time: ${result.onPropertyHoursPerVisit.toFixed(2)} hours/visit`,
+        `Travel (round trip): ${result.travelHoursPerVisit.toFixed(2)} hours/visit`,
+        '',
+        'SERVICES',
+        lines || '- No services entered',
+        '',
+        'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = summaryText(result);
+      await writeClipboard(text);
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * A shared link must reconstruct the same quote the sender saw. Services
+     * go through `addServiceRow` unchanged from `readServices()`'s own
+     * shape — the same path a preset selection uses — so a decoded row
+     * prices identically whether it matched a service preset by name or
+     * arrived as a custom one.
+     */
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      FIELD_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (Array.isArray(payload.services) && payload.services.length) {
+        host.innerHTML = '';
+        payload.services.forEach(addServiceRow);
+      }
+    }
+
+    el('addService').addEventListener('click', () => {
+      addServiceRow({ name: '', quantity: 0, productionRate: 20000 });
+      count('service_added');
+      update();
+    });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the link from the address bar.'; });
+    });
+
+    const incomingHash = splitTerms(location.hash);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    applyShare(decodeShare(incomingHash.payload));
+    if (host.children.length === 0) STARTING_SERVICES.forEach(addServiceRow);
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'lawn-care-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is a maintenance schedule, not a turf health, agronomic, or irrigation assessment, and it does not guarantee the condition or appearance of the lawn.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Recurring grounds maintenance covering the services listed below",
+        {
+          "each": "services",
+          "when": "hoursPerVisit",
+          "line": "{name}"
+        },
+        {
+          "line": "Turf area of about {turfAcres~2} acres",
+          "when": "turfAcres"
+        },
+        {
+          "line": "{visitsPerWeek~0} visit{visitsPerWeek+s} a week across a {serviceWeeksPerYear~0}-week season",
+          "when": "serviceWeeksPerYear"
+        },
+        "Billed as a monthly amount, the same through the season",
+        "Blow clippings off drives, walks, and patios before leaving",
+        "Bag or remove clippings and debris as agreed for the property"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.monthlyPrice : result.proposed.price,
+        jobTitle: scopeLines(['Lawn maintenance — {visitsPerWeek~0} visit{visitsPerWeek+s} a week'], result)[0] || 'Lawn maintenance — visit a week',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

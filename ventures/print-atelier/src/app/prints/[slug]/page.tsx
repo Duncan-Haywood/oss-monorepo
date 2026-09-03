@@ -3,6 +3,7 @@ import {
   getAllSeoSlugs,
   getCatalogArtworkSlugs,
   getSeoPagesWithPublishState,
+  buildPrintStructuredData,
   resolvePrintPage,
 } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -42,6 +43,19 @@ export default async function PrintSlugPage({ params }: PageProps) {
   }
 
   const withState = getSeoPagesWithPublishState().find((item) => item.slug === page.slug);
+  const structuredData = buildPrintStructuredData(
+    page,
+    withState?.publishState ?? { publishable: false, blockers: ["Publish state unavailable"], consentBlocked: true },
+    process.env.NEXT_PUBLIC_SITE_URL,
+  );
 
-  return <PrintLandingPage page={page} publishState={withState?.publishState} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <PrintLandingPage page={page} publishState={withState?.publishState} />
+    </>
+  );
 }

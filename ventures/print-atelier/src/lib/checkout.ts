@@ -79,6 +79,7 @@ export type CheckoutReadiness = {
 };
 
 const STORAGE_KEY = "print-atelier-checkout-cart";
+export const MAX_CHECKOUT_QUANTITY = 10;
 const STRIPE_RATE = 0.029;
 const STRIPE_FIXED = 0.3;
 
@@ -110,8 +111,29 @@ export function artworkToCheckoutLine(
     artistName: artwork.artistName,
     retailPrice: artwork.retailPrice,
     fulfillmentCost: artwork.fulfillmentCost,
-    quantity: Math.max(1, quantity),
+    quantity: clampCheckoutQuantity(quantity),
   };
+}
+
+export function clampCheckoutQuantity(quantity: number): number {
+  return Math.min(MAX_CHECKOUT_QUANTITY, Math.max(1, Math.floor(quantity)));
+}
+
+export function updateCheckoutLineQuantity(
+  lineItems: CheckoutLineItem[],
+  artworkSlug: string,
+  quantity: number,
+): CheckoutLineItem[] {
+  const nextQuantity = Math.floor(quantity);
+  if (nextQuantity <= 0) {
+    return lineItems.filter((item) => item.artworkSlug !== artworkSlug);
+  }
+
+  return lineItems.map((item) =>
+    item.artworkSlug === artworkSlug
+      ? { ...item, quantity: clampCheckoutQuantity(nextQuantity) }
+      : item,
+  );
 }
 
 export function validateCheckoutLineItem(
@@ -415,7 +437,7 @@ export function parseCheckoutCart(raw: string | null): CheckoutLineItem[] {
       (item) =>
         typeof item.artworkSlug === "string" &&
         typeof item.retailPrice === "number" &&
-        typeof item.quantity === "number",
+        typeof item.quantity === "number" && Number.isFinite(item.quantity) && item.quantity >= 1,
     );
   } catch {
     return [];

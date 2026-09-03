@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resistor Color Code, LED Resistor &amp; Ohm's Law Calculator</title>
+<meta name="description" content="Free browser-local resistor color code, LED series resistor, and Ohm's law calculators. No signup, no ads, and no data leaves your device." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23f0e0c0'/%3E%3Crect x='7' y='4' width='3' height='24' fill='%23d69e2e'/%3E%3Crect x='13' y='4' width='3' height='24' fill='%23805ad5'/%3E%3Crect x='19' y='4' width='3' height='24' fill='%23e53e3e'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Resistor Color Code & Ohm's Law Calculator" />
+<meta property="og:description" content="Decode resistor color bands and solve Ohm's law (V, I, R, P) instantly, free, in your browser." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Resistor Color Code & Ohm's Law Calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free resistor color code calculator (4-band and 5-band) and an Ohm's law / power solver. Runs entirely client-side."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What resistor does yellow-violet-red-gold decode to?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This calculator's own default bands — yellow (4), violet (7), red (×100), gold (±5%) — decode to 4.7 kΩ ±5%, one of the most common values in a beginner's kit. The first two bands give the significant digits (47), the third multiplies by 100, and the fourth is the tolerance band."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the LED resistor calculator ask for exactly three values?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because a series resistor's job is to burn off whatever voltage is left after the LED, at a set current — three knowns (supply voltage, LED forward voltage, target current) solve for the one unknown (resistance). Using the page's own placeholders — 5 V supply, a 2 V forward-voltage LED, 20 mA target — the required resistor is 150 Ω, dissipating 60 mW, for which this calculator recommends a 0.25 W part (it doubles the dissipation before picking a standard wattage, so the resistor runs at roughly half its rated power)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the Ohm's law solver want exactly two fields, not four?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voltage, current, resistance, and power are tied together by V = IR and P = VI, so any two of the four fix the other two — a third value would either be redundant or contradict the first two, which is why the solver rejects anything but exactly two filled fields. Enter, say, 5 V and 220 Ω and it solves the rest: 22.727 mA and 113.636 mW."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  select, input {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  select:focus, input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.1rem;
+  }
+  .result strong { color: var(--accent); }
+  .error { color: #c53030; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  .band-count { margin-top: 0.75rem; }
+  .band-count button {
+    padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--fg); cursor: pointer; margin-right: 0.5rem;
+  }
+  .band-count button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  #tempcoef-wrap { display: none; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Resistor Color Code &amp; Ohm's Law Calculator</h1>
+  <p class="lede">
+    Decode a resistor's color bands into its resistance and tolerance, or
+    solve Ohm's law (V, I, R, P) from any two known values. Everything runs
+    in this page — nothing is uploaded.
+  </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
+
+  <section aria-labelledby="rc-heading">
+    <h2 id="rc-heading">Resistor color code</h2>
+
+    <div class="band-count" role="group" aria-label="Number of bands">
+      <button type="button" id="btn-4band" aria-pressed="true">4-band</button>
+      <button type="button" id="btn-5band" aria-pressed="false">5-band</button>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="band1">Band 1 (1st digit)</label>
+        <select id="band1"></select>
+      </div>
+      <div>
+        <label for="band2">Band 2 (2nd digit)</label>
+        <select id="band2"></select>
+      </div>
+    </div>
+    <div class="row" id="band3-wrap" style="display:none">
+      <div>
+        <label for="band3">Band 3 (3rd digit)</label>
+        <select id="band3"></select>
+      </div>
+      <div></div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="bandMult">Multiplier</label>
+        <select id="bandMult"></select>
+      </div>
+      <div>
+        <label for="bandTol">Tolerance</label>
+        <select id="bandTol"></select>
+      </div>
+    </div>
+    <div class="row" id="tempcoef-wrap">
+      <div>
+        <label for="bandTemp">Temp. coefficient (optional, 6-band)</label>
+        <select id="bandTemp"></select>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="result" id="rc-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="led-heading">
+    <h2 id="led-heading">LED series resistor calculator</h2>
+    <p style="color:var(--muted); margin-top:-0.5rem; font-size:0.9rem;">
+      Choose a resistor for one LED. The result includes resistor dissipation and
+      a wattage recommendation with a 2× safety margin.
+    </p>
+    <div class="row">
+      <div><label for="led-supply">Supply voltage (V)</label><input type="number" id="led-supply" inputmode="decimal" min="0" step="any" placeholder="5" /></div>
+      <div><label for="led-forward">LED forward voltage (V)</label><input type="number" id="led-forward" inputmode="decimal" min="0" step="any" placeholder="2" /></div>
+    </div>
+    <div class="row">
+      <div><label for="led-current">Target current (mA)</label><input type="number" id="led-current" inputmode="decimal" min="0" step="any" placeholder="20" /></div>
+      <div></div>
+    </div>
+    <div class="result" id="led-result" role="status" aria-live="polite">Enter all three values above.</div>
+  </section>
+
+  <section aria-labelledby="ohm-heading">
+    <h2 id="ohm-heading">Ohm's law &amp; power solver</h2>
+    <p style="color:var(--muted); margin-top:-0.5rem; font-size:0.9rem;">
+      Fill in exactly two fields; the other two are computed
+      (V = IR, P = VI).
+    </p>
+    <div class="row">
+      <div>
+        <label for="ohm-v">Voltage (V)</label>
+        <input type="number" id="ohm-v" inputmode="decimal" placeholder="volts" />
+      </div>
+      <div>
+        <label for="ohm-i">Current (I)</label>
+        <input type="number" id="ohm-i" inputmode="decimal" placeholder="amps" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="ohm-r">Resistance (R)</label>
+        <input type="number" id="ohm-r" inputmode="decimal" placeholder="ohms" />
+      </div>
+      <div>
+        <label for="ohm-p">Power (P)</label>
+        <input type="number" id="ohm-p" inputmode="decimal" placeholder="watts" />
+      </div>
+    </div>
+    <div class="result" id="ohm-result" role="status" aria-live="polite">Enter any two values above.</div>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>What resistor does yellow-violet-red-gold decode to?</h3>
+  <p>This calculator's own default bands — yellow (4), violet (7), red (×100), gold (±5%) — decode to 4.7 kΩ ±5%, one of the most common values in a beginner's kit. The first two bands give the significant digits (47), the third multiplies by 100, and the fourth is the tolerance band.</p>
+  <h3>Why does the LED resistor calculator ask for exactly three values?</h3>
+  <p>Because a series resistor's job is to burn off whatever voltage is left after the LED, at a set current — three knowns (supply voltage, LED forward voltage, target current) solve for the one unknown (resistance). Using the page's own placeholders — 5 V supply, a 2 V forward-voltage LED, 20 mA target — the required resistor is 150 Ω, dissipating 60 mW, for which this calculator recommends a 0.25 W part (it doubles the dissipation before picking a standard wattage, so the resistor runs at roughly half its rated power).</p>
+  <h3>Why does the Ohm's law solver want exactly two fields, not four?</h3>
+  <p>Voltage, current, resistance, and power are tied together by V = IR and P = VI, so any two of the four fix the other two — a third value would either be redundant or contradict the first two, which is why the solver rejects anything but exactly two filled fields. Enter, say, 5 V and 220 Ω and it solves the rest: 22.727 mA and 113.636 mW.</p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not
+      engineering advice, and it does not replace checking a component's
+      real datasheet or measuring it with a multimeter. <strong>You are
+      responsible for reviewing and verifying its output before relying on
+      it</strong>, including for anything safety-critical. To the maximum
+      extent permitted by law, the authors accept no liability for any loss
+      or damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and
+      we don't have accounts, tracking cookies, or an analytics vendor. This
+      page counts anonymous, local feature-use events (e.g. "a calculation
+      was run") in your own browser's <code>localStorage</code>, only to
+      help this project's maintainers tell whether the tool is used at
+      all — nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT
+      licensed — see <a href="../LICENSE">LICENSE</a>.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import {
+    DIGIT_COLORS, MULTIPLIER_COLORS, TOLERANCE_COLORS, TEMP_COEFFICIENT_COLORS,
+     decodeResistor4Band, decodeResistor5Band, solveOhmsLaw, calculateLedResistor, formatResistance,
+  } from "./calc.mjs";
+  import { recordEvent, recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const swatch = (name) => ({
+    black: "#000", brown: "#7B3F00", red: "#e53e3e", orange: "#dd6b20",
+    yellow: "#d69e2e", green: "#38a169", blue: "#3182ce", violet: "#805ad5",
+    grey: "#718096", white: "#f7fafc", gold: "#b7791f", silver: "#a0aec0", none: "transparent",
+  }[name] || "#999");
+
+  function fillSelect(select, colors, { includeNone = false } = {}) {
+    select.innerHTML = "";
+    const names = Object.keys(colors);
+    if (includeNone) names.push("none");
+    for (const name of names) {
+      const opt = document.createElement("option");
+      opt.value = name;
+      const label = colors === MULTIPLIER_COLORS && name === "gold" ? "gold (×0.1)"
+        : colors === MULTIPLIER_COLORS && name === "silver" ? "silver (×0.01)"
+        : colors[name] !== undefined && colors !== TOLERANCE_COLORS && colors !== TEMP_COEFFICIENT_COLORS
+          ? `${name} (${colors[name]})`
+          : colors === TOLERANCE_COLORS ? `${name} (±${colors[name]}%)`
+          : colors === TEMP_COEFFICIENT_COLORS ? `${name} (${colors[name]} ppm/°C)`
+          : name;
+      opt.textContent = label;
+      select.appendChild(opt);
+    }
+  }
+
+  const band1 = document.getElementById("band1");
+  const band2 = document.getElementById("band2");
+  const band3 = document.getElementById("band3");
+  const bandMult = document.getElementById("bandMult");
+  const bandTol = document.getElementById("bandTol");
+  const bandTemp = document.getElementById("bandTemp");
+  const band3Wrap = document.getElementById("band3-wrap");
+  const tempWrap = document.getElementById("tempcoef-wrap");
+  const rcResult = document.getElementById("rc-result");
+
+  fillSelect(band1, DIGIT_COLORS);
+  fillSelect(band2, DIGIT_COLORS);
+  fillSelect(band3, DIGIT_COLORS);
+  fillSelect(bandMult, MULTIPLIER_COLORS);
+  fillSelect(bandTol, TOLERANCE_COLORS);
+  fillSelect(bandTemp, TEMP_COEFFICIENT_COLORS, { includeNone: true });
+
+  band1.value = "yellow"; band2.value = "violet"; band3.value = "red";
+  bandMult.value = "red"; bandTol.value = "gold"; bandTemp.value = "none";
+
+  let mode = "4band";
+
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function updateResistor(userAction) {
+    try {
+      const result = mode === "4band"
+        ? decodeResistor4Band(band1.value, band2.value, bandMult.value, bandTol.value)
+        : decodeResistor5Band(band1.value, band2.value, band3.value, bandMult.value, bandTol.value,
+            bandTemp.value === "none" ? undefined : bandTemp.value);
+      const tc = result.ppmPerC ? `, ${result.ppmPerC} ppm/°C` : "";
+      rcResult.innerHTML = `<strong>${result.formatted}</strong> ±${result.tolerancePercent}%${tc}`;
+      rcResult.classList.remove("error");
+      if (userAction) recordEvent("resistor_decoded");
+    } catch (err) {
+      rcResult.textContent = err.message;
+      rcResult.classList.add("error");
+    }
+  }
+
+  document.getElementById("btn-4band").addEventListener("click", () => {
+    mode = "4band";
+    document.getElementById("btn-4band").setAttribute("aria-pressed", "true");
+    document.getElementById("btn-5band").setAttribute("aria-pressed", "false");
+    band3Wrap.style.display = "none";
+    tempWrap.style.display = "none";
+    updateResistor(true);
+  });
+  document.getElementById("btn-5band").addEventListener("click", () => {
+    mode = "5band";
+    document.getElementById("btn-4band").setAttribute("aria-pressed", "false");
+    document.getElementById("btn-5band").setAttribute("aria-pressed", "true");
+    band3Wrap.style.display = "";
+    tempWrap.style.display = "";
+    updateResistor(true);
+  });
+  for (const el of [band1, band2, band3, bandMult, bandTol, bandTemp]) {
+    el.addEventListener("change", () => updateResistor(true));
+  }
+  updateResistor();
+
+  const ohmV = document.getElementById("ohm-v");
+  const ohmI = document.getElementById("ohm-i");
+  const ohmR = document.getElementById("ohm-r");
+  const ohmP = document.getElementById("ohm-p");
+  const ohmResult = document.getElementById("ohm-result");
+
+  function updateOhm(userAction) {
+    const raw = { v: ohmV.value, i: ohmI.value, r: ohmR.value, p: ohmP.value };
+    const known = {};
+    for (const k of ["v", "i", "r", "p"]) known[k] = raw[k] === "" ? undefined : Number(raw[k]);
+    const providedCount = Object.values(known).filter((v) => v !== undefined && !Number.isNaN(v)).length;
+    if (providedCount !== 2) {
+      ohmResult.textContent = "Enter any two values above.";
+      ohmResult.classList.remove("error");
+      return;
+    }
+    try {
+      const { v, i, r, p } = solveOhmsLaw(known);
+      const fmt = (n) => (Math.round(n * 1e6) / 1e6).toString();
+      ohmResult.innerHTML = `V = <strong>${fmt(v)} V</strong> &nbsp; I = <strong>${fmt(i)} A</strong> &nbsp; R = <strong>${fmt(r)} Ω</strong> &nbsp; P = <strong>${fmt(p)} W</strong>`;
+      ohmResult.classList.remove("error");
+      if (userAction) recordEventSettled("ohms_law_solved");
+    } catch (err) {
+      ohmResult.textContent = err.message;
+      ohmResult.classList.add("error");
+    }
+  }
+  for (const el of [ohmV, ohmI, ohmR, ohmP]) el.addEventListener("input", () => updateOhm(true));
+
+  const ledSupply = document.getElementById("led-supply");
+  const ledForward = document.getElementById("led-forward");
+  const ledCurrent = document.getElementById("led-current");
+  const ledResult = document.getElementById("led-result");
+  function updateLed(userAction) {
+    const values = [ledSupply.value, ledForward.value, ledCurrent.value];
+    if (values.some((value) => value === "")) {
+      ledResult.textContent = "Enter all three values above.";
+      ledResult.classList.remove("error");
+      return;
+    }
+    try {
+      const result = calculateLedResistor({ supplyVoltage: ledSupply.value, ledForwardVoltage: ledForward.value, targetCurrent: Number(ledCurrent.value) / 1000 });
+      ledResult.innerHTML = `Use at least <strong>${formatResistance(result.resistance)}</strong> &nbsp; Dissipation: <strong>${result.power} W</strong> &nbsp; Choose a <strong>${result.recommendedWattage} W</strong> resistor or larger.`;
+      ledResult.classList.remove("error");
+      if (userAction) recordEventSettled("led_resistor_calculated");
+    } catch (err) {
+      ledResult.textContent = err.message;
+      ledResult.classList.add("error");
+    }
+  }
+  for (const el of [ledSupply, ledForward, ledCurrent]) el.addEventListener("input", () => updateLed(true));
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+name: etsy-profit-calculator
+description: A private browser calculator for Etsy sellers to see order profit after marketplace, ad, shipping, and material costs, whether Plus credits cover the monthly fee, whether a personalization upcharge still pays, whether on-site Etsy Ads still leave a profit after ACOS, whether Offsite Ads still leave a profit at 12% or 15%, whether a production-partner quote still pays after you run out of handmade hours, whether chasing Star Seller still beats staying unsigned, whether a shop sale still beats staying full price, whether free shipping still leaves a profit, whether an Etsy shipping label still beats Pirate Ship, and whether auto-renew still covers a slow listing.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Etsy sellers will return to a fast order-profit calculator when marketplace fees and shipping obscure their real margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent fee breakdown is more useful for product decisions than a single profit number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will use a listing-fee allocation view when auto-renew on a slow listing is the decision, not another per-order profit number.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing organic vs 12% vs 15% Offsite Ads leftover changes whether a seller takes an attributed sale on a tight handmade listing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Etsy sellers use the calculator twice within 90 days.
+  - Users do not find at least one listing whose net profit differs materially from their expectation.
+links:
+  production: null
+  analytics: null

@@ -12,6 +12,13 @@ has Stripe, a lead pipeline, and a dashboard. If it sells, split it out then.
 `ventures/local-site-studio`. That is the marker `session_gate.py` reads.
 The first experiment (live themes, contractor AT, outreach) remains open.
 
+**Public surface initiated 2026-08-24.** Catalog, buyer qualification, and
+disclosed error rates live in
+`ventures/local-site-studio/src/lib/pricing/eaa-evidence.ts`. Public page
+`/accessibility-evidence`; operator docs `/docs/eaa-evidence`. Checkout is
+not live (no Stripe Price IDs). Contractor AT pricing and outreach to ten
+obligated shops remain owner-gated (first experiment steps 2–3).
+
 Scored 2026-08-18. Composite 7.125 · floor 5 (liability containment).
 
 | Dimension | Score | Why |

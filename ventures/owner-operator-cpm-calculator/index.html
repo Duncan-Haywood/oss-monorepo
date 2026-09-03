@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Owner Operator CPM Calculator — Deadhead-Adjusted Rate</title>
+  <meta name="description" content="Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Owner Operator Cost Per Mile Calculator">
+  <meta property="og:description" content="Price the week, not the loaded mile. See all-in CPM and the break-even loaded rate after deadhead and factoring.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Owner Operator Cost Per Mile Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, detention layover and lumper comparison, copyable load summary"
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5a12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c9d2c6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c232010; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4f5b54; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8e9b8c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8e9b8c; background: #f3f6f1; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2320; }
+    button:hover { background: #e6ece3; }
+    .result { position: sticky; top: 15px; background: #1c2a22; color: #f3f7f2; border-color: #1c2a22; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #d7e8c8; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4f5b54; }
+    footer a { color: #8a5a12; }
+    .faq { margin-top: 4px; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR OWNER-OPERATORS</p>
+    <h1>Price the week, not the loaded mile.</h1>
+    <p>A $2.00 loaded offer is not $2.00 in your pocket. Empty miles still burn diesel and the truck note does not care whether the trailer is full. Enter a week of running — fuel, the note, insurance, deadhead — and see the all-in cost per mile and the loaded rate that actually covers it.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>This week&rsquo;s miles</h2>
+        <p class="hint">Count every mile the truck moves. Deadhead, bobtail, and empty repositioning belong in the empty box — they are why a rate that looked fine on the load board does not cover the week.</p>
+        <div class="fields">
+          <label>Loaded miles <input id="loadedMiles" type="number" min="0" step="10" value="1800"></label>
+          <label>Empty / deadhead miles <input id="emptyMiles" type="number" min="0" step="10" value="450"></label>
+          <label>Average MPG <input id="mpg" type="number" min="0.1" step="0.1" value="6.2"></label>
+          <label>Diesel price ($/gal) <input id="dieselPrice" type="number" min="0" step="0.01" value="4.20"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Fixed cost (monthly)</h2>
+        <p class="hint">These do not drop when you sit. A short week makes them more expensive per mile, which is why a rate that worked at 2,400 miles can lose money at 1,800.</p>
+        <div class="fields">
+          <label>Truck / trailer payment <input id="truckPayment" type="number" min="0" step="25" value="3000"></label>
+          <label>Insurance <input id="insurance" type="number" min="0" step="25" value="1800"></label>
+          <label>Permits, plates, IFTA, ELD <input id="permits" type="number" min="0" step="10" value="350"></label>
+          <label>Other fixed / month <input id="otherFixed" type="number" min="0" step="10" value="400"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Per-mile reserves and the offer</h2>
+        <div class="fields">
+          <label>Maintenance / mile <input id="maintenancePerMile" type="number" min="0" step="0.01" value="0.20"></label>
+          <label>Tires / mile <input id="tiresPerMile" type="number" min="0" step="0.01" value="0.05"></label>
+          <label>Tolls, DEF, other / mile <input id="otherVariablePerMile" type="number" min="0" step="0.01" value="0.07"></label>
+          <label>Factoring (%) <input id="factoringRate" type="number" min="0" max="99.9" step="0.1" value="3"></label>
+          <label>Offered loaded rate (optional) <input id="offeredLoadedRate" type="number" min="0" step="0.01" value="2.00"></label>
+          <label>Target weekly take-home (optional) <input id="targetWeeklyTakeHome" type="number" min="0" step="25" placeholder="e.g. 800"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Detention, layover, and lumper</h2>
+        <p class="hint">Miles do not pay you while you sit. Detention and layover are settlement lines; a dock lumper is cash out unless the broker reimburses it. Starting figures: 6 hours at $50, a $75 lumper you paid. <a href="does-detention-pay-cover-the-wait.html">Does detention pay cover the wait?</a></p>
+        <div class="fields">
+          <label>Detention hours <input id="detentionHours" type="number" min="0" step="0.25" value="6"></label>
+          <label>Detention pay ($/hr) <input id="detentionPayPerHour" type="number" min="0" step="5" value="50"></label>
+          <label>Layover pay ($) <input id="layoverPay" type="number" min="0" step="25" value="0"></label>
+          <label>Lumper you paid ($) <input id="lumperPaid" type="number" min="0" step="5" value="75"></label>
+          <label>Lumper reimbursed ($) <input id="lumperReimbursed" type="number" min="0" step="5" value="0"></label>
+        </div>
+        <label class="check" style="margin-top:12px;font-weight:400"><input id="factorAccessorials" type="checkbox" checked style="width:auto"> Factor detention and layover at the same percent as the miles</label>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Break-even loaded rate</h2>
+      <div id="hero" class="hero-number">$&mdash;</div>
+      <div id="heroLabel">per loaded mile to cover this week</div>
+      <dl>
+        <dt>All-in cost per mile</dt><dd id="allInCpm"></dd>
+        <dt>Variable (fuel + reserves)</dt><dd id="variableCpm"></dd>
+        <dt>Fixed cost per mile</dt><dd id="fixedCpm"></dd>
+        <dt>Deadhead share</dt><dd id="deadheadShare"></dd>
+        <dt>Fuel this week</dt><dd id="fuelCost"></dd>
+        <dt>Weekly cost</dt><dd id="weeklyCost"></dd>
+        <dt>Annual cost (same week &times; 52)</dt><dd id="annualCost"></dd>
+        <dt>Rate for target take-home</dt><dd id="rateForTarget"></dd>
+        <dt>Loaded miles to cover this week at offer</dt><dd id="loadedMilesToBreakEven"></dd>
+        <dt>Detention + layover after factor</dt><dd id="accessorialNet"></dd>
+        <dt>Unreimbursed lumper</dt><dd id="lumperUnreimbursed"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <table id="accessorialTable" style="width:100%;border-collapse:collapse;font-size:.84rem;margin-top:12px">
+        <caption style="text-align:left;font-weight:650;margin-bottom:8px">Miles-only week vs this settlement</caption>
+        <thead>
+          <tr><th style="text-align:left;padding:4px 0"></th><th style="text-align:right;padding:4px 0">Miles only</th><th style="text-align:right;padding:4px 0">With accessorials</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Weekly profit</td><td id="milesOnlyProfit" style="text-align:right"></td><td id="withAccessorialsProfit" style="text-align:right"></td></tr>
+          <tr><td>Gap this week</td><td colspan="2" id="accessorialDelta" style="text-align:right"></td></tr>
+          <tr><td>Detention hours that cover a losing miles-only week</td><td colspan="2" id="detentionHoursToCover" style="text-align:right"></td></tr>
+        </tbody>
+      </table>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy week summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting figures are a typical solo dry-van week, not a benchmark or a recommended rate. Replace them with your fuel receipts and the truck note.</p>
+    </section>
+  </main>
+
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>Generic “cost per mile” pages often divide monthly bills by loaded miles and stop. The decision an owner-operator actually faces is whether <strong>this week’s empty miles and this settlement’s factoring</strong> still leave the posted rate above cost. <a href="deadhead-miles.html">How deadhead miles cut a loaded rate</a> walks through that in search-query words. See also: <a href="vs-atbs.html">this calculator vs. ATBS</a>, for when to reach for a free instant calculator and when to hire a paid bookkeeping service.</p>
+    <p>It does not tell you which load to book, what a broker should pay, or what your truck is worth. The gap between the posted rate and the break-even loaded rate is arithmetic on the numbers you typed.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>How do owner operators calculate cost per mile?</h3>
+  <p>Add every mile the truck moves that week — loaded and empty. Divide fuel, per-mile reserves, and the weekly share of the truck note, insurance, and permits by those total miles. That is all-in cost per mile. Then divide the same weekly cost by loaded miles only to get the loaded rate that covers the empty ones.</p>
+  <h3>How does deadhead affect a trucking rate?</h3>
+  <p>Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring.</p>
+  <h3>Does this calculator use a different fuel mileage for loaded and empty miles?</h3>
+  <p>No &mdash; it takes one &ldquo;Average MPG&rdquo; figure and divides it into every mile the truck moved that week, loaded and empty combined (fuel gallons = total miles &divide; MPG). It does not model the real gap between loaded and unladen fuel economy. At the starting figures &mdash; 2,250 total miles at 6.2 MPG, $4.20 diesel &mdash; that is $1,524.19 of fuel for the week, regardless of how the 1,800 loaded and 450 empty miles split it. If your logbook shows loaded and empty MPG separately, enter the mileage weighted for the week&rsquo;s actual mix (total gallons actually burned &divide; total miles run), not your best-case unladen number, or the fuel line will understate cost on a week with a lot of loaded miles.</p>
+  <h3>What loaded rate should I accept?</h3>
+  <p>This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load.</p>
+  <h3>How much does factoring actually cost on a load?</h3>
+  <p>Factoring takes its percent off gross revenue before the money settles, not off profit. On the starting figures &mdash; 1,800 loaded miles at a $2.00 offer, $3,600 gross &mdash; 3% factoring is a $108 fee, leaving $3,492 net from the miles. The offered rate itself doesn&rsquo;t change; the calculator&rsquo;s &ldquo;effective loaded rate&rdquo; ($1.94/mi at those figures) is what you actually settle for, and that&rsquo;s the number to compare against break-even, not the rate on the rate confirmation.</p>
+  <h3>Does an unreimbursed lumper fee change the cost per mile?</h3>
+  <p>No &mdash; it&rsquo;s added to the week&rsquo;s cost as a flat dollar amount, not spread across miles. &ldquo;Lumper you paid&rdquo; minus &ldquo;Lumper reimbursed&rdquo; becomes a straight addition to weekly cost regardless of how many miles were run that week. At the starting figures, a $75 lumper the broker never reimburses is $75 straight off the week, on top of fuel, reserves, and fixed cost.</p>
+  <h3>How much does a short week raise cost per mile?</h3>
+  <p>Fixed costs &mdash; the truck note, insurance, permits &mdash; are billed monthly and this calculator converts them to a weekly figure by dividing by 52&divide;12 weeks, then spreads that over total miles run. Fewer miles in the week means the same dollar figure divides over less distance. At the starting figures ($5,550/month fixed, about $1,281/week) run over 2,250 total miles, fixed cost alone is about $0.57/mi; the same $1,281 spread over a 1,500-mile week would be about $0.85/mi &mdash; the truck note doesn&rsquo;t get cheaper because the week was slow.</p>
+  <h3>How many loaded miles does it take to break even at an offered rate?</h3>
+  <p>&ldquo;Loaded miles to cover this week at offer&rdquo; divides the week&rsquo;s cost, minus any detention/layover that&rsquo;s already been factored in, by the settled effective rate &mdash; the offered rate after factoring. At the starting figures, a $2.00/mi offer settles to $1.94/mi after 3% factoring, and it takes roughly 1,706 loaded miles against the week&rsquo;s cost (after the $291 of factored accessorials) to break even. The starting 1,800 loaded miles clears that, leaving around $183 for the week.</p>
+  <h3>What loaded rate do I need to hit a weekly take-home goal?</h3>
+  <p>Type a dollar figure into &ldquo;Target weekly take-home&rdquo; and the calculator solves the loaded rate backwards instead of forwards: take the week&rsquo;s cost, subtract the detention/layover income already counted, add the take-home you want, divide by loaded miles, then gross that up for the cut factoring will take. At the starting figures &mdash; $3,600 weekly cost, $291 of factored accessorial income, 1,800 loaded miles, 3% factoring &mdash; an $800 take-home goal solves to about $2.35/mi loaded, before factoring. That&rsquo;s the number to compare against a broker&rsquo;s posted rate, not the $2.00 starting example; the $2.00 offer only clears about $183 for the week at these figures.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not tell you what rate to accept or what a lane should pay. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Miles, fuel prices, the truck note, and offered rates stay on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it kept you off a losing load, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateWeek, compareAccessorials } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'loadedMiles', 'emptyMiles', 'mpg', 'dieselPrice',
+      'truckPayment', 'insurance', 'permits', 'otherFixed',
+      'maintenancePerMile', 'tiresPerMile', 'otherVariablePerMile',
+      'factoringRate', 'offeredLoadedRate', 'targetWeeklyTakeHome',
+      'detentionHours', 'detentionPayPerHour', 'layoverPay',
+      'lumperPaid', 'lumperReimbursed',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const perMile = value => value === null ? 'n/a' : `${money(value)}/mi`;
+    const el = id => document.getElementById(id);
+
+    function readInput() {
+      return {
+        ...Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])),
+        factorAccessorials: el('factorAccessorials').checked,
+      };
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message) {
+      el('hero').textContent = message;
+      el('hero').className = 'hero-number negative';
+      el('heroLabel').textContent = 'check the highlighted input';
+      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget', 'loadedMilesToBreakEven', 'accessorialNet', 'lumperUnreimbursed', 'milesOnlyProfit', 'withAccessorialsProfit', 'accessorialDelta', 'detentionHoursToCover']
+        .forEach(id => { el(id).textContent = ''; });
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateWeek(readInput());
+      } catch (error) {
+        clearOutputs(error.message);
+        return;
+      }
+
+      if (result.breakEvenLoadedRate === null) {
+        el('hero').textContent = money(result.weeklyCost);
+        el('hero').className = 'hero-number';
+        el('heroLabel').textContent = result.totalMiles === 0
+          ? 'fixed cost this week — no miles to spread it over'
+          : 'weekly cost — add loaded miles to quote a rate';
+      } else {
+        el('hero').textContent = money(result.breakEvenLoadedRate);
+        el('hero').className = 'hero-number';
+        el('heroLabel').textContent = 'per loaded mile to cover this week';
+      }
+
+      el('allInCpm').textContent = perMile(result.allInCpm);
+      el('variableCpm').textContent = perMile(result.variableCpm);
+      el('fixedCpm').textContent = perMile(result.fixedCpm);
+      el('deadheadShare').textContent = `${result.deadheadShare.toFixed(1)}%`;
+      el('fuelCost').textContent = money(result.fuelCost);
+      el('weeklyCost').textContent = money(result.weeklyCost);
+      el('annualCost').textContent = money(result.annualCost);
+      el('rateForTarget').textContent = result.rateForTarget === null ? 'n/a' : perMile(result.rateForTarget);
+      el('loadedMilesToBreakEven').textContent = result.loadedMilesToBreakEven === null
+        ? 'n/a'
+        : `${Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')} mi`;
+      el('accessorialNet').textContent = money(result.accessorialNet);
+      el('lumperUnreimbursed').textContent = money(result.lumperUnreimbursed);
+
+      const compared = compareAccessorials(readInput());
+      el('milesOnlyProfit').textContent = compared.milesOnly.offered
+        ? money(compared.milesOnly.offered.weeklyProfit)
+        : 'n/a';
+      el('withAccessorialsProfit').textContent = compared.withAccessorials.offered
+        ? money(compared.withAccessorials.offered.weeklyProfit)
+        : 'n/a';
+      el('accessorialDelta').textContent = compared.deltaProfit === null
+        ? 'n/a'
+        : `${compared.deltaProfit >= 0 ? '+' : ''}${money(compared.deltaProfit)}`;
+      el('detentionHoursToCover').textContent = compared.detentionHoursToCover === null
+        ? 'miles-only week already covers cost'
+        : `${compared.detentionHoursToCover.toFixed(2)} hr at ${money(result.detentionPayPerHour)}/hr`;
+
+      const verdict = el('verdict');
+      if (result.offered === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.offered.belowBreakEven ? ' bad' : ''}`;
+        const settled = `${money(result.offered.effectiveLoadedRate)}/mi after factoring`;
+        if (result.offered.belowBreakEven) {
+          verdict.innerHTML = `At ${money(result.offered.offeredLoadedRate)}/loaded mile (${settled}) this week <strong>loses ${money(Math.abs(result.offered.weeklyProfit))}</strong>. You would need ${result.loadedMilesToBreakEven === null ? 'a positive settled rate' : `${result.loadedMilesToBreakEven.toFixed(0)} loaded miles at this settled rate`} to cover cost.`;
+        } else {
+          verdict.innerHTML = `At ${money(result.offered.offeredLoadedRate)}/loaded mile (${settled}) you keep <strong>${money(result.offered.weeklyProfit)}</strong> this week — ${perMile(result.offered.profitPerLoadedMile)} of loaded miles, ${money(result.offered.annualProfit)} if every week looked like this.`;
+        }
+      }
+    }
+
+    function summaryText(result) {
+      const offerLines = result.offered === null
+        ? ['Offered rate: not entered']
+        : [
+          `Offered loaded rate: ${money(result.offered.offeredLoadedRate)}/mi`,
+          `After ${result.factoringRate.toFixed(1)}% factoring: ${money(result.offered.effectiveLoadedRate)}/mi`,
+          `Weekly net: ${money(result.offered.netRevenue)}`,
+          `Weekly profit: ${money(result.offered.weeklyProfit)}`,
+        ];
+      return [
+        'OWNER-OPERATOR WEEK',
+        '',
+        `Loaded miles: ${result.loadedMiles.toLocaleString('en-US')}`,
+        `Empty miles: ${result.emptyMiles.toLocaleString('en-US')} (${result.deadheadShare.toFixed(1)}% deadhead)`,
+        `All-in cost per mile: ${result.allInCpm === null ? 'n/a' : money(result.allInCpm)}`,
+        `Break-even loaded rate: ${result.breakEvenLoadedRate === null ? 'n/a' : money(result.breakEvenLoadedRate)}`,
+        `Loaded miles to cover this week at offer: ${result.loadedMilesToBreakEven === null ? 'n/a' : Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')}`,
+        `Weekly cost: ${money(result.weeklyCost)}`,
+        `Detention + layover after factor: ${money(result.accessorialNet)}`,
+        `Unreimbursed lumper: ${money(result.lumperUnreimbursed)}`,
+        '',
+        ...offerLines,
+        '',
+        'This is arithmetic on the entered costs, not a rate recommendation. Confirm fuel, insurance, the note, and the settlement before booking.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateWeek(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => {
+        const accessorial = ['detentionHours', 'detentionPayPerHour', 'layoverPay', 'lumperPaid', 'lumperReimbursed'].includes(id);
+        count(id === 'offeredLoadedRate' || id === 'factoringRate'
+          ? 'offer_compared'
+          : accessorial ? 'accessorials_compared' : 'week_calculated');
+      });
+    });
+    el('factorAccessorials').addEventListener('change', () => {
+      update();
+      count('accessorials_compared');
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

@@ -50,7 +50,7 @@ describe("sitemap", () => {
     const urls = entries.map((entry) => entry.url);
     const base = siteUrl();
 
-    for (const path of ["", "/checkout", "/docs", "/privacy", "/terms"]) {
+    for (const path of ["", "/checkout", "/accessibility-evidence", "/docs", "/privacy", "/terms"]) {
       expect(urls).toContain(`${base}${path}`);
     }
     for (const demo of DEMO_LEADS) {

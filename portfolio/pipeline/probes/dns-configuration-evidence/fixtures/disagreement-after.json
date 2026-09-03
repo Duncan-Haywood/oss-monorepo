@@ -1,0 +1,24 @@
+{
+  "domain": "example.test",
+  "captured_at": "2026-08-27T09:00:00Z",
+  "resolvers": [
+    {
+      "resolver": "1.1.1.1",
+      "query_status": "ok",
+      "records": {
+        "NS": ["ns1.example.test.", "ns2.example.test."],
+        "TXT": ["v=spf1 include:_spf.example.test ~all"],
+        "MX": ["10 mail.example.test."]
+      }
+    },
+    {
+      "resolver": "8.8.8.8",
+      "query_status": "ok",
+      "records": {
+        "NS": ["ns1.example.test.", "ns2.example.test."],
+        "TXT": ["v=spf1 include:_spf.example.test ~all", "v=spf1 include:_spf.staleedge.test ~all"],
+        "MX": ["10 mail.example.test."]
+      }
+    }
+  ]
+}

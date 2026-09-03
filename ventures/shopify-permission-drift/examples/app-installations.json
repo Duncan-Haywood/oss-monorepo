@@ -1,0 +1,40 @@
+{
+  "data": {
+    "appInstallations": {
+      "edges": [
+        {
+          "node": {
+            "id": "gid://shopify/AppInstallation/1",
+            "app": {
+              "id": "gid://shopify/App/101",
+              "handle": "app-analytics"
+            },
+            "accessScopes": [
+              { "handle": "read_analytics" }
+            ],
+            "requestedAccessScopes": [
+              { "handle": "read_analytics" },
+              { "handle": "read_reports" }
+            ],
+            "webhookSubscriptions": {
+              "edges": [
+                { "node": { "topic": "APP_UNINSTALLED" } }
+              ]
+            }
+          }
+        },
+        {
+          "node": {
+            "id": "gid://shopify/AppInstallation/2",
+            "app": { "handle": "app-shipping" },
+            "accessScopes": [{ "handle": "read_products" }],
+            "webhookSubscriptions": { "edges": [] }
+          }
+        }
+      ]
+    }
+  },
+  "api_version": "2026-07",
+  "captured_at": "2026-08-24T10:00:00Z",
+  "authorization_state": "active"
+}

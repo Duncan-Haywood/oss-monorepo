@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seller Net Sheet Calculator | Compare Offers After NAR</title>
+  <meta name="description" content="Free seller net sheet: see cash at closing after listing commission, optional buyer-broker compensation, concessions, title, and payoff. Compare two offers — the higher price is not always more cash.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Seller Net Sheet Calculator">
+  <meta property="og:description" content="Compare two home-sale offers on cash to the seller. Buyer-broker pay is a separate line, not an automatic split.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Seller Net Sheet Calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Seller net proceeds, listing vs buyer-broker lines, offer comparison, walk-away sale price for a target net, copyable worksheet"
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c14; background: #f3eee6; }
+    body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5a18; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8cbb8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #241c1410; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5146; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a68c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .span2 { grid-column: 1 / -1; }
+    .proration-tool { background: #f6f0e6; border: 1px dashed #b7a68c; border-radius: 9px; padding: 10px 12px; }
+    .proration-fields { display: grid; grid-template-columns: repeat(2, 1fr) auto; gap: 10px; align-items: end; }
+    .proration-fields label { font-size: .82rem; }
+    .proration-fields button { white-space: nowrap; }
+    @media (max-width: 560px) { .proration-fields { grid-template-columns: 1fr; } }
+    .result { position: sticky; top: 15px; background: #2c2416; color: #f7f1e6; border-color: #2c2416; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    /* Fluid rather than fixed: a six-figure net at 2.8rem is 290px of
+       unbreakable digits — "$119,057.50" has no space or hyphen to wrap at — so
+       on a 320px phone it painted past the edge of its own card and made the
+       page scroll sideways. clamp() keeps the headline as large as the card can
+       hold and never larger. */
+    .hero-number { font-size: clamp(1.9rem, 11vw, 2.8rem); font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c6e8b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a68c; background: #f6f0e6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #241c14; }
+    button:hover { background: #ebe2d2; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 12px; }
+    .status { font-size: .82rem; min-height: 1.2em; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    footer { margin-top: 8px; font-size: .82rem; color: #5c5146; }
+    footer a { color: #8a5a18; }
+    .faq { margin-top: 0; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HOME SELLERS AND LISTING AGENTS</p>
+    <h1>See cash at closing — and whether the higher offer actually pays more.</h1>
+    <p>
+      After NAR, buyer-broker compensation is a negotiated line, not an
+      automatic split of “the commission.” Enter the offer, the payoff, and
+      the costs. The worksheet shows net to the seller, the sale price that
+      hits a target net, and a side-by-side of two offers.
+      Everything runs in this page; nothing is uploaded.
+    </p>
+  </header>
+  <main class="layout">
+    <div>
+      <section>
+        <h2>Offer A — the worksheet</h2>
+        <p class="hint">Rates are starting points you can edit. Transfer tax, title, and prorations are local — replace them with the title company’s estimate.</p>
+        <div class="fields">
+          <label class="span2">Commission starting point
+            <select id="preset">
+              <option value="traditional_restated" selected>2.5% listing + 2.5% buyer-broker (old 5% restated)</option>
+              <option value="listing_only">Listing 2.5%, no buyer-broker offer</option>
+              <option value="six_percent_restated">3% listing + 3% buyer-broker (old 6% restated)</option>
+              <option value="flat_listing">Flat $4,000 listing fee, no buyer-broker offer</option>
+            </select>
+          </label>
+          <label>Offer / sale price <input id="salePrice" type="number" min="0" step="100" value="425000"></label>
+          <label>Loan payoff <input id="loanPayoff" type="number" min="0" step="100" value="280000"></label>
+          <label>Listing broker (%) <input id="listingRate" type="number" min="0" step="0.01" value="2.5"></label>
+          <label>Listing broker (flat $) <input id="listingFlat" type="number" min="0" step="1" value="0"></label>
+          <label>Buyer-broker compensation (%) <input id="buyerBrokerRate" type="number" min="0" step="0.01" value="2.5"></label>
+          <label>Buyer-broker compensation (flat $) <input id="buyerBrokerFlat" type="number" min="0" step="1" value="0"></label>
+          <label>Other seller concessions (%) <input id="concessionRate" type="number" min="0" step="0.01" value="0"></label>
+          <label>Other seller concessions ($) <input id="concessionFlat" type="number" min="0" step="1" value="0"></label>
+          <label>Title / escrow (flat $) <input id="titleFlat" type="number" min="0" step="1" value="2400"></label>
+          <label>Title / escrow (%) <input id="titleRate" type="number" min="0" step="0.01" value="0"></label>
+          <label>Transfer tax (%) <input id="transferTaxRate" type="number" min="0" step="0.01" value="0.11"></label>
+          <label>Transfer tax (flat $) <input id="transferTaxFlat" type="number" min="0" step="1" value="0"></label>
+          <label>Recording fees <input id="recording" type="number" min="0" step="1" value="125"></label>
+          <label>HOA / resale fees <input id="hoaFees" type="number" min="0" step="1" value="350"></label>
+          <label>Home warranty <input id="homeWarranty" type="number" min="0" step="1" value="550"></label>
+          <label>Repair credits <input id="repairsCredits" type="number" min="0" step="1" value="0"></label>
+          <label class="span2">Tax / HOA proration <input id="taxProration" type="number" min="0" step="1" value="800"></label>
+          <div class="span2 proration-tool">
+            <span class="hint" style="margin:0 0 6px">Estimate it: annual tax ÷ 365 × days charged to the seller</span>
+            <div class="proration-fields">
+              <label>Annual property tax <input id="prorationAnnualTax" type="number" min="0" step="1" placeholder="3650"></label>
+              <label>Days charged to seller <input id="prorationDays" type="number" min="0" step="1" placeholder="80"></label>
+              <button type="button" id="prorationApply">Use this estimate</button>
+            </div>
+            <span id="prorationPreview" class="hint" style="margin:6px 0 0"></span>
+          </div>
+          <label>Other closing costs <input id="otherClosing" type="number" min="0" step="1" value="0"></label>
+          <label>Prep / staging already spent <input id="prepCash" type="number" min="0" step="1" value="0"></label>
+          <label>Target net to seller <input id="targetNet" type="number" min="0" step="100" value="120000"></label>
+        </div>
+      </section>
+      <section>
+        <h2>Offer B — compare on cash, not just price</h2>
+        <p class="hint">Shared payoff and closing costs stay the same. Change only what this offer does differently: price, buyer-broker pay, and extra concessions.</p>
+        <div class="fields">
+          <label>Offer B price <input id="bSalePrice" type="number" min="0" step="100" value="417000"></label>
+          <label>Offer B buyer-broker (%) <input id="bBuyerBrokerRate" type="number" min="0" step="0.01" value="0"></label>
+          <label>Offer B buyer-broker (flat $) <input id="bBuyerBrokerFlat" type="number" min="0" step="1" value="0"></label>
+          <label>Offer B other concessions ($) <input id="bConcessionFlat" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
+    </div>
+    <section class="result" aria-live="polite">
+      <h2>Cash to the seller</h2>
+      <div id="net" class="hero-number">$—</div>
+      <div id="label">estimated net on Offer A</div>
+      <dl>
+        <dt>Offer A price</dt><dd id="priceA"></dd>
+        <dt>Loan payoff</dt><dd id="payoff"></dd>
+        <dt>Listing broker</dt><dd id="listing"></dd>
+        <dt>Buyer-broker compensation</dt><dd id="buyer"></dd>
+        <dt>Other concessions</dt><dd id="concession"></dd>
+        <dt>Title, tax, other costs</dt><dd id="other"></dd>
+        <dt>Total selling costs</dt><dd id="selling"></dd>
+        <dt>Cost of sale</dt><dd id="costRate"></dd>
+        <dt>Price that hits target net</dt><dd id="walkAway"></dd>
+      </dl>
+      <hr>
+      <h2>Same house, two offers</h2>
+      <table>
+        <thead><tr><th>Offer</th><th>Price</th><th>Net</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p id="verdict" class="verdict"></p>
+      <div class="actions">
+        <button type="button" id="copySheet">Copy Offer A worksheet</button>
+        <button type="button" id="copyCompare">Copy comparison</button>
+      </div>
+      <p id="copyStatus" class="status" role="status" aria-live="polite"></p>
+      <p class="note">Transparent arithmetic from your inputs — not a closing disclosure, a tax opinion, or advice about which offer to accept. Confirm every line with title/escrow, the lender payoff, and your broker.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Generic “seller closing cost” pages still treat commission as one
+      percentage. The decision sellers actually face after NAR is
+      <strong>which offer leaves more cash</strong> once buyer-broker
+      compensation and concessions are separate lines.
+      <a href="offer-comparison.html">Higher offer vs cleaner offer</a>
+      walks through that in search-query words.
+    </p>
+    <p>
+      It does not recommend a list price, a commission, or an offer, and it
+      is not legal, tax, or real-estate advice. The gap between offers is an
+      arithmetic comparison of the rates you entered.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>How do I calculate how much I will net from selling my house?</h3>
+  <p>Start with the offer price. Subtract the loan payoff, the listing broker fee, any buyer-broker compensation the seller agrees to pay, other concessions, title and escrow, transfer tax, prorations, and remaining closing costs. What remains is an estimate of cash to the seller. This page does that arithmetic from the numbers you enter; it is not a closing disclosure.</p>
+  <h3>Is the higher offer always more money for the seller after NAR?</h3>
+  <p>No. Buyer-broker compensation is now a negotiated amount, not an automatic split of a 5% or 6% commission. A higher offer that asks the seller to pay the buyer’s broker and closing costs can leave less cash than a cleaner, lower offer. Compare both on a net sheet before deciding.</p>
+  <h3>What sale price do I need to walk away with a target amount?</h3>
+  <p>Enter the net you want, the loan payoff, and the same cost rates. Percentage fees scale with price; flat fees and the payoff do not. The calculator solves for the sale price that produces that net on those assumptions. Confirm the figure with title or escrow before listing or countering.</p>
+  <h3>How do I estimate the Tax / HOA proration figure above?</h3>
+  <p>Take the annual property tax bill and divide by 365 for a daily rate, then multiply by the number of days in the tax period the seller is responsible for through closing. A $3,650 annual bill is $10/day; 80 days charged to the seller comes to $800 &mdash; which is why that field defaults to $800 above. The <strong>Estimate it</strong> box under the field does this arithmetic for you: enter the annual tax and the days charged, then <strong>Use this estimate</strong> fills the proration field for you. Whether the seller owes days before or after closing depends on whether your local jurisdiction bills taxes in advance or in arrears, so use the title company's proration once you have it; this is a starting estimate, not the number on the closing statement.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or real-estate advice, and it does not replace a qualified professional, title company, escrow officer, or attorney. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, loan balances, and addresses are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from taking the wrong offer, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import {
+      applyCommissionPreset,
+      calculateNetSheet,
+      compareOffers,
+      estimateTaxProration,
+      formatNetSheetSummary,
+      formatOfferComparison,
+    } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const SHARED_IDS = [
+      "loanPayoff", "listingRate", "listingFlat", "titleFlat", "titleRate",
+      "transferTaxRate", "transferTaxFlat", "recording", "hoaFees",
+      "homeWarranty", "repairsCredits", "taxProration", "otherClosing", "prepCash",
+    ];
+    const A_IDS = ["salePrice", "buyerBrokerRate", "buyerBrokerFlat", "concessionRate", "concessionFlat", "targetNet"];
+    const B_IDS = ["bSalePrice", "bBuyerBrokerRate", "bBuyerBrokerFlat", "bConcessionFlat"];
+    const money = (value) => value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+    const el = (id) => document.getElementById(id);
+    const optedOut = () => el("usageOptOut").checked;
+    const count = (event) => recordUsage(localStorage, optedOut(), event);
+
+    function readShared() {
+      return Object.fromEntries(SHARED_IDS.map((id) => [id, el(id).value]));
+    }
+
+    function readA() {
+      return {
+        ...readShared(),
+        salePrice: el("salePrice").value,
+        buyerBrokerRate: el("buyerBrokerRate").value,
+        buyerBrokerFlat: el("buyerBrokerFlat").value,
+        concessionRate: el("concessionRate").value,
+        concessionFlat: el("concessionFlat").value,
+        targetNet: el("targetNet").value,
+      };
+    }
+
+    function readB() {
+      return {
+        salePrice: el("bSalePrice").value,
+        buyerBrokerRate: el("bBuyerBrokerRate").value,
+        buyerBrokerFlat: el("bBuyerBrokerFlat").value,
+        concessionFlat: el("bConcessionFlat").value,
+        concessionRate: 0,
+      };
+    }
+
+    function setCopyStatus(text) {
+      el("copyStatus").textContent = text;
+      if (text) setTimeout(() => { if (el("copyStatus").textContent === text) el("copyStatus").textContent = ""; }, 2500);
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement("textarea");
+        fallback.value = text;
+        fallback.setAttribute("readonly", "");
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand("copy");
+        fallback.remove();
+      }
+    }
+
+    function update() {
+      try {
+        const sheet = calculateNetSheet(readA());
+        const comparison = compareOffers(readShared(), readA(), readB());
+        el("net").textContent = money(sheet.net);
+        el("net").className = `hero-number ${sheet.net < 0 ? "negative" : "positive"}`;
+        el("label").textContent = sheet.net < 0 ? "seller would bring money to close on Offer A" : "estimated net on Offer A";
+        el("priceA").textContent = money(sheet.salePrice);
+        el("payoff").textContent = money(sheet.loanPayoff);
+        el("listing").textContent = money(sheet.items.listing.amount);
+        el("buyer").textContent = money(sheet.items.buyerBroker.amount);
+        el("concession").textContent = money(sheet.items.concession.amount);
+        const other =
+          sheet.items.title.amount +
+          sheet.items.transferTax.amount +
+          sheet.items.recording +
+          sheet.items.hoa +
+          sheet.items.homeWarranty +
+          sheet.items.repairs +
+          sheet.items.taxProration +
+          sheet.items.otherClosing +
+          sheet.items.prepCash;
+        el("other").textContent = money(other);
+        el("selling").textContent = money(sheet.sellingCosts);
+        el("costRate").textContent = `${sheet.costOfSaleRate.toFixed(2)}%`;
+        el("walkAway").textContent =
+          sheet.salePriceForTarget?.reachable ? money(sheet.salePriceForTarget.salePrice) : "unreachable";
+        el("compare").innerHTML = [
+          ["A", comparison.a],
+          ["B", comparison.b],
+        ].map(([name, path]) =>
+          `<tr><td>${name}</td><td>${money(path.salePrice)}</td><td>${money(path.net)}</td></tr>`
+        ).join("");
+        if (comparison.better === "tie") {
+          el("verdict").textContent = "Both offers leave the same net on these assumptions.";
+        } else if (comparison.better === "a") {
+          el("verdict").textContent = `Offer A leaves ${money(comparison.delta)} more cash than Offer B.`;
+        } else {
+          el("verdict").textContent = `Offer B leaves ${money(-comparison.delta)} more cash than Offer A — the higher price is not the higher net.`;
+        }
+      } catch (error) {
+        el("net").textContent = error.message;
+        el("net").className = "hero-number error";
+        el("label").textContent = "fix the inputs to see a result";
+        ["priceA", "payoff", "listing", "buyer", "concession", "other", "selling", "costRate", "walkAway"].forEach((id) => {
+          el(id).textContent = "";
+        });
+        el("compare").innerHTML = "";
+        el("verdict").textContent = "";
+      }
+    }
+
+    function applyPreset() {
+      const filled = applyCommissionPreset({}, el("preset").value);
+      el("listingRate").value = filled.listingRate;
+      el("buyerBrokerRate").value = filled.buyerBrokerRate;
+      el("listingFlat").value = filled.listingFlat ?? 0;
+      update();
+      count("commission_preset_applied");
+    }
+
+    function prorationEstimate() {
+      const annualTax = el("prorationAnnualTax").value;
+      const days = el("prorationDays").value;
+      if (annualTax === "" || days === "") return null;
+      try {
+        return estimateTaxProration({ annualTax, daysChargedToSeller: days });
+      } catch {
+        return null;
+      }
+    }
+
+    function updateProrationPreview() {
+      const estimate = prorationEstimate();
+      el("prorationPreview").textContent = estimate === null
+        ? ""
+        : `= ${money(estimate)} — Tax / HOA proration is currently ${money(Number(el("taxProration").value) || 0)}`;
+    }
+
+    function applyProrationEstimate() {
+      const estimate = prorationEstimate();
+      if (estimate === null) {
+        el("prorationPreview").textContent = "Enter the annual tax and the days charged to the seller first.";
+        return;
+      }
+      el("taxProration").value = Math.round(estimate * 100) / 100;
+      updateProrationPreview();
+      update();
+      count("tax_proration_estimated");
+    }
+
+    async function copySheet() {
+      const text = formatNetSheetSummary(calculateNetSheet(readA()), { offerLabel: "Offer A" });
+      await copyText(text);
+      count("summary_copied");
+      setCopyStatus("Offer A worksheet copied");
+    }
+
+    async function copyCompare() {
+      const text = formatOfferComparison(compareOffers(readShared(), readA(), readB()));
+      await copyText(text);
+      count("offers_compared");
+      setCopyStatus("Comparison copied");
+    }
+
+    el("preset").addEventListener("change", applyPreset);
+    [...SHARED_IDS, ...A_IDS, ...B_IDS].forEach((id) => {
+      el(id).addEventListener("input", update);
+      el(id).addEventListener("change", () => {
+        const event = B_IDS.includes(id) || id === "targetNet"
+          ? (id === "targetNet" ? "target_net_solved" : "offers_compared")
+          : "net_sheet_calculated";
+        count(event);
+      });
+    });
+    el("copySheet").addEventListener("click", () => {
+      copySheet().catch(() => setCopyStatus("Copy failed; select the figures above."));
+    });
+    el("copyCompare").addEventListener("click", () => {
+      copyCompare().catch(() => setCopyStatus("Copy failed; select the figures above."));
+    });
+    el("prorationAnnualTax").addEventListener("input", updateProrationPreview);
+    el("prorationDays").addEventListener("input", updateProrationPreview);
+    el("taxProration").addEventListener("input", updateProrationPreview);
+    el("prorationApply").addEventListener("click", applyProrationEstimate);
+    el("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

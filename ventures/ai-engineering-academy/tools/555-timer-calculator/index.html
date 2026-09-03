@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>555 Timer Calculator — Astable &amp; Monostable</title>
+<meta name="description" content="Free 555 timer calculator for astable (oscillator) and monostable (one-shot) circuits. Work forwards from R1, R2, and C, or backwards from a target frequency and duty cycle to the nearest resistors you can actually buy — with the buildability checks a bare formula skips. Runs entirely in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='7' width='24' height='18' rx='2' fill='%232b6cb0'/%3E%3Cpath d='M8 20V13h4v7h4v-7h4v7' stroke='white' stroke-width='2.2' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<meta property="og:title" content="555 Timer Calculator — Astable &amp; Monostable" />
+<meta property="og:description" content="Design a 555 astable or one-shot from the frequency and duty cycle you actually want, and get resistors you can buy. Free, private, runs in your browser." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "555 Timer Calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free 555 timer calculator covering astable and monostable modes in both directions: analyse the components you have, or design from a target frequency, duty cycle, or pulse width down to nearest-E24 resistors. Flags duty cycles a standard astable cannot reach, discharge-pin overcurrent, and drift-prone resistor values. Runs entirely client-side."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why can't a 555 astable produce a 50% duty cycle?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In the standard two-resistor astable the timing capacitor charges through R1 + R2 but discharges through R2 alone, so the output-high time is always longer than the output-low time. The duty cycle approaches 50% as R2 grows relative to R1 but never reaches it. To get 50% or below, put a diode across R2 so charging bypasses it, or use a CMOS 555 in a 50%-duty configuration."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the 555 astable frequency formula?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The period is ln(2) × (R1 + 2 × R2) × C, which is where the familiar f = 1.44 / ((R1 + 2 × R2) × C) comes from — 1.44 is 1 / ln(2). The output-high time is ln(2) × (R1 + R2) × C and the output-low time is ln(2) × R2 × C."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long is a 555 monostable pulse?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ln(3) × R × C, usually quoted as the rule of thumb 1.1 × R × C. The capacitor charges from 0 V to the 2/3 Vcc threshold, and ln(3) is the time constant multiple that takes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How small can R1 be in a 555 astable?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "About 1 kΩ in practice. During the discharge phase R1 is the only thing limiting current into the 555's discharge pin, which sinks at most around 200 mA. A smaller R1 satisfies the timing equations but can exceed that rating."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --warn: #a0691b; --bad: #c53030;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #ecc94b; --bad: #fc8181; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  h3 { font-size: 1rem; margin: 1.5rem 0 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  input, select {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  input:focus, select:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 520px) { .row3, .row { grid-template-columns: 1fr; } }
+  .cap { display: grid; grid-template-columns: 2fr 1fr; gap: 0 0.5rem; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .result strong { color: var(--accent); }
+  .result dl { margin: 0; }
+  .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
+  .result dt:first-child { margin-top: 0; }
+  .result dd { margin: 0; font-size: 1.1rem; }
+  .result.error { color: var(--bad); }
+  ul.notes { list-style: none; margin: 0.85rem 0 0; padding: 0; font-size: 0.88rem; }
+  ul.notes li { margin-top: 0.5rem; padding-left: 1.5rem; position: relative; }
+  ul.notes li::before { position: absolute; left: 0; font-weight: 700; }
+  ul.notes li.error { color: var(--bad); }
+  ul.notes li.error::before { content: "!"; }
+  ul.notes li.warning { color: var(--warn); }
+  ul.notes li.warning::before { content: "▲"; font-size: 0.75rem; }
+  ul.notes li.info { color: var(--muted); }
+  ul.notes li.info::before { content: "i"; font-style: italic; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  code { background: var(--panel); padding: 0.1rem 0.3rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>555 Timer Calculator</h1>
+  <p class="lede">
+    Astable (oscillator) and monostable (one-shot), in both directions: analyse
+    the parts you have, or design from the frequency, duty cycle, or pulse
+    width you want down to resistors you can actually buy. Everything runs in
+    this page — nothing is uploaded.
+  </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
+
+  <section aria-labelledby="astable-heading">
+    <h2 id="astable-heading">Astable — what do my parts do?</h2>
+    <p class="hint">
+      The standard two-resistor oscillator. The capacitor charges through
+      R1&nbsp;+&nbsp;R2 and discharges through R2 alone.
+    </p>
+
+    <div class="row3">
+      <div>
+        <label for="a-r1">R1 (Ω)</label>
+        <input type="number" id="a-r1" inputmode="decimal" value="4700" step="any" />
+      </div>
+      <div>
+        <label for="a-r2">R2 (Ω)</label>
+        <input type="number" id="a-r2" inputmode="decimal" value="4700" step="any" />
+      </div>
+      <div>
+        <label for="a-vcc">Supply V<sub>cc</sub> (V)</label>
+        <input type="number" id="a-vcc" inputmode="decimal" value="5" step="any" />
+      </div>
+    </div>
+    <label for="a-c">Timing capacitor C</label>
+    <div class="cap">
+      <input type="number" id="a-c" inputmode="decimal" value="100" step="any" />
+      <select id="a-c-unit" aria-label="Capacitance unit">
+        <option value="1e-12">pF</option>
+        <option value="1e-9" selected>nF</option>
+        <option value="1e-6">µF</option>
+        <option value="1e-3">mF</option>
+      </select>
+    </div>
+
+    <div class="result" id="astable-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="astable-design-heading">
+    <h2 id="astable-design-heading">Astable — design for a target</h2>
+    <p class="hint">
+      Pick the capacitor you have, say what frequency and duty cycle you want,
+      and get the exact R1/R2 plus the nearest standard (E24) values — and what
+      those buyable resistors really produce.
+    </p>
+
+    <div class="row3">
+      <div>
+        <label for="d-freq">Target frequency (Hz)</label>
+        <input type="number" id="d-freq" inputmode="decimal" value="1000" step="any" />
+      </div>
+      <div>
+        <label for="d-duty">Target duty cycle (%)</label>
+        <input type="number" id="d-duty" inputmode="decimal" value="60" step="any" />
+        <p class="hint">Must be above 50 — see below.</p>
+      </div>
+      <div>
+        <label for="d-vcc">Supply V<sub>cc</sub> (V)</label>
+        <input type="number" id="d-vcc" inputmode="decimal" value="5" step="any" />
+      </div>
+    </div>
+    <label for="d-c">Capacitor you have</label>
+    <div class="cap">
+      <input type="number" id="d-c" inputmode="decimal" value="100" step="any" />
+      <select id="d-c-unit" aria-label="Capacitance unit">
+        <option value="1e-12">pF</option>
+        <option value="1e-9" selected>nF</option>
+        <option value="1e-6">µF</option>
+        <option value="1e-3">mF</option>
+      </select>
+    </div>
+
+    <div class="result" id="design-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="mono-heading">
+    <h2 id="mono-heading">Monostable — one-shot pulse</h2>
+    <p class="hint">
+      A trigger starts a single output pulse of ln(3)&nbsp;×&nbsp;R&nbsp;×&nbsp;C
+      (the familiar 1.1&nbsp;RC), after which the output falls regardless of the input.
+    </p>
+
+    <div class="row">
+      <div>
+        <label for="m-r">R (Ω)</label>
+        <input type="number" id="m-r" inputmode="decimal" value="100000" step="any" />
+      </div>
+      <div>
+        <label for="m-c">Capacitor C</label>
+        <div class="cap">
+          <input type="number" id="m-c" inputmode="decimal" value="10" step="any" />
+          <select id="m-c-unit" aria-label="Capacitance unit">
+            <option value="1e-12">pF</option>
+            <option value="1e-9">nF</option>
+            <option value="1e-6" selected>µF</option>
+            <option value="1e-3">mF</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="result" id="mono-result" role="status" aria-live="polite"></div>
+
+    <h3>Design for a target pulse width</h3>
+    <div class="row">
+      <div>
+        <label for="md-pulse">Target pulse width (seconds)</label>
+        <input type="number" id="md-pulse" inputmode="decimal" value="1" step="any" />
+      </div>
+      <div>
+        <label for="md-c">Capacitor you have</label>
+        <div class="cap">
+          <input type="number" id="md-c" inputmode="decimal" value="10" step="any" />
+          <select id="md-c-unit" aria-label="Capacitance unit">
+            <option value="1e-12">pF</option>
+            <option value="1e-9">nF</option>
+            <option value="1e-6" selected>µF</option>
+            <option value="1e-3">mF</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="result" id="mono-design-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="notes-heading">
+    <h2 id="notes-heading">Why the numbers and the bench disagree</h2>
+    <p>
+      The timing equations have no opinion about whether a design is
+      buildable, which is where most 555 projects actually go wrong:
+    </p>
+    <ul>
+      <li>
+        <strong>A standard astable can't do 50% duty or below.</strong> Charging
+        goes through R1&nbsp;+&nbsp;R2, discharging through R2 alone, so high
+        time always exceeds low time. It approaches 50% as R2 grows relative to
+        R1 and never reaches it. A diode across R2 (so charging bypasses R2)
+        buys you 50% and below.
+      </li>
+      <li>
+        <strong>R1 sets the discharge current.</strong> When discharge begins,
+        R1 alone limits current into the discharge pin, which sinks roughly
+        200&nbsp;mA at most. This page checks that against your supply voltage.
+      </li>
+      <li>
+        <strong>Big timing resistors drift.</strong> Past about 1&nbsp;MΩ the
+        threshold pin's own leakage stops being negligible next to the charging
+        current on a bipolar NE555, so the real period wanders — with
+        temperature, and between chips. A CMOS 555 (7555/TLC555) is far more
+        tolerant.
+      </li>
+      <li>
+        <strong>Electrolytic timing caps are approximate.</strong> −20%/+80% is
+        a common tolerance, so a microfarad-scale design's frequency is a
+        target, not a specification. Trim with R2 if it matters.
+      </li>
+    </ul>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>Why can't a 555 astable produce a 50% duty cycle?</h3>
+  <p>In the standard two-resistor astable the timing capacitor charges through R1 + R2 but discharges through R2 alone, so the output-high time is always longer than the output-low time. The duty cycle approaches 50% as R2 grows relative to R1 but never reaches it. To get 50% or below, put a diode across R2 so charging bypasses it, or use a CMOS 555 in a 50%-duty configuration.</p>
+  <h3>What is the 555 astable frequency formula?</h3>
+  <p>The period is ln(2) × (R1 + 2 × R2) × C, which is where the familiar f = 1.44 / ((R1 + 2 × R2) × C) comes from — 1.44 is 1 / ln(2). The output-high time is ln(2) × (R1 + R2) × C and the output-low time is ln(2) × R2 × C.</p>
+  <h3>How long is a 555 monostable pulse?</h3>
+  <p>ln(3) × R × C, usually quoted as the rule of thumb 1.1 × R × C. The capacitor charges from 0 V to the 2/3 Vcc threshold, and ln(3) is the time constant multiple that takes.</p>
+  <h3>How small can R1 be in a 555 astable?</h3>
+  <p>About 1 kΩ in practice. During the discharge phase R1 is the only thing limiting current into the 555's discharge pin, which sinks at most around 200 mA. A smaller R1 satisfies the timing equations but can exceed that rating.</p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not engineering
+      advice, and it does not replace reading your specific chip's datasheet or
+      measuring the built circuit — 555 variants differ, and the practical
+      limits it checks against are rules of thumb for a bipolar NE555.
+      <strong>You are responsible for reviewing and verifying its output
+      before relying on it</strong>, including for anything safety-critical. To
+      the maximum extent permitted by law, the authors accept no liability for
+      any loss or damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This page
+      counts anonymous, local feature-use events (e.g. "a calculation was run")
+      in your own browser's <code>localStorage</code>, only to help this
+      project's maintainers tell whether the tool is used at all — nothing is
+      sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT licensed — see
+      <a href="../LICENSE">LICENSE</a>.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import {
+    calculateAstable,
+    designAstable,
+    calculateMonostable,
+    designMonostable,
+    formatResistance,
+    formatCapacitance,
+    formatTime,
+    formatFrequency,
+  } from "./calc.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+
+  /** Reads a value+unit capacitance pair as farads. */
+  function readCapacitance(valueId, unitId) {
+    return Number($(valueId).value) * Number($(unitId).value);
+  }
+
+  /** Renders {severity, message} notes; returns "" when there are none. */
+  function renderNotes(notes) {
+    if (!notes || notes.length === 0) return "";
+    const items = notes
+      .map((n) => `<li class="${n.severity}">${n.message}</li>`)
+      .join("");
+    return `<ul class="notes">${items}</ul>`;
+  }
+
+  /**
+   * Wraps a calculation so every panel behaves the same way: render on
+   * success, show the thrown message on invalid input, and only count a
+   * usage event when something was actually computed.
+   *
+   * `update(userAction)` splits rendering from counting. The on-load call
+   * passes nothing, so painting a first result from the prefilled defaults no
+   * longer records a calculation -- otherwise every page view, bounces
+   * included, logged one and `calculation` became a synonym for `page_view`.
+   * Interaction handlers pass `true` and route through recordEventSettled(),
+   * so a burst of typing collapses into a single count rather than one per
+   * keystroke. This is the same correction the other tools carry on `main`
+   * (#992); this tool was built on a concurrent branch and would otherwise
+   * have shipped the defect the others just had removed.
+   */
+  function wire(inputIds, resultId, compute, eventName) {
+    const result = $(resultId);
+    function update(userAction) {
+      try {
+        result.innerHTML = compute();
+        result.classList.remove("error");
+        if (userAction) recordEventSettled(eventName);
+      } catch (err) {
+        result.textContent = err.message;
+        result.classList.add("error");
+      }
+    }
+    for (const id of inputIds) $(id).addEventListener("input", () => update(true));
+    for (const id of inputIds) $(id).addEventListener("change", () => update(true));
+    update();
+  }
+
+  wire(["a-r1", "a-r2", "a-vcc", "a-c", "a-c-unit"], "astable-result", () => {
+    const r = calculateAstable({
+      r1: Number($("a-r1").value),
+      r2: Number($("a-r2").value),
+      capacitanceFarads: readCapacitance("a-c", "a-c-unit"),
+      supplyVolts: $("a-vcc").value === "" ? undefined : Number($("a-vcc").value),
+    });
+    return `
+      <dl>
+        <dt>Frequency</dt>
+        <dd><strong>${formatFrequency(r.frequencyHz)}</strong> (period ${formatTime(r.periodSeconds)})</dd>
+        <dt>Duty cycle</dt>
+        <dd>${r.dutyCyclePercent.toFixed(2)}% — high for ${formatTime(r.highSeconds)}, low for ${formatTime(r.lowSeconds)}</dd>
+      </dl>
+      ${renderNotes(r.notes)}
+    `;
+  }, "astable_calculated");
+
+  wire(["d-freq", "d-duty", "d-vcc", "d-c", "d-c-unit"], "design-result", () => {
+    const capacitanceFarads = readCapacitance("d-c", "d-c-unit");
+    const d = designAstable({
+      frequencyHz: Number($("d-freq").value),
+      dutyCyclePercent: Number($("d-duty").value),
+      capacitanceFarads,
+      supplyVolts: $("d-vcc").value === "" ? undefined : Number($("d-vcc").value),
+    });
+    const sign = (n) => (n > 0 ? "+" : "");
+    return `
+      <dl>
+        <dt>Exact resistors for the target</dt>
+        <dd>R1 = ${formatResistance(d.exactR1)}, R2 = ${formatResistance(d.exactR2)} with ${formatCapacitance(capacitanceFarads)}</dd>
+        <dt>Nearest standard (E24) values you can buy</dt>
+        <dd><strong>R1 = ${formatResistance(d.nearestR1)}, R2 = ${formatResistance(d.nearestR2)}</strong></dd>
+        <dt>What those really produce</dt>
+        <dd>${formatFrequency(d.achievedFrequencyHz)} (${sign(d.frequencyErrorPercent)}${d.frequencyErrorPercent.toFixed(2)}%) at ${d.achievedDutyCyclePercent.toFixed(2)}% duty (${sign(d.dutyErrorPercent)}${d.dutyErrorPercent.toFixed(2)} points)</dd>
+      </dl>
+      ${renderNotes(d.notes)}
+    `;
+  }, "astable_designed");
+
+  wire(["m-r", "m-c", "m-c-unit"], "mono-result", () => {
+    const r = calculateMonostable({
+      r: Number($("m-r").value),
+      capacitanceFarads: readCapacitance("m-c", "m-c-unit"),
+    });
+    return `
+      <dl>
+        <dt>Output pulse width</dt>
+        <dd><strong>${formatTime(r.pulseSeconds)}</strong></dd>
+      </dl>
+      ${renderNotes(r.notes)}
+    `;
+  }, "monostable_calculated");
+
+  wire(["md-pulse", "md-c", "md-c-unit"], "mono-design-result", () => {
+    const capacitanceFarads = readCapacitance("md-c", "md-c-unit");
+    const d = designMonostable({
+      pulseSeconds: Number($("md-pulse").value),
+      capacitanceFarads,
+    });
+    const sign = d.pulseErrorPercent > 0 ? "+" : "";
+    return `
+      <dl>
+        <dt>Exact R for the target</dt>
+        <dd>${formatResistance(d.exactR)} with ${formatCapacitance(capacitanceFarads)}</dd>
+        <dt>Nearest standard (E24) R</dt>
+        <dd><strong>${formatResistance(d.nearestR)}</strong> → ${formatTime(d.achievedPulseSeconds)} (${sign}${d.pulseErrorPercent.toFixed(2)}%)</dd>
+      </dl>
+      ${renderNotes(d.notes)}
+    `;
+  }, "monostable_designed");
+
+  const usageToggle = $("usage-toggle");
+  const usageStatus = $("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "server": "inventory-mcp",
+  "captured": "2026-08-20T09:00:00Z",
+  "tools": [
+    {"name": "search_inventory", "description": "Search available inventory", "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}}}
+  ]
+}
