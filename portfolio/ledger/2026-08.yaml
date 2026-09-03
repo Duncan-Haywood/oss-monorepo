@@ -22307,6 +22307,51 @@ entries:
           `portfolio/ledger/` only, publishes nothing, spends nothing, adds no
           automation. `payout-rail` remains the only queue item that moves the
           revenue ceiling off $0.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo" session, designated branch
+          `session/cleanup-2026-08-24`. `session_gate.py` -> PROCEED (cadence
+          0.92/h, at the maintenance rate). Fetched `main` fresh, read the open
+          pull requests and `decision_queue.py` before touching anything.
+      - >-
+          Found PR #777 (revert of #368 Dependabot merge) open with a failing
+          test check. The test failure was due to a stale
+          `results-2026-08-23.md` file (agent instruction closure count changed
+          from 120 to 121 due to `asks.yaml` changes). Regenerated the results
+          file, rebased the branch onto current `main` (resolved a conflict in
+          `asks.yaml`), and pushed. All CI checks passed (test, validate).
+      - >-
+          PR #777 was merged at 2026-08-24T09:57:16Z, reverting the Dependabot
+          config merge (#368) which had been merged against its own "Not
+          self-merging" statement and the decision queue's owner-gated note.
+          Dependabot is "automation that writes or spends unattended" per
+          CLAUDE.md, making it a human-gated decision.
+      - >-
+          Closed 28 orphaned Dependabot PRs (#737-#772) that were opened when
+          #368 was briefly merged. These PRs are orphaned since the config
+          (.github/dependabot.yml) no longer exists after the revert. Each was
+          closed with a comment explaining that the config was removed by #777
+          and the decision to re-enable Dependabot remains with the account
+          owner.
+      - >-
+          Closed PR #780 (stale/conflicting decision queue update) and PR #764
+          (ledger entry based on wrong premise that #368 was correctly merged).
+          Both were superseded by the #777 revert and subsequent corrections.
+      - >-
+          Updated `asks.yaml` to remove the `dependabot` row since #368 was
+          reverted and the 30+ Dependabot PRs were closed. The decision whether
+          to re-enable Dependabot remains with the account owner but is not
+          tracked in the queue without a concrete PR or ask to reference.
+          Verified by `decision_queue.py --check` (8 decisions, schema OK).
+      - >-
+          Opened PR #783 to merge the `asks.yaml` update. Agent-decidable per
+          CLAUDE.md: `portfolio/ledger/` only, no `ventures/*` code, publishes
+          nothing, spends nothing, removes no automation (already removed by
+          #777). Owner-gated PRs left untouched: #720, #731, #531. `payout-rail`
+          remains the only queue item that moves the revenue ceiling off $0.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null

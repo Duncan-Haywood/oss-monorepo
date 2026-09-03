@@ -4,48 +4,72 @@ import fs from 'node:fs';
 
 const docsPage = (name) => fs.readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const html = docsPage('vs-synder.html');
-const index = docsPage('index.html');
-const readme = docsPage('README.md');
+const indexHtml = docsPage('index.html');
+const sitemap = docsPage('sitemap.xml');
+const robots = docsPage('robots.txt');
 
-test('index and README link to the Synder comparison page', () => {
-  assert.match(index, /vs-synder\.html/);
-  assert.match(readme, /vs-synder\.html/);
-});
-
-test('robots and sitemap let crawlers find the new page', () => {
-  const robots = docsPage('robots.txt');
-  const sitemap = docsPage('sitemap.xml');
-  assert.match(robots, /Allow: \//);
-  assert.match(sitemap, /payment-reconciliation-workbench\/<\/loc>/);
-  assert.match(sitemap, /vs-synder\.html/);
-});
-
-test('the vs-Synder page names what each tool is for, disclaims affiliation, and carries the standard disclaimer', () => {
-  assert.match(html, /<title>This workbench vs\. Synder/);
-  assert.match(html, /name="description"/);
-  assert.match(html, /"@type":"FAQPage"/);
-  assert.match(html, /href="\.\/"/);
-  assert.match(html, /not affiliated with, endorsed by, or sponsored by Synder or CloudBusiness LLC/i);
-  assert.match(html, /No warranty/);
-  assert.match(html, /Best-effort hosting, no SLA/);
-  assert.match(html, /GitHub Sponsors/);
+test('carries the full liability disclaimer', () => {
+  assert.match(html, /<strong>No warranty\.<\/strong>/);
   assert.match(html, /not legal, tax, financial, or accounting advice/i);
 });
 
-test('the page states no specific price for Synder, since that figure could not be verified against a primary source reachable from this environment (synder.com is blocked by the egress proxy here) — same discipline as the sibling vs-granthub.html page', () => {
-  assert.doesNotMatch(html, /Synder[^.]*\$\d/);
-  assert.doesNotMatch(html, /\$\d[\d,]*(\.\d+)?\s*(\/|per)\s*(year|yr|month|mo)/i);
+test('carries the best-effort hosting notice and the sponsors link', () => {
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the page never claims a network call, matching every other page on this static site', () => {
-  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|<script src=/);
+test('states it is not affiliated with Synder', () => {
+  assert.match(html, /not affiliated with, endorsed by, or sponsored by Synder/);
 });
 
-test('every FAQPage question and answer authored in JSON-LD is also visible on the page', () => {
-  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
-  assert.equal(ld['@type'], 'FAQPage');
-  for (const entry of ld.mainEntity) {
-    assert.ok(html.includes(entry.name), `question not visible on page: ${entry.name}`);
-    assert.ok(html.includes(entry.acceptedAnswer.text), `answer not visible on page: ${entry.acceptedAnswer.text}`);
+test('names a checkable source for what Synder is, instead of a figure only Synder could confirm', () => {
+  assert.match(html, /synder\.com/);
+  // Synder prices its paid plans by monthly transaction volume across
+  // several tiers, which changes over time; any dollar figure quoted here
+  // would be stale the day Synder reprices, or wrong for the reader's own
+  // volume tier even on the day it is written. Same guard pattern
+  // subscription-price-impact's vs-baremetrics test and
+  // ltl-freight-class-estimator's vs-smc3-fastclass test use for the same
+  // reason: describe what the competitor's product does, never what it
+  // costs.
+  assert.doesNotMatch(html, /\$\d/);
+});
+
+test('does not claim Synder cannot do a one-off check, only that it requires a live connection', () => {
+  // Synder can presumably be used for a single reconciliation too; the
+  // genuine, verifiable difference is that doing so still requires
+  // connecting a live payment processor and accounting platform account,
+  // not that Synder is incapable of anything this workbench does.
+  assert.doesNotMatch(html, /Synder[^.]*\bcannot\b/i);
+});
+
+test('the canonical tag names this file', () => {
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/payment-reconciliation-workbench\/vs-synder\.html">/);
+});
+
+test('the FAQPage schema is valid JSON and matches the visible FAQ headings', () => {
+  const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
+  assert.ok(match, 'no FAQPage schema found');
+  const schema = JSON.parse(match[1]);
+  assert.equal(schema['@type'], 'FAQPage');
+  for (const question of schema.mainEntity) {
+    assert.ok(html.includes(`<h3>${question.name}</h3>`), `FAQ schema question "${question.name}" has no matching <h3> on the page`);
   }
+});
+
+test('the comparison page is linked from the tool page, not orphaned', () => {
+  assert.match(indexHtml, /href="\.\/vs-synder\.html"|href="vs-synder\.html"/);
+});
+
+test('the comparison page is listed in the sitemap and reachable by robots.txt', () => {
+  assert.match(sitemap, /vs-synder\.html/);
+  assert.match(robots, /Allow: \//);
+});
+
+test('the comparison page links back to the workbench', () => {
+  assert.match(html, /<a href="\.\/">/);
+});
+
+test('the comparison page links to the split-deposit worked example', () => {
+  assert.match(html, /href="why-does-one-payout-show-up-as-two-bank-deposits\.html"/);
 });

@@ -29,12 +29,22 @@ hardware the portfolio already pays for.
 from 2026-09-01T00:00:53Z, and the PRs that have run since went green on
 merit (#2601, #2603, #2605 — real runner ids, real steps). That is what the
 evidence establishes, and it is narrower than "all CI is green": runs still
-fail here for their own reasons. `Claude routine trigger` is the standing
-example — it gets a real runner, reaches the API, and comes back
+fail here for their own reasons. `Claude routine trigger` was the standing
+example — it got a real runner, reached the API, and came back
 `HTTP 401 … "OAuth access token has been revoked"` (run 33547527610). Its
 `CLAUDETRIGGERAPIKEY` secret *is* set; the token behind it is revoked. That
 is the `routine-trigger-cadence` decision, not a runner problem. Read a red
 check on its merits; `ci_starvation.py` is what separates the two causes.
+
+That example stopped being live on 2026-09-02, and how it stopped is the part
+worth carrying here: its `fire` job is now gated on the repository variable
+`ROUTINE_TRIGGER_ENABLED`, so a scheduled run is **skipped before a runner is
+assigned** instead of occupying one to fail. 403 of its 472 runs had failed by
+then, ~72 billed minutes a day, against the same metered
+allowance whose exhaustion caused the window above. A job skipped by a false
+`if:` costs nothing, which makes an owner-set variable the cheap way to hold a
+credential-blocked schedule — cheaper than the self-hosted runners below, and
+available today. The decision itself is untouched and still the owner's.
 
 Nothing here is currently blocking, so this stack is insurance, not a
 repair. It is
@@ -46,7 +56,10 @@ do block (`portfolio-site-repo` and `codex-secrets`), per
 
 ## The switch
 
-All 247 `runs-on` lines across 221 workflows now read:
+252 of the 254 `runs-on` lines across 223 workflows now read this. The other
+two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
+`DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
+Docker daemon the self-hosted pod does not have):
 
 ```yaml
 runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}

@@ -60,6 +60,10 @@ jobs:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
+    # Builds and checks the whole 500+-page site artifact -- measured at 173s
+    # on a recent PR. See hetzner-gitops-ci.yml's timeout-minutes addition for
+    # why an unbounded job is worth capping on a metered-minutes account.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -115,6 +119,11 @@ jobs:
     permissions:
       pages: write
       id-token: write
+    # The actual publish step, gated to main and non-PR events above. See
+    # hetzner-gitops-ci.yml's timeout-minutes addition for why an unbounded
+    # job is worth capping on a metered-minutes account -- doubly so for a
+    # job that holds pages: write and publishes the live site.
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

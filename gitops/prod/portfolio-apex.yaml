@@ -11,27 +11,41 @@
 # is sealed, someone who types the portfolio's domain still gets nothing.
 # This is the manifest that makes the domain itself land somewhere.
 #
-# WHY IT IS A REDIRECT AND NOT A SECOND COPY OF THE SITE
+# WHY IT NO LONGER REDIRECTS (changed 2026-09-02)
 #
-# `platform/pages/build.mjs` stamps `PAGES_BASE_URL` into the canonical link,
-# the og:url and every sitemap entry of all 524 pages, and
-# `portfolio-site.yaml` sets that to `https://tools.marisstella.dev/`. One
-# canonical host, one indexed copy. Serving the same bytes on three hostnames
-# would put two uncanonical duplicates in front of crawlers and rely on the
-# `rel=canonical` tag to undo it; a 301 says the same thing without the
-# ambiguity, and it is what a browser follows without being asked twice.
+# It was a 301 to `https://tools.marisstella.dev/` from 2026-08-28 until now,
+# and the argument for that was sound as far as it went: `build.mjs` stamps
+# `PAGES_BASE_URL` into the canonical link, the og:url and every sitemap entry
+# of all 544 pages, `portfolio-site.yaml` sets that to the tools host, and
+# serving the same bytes on three hostnames would put two uncanonical
+# duplicates in front of crawlers for the `rel=canonical` tag to undo.
 #
-# The redirect target is the canonical *root*, not the requested path.
-# ingress-nginx's `permanent-redirect` emits a literal `return 301 <target>`,
-# so `$request_uri` is not carried across. That is acceptable here and only
-# here: the apex has never served a page, so no deep link to
-# `marisstella.dev/<tool>/` exists anywhere to break, and every path that IS
-# linked or indexed is already an absolute `tools.` URL. Landing the front
-# door on the 169-tool hub is the whole job. If the apex ever needs to
-# preserve paths, the change is to drop the two redirect annotations below —
-# the backend already points at the real site, so the Ingress degrades into
-# serving it directly, and the canonical tag on every page then does the
-# consolidating.
+# What that argument never covered is the state the cluster has actually been
+# in for every day of those five: the redirect target serves nothing. The
+# tools host fails closed on the unsealed Secret `portfolio-site-repo`, so the
+# portfolio's own domain has been spending a TLS handshake to hand every
+# visitor a redirect into a dead end — which `platform/ci/publish_surface.py
+# --check` prints as a note under both hostnames rather than letting the two
+# "+" marks read as content.
+#
+# So these two names now serve `portfolio-front` (see `portfolio-front.yaml`):
+# a generated front-door page — positioning, one card per category, the two
+# §5b clauses — held in a ConfigMap and therefore needing no clone token, no
+# runner and no Pages flip. It goes live on merge.
+#
+# This does NOT reintroduce the duplicate the old comment guarded against.
+# The front door is a different document from the hub: its own canonical
+# (`https://marisstella.dev/`), its own copy, and no per-tool listing at all.
+# `platform/marketing/front-door.test.mjs` fails if either property is lost.
+# The 524 tool pages still exist on exactly one host.
+#
+# Restoring the redirect is putting the two `permanent-redirect` annotations
+# back; the backend below then stops being reached and nothing else changes.
+# Note the one thing that would differ from the old behaviour: ingress-nginx's
+# `permanent-redirect` emits a literal `return 301 <target>` and does not
+# carry `$request_uri`, which was acceptable while the apex had never served a
+# page. It has served one from this commit on, so a later restore should
+# expect the apex's own indexed URL to be redirected to the hub root.
 #
 # WHY THIS CANNOT HIJACK ANYTHING
 #
@@ -56,9 +70,15 @@
 # the request and this file changes nothing. There is no state in which it
 # displaces a live service.
 #
-# Rollback is deleting this one file from `kustomization.yaml`. It adds no
-# volume, no workload and no secret, and it does not touch the Ingress that
-# serves the site.
+# Rollback is deleting this file and `portfolio-front.yaml` from
+# `kustomization.yaml`. Between them they add one Deployment, one Service and
+# two generated ConfigMaps — no secret, no volume that outlives a pod, no
+# state to unwind — and they do not touch the Ingress that serves the tools
+# host. (Before 2026-09-02 this file added no workload at all; it does now,
+# because the redirect it used to carry pointed at one that cannot start.
+# Reverting only the annotations, without also removing `portfolio-front`,
+# leaves a running Deployment nothing routes to — harmless, and worth
+# noticing.)
 #
 # TLS
 #
@@ -80,14 +100,15 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  # The name is kept as-is on purpose even though it no longer redirects.
+  # Renaming an Ingress deletes and recreates it, and cert-manager keys the
+  # `portfolio-apex-tls` Secret and any in-flight HTTP-01 order to the object
+  # that requested it — so a rename for tidiness would drop the certificate
+  # for the portfolio's front door and re-order it from Let's Encrypt, whose
+  # rate limits are per registered domain. The name is not worth that.
   name: portfolio-apex-redirect
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    # 301 rather than 302: the apex is not a temporary home for these tools,
-    # and a permanent redirect is what consolidates link equity onto the
-    # canonical host instead of splitting it across three names.
-    nginx.ingress.kubernetes.io/permanent-redirect: https://tools.marisstella.dev/
-    nginx.ingress.kubernetes.io/permanent-redirect-code: "301"
 spec:
   ingressClassName: nginx
   tls:
@@ -103,13 +124,16 @@ spec:
         paths:
           - path: /
             pathType: Prefix
-            # Never reached while the redirect annotation is present. It
-            # points at the real site on purpose — see the note above about
-            # dropping the annotations — rather than at a stub that would
-            # turn a dropped annotation into a 503.
+            # `portfolio-front`, not `portfolio-site`: this is the one place
+            # in the tree where pointing at the site would be wrong even
+            # though the site is the more finished thing. `portfolio-site`
+            # cannot start without the sealed clone token, so a backend
+            # pointing there would keep the apex answering 503 for exactly as
+            # long as it has been answering a dead redirect. The front door
+            # depends on nothing that is not already in git.
             backend:
               service:
-                name: portfolio-site
+                name: portfolio-front
                 port:
                   name: http
     - host: www.marisstella.dev
@@ -119,6 +143,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: portfolio-site
+                name: portfolio-front
                 port:
                   name: http

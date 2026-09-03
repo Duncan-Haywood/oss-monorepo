@@ -51,6 +51,12 @@
       <strong>which used to take</strong> guessing a number or copying a boilerplate
       template that doesn't match your prices.
     </p>
+    <p class="tagline">
+      Already booking through scheduling software?
+      <a href="vs-acuity-scheduling.html">This calculator vs. Acuity Scheduling</a>
+      explains why the two sit next to each other: the platform carries and
+      enforces the policy, this page works out the number that goes in it.
+    </p>
   </header>
 
   <main>
@@ -156,7 +162,7 @@
 
       <div id="errors" role="alert" hidden></div>
 
-      <!-- Starts hidden and is revealed by src/app.mjs on load. Keeping the
+      <!-- Starts hidden and is revealed by app.mjs on load. Keeping the
            default hidden means a visitor with JavaScript disabled sees the form
            and the guidance rather than a row of $0.00 placeholders that will
            never fill in. -->
@@ -382,8 +388,7 @@
         number of anonymous events (which buttons were used, nothing about who used them)
         and keeps the count only in this browser, so it can tell whether anyone is using
         it at all. Your calculator numbers are also saved locally for convenience
-        and can be removed with <strong>Reset saved numbers</strong>. See the
-        <a href="README.md">README</a> for details.
+        and can be removed with <strong>Reset saved numbers</strong>.
       </p>
       <p id="usage-summary"></p>
       <label>
@@ -416,11 +421,11 @@
   <footer>
     <p>
       Free, open source (MIT licensed), no account required.
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/no-show-fee-calculator">Source on GitHub</a>.
+      <a href="LICENSE">MIT licensed</a>.
       <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
 
-  <script type="module" src="src/app.mjs"></script>
+  <script type="module" src="app.mjs"></script>
 </body>
 </html>

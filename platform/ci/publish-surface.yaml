@@ -41,7 +41,13 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: agent-cross-review.yml
+  classification: none
+  publishes: []
 - workflow: agent-permission-harness-ci.yml
+  classification: none
+  publishes: []
+- workflow: agent-pr-auto-merge.yml
   classification: none
   publishes: []
 - workflow: ai-engineering-academy-ci.yml
@@ -715,20 +721,18 @@ gitops:
   classification: live
   hosts:
   - host: marisstella.dev
-    serves: redirect
+    serves: workload
     unmet_secrets: &id001 []
   - host: tools.marisstella.dev
     serves: workload
     unmet_secrets:
     - portfolio-site-repo
   - host: www.marisstella.dev
-    serves: redirect
+    serves: workload
     unmet_secrets: *id001
   unmet_secrets:
   - portfolio-site-repo
-  redirects:
-    marisstella.dev: tools.marisstella.dev
-    www.marisstella.dev: tools.marisstella.dev
+  redirects: {}
 - application: root
   path: gitops/apps
   classification: none

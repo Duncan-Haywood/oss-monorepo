@@ -61,11 +61,16 @@ without changing a single finding.
 as the prior snapshot: the two differ only in R7, and the difference is the
 subject of the amendment below.
 
-**7 findings across 2 of 31 workflow files — 1 defect, 6 posture records. All
-7 are decided from the artifact with nothing running. Zero require a running
-agent.** One of them — that the agent step holds `contents: write` — would
-*also* be visible to attack replay, and it is the one finding that is not a
-defect.
+**Updated 2026-09-02: 2 findings across 1 of 221 workflow files — 1 defect, 1
+posture record.** (This paragraph previously read "7 findings across 2 of 31
+workflow files" — stale on both halves by the time R5 was fixed below: the
+repository had grown past 31 workflow files already, and R5's own count had
+drifted from an earlier 5 to 2 through unrelated workflow edits before this
+paragraph was next touched. Both are corrected here alongside the R5 fix,
+rather than left for the next reader to notice.) All 2 are decided from the
+artifact with nothing running. Zero require a running agent. One of them —
+that the agent step holds `contents: write` — would *also* be visible to
+attack replay, and it is the one finding that is not a defect.
 
 The first measurement found 13. R1 and R2 were both the fleet workflow and both
 have since been fixed in the separate diff this file asked for; they now read
@@ -83,7 +88,7 @@ class of pin the agent action itself already carried. R4 now reads zero too.
 | `R2` fixed delimiter on a workflow variable write | defect | **0** |
 | `R3` attacker-authored expression spliced into a shell script | — | **0** |
 | `R4` third-party action on a mutable ref in a privileged job | defect | **0** |
-| `R5` job inherits an undeclared write scope | posture | 5 |
+| `R5` job inherits an undeclared write scope | posture | **0** |
 | `R6` agent step holds repository write scope | posture | 1 |
 | `R7` agent instruction set exceeds its prompt input | defect | 1 |
 
@@ -543,16 +548,32 @@ separate diffs, as the bullets below record. Specifically:
   the schedule stays disabled and the trigger is still `workflow_dispatch` alone,
   so nothing here adds or re-enables automation, which is the direction
   `CLAUDE.md` actually gates.
-- **R5 (5 findings) is posture**, not a defect: the fix is declaring
-  `contents: read` on the jobs that do not need the file-level floor.
+- **R5 was posture, not a defect, and is now fixed too (2026-09-02).** The fix
+  was exactly what this bullet used to say it would be: `opencode-high-throughput.yml`'s
+  file-level `permissions:` granted `contents: write`, `pull-requests: write`
+  and `id-token: write` to every job in the file by position, including
+  `resolve-config`, which only computes a matrix and echoes it to
+  `$GITHUB_OUTPUT` and touches no API at all. The floor is now `contents: read`,
+  and the three write scopes moved to an explicit `permissions:` block on
+  `opencode-agent` — the one job that pushes a branch and opens a pull
+  request — so `resolve-config` no longer holds a token scope it never asks
+  for. No behavior changed: `opencode-agent` holds the identical three scopes
+  it always did, R6 still fires on it unchanged (it still runs an agent with
+  repository write scope, which is the baseline the other findings are
+  measured against, not a defect), and the workflow is still
+  `workflow_dispatch`-only with its schedule disabled — nothing here adds or
+  re-enables automation. R5 now reads zero, and `check_results_current.py` /
+  the probe's own test suite are the record.
 - **R7 has no one-line fix**, which is why it is the finding worth having. The
   real mitigations are structural — narrow the token scope the agent holds while
   reading, or treat the conventions files as data rather than as instructions —
   and both are design decisions, not patches.
 
-R5 and R7 remain on issue #139 for the account owner. R1, R2 and R4 no longer
-are: they were hardening of a disabled workflow or of CI-config action pins,
-verifiable in full from this checkout, and are fixed above.
+R7 remains on issue #139 for the account owner — it is a design decision, not
+a patch. R1, R2, R4 and now R5 do not: each was hardening verifiable in full
+from this checkout (disabled-workflow fixes, CI-config action pins, and an
+explicit least-privilege `permissions:` block respectively), and all four are
+fixed above.
 
 ## Running it
 

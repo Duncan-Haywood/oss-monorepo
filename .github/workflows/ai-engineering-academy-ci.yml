@@ -24,6 +24,7 @@ permissions:
 jobs:
   build:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/site
@@ -35,9 +36,25 @@ jobs:
       - run: npm ci
       - run: node --test tools.test.mjs
       - run: npm run build
+      # The calculators are the only part of this venture a stranger can
+      # actually use, and they are reachable only through what the build emits:
+      # the hub page that lists them and the nav entry that points at the hub.
+      # `npm run build` succeeding says the build ran, not that either survived
+      # it -- a tool directory added without a hub entry, or a nav refactor that
+      # drops the link, ships a green build and an unreachable product.
+      - name: Built site exposes every calculator
+        run: |
+          test -f dist/tools/index.html || { echo "build emitted no calculator hub"; exit 1; }
+          for tool in ../tools/*/; do
+            slug=$(basename "$tool")
+            test -f "dist/tools/$slug/index.html" || { echo "missing built tool: $slug"; exit 1; }
+            grep -q "href=\"$slug/\"" dist/tools/index.html || { echo "hub does not link: $slug"; exit 1; }
+          done
+          grep -q 'href="tools/"' dist/index.html || { echo "site nav does not link the calculators"; exit 1; }
 
   tools-test:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     strategy:
       matrix:
         tool:

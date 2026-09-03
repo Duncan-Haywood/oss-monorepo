@@ -74,10 +74,12 @@ import {
 } from './link.mjs';
 import {
   DEFAULT_EMBED_HEIGHT,
+  EMBED_HOST_FILE,
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
@@ -104,10 +106,24 @@ export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-proje
 const PLACEHOLDER_ORIGIN = 'https://example.invalid/';
 
 // Where a venture's public entry point may live, in preference order.
-const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
+//
+// Exported because this build is not the only thing that has to answer "is
+// this venture a static page, and where does it start?". The apex tool mirror
+// (`platform/marketing/front-door-tools.mjs`) answers the same question for
+// the front door, and every time the two have disagreed the apex has silently
+// dropped ventures this build publishes — six of them on 2026-09-03, when the
+// mirror knew only the flat `index.html`. Importing the rule is what keeps a
+// third divergence from being possible.
+export const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 
 // Ventures whose public surface is not at one of the standard paths.
-const ENTRY_OVERRIDES = {
+//
+// Exported for the same reason as ENTRY_CANDIDATES, and it is the half that
+// actually went wrong: the mirror grew the `site/` candidate but never learned
+// that overrides exist at all, so `ai-engineering-academy`'s hub and its six
+// calculators were reported as "not a static page the mirror can serve" while
+// this build was publishing all seven.
+export const ENTRY_OVERRIDES = {
   // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
@@ -497,7 +513,7 @@ const CATEGORY_PAGE_COPY = {
   logistics: {
     title: 'Free freight, 3PL and cloud cost calculators',
     description:
-      'Free tools to normalise a 3PL quote, audit an LTL freight bill, price owner-operator miles, cost a cut list and size a cloud egress transfer before you sign.',
+      'Free tools to normalise a 3PL quote, audit a freight accessorial bill, class an LTL shipment, price owner-operator miles and size a cloud egress transfer.',
     intro:
       'Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.',
     audience: 'logistics and infrastructure buyers',
@@ -505,7 +521,7 @@ const CATEGORY_PAGE_COPY = {
   evidence: {
     title: 'Free compliance check and evidence record tools',
     description:
-      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, DNS evidence, accessibility, chargeback packets.',
+      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, permission drift, accessibility, chargeback packets.',
     intro:
       'The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.',
     audience: 'small teams preparing compliance evidence',
@@ -529,7 +545,7 @@ const CATEGORY_PAGE_COPY = {
   more: {
     title: 'More free small-business calculators',
     description:
-      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, logistics, compliance and back-office sections.',
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance and back-office sections.',
     intro:
       'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
     audience: 'small businesses',
@@ -1801,10 +1817,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
-          your browser, in JavaScript you can read — use <em>View Source</em>,
-          or read the same file
-          <a href="https://github.com/Duncan-Haywood/monorepo-projects">in the
-          public source repository</a>. Specifically:
+          your browser, in JavaScript you can read with your browser's own
+          <em>View Source</em> or developer tools — no build step, no
+          minification, nothing hidden from you. Specifically:
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
@@ -1864,7 +1879,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       <ul>
         <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
-        <li><strong>Open source</strong> under the MIT licence — <a href="https://github.com/Duncan-Haywood/monorepo-projects">github.com/Duncan-Haywood/monorepo-projects</a>.</li>
+        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
       <p>
@@ -4317,7 +4332,6 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
       license: 'MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
-      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
       // The feed carries the newest FEED_MAX_ENTRIES tools; this file carries
       // every tool with the same dates, which is what lets `check.mjs` prove
@@ -4424,7 +4438,6 @@ export function renderLlmsTxt(surfaces, baseUrl) {
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
-    `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
     '',
   ].join('\n');
 
@@ -4493,6 +4506,10 @@ export async function collectOfflineBundle(outDir, surfaces) {
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
+    // Not loaded by any page on this site — it runs on the embedder's — but
+    // precached all the same so the snippet's second line is served from the
+    // same revision as the first.
+    EMBED_HOST_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -4607,12 +4624,67 @@ export async function buildSite({
   const surfaces = [];
   const repairs = [];
 
+  // Pass 1: copy every venture's tree, and nothing else.
+  //
+  // This used to be one loop that copied a surface and immediately repaired its
+  // links, which made `repairLinks` order-dependent in a way it cannot see. It
+  // judges a link "inside the site" by whether the target exists on disk, so a
+  // link to a sibling venture that sorts later alphabetically was tested before
+  // that sibling had been copied, came back missing, and was repointed at
+  // GitHub — a 404 for every visitor, because this repository is private.
+  //
+  // It is the same hazard `addSiteChrome` documents for its own `../` hub link;
+  // that one was solved by running after the hub is written. Cross-venture links
+  // need every venture written, so the copy is split out ahead of everything
+  // that reads the finished tree.
+  //
+  // Ten links across the built site were being rewritten this way, and all seven
+  // distinct targets were live published pages (`no-show-fee-calculator`,
+  // `where-to-sell-calculator`, `walmart-marketplace-calculator`,
+  // `tiktok-shop-fee-calculator`, `shopify-fee-calculator`, `quote-margin-check`,
+  // and one `invoice-payment-terms-calculator` page). `check.mjs` reported no
+  // dead links throughout, because by then the link was absolute and it does not
+  // follow those.
+  for (const surface of discovered) {
+    await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
+  }
+
+  // A handful of ventures (currently: ai-engineering-academy, tender-radar,
+  // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
+  // equipment-rental-break-even) publish from a `site/` subdirectory, so their
+  // own root LICENSE sits one level above `sourceDir` and never gets copied
+  // above. Every one of those tools still links to its own LICENSE (an
+  // `<a href="LICENSE">` footer), and until now that link "escaped the site"
+  // and `repairLinks`, below, correctly-by-its-own-logic repointed it at this
+  // private GitHub repository -- a 404 for every visitor, same defect #2720
+  // fixed for cross-venture links. Publishing the file here, ahead of
+  // `repairLinks`, means the link resolves locally and `repairLinks` leaves it
+  // alone: this fixes it without touching that function's matching logic.
+  //
+  // README.md is deliberately NOT part of this: `EXCLUDED_FILES` and
+  // `NON_WEB_EXTENSIONS` keep every venture's README.md out of the published
+  // tree on purpose (`check.mjs` fails a build that publishes one, as "repo
+  // bookkeeping"), so copying it here for six ventures while `copyTree` drops
+  // it for the other 163 would both contradict that policy and make this
+  // build fail its own check.
+  for (const surface of discovered) {
+    const from = path.join(venturesDir, surface.slug, 'LICENSE');
+    const to = path.join(outDir, surface.slug, 'LICENSE');
+    if (existsSync(to) || !(await exists(from))) continue;
+    await fs.copyFile(from, to);
+  }
+
+  // Pass 2: everything that has to read a complete site.
+  //
+  // `repairLinks` stays ahead of `surfaceExternalFetchHosts` within this loop,
+  // and that order is load-bearing: a repair can rewrite a `<script src>` or a
+  // stylesheet `<link href>` to a github.com URL, which is a genuine external
+  // request the privacy copy has to report.
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
-    await copyTree(surface.sourceDir, destination, base);
     repairs.push(
       ...(await repairLinks({
         publishedDir: destination,
@@ -4666,9 +4738,13 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
   await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
-  // The embed-widget runtime and its stylesheet, on the same terms.
+  // The embed-widget runtime and its stylesheet, on the same terms. The
+  // resizer joins them because the snippet every entry page offers names it
+  // absolutely: a build that wrote the snippet without the file would hand
+  // embedders a `<script src>` that 404s.
   await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
   await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
+  await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 

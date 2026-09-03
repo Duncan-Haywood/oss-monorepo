@@ -13,7 +13,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from validate_workflows import REPO_ROOT, check, check_unique_names
+import yaml
+
+from validate_workflows import (
+    REPO_ROOT,
+    check,
+    check_unique_names,
+    reserved_github_refs,
+)
 
 
 def errors_for(text):
@@ -34,6 +41,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo hi
 """
@@ -51,11 +59,15 @@ jobs:
   deploy:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo a
   notify:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo b
 """
@@ -157,11 +169,15 @@ jobs:
   build:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo a
   deploy:
     permissions:
       contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - run: echo b
 """
@@ -170,6 +186,86 @@ jobs:
     def test_non_mapping_top_level_is_flagged(self):
         errs = errors_for("- just\n- a\n- list\n")
         self.assertTrue(any("top level must be a mapping" in e for e in errs))
+
+
+class JobTimeoutTest(unittest.TestCase):
+    """Invariant 6: every job caps its own runtime with `timeout-minutes`."""
+
+    def test_a_job_without_a_timeout_is_flagged(self):
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hi
+"""
+        errs = [e for e in errors_for(text) if "timeout-minutes" in e]
+        self.assertEqual(len(errs), 1, errs)
+        self.assertIn("build", errs[0])
+
+    def test_one_uncapped_job_among_capped_ones_is_flagged(self):
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo a
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo b
+"""
+        errs = [e for e in errors_for(text) if "timeout-minutes" in e]
+        self.assertEqual(len(errs), 1, errs)
+        self.assertIn("deploy", errs[0])
+        # The capped job must not be named as missing.
+        self.assertNotIn("build", errs[0])
+
+    def test_a_reusable_workflow_caller_is_exempt(self):
+        # A job that only calls a reusable workflow has no runs-on and GitHub
+        # rejects a job timeout on it; the cap belongs in the called workflow.
+        text = """\
+name: CI
+on: [push]
+permissions:
+  contents: read
+jobs:
+  call:
+    uses: ./.github/workflows/reusable.yml
+"""
+        self.assertEqual([e for e in errors_for(text) if "timeout-minutes" in e], [])
+
+    def test_the_real_workflow_tree_caps_every_job(self):
+        # Regression guard for the live tree: #3040 capped the eight PR-gating
+        # workflows, and the fleet's ~200 venture CI jobs were capped alongside
+        # this invariant. No job on main may ride the 360-minute default again.
+        workflows_dir = REPO_ROOT / ".github" / "workflows"
+        offenders = {}
+        for path in sorted(
+            p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
+        ):
+            data = yaml.safe_load(path.read_text())
+            if not isinstance(data, dict):
+                continue
+            uncapped = [
+                name
+                for name, body in (data.get("jobs") or {}).items()
+                if isinstance(body, dict)
+                and "timeout-minutes" not in body
+                and "uses" not in body
+            ]
+            if uncapped:
+                offenders[path.name] = uncapped
+        self.assertEqual(offenders, {})
 
 
 class CheckUniqueNamesTest(unittest.TestCase):
@@ -220,6 +316,97 @@ class CheckUniqueNamesTest(unittest.TestCase):
         )
         self.assertEqual(check_unique_names(paths), [])
 
+
+
+class ReservedGithubNamesTest(unittest.TestCase):
+    """Invariant 5: a `GITHUB_`-prefixed variable or secret can never be set."""
+
+    def test_a_reserved_github_prefixed_variable_is_rejected(self):
+        # The shape of the bug that shipped: portfolio-pages.yml gated its
+        # whole deploy job on `vars.GITHUB_PAGES_ENABLED`, a name GitHub will
+        # not let anyone create, so the gate was always false and the run was
+        # always green.
+        text = """\
+name: Deploy
+on: [push]
+permissions:
+  contents: read
+jobs:
+  deploy:
+    if: ${{ vars.GITHUB_PAGES_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: echo hi
+"""
+        errors = errors_for(text)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("vars.GITHUB_PAGES_ENABLED", errors[0])
+        # The message must name the fix, not just the fault.
+        self.assertIn("vars.PAGES_ENABLED", errors[0])
+
+    def test_a_reserved_github_prefixed_secret_is_rejected(self):
+        text = VALID.replace(
+            "      - run: echo hi",
+            "      - run: echo hi\n        env:\n"
+            "          T: ${{ secrets.GITHUB_MY_TOKEN }}",
+        )
+        errors = errors_for(text)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("secrets.GITHUB_MY_TOKEN", errors[0])
+
+    def test_github_token_is_the_one_allowed_github_prefixed_secret(self):
+        # GitHub injects it; nobody creates it. Flagging it would fail nine
+        # workflows on `main` that legitimately pass it to a step.
+        text = VALID.replace(
+            "      - run: echo hi",
+            "      - run: echo hi\n        env:\n"
+            "          T: ${{ secrets.GITHUB_TOKEN }}",
+        )
+        self.assertEqual(errors_for(text), [])
+
+    def test_a_github_prefix_outside_an_expression_is_not_flagged(self):
+        # Several workflow headers discuss this trap by name because of the
+        # Pages bug. Scanning raw text rather than parsed expressions would
+        # fail those files for documenting the thing they get right.
+        text = VALID.replace(
+            "name: CI",
+            "# Not `vars.GITHUB_PAGES_ENABLED` -- GitHub reserves that prefix.\nname: CI",
+        )
+        self.assertEqual(errors_for(text), [])
+
+    def test_the_real_workflow_tree_references_no_reserved_names(self):
+        # The regression guard for the live tree, alongside the synthetic
+        # cases above: main must never regain a gate that cannot be flipped.
+        workflows_dir = REPO_ROOT / ".github" / "workflows"
+        offenders = {}
+        for path in sorted(
+            p for p in workflows_dir.iterdir() if p.suffix in {".yml", ".yaml"}
+        ):
+            data = yaml.safe_load(path.read_text())
+            found = reserved_github_refs(data)
+            if found:
+                offenders[path.name] = sorted(found)
+        self.assertEqual(offenders, {})
+
+    def test_the_routine_trigger_schedule_is_gated_on_an_owner_variable(self):
+        # The reason invariant 5 was written now rather than later: the gate
+        # added to claude-routine-trigger.yml is what stops a revoked token
+        # billing ~72 runner-minutes a day, and a gate on a reserved name
+        # would look identical while doing nothing.
+        #
+        # Pinned here rather than in a workflow-specific file because the two
+        # properties that matter are exactly the ones a well-meaning edit
+        # breaks: that `schedule` cannot start the job on its own, and that
+        # `workflow_dispatch` still can, so a new token stays testable without
+        # flipping the variable first.
+        path = REPO_ROOT / ".github" / "workflows" / "claude-routine-trigger.yml"
+        data = yaml.safe_load(path.read_text())
+        condition = data["jobs"]["fire"]["if"]
+
+        self.assertIn("vars.ROUTINE_TRIGGER_ENABLED == 'true'", condition)
+        self.assertIn("github.event_name == 'workflow_dispatch'", condition)
+        self.assertEqual(reserved_github_refs(data), set())
 
 if __name__ == "__main__":
     unittest.main()

@@ -293,11 +293,8 @@ def pick_item(
 
     This used to be `sorted(key=(-priority, id))[0]` -- the single
     highest-priority enabled item, every tick, forever. That starves every
-    other item: with the real items (open-pr-repair-merge 7, branch-pr-drain 6,
-    deploy-cicd-readiness 5, marketing-distribution 4,
-    seo-discoverability-audit 3, product-feature-improvement 2) only the top
-    one could ever run, and the rest were unreachable until someone edited
-    priorities in git.
+    other item: with only one item able to run, the rest were unreachable
+    until someone edited priorities in git.
 
     That was tolerable while the PR/branch backlog was the bottleneck. It
     stopped being tolerable once the backlog drained: on 2026-08-30 the repo
@@ -309,13 +306,21 @@ def pick_item(
     priority-0 item from being weightless (score 0 can never win), so no
     enabled item starves. Within a window the first pick is still the
     highest-priority item, and over many picks the items run in roughly their
-    weight ratio -- 8:7:6:5:4:3 for the six above. Ties break toward higher
-    priority, then by id, so the choice stays deterministic.
+    weight ratio. As of the 2026-09-01 reprioritization the six enabled items
+    (`gitops/agents/queue/*.yaml` is the source of truth, not this docstring)
+    are deploy-cicd-readiness 7, marketing-distribution 6, open-pr-repair-merge
+    5, branch-pr-drain 4, seo-discoverability-audit 3,
+    product-feature-improvement 2 -- weight ratio 8:7:6:5:4:3. Ties break
+    toward higher priority, then by id, so the choice stays deterministic.
 
     That fixed starvation but not waste. Weighting by priority alone assumes
-    every item always has work, and two of the five provably do not: with zero
-    open PRs and every branch merged, `open-pr-repair-merge` and
-    `branch-pr-drain` are 13/25ths of the weight and 0 of the output. So the
+    every item always has work, and some provably do not: on 2026-08-31, with
+    zero open PRs and every branch merged, `open-pr-repair-merge` and
+    `branch-pr-drain` -- then the two highest-priority items -- were 13/25ths
+    of the weight and 0 of the output. Re-derive the current fraction from the
+    queue YAMLs rather than trusting a number here; it moves every time the
+    queue is reprioritized (weight is `priority + 1`, denominator is the sum
+    of `priority + 1` over every `enabled: true` item). So the
     score is damped a second time by `noops_by_item` -- how many finished runs
     in a row that item changed nothing:
 
@@ -693,20 +698,29 @@ def build_job_manifest(
                     # this container from gaining *more* than it starts with, and
                     # worker.sh never execs a setuid binary to escalate through.
                     #
-                    # `capabilities.drop: ["ALL"]`, `runAsNonRoot` and
-                    # `readOnlyRootFilesystem` are deliberately NOT set, unlike
-                    # every sibling above. `worker.sh`'s `install_tools()` runs
-                    # `apt-get install` against the base `node:22-bookworm` image
-                    # (root, not started as a fixed non-root UID) to add `gh` and
-                    # `git`, and dpkg's maintainer scripts for a fresh install can
-                    # need capabilities beyond the ones a dropped-to-ALL root
-                    # process retains (CAP_CHOWN, CAP_SETUID/CAP_SETGID for the
-                    # packages that provision a system user). `npm install -g` and
-                    # the clone into `mktemp -d` both write outside the two
-                    # read-only mounts below, so the root filesystem cannot be
-                    # read-only either. Narrowing those three needs a prebuilt
-                    # image with `gh`/`git`/`codex` baked in and a fixed non-root
-                    # user -- a bigger change than this fix.
+                    # `capabilities.drop: ["ALL"]` IS now set, on the container
+                    # below. It was not, and the reason given here was dpkg:
+                    # `install_tools()` ran `apt-get install` to add `gh`, and a
+                    # fresh install's maintainer scripts can need capabilities a
+                    # dropped-to-ALL root process no longer has (CAP_CHOWN,
+                    # CAP_SETUID/CAP_SETGID for packages that provision a system
+                    # user). That reason is gone: `install_tools()` no longer
+                    # uses a package manager at all. It fetches one checksum-
+                    # pinned `gh` tarball over HTTPS -- which it had to, because
+                    # `worker-egress` allows no port-80 egress and Debian's
+                    # mirrors are plain HTTP, so the apt path could never have
+                    # succeeded in this namespace in the first place. curl, tar,
+                    # `install(1)` into $HOME, `npm install -g` into $HOME and a
+                    # `git clone` need no capability between them.
+                    #
+                    # `runAsNonRoot` and `readOnlyRootFilesystem` are still NOT
+                    # set. `npm install -g` and the clone into `mktemp -d` both
+                    # write outside the two read-only mounts below, so the root
+                    # filesystem cannot be read-only; and the image starts as
+                    # root with $HOME=/root rather than at a fixed non-root UID,
+                    # so pinning one needs a writable HOME chosen here. Both are
+                    # now ordinary follow-ups rather than blocked on a prebuilt
+                    # image -- removing apt was the part that needed the image.
                     "securityContext": {
                         "seccompProfile": {"type": "RuntimeDefault"},
                     },
@@ -740,6 +754,7 @@ def build_job_manifest(
                             ],
                             "securityContext": {
                                 "allowPrivilegeEscalation": False,
+                                "capabilities": {"drop": ["ALL"]},
                             },
                             "resources": {
                                 "requests": {"cpu": "500m", "memory": "1Gi"},

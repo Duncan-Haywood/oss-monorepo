@@ -204,6 +204,28 @@ class TrendTests(unittest.TestCase):
         trend = build_trend([self._night("23", 50_000_000)], shrink_ratio=2)
         self.assertEqual(trend["shrink_ratio"], 0.2)
 
+    def test_alert_details_and_the_markdown_table_are_human_readable_not_raw_bytes(self):
+        records = [
+            self._night("21", 50_000_000),
+            self._night("22", 51_200_000),
+            self._night("23", 50_400_000),
+            self._night("24", 12_000_000),
+        ]
+        trend = build_trend(records)
+        for alert in trend["alerts"]:
+            if alert["kind"] == "status_regression":
+                continue
+            self.assertNotRegex(alert["detail"], r"\d+ bytes to \d+ bytes")
+            self.assertRegex(alert["detail"], r"\d+(\.\d+)? (bytes|KB|MB|GB) to \d+(\.\d+)? (bytes|KB|MB|GB)")
+
+        report = build_history_report(records)
+        report["trend"] = trend
+        output = markdown_report(report)
+        for row in trend["rows"]:
+            self.assertNotIn(f"{row['size_bytes']} bytes", output)
+        self.assertIn("50.0 MB", output)
+        self.assertIn("12.0 MB", output)
+
 
 if __name__ == "__main__":
     unittest.main()

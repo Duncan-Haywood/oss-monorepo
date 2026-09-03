@@ -256,7 +256,15 @@ def test_usage_job_is_synced_and_mounts_the_script_from_git() -> None:
     assert "portfolio-site-usage-script" in generated
     # A name suffix hash would rename the ConfigMap out from under the
     # CronJob, which references it literally.
-    assert kustomization["generatorOptions"]["disableNameSuffixHash"] is True
+    #
+    # Read from this generator's own `options` rather than from a
+    # namespace-wide `generatorOptions:` block, which is where it lived until
+    # 2026-09-02. The front door added the first generated ConfigMap that a
+    # Deployment mounts, and that one needs the hash — kustomize 5.4 cannot
+    # re-enable it per generator once it is disabled globally, so the
+    # exception had to move to the generator that wants it.
+    by_name = {g["name"]: g for g in kustomization["configMapGenerator"]}
+    assert by_name["portfolio-site-usage-script"]["options"]["disableNameSuffixHash"] is True
 
     pod = _docs()["CronJob"]["spec"]["jobTemplate"]["spec"]["template"]["spec"]
     mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
@@ -499,3 +507,174 @@ def test_merge_days_replaces_a_day_and_keeps_a_month() -> None:
         merged = module.merge_days(merged, f"2026-08-{day:02d}", {"a": day})
     assert len(merged["days"]) == module.RETAIN_DAYS
     assert max(merged["days"]) == "2026-08-19"
+
+
+def test_the_front_door_is_counted_apart_from_the_catalogue_hub() -> None:
+    """Two front pages, two rows.
+
+    `slug_for` returns the hub key for `/index.html` whichever pod served it,
+    because the path is the same on both hostnames. Folding the apex front
+    door in without a key of its own would answer "did anyone find the
+    portfolio" and "did anyone browse the catalogue" with one number, and
+    nothing downstream could take them apart again.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /index.html",
+        "2026-09-02T10:02:00+00:00 304 /index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert counts == {module.HUB_KEY: 3}
+
+    # The same three lines, read from each pod in turn.
+    assert module.fold_for_app(counts, "portfolio-site") == {module.HUB_KEY: 3}
+    assert module.fold_for_app(counts, "portfolio-front") == {module.FRONT_KEY: 3}
+    assert module.HUB_KEY != module.FRONT_KEY
+
+
+def test_the_front_doors_own_pages_still_collapse_to_one_row() -> None:
+    # Anything from that pod that is *not* a mirrored tool is the front page:
+    # its fallback is `try_files /index.html =404`, so `$uri` resolves to the
+    # same page whatever was requested. The mirror is the one exception and it
+    # is keyed by `__`; these three slugs carry none, so they fold as before.
+    module = _load_aggregate()
+    counts = {"a": 2, "b": 5, module.HUB_KEY: 1}
+    assert module.fold_for_app(counts, "portfolio-front") == {module.FRONT_KEY: 8}
+
+
+def test_each_mirrored_tool_gets_its_own_row_rather_than_vanishing_into_the_front_key() -> None:
+    """The apex serves 14 tools as well as its front page, and they must differ.
+
+    Before the mirror this pod served one page, so one key for the whole pod
+    was right. Folding the tools onto it now would recreate, inside this pod,
+    the exact conflation `FRONT_KEY` was added to prevent — and it would hide
+    the only evidence that mirroring the tools was worth doing.
+    """
+    module = _load_aggregate()
+    # The shapes nginx actually logs: `$uri` after `try_files` resolved
+    # `/tools/<slug>/<file>` onto the flattened ConfigMap key.
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /job-margin-variance__index.html",
+        "2026-09-02T10:02:00+00:00 200 /job-margin-variance__index.html",
+        # A sub-page of the same venture rolls onto the venture's row, matching
+        # how the tools host treats `/slug/page.html`.
+        "2026-09-02T10:03:00+00:00 200 /job-margin-variance__why-it-cost-more.html",
+        "2026-09-02T10:04:00+00:00 200 /seller-net-sheet__index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert module.fold_for_app(counts, "portfolio-front") == {
+        module.FRONT_KEY: 1,
+        f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 3,
+        f"{module.FRONT_TOOL_PREFIX}seller-net-sheet": 1,
+    }
+
+
+def test_each_category_page_keeps_its_own_row_rather_than_folding_into_one() -> None:
+    """`/c/trades/` and `/c/logistics/` are different pages and must count apart.
+
+    A category page's logged `$uri` carries `MIRROR_SEPARATOR` exactly as a
+    mirrored tool's does, because `try_files` resolves `/c/trades/` onto the
+    flattened ConfigMap key `/c__trades.html`. Split on the separator like a
+    tool, all seven collapse onto a single `_front/c` row — which reads in the
+    stored history as a venture called `c` that does not exist, and loses the
+    signal the pages were published for: which category a visitor browses is
+    the same question as which tool they open.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /c__trades.html",
+        "2026-09-02T10:02:00+00:00 200 /c__trades.html",
+        "2026-09-02T10:03:00+00:00 200 /c__logistics.html",
+        # A real mirrored tool alongside them, so the two branches are shown
+        # not to capture each other's lines.
+        "2026-09-02T10:04:00+00:00 200 /job-margin-variance__index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert module.fold_for_app(counts, "portfolio-front") == {
+        module.FRONT_KEY: 1,
+        f"{module.FRONT_TOOL_PREFIX}c/trades": 2,
+        f"{module.FRONT_TOOL_PREFIX}c/logistics": 1,
+        f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 1,
+    }
+    # And the name matches what the catalogue host calls the same page, so one
+    # page is one name whichever host served it.
+    assert module.slug_for("/c/trades/index.html") == "c/trades"
+
+
+def test_a_mirrored_tools_row_cannot_be_confused_with_the_catalogues() -> None:
+    # While both hosts serve the same tool, a shared bare `<slug>` row would mix
+    # a visit to the apex copy with a visit to the catalogue's -- and whether
+    # the mirror earns its keep is exactly that difference.
+    module = _load_aggregate()
+    assert module.FRONT_TOOL_PREFIX.startswith(module.FRONT_KEY)
+    counts = module.count_lines(
+        ["2026-09-02T10:00:00+00:00 200 /job-margin-variance__index.html"], "2026-09-02"
+    )
+    row = next(iter(module.fold_for_app(counts, "portfolio-front")))
+    assert row == "_front/job-margin-variance"
+    assert row != "job-margin-variance"
+
+
+def test_the_mirrors_non_page_assets_are_not_counted_as_views() -> None:
+    # `calc.mjs` and `LICENSE` are fetched by the page, not visited. `slug_for`
+    # already drops anything without a page suffix; this pins that the mirror's
+    # flattened names did not accidentally start looking like pages.
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /job-margin-variance__calc.mjs",
+        "2026-09-02T10:00:01+00:00 200 /job-margin-variance__usage.mjs",
+        "2026-09-02T10:00:02+00:00 200 /job-margin-variance__LICENSE",
+    ]
+    assert module.count_lines(lines, "2026-09-02") == {}
+
+
+def test_a_pod_with_no_views_adds_no_row() -> None:
+    # A slug with no views is absent from a day rather than present as 0, and
+    # the front door follows the same rule -- `total[key] += 0` would have
+    # inserted one.
+    module = _load_aggregate()
+    assert module.fold_for_app({}, "portfolio-front") == {}
+    assert module.fold_for_app({}, "portfolio-site") == {}
+
+
+def test_an_unrecognised_workload_contributes_nothing() -> None:
+    # Guessing a key would put an unexplained row in a file whose whole value
+    # is that every row means something. `main` reports the pod on stderr.
+    module = _load_aggregate()
+    assert module.fold_for_app({"x": 3}, "something-else") == {}
+    assert module.fold_for_app({"x": 3}, None) == {}
+
+
+def test_the_selector_and_the_key_map_name_the_same_workloads() -> None:
+    """The one way this silently loses a workload's traffic.
+
+    A selector that matches a pod `APP_KEYS` does not know skips it (counted
+    nowhere, reported only on stderr); a key for an app the selector never
+    matches is a row that can never appear. Either drift is invisible in
+    production, so it is pinned here.
+    """
+    module = _load_aggregate()
+    cron = next(
+        doc
+        for doc in yaml.safe_load_all(SITE_USAGE.read_text())
+        if doc and doc.get("kind") == "CronJob"
+    )
+    env = {
+        e["name"]: e["value"]
+        for e in cron["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0]["env"]
+    }
+    selector = env["USAGE_SELECTOR"]
+    named = {part.strip() for part in selector.split("(")[1].rstrip(")").split(",")}
+    assert named == set(module.APP_KEYS)
+
+    # And every app named there is really a workload in this namespace, with
+    # that label on its pods.
+    labels = set()
+    for path in (ROOT / "prod").glob("*.yaml"):
+        for doc in yaml.safe_load_all(path.read_text()):
+            if doc and doc.get("kind") == "Deployment":
+                labels.add(doc["spec"]["template"]["metadata"]["labels"]["app"])
+    assert named <= labels, f"{named - labels} is selected but no Deployment carries it"

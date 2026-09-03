@@ -23,7 +23,7 @@ test('landing page names the niche problem and is crawlable', () => {
   assert.match(index, /not legal, tax, financial, engineering/);
   assert.match(index, /usageOptOut/);
   assert.match(index, /Copy bid summary/);
-  assert.match(index, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(index, /href="LICENSE"/);
 });
 
 test('niche how-to pages answer the search query in the first screen', () => {

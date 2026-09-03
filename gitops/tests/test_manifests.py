@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import base64
+import json
+import re
 from pathlib import Path
 
 import yaml
@@ -39,6 +42,43 @@ def test_all_yaml_parses() -> None:
     for path in _yaml_files():
         docs = list(yaml.safe_load_all(path.read_text()))
         assert docs, path
+
+
+def _find_volumes(node):
+    if isinstance(node, dict):
+        if isinstance(node.get("volumes"), list):
+            yield from node["volumes"]
+        for value in node.values():
+            yield from _find_volumes(value)
+    elif isinstance(node, list):
+        for item in node:
+            yield from _find_volumes(item)
+
+
+def test_tmp_emptydir_volumes_carry_a_size_limit() -> None:
+    # portfolio-site.yaml's own comment on its sized volumes explains why:
+    # "An emptyDir that fills does not fail the write -- the kubelet evicts
+    # the pod." Every nginx-unprivileged workload in gitops/prod mounts a
+    # `tmp` emptyDir at /tmp because readOnlyRootFilesystem forces nginx's
+    # pid file and temp buffers there -- portfolio-site.yaml and landing.yaml
+    # both cap it (64Mi and 16Mi). portfolio-front.yaml shipped the same
+    # volume with no sizeLimit at all, on the one node that also runs the
+    # k3s control plane, ingress, and cert-manager, and no test caught it.
+    for path in REPO.glob("gitops/**/*.yaml"):
+        if "tests" in path.parts:
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if not doc:
+                continue
+            for volume in _find_volumes(doc):
+                if not isinstance(volume, dict) or volume.get("name") != "tmp":
+                    continue
+                empty_dir = volume.get("emptyDir")
+                if empty_dir is None:
+                    continue
+                assert isinstance(empty_dir, dict) and "sizeLimit" in empty_dir, (
+                    f"{path}: 'tmp' emptyDir volume has no sizeLimit"
+                )
 
 
 def test_no_live_secrets_in_git() -> None:
@@ -110,6 +150,101 @@ def test_every_manifest_kind_is_on_its_appproject_whitelist() -> None:
                     f"{venture} AppProject cannot receive {group or 'core'}/{kind} "
                     f"from {path.relative_to(ROOT)} -- Argo will refuse to sync it"
                 )
+
+
+def test_appproject_whitelist_carries_no_group_this_tree_never_ships() -> None:
+    # `group: policy` sat wildcarded (`kind: "*"`) in the prod, staging,
+    # agents and ci AppProjects' namespaceResourceWhitelist since the
+    # namespace was first adopted (#1486), and no manifest anywhere under
+    # gitops/ has ever shipped a policy/v1 resource -- no
+    # PodDisruptionBudget, no PodSecurityPolicy. Every sibling convenience
+    # group in the same lists ("" for the core group, apps, networking.k8s.io,
+    # batch) is exercised by a real manifest (a ConfigMap or Service, a
+    # Deployment, an Ingress or NetworkPolicy, a CronJob); this was the one
+    # that was not. The specific-kind entries beside it -- bitnami.com/
+    # SealedSecret and the two rbac.authorization.k8s.io kinds -- already get
+    # this discipline: named explicitly, and only added in the commit that
+    # first shipped a manifest needing them (#2146, #2207, #2594). `policy`
+    # never got the equivalent narrowing, because nothing ever exercised it
+    # to notice.
+    #
+    # `platform` is exempt on purpose: its own AppProject wildcards both
+    # group and kind, because it syncs upstream Helm charts (ingress-nginx,
+    # cert-manager, sealed-secrets) whose resource kinds this repo does not
+    # enumerate and should not try to.
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    for doc in docs:
+        if not doc or doc["kind"] != "AppProject" or doc["metadata"]["name"] == "platform":
+            continue
+        groups = {e.get("group") for e in doc["spec"]["namespaceResourceWhitelist"]}
+        assert "policy" not in groups, (
+            f"{doc['metadata']['name']} AppProject still wildcards the policy group with "
+            "nothing in the tree that ships a policy/v1 resource"
+        )
+
+
+def test_appproject_whitelist_carries_no_group_its_own_namespace_never_ships() -> None:
+    # Generalizes test_appproject_whitelist_carries_no_group_this_tree_never_ships
+    # to a per-namespace check rather than a tree-wide one, and to every
+    # venture namespace rather than just `staging`. `apps` and
+    # `networking.k8s.io` are real, load-bearing groups *somewhere* (prod
+    # ships a Deployment via `apps`, prod/ci/agents all ship a NetworkPolicy
+    # via `networking.k8s.io`), so the tree-wide check above cannot see a
+    # group that is unused in one specific namespace's own directory while
+    # real in a sibling's -- it only catches a group nothing anywhere ever
+    # ships.
+    #
+    # Two live cases this caught before this generalization existed:
+    # `staging` wildcarded both `apps` and `networking.k8s.io` despite
+    # `gitops/staging/` shipping nothing but quota.yaml's ResourceQuota
+    # (group ""), and `agents` wildcarded `apps` despite `gitops/agents/`
+    # never shipping anything but a `batch/v1` CronJob, RBAC, NetworkPolicies
+    # and core-group objects -- no Deployment, StatefulSet, ReplicaSet or
+    # DaemonSet. Both are the same "whitelist wider than anything it guards"
+    # shape as `policy` above, just scoped to one namespace's own directory
+    # rather than the whole tree, which is why this needs a per-namespace
+    # check instead of only the tree-wide one.
+    #
+    # This does not assert a namespace must stay empty -- it asserts each
+    # whitelist stays in sync with what actually ships (or is deliberately
+    # pre-provisioned for) in its own directory. Deploying a Service or
+    # CronJob to staging, or a Deployment to agents, should fail this test
+    # until the matching group is added back, per this file's own header
+    # comment: "Add it back, in whichever project needs it, the same commit
+    # a [resource] lands."
+    #
+    # `bitnami.com`/SealedSecret is the one deliberate exception: prod, ci
+    # and agents each whitelist it ahead of an actual SealedSecret landing,
+    # for a `secrets/*.template.yaml` waiting on an owner to seal it (see
+    # test_every_project_with_a_secrets_template_can_receive_a_sealed_secret
+    # above) -- the template itself is excluded from the scan the same way
+    # that test excludes it, being a CHANGE_ME placeholder rather than a real
+    # manifest, so `bitnami.com` would otherwise read as unused right up
+    # until the seal lands.
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    by_name = {d["metadata"]["name"]: d for d in docs if d}
+    for venture in ("prod", "staging", "agents", "ci"):
+        whitelist = by_name[venture]["spec"]["namespaceResourceWhitelist"]
+        whitelisted_groups = {e.get("group") for e in whitelist}
+        shipped_groups: set[str] = set()
+        for path in (ROOT / venture).rglob("*.yaml"):
+            if path.name == "kustomization.yaml" or "secrets" in path.parts:
+                continue
+            for doc in yaml.safe_load_all(path.read_text()):
+                if not doc or "kind" not in doc:
+                    continue
+                api_version = doc.get("apiVersion", "")
+                group = api_version.split("/")[0] if "/" in api_version else ""
+                shipped_groups.add(group)
+        if list((ROOT / venture).glob("secrets/*.template.yaml")):
+            shipped_groups.add("bitnami.com")
+        unused = whitelisted_groups - shipped_groups - {"*"}
+        assert not unused, (
+            f"{venture} AppProject wildcards {sorted(unused)} but "
+            f"gitops/{venture}/ ships no resource in {sorted(unused)} -- "
+            "narrow the whitelist to match, per this file's own header "
+            "comment"
+        )
 
 
 def test_agents_project_cannot_dest_prod() -> None:
@@ -275,6 +410,39 @@ def test_every_queue_item_prompt_inherits_the_mandate() -> None:
     assert "runner_id: 0" in mandate
 
 
+def test_the_mandate_does_not_teach_the_retired_absent_ci_excuse() -> None:
+    # The mandate is the standing prompt for every worker run, so a stale claim
+    # here is one every tick inherits. It used to say "PRs opened with
+    # `GITHUB_TOKEN` do not trigger Actions here", which names the wrong
+    # mechanism -- an agent PR authenticates with a fine-grained PAT
+    # (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
+    # no-recursion rule applies to, so it triggers `pull_request` workflows
+    # like anyone else's. `platform/pages/clauses.mjs` had already retired the
+    # same sentence in its own comment, and this test used to say the mandate
+    # was "the last place carrying it". It was not: `queue/open-pr-repair-merge
+    # .yaml` still had it on 2026-09-03, because this test only ever read
+    # mandate.md. Fixing a rule in one file while a copy of it survives in
+    # another is the exact failure CLAUDE.md records twice against the
+    # front-door mirror -- so the assertion below now walks every queue prompt
+    # too, and a new item inherits the check by existing.
+    mandate = (AGENTS / "workers" / "mandate.md").read_text()
+    assert "`GITHUB_TOKEN` do not\n  trigger Actions here" not in mandate
+    assert "GH_TOKEN" in mandate, "the correct credential should be named"
+
+    # Every queue item's prompt is read by a worker the same way the mandate
+    # is, so the claim is just as wrong there.
+    for item in sorted((AGENTS / "queue").glob("*.yaml")):
+        prompt = yaml.safe_load(item.read_text()).get("prompt") or ""
+        assert "GITHUB_TOKEN` do not trigger Actions" not in prompt, (
+            f"{item.name} teaches the retired absent-CI excuse"
+        )
+
+    # And the distinction that makes a blank list actionable rather than an
+    # excuse: the commit-status API reports total_count 0 on a PR whose checks
+    # are red, so "no checks" read from it is not evidence of anything.
+    assert "check-runs" in mandate, "the endpoint that actually answers must be named"
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
@@ -388,6 +556,34 @@ def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:
         "configmaps" in r["resources"] and "create" in r["verbs"] for r in role["rules"]
     )
     assert grants_create, role["rules"]
+
+
+def test_governor_jobs_and_pods_rules_grant_only_the_verbs_the_code_calls() -> None:
+    # Same class of gap as test_governor_role_reads_no_configmap_it_cannot_name,
+    # for the two resources that rule's own comment doesn't cover: `jobs` and
+    # `pods`. `_load_cluster_jobs` is the only code that touches either one,
+    # and both calls are GETs on the *collection* endpoint (no name in the
+    # URL) -- which RBAC authorizes via `list`, never `get` (that verb is for
+    # `.../jobs/<name>` or `.../pods/<name>`, a shape this file never builds).
+    # `build_job_manifest`'s POST is the only other call, needing `create` on
+    # jobs alone. `_k8s` is a single `urllib.request` round trip with a fixed
+    # timeout, never a long-lived stream, so nothing here ever needs `watch`
+    # either. The Role used to carry get+watch on jobs and get on pods with
+    # nothing exercising any of the three -- caught by inspection, not by a
+    # test, because no test paired this rule with the code the way the
+    # ConfigMap rule already was.
+    source = (AGENTS / "governor" / "governor.py").read_text()
+    assert 'f"/apis/batch/v1/namespaces/{namespace}/jobs"' in source, "the jobs list call moved"
+    assert '_k8s("GET", f"/api/v1/namespaces/{namespace}/pods")' in source, "the pods list call moved"
+    assert "/jobs/{" not in source, "a per-name Job GET would need the `get` verb back"
+    assert "/pods/{" not in source, "a per-name Pod GET would need the `get` verb back"
+
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    jobs_rule = next(r for r in role["rules"] if r["resources"] == ["jobs"])
+    pods_rule = next(r for r in role["rules"] if r["resources"] == ["pods"])
+    assert sorted(jobs_rule["verbs"]) == ["create", "list"]
+    assert pods_rule["verbs"] == ["list"]
 
 
 def test_worker_egress_cannot_reach_the_kube_apiserver() -> None:
@@ -544,7 +740,7 @@ def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
     # stamped into every page's canonical link (see the PAGES_BASE_URL test
     # below). The apex and `www` reach the site through the 301 in
     # `prod/portfolio-apex.yaml`, so adding either here would put two
-    # uncanonical copies of all 524 pages in front of crawlers.
+    # uncanonical copies of all 544 pages in front of crawlers.
     ingress = _portfolio_site()["Ingress"]
     hosts = [rule["host"] for rule in ingress["spec"]["rules"]]
     assert hosts == ["tools.marisstella.dev"]
@@ -574,36 +770,737 @@ def test_portfolio_apex_claims_both_bare_and_www() -> None:
     assert set(apex["spec"]["tls"][0]["hosts"]) == hosts
 
 
-def test_portfolio_apex_redirects_permanently_to_the_canonical_host() -> None:
-    # A 301 to the canonical host, not a second copy of the site: build.mjs
-    # stamps one canonical base into all 524 pages, and serving those bytes
-    # under two more names would contradict it on every page.
+def _mounted_secrets(docs) -> set[str]:
+    """Secret names a workload in `docs` must have before its pods can start.
+
+    Ingress `tls.secretName` is excluded: cert-manager mints those from the
+    ClusterIssuer when the Ingress is admitted, so their absence from git
+    blocks nothing. Everything else — `volumes[].secret`, `secretKeyRef`,
+    `envFrom.secretRef` — is a mount the kubelet will not start a pod without.
+    """
+    found: set[str] = set()
+
+    def walk(node, kind: str | None) -> None:
+        if isinstance(node, dict):
+            if kind != "Ingress":
+                secret = node.get("secret")
+                if isinstance(secret, dict) and isinstance(secret.get("secretName"), str):
+                    found.add(secret["secretName"])
+                for key in ("secretKeyRef", "secretRef"):
+                    ref = node.get(key)
+                    if isinstance(ref, dict) and isinstance(ref.get("name"), str):
+                        found.add(ref["name"])
+            for value in node.values():
+                walk(value, kind)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value, kind)
+
+    for doc in docs:
+        if doc:
+            walk(doc, doc.get("kind"))
+    return found
+
+
+def test_portfolio_apex_does_not_redirect_into_a_host_that_serves_nothing() -> None:
+    # Changed 2026-09-02. This used to pin a 301 to tools.marisstella.dev,
+    # which was right about canonicalisation and wrong about the cluster: that
+    # host fails closed on the unsealed Secret `portfolio-site-repo`, so the
+    # apex spent every day of its life redirecting strangers into a dead end.
+    # It now serves the front door instead (`portfolio-front.yaml`).
+    #
+    # Restoring a redirect is a legitimate later choice — but only once the
+    # target actually serves, which is what this test now says. If the
+    # annotation comes back while `portfolio-site` still mounts an unprovided
+    # Secret, this fails.
     apex = _portfolio_apex()
-    annotations = apex["metadata"]["annotations"]
-    target = annotations["nginx.ingress.kubernetes.io/permanent-redirect"]
-    assert target == "https://tools.marisstella.dev/"
-    assert annotations["nginx.ingress.kubernetes.io/permanent-redirect-code"] == "301"
-
-    # The redirect target must stay the host the content Ingress actually
-    # serves. If someone renames that host and forgets this file, the front
-    # door 301s everyone into a name nothing answers for.
+    annotations = apex["metadata"].get("annotations", {})
+    redirect = annotations.get("nginx.ingress.kubernetes.io/permanent-redirect")
+    if redirect is None:
+        return
     served = _portfolio_site()["Ingress"]["spec"]["rules"][0]["host"]
-    assert target == f"https://{served}/"
+    assert redirect == f"https://{served}/"
+    site_docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()))
+    provided = {
+        doc["metadata"]["name"]
+        for doc in site_docs
+        if doc and doc.get("kind") in {"Secret", "SealedSecret"}
+    }
+    assert not (_mounted_secrets(site_docs) - provided), (
+        "the redirect target cannot start until its Secret is sealed — "
+        "restoring this annotation now would 301 every visitor into a 503"
+    )
 
 
-def test_portfolio_apex_backend_is_the_real_site_not_a_stub() -> None:
-    # The backend is unreachable while the redirect annotation is set, so its
-    # only job is to decide what happens if that annotation is ever dropped:
-    # pointing at the live Service degrades to serving the site (whose pages
-    # carry the canonical tag anyway), while a stub would degrade to a 503.
-    site_service = None
-    for doc in yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()):
-        if doc and doc["kind"] == "Service":
-            site_service = doc["metadata"]["name"]
-    assert site_service is not None
+def test_portfolio_apex_backend_can_start_without_an_owner_action() -> None:
+    # The apex is the portfolio's front door, so whatever it names has to be
+    # able to run today. `portfolio-site` cannot: its pods mount the unsealed
+    # clone token. `portfolio-front` holds nothing but two generated
+    # ConfigMaps, which Argo applies from this repository directly.
+    front_docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-front.yaml").read_text()))
+    front_service = next(
+        doc["metadata"]["name"] for doc in front_docs if doc and doc["kind"] == "Service"
+    )
     for rule in _portfolio_apex()["spec"]["rules"]:
         for path in rule["http"]["paths"]:
-            assert path["backend"]["service"]["name"] == site_service
+            assert path["backend"]["service"]["name"] == front_service
+    assert not _mounted_secrets(front_docs), (
+        "the front door must not grow a Secret dependency — that is the one "
+        "property that makes it deployable while the site is not"
+    )
+
+
+def _portfolio_front() -> dict[str, dict]:
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-front.yaml").read_text()))
+    return {doc["kind"]: doc for doc in docs if doc}
+
+
+def test_front_door_ships_the_share_card_it_advertises() -> None:
+    # `front-door/index.html` names `https://marisstella.dev/social-card.png`
+    # in its `og:image`. That URL only resolves if three things stay true at
+    # once, and each lives in a different file, so nothing else in either
+    # suite fails when one of them is dropped:
+    #
+    #   1. the PNG is committed beside the page,
+    #   2. `kustomization.yaml` reads it into the ConfigMap the Deployment
+    #      mounts at the document root, and
+    #   3. `default.conf` answers that exact path with it.
+    #
+    # Miss (2) and the catch-all `location /` hands a scraper 16 KB of HTML
+    # with a 200 — reproduced against nginx 1.24 on 2026-09-02, and worse than
+    # a 404, because a 404 makes Slack fall back to a text card while a
+    # successful fetch of a non-image leaves the unfurl broken silently.
+    front_door = ROOT / "prod" / "front-door"
+    card = front_door / "social-card.png"
+    assert card.is_file(), "regenerate with: node platform/marketing/front-door.mjs --write"
+    assert card.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+
+    page = (front_door / "index.html").read_text()
+    assert '<meta property="og:image" content="https://marisstella.dev/social-card.png">' in page
+
+    generators = {
+        entry["name"]: entry
+        for entry in yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())[
+            "configMapGenerator"
+        ]
+    }
+    # The volume mounted at the document root, so the card lands beside
+    # `index.html` — a second ConfigMap could not, two of them cannot share one
+    # `mountPath`.
+    assert "social-card.png=front-door/social-card.png" in generators["portfolio-front-html"]["files"]
+
+    conf = (front_door / "default.conf").read_text()
+    assert "location = /social-card.png {" in conf
+    assert conf.index("location = /social-card.png") < conf.index("location / {")
+
+
+def test_portfolio_front_runs_unprivileged_and_read_only() -> None:
+    # Same posture as every other workload in this tree. It is reachable from
+    # the public internet on the portfolio's own domain, which makes it the
+    # one with the least excuse for skipping it.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+    assert pod["automountServiceAccountToken"] is False
+    container = pod["containers"][0]
+    sec = container["securityContext"]
+    assert sec["readOnlyRootFilesystem"] is True
+    assert sec["allowPrivilegeEscalation"] is False
+    assert sec["capabilities"]["drop"] == ["ALL"]
+    # nginx-unprivileged writes its temp dirs and pid under /tmp, so a
+    # read-only root filesystem needs that one path writable or the container
+    # never finishes starting.
+    assert any(v["mountPath"] == "/tmp" for v in container["volumeMounts"])
+
+
+def test_portfolio_front_probes_a_path_that_is_not_the_page() -> None:
+    # A probe every few seconds against "/" would be written into the access
+    # log as a page view, and this pod's log is the only record of how many
+    # people reach the portfolio's front door.
+    container = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]["containers"][0]
+    for probe in ("readinessProbe", "livenessProbe"):
+        assert container[probe]["httpGet"]["path"] == "/healthz"
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    assert "location = /healthz" in conf
+    assert "access_log off;" in conf
+
+
+def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
+    # This file's own header comment calls `X-Frame-Options: DENY` unconditional
+    # ("nothing embeds this page ... X-Frame-Options: DENY below is
+    # unconditional here"), but `add_header` does not merge across nginx
+    # levels: a `location` that sets any `add_header` drops the server block's
+    # default rather than inheriting it (the comment on `location /` in this
+    # same file says so). Each content-serving `location` therefore has to
+    # repeat the header itself, and the mirrored `LICENSE` block once did not —
+    # a plain-text response served with no clickjacking protection, silently
+    # weaker than the equivalent path on `tools.marisstella.dev` (which falls
+    # through to a `location /` that does carry it). `/healthz` is the one
+    # deliberate exception: it returns a bare "ok" with no headers at all,
+    # which `test_portfolio_front_probes_a_path_that_is_not_the_page` already
+    # pins, so it is excluded here rather than silently satisfied.
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    blocks = re.split(r"(?=^\s*location\b)", conf, flags=re.MULTILINE)
+    content_blocks = [
+        b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b
+    ]
+    #
+    # Changed 2026-09-03, and deliberately narrowed rather than relaxed. The
+    # tool entry page became framable for `?pfEmbed=1` only, so that one block
+    # sends `$portfolio_frame_options` instead of a literal. The invariant is
+    # now three things, all of which this test pins:
+    #
+    #   1. every content location still sends the header, literal or mapped;
+    #   2. *exactly one* block is allowed to send the mapped form, and it is the
+    #      tool entry page — a second one appearing (say, a future edit copying
+    #      the line into the `LICENSE` or subpage block) fails here rather than
+    #      quietly making the whole mirror framable;
+    #   3. the map's default row is DENY, so every request that does not carry
+    #      `?pfEmbed=1` gets exactly the header it got before this change.
+    #
+    # Without (2) and (3) this test would pass on a config that framed
+    # everything, which is the failure mode worth catching.
+    assert len(content_blocks) >= 5, "fewer content locations than expected — check the split"
+    mapped = []
+    for block in content_blocks:
+        header = block.splitlines()[0].strip()
+        literal = "X-Frame-Options DENY" in block
+        variable = "X-Frame-Options $portfolio_frame_options" in block
+        assert literal or variable, f"{header} does not send X-Frame-Options at all"
+        if variable:
+            mapped.append(header)
+            assert "Content-Security-Policy $portfolio_frame_ancestors" in block, (
+                f"{header} relaxes X-Frame-Options without the matching "
+                "frame-ancestors CSP — modern browsers read the CSP, older ones "
+                "the header, and shipping one without the other frames on some "
+                "and not others"
+            )
+
+    assert mapped == ['location ~ "^/tools/(?<slug>[a-z0-9][a-z0-9-]*)/?$" {'], (
+        "exactly one block — the tool entry page — may use the conditional "
+        f"framing map; found {mapped}"
+    )
+
+    # The default row is what makes every other request identical to before.
+    assert re.search(
+        r"map \$arg_pfEmbed \$portfolio_frame_options \{\s*default DENY;", conf
+    ), "the framing map's default row must be DENY"
+    assert re.search(
+        r"map \$arg_pfEmbed \$portfolio_frame_ancestors \{\s*default \"\";", conf
+    ), "the frame-ancestors map must default to sending nothing"
+
+
+def test_portfolio_front_access_log_records_no_visitor() -> None:
+    # The same structural privacy property the site's own log_format carries:
+    # a page with no account and no cookie must not write an address, a user
+    # agent or a referer into a pod log. Dropping the fields is what makes the
+    # claim on the page itself ("anonymous page views") true by construction.
+    conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
+    log_format = next(line for line in conf.splitlines() if line.startswith("log_format"))
+    for forbidden in ("$remote_addr", "$http_user_agent", "$http_referer", "$request"):
+        assert forbidden not in log_format, f"{forbidden} identifies a visitor"
+    assert "$uri" in log_format
+
+
+def test_portfolio_front_mounts_only_generated_configmaps() -> None:
+    # The whole reason this workload can deploy while the site cannot. If it
+    # ever grows a PVC, a Secret or an init container that clones, it has
+    # taken on the site's failure modes and the apex goes dark with it.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    assert "initContainers" not in pod
+    # `projected` joined this set when the tool mirror was sharded: several
+    # ConfigMaps merged into one mountPath is what lifted the apex past the
+    # ~20 tools a single 1 MiB object could hold. It carries no more capability
+    # than `configMap` does — no Secret, no PVC, no downward API — which is the
+    # property this assertion is really about.
+    for volume in pod["volumes"]:
+        assert set(volume) <= {"name", "configMap", "emptyDir", "projected"}, volume
+    for volume in pod["volumes"]:
+        for source in volume.get("projected", {}).get("sources", []):
+            assert set(source) <= {"configMap"}, source
+    mounted = _front_door_mounted_configmaps(pod)
+    generated = _front_door_generated_configmaps()
+    assert mounted <= generated, f"{mounted - generated} is mounted but not generated"
+
+
+# Both kustomizations that can generate a ConfigMap into this namespace.
+# `front-door-tools/` is a nested one (its file list is machine-written, one
+# line per mirrored file, so it lives in its own directory rather than
+# inflating `prod/kustomization.yaml`), and it is still a generator.
+_FRONT_DOOR_KUSTOMIZATIONS = (
+    ROOT / "prod" / "kustomization.yaml",
+    ROOT / "prod" / "front-door-tools" / "kustomization.yaml",
+)
+
+
+def _front_door_generated_configmaps() -> set:
+    generated = set()
+    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+        parsed = yaml.safe_load(kustomization.read_text())
+        generated |= {entry["name"] for entry in parsed.get("configMapGenerator", [])}
+    return generated
+
+
+def _front_door_mounted_configmaps(pod: dict) -> set:
+    mounted = {v["configMap"]["name"] for v in pod["volumes"] if "configMap" in v}
+    for volume in pod["volumes"]:
+        for source in volume.get("projected", {}).get("sources", []):
+            mounted.add(source["configMap"]["name"])
+    return mounted
+
+
+def _mirror_shard_names() -> list:
+    """Shard ConfigMaps in the order `front-door-tools/kustomization.yaml` declares them."""
+    parsed = yaml.safe_load(
+        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+    )
+    return [entry["name"] for entry in parsed["configMapGenerator"]]
+
+
+def test_portfolio_front_mounts_every_generated_mirror_shard() -> None:
+    # The generator decides how many shards there are; this Deployment names
+    # them by hand. Both directions of a disagreement are silent, which is why
+    # they are pinned rather than trusted:
+    #
+    #   a shard generated but not mounted -> those tools are simply missing
+    #       from the apex, with every manifest valid and every pod Ready;
+    #   a shard mounted but not generated -> the pods never leave
+    #       ContainerCreating, and `maxUnavailable: 0` keeps the previous front
+    #       door serving a stale mirror while `prod` sits Degraded.
+    #
+    # Order matters too, though only for legibility: a reader comparing the two
+    # files should not have to sort them in their head.
+    pod = _portfolio_front()["Deployment"]["spec"]["template"]["spec"]
+    volume = next(v for v in pod["volumes"] if v["name"] == "tools")
+    mounted = [s["configMap"]["name"] for s in volume["projected"]["sources"]]
+    generated = _mirror_shard_names()
+    assert mounted == generated, (
+        f"portfolio-front.yaml mounts {mounted} but front-door-tools/kustomization.yaml "
+        f"generates {generated}. Regenerate with `node "
+        "platform/marketing/front-door-tools.mjs --write`, which rewrites both files "
+        "in the same call, and commit the result."
+    )
+    # Named by index from zero, with no gaps: the generator's `shardName`, and
+    # what makes a missing shard obvious to a human scanning either file.
+    assert generated == [f"portfolio-front-tools-{i}" for i in range(len(generated))]
+
+
+def test_the_mirror_is_sharded_because_one_object_could_not_hold_it() -> None:
+    # Pins that sharding has a subject. If a later change shrinks the mirror
+    # back to a single shard, this fails and asks for a decision rather than
+    # letting the projected volume and its long comment quietly become
+    # decoration that the next reader simplifies away.
+    assert len(_mirror_shard_names()) > 1
+
+
+def _mirrored_venture_slugs() -> set:
+    """Distinct venture slugs the apex mirror actually serves.
+
+    `front-door-tools/kustomization.yaml`'s `files` entries are each
+    `<slug>__<filename>=<slug>__<filename>` (see `MIRROR_SEPARATOR` in
+    `front-door-tools.mjs` and `aggregate.py`) — the slug is everything
+    before the first `__`, and no real venture slug or mirrored filename
+    contains that separator itself.
+    """
+    parsed = yaml.safe_load(
+        (ROOT / "prod" / "front-door-tools" / "kustomization.yaml").read_text()
+    )
+    slugs = set()
+    for entry in parsed["configMapGenerator"]:
+        for file_entry in entry["files"]:
+            key = file_entry.split("=", 1)[0]
+            slug, _, _ = key.partition("__")
+            slugs.add(slug)
+    return slugs
+
+
+def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
+    # The mirror grew from the ~20 ventures a single ConfigMap could hold to
+    # 53 once it was sharded (see the comment atop
+    # front-door-tools/kustomization.yaml) -- but `front-door/index.html`,
+    # which recomputes its own "N of the 169 tools" line from the actual
+    # mirrored set on every regeneration (front-door.test.mjs fails on a
+    # stale commit), was not the only place that number was written down.
+    # `infra/OWNER_CHECKLIST.md` and `gitops/prod/usage/aggregate.py`'s
+    # comment both still said "14" -- the pre-sharding figure -- with nothing
+    # to notice the mirror had grown to more than double that. Same failure
+    # mode `test_readme_runs_on_count_matches_reality` in test_ci_runner.py
+    # exists to catch, on a different piece of hand-written prose: a number
+    # that is only ever typed, never recomputed, has no way to notice the
+    # thing it describes changed size.
+    actual = len(_mirrored_venture_slugs())
+    total = 169  # `infra/OWNER_CHECKLIST.md`'s own "N of the 169 tools" wording.
+
+    checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
+
+    mirrors_of = re.findall(r"mirrors (\d+) of the (\d+) tools directly", checklist)
+    assert mirrors_of, "OWNER_CHECKLIST.md's 'mirrors N of the M tools' sentence not found or reworded"
+    for mirrored, whole in mirrors_of:
+        assert int(mirrored) == actual, (
+            f"OWNER_CHECKLIST.md claims {mirrored} mirrored tools, actual is {actual}"
+        )
+        assert int(whole) == total, (
+            f"OWNER_CHECKLIST.md claims {whole} total tools, expected {total}"
+        )
+
+    static_mirror_of = re.findall(r"static mirror of (\d+) tools at", checklist)
+    assert static_mirror_of, "OWNER_CHECKLIST.md's 'static mirror of N tools' sentence not found or reworded"
+    for value in static_mirror_of:
+        assert int(value) == actual, (
+            f"OWNER_CHECKLIST.md claims a mirror of {value} tools, actual is {actual}"
+        )
+
+    # Reworded 2026-09-02. This used to pin "working funnel for the other N",
+    # and the arithmetic it checks was always the point — but the sentence
+    # carrying it also claimed the seal was what turned the front door into a
+    # working funnel at all, which CLAUDE.md corrects at length: the apex
+    # already serves the tools and its cards already work. Pinning a count
+    # inside a sentence that is wrong about what the count means keeps the
+    # number honest and the claim stale, so the wording moved and this pattern
+    # moved with it. The check itself is unchanged.
+    #
+    # `tools?` rather than `tools` since 2026-09-03. The remainder reached 1
+    # when the mirror learned `site/index.html` entry points, and the only
+    # grammatical English for that is "the remaining 1 tool" — which the plural
+    # pattern could not match, so this assertion failed on the sentence being
+    # *correct*. A checker that forces prose to be ungrammatical to pass is
+    # checking the wrong thing; the count is what matters and it is still
+    # pinned exactly.
+    #
+    # The remainder reached 0 on 2026-09-03, when the mirror learned
+    # `ENTRY_OVERRIDES` and picked up `ai-engineering-academy`. There is no
+    # grammatical sentence of this shape for zero — "publishes the remaining 0
+    # tools" is not English, and the paragraph now says the seal buys the
+    # canonical hostname and search rather than any tool's reachability, which
+    # is the true claim. So at parity the requirement inverts: the sentence
+    # must be *absent*, and any surviving "remaining N" claim is a stale
+    # number to catch. Below parity it is required and pinned exactly, as
+    # before. Both branches assert; neither is a hole.
+    other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools?", checklist)
+    if total == actual:
+        assert not other_tools, (
+            "the mirror serves every tool, but OWNER_CHECKLIST.md still claims "
+            f"{other_tools} remain unmirrored"
+        )
+    else:
+        assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
+        for value in other_tools:
+            assert int(value) == total - actual, (
+                f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
+                f"actual is {total - actual}"
+            )
+
+    aggregate = (REPO / "gitops" / "prod" / "usage" / "aggregate.py").read_text()
+    aggregate_match = re.search(r"mirrors (\d+) complete ventures", aggregate)
+    assert aggregate_match, "aggregate.py's 'mirrors N complete ventures' comment not found or reworded"
+    assert int(aggregate_match.group(1)) == actual, (
+        f"aggregate.py's comment claims {aggregate_match.group(1)} mirrored ventures, "
+        f"actual is {actual}"
+    )
+
+    # `default.conf`'s own comments restate the count twice more, in prose
+    # explaining why the mirrored pages carry no `X-Robots-Tag`. Neither is
+    # read by nginx or by kustomize -- both are free text -- but that is
+    # exactly why they drift silently: nothing about serving the site fails
+    # when they go stale. They did, the same day the mirror grew from 168 to
+    # 169 (`ai-engineering-academy`'s ENTRY_OVERRIDES fix): the commit that
+    # bumped OWNER_CHECKLIST.md and aggregate.py's comment above left these
+    # two unchanged. Pinning them here closes the same gap this test already
+    # closes for the other two files.
+    conf = (REPO / "gitops" / "prod" / "front-door" / "default.conf").read_text()
+    conf_matches = re.findall(r"filter (\d+) tools by category", conf)
+    conf_matches += re.findall(r"served all (\d+) tools", conf)
+    assert len(conf_matches) == 2, (
+        "default.conf's two 'N tools' comments not found or reworded "
+        f"(found {len(conf_matches)})"
+    )
+    for value in conf_matches:
+        assert int(value) == actual, (
+            f"default.conf's comment claims {value} mirrored tools, actual is {actual}"
+        )
+
+
+def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
+    # A Deployment mounts these, so the generated name has to change with the
+    # content or a regenerated page never reaches a running pod. The usage
+    # script is the deliberate exception: a CronJob names it directly.
+    by_name = {}
+    for kustomization in _FRONT_DOOR_KUSTOMIZATIONS:
+        parsed = yaml.safe_load(kustomization.read_text())
+        # A nested kustomization can set the option globally rather than per
+        # entry, so fold `generatorOptions` down onto each generator before
+        # asking the question. `portfolio-front-tools` is generated that way and
+        # is mounted by the same Deployment, so it is bound by the same rule.
+        shared = parsed.get("generatorOptions", {})
+        for entry in parsed.get("configMapGenerator", []):
+            merged = dict(entry)
+            merged["options"] = {**shared, **entry.get("options", {})}
+            by_name[entry["name"]] = merged
+    for name in ("portfolio-front-html", "portfolio-front-nginx", *_mirror_shard_names()):
+        options = by_name[name].get("options", {})
+        assert not options.get("disableNameSuffixHash"), (
+            f"{name} is mounted by a Deployment; without the hash a content "
+            "change would not roll the pods"
+        )
+    assert by_name["portfolio-site-usage-script"]["options"]["disableNameSuffixHash"] is True
+
+
+# The API server's cap on the *total* size of one object's annotations:
+# `TotalAnnotationSizeLimitB` in
+# `k8s.io/apimachinery/pkg/api/validation/objectmeta.go`. Exceeding it is a
+# validation error on the object, not a warning:
+#
+#   metadata.annotations: Too long: must have at most 262144 bytes
+CLIENT_SIDE_APPLY_CEILING = 256 * 1024
+
+# etcd's cap on one stored object. Once `ServerSideApply=true` retires the
+# annotation cap above, this is the constraint that binds.
+ETCD_OBJECT_CEILING = 1024 * 1024
+
+# What a generated ConfigMap may serialise to before this suite fails it.
+#
+# Below the hard cap on purpose. The size measured here is the JSON of a bare
+# ConfigMap, and three things are added on top of it before etcd sees the
+# object: Argo's tracking label and annotation, the `metadata` a real apply
+# fills in, and — specific to server-side apply, which is what the large
+# ConfigMaps here use — a `managedFields` entry per key, which for a 95-key
+# mirror is several KB. So the measurement is a floor and the margin is what
+# covers the difference. 90% leaves ~100 KB, comfortably more than those three
+# cost together.
+ETCD_OBJECT_BUDGET = int(ETCD_OBJECT_CEILING * 0.90)
+
+
+def _generated_configmaps() -> list[tuple[str, Path, bytes, dict[str, str]]]:
+    """Every ConfigMap a kustomization in this tree generates, as applied bytes.
+
+    Returns (name, kustomization path, serialised object, annotations) so a
+    caller can ask about the size of the object that would actually be applied
+    rather than about the file list that produces it. All three ceiling checks
+    below want exactly that one number, so it is built here once.
+
+    A generator input that is not valid UTF-8 goes under `binaryData` as
+    base64, which is what kustomize does with it and the only faithful way to
+    size it: the front door's `social-card.png` is 5,984 bytes on disk and
+    7,980 in the object, and a check that measured the file would understate
+    every binary key by a third. Reading it as text is what the three ceiling
+    tests did until 2026-09-02, when the card was added and they stopped being
+    able to read the tree at all (`UnicodeDecodeError`) rather than quietly
+    under-measuring — the good direction for that bug to fail in.
+    """
+    found = []
+    for kustomization in sorted(ROOT.rglob("kustomization.yaml")):
+        parsed = yaml.safe_load(kustomization.read_text()) or {}
+        shared = parsed.get("generatorOptions", {})
+        for entry in parsed.get("configMapGenerator", []):
+            options = {**shared, **entry.get("options", {})}
+            data: dict[str, str] = {}
+            binary_data: dict[str, str] = {}
+            for spec in entry.get("files", []):
+                key, _, rel = spec.partition("=")
+                raw = (kustomization.parent / (rel or key)).read_bytes()
+                try:
+                    data[key] = raw.decode()
+                except UnicodeDecodeError:
+                    binary_data[key] = base64.b64encode(raw).decode("ascii")
+            body: dict[str, object] = {
+                "apiVersion": "v1",
+                "kind": "ConfigMap",
+                "metadata": {"name": entry["name"], "namespace": "prod"},
+                "data": data,
+            }
+            if binary_data:
+                body["binaryData"] = binary_data
+            found.append(
+                (
+                    entry["name"],
+                    kustomization,
+                    json.dumps(body).encode(),
+                    options.get("annotations", {}),
+                )
+            )
+    return found
+
+
+def test_a_configmap_too_large_for_client_side_apply_asks_for_server_side() -> None:
+    # The delivery-path defect this test exists for, in full:
+    #
+    # Argo CD applies client-side by default (v3.5.1 here, per
+    # bootstrap/install-argocd.sh, and every version before it). A client-side
+    # apply records the object it sent in the annotation
+    # `kubectl.kubernetes.io/last-applied-configuration` — a second full copy of
+    # the manifest, inside the object's own annotations, which the API server
+    # caps at 262144 bytes in total.
+    #
+    # `portfolio-front-tools` (the apex tool mirror, #2739 and #2741) is ~600 KB
+    # and grows with STARTER_SET. Every
+    # size comment in this tree reasons about etcd's 1 MiB ConfigMap ceiling,
+    # which it is comfortably under — and nothing reasoned about this one, which
+    # binds first and which it is comfortably over. The failure is not a
+    # degraded mirror but no mirror: the sync of the ConfigMap fails, the hashed
+    # name `portfolio-front.yaml` mounts is never created, the new pods sit in
+    # ContainerCreating, `maxUnavailable: 0` keeps the toolless front door
+    # serving, and `prod` stays permanently Degraded with nothing else in the
+    # namespace able to report why.
+    #
+    # `ServerSideApply=true` writes no such annotation, so the object is bounded
+    # only by etcd's 1 MiB. Declared per resource rather than on the `prod`
+    # Application so it changes the delivery of this one ConfigMap and nothing
+    # else in the namespace.
+    #
+    # The size measured here is the JSON of a bare ConfigMap. Argo adds a
+    # tracking label and annotation on top, so this is a floor: a generator that
+    # passes here by a few hundred bytes is not actually safe, which is the
+    # direction an estimate should err in.
+    for name, kustomization, body, annotations in _generated_configmaps():
+        size = len(body)
+        if size <= CLIENT_SIDE_APPLY_CEILING:
+            continue
+        assert annotations.get("argocd.argoproj.io/sync-options") == "ServerSideApply=true", (
+            f"{name} (generated by {kustomization.relative_to(ROOT)}) serialises to {size} "
+            f"bytes, over the {CLIENT_SIDE_APPLY_CEILING}-byte annotation cap a client-side "
+            "apply has to fit its copy of the object into. Argo CD would fail to apply it "
+            "with `metadata.annotations: Too long`. Either declare "
+            "`options.annotations: {argocd.argoproj.io/sync-options: ServerSideApply=true}` "
+            "on the generator, or make the ConfigMap smaller."
+        )
+
+
+def test_the_apex_tool_mirror_is_the_case_that_ceiling_is_about() -> None:
+    # The test above is a rule; this pins that the rule currently has a subject.
+    # Without it, shrinking the mirror under the cap would silently retire the
+    # only check on the delivery path — and the annotation left behind would
+    # look like decoration to the next reader rather than the thing that made
+    # #2739 deliverable at all.
+    shards = _mirror_shard_names()
+    mirror = {
+        name: (body, annotations)
+        for name, _, body, annotations in _generated_configmaps()
+        if name in shards
+    }
+    assert sorted(mirror) == sorted(shards), f"{set(shards) - set(mirror)} did not build"
+    for name in shards:
+        body, annotations = mirror[name]
+        # Every shard, not just the first: an annotation present on shard 0 and
+        # missing on shard 3 is the same outage three shards later, and the
+        # failure would look like "some tools 404" rather than like a bad apply.
+        assert len(body) > CLIENT_SIDE_APPLY_CEILING, name
+        assert annotations["argocd.argoproj.io/sync-options"] == "ServerSideApply=true", name
+        # And still inside the ceiling that comment tree already knew about.
+        assert len(body) < ETCD_OBJECT_CEILING, name
+
+
+def test_generated_configmaps_stay_under_the_etcd_object_ceiling() -> None:
+    # The check on the object that actually gets applied.
+    #
+    # `BYTE_CEILING` in `platform/marketing/front-door-tools.mjs` guards the
+    # same thing one step earlier and in a different unit: it counts the bytes
+    # of the mirrored *files*, which is a proxy for the size of the ConfigMap
+    # they end up in. A proxy is the right tool there — it fails in the venture
+    # directory seconds after a `--write`, long before anything is built — but
+    # nothing measured the object itself against etcd's cap, and that is the
+    # ceiling that binds now that #2746 moved these ConfigMaps to server-side
+    # apply and retired the 256 KiB annotation cap as the first one hit.
+    #
+    # Failing here means the sync stops, not that the mirror degrades: the
+    # hashed ConfigMap name `portfolio-front.yaml` mounts is never created, the
+    # new pods sit in ContainerCreating, `maxUnavailable: 0` keeps the previous
+    # front door serving, and `prod` stays Degraded.
+    for name, kustomization, body, _ in _generated_configmaps():
+        size = len(body)
+        assert size <= ETCD_OBJECT_BUDGET, (
+            f"{name} (generated by {kustomization.relative_to(ROOT)}) serialises to {size} "
+            f"bytes, over the {ETCD_OBJECT_BUDGET}-byte budget this suite allows under etcd's "
+            f"{ETCD_OBJECT_CEILING}-byte object cap. The measurement is a floor — Argo's "
+            "tracking metadata and server-side apply's per-key `managedFields` are added on "
+            "top — so the margin is not slack to spend. Make the ConfigMap smaller rather "
+            "than raising the budget."
+        )
+
+
+def test_the_mirror_byte_ceiling_trips_before_this_one_does() -> None:
+    # Two ceilings guard the same failure in different units, and they have to
+    # stay in that order: `BYTE_CEILING` counts mirrored file bytes and fails in
+    # the venture directory seconds after a `--write`; this suite measures the
+    # built object and fails after a kustomize build. If the file-bytes ceiling
+    # were ever raised past what this budget allows, the earlier and more useful
+    # error would stop firing and the first sign of trouble would move to CI.
+    #
+    # 1.40 is a deliberately generous stand-in for the serialisation overhead,
+    # and the number changed by an order of magnitude on 2026-09-02.
+    #
+    # It was 1.05, standing in for the 3.7% measured on the real object (643,465
+    # bytes of content serialising to 667,371) — correct while the mirror was
+    # text under `data`, where the only overhead is JSON string escaping. The
+    # mirror is now gzipped, gzip output is not valid UTF-8, and kustomize puts
+    # a key it cannot decode under `binaryData` as base64. That is a 4/3
+    # expansion, so a 1.05 factor would have under-predicted the applied object
+    # by 27% and left this check passing on a ceiling that could not actually be
+    # delivered — a ceiling test that no longer predicts the thing it guards is
+    # worse than none, because it reads like coverage.
+    #
+    # 1.40 is 4/3 plus room for the JSON keys and the object envelope. Being
+    # generous here is the safe direction: it makes this test complain sooner.
+    source = (REPO / "platform" / "marketing" / "front-door-tools.mjs").read_text()
+    match = re.search(r"SHARD_BYTE_CEILING = (\d+) \* 1024", source)
+    assert match, "front-door-tools.mjs no longer declares SHARD_BYTE_CEILING in KiB"
+    byte_ceiling = int(match.group(1)) * 1024
+    assert byte_ceiling * 1.40 < ETCD_OBJECT_BUDGET, (
+        f"SHARD_BYTE_CEILING is {byte_ceiling} bytes of content, which could serialise past the "
+        f"{ETCD_OBJECT_BUDGET}-byte budget here. Lower it, or lower it and raise this budget "
+        "together — never leave the object check as the only one that fires."
+    )
+
+
+def test_portfolio_front_page_is_the_committed_generator_output() -> None:
+    # The manifest side of the drift check in
+    # platform/marketing/front-door.test.mjs: the file the ConfigMap is
+    # generated from has to exist and be the real page, not a placeholder.
+    page = (ROOT / "prod" / "front-door" / "index.html").read_text()
+    assert page.startswith("<!doctype html>")
+    assert 'rel="canonical" href="https://marisstella.dev/"' in page
+    # Both PRODUCT_PLAYBOOK.md section 5b clauses, on a hosted surface that
+    # platform/pages/build.mjs does not build and therefore cannot inject.
+    assert "No warranty." in page
+    assert "Best-effort hosting, no SLA." in page
+
+
+def test_portfolio_front_fits_the_prod_quota() -> None:
+    quota = next(
+        doc
+        for doc in yaml.safe_load_all((ROOT / "prod" / "quota.yaml").read_text())
+        if doc and doc["kind"] == "ResourceQuota"
+    )["spec"]["hard"]
+    spec = _portfolio_front()["Deployment"]["spec"]
+    container = spec["template"]["spec"]["containers"][0]
+    replicas = spec["replicas"]
+    # Millicores and mebibytes, small enough that exact parsing is overkill.
+    requests = container["resources"]["requests"]
+    limits = container["resources"]["limits"]
+    assert requests["cpu"] == "20m"
+    request_mi = int(requests["memory"].removesuffix("Mi"))
+    limit_mi = int(limits["memory"].removesuffix("Mi"))
+    assert replicas * 20 < int(quota["requests.cpu"]) * 1000
+    assert replicas * request_mi < int(quota["requests.memory"].removesuffix("Gi")) * 1024
+    assert replicas * limit_mi < int(quota["limits.memory"].removesuffix("Gi")) * 1024
+
+    # The memory limit is sized by the mirror, not by nginx, and that is the
+    # part worth pinning. A ConfigMap volume is tmpfs, charged to the pod's
+    # memory cgroup, so the whole projected `tools` volume is resident in every
+    # replica. At `MIRROR_BYTE_CEILING` the mirror alone would have been ~10 MiB
+    # from OOMKilling both replicas under the old 64Mi limit — and the symptom
+    # of getting this wrong is not a slow page, it is the apex crash-looping
+    # some months after whoever raised the mirror ceiling has gone.
+    #
+    # Twice the ceiling, so nginx's own ~10 MiB and the page cache have room
+    # that does not have to be re-derived every time the mirror grows.
+    source = (REPO / "platform" / "marketing" / "front-door-tools.mjs").read_text()
+    match = re.search(r"MIRROR_BYTE_CEILING = (\d+) \* 1024 \* 1024", source)
+    assert match, "front-door-tools.mjs no longer declares MIRROR_BYTE_CEILING in MiB"
+    mirror_ceiling_mi = int(match.group(1))
+    assert limit_mi >= mirror_ceiling_mi * 2, (
+        f"the mirror may grow to {mirror_ceiling_mi}Mi of tmpfs in each replica, against a "
+        f"{limit_mi}Mi memory limit. Raise the limit or lower MIRROR_BYTE_CEILING — the pod "
+        "is OOMKilled, not throttled, when tmpfs and the process together cross it."
+    )
 
 
 def test_portfolio_apex_matches_the_site_certificate_issuer() -> None:
@@ -755,12 +1652,70 @@ def test_portfolio_site_carries_no_token_and_reads_one_from_a_secret() -> None:
 
 
 def _prod_networkpolicies() -> dict[str, dict]:
-    docs = list(yaml.safe_load_all((ROOT / "prod" / "networkpolicy.yaml").read_text()))
-    return {d["metadata"]["name"]: d for d in docs if d}
+    # Every *.yaml directly under prod/, not just networkpolicy.yaml: a
+    # NetworkPolicy can ride in a workload's own manifest instead of the
+    # shared file, the way portfolio-front-egress does in portfolio-front.yaml
+    # (added by #2730, after this file's own networkpolicy.yaml was written).
+    # Reading one file only made
+    # test_landing_is_the_only_prod_workload_without_a_networkpolicy below
+    # pass for the wrong reason: it never saw that fourth policy to count it,
+    # so an assertion naming exactly three names still passed the day a
+    # fourth one landed elsewhere. secrets/ is skipped because a SealedSecret
+    # cannot contain a NetworkPolicy and, once portfolio-repo-token.sealed.yaml
+    # exists, is not something this test suite should be parsing as plaintext
+    # YAML at all.
+    policies: dict[str, dict] = {}
+    for path in sorted((ROOT / "prod").glob("*.yaml")):
+        if path.name == "kustomization.yaml":
+            continue
+        for doc in yaml.safe_load_all(path.read_text()):
+            if doc and doc.get("kind") == "NetworkPolicy":
+                policies[doc["metadata"]["name"]] = doc
+    return policies
 
 
-def test_portfolio_site_is_the_only_prod_workload_with_a_networkpolicy() -> None:
-    assert set(_prod_networkpolicies()) == {"portfolio-site-egress"}
+def test_landing_is_the_only_prod_workload_without_a_networkpolicy() -> None:
+    # Inverted from what this test asserted through #2727: it used to say
+    # "portfolio-site is the only prod workload with a NetworkPolicy" and
+    # named exactly one, which was true when it was written and stayed
+    # syntactically true after #2632, #2727 and #2730 each added another --
+    # each new policy was a set this assertion had never claimed to be
+    # exhaustive against by name, so nothing here failed while the claim in
+    # the old test's name quietly stopped matching the tree. `landing` is
+    # still the one prod workload deliberately left off this list: it holds
+    # no credential of any kind (no ServiceAccount token, no external secret)
+    # and calls out to nothing, so it has nothing worth restricting. Every
+    # other workload in this namespace now has one: portfolio-site (the
+    # GitHub clone token), its two CronJobs (a ServiceAccount token with RBAC
+    # to mutate a specific resource), and portfolio-front (no credential, but
+    # locked to egress: [] anyway since it has nothing to call out to either
+    # -- see test_portfolio_front_egress_targets_the_pod_it_guards below).
+    assert set(_prod_networkpolicies()) == {
+        "portfolio-site-egress",
+        "portfolio-site-usage-egress",
+        "portfolio-site-refresh-egress",
+        "portfolio-front-egress",
+    }
+
+
+def test_portfolio_front_egress_targets_the_pod_it_guards() -> None:
+    # Same regression class as
+    # test_portfolio_site_egress_targets_the_pod_that_holds_the_clone_token
+    # just below: a podSelector that does not match the Deployment's own pod
+    # labels silently governs nothing, and nothing here had pinned that this
+    # policy (added by #2730, alongside the Deployment) actually reaches the
+    # pod it was written for.
+    policy = _prod_networkpolicies()["portfolio-front-egress"]
+    assert policy["spec"]["podSelector"]["matchLabels"] == {"app": "portfolio-front"}
+    assert (
+        _portfolio_front()["Deployment"]["spec"]["template"]["metadata"]["labels"]["app"]
+        == "portfolio-front"
+    )
+    # Deny-all egress is deliberate, not a placeholder: this pod serves only
+    # what its ConfigMap volumes already hold and calls out to nothing, so
+    # unlike every sibling policy above it needs no DNS or HTTPS carve-out.
+    assert policy["spec"]["policyTypes"] == ["Egress"]
+    assert policy["spec"]["egress"] == []
 
 
 def test_networkpolicy_is_synced_by_prod() -> None:
@@ -829,6 +1784,96 @@ def test_portfolio_site_egress_cannot_reach_the_kube_apiserver() -> None:
     assert internet["cidr"] == "0.0.0.0/0"
     for blocked in ("10.42.0.0/16", "10.43.0.0/16", "10.244.0.0/16", "10.10.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
         assert blocked in internet["except"], blocked
+
+
+def test_portfolio_site_credentialed_cronjobs_get_the_same_treatment_as_governor() -> None:
+    # Same class of gap `governor-egress` and `worker-egress` already close in
+    # `agents`: a pod holding a live ServiceAccount token with RBAC to mutate a
+    # cluster resource must not also have unrestricted egress. `landing` is not
+    # part of this -- it holds no credential of any kind and calls out to
+    # nothing.
+    usage_policy = _prod_networkpolicies()["portfolio-site-usage-egress"]
+    refresh_policy = _prod_networkpolicies()["portfolio-site-refresh-egress"]
+
+    for policy in (usage_policy, refresh_policy):
+        assert policy["spec"]["policyTypes"] == ["Egress"]
+        assert "ingress" not in policy["spec"]
+
+    assert usage_policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "portfolio-site-usage"
+    }
+    assert refresh_policy["spec"]["podSelector"]["matchLabels"] == {
+        "app.kubernetes.io/name": "portfolio-site-refresh"
+    }
+
+    # Each selector has to match the label the CronJob's own pod template
+    # actually stamps, or the policy silently governs no pod at all -- the
+    # same failure mode test_portfolio_site_egress_targets_the_pod_that_holds_
+    # the_clone_token guards against for the Deployment above.
+    usage_cron = [
+        d
+        for d in yaml.safe_load_all((ROOT / "prod" / "site-usage.yaml").read_text())
+        if d and d["kind"] == "CronJob"
+    ][0]
+    usage_pod_labels = usage_cron["spec"]["jobTemplate"]["spec"]["template"]["metadata"]["labels"]
+    assert usage_pod_labels == {"app.kubernetes.io/name": "portfolio-site-usage"}
+
+    refresh_cron = _portfolio_site()["CronJob"]
+    refresh_pod_labels = refresh_cron["spec"]["jobTemplate"]["spec"]["template"]["metadata"]["labels"]
+    assert refresh_pod_labels == {"app.kubernetes.io/name": "portfolio-site-refresh"}
+
+
+def test_portfolio_site_usage_egress_is_scoped_to_dns_and_the_apiserver() -> None:
+    # aggregate.py never calls anything but the apiserver (by
+    # KUBERNETES_SERVICE_HOST, a fixed IP, so DNS is not load-bearing here --
+    # allowed anyway for the same reason governor-egress allows it: cheap
+    # insurance, not a requirement).
+    policy = _prod_networkpolicies()["portfolio-site-usage-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    assert dns_rules[0]["to"][0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+    https_rules = [r for r in policy["spec"]["egress"] if r.get("ports") == [{"protocol": "TCP", "port": 443}]]
+    assert len(https_rules) == 1, https_rules
+    # A single address, not a range: unlike the refresh job below, this pod
+    # calls nothing else, so the tightest correct rule is the one fixed IP
+    # governor-egress already uses for the identical call.
+    assert https_rules[0]["to"][0]["ipBlock"]["cidr"] == "10.43.0.1/32"
+
+
+def test_portfolio_site_refresh_egress_reaches_the_apiserver_and_the_service() -> None:
+    # Unlike the usage job above, this pod's own script resolves two names --
+    # kubectl's in-cluster config falls back to `kubernetes.default.svc`, and
+    # the freshness check curls the `portfolio-site` Service by name -- so DNS
+    # is load-bearing here, and the Service's own ClusterIP is not a fixed,
+    # predictable address the way the apiserver's is.
+    policy = _prod_networkpolicies()["portfolio-site-refresh-egress"]
+    dns_rules = [
+        r
+        for r in policy["spec"]["egress"]
+        if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+        and all(p["port"] == 53 for p in r["ports"])
+    ]
+    assert len(dns_rules) == 1, dns_rules
+    assert dns_rules[0]["to"][0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system"
+
+    service_rules = [r for r in policy["spec"]["egress"] if r.get("to", [{}])[0].get("ipBlock")]
+    assert len(service_rules) == 1, service_rules
+    ipblock = service_rules[0]["to"][0]["ipBlock"]
+    # The whole service CIDR, not a single /32 -- the ClusterIP the
+    # `portfolio-site` Service gets is assigned by the control plane, not
+    # something a session with no cluster access can read or pin down, but
+    # the CIDR itself is the same k3s-default constant every other
+    # NetworkPolicy in this repo already treats as known.
+    assert ipblock["cidr"] == "10.43.0.0/16"
+    assert "except" not in ipblock
+    ports = {p["port"] for p in service_rules[0]["ports"]}
+    assert ports == {80, 443}
 
 
 def test_portfolio_site_refresh_can_only_restart_the_site() -> None:

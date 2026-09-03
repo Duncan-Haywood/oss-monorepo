@@ -6,6 +6,7 @@
 // inject unexpected behavior.
 
 export const SHARE_FIELDS = Object.freeze([
+  'materialPreset',
   'sections',
   'wastePercent',
   'materialPerSquare',

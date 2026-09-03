@@ -71,9 +71,20 @@ usual during those five days.
 
 A subdomain, because `tools.marisstella.dev` is the canonical host
 stamped into every page's canonical link, og:url and sitemap entry. The
-apex and `www` are served by `prod/portfolio-apex.yaml`, which 301s them
-here rather than putting two uncanonical copies of all 524 pages in front
-of crawlers.
+apex and `www` are served by `prod/portfolio-apex.yaml`, which used to 301
+them here rather than putting two uncanonical copies of all 544 pages in
+front of crawlers.
+
+**Changed 2026-09-02.** That redirect pointed at a host serving nothing for
+every day of its life, because of the seal below. The apex and `www` now
+serve `prod/portfolio-front.yaml` instead: a generated front-door page —
+positioning, one card per category, the §5b clauses — held in a kustomize
+ConfigMap and therefore needing nothing sealed, no runner and no Pages
+flip. It is a different document from the hub (its own canonical, no
+per-tool listing), so it does not reintroduce the duplicate the redirect
+existed to prevent. Regenerate it with `node
+platform/marketing/front-door.mjs --write`; the suite fails on a stale
+commit.
 
 This used to say the apex was left alone because it "already resolves to
 the cpx52 for something else". It does not: `infra/README.md` records
@@ -90,6 +101,12 @@ wildcard `A/*` record already covers this subdomain, no new record
 needed). **One thing remains**, and it is an owner action. Until it lands
 Argo syncs the manifests and the pods crash-loop on the missing secret,
 which is the intended fail-closed state.
+
+Note what this section is and is not about since 2026-09-02: it is the step
+that makes the **169 tools** reachable. The portfolio's apex is already
+serving (`prod/portfolio-front.yaml`, above), and every category card on
+that page links in here — so this seal is what turns a live front door into
+a live catalogue, not what turns the domain on.
 
 1. **The clone token.** The repository is private, so the init container
    cannot clone anonymously. Mint a fine-grained token scoped to this one
@@ -110,7 +127,7 @@ PAGES_BASE_URL=https://tools.marisstella.dev/ \
   node platform/pages/check.mjs --dist=/tmp/site
 ```
 
-Both exit 0 on `main`: 169 products, 7 category pages, 524 pages, no dead
+Both exit 0 on `main`: 169 products, 7 category pages, 544 pages, no dead
 links. `build.mjs` reads the committed `launched.json` rather than shelling
 out to `git log` (see the comment at its line ~4648), so the `--depth 1`
 clone the `fetch` container does costs it nothing — the depth-1 checkout and
@@ -122,7 +139,9 @@ held at 169). Expect this figure to keep moving by a page or two per session
 — it is not the property this check exists to pin, "still exits 0" is.
 Re-verified again on 2026-09-02 against a later `main` still: 524 pages,
 169 products unchanged, no dead links — the drift this paragraph predicted,
-not a regression.
+not a regression. Re-verified once more the same day, at `main`'s
+d8e27a884: 544 pages, 169 products still unchanged, no dead links — the
+same drift, not a second regression.
 
 This says the seal will land on a working build; it does not confirm
 anything about the cluster. Certificate issuance and public reachability

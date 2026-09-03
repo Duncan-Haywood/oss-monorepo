@@ -87,8 +87,48 @@ def test_docker_dependent_exception_is_exactly_the_jobs_that_need_docker() -> No
     assert found == DOCKER_DEPENDENT_JOBS, found ^ DOCKER_DEPENDENT_JOBS
 
 
+def test_readme_runs_on_count_matches_reality() -> None:
+    # gitops/ci/README.md states a specific count of `runs-on` lines that read
+    # the switch ("All N `runs-on` lines across M workflows"). That count went
+    # stale once already (#2713 fixed it at 247/221; a later PR, #2740, added a
+    # job and pushed the true total to 248 without anyone touching this
+    # sentence) -- a hand-written number in prose has no way to notice a
+    # workflow gained a job. Recompute both numbers from the same source the
+    # other tests in this file use and assert the README agrees, so the next
+    # drift fails CI instead of sitting unnoticed.
+    workflows = sorted(WORKFLOWS.glob("*.yml"))
+    total_runs_on = 0
+    for path in workflows:
+        spec = yaml.safe_load(path.read_text())
+        total_runs_on += len(spec.get("jobs") or {})
+    switch_count = total_runs_on - len(DOCKER_DEPENDENT_JOBS)
+
+    readme = (CI / "README.md").read_text()
+    match = re.search(
+        r"(\d+) of the (\d+) `runs-on` lines across (\d+) workflows", readme
+    )
+    assert match, "README's runs-on count sentence not found or reworded"
+    assert int(match.group(1)) == switch_count, (
+        f"README claims {match.group(1)} runs-on lines read the switch, "
+        f"actual count is {switch_count}"
+    )
+    assert int(match.group(2)) == total_runs_on, (
+        f"README claims {match.group(2)} total runs-on lines, "
+        f"actual count is {total_runs_on}"
+    )
+    assert int(match.group(3)) == len(workflows), (
+        f"README claims {match.group(3)} workflows, actual count is {len(workflows)}"
+    )
+
+
 _PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
 _NODE_NEEDLE = re.compile(r"\b(node|npm|npx)\b")
+# Not an interpreter, but the same failure shape: a binary GitHub's image
+# happens to preinstall and the runner image does not. `shellcheck-py` is how
+# both jobs that need it install the real binary on either runner, so an
+# invocation preceded by that install is fine and a bare one is not.
+_SHELLCHECK_NEEDLE = re.compile(r"\bshellcheck\b")
+_SHELLCHECK_INSTALL = re.compile(r"\bpip3?\s+install\b.*\bshellcheck-py\b")
 
 
 def _run_code_lines(step: dict) -> list[str]:
@@ -154,6 +194,101 @@ def test_every_job_that_runs_python_or_node_sets_it_up() -> None:
                 failures.append(f"{path.name}:{name} runs python3/pip with no actions/setup-python step")
             if needs_node and not has_setup_node:
                 failures.append(f"{path.name}:{name} runs node/npm/npx with no actions/setup-node step")
+    assert not failures, "\n".join(failures)
+
+
+def test_every_job_that_runs_shellcheck_installs_it() -> None:
+    # The test above generalized the bare-`python3` gap across every workflow
+    # at once, and that was the right move -- but it generalized over the
+    # wrong axis. It asks "which *interpreters* does this job assume", when
+    # the property that actually matters is "which *binaries* does this job
+    # assume GitHub's image preinstalls". shellcheck is the second member of
+    # that set, and it slipped through: ubuntu-agent-server-ci.yml's
+    # `shellcheck` job ran the bare binary with no install step, one job above
+    # the `yaml-sanity` job whose comment explains this exact hazard for
+    # python3. It passed every check, because GitHub-hosted ubuntu-latest
+    # ships shellcheck and nothing here looked for anything but python/node.
+    #
+    # hetzner-gitops-ci.yml's `scripts` job had it right all along: install
+    # the shellcheck-py wheel, which carries the real binary and works on
+    # either runner. This pins that as the rule rather than one job's habit.
+    #
+    # Exemptions match the test above for the same reasons: DOCKER_DEPENDENT_
+    # JOBS and any job with `container:`/`services:` bring their own image.
+    failures: list[str] = []
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        spec = yaml.safe_load(path.read_text())
+        for name, job in (spec.get("jobs") or {}).items():
+            if (path.name, name) in DOCKER_DEPENDENT_JOBS:
+                continue
+            if "container" in job or "services" in job:
+                continue
+            steps = job.get("steps") or []
+            lines = [line for s in steps for line in _run_code_lines(s)]
+            if not any(_SHELLCHECK_NEEDLE.search(line) for line in lines):
+                continue
+            if any(_SHELLCHECK_INSTALL.search(line) for line in lines):
+                continue
+            failures.append(
+                f"{path.name}:{name} runs shellcheck with no `pip install shellcheck-py` step"
+            )
+    assert not failures, "\n".join(failures)
+
+
+_THIRD_PARTY_IMPORT = re.compile(
+    r"(?:^|\n)\s*(?:import|from)\s+(yaml|requests|jinja2|dateutil|bs4|numpy|pandas)\b"
+)
+_PIP_INSTALL = re.compile(r"pip3?\s+install\s+([^\n]*)")
+# PyPI's distribution name differs from the import name for some of these, and
+# the check compares against what a `pip install` line actually says.
+_DIST_NAMES = {
+    "yaml": ("pyyaml",),
+    "dateutil": ("python-dateutil",),
+    "bs4": ("beautifulsoup4", "bs4"),
+}
+
+
+def test_setup_python_jobs_install_the_modules_they_import() -> None:
+    # The third variant of the same mistake, and the one that actually shipped
+    # red: `actions/setup-python` installs a *clean* interpreter from the tool
+    # cache. GitHub's *system* python3 carries PyYAML; the tool-cache one does
+    # not. So ubuntu-agent-server-ci.yml's `yaml-sanity` job, which was given
+    # a setup-python step precisely to survive a CI_RUNNER flip, started
+    # failing on `import yaml` under the interpreter that fix installed --
+    # trading a break that would happen later for one that was happening
+    # already.
+    #
+    # Nothing caught it because the workflow only triggers on
+    # `ventures/ubuntu-agent-server/**` or its own file, and neither had
+    # changed since the fix landed. It surfaced only when this PR edited that
+    # file for an unrelated reason. A job nobody runs is a job nobody checks,
+    # which is exactly what a repo-wide scan is for.
+    #
+    # Scope note: this looks only at third-party modules imported directly in
+    # `run:` blocks, and treats an `-r <file>` install as covering everything
+    # (the requirements file is the declaration in that case).
+    failures: list[str] = []
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        spec = yaml.safe_load(path.read_text())
+        for name, job in (spec.get("jobs") or {}).items():
+            steps = job.get("steps") or []
+            if not any(
+                (s.get("uses") or "").startswith("actions/setup-python") for s in steps
+            ):
+                continue
+            body = "\n".join(s.get("run") or "" for s in steps)
+            modules = set(_THIRD_PARTY_IMPORT.findall(body))
+            if not modules:
+                continue
+            installed = " ".join(_PIP_INSTALL.findall(body)).lower()
+            if "-r " in installed:
+                continue
+            for module in sorted(modules):
+                names = _DIST_NAMES.get(module, (module,))
+                if not any(n in installed for n in names):
+                    failures.append(
+                        f"{path.name}:{name} imports `{module}` but no pip install provides it"
+                    )
     assert not failures, "\n".join(failures)
 
 
@@ -227,6 +362,48 @@ def test_runner_cannot_reach_the_cluster() -> None:
     deployment = _ci_docs()["Deployment"]
     pod = deployment["spec"]["template"]["spec"]
     assert pod["automountServiceAccountToken"] is False
+
+
+def test_runner_internet_egress_is_scoped_to_https() -> None:
+    # Regression: this rule had no `ports:` at all, which in NetworkPolicy
+    # semantics means every port to any allowed destination -- not the
+    # HTTPS-only egress this file's header always claimed, and not what
+    # `gitops/agents/networkpolicy.yaml`'s `worker-egress` and
+    # `gitops/prod/networkpolicy.yaml`'s `portfolio-site-egress` each already
+    # enforce for the identical rule shape (both cite this file as already
+    # fixed the same way -- it never was). `test_runner_cannot_reach_the_
+    # cluster` above checked the `except:` CIDR list but never checked
+    # `ports`, so a workflow step could open a connection to any address on
+    # the internet on any port and nothing here would say so.
+    policy = _ci_docs()["NetworkPolicy"]["spec"]
+    internet_rule = policy["egress"][0]
+    assert internet_rule["to"][0]["ipBlock"]["cidr"] == "0.0.0.0/0"
+    assert internet_rule.get("ports") == [{"protocol": "TCP", "port": 443}], internet_rule.get("ports")
+
+
+def test_runner_ssh_carveout_is_scoped_to_the_two_boxes_on_port_22_only() -> None:
+    # hetzner-gitops-ci.yml's `preflight` job SSHes to the two Hetzner boxes
+    # and reads the same `vars.CI_RUNNER` switch as every other job, so it
+    # needs port 22 to exactly those two addresses once CI_RUNNER is ever
+    # flipped to self-hosted -- the 443-only rule above does not cover it.
+    # Pinned narrowly so a future edit cannot quietly widen this into a
+    # second general-internet rule instead of a two-address carve-out.
+    policy = _ci_docs()["NetworkPolicy"]["spec"]
+    ssh_rules = [
+        r
+        for r in policy["egress"]
+        if r.get("ports") == [{"protocol": "TCP", "port": 22}]
+    ]
+    assert len(ssh_rules) == 1, ssh_rules
+    cidrs = {block["ipBlock"]["cidr"] for block in ssh_rules[0]["to"]}
+    assert cidrs == {"89.167.29.39/32", "157.180.80.188/32"}, cidrs
+
+    # Both addresses are the literal ones the preflight job itself SSHes to,
+    # so the policy cannot silently drift from what the workflow actually
+    # needs.
+    workflow = (REPO / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
+    assert "89.167.29.39" in workflow
+    assert "157.180.80.188" in workflow
 
 
 def test_runner_pod_runs_as_the_images_own_unprivileged_user() -> None:

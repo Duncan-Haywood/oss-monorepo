@@ -219,7 +219,7 @@ codes as exit 42 and a rejected credential as exit 43.
    (run 33547527610). With `*/20` scheduling that is 72 runs a day, and
    **measured, not the ~360/day this line used to say**: on a 401
    `fire()` returns 2 and the workflow's own `case` exits on that value
-   (lines ~157-170) rather than trying the four remaining slots, so five
+   (the `2) exit 1` arm) rather than trying the four remaining slots, so five
    consecutive runs (33553452882, 33551039615, 33549288450, 33547527610,
    33545549251) each occupied a real runner for 2-3 seconds, not the
    ~16 minutes a full 5-fire loop would take. That is **72 real API
@@ -227,10 +227,30 @@ codes as exit 42 and a rejected credential as exit 43.
    larger figures this line and `routine-trigger-cadence` in your
    decision queue used to carry — safe, but still burning the same
    metered Actions allowance whose exhaustion caused the 2026-08-26
-   starvation. Mint a fresh token at
-   <https://claude.ai/code/routines> and update the secret, or delete the
-   workflow; it is the `routine-trigger-cadence` row in your decision
-   queue. A red check here is now worth reading rather than discounting.
+   starvation.
+
+   **Stopped on 2026-09-02, without answering the question.** The `fire`
+   job is now gated on a repository variable, so a scheduled run is
+   skipped before a runner is assigned: no minute billed, no red check,
+   and 471 consecutive failed runs is where that count stops. Nothing
+   else about the workflow changed, and `workflow_dispatch` still runs
+   unconditionally so a new token is testable on demand.
+
+   So this is no longer costing you anything, and it is no longer an
+   argument for hurrying. When you do want the cadence back:
+
+   1. Mint a fresh token at <https://claude.ai/code/routines> and update
+      the `CLAUDETRIGGERAPIKEY` secret.
+   2. Actions tab → `Claude routine trigger` → **Run workflow**. It
+      should report `fired:` rather than HTTP 401.
+   3. Settings → Secrets and variables → Actions → **Variables**: set
+      `ROUTINE_TRIGGER_ENABLED` to `true`. That is what re-arms the
+      schedule; clearing it switches the cadence off again.
+
+   Doing (3) before (1) and (2) restores the burn rather than the
+   cadence, which is why it is last. Deleting the workflow outright is
+   still yours alone — it is the `routine-trigger-cadence` row in your
+   decision queue, and leaving it gated is now a real third option.
 
    What is left here is insurance, worth doing but **after** the two
    seals above and below that are actually blocking. Self-hosted runners
@@ -250,6 +270,64 @@ This is the shortest path from "169 finished tools nobody can reach" to a
 public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
+
+**Note what this section is and is not about, since 2026-09-02.** The
+domain itself is no longer dark: `marisstella.dev` and `www` already serve
+a front door with no owner action (see the `marisstella.dev` bullet under
+"You decide" below), and it mirrors 169 of the 169 tools directly. Step 1
+below no longer publishes any tool a stranger cannot already reach; what it
+buys is the canonical hostname and indexability.
+
+**Changed 2026-09-03, twice.** That read "162 ... the remaining 7" until the
+mirror learned the same entry-point rule `platform/pages/build.mjs` already
+used (`index.html`, then `site/index.html`). Five ventures keeping a flat
+static site in `site/` were being reported as apps with a build step, and a
+sixth dropped as collateral for linking to one of them.
+
+Then it read "168 ... the remaining 1", and **that last tool was never
+waiting on the seal at all.** `build.mjs` resolves an entry point through
+`ENTRY_CANDIDATES` *and* `ENTRY_OVERRIDES`, and copying only the first list
+into the mirror left `ai-engineering-academy` — a hub page and six working
+electronics calculators, all tested, all carrying disclaimers and usage
+tracking — filed as "not a static page the mirror can serve". The canonical
+build published all seven; the canonical host serves nothing until Step 1;
+so those seven pages were public nowhere, and the checklist recorded that as
+one tool the seal would deliver. The mirror now imports both lists from
+`build.mjs` rather than restating either, and serves them today. Step 1 is
+still worth doing — it is what makes `tools.marisstella.dev` itself resolve
+and lets these pages be indexed — but it is now worth the canonical hostname
+and search, not any tool's reachability.
+
+**Corrected 2026-09-02.** This paragraph used to end "every category card on
+it links into `tools.marisstella.dev`, which still serves nothing until the
+token is sealed" — the same wrong reading `CLAUDE.md` corrects at length.
+The front door's category cards link to same-page anchors, its primary
+call to action opens a mirrored tool on this domain, and its single
+reference to the tools host is fine print honestly labelled as not yet
+live. So the seal is worth doing and is not the difference between a dead
+end and a working product.
+
+That ratio moved a long way on 2026-09-02, and it changes what Step 1 is
+worth. The mirror used to hold 53 tools because a ConfigMap-delivered
+copy of the site was bounded by bytes; storing it gzipped returned 3.1x
+and the bound stopped binding, so the front door now serves nearly the
+whole catalogue itself. Sealing the token is still the right end state —
+it retires the mirror, serves the canonical host, and lets those pages be
+*indexed*, which the mirrored copies deliberately are not — but it is no
+longer the difference between a stranger reaching 53 tools and reaching
+169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
+at all: the apex serves all 169. What Step 1 buys is the canonical host and
+search.
+
+**Updated 2026-09-03, twice.** This paragraph said 159 until #2948
+(2026-09-02) raised the mirror to 162 — it updated the bullet two
+paragraphs up but missed this one, so the two counts on this page
+disagreed for a day. It went 162 → 168 the same day, when the mirror
+learned `site/index.html` entry points and stopped filing six flat static
+ventures as apps with a build step. The
+number moves whenever a venture's flat page count or link shape changes;
+`node platform/marketing/front-door-tools.mjs --check` (no `--write`)
+prints the current total without touching anything, if it drifts again.
 
 The build half is done and was rehearsed with the exact commands the pod
 runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
@@ -350,9 +428,20 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   on the cpx52, so it holds :80/:443 and no second listener could bind
   there; the apex resolved to the box and fell to the default backend,
   which is what issue #1925 reported. `gitops/prod/portfolio-apex.yaml`
-  now claims `marisstella.dev` and `www.marisstella.dev` and 301s both to
-  `tools.marisstella.dev`. No owner action — it goes live with the same
-  clone token the site itself waits on.
+  now claims `marisstella.dev` and `www.marisstella.dev`.
+
+  **Updated 2026-09-02 — it no longer redirects, and no longer waits on
+  the clone token.** Until then this bullet was accurate: the apex 301'd
+  both names to `tools.marisstella.dev`, which serves nothing until
+  `portfolio-site-repo` is sealed, so the redirect was live but led
+  nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
+  generated front-door page (positioning, one card per category, the
+  §5b clauses) plus a static mirror of 169 tools at `/tools/<slug>/`, both
+  held in kustomize ConfigMaps. Neither clones the repo at pod start, so
+  neither needs the token, a runner, or a Pages flip — a merge to `main`
+  is the deploy, same as everything else in this tree. No owner action;
+  it is already live. See `gitops/README.md`'s "The public product site"
+  section for the routing detail.
 - Whether `duncanhaywood.dev` should get an A record for a cluster
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise

@@ -8,8 +8,8 @@
   <meta property="og:title" content="Gutter Cleaning Bid Calculator">
   <meta property="og:description" content="Bid gutter cleaning the way the job actually takes time — stories, guards, and downspouts, not a flat price per linear foot.">
   <link rel="canonical" href="https://example.invalid/gutter-cleaning-bid-calculator/">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-run labor from linear feet, story, pitch, gutter-guard, and debris multipliers; downspout flush time; travel and setup; minimum stop charge; seasonal contract; walk-away visit price; implied price per linear foot, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this gutter cleaning estimate include?","acceptedAnswer":{"@type":"Answer","text":"The visit price adds up loaded labor for every run you enter — linear feet, downspout flushing, and travel/setup — plus disposal, equipment, overhead, and your target margin, then applies a minimum stop charge if the raw price comes in under it. Nothing is a flat per-linear-foot rate."}},{"@type":"Question","name":"Why do story, pitch, guards, and debris all multiply together?","acceptedAnswer":{"@type":"Answer","text":"Each run's difficulty factor is story × pitch × guards × debris, all against a one-story, low-pitch, open-gutter, leaf-only baseline. A two-story steep-pitch run behind micro-mesh screens clogged with needles can take several times longer per foot than that baseline — a flat per-foot quote cannot see that difference, which is exactly how it loses money."}},{"@type":"Question","name":"Why do downspouts only inherit the story factor, not pitch, guards, or debris?","acceptedAnswer":{"@type":"Answer","text":"Flushing and testing a downspout is a separate task from clearing the trough. Pitch, guards, and debris change how hard the trough itself is to clear, so they don't apply to the downspout line — but a second-story leader still takes longer to reach and test, so the story factor does."}},{"@type":"Question","name":"What's the difference between a one-time visit and a seasonal contract?","acceptedAnswer":{"@type":"Answer","text":"Visits per year controls this: 1 prices a single clean, and 2 or more multiplies that same visit price by the number of cleanings — typically a spring-and-fall contract — for the annual total shown at the bottom of the bid. Each visit is priced identically; the tool doesn't discount repeat visits on its own."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Unlike some of our other bid calculators, this one does not save your runs or cost inputs between visits and has no shareable bid link. Only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this check gutter damage, roof condition, or drainage?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and difficulty factors are ballpark shop figures you can edit, not a roof or drainage inspection. Cleaning clears debris; it says nothing about sagging fascia, failing seams, undersized downspouts, or whether the runoff actually drains once it leaves them — that's a judgment call for the site visit, and the printed proposal says so too."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-run labor from linear feet, story, pitch, gutter-guard, and debris multipliers; downspout flush time; travel and setup; minimum stop charge; seasonal contract; walk-away visit price; implied price per linear foot; shareable quote link; printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this gutter cleaning estimate include?","acceptedAnswer":{"@type":"Answer","text":"The visit price adds up loaded labor for every run you enter — linear feet, downspout flushing, and travel/setup — plus disposal, equipment, overhead, and your target margin, then applies a minimum stop charge if the raw price comes in under it. Nothing is a flat per-linear-foot rate."}},{"@type":"Question","name":"Why do story, pitch, guards, and debris all multiply together?","acceptedAnswer":{"@type":"Answer","text":"Each run's difficulty factor is story × pitch × guards × debris, all against a one-story, low-pitch, open-gutter, leaf-only baseline. A two-story steep-pitch run behind micro-mesh screens clogged with needles can take several times longer per foot than that baseline — a flat per-foot quote cannot see that difference, which is exactly how it loses money."}},{"@type":"Question","name":"Why do downspouts only inherit the story factor, not pitch, guards, or debris?","acceptedAnswer":{"@type":"Answer","text":"Flushing and testing a downspout is a separate task from clearing the trough. Pitch, guards, and debris change how hard the trough itself is to clear, so they don't apply to the downspout line — but a second-story leader still takes longer to reach and test, so the story factor does."}},{"@type":"Question","name":"What's the difference between a one-time visit and a seasonal contract?","acceptedAnswer":{"@type":"Answer","text":"Visits per year controls this: 1 prices a single clean, and 2 or more multiplies that same visit price by the number of cleanings — typically a spring-and-fall contract — for the annual total shown at the bottom of the bid. Each visit is priced identically; the tool doesn't discount repeat visits on its own."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. “Copy share link” encodes your runs and cost inputs into this page's own URL hash so a partner or the office can open the same bid; nothing is sent to a server. Only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this check gutter damage, roof condition, or drainage?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and difficulty factors are ballpark shop figures you can edit, not a roof or drainage inspection. Cleaning clears debris; it says nothing about sagging fascia, failing seams, undersized downspouts, or whether the runoff actually drains once it leaves them — that's a judgment call for the site visit, and the printed proposal says so too."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -125,7 +125,7 @@
     <p class="eyebrow">FOR GUTTER CLEANING CONTRACTORS</p>
     <h1>Bid the stories and the downspouts, not the linear feet.</h1>
     <p>Price a gutter cleaning the way the job actually takes time: each run of trough, the story it sits on, the pitch, whether guards are in the way, what is in it, and every downspout you have to flush. You get the visit price, what that works out to per linear foot, the walk-away number, and an optional spring-and-fall contract.</p>
-    <p class="hint" style="margin:0">New to two-story pricing? <a href="./two-story-gutter-cleaning-cost.html">Why a second story is not twice the footage</a>.</p>
+    <p class="hint" style="margin:0">New to two-story pricing? <a href="./two-story-gutter-cleaning-cost.html">Why a second story is not twice the footage</a>. Already run field service software? <a href="./vs-jobber.html">How this calculator differs from Jobber</a>.</p>
   </header>
 
   <main class="layout">
@@ -179,6 +179,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -250,10 +251,11 @@
         discount repeat visits on its own.</p>
 
       <h3>Is my data uploaded anywhere?</h3>
-      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Unlike some
-        of our other bid calculators, this one does not save your runs or cost inputs between visits and
-        has no shareable bid link. Only your business name and contact details for the printed proposal
-        are kept in this browser's local storage, and &ldquo;Forget my business details&rdquo; clears them.</p>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser.
+        &ldquo;Copy share link&rdquo; encodes your runs and cost inputs into this page's own URL hash
+        so a partner or the office can open the same bid; nothing is sent to a server. Only your business
+        name and contact details for the printed proposal are kept in this browser's local storage, and
+        &ldquo;Forget my business details&rdquo; clears them.</p>
 
       <h3>Does this check gutter damage, roof condition, or drainage?</h3>
       <p>No. Hours and difficulty factors are ballpark shop figures you can edit, not a roof or drainage
@@ -271,12 +273,13 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and job times, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your house, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, formatBidSummary, STORY_PRESETS, PITCH_PRESETS, GUARD_PRESETS, DEBRIS_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -455,6 +458,32 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied.';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     el('addRun').addEventListener('click', () => {
       addRunRow({ name: '', linearFeet: 0, story: '1', pitch: 'low', guards: 'none', debris: 'leaves', downspouts: 0 });
       count('run_added');
@@ -473,8 +502,18 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
-    STARTING_RUNS.forEach(addRunRow);
+    // A share link takes priority over the built-in starting runs: opening a
+    // link someone sent means seeing the job they sent, not the default
+    // three-run example.
+    const shared = decodeShare(location.hash);
+    (shared?.runs?.length > 0 ? shared.runs : STARTING_RUNS).forEach(addRunRow);
+    if (shared) {
+      COST_IDS.forEach(id => { if (shared[id] !== undefined) el(id).value = shared[id]; });
+    }
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

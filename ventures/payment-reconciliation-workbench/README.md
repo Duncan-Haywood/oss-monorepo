@@ -14,6 +14,8 @@ The pairing looks a week further than the matching does, so the most ordinary ex
 
 No account, build step, API key, or paid service is needed. The product does not connect to payment providers and does not move money. It is deliberately a review aid rather than an accounting system. See [this workbench vs. Synder](vs-synder.html) for which job fits a one-off CSV check versus an ongoing, connected sync subscription.
 
+[This workbench vs. Synder](vs-synder.html) explains why a free, no-connection, one-time CSV matcher and a paid, ongoing sync into QuickBooks or Xero answer different questions.
+
 ## Opportunity assessment
 
 - **Target user:** owner-operators processing $5,000-$100,000 monthly across two or three processors, without QuickBooks or Xero.

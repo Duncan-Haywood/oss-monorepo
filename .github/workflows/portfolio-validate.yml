@@ -60,6 +60,23 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
+      # The apex tool mirror is generated from whole venture directories,
+      # so a venture's module, script, stylesheet or licence going stale in
+      # `gitops/prod/front-door-tools/` is exactly as invisible as a page
+      # would be. The mirror-staleness step below is what reads them.
+      # `.css`/`.js` joined `.mjs` here on 2026-09-02: `front-door-tools.mjs`'s
+      # own SERVABLE_EXTENSIONS has mirrored all four since the mirror shipped
+      # (construction-evidence-log's app.js and style.css are in the mirror
+      # today), but neither extension had a path here or in
+      # hetzner-gitops-ci.yml, so an edit to either file triggered no workflow
+      # that runs the staleness check at all -- confirmed by editing
+      # ventures/construction-evidence-log/app.js locally and watching
+      # `front-door-tools.test.mjs` fail with the change unreverted.
+      - "ventures/**/*.mjs"
+      - "ventures/**/*.css"
+      - "ventures/**/*.js"
+      - "ventures/**/LICENSE"
+      - "platform/marketing/**"
       - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
@@ -89,6 +106,16 @@ on:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
       - "ventures/**/*.html"
+      # The apex tool mirror is generated from whole venture directories,
+      # so a venture's module, script, stylesheet or licence going stale in
+      # `gitops/prod/front-door-tools/` is exactly as invisible as a page
+      # would be. The mirror-staleness step below is what reads them. See the
+      # `push:` block above for why `.css`/`.js` are here too.
+      - "ventures/**/*.mjs"
+      - "ventures/**/*.css"
+      - "ventures/**/*.js"
+      - "ventures/**/LICENSE"
+      - "platform/marketing/**"
       - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
@@ -121,6 +148,14 @@ permissions:
 jobs:
   validate:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # This job runs on every PR that touches any of the paths above and chains
+    # roughly fifty checks and unit-test modules in sequence; it has taken
+    # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled
+    # step anywhere in that chain would ride GitHub's default 360-minute
+    # ceiling instead of failing fast -- see hetzner-gitops-ci.yml's own
+    # timeout-minutes addition for why that matters on a metered-minutes
+    # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -139,6 +174,16 @@ jobs:
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
+
+      # The apex serves a mirrored copy of 14 whole ventures so that the front
+      # door's cards work while `portfolio-site-repo` is unsealed. The copy is
+      # committed (Argo CD delivers it; no CI job builds it), so editing one of
+      # those ventures without regenerating leaves the apex serving the old
+      # tool. `hetzner-gitops-ci.yml` runs the same suite but triggers on
+      # `gitops/**` and `platform/marketing/**` -- neither of which a venture
+      # edit touches, which is the gap this step closes.
+      - name: Check the apex tool mirror is not stale
+        run: node --test "platform/marketing/*.test.mjs"
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
@@ -218,6 +263,10 @@ jobs:
       - name: Workflow-validator unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
+
+      - name: Agent cross-review unit tests
+        working-directory: platform/ci/agent_review
+        run: python3 -m unittest test_review
 
       # The local workflow runner is what sessions verify with while no
       # runner picks up a job here, so its own tests have to run somewhere.

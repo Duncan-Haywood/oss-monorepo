@@ -321,10 +321,12 @@ data:
 # that node the first time it is consumed, which is the same node — the volume
 # cannot drift.
 #
-# 1Gi against a 32Mi site (measured 2026-08-30, 1596 files): one live copy,
-# one staging copy mid-write, and room for the tool count to keep growing.
-# The floor exists so a runaway write cannot fill the control-plane disk out
-# from under ingress.
+# 1Gi against a 34Mi site (re-measured 2026-09-02 against `main` at
+# d8e27a884: 169 tools, 1730 files — was 1712 files earlier the same day at
+# 1782b8011, and 32Mi/1596 files on 2026-08-30): one live copy, one staging
+# copy mid-write, and room for the tool count to keep growing. The floor
+# exists so a runaway write cannot fill the control-plane disk out from under
+# ingress.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -594,17 +596,20 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
-          # Measured on 2026-08-30 against `main` at fa041f0, running both
-          # commands above exactly as this container does (165 tools, 482
-          # pages, 1596 files emitted):
+          # Re-measured 2026-09-02 against `main` at d8e27a884, running both
+          # commands above exactly as this container does (169 tools, 533
+          # pages, 1730 files emitted) — was 169 tools, 532 pages, 1712 files
+          # earlier the same day at 1782b8011 (165 tools, 482 pages, 1596
+          # files on 2026-08-30):
           #
-          #   build.mjs   25s, peak RSS 134Mi
-          #   check.mjs   11s, peak RSS  99Mi
+          #   build.mjs   27s, peak RSS 143Mi (was 22s, 137Mi)
+          #   check.mjs   12s, peak RSS 104Mi (was 11s, 102Mi)
           #
-          # So the request is ~4x the observed peak and the limit ~11x. That
-          # headroom is deliberate: both numbers scale with the tool count,
-          # which has grown all month, and an OOM here fails the pod rather
-          # than degrading — the site would go to zero on a rollout.
+          # So the request is still ~4x the observed peak and the limit still
+          # ~11x. That headroom is deliberate: both numbers scale with the
+          # tool count, which has grown all month, and an OOM here fails the
+          # pod rather than degrading — the site would go to zero on a
+          # rollout.
           resources:
             requests:
               cpu: 250m
@@ -659,10 +664,12 @@ spec:
         - name: workspace
           emptyDir:
             sizeLimit: 2Gi
-        # The finished site measured 32Mi across 1596 files on 2026-08-30,
-        # so this is ~16x what it holds today. An emptyDir that fills does
-        # not fail the write — the kubelet evicts the pod — so this is sized
-        # for a year of growth rather than for the current build.
+        # The finished site measured 34Mi across 1730 files on 2026-09-02 at
+        # `main`'s d8e27a884 (was 1712 files earlier the same day at
+        # 1782b8011, and 32Mi/1596 files on 2026-08-30), so this is still
+        # ~15x what it holds today. An emptyDir that fills does not fail the
+        # write — the kubelet evicts the pod — so this is sized for a year
+        # of growth rather than for the current build.
         - name: site
           emptyDir:
             sizeLimit: 512Mi
@@ -710,8 +717,10 @@ spec:
 # issue #1925.
 #
 # The host below stays `tools.` anyway, because it is the canonical host
-# stamped into all 524 pages' canonical links, og:urls and sitemap entries
-# via PAGES_BASE_URL. The apex and `www` are handled next door in
+# stamped into all 544 pages' canonical links, og:urls and sitemap entries
+# via PAGES_BASE_URL (re-measured 2026-09-02 at d8e27a884; see the build
+# init container's own comment above for the fuller count history). The
+# apex and `www` are handled next door in
 # `portfolio-apex.yaml`, which 301s them here rather than serving a second
 # uncanonical copy. Keep this Ingress single-host: the test in
 # `gitops/tests/test_manifests.py` pins that split so a later change cannot
@@ -868,6 +877,14 @@ spec:
     spec:
       backoffLimit: 2
       template:
+        # Named so `networkpolicy.yaml`'s egress rule can select this pod --
+        # a CronJob's pods otherwise carry only the auto-generated
+        # `job-name`/`controller-uid` labels, and the Job name changes on
+        # every run (a `-<timestamp>` suffix), so nothing durable exists to
+        # select on without this.
+        metadata:
+          labels:
+            app.kubernetes.io/name: portfolio-site-refresh
         spec:
           restartPolicy: OnFailure
           serviceAccountName: portfolio-site-refresh
@@ -881,7 +898,33 @@ spec:
               type: RuntimeDefault
           containers:
             - name: kubectl
-              image: bitnami/kubectl:1.31
+              # `:1.31` 404s against Docker Hub as of 2026-09-02 (`curl
+              # https://hub.docker.com/v2/repositories/bitnami/kubectl/tags/1.31/`
+              # -> "httperror 404: tag '1.31' not found") and stays that way:
+              # Bitnami rebranded this repository "Bitnami Secure Image for
+              # kubectl" and, per its own Docker Hub description, now ships
+              # only a rolling `latest` (plus opaque `sha256-*` digest tags) --
+              # every versioned tag that used to exist under the free tier is
+              # gone. `latest` is genuinely current: Bitnami rebuilds and
+              # re-pushes it same-day (`docker.io/v2/.../tags/latest`
+              # `last_pushed` reads today), so a pull here always gets a
+              # supported build rather than one frozen at whatever kubectl
+              # shipped when this line was last edited. A CronJob that
+              # crash-loops on ImagePullBackOff is silent in exactly the way
+              # `portfolio-site-refresh`'s own header comment says the old
+              # `kubectl rollout restart`-and-exit shape used to be: the Job
+              # goes red, but nothing about *why* is visible without reading
+              # this container's events, and the site keeps serving on old
+              # pods (`maxUnavailable: 0`) with no outward sign the nightly
+              # rebuild alarm stopped firing at all.
+              #
+              # The version-skew risk `:latest` usually carries is bounded
+              # here to near nothing: this container only ever calls `kubectl
+              # rollout restart` and `kubectl get deployment -o go-template`
+              # against one Deployment -- two verbs that have not changed
+              # shape across Kubernetes releases in years, unlike a script
+              # that touched CRDs or newer API groups.
+              image: bitnami/kubectl:latest
               command: ["/bin/sh", "-ec"]
               args:
                 - |

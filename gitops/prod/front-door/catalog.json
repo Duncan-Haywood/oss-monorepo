@@ -1,0 +1,1422 @@
+{
+  "name": "Free calculators for sellers, contractors, and small back offices",
+  "url": "https://marisstella.dev/",
+  "license": "MIT",
+  "price": {
+    "amount": "0",
+    "currency": "USD"
+  },
+  "privacy": "client-side-only",
+  "generated_by": "platform/marketing/front-door.mjs",
+  "served_here": 169,
+  "collection_total": 169,
+  "feed": "https://marisstella.dev/feed.xml",
+  "sitemap": "https://marisstella.dev/sitemap.xml",
+  "embed": {
+    "supported": true,
+    "url_pattern": "https://marisstella.dev/tools/{slug}/?pfEmbed=1",
+    "how": "Load any tool URL below with ?pfEmbed=1 inside an <iframe>.",
+    "suggested_min_height_px": 1400,
+    "cost": "free, including on commercial sites",
+    "privacy": "The calculator runs in the visitor’s browser and computes nothing on our servers. Embedding adds no tracking of any kind to the host page.",
+    "keeps": "the same arithmetic and the same disclaimer as the full page, and links back to it"
+  },
+  "categories": [
+    {
+      "id": "trades",
+      "name": "Trade & contractor bids",
+      "url": "https://marisstella.dev/c/trades/",
+      "tool_count": 116
+    },
+    {
+      "id": "evidence",
+      "name": "Compliance checks & evidence records",
+      "url": "https://marisstella.dev/c/evidence/",
+      "tool_count": 14
+    },
+    {
+      "id": "marketplace",
+      "name": "Marketplace seller tools",
+      "url": "https://marisstella.dev/c/marketplace/",
+      "tool_count": 12
+    },
+    {
+      "id": "backoffice",
+      "name": "Back-office money & contracts",
+      "url": "https://marisstella.dev/c/backoffice/",
+      "tool_count": 11
+    },
+    {
+      "id": "services",
+      "name": "Service business pricing & quotes",
+      "url": "https://marisstella.dev/c/services/",
+      "tool_count": 6
+    },
+    {
+      "id": "logistics",
+      "name": "Logistics, freight & cloud cost",
+      "url": "https://marisstella.dev/c/logistics/",
+      "tool_count": 6
+    },
+    {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 4
+    }
+  ],
+  "tools": [
+    {
+      "slug": "change-order-margin-calculator",
+      "name": "Change Order Margin Calculator — Price the Added Work",
+      "url": "https://marisstella.dev/tools/change-order-margin-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a construction change order from loaded labor, materials, subs, schedule delay and overhead — and see what your contract's markup cap actually leaves you.",
+      "pages": 3
+    },
+    {
+      "slug": "subcontractor-cashflow-planner",
+      "name": "Subcontractor Cash Flow Planner — Payment Delay Gap",
+      "url": "https://marisstella.dev/tools/subcontractor-cashflow-planner/",
+      "category": "Trade & contractor bids",
+      "description": "Free subcontractor cash flow planner: see the funding gap from payment terms, retention and late payment — what bridging it costs, and which lever closes it.",
+      "pages": 3
+    },
+    {
+      "slug": "contractor-bid-readiness",
+      "name": "Free Contractor Bid Readiness Checklist",
+      "url": "https://marisstella.dev/tools/contractor-bid-readiness/",
+      "category": "Trade & contractor bids",
+      "description": "Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and browser-local.",
+      "pages": 2
+    },
+    {
+      "slug": "construction-evidence-log",
+      "name": "Construction Daily Log and Change Order Evidence Pack",
+      "url": "https://marisstella.dev/tools/construction-evidence-log/",
+      "category": "Trade & contractor bids",
+      "description": "Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.",
+      "pages": 2
+    },
+    {
+      "slug": "tender-bid-readiness",
+      "name": "Tender Bid Readiness Checker for Small Contractors",
+      "url": "https://marisstella.dev/tools/tender-bid-readiness/",
+      "category": "More free tools",
+      "description": "Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "job-margin-variance",
+      "name": "Job Cost Variance Calculator",
+      "url": "https://marisstella.dev/tools/job-margin-variance/",
+      "category": "Trade & contractor bids",
+      "description": "Compare estimated and actual job hours and costs to find the largest job cost variance before your next contractor quote.",
+      "pages": 2
+    },
+    {
+      "slug": "seller-net-sheet",
+      "name": "Seller Net Sheet Calculator",
+      "url": "https://marisstella.dev/tools/seller-net-sheet/",
+      "category": "Back-office money & contracts",
+      "description": "Free seller net sheet: see cash at closing after listing commission, optional buyer-broker compensation, concessions, title, and payoff. Compare two offers — the higher price is not always more cash.",
+      "pages": 2
+    },
+    {
+      "slug": "subscription-price-impact",
+      "name": "SaaS Price Increase Churn Calculator — Price Impact",
+      "url": "https://marisstella.dev/tools/subscription-price-impact/",
+      "category": "Back-office money & contracts",
+      "description": "Test a SaaS price increase and see the maximum churn your recurring revenue can absorb before the change stops paying off.",
+      "pages": 3
+    },
+    {
+      "slug": "saas-seat-true-up",
+      "name": "SaaS Seat True-Up Calculator — Find Unused Spend",
+      "url": "https://marisstella.dev/tools/saas-seat-true-up/",
+      "category": "Back-office money & contracts",
+      "description": "Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.",
+      "pages": 3
+    },
+    {
+      "slug": "cam-reconciliation-check",
+      "name": "CAM Reconciliation Calculator for Commercial Leases",
+      "url": "https://marisstella.dev/tools/cam-reconciliation-check/",
+      "category": "Back-office money & contracts",
+      "description": "Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "appliance-repair-quote-calculator",
+      "name": "Appliance Repair Quote Calculator — Repair vs Replace",
+      "url": "https://marisstella.dev/tools/appliance-repair-quote-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an appliance repair service call, then see whether finishing the repair still beats recommending replace — customer cost per remaining year versus what you keep if they decline.",
+      "pages": 3
+    },
+    {
+      "slug": "hvac-maintenance-contract-calculator",
+      "name": "HVAC Maintenance Contract Pricing Calculator",
+      "url": "https://marisstella.dev/tools/hvac-maintenance-contract-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free HVAC maintenance contract pricing calculator. Price preventive visits, callbacks, parts reserve, overhead, and target margin without underbidding the agreement.",
+      "pages": 3
+    },
+    {
+      "slug": "cleaning-dilution-calculator",
+      "name": "Cleaning Chemical Dilution Cost Calculator",
+      "url": "https://marisstella.dev/tools/cleaning-dilution-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Calculate commercial cleaning chemical cost per ready-to-use gallon, bucket, and job from concentrate dilution and supplier price.",
+      "pages": 2
+    },
+    {
+      "slug": "medical-courier-route-margin",
+      "name": "Medical Courier Route Calculator — Per-Stop Pricing",
+      "url": "https://marisstella.dev/tools/medical-courier-route-margin/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Free medical courier route calculator: margin per stop and vehicle-hour after paid wait, deadhead and overhead — plus the per-stop rate to quote.",
+      "pages": 2
+    },
+    {
+      "slug": "owner-operator-cpm-calculator",
+      "name": "Owner Operator CPM Calculator — Deadhead-Adjusted Rate",
+      "url": "https://marisstella.dev/tools/owner-operator-cpm-calculator/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.",
+      "pages": 4
+    },
+    {
+      "slug": "chargeback-evidence-packet",
+      "name": "Chargeback Evidence Packet Builder for Ecommerce Sellers",
+      "url": "https://marisstella.dev/tools/chargeback-evidence-packet/",
+      "category": "Compliance checks & evidence records",
+      "description": "Build a structured chargeback response packet from your order, delivery, and customer-contact evidence. Free, private, and browser-local.",
+      "pages": 3
+    },
+    {
+      "slug": "str-host-payout-calculator",
+      "name": "Airbnb vs Vrbo Host Payout Calculator",
+      "url": "https://marisstella.dev/tools/str-host-payout-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free short-term rental host payout calculator: compare Airbnb’s 15.5% 2026 host-only fee with Vrbo (5% + 3%) and direct booking. See annual take-home, the nightly raise that restores your old 3% payout, and how much occupancy you can lose going direct and still break even.",
+      "pages": 4
+    },
+    {
+      "slug": "pool-route-pricing",
+      "name": "Pool Route Pricing Calculator — Price Weekly Accounts",
+      "url": "https://marisstella.dev/tools/pool-route-pricing/",
+      "category": "Service business pricing & quotes",
+      "description": "Price recurring pool service accounts after labor, drive time, chemicals, and overhead. Free private pool route pricing calculator for independent operators.",
+      "pages": 3
+    },
+    {
+      "slug": "grant-reporting-tracker",
+      "name": "Free Grant Reporting Deadline Tracker for Small Nonprofits",
+      "url": "https://marisstella.dev/tools/grant-reporting-tracker/",
+      "category": "Compliance checks & evidence records",
+      "description": "Track nonprofit grant reporting deadlines, restricted balances, and award review status in a private browser-based tracker. No account or upload required.",
+      "pages": 3
+    },
+    {
+      "slug": "translator-project-quote",
+      "name": "Translator Project Quote Calculator",
+      "url": "https://marisstella.dev/tools/translator-project-quote/",
+      "category": "Service business pricing & quotes",
+      "description": "Free private translator quote calculator. Price new words, fuzzy matches, QA, DTP, rush work, and a minimum project fee in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "ebay-fee-calculator",
+      "name": "eBay Fee & Profit Calculator",
+      "url": "https://marisstella.dev/tools/ebay-fee-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, and cost of goods — then see what a return rate still leaves, whether a partial refund beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two sold items still beats two labels, whether a seller-initiated offer still beats waiting for Buy It Now, whether Promoted Offsite still pays after a bill that is charged even if they bounce, whether Promoted Listings Standard still pays after the cut on a sale you already had, whether Promoted Listings Advanced still pays after a click bill that is charged even if they bounce, whether a quantity discount still beats selling separately, whether a seller coupon still beats staying listed or dropping the price, whether requiring immediate payment still beats unpaid checkouts, whether Top Rated Plus still covers free returns after the fee discount, whether Managed Returns still beats buying the return label yourself, whether offering international still leaves a profit at this list, whether Global Shipping Program still beats buying the international label, whether a store subscription still beats the no-store rate, whether an incoming Best Offer still beats waiting for list, whether free shipping still beats charging the buyer after a typed sell-through lift, whether skip still beats shipping insurance or signature confirmation after item-not-received claims, whether an eBay shipping label still beats Pirate Ship after claims and upload time, whether auction beats Buy It Now after sell-through, and compare nearby listing prices before you reprice.",
+      "pages": 26
+    },
+    {
+      "slug": "amazon-fba-calculator",
+      "name": "Amazon FBA vs FBM Profit Calculator — Placement vs Freight",
+      "url": "https://marisstella.dev/tools/amazon-fba-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free Amazon FBA vs FBM calculator: compare fulfillment paths after expected returns. Get net profit, max buy cost, the return rate that wipes the listing, when inbound placement still beats split freight, and whether aged inventory still beats a removal.",
+      "pages": 22
+    },
+    {
+      "slug": "etsy-profit-calculator",
+      "name": "Etsy Profit Calculator",
+      "url": "https://marisstella.dev/tools/etsy-profit-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs. Compare whether Etsy Plus credits cover the $10 fee, whether a personalization still pays, whether on-site Etsy Ads still leave a profit after ACOS, whether Offsite Ads still leave a profit at 12% or 15%, whether a production-partner quote still pays after you run out of handmade hours, whether chasing Star Seller still beats staying unsigned, whether a 20% shop sale still beats staying full price, whether free shipping still leaves a profit, whether an Etsy shipping label still beats Pirate Ship, and whether auto-renew still covers a slow listing.",
+      "pages": 13
+    },
+    {
+      "slug": "walmart-marketplace-calculator",
+      "name": "Walmart Marketplace Fee Calculator",
+      "url": "https://marisstella.dev/tools/walmart-marketplace-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free Walmart Marketplace calculator: compare WFS vs seller-fulfilled profit, apply the referral-fee floor, and see whether matching a lower price still leaves money after Buy Box take.",
+      "pages": 9
+    },
+    {
+      "slug": "tiktok-shop-fee-calculator",
+      "name": "TikTok Shop Fee Calculator — Affiliate and Returns",
+      "url": "https://marisstella.dev/tools/tiktok-shop-fee-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free TikTok Shop profit calculator. See referral fees, creator commission, returns that keep the affiliate payout, and the announced 1 Oct 2026 8% + 1.5% schedule on the same SKU.",
+      "pages": 6
+    },
+    {
+      "slug": "reverb-fee-calculator",
+      "name": "Reverb Fee Calculator — Offer vs List, Cash vs Consign",
+      "url": "https://marisstella.dev/tools/reverb-fee-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.",
+      "pages": 9
+    },
+    {
+      "slug": "3pl-quote-normalizer",
+      "name": "3PL Cost Calculator",
+      "url": "https://marisstella.dev/tools/3pl-quote-normalizer/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.",
+      "pages": 12
+    },
+    {
+      "slug": "freight-accessorial-auditor",
+      "name": "Freight Accessorial Invoice Auditor",
+      "url": "https://marisstella.dev/tools/freight-accessorial-auditor/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.",
+      "pages": 5
+    },
+    {
+      "slug": "ltl-freight-class-estimator",
+      "name": "LTL Freight Class Estimator",
+      "url": "https://marisstella.dev/tools/ltl-freight-class-estimator/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Estimate LTL freight class from pallet dimensions, weight, and piece count — then see the packed height that reaches the next class down, and the height at which a carrier remeasure re-rates the shipment.",
+      "pages": 3
+    },
+    {
+      "slug": "cloud-egress-calculator",
+      "name": "Cloud Egress Cost Calculator for S3 Storage",
+      "url": "https://marisstella.dev/tools/cloud-egress-calculator/",
+      "category": "Logistics, freight & cloud cost",
+      "description": "Compare monthly S3-compatible storage, request, and data egress costs for a real workload. Free, private, and runs in your browser.",
+      "pages": 7
+    },
+    {
+      "slug": "vendor-change-evidence",
+      "name": "Vendor Change Evidence — free vendor policy diff checker",
+      "url": "https://marisstella.dev/tools/vendor-change-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free, no-signup, no-upload tool that compares two dated vendor policy snapshots (privacy, terms, subprocessors, security) in your browser and reports what changed. Runs entirely client-side.",
+      "pages": 2
+    },
+    {
+      "slug": "public-record-watch",
+      "name": "Public-Record Watch — free public register change checker",
+      "url": "https://marisstella.dev/tools/public-record-watch/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free, no-signup, no-upload tool that compares two dated public-register snapshots (licenses, permits, registrations) in your browser and reports what changed. Runs entirely client-side.",
+      "pages": 2
+    },
+    {
+      "slug": "fifo-pick-evidence",
+      "name": "FIFO Pick Evidence — Free Warehouse Pick-Log Report",
+      "url": "https://marisstella.dev/tools/fifo-pick-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free, no-signup, no-upload tool that reads a warehouse pick-log CSV in your browser and reports FIFO pick-order exceptions and missing or ill-formed timestamps before a customer audit. Runs entirely client-side.",
+      "pages": 2
+    },
+    {
+      "slug": "backup-verification-evidence",
+      "name": "Backup Verification Evidence — Compare It to Last Night",
+      "url": "https://marisstella.dev/tools/backup-verification-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Drop backup-evidence run records in your browser to see whether last night's archive shrank or a verified job quietly got worse. Nothing is uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "repository-branch-hygiene",
+      "name": "Git branch cleanup review — which stale branches are safe to delete?",
+      "url": "https://marisstella.dev/tools/repository-branch-hygiene/",
+      "category": "Compliance checks & evidence records",
+      "description": "Paste a branch snapshot and see which stale Git branches are delete candidates and which still hold unique work. Runs in your browser; nothing is uploaded and nothing is deleted.",
+      "pages": 2
+    },
+    {
+      "slug": "npm-deployment-evidence",
+      "name": "npm Deployment Evidence — Free Lockfile Surface Report",
+      "url": "https://marisstella.dev/tools/npm-deployment-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side.",
+      "pages": 3
+    },
+    {
+      "slug": "grant-deadline-tracker",
+      "name": "Grant Deadline Tracker for Small Nonprofits",
+      "url": "https://marisstella.dev/tools/grant-deadline-tracker/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.",
+      "pages": 4
+    },
+    {
+      "slug": "shopify-a11y-evidence",
+      "name": "Shopify Accessibility Evidence Report",
+      "url": "https://marisstella.dev/tools/shopify-a11y-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.",
+      "pages": 4
+    },
+    {
+      "slug": "faire-wholesale-calculator",
+      "name": "Faire Seller Fee Calculator — First Order vs Reorder",
+      "url": "https://marisstella.dev/tools/faire-wholesale-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare first orders, Faire Direct, Open House, Promoted Listings after last-click organic, next-day payout after carrying cost, Pay Now leftover after Faire remittance wait, and whether a keep-it credit still beats taking a return.",
+      "pages": 8
+    },
+    {
+      "slug": "invoice-payment-terms-calculator",
+      "name": "Invoice Payment Terms Calculator — Net 30 Late Fee",
+      "url": "https://marisstella.dev/tools/invoice-payment-terms-calculator/",
+      "category": "Back-office money & contracts",
+      "description": "Calculate invoice due dates, when cash actually lands on your client's payment run, late-fee scenarios, cash-flow exposure, whether a 2/10 Net 30 discount still beats waiting, and whether factoring still beats waiting after your carrying cost.",
+      "pages": 6
+    },
+    {
+      "slug": "cash-runway-planner",
+      "name": "Cash Runway Planner for Small Businesses",
+      "url": "https://marisstella.dev/tools/cash-runway-planner/",
+      "category": "Back-office money & contracts",
+      "description": "Forecast when invoices and recurring bills could create a cash shortfall for your small business, including one-off payments like a quarterly tax bill or an insurance renewal, and see which payment to move.",
+      "pages": 3
+    },
+    {
+      "slug": "vendor-rate-break-even",
+      "name": "Supplier Rate Break-Even Calculator",
+      "url": "https://marisstella.dev/tools/vendor-rate-break-even/",
+      "category": "Back-office money & contracts",
+      "description": "Free supplier, subcontractor, and equipment rate break-even calculator. Compare fixed fees, per-job costs, savings, and payback volume.",
+      "pages": 2
+    },
+    {
+      "slug": "music-lesson-break-even",
+      "name": "Music Lesson Pricing Calculator",
+      "url": "https://marisstella.dev/tools/music-lesson-break-even/",
+      "category": "Back-office money & contracts",
+      "description": "Free music lesson pricing calculator for independent teachers. Include cancellations, preparation, travel, studio costs, and target pay to find a sustainable lesson price.",
+      "pages": 2
+    },
+    {
+      "slug": "portable-restroom-event-quote",
+      "name": "Porta Potty Event Quote Calculator — Restroom Rental Bid",
+      "url": "https://marisstella.dev/tools/portable-restroom-event-quote/",
+      "category": "Service business pricing & quotes",
+      "description": "Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.",
+      "pages": 3
+    },
+    {
+      "slug": "commercial-photo-license-calculator",
+      "name": "Commercial Photography Licensing Quote Calculator",
+      "url": "https://marisstella.dev/tools/commercial-photo-license-calculator/",
+      "category": "Service business pricing & quotes",
+      "description": "Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.",
+      "pages": 3
+    },
+    {
+      "slug": "notary-trip-quote",
+      "name": "Mobile Notary & Loan Signing Fee Calculator",
+      "url": "https://marisstella.dev/tools/notary-trip-quote/",
+      "category": "Service business pricing & quotes",
+      "description": "Price a mobile notary appointment from mileage, drive time, print pages, witnesses and waiting — then test a signing service's flat offer against what you actually earn per hour after paper, toner and fuel.",
+      "pages": 3
+    },
+    {
+      "slug": "booth-rent-vs-commission",
+      "name": "Booth Rent vs Commission Calculator",
+      "url": "https://marisstella.dev/tools/booth-rent-vs-commission/",
+      "category": "Service business pricing & quotes",
+      "description": "Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.",
+      "pages": 2
+    },
+    {
+      "slug": "sponsor-ready",
+      "name": "Sponsor Ready — free GitHub Sponsors readiness checklist",
+      "url": "https://marisstella.dev/tools/sponsor-ready/",
+      "category": "More free tools",
+      "description": "Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.",
+      "pages": 2
+    },
+    {
+      "slug": "roofing-bid-calculator",
+      "name": "Roofing Bid Calculator — Price a Reroof by the Square",
+      "url": "https://marisstella.dev/tools/roofing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential reroof from roof squares, pitch, waste, and tear-off layers — labor, material, dump, overhead, and the walk-away number. Free, runs in your browser.",
+      "pages": 3
+    },
+    {
+      "slug": "painting-bid-calculator",
+      "name": "Painting Bid Calculator — Interior Price Per Sq Ft",
+      "url": "https://marisstella.dev/tools/painting-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an interior painting job from production rates: walls, ceilings, trim, and doors — plus paint, payroll burden, overhead, and the walk-away number. See why a $2 per square foot floor bid loses money.",
+      "pages": 3
+    },
+    {
+      "slug": "concrete-bid-calculator",
+      "name": "Concrete Bid Calculator — Driveway & Patio by Cubic Yard",
+      "url": "https://marisstella.dev/tools/concrete-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a concrete driveway, patio, or slab from cubic yards, form footage, finish labor, and access — not a flat price per square foot. See yards to order, price per yard, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "lawn-care-bid-calculator",
+      "name": "Lawn Care Bid Calculator — Price a Mowing Stop",
+      "url": "https://marisstella.dev/tools/lawn-care-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a lawn care route stop from production rates: turf, beds, edging, travel time, fuel, dump, and margin — plus price per visit, in-season monthly, honest annual, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "fence-bid-calculator",
+      "name": "Fence Bid Calculator — Posts, Gates, and Tear-Out",
+      "url": "https://marisstella.dev/tools/fence-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
+      "pages": 3
+    },
+    {
+      "slug": "ai-engineering-academy",
+      "name": "Free Electronics Calculators — AI Engineering Academy",
+      "url": "https://marisstella.dev/tools/ai-engineering-academy/",
+      "category": "More free tools",
+      "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
+      "pages": 7
+    },
+    {
+      "slug": "appointment-deposit-calculator",
+      "name": "Appointment Deposit Calculator for Service Businesses",
+      "url": "https://marisstella.dev/tools/appointment-deposit-calculator/",
+      "category": "Back-office money & contracts",
+      "description": "Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.",
+      "pages": 3
+    },
+    {
+      "slug": "artificial-turf-bid-calculator",
+      "name": "Artificial Turf Bid Calculator — Landscape vs Pet vs Green",
+      "url": "https://marisstella.dev/tools/artificial-turf-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an artificial turf install from landscape, pet, or putting-green turf: lawn square footage, 15-foot-roll waste, crushed-rock base, sod demo, infill, seams, and tree wells — not a published $8-a-square-foot special. See the turf you have to buy and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "asphalt-driveway-pave-bid-calculator",
+      "name": "Asphalt Driveway Paving Bid Calculator — Price by the Ton",
+      "url": "https://marisstella.dev/tools/asphalt-driveway-pave-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an asphalt driveway from overlay, mill-and-overlay, or full-depth: square footage, thickness, street apron, failed base, and sawcut — not a published $3.50-a-square-foot special. See the mix tons and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "asphalt-sealcoat-bid-calculator",
+      "name": "Asphalt Sealcoating Bid Calculator — Driveway & Lot Price",
+      "url": "https://marisstella.dev/tools/asphalt-sealcoat-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.",
+      "pages": 3
+    },
+    {
+      "slug": "attic-insulation-bid-calculator",
+      "name": "Attic Insulation Bid Calculator — Price the Bags, Not Attic",
+      "url": "https://marisstella.dev/tools/attic-insulation-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.",
+      "pages": 3
+    },
+    {
+      "slug": "automatic-driveway-gate-bid-calculator",
+      "name": "Automatic Driveway Gate Bid Calculator — Price Operators",
+      "url": "https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power, loops, and access — not a published $4,500 kit special. See the operators and the walk-away number.",
+      "pages": 2
+    },
+    {
+      "slug": "basement-finishing-bid-calculator",
+      "name": "Basement Finishing Bid Calculator — Price to Finish It",
+      "url": "https://marisstella.dev/tools/basement-finishing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, egress, and extras — plus the walk-away price a $30 / SF special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "basement-waterproofing-bid-calculator",
+      "name": "Basement Waterproofing Bid Calculator — Wells, Sump, Drain",
+      "url": "https://marisstella.dev/tools/basement-waterproofing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an interior French drain, exterior excavation, or crawl encapsulation from perimeter, wall height, window wells, crack repair, sump pit, backup pump, and freeze-protected discharge — not a published price per lineal foot. See the walk-away number before you match a cheaper drain-tile quote.",
+      "pages": 3
+    },
+    {
+      "slug": "boiler-replacement-bid-calculator",
+      "name": "Boiler Replacement Bid Calculator — Price to Replace It",
+      "url": "https://marisstella.dev/tools/boiler-replacement-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential boiler replacement from input MBH, hot water versus steam, like-for-like versus condensing versus steam-to-hot-water, extras, owner-supplied versus tech-supplied, weekday versus Saturday no-heat, and whether one more winter of patches still beats replacing — plus the walk-away price a $4,500 hang-only special cannot see.",
+      "pages": 6
+    },
+    {
+      "slug": "cabinet-refinishing-bid-calculator",
+      "name": "Cabinet Refinishing Bid Calculator — Doors, Drawers, Prep",
+      "url": "https://marisstella.dev/tools/cabinet-refinishing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a kitchen cabinet refinish from doors, drawer fronts, face frames, hardware, degrease, and a dark-to-light extra coat — then see price per door, price per painted piece, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "carpet-cleaning-bid-calculator",
+      "name": "Carpet Cleaning Bid Calculator — Price the Stop, Not Room",
+      "url": "https://marisstella.dev/tools/carpet-cleaning-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a carpet cleaning job from soil-specific extraction rates: rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — plus the walk-away number a $129 three-bedroom special hides.",
+      "pages": 3
+    },
+    {
+      "slug": "carpet-install-bid-calculator",
+      "name": "Carpet Installation Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "chimney-sweep-bid-calculator",
+      "name": "Chimney Sweep Bid Calculator",
+      "url": "https://marisstella.dev/tools/chimney-sweep-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a chimney sweep from flue type, stories, roof access, and creosote — not a flat house rate. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.",
+      "pages": 3
+    },
+    {
+      "slug": "concrete-lifting-bid-calculator",
+      "name": "Concrete Lifting Bid Calculator — Void, Method, and Access",
+      "url": "https://marisstella.dev/tools/concrete-lifting-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a mudjacking or polyjacking job from slab area, void depth, method, access path, extra holes, and joint seal — not a published $4.50-per-square-foot special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "consent-change-record",
+      "name": "Consent Change Record",
+      "url": "https://marisstella.dev/tools/consent-change-record/",
+      "category": "Compliance checks & evidence records",
+      "description": "Compare before-and-after consent browser traces and create a local request and storage change record.",
+      "pages": 3
+    },
+    {
+      "slug": "countertop-bid-calculator",
+      "name": "Quartz & Granite Countertop Bid Calculator — Slabs & Cuts",
+      "url": "https://marisstella.dev/tools/countertop-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a quartz or granite countertop job from slabs, sink and cooktop cutouts, edge profile, backsplash, and waterfalls — not a published price per finished square foot. See the walk-away number before you match a cheaper kitchen quote.",
+      "pages": 3
+    },
+    {
+      "slug": "crawl-space-encapsulation-bid-calculator",
+      "name": "Crawl Space Encapsulation Bid Calculator — Price It Right",
+      "url": "https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — plus the walk-away price a $4 / sq ft special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "crown-molding-bid-calculator",
+      "name": "Crown Molding Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/crown-molding-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "cut-list-optimizer",
+      "name": "Cut List Optimizer — Compare Sheet Sizes and Board Lengths",
+      "url": "https://marisstella.dev/tools/cut-list-optimizer/",
+      "category": "Trade & contractor bids",
+      "description": "Free cut list optimizer for woodworkers and sign shops. Lay out plywood, MDF, or acrylic, compare 4×8 vs 5×5 sheets, and rank 8 ft vs 10 ft vs 12 ft boards before you buy. Nothing is uploaded.",
+      "pages": 3
+    },
+    {
+      "slug": "deck-bid-calculator",
+      "name": "Deck Bid Calculator",
+      "url": "https://marisstella.dev/tools/deck-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential deck from height, material, railing lineal feet, and stairs — not a flat dollar-per-square-foot. See walk-away price, price per sf, and whether a $28-a-foot special loses money.",
+      "pages": 3
+    },
+    {
+      "slug": "deck-staining-bid-calculator",
+      "name": "Deck Staining Bid Calculator — Rails, Stairs, and Coats",
+      "url": "https://marisstella.dev/tools/deck-staining-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a deck stain or seal from walking surface, picket-rail lineal feet, stairs, prep, coats, and access — not a published $2.50-per-square-foot special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "delivery-app-margin-calculator",
+      "name": "DoorDash Fee Calculator for Restaurants — Delivery Margin",
+      "url": "https://marisstella.dev/tools/delivery-app-margin-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.",
+      "pages": 3
+    },
+    {
+      "slug": "dryer-vent-bid-calculator",
+      "name": "Dryer Vent Bid Calculator — Stories, Run, and Roof Cap",
+      "url": "https://marisstella.dev/tools/dryer-vent-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a dryer vent cleaning from extra stories, extra feet of duct, extra dryers, a rooftop termination, camera inspection, crushed-flex replacement, and a nest — not a published $99 special. See the walk-away number before you match a cheaper wall-cap quote.",
+      "pages": 3
+    },
+    {
+      "slug": "drywall-bid-calculator",
+      "name": "Drywall Bid Calculator — Price the Finish Level, Not Sheets",
+      "url": "https://marisstella.dev/tools/drywall-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a hang-and-finish drywall job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels 0–5 — not a flat price per square foot. See labor hours, walk-away price, and the margin a $1.50-a-foot special actually leaves.",
+      "pages": 3
+    },
+    {
+      "slug": "duct-cleaning-bid-calculator",
+      "name": "Duct Cleaning Bid Calculator — Systems, Vents, and Coil",
+      "url": "https://marisstella.dev/tools/duct-cleaning-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a published $99 whole-house special. See the walk-away number before you match a cheaper ranch quote.",
+      "pages": 3
+    },
+    {
+      "slug": "egress-window-bid-calculator",
+      "name": "Egress Window Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/egress-window-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, and weekday versus Saturday — plus the walk-away price a $1,800 installed special cannot see.",
+      "pages": 5
+    },
+    {
+      "slug": "einvoice-preflight",
+      "name": "E-invoice Preflight — Check JSON, UBL, CII, or Factur-X",
+      "url": "https://marisstella.dev/tools/einvoice-preflight/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.",
+      "pages": 3
+    },
+    {
+      "slug": "electrical-panel-upgrade-bid-calculator",
+      "name": "Electrical Panel Upgrade Bid Calculator — Feeder, Circuits",
+      "url": "https://marisstella.dev/tools/electrical-panel-upgrade-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a 100A to 200A electrical panel or service upgrade from feeder feet, circuit landing, AFCI/GFCI, underground vs overhead, grounding, meter socket, and temporary power — not a published price per amp. See the walk-away number before you match a cheaper panel-swap quote.",
+      "pages": 3
+    },
+    {
+      "slug": "entry-door-bid-calculator",
+      "name": "Entry Door Bid Calculator — Opening, Lights, and Rot",
+      "url": "https://marisstella.dev/tools/entry-door-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.",
+      "pages": 2
+    },
+    {
+      "slug": "epoxy-garage-floor-bid-calculator",
+      "name": "Epoxy Garage Floor Bid Calculator — Flake and Polyaspartic",
+      "url": "https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an epoxy or polyaspartic garage floor from grind hours, flake load, waste, cracks, and travel — not a $4/sq ft special. See kit cost, walk-away price, and whether a proposed number loses money.",
+      "pages": 4
+    },
+    {
+      "slug": "equipment-rental-break-even",
+      "name": "Equipment Rental Break-Even Calculator",
+      "url": "https://marisstella.dev/tools/equipment-rental-break-even/",
+      "category": "Back-office money & contracts",
+      "description": "Free private equipment rental break-even calculator. Include ownership, delivery, cleaning, damage reserve, and utilization costs before quoting a booking.",
+      "pages": 2
+    },
+    {
+      "slug": "ev-charger-bid-calculator",
+      "name": "EV Charger Installation Bid Calculator — Level 2 EVSE Cost",
+      "url": "https://marisstella.dev/tools/ev-charger-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.",
+      "pages": 3
+    },
+    {
+      "slug": "exterior-painting-bid-calculator",
+      "name": "Exterior Painting Bid Calculator — Elevation and Scrape",
+      "url": "https://marisstella.dev/tools/exterior-painting-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.",
+      "pages": 3
+    },
+    {
+      "slug": "fireplace-insert-bid-calculator",
+      "name": "Fireplace Insert Bid Calculator — Liner, Hearth, Stack",
+      "url": "https://marisstella.dev/tools/fireplace-insert-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack height — not a published $2,499-installed gas special. See the walk-away number before you match a cheaper quote.",
+      "pages": 2
+    },
+    {
+      "slug": "flat-roof-bid-calculator",
+      "name": "Flat Roof Bid Calculator — Price a TPO or EPDM Roof",
+      "url": "https://marisstella.dev/tools/flat-roof-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a low-slope TPO, EPDM, PVC, or modified-bitumen roof from the membrane squares a per-square special cannot see, the tear-off, the insulation, and the parapet — plus walk-away price and proposed-price margin check.",
+      "pages": 3
+    },
+    {
+      "slug": "flooring-bid-calculator",
+      "name": "Flooring Bid Calculator",
+      "url": "https://marisstella.dev/tools/flooring-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a flooring install from waste, tear-out, and stairs — not a flat dollar per square foot. See purchased material, kitchen tile demo hours, tread labor, and the walk-away price.",
+      "pages": 3
+    },
+    {
+      "slug": "foundation-repair-bid-calculator",
+      "name": "Foundation Repair Bid Calculator — Access, Depth, Straps",
+      "url": "https://marisstella.dev/tools/foundation-repair-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price helical piers, hydraulic push piers, or bowed-wall stabilization from pier count, installed depth past included footage, interior versus exterior access, engineering stamp, carbon-fiber straps, and plumbing under the slab — not a published price per pier. See the walk-away number before you match a cheaper pier quote.",
+      "pages": 3
+    },
+    {
+      "slug": "freelance-retainer-calculator",
+      "name": "Freelance Retainer Calculator — Retainer vs Hourly",
+      "url": "https://marisstella.dev/tools/freelance-retainer-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your browser.",
+      "pages": 7
+    },
+    {
+      "slug": "french-drain-bid-calculator",
+      "name": "French Drain Bid Calculator — Trench, Outlet, and Soil",
+      "url": "https://marisstella.dev/tools/french-drain-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an exterior French drain from trench depth, pipe size, soil, daylight versus drywell versus storm tie-in, catch basins, downspout ties, and driveway crossings — not a published $25-a-foot special. See the walk-away number before you match a cheaper quote.",
+      "pages": 2
+    },
+    {
+      "slug": "furnace-bid-calculator",
+      "name": "Furnace Bid Calculator — Attic, Coil, and Gas Line",
+      "url": "https://marisstella.dev/tools/furnace-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a furnace or heat-pump replacement from extra duct past the included run, attic versus basement, a matching coil, a gas upsize, haul-away of the old unit, and a thermostat — not a published $2,495 installed special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "garage-door-bid-calculator",
+      "name": "Garage Door Bid Calculator — Spring, Door, and Drive",
+      "url": "https://marisstella.dev/tools/garage-door-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a garage door replacement or broken-spring service from parts, shop labor, and travel — not a lump-sum guess. See when a $189 spring special loses money on the drive.",
+      "pages": 4
+    },
+    {
+      "slug": "gravel-driveway-bid-calculator",
+      "name": "Gravel Driveway Bid Calculator — Price It by the Yard",
+      "url": "https://marisstella.dev/tools/gravel-driveway-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a gravel driveway from crusher-run, clean stone, recycled concrete, or pea gravel: compacted depth, whole truckloads, soil prep, fabric, and apron — plus the walk-away price a $4-a-foot special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "gutter-cleaning-bid-calculator",
+      "name": "Gutter Cleaning Bid Calculator — Stories, Guards, Spouts",
+      "url": "https://marisstella.dev/tools/gutter-cleaning-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a gutter cleaning visit from linear feet, stories, roof pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, a minimum stop charge, and an optional spring-and-fall contract.",
+      "pages": 3
+    },
+    {
+      "slug": "gutter-guard-bid-calculator",
+      "name": "Gutter Guard Bid Calculator — Feet, Stories, and Mesh",
+      "url": "https://marisstella.dev/tools/gutter-guard-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a gutter guard install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, and steep-roof access — not a published $8/foot leaf-filter special. See the walk-away number before you match a cheaper screen quote.",
+      "pages": 3
+    },
+    {
+      "slug": "gutter-install-bid-calculator",
+      "name": "Gutter Install Bid Calculator — Corners, Drops, Stories",
+      "url": "https://marisstella.dev/tools/gutter-install-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a new gutter hang from inside and outside miters, extra downspouts past the included first two, extra downspout footage, second-story hours, fascia repair, and tear-off — not a published $4.50-a-foot special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "hardwood-refinishing-bid-calculator",
+      "name": "Hardwood Refinishing Bid Calculator — Stairs and Closets",
+      "url": "https://marisstella.dev/tools/hardwood-refinishing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a hardwood floor refinish from field square footage, stair treads, closets, stain, and extra coats — then see price per square foot, the share of hours eaten by stairs, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "holiday-light-bid-calculator",
+      "name": "Holiday Light Bid Calculator — Price to Hang the Lights",
+      "url": "https://marisstella.dev/tools/holiday-light-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price Christmas lights from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $3 / LF hang special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "home-elevator-bid-calculator",
+      "name": "Home Elevator Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/home-elevator-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.",
+      "pages": 5
+    },
+    {
+      "slug": "hood-cleaning-bid-calculator",
+      "name": "Kitchen Hood Cleaning Bid Calculator — Exhaust Price",
+      "url": "https://marisstella.dev/tools/hood-cleaning-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.",
+      "pages": 4
+    },
+    {
+      "slug": "hot-tub-bid-calculator",
+      "name": "Hot Tub Bid Calculator — Crane, Pad, and Circuit",
+      "url": "https://marisstella.dev/tools/hot-tub-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.",
+      "pages": 2
+    },
+    {
+      "slug": "interior-door-bid-calculator",
+      "name": "Interior Door Bid Calculator — Price to Replace Doors",
+      "url": "https://marisstella.dev/tools/interior-door-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.",
+      "pages": 4
+    },
+    {
+      "slug": "irrigation-install-bid-calculator",
+      "name": "Irrigation Install Bid Calculator — Zones and Backflow",
+      "url": "https://marisstella.dev/tools/irrigation-install-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a new sprinkler system from zones, extra heads, trench footage, soil, controller, 3/4-inch PVB versus 1-inch versus 1.5-inch RPZ, drip conversion, rain sensor, and a master valve — not a published $400-a-zone special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "irrigation-winterization-bid-calculator",
+      "name": "Irrigation Winterization Bid Calculator — Blowout Price",
+      "url": "https://marisstella.dev/tools/irrigation-winterization-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sprinkler blowout from spray, rotor, and drip zones, backflow drain-and-insulate time, and the drive — not a $75 neighborhood special. See hours, walk-away price, and margin before you quote.",
+      "pages": 3
+    },
+    {
+      "slug": "janitorial-bid-calculator",
+      "name": "Janitorial Bid Calculator — Commercial Price Per Month",
+      "url": "https://marisstella.dev/tools/janitorial-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a commercial cleaning contract from production rates, day-porter shifts, and periodic floor care, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.",
+      "pages": 6
+    },
+    {
+      "slug": "junk-removal-bid-calculator",
+      "name": "Junk Removal Bid Calculator — Price the Dump Ticket",
+      "url": "https://marisstella.dev/tools/junk-removal-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a junk removal job from material weight and the landfill ticket: cubic yards, pounds per yard, dump fee per ton, special item fees, labor, travel, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "kitchen-tile-backsplash-bid-calculator",
+      "name": "Kitchen Tile Backsplash Bid Calculator — Price It Right",
+      "url": "https://marisstella.dev/tools/kitchen-tile-backsplash-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, and extras — plus the walk-away price a $35 / SF special cannot see.",
+      "pages": 5
+    },
+    {
+      "slug": "landscape-lighting-bid-calculator",
+      "name": "Landscape Lighting Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/landscape-lighting-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "marketplace-fee-compare",
+      "name": "Marketplace Fee Comparison — Which Channel Nets Most",
+      "url": "https://marisstella.dev/tools/marketplace-fee-compare/",
+      "category": "Marketplace seller tools",
+      "description": "Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.",
+      "pages": 2
+    },
+    {
+      "slug": "mcp-supply-chain-watch",
+      "name": "MCP Supply-Chain Watch",
+      "url": "https://marisstella.dev/tools/mcp-supply-chain-watch/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.",
+      "pages": 2
+    },
+    {
+      "slug": "metal-roof-bid-calculator",
+      "name": "Metal Roof Bid Calculator — Price a Metal Roof Job",
+      "url": "https://marisstella.dev/tools/metal-roof-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential standing-seam or exposed-fastener metal roof from the panel squares a per-square special cannot see, the tear-off, the stories, and the trim — plus walk-away price and proposed-price margin check.",
+      "pages": 3
+    },
+    {
+      "slug": "mini-split-bid-calculator",
+      "name": "Mini-Split Install Bid Calculator — Price Per Head",
+      "url": "https://marisstella.dev/tools/mini-split-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a ductless mini-split install from indoor heads, line-set extras, story height, electrical extras, and margin — then see price per head, crew hours, and the walk-away number a cheaper per-head quote hides.",
+      "pages": 3
+    },
+    {
+      "slug": "mobile-detailing-bid-calculator",
+      "name": "Mobile Detailing Bid Calculator — Price a Detail Job",
+      "url": "https://marisstella.dev/tools/mobile-detailing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free mobile detailing price calculator: include travel, labor, supplies, overhead, and card fees to find your break-even and target-margin quote.",
+      "pages": 3
+    },
+    {
+      "slug": "mold-remediation-bid-calculator",
+      "name": "Mold Remediation Bid Calculator — Containment and Demo",
+      "url": "https://marisstella.dev/tools/mold-remediation-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a mold remediation job from extra containment zones, demolition, HEPA and dehumidifier days, HVAC cleaning, dumpster, occupied-home access, and third-party clearance — not a published $999 mold special. See the walk-away number before you match a cheaper closet quote.",
+      "pages": 3
+    },
+    {
+      "slug": "moving-bid-calculator",
+      "name": "Moving Company Bid Calculator — Stairs and Long Carry",
+      "url": "https://marisstella.dev/tools/moving-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote.",
+      "pages": 3
+    },
+    {
+      "slug": "no-show-fee-calculator",
+      "name": "No-Show Fee Calculator for Service Businesses",
+      "url": "https://marisstella.dev/tools/no-show-fee-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee, see whether overbooking the empty chairs still beats collecting it, and copy a cancellation policy.",
+      "pages": 4
+    },
+    {
+      "slug": "parking-lot-striping-bid-calculator",
+      "name": "Parking Lot Striping Bid Calculator — Price to Stripe It",
+      "url": "https://marisstella.dev/tools/parking-lot-striping-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "patio-door-bid-calculator",
+      "name": "Patio Door Bid Calculator — Panels, Glass, and Opening",
+      "url": "https://marisstella.dev/tools/patio-door-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.",
+      "pages": 2
+    },
+    {
+      "slug": "paver-patio-bid-calculator",
+      "name": "Paver Patio Bid Calculator — Base, Waste, and Edge",
+      "url": "https://marisstella.dev/tools/paver-patio-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a paver patio from pattern waste, base depth, excavation, edge restraint, and haul-away — then see price per square foot, crew hours, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "payment-reconciliation-workbench",
+      "name": "Payment Reconciliation — Match Payouts to Bank Deposits",
+      "url": "https://marisstella.dev/tools/payment-reconciliation-workbench/",
+      "category": "Back-office money & contracts",
+      "description": "Free private CSV tool for small businesses to match Stripe, Square, or PayPal payouts to bank deposits and find reconciliation gaps without QuickBooks.",
+      "pages": 3
+    },
+    {
+      "slug": "pergola-bid-calculator",
+      "name": "Pergola Bid Calculator — Price to Build a Pergola",
+      "url": "https://marisstella.dev/tools/pergola-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential pergola or patio cover from the posts a square-foot special cannot see, the shade layer, the height, and the attached ledger — plus walk-away price and proposed-price margin check.",
+      "pages": 3
+    },
+    {
+      "slug": "pest-control-bid-calculator",
+      "name": "Pest Control Bid Calculator — Price Drive and Stations",
+      "url": "https://marisstella.dev/tools/pest-control-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a pest control route stop from on-site minutes, bait stations, and drive time — not house size. See initial vs recurring invoices, effective hourly with the drive, and how many stops recover a free initial.",
+      "pages": 3
+    },
+    {
+      "slug": "plantation-shutter-bid-calculator",
+      "name": "Plantation Shutter Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/plantation-shutter-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential plantation-shutter install from openings, inside versus outside mount, paint-grade versus stain-grade, hang versus measure versus template-and-custom, and extras — plus the walk-away price a $250-a-window special cannot see.",
+      "pages": 2
+    },
+    {
+      "slug": "pole-barn-bid-calculator",
+      "name": "Pole Barn Bid Calculator — Price to Build a Pole Barn",
+      "url": "https://marisstella.dev/tools/pole-barn-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away price a $45-a-foot ag special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "pool-plaster-bid-calculator",
+      "name": "Pool Plaster Bid Calculator — Walls, Chip-Off, Finish",
+      "url": "https://marisstella.dev/tools/pool-plaster-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a pool replaster from floor-plus-wall surface, finish (white plaster, quartz, pebble, glass), chip-out, spa, steps, waterline tile, and coping — not the homeowner's length × width. See the walk-away number before you match a cheaper water-surface quote.",
+      "pages": 2
+    },
+    {
+      "slug": "popcorn-ceiling-bid-calculator",
+      "name": "Popcorn Ceiling Bid Calculator — Price to Remove It",
+      "url": "https://marisstella.dev/tools/popcorn-ceiling-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot versus vaulted versus two-story access, and extras — plus the walk-away price a $1.50 / sq ft special cannot see.",
+      "pages": 2
+    },
+    {
+      "slug": "pressure-washing-bid-calculator",
+      "name": "Pressure Washing Bid Calculator — Price the Drive",
+      "url": "https://marisstella.dev/tools/pressure-washing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.",
+      "pages": 3
+    },
+    {
+      "slug": "quote-margin-check",
+      "name": "Quote Margin Check — free effective hourly rate calculator for freelancers",
+      "url": "https://marisstella.dev/tools/quote-margin-check/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for freelancers and small agencies: turn a proposed price, delivery hours, admin/revision time, overhead, and subcontractor cost into your real effective hourly rate before you send the quote. Runs entirely in your browser.",
+      "pages": 6
+    },
+    {
+      "slug": "radon-mitigation-bid-calculator",
+      "name": "Radon Mitigation Bid Calculator — Suction and Membrane",
+      "url": "https://marisstella.dev/tools/radon-mitigation-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.",
+      "pages": 3
+    },
+    {
+      "slug": "retainage-cashflow-calculator",
+      "name": "Construction Retainage Calculator",
+      "url": "https://marisstella.dev/tools/retainage-cashflow-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free construction retainage calculator for contractors and subcontractors. See retainage withheld, unpaid cash, carrying cost, when retainage typically releases, and copy a factual payment follow-up draft.",
+      "pages": 3
+    },
+    {
+      "slug": "retaining-wall-bid-calculator",
+      "name": "Retaining Wall Bid Calculator — Height and Drainage",
+      "url": "https://marisstella.dev/tools/retaining-wall-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then see price per foot, crew hours, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "screened-porch-bid-calculator",
+      "name": "Screened Porch Bid Calculator — Price to Screen It",
+      "url": "https://marisstella.dev/tools/screened-porch-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential screened porch or lanai from the wall-screen square feet a floor-square-foot special cannot see, the knee wall, the roof, and the mesh — plus walk-away price and proposed-price margin check.",
+      "pages": 3
+    },
+    {
+      "slug": "security-camera-bid-calculator",
+      "name": "Security Camera Installation Bid Calculator — CCTV Storage",
+      "url": "https://marisstella.dev/tools/security-camera-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.",
+      "pages": 3
+    },
+    {
+      "slug": "septic-pumping-bid-calculator",
+      "name": "Septic Pumping Bid Calculator — Lid, Hose, Extra Gallons",
+      "url": "https://marisstella.dev/tools/septic-pumping-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a septic tank pump from buried lids, hose run, extra tanks, baffles, risers, inspection, dump tickets, and after-hours dispatch — not a published $325 pump special. See the walk-away number before you match a cheaper per-gallon quote.",
+      "pages": 3
+    },
+    {
+      "slug": "sewer-hydrojet-bid-calculator",
+      "name": "Hydro-Jet and Sewer Camera Bid Calculator — Footage, Access",
+      "url": "https://marisstella.dev/tools/sewer-hydrojet-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sewer camera inspection or hydro-jet from extra footage past the included run, cleanout versus toilet pull, roots and grease, hose distance from the truck, and a camera warranty pass — not a published $149 drain special. See the walk-away number before you match a cheaper cable quote.",
+      "pages": 2
+    },
+    {
+      "slug": "sewer-line-replace-bid-calculator",
+      "name": "Sewer Line Replacement Bid Calculator — Open-Cut vs CIPP",
+      "url": "https://marisstella.dev/tools/sewer-line-replace-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sewer line replacement from open-cut, pipe bursting, or CIPP lining: footage, bury depth, laterals, and the surface you have to put back — not a published $125-a-foot special. See when trenchless wins and the walk-away number.",
+      "pages": 2
+    },
+    {
+      "slug": "shed-install-bid-calculator",
+      "name": "Shed Install Bid Calculator — Price to Install a Shed",
+      "url": "https://marisstella.dev/tools/shed-install-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a backyard shed install from pad, delivery miles, crane versus forklift, and extras — plus the walk-away price a $2,499 drop-and-set special cannot see.",
+      "pages": 2
+    },
+    {
+      "slug": "shop-rate-calculator",
+      "name": "Shop Rate Calculator",
+      "url": "https://marisstella.dev/tools/shop-rate-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.",
+      "pages": 2
+    },
+    {
+      "slug": "shopify-fee-calculator",
+      "name": "Shopify Fee Calculator — Payments vs PayPal vs Grow",
+      "url": "https://marisstella.dev/tools/shopify-fee-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.",
+      "pages": 19
+    },
+    {
+      "slug": "shopify-permission-drift",
+      "name": "Shopify Permission Drift Record",
+      "url": "https://marisstella.dev/tools/shopify-permission-drift/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "siding-bid-calculator",
+      "name": "Siding Bid Calculator",
+      "url": "https://marisstella.dev/tools/siding-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a vinyl, fiber-cement, or engineered-wood siding job from wall area, waste, openings, stories, and tear-off — not a flat price per square foot. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.",
+      "pages": 3
+    },
+    {
+      "slug": "skylight-install-bid-calculator",
+      "name": "Skylight Install Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/skylight-install-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new cut-in, asphalt versus tile/metal versus low-slope, and extras — plus the walk-away price an $800 / unit special cannot see.",
+      "pages": 2
+    },
+    {
+      "slug": "snow-removal-bid-calculator",
+      "name": "Snow Removal Bid Calculator — Per-Push vs Seasonal",
+      "url": "https://marisstella.dev/tools/snow-removal-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal, see the ice-event drain, and the storm count where a cheap seasonal goes underwater.",
+      "pages": 3
+    },
+    {
+      "slug": "sod-install-bid-calculator",
+      "name": "Sod Installation Bid Calculator — Price to Install It",
+      "url": "https://marisstella.dev/tools/sod-install-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sod install from fescue, bermuda, or zoysia: lawn size, whole pallets, soil prep, delivery, slope, and watering — plus the walk-away price a $0.55-a-foot special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "soffit-fascia-bid-calculator",
+      "name": "Soffit and Fascia Bid Calculator — Price the Job Right",
+      "url": "https://marisstella.dev/tools/soffit-fascia-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price soffit and fascia from eave lineal feet, aluminum wrap versus vinyl replace versus wood replace, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $12 / LF wrap special cannot see.",
+      "pages": 2
+    },
+    {
+      "slug": "solar-pv-bid-calculator",
+      "name": "Solar PV Install Bid Calculator — Price Per Watt",
+      "url": "https://marisstella.dev/tools/solar-pv-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a rooftop solar install from module count, roof difficulty, panel upgrades, permits, and margin — then see dollars per watt, crew hours, and the walk-away number a cheaper per-watt quote hides.",
+      "pages": 3
+    },
+    {
+      "slug": "spray-foam-bid-calculator",
+      "name": "Spray Foam Bid Calculator — Price the Insulation Job",
+      "url": "https://marisstella.dev/tools/spray-foam-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price residential spray foam from the board feet an attic-square-foot special cannot see, the rim, the cell, and the ignition coating — plus walk-away price and proposed-price margin check.",
+      "pages": 3
+    },
+    {
+      "slug": "stair-lift-bid-calculator",
+      "name": "Stair Lift Bid Calculator — Price to Install a Lift",
+      "url": "https://marisstella.dev/tools/stair-lift-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a stair lift from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, and extras — plus the walk-away price a $3,995 installed special cannot see.",
+      "pages": 5
+    },
+    {
+      "slug": "standby-generator-bid-calculator",
+      "name": "Standby Generator Installation Bid Calculator — House Cost",
+      "url": "https://marisstella.dev/tools/standby-generator-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential standby generator install from the nameplate feeder, transfer switch, pad, gas or propane line, and setback — plus walk-away price, dollars per kW, and how many times a typical 22 kW natural-gas hang this house really is.",
+      "pages": 3
+    },
+    {
+      "slug": "stucco-repair-bid-calculator",
+      "name": "Stucco Repair Bid Calculator — Cracks, Tear-Off, Stories",
+      "url": "https://marisstella.dev/tools/stucco-repair-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a stucco or EIFS repair from crack linear feet, hollow area, tear-off to the substrate, stories and scaffolding, window flashing, color match, and moisture investigation — not a published price per square foot. See the walk-away number before you match a cheaper crack-patch quote.",
+      "pages": 2
+    },
+    {
+      "slug": "sump-pump-bid-calculator",
+      "name": "Sump Pump Bid Calculator — Pit, Discharge, and Backup",
+      "url": "https://marisstella.dev/tools/sump-pump-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a sump-pump install from pit type, extra discharge past the included first fifteen feet, battery or water-powered backup, alarm, and freeze protection — not a published $450 swap special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "sunroom-bid-calculator",
+      "name": "Sunroom Bid Calculator — Price to Build a Sunroom",
+      "url": "https://marisstella.dev/tools/sunroom-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential sunroom or three-season room from the glazed-wall square feet a floor-square-foot special cannot see, the thermal floor, the insulated roof, and HVAC — plus walk-away price and proposed-price margin check.",
+      "pages": 2
+    },
+    {
+      "slug": "tender-radar",
+      "name": "Tender Radar",
+      "url": "https://marisstella.dev/tools/tender-radar/",
+      "category": "More free tools",
+      "description": "Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.",
+      "pages": 2
+    },
+    {
+      "slug": "toilet-replacement-bid-calculator",
+      "name": "Toilet Replacement Bid Calculator — Price to Replace It",
+      "url": "https://marisstella.dev/tools/toilet-replacement-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus flange-repair, owner-supplied versus plumber-supplied, weekday versus Saturday emergency, and extras — plus the walk-away price a $249 installed special cannot see.",
+      "pages": 5
+    },
+    {
+      "slug": "tree-service-bid-calculator",
+      "name": "Tree Service Bid Calculator — Removal by DBH and Access",
+      "url": "https://marisstella.dev/tools/tree-service-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a tree-removal stop the way the job actually costs: DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and the walk-away number. Free, in your browser.",
+      "pages": 3
+    },
+    {
+      "slug": "tuckpointing-bid-calculator",
+      "name": "Tuckpointing Bid Calculator — Price for Brick Pointing",
+      "url": "https://marisstella.dev/tools/tuckpointing-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away price an $8 / sq ft special cannot see.",
+      "pages": 3
+    },
+    {
+      "slug": "vinyl-liner-bid-calculator",
+      "name": "Vinyl Liner Bid Calculator — Price to Replace a Liner",
+      "url": "https://marisstella.dev/tools/vinyl-liner-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
+      "pages": 2
+    },
+    {
+      "slug": "walk-in-shower-bid-calculator",
+      "name": "Walk-In Shower Bid Calculator — Drain, Slope, Overtime",
+      "url": "https://marisstella.dev/tools/walk-in-shower-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.",
+      "pages": 5
+    },
+    {
+      "slug": "walk-in-tub-bid-calculator",
+      "name": "Walk-In Tub Bid Calculator — Price to Install a Tub",
+      "url": "https://marisstella.dev/tools/walk-in-tub-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.",
+      "pages": 5
+    },
+    {
+      "slug": "water-heater-bid-calculator",
+      "name": "Water Heater Replacement Bid Calculator — Tank vs Tankless",
+      "url": "https://marisstella.dev/tools/water-heater-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential water heater replacement from the tank or tankless type, the location, the vent, and the gas or electrical path — plus walk-away price, dollars per gallon, and how many times a typical 50-gallon electric garage swap this house really is.",
+      "pages": 3
+    },
+    {
+      "slug": "water-softener-bid-calculator",
+      "name": "Water Softener Bid Calculator — Run, Copper, and Iron",
+      "url": "https://marisstella.dev/tools/water-softener-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a water-softener install from extra pipe past the included run, copper versus PEX, an iron filter or under-sink RO, the brine drain, haul-away of the old unit, and a brine receptacle — not a published $799 installed special. See the walk-away number before you match a cheaper quote.",
+      "pages": 2
+    },
+    {
+      "slug": "well-pump-bid-calculator",
+      "name": "Well Pump Bid Calculator — Depth, Pitless, and Tank",
+      "url": "https://marisstella.dev/tools/well-pump-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless, stuck-pump pull, extra well cable, a new pressure tank, and a constant-pressure drive — not a published $1,495 pump special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "wheelchair-ramp-bid-calculator",
+      "name": "Wheelchair Ramp Bid Calculator — ADA Slope, Landings, Rails",
+      "url": "https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.",
+      "pages": 2
+    },
+    {
+      "slug": "where-to-sell-calculator",
+      "name": "Where to Sell Calculator — eBay vs Etsy vs Amazon",
+      "url": "https://marisstella.dev/tools/where-to-sell-calculator/",
+      "category": "Marketplace seller tools",
+      "description": "Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, your own store, and a local sale.",
+      "pages": 4
+    },
+    {
+      "slug": "window-cleaning-bid-calculator",
+      "name": "Window Cleaning Bid Calculator — Price Per Visit",
+      "url": "https://marisstella.dev/tools/window-cleaning-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a window cleaning job from panes, minutes per pane, stories, and travel time — then see the per-visit price, price per pane, effective hourly rate, and the walk-away number.",
+      "pages": 3
+    },
+    {
+      "slug": "window-replacement-bid-calculator",
+      "name": "Window Replacement Bid Calculator — Price the Opening",
+      "url": "https://marisstella.dev/tools/window-replacement-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Price a window replacement job from United Inches, story, and tear-out — not a flat price per window. See walk-away price, average per opening, and the margin a $550-a-window special actually leaves.",
+      "pages": 3
+    }
+  ]
+}
