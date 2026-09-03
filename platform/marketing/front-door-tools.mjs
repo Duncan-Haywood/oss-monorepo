@@ -349,11 +349,51 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
  * links to it, so leaving it out would fail `validateLinks`.
  *
  * `sitemap.xml` and `robots.txt` are deliberately absent. They are written for
- * the tools host and describe URLs this mirror does not serve; nothing on any
- * page links to them, which `validateLinks` confirms rather than assumes.
+ * the tools host and describe URLs this mirror does not serve.
+ *
+ * **Corrected 2026-09-02.** This paragraph used to end "nothing on any page
+ * links to them, which `validateLinks` confirms rather than assumes". The
+ * confirming was real; the claim was not. `einvoice-preflight/index.html`
+ * carries `<link rel="sitemap" type="application/xml" href="sitemap.xml">`,
+ * so `validateLinks` reported a dead link and `discoverEligible` dropped the
+ * whole venture — a finished, tested static tool held off the apex by a
+ * `<link>` element no visitor can follow. It is the only such link in
+ * `ventures/` today, which is how the wrong claim survived. See
+ * `STRIPPED_LINK_RELS` for the fix.
  */
 const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
 const SERVABLE_NAMES = new Set(['LICENSE']);
+
+/**
+ * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
+ * page, and which `validateLinks` therefore must not hold a venture to.
+ *
+ * These three are the mirror's own to set, not the venture's:
+ *
+ * - `canonical` — the mirror points every page at its `tools.marisstella.dev`
+ *   URL, which is the whole basis of the "invisible to crawlers" argument in
+ *   this module's header.
+ * - `icon` — replaced with the apex's own `/favicon.svg`, so a mirrored page
+ *   wears the mark of the host actually serving it.
+ * - `sitemap` — dropped outright. The document it names is written for the
+ *   tools host and is not mirrored (see `SERVABLE_EXTENSIONS`), so on a
+ *   mirrored page the link is dead; and pointing a crawler at another host's
+ *   sitemap from a page this mirror deliberately marks `noindex` argues
+ *   against itself.
+ *
+ * Both call sites derive from this one set. They were independent before, and
+ * the drift was not cosmetic: `injectMirrorTags` stripped a tag `validateLinks`
+ * still policed, so a venture could be dropped from the mirror over an href
+ * that would never have reached a browser. A `<link>` whose target the mirror
+ * removes is not a broken link — it is a link that does not exist.
+ */
+export const STRIPPED_LINK_RELS = ['canonical', 'icon', 'sitemap'];
+
+/** One `<link>` element carrying any rel in `STRIPPED_LINK_RELS`. */
+const STRIPPED_LINK = new RegExp(
+  `<link\\b[^>]*\\brel=["'](?:${STRIPPED_LINK_RELS.join('|')})["'][^>]*>`,
+  'gi',
+);
 
 /**
  * The tools the apex serves itself.
@@ -659,7 +699,7 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
   for (const entry of await fs.readdir(venturesDir, { withFileTypes: true })) {
     if (!entry.isDirectory() || named.has(entry.name) || !ROUTABLE_SLUG.test(entry.name)) continue;
     const names = await ventureFiles(entry.name, venturesDir);
-    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_FILE.test(n))) continue;
+    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_SUBPATH.test(n))) continue;
     candidates.push({ slug: entry.name, names });
   }
   candidates.sort((a, b) => a.slug.localeCompare(b.slug));
@@ -682,22 +722,146 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
   );
 
   let admitted = candidates.map((c) => c.slug);
-  for (;;) {
+  // Why each venture left, and on which pass. Pass 1 is a venture's own doing;
+  // a later pass means it only became ineligible when something it linked to
+  // was dropped, which is the difference between "this page is unmirrorable"
+  // and "this page is collateral". `explainIneligible` reports that difference
+  // because the two call for completely different responses.
+  const dropped = new Map();
+  for (let pass = 1; ; pass += 1) {
     const files = [...namedFiles, ...admitted.flatMap((slug) => byCandidate.get(slug))];
-    const failing = new Set(
-      validateLinks(files)
-        .map((problem) => problem.split('/')[0])
-        .filter((slug) => !named.has(slug)),
-    );
-    if (!failing.size) return admitted;
+    const failing = new Map();
+    for (const problem of validateLinks(files)) {
+      const slug = problem.split('/')[0];
+      if (named.has(slug) || failing.has(slug)) continue;
+      failing.set(slug, problem);
+    }
+    if (!failing.size) return withDrops(admitted, dropped);
+    for (const [slug, problem] of failing) dropped.set(slug, { pass, problem });
     admitted = admitted.filter((slug) => !failing.has(slug));
   }
+}
+
+/**
+ * The discovered slugs, with the drop log hung off them as a non-enumerable
+ * property.
+ *
+ * An array so every existing caller — `mirrorSet`, the tests that assert
+ * ordering — keeps working unchanged; non-enumerable so `assert.deepEqual`
+ * against a plain array of slugs still passes. `explainIneligible` is the only
+ * thing that reads it, and it needs the *reason* the fixpoint dropped each
+ * venture, which cannot be recovered afterwards by re-checking that venture on
+ * its own: in isolation every cross-venture link looks dead, so a page that is
+ * only collateral would be reported as if it were broken.
+ */
+function withDrops(admitted, dropped) {
+  Object.defineProperty(admitted, 'dropped', { value: dropped, enumerable: false });
+  return admitted;
 }
 
 /** `STARTER_SET`, then every other venture the mirror can serve. */
 export async function mirrorSet(venturesDir = VENTURES_DIR) {
   const discovered = await discoverEligible({ venturesDir });
   return [...STARTER_SET, ...discovered.map((slug) => ({ slug }))];
+}
+
+/**
+ * Every venture the mirror does *not* serve, and the reason for each.
+ *
+ * Reported rather than checked, and printed by a bare run of this module. It
+ * exists because "why isn't venture X on the front door?" became the only
+ * interesting question this file answers that its output did not, and
+ * answering it took a throwaway script that re-implemented half of
+ * `discoverEligible` — and got the answer wrong, because a venture checked on
+ * its own has every cross-venture link read as dead.
+ *
+ * So the reasons come from the fixpoint's own drop log, not from re-checking.
+ * The pass number is the whole point:
+ *
+ * - **Dropped on pass 1** — the venture's own pages link somewhere the mirror
+ *   cannot follow. That is a fact about the venture.
+ * - **Dropped on a later pass** — it was fine until something it linked to
+ *   was dropped. It is collateral, and it comes back for free if the venture
+ *   that blocked it ever becomes eligible.
+ *
+ * Measured 2026-09-02 over 28 excluded ventures:
+ *
+ * - **21 have no flat `index.html`** — `tender-radar`, `print-atelier`,
+ *   `ubuntu-agent-server`, `local-site-studio`, `quote-margin-check` and the
+ *   rest are CLIs, servers, watch faces, or apps with a build step and a
+ *   nested `site/` or `src/`. Not static pages, so not a gap the mirror can
+ *   close, and no future session should try. If one grows a flat browser
+ *   entry point it becomes eligible on its own — which is why this is
+ *   reported rather than written down as a list.
+ * - **The interesting case is one venture costing three.**
+ *   `no-show-fee-calculator/index.html` loads `src/app.mjs`, a subdirectory
+ *   the flat `<slug>__<file>` key encoding cannot represent, so it drops on
+ *   pass 1. `appointment-deposit-calculator` links to it and drops as
+ *   collateral, and `delivery-app-margin-calculator` links to both it and
+ *   `quote-margin-check`. Three finished calculators are off the front door
+ *   for one subdirectory reference. Fixing it means either teaching the key
+ *   encoding about subdirectories (and `front-door/default.conf` with it) or
+ *   flattening that one file in the venture; both are real options and
+ *   neither is a one-line change, which is why this says so instead of
+ *   guessing.
+ *
+ * **Fixed 2026-09-02.** This paragraph used to name a fourth entry —
+ * `marketplace-fee-compare`, held out because `validateLinks` scanned the whole
+ * document including `<script>`, so its channel list's JS template strings read
+ * as a literal `href="../${escapeHtml(channel.deepTool)}/"`. It argued the
+ * check was "conservative in the safe direction" and that narrowing it "would
+ * trade one missing tool for a class of genuinely dead link it currently
+ * catches".
+ *
+ * That trade was never on offer. On an interpolated href the old scan compared
+ * unexpanded template source against the mirror, which cannot match whatever
+ * the expression evaluates to — so it failed every such link unconditionally
+ * rather than detecting anything. `validateLinks` now scans script bodies as
+ * JavaScript: fully literal hrefs in a script are resolved exactly as markup
+ * ones are (that is the real detection, and it is kept and tested), and
+ * interpolated ones go to `dynamicLinks` as advisory. The tool is served.
+ */
+export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
+  const discovered = await discoverEligible({ venturesDir });
+  const dropped = discovered.dropped ?? new Map();
+  const served = new Set([...STARTER_SET.map((entry) => entry.slug), ...discovered]);
+  const excluded = [];
+  for (const entry of await fs.readdir(venturesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || served.has(entry.name)) continue;
+    const slug = entry.name;
+    if (!ROUTABLE_SLUG.test(slug)) {
+      excluded.push({ slug, kind: 'unroutable', reason: 'slug is not one front-door/default.conf can route' });
+      continue;
+    }
+    const names = await ventureFiles(slug, venturesDir).catch(() => null);
+    if (!names?.includes('index.html')) {
+      excluded.push({ slug, kind: 'not-a-page', reason: 'no flat index.html — not a static page the mirror can serve' });
+      continue;
+    }
+    const unroutable = names.filter((name) => !ROUTABLE_FILE.test(name));
+    if (unroutable.length) {
+      excluded.push({ slug, kind: 'unroutable', reason: `filenames nginx cannot route: ${unroutable.join(', ')}` });
+      continue;
+    }
+    const drop = dropped.get(slug);
+    if (!drop) {
+      // Discovery admitted it and this did not, or neither did. Either way the
+      // two disagree, which is a bug in one of them rather than a fact about
+      // the venture — say so rather than inventing a reason.
+      excluded.push({ slug, kind: 'unexplained', reason: 'not served and not in the drop log — discovery and this disagree' });
+      continue;
+    }
+    excluded.push({
+      slug,
+      kind: drop.pass === 1 ? 'dead-link' : 'collateral',
+      pass: drop.pass,
+      reason:
+        drop.pass === 1
+          ? drop.problem
+          : `collateral (pass ${drop.pass}) — became unreachable once something it links to was dropped: ${drop.problem}`,
+    });
+  }
+  return excluded.sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
 /**
@@ -709,8 +873,18 @@ export async function mirrorSet(venturesDir = VENTURES_DIR) {
  * directory tree at mount time — would put ~90 lines of hand-maintained YAML in
  * `portfolio-front.yaml` that must stay in step with this set. A rewrite rule
  * in nginx does the same job in two lines and cannot drift.
+ *
+ * A file inside a page subdirectory (`tool/index.html`, see `ventureFiles`)
+ * has its separator encoded the same way, so `consent-change-record` +
+ * `tool/index.html` becomes `consent-change-record__tool__index.html`. That is
+ * unambiguous to decode because `ROUTABLE_SLUG` forbids `_` in both the slug
+ * and the directory name, so the nginx captures cannot swallow a separator —
+ * but a *filename* may contain `__`, which is why `assertUniqueKeys` still has
+ * to run: a venture holding both `tool/index.html` and a flat file literally
+ * named `tool__index.html` would encode to one key, and the projected volume
+ * would refuse to mount rather than serve the wrong bytes.
  */
-export const mirrorKey = (slug, file) => `${slug}__${file}`;
+export const mirrorKey = (slug, file) => `${slug}__${file.replaceAll('/', '__')}`;
 
 /**
  * The ConfigMap key the *stored* bytes get — the mirror key plus `.gz`.
@@ -736,6 +910,20 @@ export const storedKey = (slug, file) => `${mirrorKey(slug, file)}.gz`;
  */
 export const ROUTABLE_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 export const ROUTABLE_FILE = /^[A-Za-z0-9._-]+$/;
+
+/**
+ * A path inside a venture that `front-door/default.conf` can route: a flat
+ * filename, or one page subdirectory then a filename.
+ *
+ * Two levels and no more. `ventureFiles` only ever walks one level down, and
+ * the `location` blocks only decode one separator — so a deeper path would be
+ * generated, stored and mounted, and then 404 with nothing failing. That is
+ * the exact silent-mismatch failure the comment above this pair describes, so
+ * the depth limit lives in the pattern rather than in a reader's memory.
+ */
+export const ROUTABLE_SUBPATH = new RegExp(
+  `^(?:${ROUTABLE_SLUG.source.slice(1, -1)}/)?${ROUTABLE_FILE.source.slice(1, -1)}$`,
+);
 
 /** The apex URL a mirrored file is served at. */
 export const mirrorUrl = (slug, file) =>
@@ -787,14 +975,65 @@ const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(na
 const isServable = (name) =>
   (SERVABLE_EXTENSIONS.has(path.extname(name)) || SERVABLE_NAMES.has(name)) && !isTestFile(name);
 
-/** The servable files of one venture, sorted so the output is deterministic. */
+/**
+ * Is this subdirectory a page of the venture, or part of how it is built?
+ *
+ * The mirror walks exactly one level down, and only into directories that
+ * carry their own `index.html`. That single condition is what separates the
+ * two kinds of subdirectory `ventures/` actually contains:
+ *
+ * - `consent-change-record/tool/` is a second tool — its own page, its own
+ *   modules, linked from the venture's front page as "HAR before/after diff".
+ * - `src/`, `tests/`, `examples/`, `scripts/`, `docs/` are how a venture is
+ *   built or checked. None of them holds an `index.html`, and mirroring one
+ *   would put a Node source tree behind a public URL and spend the mirror's
+ *   byte ceiling on files no visitor can use.
+ *
+ * Measured across all 184 ventures on 2026-09-02: exactly one subdirectory
+ * anywhere in `ventures/` satisfies this, and it is `consent-change-record/
+ * tool/`. So the rule admits the page it was written for and nothing else,
+ * and it stays that way by construction rather than by a hand-kept list — a
+ * future venture that grows a genuine sub-page is picked up, and one that
+ * grows a `src/` is not.
+ *
+ * The directory name must also pass `ROUTABLE_SLUG`, because
+ * `front-door/default.conf` routes it with the same character class it routes
+ * a venture slug with. A `.cursor/` or `.github/` could never be reached even
+ * if it somehow held a page, so it is refused here rather than shipped dark.
+ */
+async function isPageDirectory(dir, name, venturesDir) {
+  if (!ROUTABLE_SLUG.test(name)) return false;
+  return fs
+    .access(path.join(venturesDir, dir, name, 'index.html'))
+    .then(() => true)
+    .catch(() => false);
+}
+
+/**
+ * The servable files of one venture, sorted so the output is deterministic.
+ *
+ * Returns flat filenames (`index.html`, `calc.mjs`) plus, for any subdirectory
+ * `isPageDirectory` admits, that directory's own servable files as posix paths
+ * one level deep (`tool/index.html`). Everything downstream — `mirrorKey`,
+ * `mirrorUrl`, `validateLinks` — treats the result as an opaque path relative
+ * to the venture root, so a `/` inside one needs no special case beyond the
+ * key encoding and the two `location` blocks that decode it.
+ */
 export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
   const dir = path.join(venturesDir, slug);
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  return entries
+  const files = entries
     .filter((entry) => entry.isFile() && isServable(entry.name))
-    .map((entry) => entry.name)
-    .sort();
+    .map((entry) => entry.name);
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (!(await isPageDirectory(slug, entry.name, venturesDir))) continue;
+    const nested = await fs.readdir(path.join(dir, entry.name), { withFileTypes: true });
+    for (const child of nested) {
+      if (child.isFile() && isServable(child.name)) files.push(`${entry.name}/${child.name}`);
+    }
+  }
+  return files.sort();
 }
 
 /**
@@ -836,8 +1075,7 @@ export function injectMirrorTags(html, { slug, file }) {
     `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">` +
     NAV_STYLE;
   const stripped = html
-    .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '')
-    .replace(/<link\b[^>]*\brel=["']icon["'][^>]*>/gi, '')
+    .replace(STRIPPED_LINK, '')
     .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '');
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
@@ -944,13 +1182,113 @@ export function injectMirrorNav(html, { toolCount }) {
  * Absolute URLs, fragments, `mailto:` and `data:` are external by definition and
  * are not this function's business. A bare `.` or `./` is the venture's own
  * entry page, which is `index.html` by nginx's `try_files`.
+ *
+ * ## Script bodies are scanned, but as JavaScript rather than as markup
+ *
+ * This function used to run one regex over the whole document, `<script>`
+ * included. That is not what a browser does — text inside a script element is
+ * program source, not markup — and it cost the mirror a finished tool:
+ * `marketplace-fee-compare` builds its channel list from template strings, so
+ * the scan read the literal source text `href="../${escapeHtml(channel.deepTool)}/"`
+ * and reported a missing directory named `${escapeHtml(channel.deepTool)}`.
+ * The page is fine; the checker was reading the wrong language.
+ *
+ * The previous revision knew this and left it, on the argument that narrowing
+ * the scan "would trade one missing tool for a class of genuinely dead link it
+ * currently catches". That trade is not the one on offer, because the scan
+ * never detected anything in the interpolated case: it compared unexpanded
+ * template source against the mirror, which cannot match whatever the
+ * expression evaluates to. It failed every such link unconditionally, which is
+ * not detection.
+ *
+ * So the markup scan now runs over the document with script and style bodies
+ * blanked, and script bodies are scanned separately under the rule that
+ * actually applies to them:
+ *
+ * - a **fully literal** href/src in a script (no `${`) is a real path the page
+ *   will hand the browser, and is resolved exactly as a markup one is — this
+ *   is the genuine detection the old comment was protecting, and it is kept;
+ * - an **interpolated** one cannot be resolved statically, so it is not judged
+ *   here at all. `dynamicLinks` reports those separately: advisory, never a
+ *   reason to drop a venture, but surfaced so a page whose runtime links go
+ *   somewhere the mirror lacks is a thing a human can see rather than a thing
+ *   that vanished. It is a separate function rather than a property on the
+ *   returned array because `validateLinks` is compared with `deepStrictEqual`
+ *   in several tests, and an array carrying an extra own property is not
+ *   deep-equal to the plain `[]` those assertions expect.
+ *
+ * `marketplace-fee-compare`'s seven `deepTool` targets are all mirrored, which
+ * is what makes admitting it correct and not merely quieter.
+ *
+ * Blanking preserves byte offsets so nothing downstream that indexes into the
+ * document shifts; only the characters inside the element change.
  */
+const SCRIPT_OR_STYLE = /<(script|style)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
+
+/**
+ * Blank out the `<link>` elements `injectMirrorTags` will delete, so their
+ * hrefs are not held against a venture that is otherwise perfectly mirrorable.
+ *
+ * Blanked to spaces rather than removed, matching `blankScriptBodies`: byte
+ * offsets stay put, so a problem string this function's caller builds still
+ * points where a human reading the source would look.
+ */
+export function blankStrippedLinks(html) {
+  return html.replace(STRIPPED_LINK, (match) => ' '.repeat(match.length));
+}
+
+export function blankScriptBodies(html) {
+  return html.replace(SCRIPT_OR_STYLE, (match, tag, body) => {
+    const open = match.length - body.length - `</${tag}>`.length;
+    return match.slice(0, open) + ' '.repeat(body.length) + match.slice(open + body.length);
+  });
+}
+
+export function scriptBodies(html) {
+  return [...html.matchAll(SCRIPT_OR_STYLE)]
+    .filter(([, tag]) => tag.toLowerCase() === 'script')
+    .map(([, , body]) => body);
+}
+
+/**
+ * Relative href/src literals a page builds at runtime inside a `<script>`.
+ *
+ * Advisory only — these cannot be resolved without evaluating the page, so
+ * nothing is dropped for appearing here. Reported so the interpolated case is
+ * visible rather than merely un-judged.
+ */
+export function dynamicLinks(files) {
+  const found = [];
+  for (const { slug, file, contents } of files) {
+    if (!file.endsWith('.html')) continue;
+    for (const body of scriptBodies(contents)) {
+      for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
+        // `${` is the only interpolation form that reaches here: these are
+        // HTML fragments inside JS template literals, and a fragment built by
+        // concatenation would not carry a quoted attribute this regex matches.
+        if (href.includes('${')) found.push(`${slug}/${file} → "${href}"`);
+      }
+    }
+  }
+  return found;
+}
+
 export function validateLinks(files) {
   const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
   const problems = [];
   for (const { slug, file, contents } of files) {
     if (!file.endsWith('.html')) continue;
-    for (const [, href] of contents.matchAll(/(?:href|src)="([^"]*)"/g)) {
+    const markup = blankStrippedLinks(blankScriptBodies(contents));
+    const hrefs = [...markup.matchAll(/(?:href|src)="([^"]*)"/g)].map(([, href]) => href);
+    for (const body of scriptBodies(contents)) {
+      for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
+        // A fully literal href in a script is a real path the page will hand
+        // the browser, so it is checked exactly as a markup one is. The
+        // interpolated ones are `dynamicLinks`' business.
+        if (!href.includes('${')) hrefs.push(href);
+      }
+    }
+    for (const href of hrefs) {
       if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(href) || href === '') continue;
       const target = href.split(/[?#]/)[0];
       if (target === '' || target === '.' || target === './') continue;
@@ -966,7 +1304,16 @@ export function validateLinks(files) {
         }
         continue;
       }
-      const resolved = path.posix.normalize(path.posix.join(slug, target));
+      // Resolved against the linking file's own directory, not the venture
+      // root. The two are the same thing for every flat page — which is why
+      // this read `join(slug, target)` until page subdirectories existed — but
+      // for `tool/index.html` they differ, and getting it wrong is silent in
+      // both directions: `../LICENSE` would resolve to a path outside the
+      // venture and be reported as dead, while a sibling `har-diff.mjs` would
+      // resolve to the venture root and be judged present when the file the
+      // browser actually asks for is one level down.
+      const base = path.posix.dirname(path.posix.join(slug, file));
+      const resolved = path.posix.normalize(path.posix.join(base, target));
       const candidate = resolved.endsWith('/') ? `${resolved}index.html` : resolved;
       if (!present.has(candidate)) {
         problems.push(`${slug}/${file} → "${href}" (no ${candidate} in the mirror)`);
@@ -1003,7 +1350,7 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
       throw new Error(`${slug} has no index.html — it cannot be an entry in STARTER_SET`);
     }
     for (const file of names) {
-      if (!ROUTABLE_FILE.test(file)) {
+      if (!ROUTABLE_SUBPATH.test(file)) {
         throw new Error(
           `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
         );
@@ -1040,6 +1387,11 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   if (problems.length) {
     throw new Error(`the mirror would serve dead links:\n  ${problems.join('\n  ')}`);
   }
+
+  // Before the size and packing checks: a page with a conflict marker in it is
+  // not a page worth measuring, and this is the last point where it is still a
+  // candidate rather than something the apex serves.
+  assertNoConflictMarkers(files);
 
   const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
@@ -1155,6 +1507,44 @@ export function assertUniqueKeys(files) {
       );
     }
     seen.add(key);
+  }
+}
+
+/**
+ * Refuse to mirror a page carrying an unresolved merge-conflict marker.
+ *
+ * WHY THIS IS HERE AND NOT ONLY IN CI
+ *
+ * On 2026-09-02 the boiler calculator's `index.html` was committed to `main`
+ * with a conflict hunk still in its footer, and the next regeneration packed
+ * it into `boiler-replacement-bid-calculator__index.html.gz` — so the apex
+ * served `<<<<<<< HEAD`, the paragraph twice, and `>>>>>>> origin/main` to
+ * every visitor of that tool.
+ *
+ * Nothing caught it before the bytes shipped. The venture's own suite passed,
+ * because its assertions were `assert.match` against links that were present
+ * on both sides of the hunk. The repo-wide `Conflict markers` workflow does
+ * catch it, but it runs on a pull request, and the mirror is generated and
+ * committed by hand before one exists.
+ *
+ * So the check belongs in the generator too: this is the last point at which
+ * a page is still a candidate rather than a deployed artifact, and `--write`
+ * is the step that turns one into the other. A marker here is never
+ * legitimate content — these are static tool pages, not documentation about
+ * merge conflicts.
+ */
+export function assertNoConflictMarkers(files) {
+  // Anchored to the line start, which is where git writes them; a `>>>>>>>`
+  // mid-sentence in prose is not a conflict and must not fail the build.
+  const marker = /^(<{7}|={7}|>{7})(\s|$)/m;
+  for (const { key, contents } of files) {
+    if (typeof contents === 'string' && marker.test(contents)) {
+      const line = contents.split('\n').find((l) => marker.test(l));
+      throw new Error(
+        `${key} carries an unresolved merge-conflict marker (${line.trim()}) — ` +
+          `resolve it before regenerating, or the apex will serve it to visitors`,
+      );
+    }
   }
 }
 
@@ -1315,6 +1705,64 @@ ${generators}
 `;
 }
 
+/**
+ * The Deployment that mounts the mirror, whose `projected` volume has to name
+ * every shard this generator writes.
+ */
+export const FRONT_DOOR_DEPLOYMENT = path.join(REPO_ROOT, 'gitops', 'prod', 'portfolio-front.yaml');
+
+/**
+ * The `sources:` entries of the `tools` volume, at the indentation
+ * `portfolio-front.yaml` uses. Kept in one place so the writer below and the
+ * expectation in `front-door-tools.test.mjs` cannot drift apart.
+ */
+export const renderMountSources = (shards) =>
+  shards.map((s) => `              - configMap:\n                  name: ${s.name}\n`).join('');
+
+/**
+ * Rewrite the mirror's mount list in `portfolio-front.yaml` to match `shards`.
+ *
+ * WHY THIS IS AUTOMATED
+ *
+ * The shard count is a function of the catalogue: adding one comparison page
+ * to a mirrored venture can push the packer over `SHARD_BYTE_CEILING` and open
+ * a new shard. Until this function existed, `--write` regenerated the shards
+ * and left this file naming the old set, so the two disagreed in whichever
+ * direction the mirror had moved — and both directions are silent in the
+ * cluster:
+ *
+ *   generated but not mounted -> those tools are missing from the apex with
+ *       every manifest valid and every pod Ready;
+ *   mounted but not generated -> pods never leave ContainerCreating and
+ *       `maxUnavailable: 0` keeps serving the previous, stale mirror.
+ *
+ * `test_portfolio_front_mounts_every_generated_mirror_shard` catches both, but
+ * only in CI and only as a failure whose remedy was a hand-edit its own message
+ * had to spell out. The generator already knows the answer, so it writes it.
+ *
+ * Deliberately surgical: it replaces only the `- configMap:` entries of the
+ * `tools` volume's `projected.sources`, leaving the long comment above them —
+ * which explains why the volume is projected at all — untouched. A structural
+ * YAML round-trip would reflow that comment away.
+ */
+export async function writeMountList(shards, file = FRONT_DOOR_DEPLOYMENT) {
+  const original = await fs.readFile(file, 'utf8');
+  // Anchored on `projected:`/`sources:` so this can only ever match the tools
+  // volume; the trailing group is the run of shard entries to replace.
+  const block = /( {10}projected:\n {12}sources:\n)((?: {14}- configMap:\n {18}name: [^\n]*\n)+)/;
+  const match = original.match(block);
+  if (!match) {
+    throw new Error(
+      `could not find the tools volume's projected sources in ${path.relative(REPO_ROOT, file)} — ` +
+        `if the volume was restructured, update writeMountList in front-door-tools.mjs to match`,
+    );
+  }
+  const updated = original.replace(block, `$1${renderMountSources(shards)}`);
+  if (updated === original) return { file, changed: false };
+  await fs.writeFile(file, updated);
+  return { file, changed: true };
+}
+
 export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
   await fs.rm(outputDir, { recursive: true, force: true });
@@ -1323,6 +1771,10 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
     await fs.writeFile(path.join(outputDir, file.stored), file.bytes);
   }
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
+  // Same call, same commit: the shards and the Deployment that mounts them are
+  // one artifact, and a tree where only half of it was regenerated is exactly
+  // the state the pinning test exists to reject.
+  built.mountList = await writeMountList(built.shards);
   return built;
 }
 
@@ -1347,9 +1799,43 @@ if (isMain) {
   if (process.argv.includes('--write')) {
     const built = await writeMirror();
     console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    // Say so out loud: a changed mount list means the shard count moved, which
+    // is the one outcome of a regeneration that alters a file outside the
+    // mirror directory and so is easy to leave out of a commit.
+    console.log(
+      built.mountList.changed
+        ? `updated ${path.relative(REPO_ROOT, built.mountList.file)}: the shard count moved, ` +
+            `so its projected volume now mounts ${built.shards.length} shard(s) — commit it with the mirror`
+        : `${path.relative(REPO_ROOT, built.mountList.file)} already mounts these ${built.shards.length} shard(s)`,
+    );
   } else {
     const built = await buildMirror();
     for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
     console.log(`\n${totals(built)}`);
+    // The other half of the answer, and the half that used to need a
+    // throwaway script: which ventures are *not* here, and why each one is
+    // not. See `explainIneligible` for what the reasons mean and which of
+    // them a future session should not try to close.
+    const excluded = await explainIneligible();
+    if (excluded.length) {
+      // Grouped, and the bulk case summarised rather than listed line by line.
+      // 21 of these are CLIs and servers that will never be static pages, and
+      // printing all of them at equal weight buries the six that a session
+      // could actually do something about.
+      const notAPage = excluded.filter((e) => e.kind === 'not-a-page');
+      const actionable = excluded.filter((e) => e.kind !== 'not-a-page');
+      console.log(`\n${excluded.length} venture(s) the mirror does not serve:`);
+      console.log(
+        `\n  ${notAPage.length} have no flat index.html — CLIs, servers, and apps with a build step.\n` +
+          `  Not static pages, so not a gap the mirror can close:\n` +
+          `    ${notAPage.map((e) => e.slug).join(', ')}`,
+      );
+      if (actionable.length) {
+        console.log(`\n  ${actionable.length} are static pages held out by a link the mirror cannot follow:`);
+        for (const { slug, kind, reason } of actionable) {
+          console.log(`    ${slug} [${kind}]\n      ${reason}`);
+        }
+      }
+    }
   }
 }

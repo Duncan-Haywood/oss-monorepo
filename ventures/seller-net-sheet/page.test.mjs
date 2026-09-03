@@ -36,3 +36,19 @@ test("the FAQ still explains the arithmetic and now also points at the estimator
 test("applying the estimate is counted as its own usage event, separate from a manual edit", () => {
   assert.match(index, /count\("tax_proration_estimated"\)/);
 });
+
+// The result panel (net, the item breakdown, the walk-away price, and the
+// two-offer table) rewrites its own text on every keystroke via `update()`,
+// but the section itself carried no aria-live region. A screen-reader user
+// who tabs away after typing a number is never told the net changed, or
+// that a bad input flipped the panel into an error message -- every other
+// finished venture's `.result` section in this repo marks itself
+// aria-live="polite" for exactly this reason (see painting-bid-calculator,
+// roofing-bid-calculator). This pins the same convention here.
+test("the result panel is an aria-live region so screen readers hear updates and errors", () => {
+  assert.match(index, /<section class="result" aria-live="polite">/);
+});
+
+test("the copy-status message is announced, matching the role=\"status\" convention used elsewhere", () => {
+  assert.match(index, /id="copyStatus"[^>]*role="status"[^>]*aria-live="polite"/);
+});

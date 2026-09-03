@@ -32,6 +32,12 @@ def write(cwd, path, content):
     target.write_text(content)
 
 
+def write_bytes(cwd, path, content):
+    target = Path(cwd) / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(content)
+
+
 def commit(cwd, message):
     git(cwd, "add", "-A")
     git(cwd, "commit", "-q", "-m", message)
@@ -84,6 +90,26 @@ class TestNotSuperseded(RepoFixture):
         self.assertEqual(
             supersede_check.main(["feature", "--base", "main", "--no-fetch"]), 1
         )
+
+    def test_a_binary_file_change_does_not_crash_the_scan(self):
+        """The #2922/#2926 shape: a PR regenerates a `.gz` mirror shard
+        alongside its text change. `git show` on a binary blob is not valid
+        UTF-8, and `base_tree_lines` used to decode every changed path
+        unconditionally -- crashing before the (real, droppable) text
+        feature below it was ever compared."""
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "share.mjs", "export function encodeInputs(input) {}\n")
+        write_bytes(self.repo, "mirror.gz", bytes([0x1F, 0x8B, 0x08, 0x00, 0x01]))
+        commit(self.repo, "add sharing, regenerate mirror")
+
+        git(self.repo, "checkout", "-q", "main")
+        write_bytes(self.repo, "mirror.gz", bytes([0x1F, 0x8B, 0x08, 0x00, 0x02]))
+        commit(self.repo, "unrelated mirror regeneration")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.superseded)
+        self.assertTrue(any(f.path == "share.mjs" for f in verdict.files))
+        self.assertFalse(any(f.path == "mirror.gz" for f in verdict.files))
 
     def test_an_edit_to_an_existing_file_still_counts(self):
         """Not every dropped feature arrives as a new file."""

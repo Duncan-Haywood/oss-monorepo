@@ -63,6 +63,36 @@ annotation. `test_a_configmap_too_large_for_client_side_apply_asks_for_server_si
 in `gitops/tests/test_manifests.py` holds that for every generator in the tree,
 not just this one.
 
+### Merging two branches that both touch the mirror
+
+`front-door-tools.mjs` packs the mirror into shards **sequentially**, so
+inserting one page shifts every file after it into a different shard. Two
+branches that each add a page therefore always conflict — in
+`kustomization.yaml`, and in whichever `.gz` blobs moved.
+
+That conflict has one correct resolution, and it is never "pick a side":
+both sides are stale the moment they meet, because the right answer is
+whatever the generator produces from the *merged* sources. Taking either
+branch's copy leaves the apex serving a mirror that does not match the
+ventures on `main` — the new page missing, or an `index.html` without its
+own footer link to it. `front-door-tools.test.mjs` catches that, which is
+why a stale merge shows up as three failures in `validate`.
+
+```
+git merge origin/main                            # conflicts
+./platform/marketing/resolve-mirror-merge.sh     # regenerates and verifies
+git commit                                       # you write the message
+```
+
+The script refuses unless a merge is in progress, and refuses outright if
+any conflicted path lies outside `gitops/prod/front-door-tools/` — a
+conflict in authored code is two people editing the same lines and needs
+a human, not a regeneration. It stages but does not commit.
+
+On 2026-09-02 five branches hit this inside an hour and each was resolved
+by re-deriving the same four commands by hand; that is what the script is
+for.
+
 ### Rules for anything added here
 
 - **Every claim must be checkable.** The counts come from
