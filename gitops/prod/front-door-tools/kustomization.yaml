@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 147 files, 537338 bytes
+#   portfolio-front-tools-0: 148 files, 538458 bytes
 #   portfolio-front-tools-1: 125 files, 556919 bytes
 #   portfolio-front-tools-2: 161 files, 552408 bytes
 #   portfolio-front-tools-3: 130 files, 555011 bytes
@@ -129,6 +129,7 @@ configMapGenerator:
       - hvac-maintenance-contract-calculator__calc.mjs.gz=hvac-maintenance-contract-calculator__calc.mjs.gz
       - hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html.gz=hvac-maintenance-contract-calculator__how-much-to-charge-for-an-hvac-maintenance-contract.html.gz
       - hvac-maintenance-contract-calculator__index.html.gz=hvac-maintenance-contract-calculator__index.html.gz
+      - hvac-maintenance-contract-calculator__share.mjs.gz=hvac-maintenance-contract-calculator__share.mjs.gz
       - hvac-maintenance-contract-calculator__usage.mjs.gz=hvac-maintenance-contract-calculator__usage.mjs.gz
       - hvac-maintenance-contract-calculator__vs-servicetitan.html.gz=hvac-maintenance-contract-calculator__vs-servicetitan.html.gz
       - cleaning-dilution-calculator__LICENSE.gz=cleaning-dilution-calculator__LICENSE.gz

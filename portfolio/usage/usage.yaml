@@ -3076,6 +3076,20 @@ products:
           calculator onto current main. Public URL remains owner-gated;
           the local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded workload,
+          callback, and margin inputs), following the same pattern already
+          used by 83 other ventures, so a contractor can hand an editable
+          maintenance-plan quote to a partner or the office instead of
+          only static summary text. Also reachable today at
+          https://marisstella.dev/tools/hvac-maintenance-contract-calculator/
+          via the apex front-door mirror -- the "Public URL remains
+          owner-gated" note above predates that mirror and is stale for
+          this venture, as it was for others corrected earlier this month.
 
   - slug: subcontractor-cashflow-planner
     surface: static-page-in-repo
