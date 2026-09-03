@@ -1124,6 +1124,27 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
         f"actual is {actual}"
     )
 
+    # `default.conf`'s own comments restate the count twice more, in prose
+    # explaining why the mirrored pages carry no `X-Robots-Tag`. Neither is
+    # read by nginx or by kustomize -- both are free text -- but that is
+    # exactly why they drift silently: nothing about serving the site fails
+    # when they go stale. They did, the same day the mirror grew from 168 to
+    # 169 (`ai-engineering-academy`'s ENTRY_OVERRIDES fix): the commit that
+    # bumped OWNER_CHECKLIST.md and aggregate.py's comment above left these
+    # two unchanged. Pinning them here closes the same gap this test already
+    # closes for the other two files.
+    conf = (REPO / "gitops" / "prod" / "front-door" / "default.conf").read_text()
+    conf_matches = re.findall(r"filter (\d+) tools by category", conf)
+    conf_matches += re.findall(r"served all (\d+) tools", conf)
+    assert len(conf_matches) == 2, (
+        "default.conf's two 'N tools' comments not found or reworded "
+        f"(found {len(conf_matches)})"
+    )
+    for value in conf_matches:
+        assert int(value) == actual, (
+            f"default.conf's comment claims {value} mirrored tools, actual is {actual}"
+        )
+
 
 def test_portfolio_front_configmaps_keep_their_content_hash() -> None:
     # A Deployment mounts these, so the generated name has to change with the
