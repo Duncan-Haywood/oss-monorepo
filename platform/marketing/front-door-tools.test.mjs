@@ -1154,6 +1154,36 @@ test('the tools a page offers come from build.mjs’ ranking, not a second one h
   );
 });
 
+test('the sibling block states its own layout rather than inheriting a venture’s', async () => {
+  // The hazard is not hypothetical and specificity alone does not close it.
+  // These rules are injected ahead of the venture's own <style>, so a class
+  // selector beats a bare element one — but only for properties the class
+  // rule states. Three mirrored ventures set `display` on a bare `nav`, `ul`
+  // or `p`: `faire-wholesale-calculator`'s `nav{display:flex}` would lay the
+  // heading beside the list, and a bare `p{display:none}` would delete the
+  // heading. Both reach the block through a property an unstated rule leaves
+  // open.
+  for (const selector of [RELATED_CLASS, `${RELATED_CLASS} p`, `${RELATED_CLASS} ul`]) {
+    assert.match(
+      RELATED_STYLE,
+      new RegExp(`\\.${selector.replace(' ', ' \\.?')}\\{[^}]*display:`),
+      `.${selector} does not state a display, so a venture's bare element rule decides it`,
+    );
+  }
+  // And the hazard is still live in the mirror — if it ever stops being, this
+  // assertion is what says the guard above may be reconsidered rather than
+  // quietly kept forever.
+  const risky = [];
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (file !== 'index.html') continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      if (/(?:^|[;{}>\s])(?:nav|ul|p)\s*\{[^}]*display\s*:/.test(raw)) risky.push(slug);
+    }
+  }
+  assert.ok(risky.length > 0, 'no venture styles a bare nav/ul/p display any more');
+});
+
 test('the sibling block is hidden when a venture page is printed or embedded', () => {
   // Same two reasons as the return link. A contractor's printed bid is the one
   // page of this portfolio a stranger's own customer sees, and it must not

@@ -1574,11 +1574,21 @@ export const RELATED_LIMIT = 4;
  * visitor came for a number; this is what they see after they have it.
  */
 export const RELATED_STYLE =
-  `<style>.${RELATED_CLASS}{margin:2.5rem 0 0;padding:1rem 0 0;border-top:1px solid #c9d4da;` +
-  `font:400 14px system-ui,sans-serif}` +
-  `.${RELATED_CLASS} p{margin:0 0 .5rem;font-weight:600}` +
-  `.${RELATED_CLASS} ul{margin:0;padding:0 0 0 1.1rem}` +
-  `.${RELATED_CLASS} li{margin:.25rem 0}` +
+  // `display` is declared on all three elements, and that is not padding.
+  // These rules are injected ahead of the venture's own <style>, so on a tie
+  // the venture wins; a class selector outranks a bare element one, so we win
+  // — but only for properties we actually state. Three mirrored ventures set
+  // `display` on a bare `nav`, `ul` or `p` (`nav{display:flex}` in
+  // faire-wholesale-calculator lays the heading beside the list;
+  // `p{display:none}` would delete the heading outright), and every one of
+  // those would have reached the block through a property this rule left
+  // unmentioned. Stating the layout is what makes the block's appearance a
+  // property of the block rather than of whichever venture it lands in.
+  `<style>.${RELATED_CLASS}{display:block;margin:2.5rem 0 0;padding:1rem 0 0;` +
+  `border-top:1px solid #c9d4da;font:400 14px system-ui,sans-serif}` +
+  `.${RELATED_CLASS} p{display:block;margin:0 0 .5rem;font-weight:600}` +
+  `.${RELATED_CLASS} ul{display:block;margin:0;padding:0 0 0 1.1rem;list-style:disc}` +
+  `.${RELATED_CLASS} li{display:list-item;margin:.25rem 0}` +
   `.${RELATED_CLASS} a{color:#12506b}` +
   `@media print{.${RELATED_CLASS}{display:none!important}}` +
   `.pf-embed .${RELATED_CLASS}{display:none}</style>`;
