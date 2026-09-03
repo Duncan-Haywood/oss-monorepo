@@ -7199,3 +7199,44 @@ entries:
         files untouched -- lower aggregate blast radius per file, and out
         of scope for one PR.
     mrr_end: null
+  - venture: construction-evidence-log
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Backlog was drained (0 open PRs, sampled stale branches already
+        superseded) and the top deployment priority
+        (portfolio-site-repo/deploy-settings) is owner-only, so picked one
+        live, undertouched product to make more complete rather than start
+        a new one, per the product-first default.
+      - >-
+        construction-evidence-log's FAQ said outright: "Download it ...
+        Close the tab before downloading and today's entry is gone." A tool
+        named a "log" could only ever hold one day at a time, with no way
+        to see or export more than one entry together -- a real,
+        documented gap between the stated value prop (hand over a dated
+        record of a job) and what the page actually did.
+      - >-
+        Added local persistence: every submitted entry is now saved in the
+        browser (project-content, not just anonymous counts, so the
+        privacy copy, FAQ, and its FAQPage JSON-LD were rewritten to state
+        that honestly), a new "project log history" section lists saved
+        entries filterable by project name, and `record.mjs` gained
+        `buildEvidencePack`/`packSummary` to combine any set of saved days
+        into one date-sorted JSON pack with per-day review notes carried
+        through. Per-entry delete and a clear-all action ship alongside it.
+        Nothing leaves the browser; the tool's no-server, no-account
+        posture is unchanged.
+      - >-
+        Verified: `node --test` in the venture (12 passing, 7 new -- pack
+        sorting, empty-pack, and a page-integrity test asserting every id
+        `app.js` queries exists in the markup and the on-page FAQ matches
+        its JSON-LD); `node platform/webcheck/check_pages.mjs --quiet`
+        repo-wide (619 pages, all sound); `node platform/pages/clauses.mjs
+        construction-evidence-log` (no-warranty clause present on both
+        pages). No headless browser is available in this environment, so
+        DOM execution was checked by static id cross-reference between
+        `app.js` and `index.html` plus `node --check` on both scripts,
+        rather than an actual page load.
+      - Public URL remains owner-gated; usage.yaml carries a dated reading.
+    mrr_end: null
