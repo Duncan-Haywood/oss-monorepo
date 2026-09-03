@@ -38,6 +38,11 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped browser-local commercial usage-rights quote worksheet; public distribution remains owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: Added a "Copy share link" button (URL-fragment-encoded quote scope, share link outranks a saved draft on load) so a photographer can hand an editable quote to a client or colleague instead of only static draft text. Also reachable today at https://marisstella.dev/tools/commercial-photo-license-calculator/ via the apex front-door mirror, not owner-gated as the earlier reading said.
   - slug: appliance-repair-quote-calculator
     surface: static-page-in-repo
     readings:
