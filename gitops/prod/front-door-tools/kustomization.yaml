@@ -33,10 +33,10 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 148 files, 544860 bytes
-#   portfolio-front-tools-1: 124 files, 555221 bytes
+#   portfolio-front-tools-0: 148 files, 544884 bytes
+#   portfolio-front-tools-1: 124 files, 555234 bytes
 #   portfolio-front-tools-2: 160 files, 544360 bytes
-#   portfolio-front-tools-3: 125 files, 542476 bytes
+#   portfolio-front-tools-3: 126 files, 546486 bytes
 #   portfolio-front-tools-4: 119 files, 552800 bytes
 #   portfolio-front-tools-5: 133 files, 553162 bytes
 #   portfolio-front-tools-6: 108 files, 550744 bytes
@@ -570,6 +570,7 @@ configMapGenerator:
       - artificial-turf-bid-calculator__proposal.mjs.gz=artificial-turf-bid-calculator__proposal.mjs.gz
       - artificial-turf-bid-calculator__share.mjs.gz=artificial-turf-bid-calculator__share.mjs.gz
       - artificial-turf-bid-calculator__usage.mjs.gz=artificial-turf-bid-calculator__usage.mjs.gz
+      - artificial-turf-bid-calculator__vs-jobber.html.gz=artificial-turf-bid-calculator__vs-jobber.html.gz
       - asphalt-driveway-pave-bid-calculator__LICENSE.gz=asphalt-driveway-pave-bid-calculator__LICENSE.gz
       - asphalt-driveway-pave-bid-calculator__calc.mjs.gz=asphalt-driveway-pave-bid-calculator__calc.mjs.gz
       - asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz=asphalt-driveway-pave-bid-calculator__how-much-to-charge-to-pave-a-driveway.html.gz
