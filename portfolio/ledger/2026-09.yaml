@@ -7436,3 +7436,99 @@ entries:
         Opened as a PR and merged once its checks went green, under this
         repo's no-review-ceremony rule for `ventures/*` product PRs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: only one open PR existed at session start (#3047,
+        "freight-accessorial-auditor: convert pounds against a per-cwt
+        rate"). Reviewed it -- its `Portfolio validate` check was
+        genuinely red (not the runner-starvation signature:
+        `ci_starvation.py` confirmed a real runner), because the venture
+        edit left the committed front-door mirror stale
+        (`platform/marketing/front-door-tools.test.mjs` failing). Fixed
+        by regenerating the mirror; a concurrent session pushed the
+        identical fix (byte-for-byte matching shard sizes) seconds later,
+        so no duplicate commit was needed. Merged once green. A second PR
+        (#3048, "snow-removal-bid-calculator: add a shareable quote
+        link") opened concurrently mid-session; verified locally (own
+        suite 78/78, marketing-mirror suite 173/173) and merged once its
+        CI went green. That brought the open-PR count to zero. Ran a
+        dedicated branch-triage pass (24 non-auto-generated-name
+        branches, cross-checked against open/closed/merged PRs and
+        `main`'s current content) rather than trusting an old branch
+        list; every one was already merged, verifiably superseded, or
+        empty of unique content -- the fleet had picked this list clean
+        in the hours before this session ran. Per the "fewer than three
+        exist, process all of them" rule, the quota phase is complete
+        with an empty, verified-empty queue; no third PR existed to
+        merge.
+      - >-
+        Checked this session's explicit brief -- prioritize deployment/
+        CI/CD and building/deploying marketing materials on the Hetzner
+        VMs, and set up the Codex CLI on the Hetzner VM to spend its own
+        included quota on unattended dev work following a mandate similar
+        to this session's. All three are already built and already
+        queued for the owner, not missing: `gitops/agents/` (governor
+        CronJob, budget policy, RBAC, and a six-item work queue) is a
+        complete, tested, unattended Codex-on-Hetzner pipeline, disabled
+        only by two owner-only flips (`policy.json` "enabled" and the
+        CronJob's `suspend`) gated on a sealed credential --
+        `decision-queue` item `codex-governor-enable` (#1996) names the
+        exact three owner steps and is current. Its own top-priority
+        queue item, `deploy-cicd-readiness.yaml`, and the item below it,
+        `marketing-distribution.yaml`, were reordered to priorities 7 and
+        6 on 2026-09-01 quoting the owner's own words -- "I want to make
+        sure deployment and cicd is a priority and building and deploying
+        marketing materials on the hetzner vms" -- essentially verbatim
+        this session's brief. Since an agent can do the code half of both
+        items today without waiting for the governor flip, ran their own
+        verification commands myself as a fresh sweep (`pytest gitops/
+        tests -q`: 271 passed / 12 skipped; `check_duplicate_symbols.py`
+        and `publish_surface.py --check`: both clean; every one of 223
+        workflow files carries `timeout-minutes`) -- no new gap found
+        since the item's own 2026-09-02 dedicated sweep, which already
+        reported the same. No decision-queue row was added: `#1996`
+        already covers it precisely and `CLAUDE.md` and this file's own
+        discipline both say not to duplicate a queued ask.
+      - >-
+        With the deploy/CI/CD lane swept clean and no new gap to fix,
+        picked the still-open half of the marketing-distribution item's
+        own candidate list (comparison pages aside, which need outbound
+        web access this environment does not have to verify a new
+        competitor's numbers) and did the *product* work the queue item
+        describes for its own top-priority sibling instead: extended the
+        "Copy share link" pattern already used by 82 ventures (including
+        both PRs merged above) to `gutter-cleaning-bid-calculator`, one
+        of 81 ventures with a form and no share link yet. Added
+        `share.mjs` (URL-fragment allowlist encode/decode covering every
+        run's linear feet/story/pitch/guards/debris/downspouts plus the
+        cost and margin inputs) and `share.test.mjs` (6 tests), wired a
+        "Copy share link" button next to "Copy bid summary", made a
+        shared link take priority over the three-run starting example on
+        load, corrected the FAQ text (visible and JSON-LD) that
+        previously said this venture "has no shareable bid link", and
+        regenerated the front-door mirror so the feature ships to
+        `https://marisstella.dev/tools/gutter-cleaning-bid-calculator/`
+        the moment this merges -- no further owner action. Corrected the
+        venture's `usage.yaml` "public URL remains owner-gated" note the
+        same way done for other ventures this month, in a new reading
+        rather than rewritten in place.
+      - >-
+        Verified with `node --test` in the venture (73/73, 6 new in
+        `share.test.mjs`), `node --test "platform/marketing/*.test.mjs"`
+        (173/173 -- confirms the regenerated mirror and kustomization are
+        exactly what the generator produces, and the auto-injected
+        generic share-link chrome correctly stepped aside for the
+        venture's own control, dropping the site-wide auto-injected count
+        by exactly one as designed), a full `platform/pages/build.mjs` +
+        `check.mjs` run (169 tools / 618 pages, no dead links), that
+        suite's own tests (`build.test.mjs` + `check.test.mjs`, 320/320),
+        `python3 -m pytest gitops/tests/test_manifests.py gitops/tests/
+        test_front_door_serving.py` (81 passed, 12 skipped -- k8s-only),
+        and `python3 portfolio/usage/validate_usage.py` (valid, 181
+        products). Opened as a PR and merged once checks were confirmed
+        sound, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null

@@ -4145,6 +4145,21 @@ products:
           Shipped a local gutter-cleaning bid calculator (stories, guards,
           downspouts, minimum stop, seasonal contract); public URL remains
           owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded runs and
+          cost inputs; share link outranks the default three-run starting
+          example on load), following the same pattern already used by 82
+          other ventures, so a crew lead can hand an editable bid to a
+          partner or the office instead of only static summary text. Also
+          reachable today at
+          https://marisstella.dev/tools/gutter-cleaning-bid-calculator/ via
+          the apex front-door mirror -- the "public URL remains owner-gated"
+          note above predates that mirror and is stale for this venture, as
+          it was for others corrected earlier this month.
 
   - slug: snow-removal-bid-calculator
     surface: static-page-in-repo
