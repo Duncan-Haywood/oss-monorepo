@@ -78,3 +78,21 @@ test('the offer test has somewhere to render and a heading that says which fee i
   assert.match(html, /id="worthHeading"/);
   assert.match(html, /q\.offerEvaluated\?'What the offer is worth per hour'/);
 });
+
+// The result panel (the quote total, the breakdown, the minimum-fee note, the
+// error text, and the per-hour offer test) rewrites its own content on every
+// keystroke via update(), but the section itself carried no aria-live
+// region, and neither status span announced itself either -- a screen-reader
+// user who tabs away after typing a number was never told the quote changed,
+// or that a bad input flipped the panel into an error message. Every other
+// finished venture's `.result` section in this repo marks itself
+// aria-live="polite" for exactly this reason (see seller-net-sheet,
+// painting-bid-calculator). This pins the same convention here.
+test('the result panel is an aria-live region so screen readers hear updates and errors', () => {
+  assert.match(html, /<section class="result" aria-live="polite">/);
+});
+
+test('the draft-cleared and copy status messages are announced, matching the role="status" aria-live="polite" convention used elsewhere', () => {
+  assert.match(html, /id="draftStatus"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /id="status"[^>]*role="status"[^>]*aria-live="polite"/);
+});
