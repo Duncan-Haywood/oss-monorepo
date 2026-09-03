@@ -12,6 +12,15 @@
   "collection_total": 169,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
+  "embed": {
+    "supported": true,
+    "url_pattern": "https://marisstella.dev/tools/{slug}/?pfEmbed=1",
+    "how": "Load any tool URL below with ?pfEmbed=1 inside an <iframe>.",
+    "suggested_min_height_px": 1400,
+    "cost": "free, including on commercial sites",
+    "privacy": "The calculator runs in the visitor’s browser and computes nothing on our servers. Embedding adds no tracking of any kind to the host page.",
+    "keeps": "the same arithmetic and the same disclaimer as the full page, and links back to it"
+  },
   "categories": [
     {
       "id": "trades",

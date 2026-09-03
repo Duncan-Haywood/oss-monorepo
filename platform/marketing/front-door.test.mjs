@@ -365,6 +365,48 @@ test('nginx serves the embed runtime and stylesheet as their own types', async (
   }
 });
 
+test('the AI-discovery surfaces describe the embed with the real parameter', async () => {
+  // These two files are read by something that will *act* on them — an
+  // assistant answering "is there a free calculator for X I could put on my
+  // site" is the most likely way anyone now discovers these tools are
+  // embeddable at all. So a stale parameter name here does not read as a typo;
+  // it publishes a working-looking instruction that produces an iframe every
+  // browser refuses. Pinned to `embed.mjs`'s own constants rather than to
+  // literals, so a rename over there fails here instead of shipping.
+  const { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } = await import('../pages/embed.mjs');
+  const { llms, catalog } = await buildFrontDoor();
+
+  assert.match(
+    llms,
+    new RegExp(`\\?${EMBED_QUERY_PARAM}=1`),
+    'llms.txt does not tell a model how to embed a tool',
+  );
+  assert.ok(
+    llms.includes(`${DEFAULT_EMBED_HEIGHT}px`),
+    'llms.txt names a starting height that is not the one the snippet uses',
+  );
+
+  const parsed = JSON.parse(catalog);
+  assert.equal(parsed.embed.supported, true);
+  assert.equal(parsed.embed.suggested_min_height_px, DEFAULT_EMBED_HEIGHT);
+  assert.equal(
+    parsed.embed.url_pattern,
+    `${FRONT_DOOR_URL.replace(/\/$/, '')}/tools/{slug}/?${EMBED_QUERY_PARAM}=1`,
+  );
+
+  // The pattern has to be the shape nginx actually frames, not merely a string
+  // containing the parameter. Substituting a real slug must reproduce a tool
+  // URL this host serves — the same one `injectMirrorEmbed` puts in the
+  // snippet and `test_the_entry_page_is_framable_only_with_the_embed_parameter`
+  // exercises against real nginx.
+  const sample = parsed.tools[0];
+  assert.equal(
+    parsed.embed.url_pattern.replace('{slug}', sample.slug),
+    `${sample.url}?${EMBED_QUERY_PARAM}=1`,
+    'the advertised embed URL does not match the tool URLs in the same file',
+  );
+});
+
 test('the kustomization mounts the embed runtime and stylesheet', async () => {
   // Generated into `front-door/` and linked absolutely from every mirrored
   // entry page, so they have to reach the document-root volume. Without these
