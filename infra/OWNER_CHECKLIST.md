@@ -302,7 +302,17 @@ whole catalogue itself. Sealing the token is still the right end state —
 it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
-169. It is now the difference between 159 and 169, plus search.
+169. It is now the difference between 168 and 169, plus search.
+
+**Updated 2026-09-03, twice.** This paragraph said 159 until #2948
+(2026-09-02) raised the mirror to 162 — it updated the bullet two
+paragraphs up but missed this one, so the two counts on this page
+disagreed for a day. It went 162 → 168 the same day, when the mirror
+learned `site/index.html` entry points and stopped filing six flat static
+ventures as apps with a build step. The
+number moves whenever a venture's flat page count or link shape changes;
+`node platform/marketing/front-door-tools.mjs --check` (no `--write`)
+prints the current total without touching anything, if it drifts again.
 
 The build half is done and was rehearsed with the exact commands the pod
 runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node

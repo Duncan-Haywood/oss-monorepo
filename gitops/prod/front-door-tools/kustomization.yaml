@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 116 files, 545981 bytes
 #   portfolio-front-tools-7: 128 files, 550583 bytes
 #   portfolio-front-tools-8: 106 files, 553922 bytes
-#   portfolio-front-tools-9: 108 files, 525225 bytes
+#   portfolio-front-tools-9: 109 files, 529437 bytes
 #   portfolio-front-tools-10: 59 files, 278047 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1365,6 +1365,7 @@ configMapGenerator:
       - toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz=toilet-replacement-bid-calculator__should-i-install-a-customer-supplied-toilet.html.gz
       - toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz=toilet-replacement-bid-calculator__should-i-take-a-saturday-toilet-call.html.gz
       - toilet-replacement-bid-calculator__usage.mjs.gz=toilet-replacement-bid-calculator__usage.mjs.gz
+      - toilet-replacement-bid-calculator__vs-servicetitan.html.gz=toilet-replacement-bid-calculator__vs-servicetitan.html.gz
       - tree-service-bid-calculator__LICENSE.gz=tree-service-bid-calculator__LICENSE.gz
       - tree-service-bid-calculator__calc.mjs.gz=tree-service-bid-calculator__calc.mjs.gz
       - tree-service-bid-calculator__how-to-bid-tree-removal.html.gz=tree-service-bid-calculator__how-to-bid-tree-removal.html.gz
