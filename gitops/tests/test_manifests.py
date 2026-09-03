@@ -1084,7 +1084,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # inside a sentence that is wrong about what the count means keeps the
     # number honest and the claim stale, so the wording moved and this pattern
     # moved with it. The check itself is unchanged.
-    other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools", checklist)
+    #
+    # `tools?` rather than `tools` since 2026-09-03. The remainder reached 1
+    # when the mirror learned `site/index.html` entry points, and the only
+    # grammatical English for that is "the remaining 1 tool" — which the plural
+    # pattern could not match, so this assertion failed on the sentence being
+    # *correct*. A checker that forces prose to be ungrammatical to pass is
+    # checking the wrong thing; the count is what matters and it is still
+    # pinned exactly.
+    other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools?", checklist)
     assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
     for value in other_tools:
         assert int(value) == total - actual, (

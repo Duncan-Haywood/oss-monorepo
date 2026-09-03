@@ -711,7 +711,7 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
       names.map(async (file) => ({
         slug,
         file,
-        contents: await fs.readFile(path.join(venturesDir, slug, file), 'utf8'),
+        contents: await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8'),
       })),
     );
   const namedFiles = (
@@ -786,24 +786,35 @@ export async function mirrorSet(venturesDir = VENTURES_DIR) {
  *
  * Measured 2026-09-02 over 28 excluded ventures:
  *
- * - **21 have no flat `index.html`** — `tender-radar`, `print-atelier`,
- *   `ubuntu-agent-server`, `local-site-studio`, `quote-margin-check` and the
- *   rest are CLIs, servers, watch faces, or apps with a build step and a
- *   nested `site/` or `src/`. Not static pages, so not a gap the mirror can
- *   close, and no future session should try. If one grows a flat browser
- *   entry point it becomes eligible on its own — which is why this is
- *   reported rather than written down as a list.
- * - **The interesting case is one venture costing three.**
- *   `no-show-fee-calculator/index.html` loads `src/app.mjs`, a subdirectory
- *   the flat `<slug>__<file>` key encoding cannot represent, so it drops on
- *   pass 1. `appointment-deposit-calculator` links to it and drops as
- *   collateral, and `delivery-app-margin-calculator` links to both it and
- *   `quote-margin-check`. Three finished calculators are off the front door
- *   for one subdirectory reference. Fixing it means either teaching the key
- *   encoding about subdirectories (and `front-door/default.conf` with it) or
- *   flattening that one file in the venture; both are real options and
- *   neither is a one-line change, which is why this says so instead of
- *   guessing.
+ * - **16 have no `index.html` anywhere the mirror looks** — `print-atelier`,
+ *   `ubuntu-agent-server`, `local-site-studio` and the rest are CLIs,
+ *   servers, watch faces, or apps with a build step. Not static pages, so not
+ *   a gap the mirror can close. If one grows a browser entry point it becomes
+ *   eligible on its own — which is why this is reported rather than written
+ *   down as a list.
+ *
+ * **Corrected 2026-09-03: that bullet used to read "21", name
+ * `quote-margin-check` and `tender-radar` among them, and tell future
+ * sessions not to try.** Five of those 21 were not apps with a build step at
+ * all. `quote-margin-check`, `tender-radar`, `equipment-rental-break-even`,
+ * `mcp-supply-chain-watch` and `shopify-permission-drift` each keep a
+ * completely flat static site in `site/`, and `platform/pages/build.mjs` — the
+ * canonical build, the thing that decides what `tools.marisstella.dev` serves
+ * — had resolved entry points as `ENTRY_CANDIDATES = ['index.html',
+ * path.join('site', 'index.html')]` the whole time. So the apex and the
+ * canonical host disagreed about which ventures are static pages, this module
+ * was the one that was wrong, and the note said the disagreement was a fact
+ * about the ventures. `venturePageRoot` now applies the same two candidates in
+ * the same order.
+ *
+ * That was six tools, not five: `delivery-app-margin-calculator` is a flat,
+ * eligible calculator that links to `../quote-margin-check/` and dropped as
+ * collateral on pass 2 for as long as the target was unmirrorable. It came
+ * back for free, which is the fixpoint working as designed.
+ *
+ * The earlier "one venture costing three" case — `no-show-fee-calculator`
+ * loading `src/app.mjs` — is fixed and gone; all three of those tools are
+ * served. There are no dead-link or collateral exclusions left at all.
  *
  * **Fixed 2026-09-02.** This paragraph used to name a fourth entry —
  * `marketplace-fee-compare`, held out because `validateLinks` scanned the whole
@@ -835,7 +846,11 @@ export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
     }
     const names = await ventureFiles(slug, venturesDir).catch(() => null);
     if (!names?.includes('index.html')) {
-      excluded.push({ slug, kind: 'not-a-page', reason: 'no flat index.html — not a static page the mirror can serve' });
+      excluded.push({
+        slug,
+        kind: 'not-a-page',
+        reason: `no index.html at the venture root or in ${NESTED_PAGE_ROOT}/ — not a static page the mirror can serve`,
+      });
       continue;
     }
     const unroutable = names.filter((name) => !ROUTABLE_FILE.test(name));
@@ -1001,12 +1016,86 @@ const isServable = (name) =>
  * a venture slug with. A `.cursor/` or `.github/` could never be reached even
  * if it somehow held a page, so it is refused here rather than shipped dark.
  */
-async function isPageDirectory(dir, name, venturesDir) {
+async function isPageDirectory(pageRoot, name) {
   if (!ROUTABLE_SLUG.test(name)) return false;
   return fs
-    .access(path.join(venturesDir, dir, name, 'index.html'))
+    .access(path.join(pageRoot, name, 'index.html'))
     .then(() => true)
     .catch(() => false);
+}
+
+/**
+ * The subdirectory a venture may keep its browser entry point in, when it does
+ * not keep one at its root.
+ *
+ * This is not a rule invented here. `platform/pages/build.mjs` — the canonical
+ * site build, the thing that decides what `tools.marisstella.dev` publishes —
+ * has resolved a venture's entry point as `ENTRY_CANDIDATES = ['index.html',
+ * path.join('site', 'index.html')]` for as long as this mirror has existed.
+ * The mirror knowing only the first of the two is what made the apex disagree
+ * with the canonical host about which ventures are static pages at all.
+ */
+const NESTED_PAGE_ROOT = 'site';
+
+/**
+ * Where a venture's servable files actually live.
+ *
+ * `ventures/<slug>` for almost every venture. `ventures/<slug>/site` for one
+ * that keeps its pages there and its Node sources beside them — the shape
+ * `build.mjs` already publishes and this module used to read as "no flat
+ * index.html, therefore not a static page".
+ *
+ * Root wins when both exist, matching `ENTRY_CANDIDATES`' order, so a venture
+ * cannot be served from two roots depending on which file you asked about.
+ *
+ * The nested root is *only* consulted for the entry point. Everything the
+ * mirror does afterwards — flatness, `ROUTABLE_SUBPATH`, link resolution, the
+ * `<slug>__<file>` key encoding, `/tools/<slug>/` — is unchanged and still
+ * measured relative to whatever this returns. So a `site/` venture whose pages
+ * are not flat, or link outside the set, is dropped by exactly the checks that
+ * would drop a root-level one; nothing here weakens them.
+ */
+async function venturePageRoot(slug, venturesDir = VENTURES_DIR) {
+  const root = path.join(venturesDir, slug);
+  if (await fs.access(path.join(root, 'index.html')).then(() => true, () => false)) return root;
+  const nested = path.join(root, NESTED_PAGE_ROOT);
+  if (await fs.access(path.join(nested, 'index.html')).then(() => true, () => false)) return nested;
+  // No entry point anywhere. Return the venture root so callers report "no
+  // index.html" against the directory a reader would go looking in, rather
+  // than against a `site/` that may not exist.
+  return root;
+}
+
+/**
+ * Files a `site/`-rooted venture keeps at its root, one level above its pages,
+ * and which its pages nonetheless link to as if they were siblings.
+ *
+ * Only `LICENSE`, and it is not a special case invented here either.
+ * `build.mjs` copies exactly this file into exactly these ventures' published
+ * trees, for exactly this reason — its comment names the six of them: their
+ * pages carry an `<a href="LICENSE">` footer, the file lives one level up, and
+ * without the copy that link resolves to nothing. The mirror has the same
+ * footer to satisfy and needs the same answer.
+ *
+ * README.md is deliberately not here, matching `build.mjs`: it is repo
+ * bookkeeping and no published tree carries one.
+ */
+const ROOT_FALLBACK_FILES = new Set(['LICENSE']);
+
+/**
+ * The on-disk path of one file `ventureFiles` returned.
+ *
+ * Every read of a mirrored file goes through this rather than joining
+ * `venturesDir`, `slug` and `file` directly, because the middle term is the
+ * page root and not always the venture directory — and because a `LICENSE`
+ * the page root does not hold is read from the venture root instead.
+ */
+export async function ventureFilePath(slug, file, venturesDir = VENTURES_DIR) {
+  const pageRoot = await venturePageRoot(slug, venturesDir);
+  const atPageRoot = path.join(pageRoot, file);
+  if (!ROOT_FALLBACK_FILES.has(file)) return atPageRoot;
+  if (await fs.access(atPageRoot).then(() => true, () => false)) return atPageRoot;
+  return path.join(venturesDir, slug, file);
 }
 
 /**
@@ -1018,16 +1107,33 @@ async function isPageDirectory(dir, name, venturesDir) {
  * `mirrorUrl`, `validateLinks` — treats the result as an opaque path relative
  * to the venture root, so a `/` inside one needs no special case beyond the
  * key encoding and the two `location` blocks that decode it.
+ *
+ * Paths are relative to `venturePageRoot`, not to `ventures/<slug>`. For a
+ * `site/`-rooted venture that means `index.html`, not `site/index.html` — the
+ * mirror serves it at `/tools/<slug>/` exactly as the canonical site does, and
+ * the venture's own relative links resolve against the same base they were
+ * written for.
  */
 export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
-  const dir = path.join(venturesDir, slug);
+  const dir = await venturePageRoot(slug, venturesDir);
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = entries
     .filter((entry) => entry.isFile() && isServable(entry.name))
     .map((entry) => entry.name);
+  // A `site/`-rooted venture's LICENSE is one level up. Offer it at the page
+  // root so the footer link every one of these pages carries resolves inside
+  // the mirror, exactly as `build.mjs` does for the published site.
+  if (dir !== path.join(venturesDir, slug)) {
+    for (const name of ROOT_FALLBACK_FILES) {
+      if (files.includes(name)) continue;
+      if (await fs.access(path.join(venturesDir, slug, name)).then(() => true, () => false)) {
+        files.push(name);
+      }
+    }
+  }
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    if (!(await isPageDirectory(slug, entry.name, venturesDir))) continue;
+    if (!(await isPageDirectory(dir, entry.name))) continue;
     const nested = await fs.readdir(path.join(dir, entry.name), { withFileTypes: true });
     for (const child of nested) {
       if (child.isFile() && isServable(child.name)) files.push(`${entry.name}/${child.name}`);
@@ -1355,7 +1461,7 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
           `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
         );
       }
-      const raw = await fs.readFile(path.join(venturesDir, slug, file), 'utf8');
+      const raw = await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8');
       const contents = file.endsWith('.html')
         ? injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length })
         : raw;

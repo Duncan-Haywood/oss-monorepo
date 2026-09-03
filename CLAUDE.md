@@ -89,7 +89,7 @@ candidate list. Either:
 
 (1) comes first while a product on `main` still has no public route at all. As
 of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
-one still waiting on `portfolio-site-repo` — but the apex serves 162 of the
+one still waiting on `portfolio-site-repo` — but the apex serves 168 of the
 169 tools itself, so "the catalogue is dark" is not the right reading. See the
 correction below before ranking the seal against shipping.
 
@@ -122,7 +122,7 @@ So the standing reading has two halves now, and they differ:
 
 - **The portfolio has a public surface.** A stranger typing the domain gets
   positioning, one card per category, and the §5b clauses.
-- **7 of the 169 tools, and the canonical host, are one seal away**:
+- **1 of the 169 tools, and the canonical host, are one seal away**:
   `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
   It is queued.
 
@@ -136,16 +136,27 @@ run. What is actually served today:
   projected volume of eleven ConfigMap shards, and
   `gitops/prod/front-door/default.conf` routes `^/tools/<slug>/` at it. So
   `https://marisstella.dev/tools/<slug>/` serves the tool itself.
-- `front-door/index.html` carries **162 user-facing `/tools/…` links** and
+- `front-door/index.html` carries **168 user-facing `/tools/…` links** and
   exactly **one** href to `tools.marisstella.dev` — in fine print, honestly
   labelled "goes live when its access token is sealed". Its primary CTA is
-  "Open one of the 162 tools running here now". The category cards link to
+  "Open one of the 168 tools running here now". The category cards link to
   same-page anchors, not to the dark host.
 
 So the front door is already a working funnel, and the seal buys the
-remaining 7 tools plus the canonical hostname — worth doing, but it is not
+remaining 1 tool plus the canonical hostname — worth doing, but it is not
 the difference between a dead end and a product. Do not describe the
 catalogue as dark, and do not rank the seal above shipping.
+
+**Changed 2026-09-03: 162 became 168.** The mirror generator resolved a
+venture's entry point as a root `index.html` only, while
+`platform/pages/build.mjs` — the canonical build — had always tried
+`site/index.html` too. Five ventures keeping a flat static site in `site/`
+(`quote-margin-check`, `tender-radar`, `equipment-rental-break-even`,
+`mcp-supply-chain-watch`, `shopify-permission-drift`) were therefore filed as
+"apps with a build step, not a gap the mirror can close", and
+`delivery-app-margin-calculator` dropped as collateral for linking to one of
+them. `venturePageRoot` now applies the same two candidates in the same
+order. The remaining 16 exclusions really are CLIs, servers and apps.
 
 (Read from the manifests and the generated page, not from a live fetch:
 outbound HTTPS to arbitrary hosts is refused by the agent egress proxy
