@@ -999,7 +999,29 @@ export const apexUrl = (slug, file) => `${APEX_URL.replace(/\/$/, '')}${mirrorUr
  * tag this module itself injects.
  */
 export const FAVICON_FILE = 'favicon.svg';
-export const APEX_ROOT_PATHS = new Set(['/', `/${FAVICON_FILE}`, '/social-card.png', '/healthz']);
+
+/**
+ * The share card the apex already serves, and the dimensions and alt text that
+ * describe it.
+ *
+ * Declared here rather than imported for the same reason `FAVICON_FILE` is —
+ * this module builds a mirror that must survive the front door's own generator
+ * being absent — and pinned against `front-door.mjs` and `pages/offline.mjs`
+ * by a test, for the same reason again: if they drift, every mirrored page
+ * points at a file the apex does not serve, or lies about its shape.
+ */
+export const SOCIAL_CARD_FILE = 'social-card.png';
+export const SOCIAL_CARD_WIDTH = 1200;
+export const SOCIAL_CARD_HEIGHT = 630;
+export const SOCIAL_CARD_ALT =
+  'The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.';
+
+export const APEX_ROOT_PATHS = new Set([
+  '/',
+  `/${FAVICON_FILE}`,
+  `/${SOCIAL_CARD_FILE}`,
+  '/healthz',
+]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);
 
@@ -1235,21 +1257,62 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
  * The matcher is `build.mjs`'s whole-tag form rather than `[^>]*`: a
  * hand-written `og:description` may contain a bare `>` ("net > 0"), and a
  * matcher that stops at it would mangle the tag it lands on.
+ *
+ * ## `og:image`, added the same day
+ *
+ * Fixing `og:url` makes a mirrored tool's share card resolve; it does not make
+ * it worth looking at. No venture source declares an `og:image` — `build.mjs`
+ * found "no page had one" across all 442 it publishes — so every mirrored tool
+ * pasted anywhere renders as a bare text row. That module calls the image "the
+ * single largest determinant of whether anyone clicks", and it is the half of
+ * the share card this mirror could fix for almost nothing.
+ *
+ * Almost nothing, because the card is already served. `/social-card.png` sits
+ * at the apex document root in `portfolio-front-html` beside `/favicon.svg`,
+ * which these pages already reference the same way — so the mirror carries the
+ * tag and not the image, and `MIRROR_BYTE_CEILING` barely moves. The URL is
+ * absolute because a scraper fetching a card off a pasted link does not
+ * reliably resolve a relative one, and `twitter:card` is what upgrades the row
+ * to `summary_large_image` on the readers that honour it.
+ *
+ * This is an insert rather than a repair — the opposite of `og:url` above, and
+ * for the opposite reason. There is nothing here to reconcile, and the
+ * fallback if we skipped it is not "the scraper works it out" but "no image".
+ * The card is the site's generic mark rather than one drawn per tool: that is
+ * `build.mjs`'s own documented fallback when a page has no card of its own
+ * (`cardFile || SOCIAL_CARD_FILE`), and a per-tool card would cost ~6 KB
+ * apiece against a mirror that is the one place in this repo where bytes are
+ * the binding constraint. `SOCIAL_CARD_ALT` says the card carries no text,
+ * which stays true of a generic card on a specific tool's page — the reason
+ * that alt text is worded the way it is.
  */
 export function injectMirrorTags(html, { slug, file }) {
   const tags =
     `<meta name="robots" content="noindex,follow">` +
     `<link rel="canonical" href="${canonicalUrl(slug, file)}">` +
     `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">` +
+    `<meta property="og:image" content="${APEX_URL.replace(/\/$/, '')}/${SOCIAL_CARD_FILE}">` +
+    `<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">` +
+    `<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">` +
+    `<meta property="og:image:alt" content="${SOCIAL_CARD_ALT}">` +
+    `<meta name="twitter:card" content="summary_large_image">` +
     NAV_STYLE;
   const stripped = html
     .replace(STRIPPED_LINK, '')
     .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '')
-    .replace(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, (tag) =>
-      /\bproperty=["']og:url["']/i.test(tag)
-        ? `<meta property="og:url" content="${apexUrl(slug, file)}">`
-        : tag,
-    );
+    .replace(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, (tag) => {
+      if (/\bproperty=["']og:url["']/i.test(tag)) {
+        return `<meta property="og:url" content="${apexUrl(slug, file)}">`;
+      }
+      // No venture declares these today, so this drops nothing. It is here so
+      // that one which later does gets its tag reconciled rather than
+      // duplicated — the same rule the canonical and robots strips above keep,
+      // and the reason `og:url` was a live defect is that this rule had a gap.
+      if (/\b(?:property=["']og:image(?::\w+)?["']|name=["']twitter:card["'])/i.test(tag)) {
+        return '';
+      }
+      return tag;
+    });
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
     const at = stripped.indexOf(charset[0]) + charset[0].length;
