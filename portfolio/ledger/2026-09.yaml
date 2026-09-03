@@ -8183,3 +8183,81 @@ entries:
         OWNER_CHECKLIST.md, aggregate.py, default.conf and the test
         constant).
     mrr_end: null
+  - venture: cra-evidence-desk
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue first: only two PRs were open, both were
+        reviewed and merged (#3076 print-atelier's print-file preflight,
+        #3077 the real-estate-agent-photo-app site CI job). The three-PR
+        floor's "fewer than three exist, process all of them" branch
+        applies. Swept the recent unmerged branches for uncovered work and
+        found none worth a PR: `hotfix-boiler-conflict-marker` and
+        `happy-wozniak-nl2ful` are both already fixed on main under
+        different wording, `happy-wozniak-cabmcx`'s `explainIneligible` is
+        on main already, and `agent/deploy-cicd-ledger-2868` is
+        ledger-only, which `check_ledger_only.py` exists to reject.
+      - >-
+        Then deploy-first, per DIRECTION.md: `explainIneligible` reports 13
+        ventures the apex mirror does not serve, all of them "not a static
+        page" rather than collateral, so each is a finished product with no
+        public route at all. `cra-evidence-desk` was the strongest of them
+        -- a CRA (EU Cyber Resilience Act) SBOM-to-advisory matcher whose
+        whole job is offline JSON matching, so it ports to the browser with
+        no server and no network, and whose privacy story is a real
+        differentiator rather than a nicety: an SBOM is a complete map of a
+        product's dependencies and a match list is a map of its exposure.
+      - >-
+        Found and fixed a coverage bug that mattered more than the porting.
+        The matcher accepted exactly one SBOM shape --
+        `{"components": [{ecosystem, name, version}]}` -- which nothing in
+        the world emits. Every real user had to hand-convert their
+        CycloneDX or SPDX export first, in front of a tool whose entire
+        value is not transcribing things by hand. Added `normalize.py` to
+        the canonical Python core: CycloneDX (npm sbom, syft, cdxgen,
+        trivy), SPDX, and OSV advisory exports, with purl parsing so an npm
+        scope, a Maven group and a Go module path resolve to the
+        coordinates an advisory names them by, and an ecosystem alias table
+        so a CycloneDX "golang" meets an OSV "Go". Nested CycloneDX
+        sub-components are walked.
+      - >-
+        Kept the exact-match discipline intact rather than widening it.
+        OSV states affected versions two ways; only the enumerated
+        `versions` list is read, never `ranges`, because resolving
+        "everything below 1.4.2" is a judgement about the customer's
+        product, not a lookup. Range-only advisories are now *reported*
+        under `advisories_not_evaluated` instead of dropped, on both
+        surfaces -- a clean report read without that caveat looks like far
+        more assurance than it is.
+      - >-
+        Published the browser surface at `site/`, a standard entry
+        candidate, so the existing pipeline serves it with no new
+        mechanism: canonical build, front-door mirror, apex. It is now the
+        172nd tool at `/tools/cra-evidence-desk/`. Added `parity.test.mjs`
+        on the same pattern as #3075 and #3076, reading the Python source
+        as text to pin the ecosystem alias table, the coverage sentence,
+        the range-only refusal, and the draft's title, action and
+        disclaimer lines -- the stakes being that both surfaces hand a
+        vendor a document they may act on under a reporting deadline.
+      - >-
+        Verified: 24/24 Python tests, 49/49 new site tests, 867/867
+        platform/pages, 182/182 platform/marketing, 80/80
+        gitops/tests/test_manifests.py, duplicate-symbols, link-contrast
+        (594 pages), page-integrity (631 pages), clauses, and
+        `validate.py` (182 VENTURE.yaml) all clean. Exercised the primary
+        journey twice in real headless Chromium against the served page,
+        not a reimplementation of it: the example path (one exact match,
+        one range-only advisory correctly set aside, draft and both
+        download blobs produced) and the file-upload path (an SPDX file
+        with a Maven purl matching a plain-list advisory, confirming
+        cross-format coordinates actually meet). CLI and browser produce
+        byte-identical drafts on the same inputs.
+      - >-
+        Two guards caught real drift and both were fixed rather than
+        worked around: the doc/mirror count test (171 -> 172 across
+        OWNER_CHECKLIST.md, aggregate.py, default.conf and the constant),
+        and `clauses.test.mjs`, whose "a venture with no browser surface"
+        fixture was `cra-evidence-desk` itself and is now
+        `vendor-change-watch`.
+    mrr_end: null

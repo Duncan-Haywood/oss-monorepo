@@ -34,17 +34,17 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 146 files, 556643 bytes
-#   portfolio-front-tools-1: 125 files, 551542 bytes
-#   portfolio-front-tools-2: 162 files, 555145 bytes
-#   portfolio-front-tools-3: 127 files, 556668 bytes
-#   portfolio-front-tools-4: 119 files, 545121 bytes
-#   portfolio-front-tools-5: 130 files, 556475 bytes
-#   portfolio-front-tools-6: 109 files, 542981 bytes
-#   portfolio-front-tools-7: 111 files, 543909 bytes
-#   portfolio-front-tools-8: 124 files, 547238 bytes
-#   portfolio-front-tools-9: 104 files, 553544 bytes
-#   portfolio-front-tools-10: 108 files, 552381 bytes
-#   portfolio-front-tools-11: 62 files, 305692 bytes
+#   portfolio-front-tools-1: 125 files, 551543 bytes
+#   portfolio-front-tools-2: 162 files, 555193 bytes
+#   portfolio-front-tools-3: 127 files, 556672 bytes
+#   portfolio-front-tools-4: 121 files, 549167 bytes
+#   portfolio-front-tools-5: 128 files, 555466 bytes
+#   portfolio-front-tools-6: 113 files, 555683 bytes
+#   portfolio-front-tools-7: 111 files, 543970 bytes
+#   portfolio-front-tools-8: 124 files, 547368 bytes
+#   portfolio-front-tools-9: 104 files, 553546 bytes
+#   portfolio-front-tools-10: 108 files, 552403 bytes
+#   portfolio-front-tools-11: 62 files, 305742 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -693,6 +693,10 @@ configMapGenerator:
       - countertop-bid-calculator__proposal.mjs.gz=countertop-bid-calculator__proposal.mjs.gz
       - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
       - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
+      - cra-evidence-desk__LICENSE.gz=cra-evidence-desk__LICENSE.gz
+      - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
+      - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
+      - cra-evidence-desk__usage.mjs.gz=cra-evidence-desk__usage.mjs.gz
       - crawl-space-encapsulation-bid-calculator__LICENSE.gz=crawl-space-encapsulation-bid-calculator__LICENSE.gz
       - crawl-space-encapsulation-bid-calculator__calc.mjs.gz=crawl-space-encapsulation-bid-calculator__calc.mjs.gz
       - crawl-space-encapsulation-bid-calculator__how-much-to-charge-for-crawl-space-encapsulation.html.gz=crawl-space-encapsulation-bid-calculator__how-much-to-charge-for-crawl-space-encapsulation.html.gz
@@ -764,13 +768,13 @@ configMapGenerator:
       - duct-cleaning-bid-calculator__usage.mjs.gz=duct-cleaning-bid-calculator__usage.mjs.gz
       - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
       - egress-window-bid-calculator__LICENSE.gz=egress-window-bid-calculator__LICENSE.gz
-      - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
-      - egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz=egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
+      - egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz=egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz
       - egress-window-bid-calculator__index.html.gz=egress-window-bid-calculator__index.html.gz
       - egress-window-bid-calculator__proposal.mjs.gz=egress-window-bid-calculator__proposal.mjs.gz
       - egress-window-bid-calculator__share.mjs.gz=egress-window-bid-calculator__share.mjs.gz
@@ -897,15 +901,15 @@ configMapGenerator:
       - furnace-bid-calculator__calc.mjs.gz=furnace-bid-calculator__calc.mjs.gz
       - furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz=furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz
       - furnace-bid-calculator__index.html.gz=furnace-bid-calculator__index.html.gz
-      - furnace-bid-calculator__proposal.mjs.gz=furnace-bid-calculator__proposal.mjs.gz
-      - furnace-bid-calculator__usage.mjs.gz=furnace-bid-calculator__usage.mjs.gz
-      - furnace-bid-calculator__vs-servicetitan.html.gz=furnace-bid-calculator__vs-servicetitan.html.gz
-      - garage-door-bid-calculator__LICENSE.gz=garage-door-bid-calculator__LICENSE.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - furnace-bid-calculator__proposal.mjs.gz=furnace-bid-calculator__proposal.mjs.gz
+      - furnace-bid-calculator__usage.mjs.gz=furnace-bid-calculator__usage.mjs.gz
+      - furnace-bid-calculator__vs-servicetitan.html.gz=furnace-bid-calculator__vs-servicetitan.html.gz
+      - garage-door-bid-calculator__LICENSE.gz=garage-door-bid-calculator__LICENSE.gz
       - garage-door-bid-calculator__calc.mjs.gz=garage-door-bid-calculator__calc.mjs.gz
       - garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz=garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz
       - garage-door-bid-calculator__how-much-to-charge-to-replace-a-garage-door.html.gz=garage-door-bid-calculator__how-much-to-charge-to-replace-a-garage-door.html.gz
