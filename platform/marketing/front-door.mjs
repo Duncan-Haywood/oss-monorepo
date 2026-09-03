@@ -552,14 +552,30 @@ export function renderFrontDoorCatalog({
       collection_total: total,
       feed: `${FRONT_DOOR_URL}${FEED_FILE}`,
       sitemap: `${FRONT_DOOR_URL}${SITEMAP_FILE}`,
-      // Fragments rather than `/c/<id>/` URLs, because on this host a category
-      // is a section of the front page — `categoryAnchor`'s reasoning, kept, so
-      // a client following one lands where a reader following the same card
-      // does instead of on a 404.
+      // `/c/<id>/` rather than the front page's `#open-<id>` fragment. This
+      // was the fragment until the apex grew real category pages, on the
+      // reasoning that "a `/c/<id>/` URL would be the tools host's collection
+      // page, which serves nothing" — true when it was written, and retired
+      // by the change that started serving those seven pages here.
+      //
+      // `renderFrontDoor`'s own JSON-LD `hasPart` already moved, for a reason
+      // that applies harder to this file: structured data is read by exactly
+      // the crawlers this portfolio is trying to be found by, and this is the
+      // artifact told to "parse this instead" of `llms.txt`. A consumer asking
+      // for the logistics tools should get the page that lists them, not a
+      // fragment two thirds of the way down a 55 KB home page that it must
+      // then scrape.
+      //
+      // Safe unconditionally, unlike `hasPart`, which needs a `mirrored.length`
+      // guard because it renders from `categories` regardless. `groups` comes
+      // from `mirroredByCategory(mirrored)` and `categoryPages` from the same
+      // split, so a group exists here only when the page it names was rendered
+      // in the same build — there is no state where this emits a URL the
+      // ConfigMap does not carry.
       categories: groups.map((group) => ({
         id: group.id,
         name: group.title,
-        url: `${base}/#${categoryAnchor(group.id)}`,
+        url: apexCategoryUrl(group.id),
         tool_count: group.tools.length,
       })),
       tools: mirrored.map((tool) => ({

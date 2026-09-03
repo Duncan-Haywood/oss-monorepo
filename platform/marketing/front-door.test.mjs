@@ -31,6 +31,7 @@ import {
   TOOLS_URL,
   buildFrontDoor,
   categoryAnchor,
+  apexCategoryUrl,
   categoryCounts,
   categoryOutputFile,
   categoryPageKey,
@@ -1299,18 +1300,39 @@ test('catalog.json describes every mirrored tool at a URL on this host', () => {
   }
 });
 
-test('catalog.json category links land on anchors the page actually has', () => {
-  // A `/c/<id>/` URL would be the tools host's collection page, which serves
-  // nothing. On this host a category is a section of the front page, so the
-  // link has to be the fragment `renderFrontDoor` stamps an `id` for.
+test('catalog.json category links land on category pages this host serves', async () => {
+  // This asserted the front page's `#open-<id>` fragment until the apex grew
+  // real category pages, on the reasoning that a `/c/<id>/` URL "would be the
+  // tools host's collection page, which serves nothing". That premise is gone:
+  // the apex renders and serves those seven pages itself, `renderFrontDoor`'s
+  // JSON-LD `hasPart` already names them, and this file is the one a consumer
+  // is told to parse instead of `llms.txt` — so it should hand back the page
+  // that lists a category, not a fragment it would have to scrape a 55 KB home
+  // page for.
   const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
-  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
   assert.ok(catalog.categories.length > 0);
   for (const category of catalog.categories) {
-    const fragment = category.url.split('#')[1];
-    assert.ok(fragment, `${category.url} should be an on-page anchor, not a path`);
-    assert.equal(fragment, categoryAnchor(category.id));
-    assert.ok(html.includes(`id="${fragment}"`), `the page has no anchor #${fragment}`);
+    assert.equal(category.url, apexCategoryUrl(category.id));
+    assert.ok(!category.url.includes('#'), `${category.url} should be a page, not an anchor`);
+    assert.ok(
+      category.url.startsWith(FRONT_DOOR_URL),
+      'a category URL on the dark host is the failure this file must never publish',
+    );
+  }
+
+  // The pair that makes those URLs true rather than merely well-formed, run
+  // against the real tree rather than the fixture: every category the built
+  // catalogue names was rendered as a page in the same build and is in the
+  // same build's sitemap. A group with no page behind it is the one way a URL
+  // here could go dead, and it would go dead silently.
+  const built = await buildFrontDoor();
+  const rendered = new Set(built.categoryPages.map((page) => page.id));
+  const builtCatalog = JSON.parse(built.catalog);
+  assert.ok(builtCatalog.categories.length > 0);
+  for (const category of builtCatalog.categories) {
+    assert.equal(category.url, apexCategoryUrl(category.id));
+    assert.ok(rendered.has(category.id), `no page was rendered for /c/${category.id}/`);
+    assert.ok(built.sitemap.includes(category.url), `${category.url} is missing from the sitemap`);
   }
   assert.equal(
     catalog.categories.reduce((sum, c) => sum + c.tool_count, 0),
