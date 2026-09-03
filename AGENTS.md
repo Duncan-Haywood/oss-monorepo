@@ -43,8 +43,30 @@ AI-wrap by default.
 - **Do not re-verify** PRs recorded in `portfolio/ledger/verifications.yaml`
   unless `python3 portfolio/ledger/verification_status.py` says drift
   invalidated them.
-- **Do not open ledger-only PRs** that re-state known blockers. Build the
-  unblocked parts instead.
+- **Never land a change that is only ledger prose.** Not "avoid" — never.
+  Gate it mechanically before you push:
+
+  ```
+  python3 portfolio/ledger/check_ledger_only.py
+  ```
+
+  Exit 1 means every file in your branch is `portfolio/ledger/` data, and the
+  branch is not a deliverable. This bullet used to read "do not open
+  ledger-only PRs *that re-state known blockers*", and that escape hatch ate
+  the rule: in the seven days to 2026-09-02 the fleet landed **381 commits on
+  `main` touching nothing but ledger YAML — 34.6% of 1,102** — because every
+  session read its own entry as the new one. A third of the fleet's output
+  went into describing the other two thirds.
+
+  Recording an outcome is still right, and still cheap. It just **rides with
+  the work it describes** — same commit, or same PR. The ledger is a footnote
+  to a shipped thing, not a thing that ships.
+
+  If a session genuinely found a blocker instead of shipping: say so in the
+  reply and leave `main` alone. An unshipped session is a real outcome and
+  does not need a commit to be true. The ledger *tooling* (`.py` under
+  `portfolio/ledger/`) is exempt and passes the check — it is ordinary
+  platform code.
 - **Do not close a PR as "already on main"** until
   `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints the
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been

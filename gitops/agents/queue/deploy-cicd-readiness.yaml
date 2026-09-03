@@ -78,6 +78,19 @@ prompt: |
      than acting and acting is reversible. Say which of the two you
      established, in the PR.
 
+  **Re-verified 2026-09-02** by a dedicated research pass across all four
+  candidate categories (RBAC, NetworkPolicies, image tags, kustomizations,
+  workflow triggers/needs/if-conditions, gitops/tests-vs-manifest drift,
+  "waiting on X" follow-ups): none turned up a genuine untracked defect.
+  `pytest gitops/tests -q` was 267 passed / 7 skipped (all skips
+  environment-only), `check_duplicate_symbols.py` and
+  `publish_surface.py --check` were both clean. The one real finding was
+  cosmetic prose drift (comments in `portfolio-front.yaml` and
+  `front-door.mjs` still said "156 tools" where the mirror is 159) -- fixed
+  the same day, not a delivery-path defect. Do not re-run this exact
+  exhaustive sweep on a routine tick; look for something that changed since
+  2026-09-02 instead.
+
   Hard limits. Never seal, invent, echo, or work around a secret, and
   never relax a manifest's fail-closed state to make something start:
   crash-looping on an absent Secret is the intended behaviour until an

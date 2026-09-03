@@ -823,7 +823,7 @@ const FILTER_EMPTY =
  * has — the title from the card's `textContent`, the category from the heading
  * the card sits under — so neither is repeated into an attribute. That
  * matters at this size: writing the full haystack out per card cost ~20 KB of
- * HTML across 156 cards (~4 KB gzipped) to say what the page already said.
+ * HTML across 159 cards (~4 KB gzipped) to say what the page already said.
  *
  * What is left is the part the DOM does *not* carry: words that live in the
  * slug but not in the title. `3pl-quote-normalizer` is titled "Normalise a 3PL
@@ -852,7 +852,7 @@ export function extraTokens(tool) {
  *
  * ## The problem
  *
- * The mirror section is the page's payload: 156 tools, seven category
+ * The mirror section is the page's payload: 159 tools, seven category
  * headings, one flat run of card titles. That is fine to *browse* and poor to
  * *search*, and searching is what a visitor arriving from "roofing bid
  * calculator" is doing. Ctrl-F does the job on a desktop browser and is not
@@ -881,7 +881,7 @@ export function extraTokens(tool) {
  *   \`data-group\` marks the pair of elements that hide together (the heading
  *   and its list), \`data-cat\` marks which pair a card belongs to. Spelling
  *   both \`data-group\` would make \`querySelectorAll('[data-group]')\` select
- *   all 156 cards as well, and every card would be hidden as an empty group.
+ *   all 159 cards as well, and every card would be hidden as an empty group.
  * - **The status line is a \`role="status"\`**, so the result count reaches a
  *   screen reader rather than only the sighted reader, and it is only written
  *   when the count actually changes, so holding a key down does not queue one
@@ -917,7 +917,7 @@ const FILTER_SCRIPT = `
   }
 
   // Each card's haystack, built once. Rebuilding it per keystroke would walk
-  // 156 subtrees on every character typed.
+  // 159 subtrees on every character typed.
   var hay = [];
   for (var c = 0; c < cards.length; c++) {
     hay.push(
