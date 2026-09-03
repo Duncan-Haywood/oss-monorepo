@@ -69,8 +69,32 @@ export function sampleGrants(today = localToday()) {
   ];
 }
 
+// The report due date rolls forward from the last one actually filed, not
+// always from the award date. Before this, an award's `nextReport` was
+// permanently `awardDate + intervalMonths` -- correct for the first cycle of
+// a multi-year award, then stuck. A grant awarded three years ago that
+// reports quarterly, filed on schedule every time, showed the same
+// three-year-old due date and "Overdue" forever, because nothing here could
+// tell the tool a report had already gone out. `lastReportFiled` is optional
+// (older saved awards and the sample rows have none) so the anchor falls
+// back to `awardDate` when it is absent, invalid, or not yet reached --
+// which reproduces the original behavior exactly for a first-cycle award.
+function reportAnchor(grant, today) {
+  const filed = grant.lastReportFiled ? parseDate(grant.lastReportFiled) : null;
+  if (!filed) return grant.awardDate;
+  const award = parseDate(grant.awardDate);
+  const asOf = parseDate(today);
+  // A filed date has to actually be a step forward from the award date, and
+  // not in the future relative to "today" -- either would move the schedule
+  // backward or ahead of the visitor's own clock rather than rolling it
+  // forward, so treat it the same as no filed date at all.
+  if (award && filed < award) return grant.awardDate;
+  if (asOf && filed > asOf) return grant.awardDate;
+  return grant.lastReportFiled;
+}
+
 export function reviewGrant(grant, today = localToday()) {
-  const nextReport = addMonths(grant.awardDate, Number(grant.intervalMonths));
+  const nextReport = addMonths(reportAnchor(grant, today), Number(grant.intervalMonths));
   const days = nextReport ? Math.ceil((parseDate(nextReport) - parseDate(today)) / 86400000) : null;
   const restrictedBalance = Number(grant.awardAmount) - Number(grant.spentAmount);
   return {
@@ -119,7 +143,7 @@ export function removeGrant(grants, index) {
 // person reads.
 export function toCsv(rows) {
   const fields = [
-    'name', 'funder', 'awardDate', 'intervalMonths', 'nextReport',
+    'name', 'funder', 'awardDate', 'intervalMonths', 'lastReportFiled', 'nextReport',
     'daysUntilReport', 'status', 'awardAmount', 'spentAmount', 'restrictedBalance',
   ];
   const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;

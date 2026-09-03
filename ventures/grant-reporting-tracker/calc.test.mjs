@@ -17,6 +17,50 @@ test('orders grants and labels overdue and due-soon reports', () => {
   assert.equal(rows[1].status, 'On track');
 });
 
+test('the next report rolls forward from the last one filed, not always from the award date', () => {
+  // A 2023 award reporting quarterly, filed on schedule every time: without
+  // lastReportFiled the old behavior pinned nextReport to the very first
+  // 2023 due date, forever. With the most recent filing recorded, the next
+  // due date is one interval past it.
+  const row = reviewGrant(
+    { name: 'Multi-year award', awardDate: '2023-01-01', intervalMonths: 3, lastReportFiled: '2026-07-01', awardAmount: 0, spentAmount: 0 },
+    '2026-08-24',
+  );
+  assert.equal(row.nextReport, '2026-10-01');
+  assert.equal(row.status, 'On track');
+});
+
+test('an award with no filing history behaves exactly as before lastReportFiled existed', () => {
+  const row = reviewGrant(
+    { name: 'Fresh award', awardDate: '2026-01-01', intervalMonths: 6, awardAmount: 0, spentAmount: 0 },
+    '2026-08-24',
+  );
+  assert.equal(row.nextReport, '2026-07-01');
+  assert.equal(row.status, 'Overdue');
+});
+
+test('a last-filed date before the award date or after today is ignored rather than moving the schedule the wrong way', () => {
+  const beforeAward = reviewGrant(
+    { name: 'Bad anchor', awardDate: '2026-01-01', intervalMonths: 6, lastReportFiled: '2025-01-01', awardAmount: 0, spentAmount: 0 },
+    '2026-08-24',
+  );
+  assert.equal(beforeAward.nextReport, '2026-07-01', 'falls back to the award date, same as having no lastReportFiled at all');
+
+  const inTheFuture = reviewGrant(
+    { name: 'Overeager anchor', awardDate: '2026-01-01', intervalMonths: 6, lastReportFiled: '2027-01-01', awardAmount: 0, spentAmount: 0 },
+    '2026-08-24',
+  );
+  assert.equal(inTheFuture.nextReport, '2026-07-01', 'a filed date ahead of today cannot be real, so it is ignored too');
+});
+
+test('an unparseable last-filed value is ignored, not treated as a crash or a valid anchor', () => {
+  const row = reviewGrant(
+    { name: 'Typo anchor', awardDate: '2026-01-01', intervalMonths: 6, lastReportFiled: 'not-a-date', awardAmount: 0, spentAmount: 0 },
+    '2026-08-24',
+  );
+  assert.equal(row.nextReport, '2026-07-01');
+});
+
 test('escapes CSV values and preserves the review fields', () => {
   const csv = toCsv([{ name: 'Food, Inc.', funder: 'A "Funder"', nextReport: '2026-09-01', status: 'Due soon', restrictedBalance: 10 }]);
   assert.match(csv, /"Food, Inc\."/);
@@ -38,7 +82,7 @@ test('CSV export carries every field the queue reads, not just what the table sh
   const [header, dataLine] = csv.split('\n');
   assert.equal(
     header,
-    'name,funder,awardDate,intervalMonths,nextReport,daysUntilReport,status,awardAmount,spentAmount,restrictedBalance',
+    'name,funder,awardDate,intervalMonths,lastReportFiled,nextReport,daysUntilReport,status,awardAmount,spentAmount,restrictedBalance',
   );
   for (const value of ['2026-01-01', '6', '2026-07-01', '750']) {
     assert.ok(dataLine.includes(value), `CSV row is missing ${value}: ${dataLine}`);
