@@ -7673,3 +7673,90 @@ entries:
         named pytest); the venture and platform-marketing suites above
         cover the change, and `gitops/` manifests were not touched.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs existed at the start of the run, so
+        the "if none exist, start new work after the overlap check" branch
+        of the mandate applied. Did the branch-to-PR audit rather than
+        take that at face value: 219 remote branches, of which 86 carry
+        commits not reachable from `main`. Ran `supersede_check.py` over
+        the 9 with the most unique commits plus the 2 named for deploy and
+        marketing work. Eight came back SUPERSEDED (six by the line scan,
+        two by the identical-merge proof). The two NOT SUPERSEDED were
+        read rather than trusted: `claude/boiler-replacement-vs-servicetitan`
+        carries 2 lines, both reverting wording `main` improved, and
+        `claude/funny-archimedes-895zx9` is the rename-duplicate case
+        CLAUDE.md documents -- its `report.mjs` (toMarkdown,
+        encodeQuoteToHash) is an earlier, weaker spelling of what `main`
+        now has as `markdown.mjs` plus the inline hash decode, its
+        `cli-lint` job duplicates `main`'s `lint` job verbatim, and its
+        `countReportOnce` fix is already on `main` as `createReportCounter`.
+        Merging it would have added a second Markdown button and a second
+        share button to a live tool. No PR opened for either; no branch
+        closed, since a close is not this run's to make and the rename
+        report does not license one.
+      - >-
+        Shipped the sideways hop the apex mirror was missing. Every one of
+        the 169 tools the front door serves was one click from the
+        catalogue (`injectMirrorNav`) and no clicks from the other 168:
+        a contractor pricing a fence also bids concrete and decks, a
+        seller checking eBay fees also sells on Shopify, and nothing on
+        the page named those. `injectMirrorRelated` adds a four-link block
+        at the foot of each mirrored entry page, ranked by `build.mjs`'s
+        own `relatedTools` -- imported rather than restated, which is the
+        rule CLAUDE.md records two live-product regressions for breaking.
+        Entry pages only; hidden in print and under `.pf-embed`.
+      - >-
+        The decision this reverses was `injectMirrorNav`'s own comment,
+        which argued for one link "rather than a related-tools block" on
+        two grounds. Both had expired and neither had been re-measured:
+        `STARTER_SET` no longer exists (the mirror covers every eligible
+        venture, so there is no curated subset to drift against), and the
+        byte argument was arithmetic against a 5 MiB ceiling holding 53
+        uncompressed tools. Measured against the mirror that exists, the
+        block costs 48,491 bytes -- 0.79%, leaving it at 74% of
+        MIRROR_BYTE_CEILING in the same 12 shards. That comment now points
+        at the function instead of arguing against it.
+      - >-
+        `validateLinks` was extended rather than exempted. A root-absolute
+        `/tools/<slug>/` used to be measured against the apex document-root
+        allowlist and reported as "the document root serves only /,
+        /favicon.svg, ..." -- a true sentence about the wrong address space,
+        and one an author would have silenced by adding the path to that
+        allowlist. It now resolves such a link against the mirror's own
+        file list, so a sibling offer can no more go dead than a venture's
+        own relative link. A test asserts the checker can still fail.
+      - >-
+        Deploys with no owner action: `gitops/prod/front-door-tools/` is
+        committed and Argo CD delivers it, so the merge to `main` is the
+        deploy. Verified `kustomize build gitops/prod` (v5.4.3) produces
+        41 objects cleanly at 9.5 MB, and that the mirror regenerates
+        byte-identically after merging `main` (#3056, #3059 landed
+        mid-run; conflicts resolved with
+        `platform/marketing/resolve-mirror-merge.sh`, not by hand).
+      - >-
+        Verified with `node --test platform/marketing/*.test.mjs` (181/181,
+        8 new), `node --test platform/pages/*.test.mjs` (867/867),
+        `pytest gitops/tests` (271 passed, 12 skipped),
+        `check_conflict_markers.py` and `check_duplicate_symbols.py` (both
+        clean). Read the rendered output rather than only the tests: the
+        eBay page offers Shopify / where-to-sell / Airbnb payout / Amazon
+        FBA, the fence page offers irrigation-winterization /
+        landscape-lighting / pergola / pool-plaster, and the block sits
+        after the tool and before the embed offer in every entry page.
+      - >-
+        Not done, and named here so the next session does not re-derive it:
+        the Codex-CLI-on-Hetzner ask ("use up the built-in quota for dev
+        work") is already built and is owner-blocked, not unbuilt. The
+        plan-quota route is `CODEX_AUTH_JSON` per
+        `gitops/agents/secrets/README.md`, the governor and worker are on
+        `main`, and the three remaining steps are all owner-only: one
+        `codex login` on a seat that is not the day-to-day ChatGPT login,
+        `./bootstrap/scripts/seal-owner-secrets.sh agents`, then
+        `suspend: false` in `gitops/agents/governor/cronjob.yaml` and
+        `"enabled": true` in `governor/policy.json`. It is already queued
+        as `codex-governor-enable`; no duplicate ask was added.
+    mrr_end: null
