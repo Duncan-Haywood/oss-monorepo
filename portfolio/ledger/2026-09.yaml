@@ -7911,3 +7911,56 @@ entries:
         `"enabled": true` in `governor/policy.json`. It is already queued
         as `codex-governor-enable`; no duplicate ask was added.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-quota phase: reviewed ~20 stale open branches for mergeable work
+        (there were zero open PRs at session start). Merged two: #3061
+        (commercial-photo-license-calculator share link) and #3062
+        (foundation-repair-bid-calculator and chimney-sweep-bid-calculator
+        vs-Jobber comparison pages). Both required resolving the recurring
+        generated-mirror merge conflict via
+        `platform/marketing/resolve-mirror-merge.sh` per its own
+        instructions, not by hand.
+      - >-
+        The remaining ~18 branches checked were all already superseded by
+        main's own, more advanced independent evolution of the same
+        features (3pl-quote-normalizer's compare page, spray-foam and
+        boiler-replacement's vs-jobber/vs-servicetitan pages,
+        vendor-watch, chargeback-evidence-packet, the front-door catalog
+        and explainIneligible reporting, marketing/vs-smartmoving,
+        rematch-spray-foam's scoring entries) or were ledger-only diffs
+        not eligible to merge on their own. One (#claude/funny-archimedes-895zx9,
+        a CLI/web Markdown-rounding parity fix for quote-margin-check) was
+        abandoned after its target file had been independently
+        rearchitected on main into a much larger review/export pipeline;
+        merging the stale version would have reintroduced already-fixed
+        redundant code rather than landing a real fix.
+      - >-
+        Lesson for future sessions: an `ls-tree` check for "does this
+        already exist on main" must use `-r` (recursive) or it silently
+        misses nested venture files and produces a false "not on main"
+        reading — caught this mid-session on the chargeback-evidence-packet
+        and vendor-watch branches, both of which were in fact already
+        superseded.
+      - >-
+        Verified deployment/CI/CD/marketing-materials priorities the
+        account owner asked to keep front-of-mind are already in the
+        state the ledger and `gitops/README.md` describe: CI is green
+        (checked recent workflow runs on `main`), the front-door page and
+        per-tool mirror regenerate with zero drift
+        (`front-door.mjs --write`, `front-door-tools.mjs --write`), and
+        the full 169-tool site builds with no dead links
+        (`build.mjs` + `check.mjs`, 622 pages). No new work needed there
+        beyond the one owner-blocked item already queued
+        (`codex-governor-enable`, see the ledger row above).
+      - >-
+        Shipped one new product increment on top of the above:
+        artificial-turf-bid-calculator: add a vs-Jobber comparison page,
+        closing the same marketing-distribution gap #3062 closed for two
+        other ventures. 122/122 venture tests pass, 182/182
+        platform/marketing tests pass, full-site build clean (no dead
+        links across 622 pages).
+    mrr_end: null
