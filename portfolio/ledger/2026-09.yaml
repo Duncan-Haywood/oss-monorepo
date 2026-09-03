@@ -8415,3 +8415,56 @@ entries:
         GitHub Sponsors link -- and a test now enforces that rather than
         leaving it to a one-off check. `--headroom` unchanged at 76.3%.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        On the "set the codex cli up to use the built-in quota for dev work
+        on the hetzner vm" half of the owner's direction. That fleet is
+        already built and one seal from running, so the useful work was not
+        more of it but the defect sitting in its install path:
+        `worker.sh` pinned `gh` to a version with a published sha256 and
+        installed `@openai/codex@latest`. The comment directly above the two
+        said "all three are `${VAR:-pin}`" and gave the reason -- "a version
+        this repository has not seen is a supply-chain change, and it should
+        arrive as a reviewed commit" -- while being false about the one
+        binary that receives both this Job's `GH_TOKEN` and the owner's
+        ChatGPT `auth.json`. Pinned to 0.153.1, the release `latest`
+        resolved to when this was written.
+      - >-
+        Not a theoretical drift window. `@openai/codex` is pre-1.0 and ships
+        continuously -- 0.154.0-alpha.2 was already tagged beside 0.153.1 --
+        so "latest" moves inside a single five-hour quota window, and
+        `worker.sh` parses `codex exec --json` output for its limit and auth
+        markers. A change to that output would have landed mid-window across
+        every queue item at once, surfacing to an operator only as a codex
+        container exiting non-zero.
+      - >-
+        `install_codex` now also verifies the pin took, because `npm install
+        -g` exits 0 in cases that leave another binary in front (an existing
+        global's bin symlink, or a cached platform-specific optional
+        dependency) and nothing downstream checks more than that `codex` is
+        on PATH. Fails closed with both versions named.
+      - >-
+        The reason it went unnoticed is the one CLAUDE.md already records
+        for the apt bug on the `gh` half: every existing test puts a stub
+        `codex` on PATH, so `command -v codex` short-circuits and the
+        install branch had never executed under test. Three tests now remove
+        it so the branch has to run. Writing them surfaced a second thing --
+        line 44 forces `/usr/local/bin` to the front of PATH, so a stub
+        `npm` on PATH is shadowed by the real one; the first draft went to
+        the live registry and installed Codex for real. Hence `CODEX_NPM`,
+        the same test-only override idiom `CODEX_TOOLS_BIN` already uses.
+      - >-
+        Verified: 274 passed / 12 skipped in gitops/tests (271 before, +3),
+        `bash -n`, and both new assertions mutation-tested -- removing the
+        version guard lets the run open a PR on an unpinned codex, and
+        restoring `:-latest}` fails the static test. Merged #3092 first
+        (checks green on real runners; confirmed its 169->173 claim by
+        running build.mjs, which reports 173 tools). No other open PR
+        existed, and every branch with unique commits checked -- the two
+        vs-vendor marketing branches, 3pl-quote-normalizer-compare,
+        sweet-archimedes' catalog.json, work/hardwood-faq-fix -- is already
+        superseded on main.
+    mrr_end: null
