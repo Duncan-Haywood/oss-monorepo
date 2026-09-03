@@ -40,10 +40,10 @@
 #   portfolio-front-tools-4: 127 files, 556608 bytes
 #   portfolio-front-tools-5: 127 files, 555060 bytes
 #   portfolio-front-tools-6: 112 files, 551021 bytes
-#   portfolio-front-tools-7: 121 files, 557038 bytes
-#   portfolio-front-tools-8: 118 files, 556347 bytes
-#   portfolio-front-tools-9: 105 files, 553395 bytes
-#   portfolio-front-tools-10: 66 files, 340081 bytes
+#   portfolio-front-tools-7: 120 files, 556392 bytes
+#   portfolio-front-tools-8: 119 files, 549473 bytes
+#   portfolio-front-tools-9: 105 files, 551412 bytes
+#   portfolio-front-tools-10: 67 files, 353696 bytes
 #   portfolio-front-tools-11: 58 files, 266851 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1142,6 +1142,7 @@ configMapGenerator:
       - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
       - pergola-bid-calculator__proposal.mjs.gz=pergola-bid-calculator__proposal.mjs.gz
       - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
+      - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
       - pest-control-bid-calculator__LICENSE.gz=pest-control-bid-calculator__LICENSE.gz
       - pest-control-bid-calculator__calc.mjs.gz=pest-control-bid-calculator__calc.mjs.gz
       - pest-control-bid-calculator__how-much-to-charge.html.gz=pest-control-bid-calculator__how-much-to-charge.html.gz
@@ -1149,13 +1150,13 @@ configMapGenerator:
       - pest-control-bid-calculator__proposal.mjs.gz=pest-control-bid-calculator__proposal.mjs.gz
       - pest-control-bid-calculator__share.mjs.gz=pest-control-bid-calculator__share.mjs.gz
       - pest-control-bid-calculator__usage.mjs.gz=pest-control-bid-calculator__usage.mjs.gz
-      - pest-control-bid-calculator__vs-pestpac.html.gz=pest-control-bid-calculator__vs-pestpac.html.gz
-      - plantation-shutter-bid-calculator__LICENSE.gz=plantation-shutter-bid-calculator__LICENSE.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pest-control-bid-calculator__vs-pestpac.html.gz=pest-control-bid-calculator__vs-pestpac.html.gz
+      - plantation-shutter-bid-calculator__LICENSE.gz=plantation-shutter-bid-calculator__LICENSE.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
@@ -1273,12 +1274,12 @@ configMapGenerator:
       - shed-install-bid-calculator__usage.mjs.gz=shed-install-bid-calculator__usage.mjs.gz
       - shop-rate-calculator__LICENSE.gz=shop-rate-calculator__LICENSE.gz
       - shop-rate-calculator__calc.mjs.gz=shop-rate-calculator__calc.mjs.gz
-      - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
@@ -1383,12 +1384,12 @@ configMapGenerator:
       - stucco-repair-bid-calculator__LICENSE.gz=stucco-repair-bid-calculator__LICENSE.gz
       - stucco-repair-bid-calculator__calc.mjs.gz=stucco-repair-bid-calculator__calc.mjs.gz
       - stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz=stucco-repair-bid-calculator__how-much-to-charge-for-stucco-repair.html.gz
-      - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - stucco-repair-bid-calculator__index.html.gz=stucco-repair-bid-calculator__index.html.gz
       - stucco-repair-bid-calculator__proposal.mjs.gz=stucco-repair-bid-calculator__proposal.mjs.gz
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__LICENSE.gz=sump-pump-bid-calculator__LICENSE.gz
