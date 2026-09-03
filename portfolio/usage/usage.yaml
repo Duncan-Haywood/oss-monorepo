@@ -3494,6 +3494,20 @@ products:
         note: >-
           Shipped a local deck staining / sealing bid calculator with a
           copyable proposal summary; public URL remains owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded job inputs,
+          decoded and applied on load ahead of the built-in defaults),
+          following the same pattern already used by 84 other ventures, so a
+          crew can hand an editable bid to a partner or the office instead of
+          only static summary text. Also reachable today at
+          https://marisstella.dev/tools/deck-staining-bid-calculator/ via the
+          apex front-door mirror -- the "public URL remains owner-gated" note
+          above predates that mirror and is stale for this venture, as it was
+          for others corrected earlier this month.
 
   - slug: concrete-lifting-bid-calculator
     surface: static-page-in-repo
