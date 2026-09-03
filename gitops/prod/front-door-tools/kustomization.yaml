@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 145 files, 550873 bytes
+#   portfolio-front-tools-0: 146 files, 552035 bytes
 #   portfolio-front-tools-1: 125 files, 554565 bytes
 #   portfolio-front-tools-2: 162 files, 556129 bytes
 #   portfolio-front-tools-3: 127 files, 556619 bytes
@@ -71,6 +71,7 @@ configMapGenerator:
       - change-order-margin-calculator__calc.mjs.gz=change-order-margin-calculator__calc.mjs.gz
       - change-order-margin-calculator__how-to-price-a-change-order.html.gz=change-order-margin-calculator__how-to-price-a-change-order.html.gz
       - change-order-margin-calculator__index.html.gz=change-order-margin-calculator__index.html.gz
+      - change-order-margin-calculator__share.mjs.gz=change-order-margin-calculator__share.mjs.gz
       - change-order-margin-calculator__vs-buildertrend.html.gz=change-order-margin-calculator__vs-buildertrend.html.gz
       - subcontractor-cashflow-planner__LICENSE.gz=subcontractor-cashflow-planner__LICENSE.gz
       - subcontractor-cashflow-planner__calc.mjs.gz=subcontractor-cashflow-planner__calc.mjs.gz
