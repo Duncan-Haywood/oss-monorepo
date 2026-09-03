@@ -7,10 +7,19 @@ gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool listed below is linked at a URL this host serves. The wider
-collection runs to 169 tools and will be published at tools.marisstella.dev; that
-hostname is not serving yet, so it is named here for context and deliberately
-not linked — a link there would resolve to nothing today.
+Every tool in the collection is listed below — all 169 of them — and
+every one is linked at a URL this host serves. Nothing is held back for
+another hostname: tools.marisstella.dev is reserved as this collection's
+eventual canonical address, is not serving yet, and is named here only so it
+is not mistaken for a fuller index — a link there would resolve to nothing
+today.
+
+Every tool above can be embedded in another site's page, free, including on
+commercial sites: load its URL with ?pfEmbed=1 inside an <iframe>
+(1400px is a reasonable starting height). The embedded view keeps the same
+arithmetic and the same disclaimer as the full page and links back to it, runs
+entirely in the visitor's browser, and adds no tracking of any kind to the
+page that hosts it.
 
 ## Trade & contractor bids
 

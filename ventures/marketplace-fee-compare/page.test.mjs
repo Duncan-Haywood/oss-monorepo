@@ -202,6 +202,16 @@ test("the privacy section explains where a share link travels", () => {
   assert.match(prose, /share link.*URL fragment|URL fragment.*share link|share link.*never sends|never sends.*share link/i);
 });
 
+test("the dynamic result regions are announced to screen readers", () => {
+  // #resultSection, #errors and #copyStatus all rewrite their own content on
+  // every keystroke or copy click without a page reload; without
+  // aria-live="polite" a screen-reader user hears nothing when the ranking,
+  // an input error, or a copy confirmation changes.
+  assert.match(markup, /<p id="errors" class="errors" role="status" aria-live="polite">/);
+  assert.match(markup, /<section id="resultSection" aria-live="polite">/);
+  assert.match(markup, /<span id="copyStatus" class="fine" role="status" aria-live="polite">/);
+});
+
 test("the sharing FAQ answer matches between JSON-LD and the visible section", () => {
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
   let answer = null;

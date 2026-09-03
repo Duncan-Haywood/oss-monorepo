@@ -382,6 +382,60 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
     assert catalog["served_here"] == len(catalog["tools"])
 
 
+def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
+    # The category pages are the one part of the apex whose URL and whose
+    # storage key are different strings: a ConfigMap key cannot contain `/`,
+    # so `/c/trades/` is stored as `c__trades.html` and an nginx rewrite puts
+    # the shape back. That is the same class of mapping the module docstring
+    # above records going wrong twice on the tool mirror, both times silently,
+    # so it gets the same treatment — ask nginx, do not read the config.
+    #
+    # Driven off the sitemap rather than a hard-coded list of seven, because
+    # the sitemap is what actually asks crawlers to fetch these URLs. Anything
+    # advertised there and not served is a 404 in Search Console.
+    _, _, sitemap = _get(front_door + "/sitemap.xml", gzip_ok=True)
+    paths = sorted(
+        set(
+            re.findall(
+                r"<loc>https://marisstella\.dev(/c/[a-z0-9-]+/)</loc>",
+                sitemap.decode("utf-8"),
+            )
+        )
+    )
+    assert paths, "the sitemap advertised no category pages"
+
+    for url_path in paths:
+        status, headers, body = _get(front_door + url_path, gzip_ok=True)
+        assert status == 200, f"{url_path} is in the sitemap but returned {status}"
+        assert headers.get("Content-Type", "").startswith("text/html"), (
+            f"{url_path} was served as {headers.get('Content-Type')}"
+        )
+        # Not the front page. The catch-all answers every unmatched path with
+        # `index.html`, so a broken rewrite here returns 200 and looks fine to
+        # every check that only reads the status — while seven URLs quietly
+        # become duplicates of the home page, which is worse for ranking than
+        # not having them at all.
+        canonical = f'<link rel="canonical" href="https://marisstella.dev{url_path}">'
+        assert canonical.encode("utf-8") in body, (
+            f"{url_path} did not serve its own page — the catch-all probably shadowed it"
+        )
+        # Trailing slash is what the sitemap advertises; without one is what a
+        # person types. Both have to work, and the location's `/?$` is what
+        # makes that true.
+        status_bare, _, _ = _get(front_door + url_path.rstrip("/"), gzip_ok=True)
+        assert status_bare == 200, f"{url_path.rstrip('/')} returned {status_bare}"
+
+
+def test_an_unknown_category_is_a_404_rather_than_the_front_page(front_door: str) -> None:
+    # Same reasoning as the `/tools/` case below, for the same reason: a 200
+    # carrying the front door tells a crawler this domain has another page of
+    # identical HTML. `try_files ... =404` rather than a fallthrough is what
+    # makes this hold.
+    for url_path in ("/c/no-such-category/", "/c/no-such-category"):
+        status, _, _ = _get(front_door + url_path, gzip_ok=True)
+        assert status == 404, f"{url_path} returned {status} rather than 404"
+
+
 def test_a_path_the_mirror_does_not_hold_is_a_404_rather_than_the_front_page(front_door: str) -> None:
     # The catch-all answers every unmatched path with `index.html`, which is
     # right for a mistyped URL and wrong under `/tools/`: a 200 carrying the
@@ -419,3 +473,82 @@ def test_it_did_not_skip_on_the_runner_that_is_supposed_to_run_it() -> None:
         "nginx is missing on a hosted runner, so every serving test in this file skipped. "
         "The `Install nginx` step in .github/workflows/hetzner-gitops-ci.yml is what provides it."
     )
+
+
+# ---------------------------------------------------------------------------
+# The embed offer's server half.
+#
+# `platform/pages/embed.mjs` shipped a complete embeddable-widget feature that
+# only ever reached `tools.marisstella.dev`, a host that has never served a
+# byte. Bringing it to the apex is only half a feature: `X-Frame-Options: DENY`
+# is enforced before any page script runs, so correct HTML, a correct runtime
+# and a green JS suite still add up to an iframe every browser refuses. These
+# tests are the half that markup cannot assert -- and, more importantly, they
+# pin how *narrow* the exception is.
+# ---------------------------------------------------------------------------
+
+
+def _entry_path() -> str:
+    """A mirrored tool's entry page — the one path the snippet points at."""
+    for url_path, content_type, _ in _sample_paths():
+        if content_type == "text/html":
+            return url_path
+    raise AssertionError("the mirror sampled no HTML entry page")
+
+
+def test_the_entry_page_is_framable_only_with_the_embed_parameter(front_door: str) -> None:
+    entry = _entry_path()
+
+    # The deliberate signal the copied snippet carries.
+    _, headers, _ = _get(front_door + entry + "?pfEmbed=1", gzip_ok=True)
+    assert headers.get("X-Frame-Options") is None, (
+        "an embedded view still sends X-Frame-Options, so the iframe a stranger pasted "
+        "onto their page renders blank -- the exact defect this map exists to remove"
+    )
+    assert headers.get("Content-Security-Policy") == "frame-ancestors *;", (
+        "the embedded view sends no frame-ancestors CSP. Modern browsers read the CSP and "
+        "older ones the header, so shipping one without the other frames on some and not others."
+    )
+
+    # Every other spelling is an ordinary visit and must be unchanged.
+    for query in ("", "?pfEmbed=0", "?pfEmbed=2", "?pfEmbed=yes", "?pfEmbed=1x", "?other=1"):
+        _, headers, _ = _get(front_door + entry + query, gzip_ok=True)
+        assert headers.get("X-Frame-Options") == "DENY", (
+            f"{entry}{query} is framable; only the literal `?pfEmbed=1` may be"
+        )
+        assert headers.get("Content-Security-Policy") is None, f"{entry}{query}"
+
+
+def test_nothing_but_a_tool_entry_page_is_framable(front_door: str) -> None:
+    # The blast radius of the map, stated as a test. A future edit that copied
+    # the two `add_header` lines into another block -- or moved them to the
+    # server level, where they would apply everywhere -- fails here rather than
+    # making the front page and every source file embeddable.
+    others = ["/", "/robots.txt", "/catalog.json", "/pf-embed.js", "/pf-embed.css"]
+    others += [p for p, ctype, _ in _sample_paths() if ctype != "text/html"]
+    for url_path in others:
+        _, headers, _ = _get(front_door + url_path + "?pfEmbed=1", gzip_ok=True)
+        assert headers.get("X-Frame-Options") == "DENY", (
+            f"{url_path} became framable; only a tool's entry page may be"
+        )
+
+
+def test_the_embed_runtime_and_stylesheet_are_served_as_their_own_types(front_door: str) -> None:
+    # Every mirrored entry page links these two absolutely. The catch-all
+    # answers unknown paths with the front page's HTML, and a browser *refuses*
+    # a stylesheet and an ES module served as text/html rather than merely
+    # mistyping them: the offer box renders unstyled and the copy button does
+    # nothing, with a 200 in the log and nothing in any error log.
+    for url_path, content_type, must_contain in (
+        ("/pf-embed.js", "text/javascript", "data-pf-embed-url"),
+        ("/pf-embed.css", "text/css", ".pf-embed-offer"),
+    ):
+        status, headers, body = _get(front_door + url_path, gzip_ok=True)
+        assert status == 200, f"{url_path} returned {status} — the embed offer is inert"
+        assert headers.get("Content-Type", "").startswith(content_type), (
+            f"{url_path} was served as {headers.get('Content-Type')}, not {content_type}"
+        )
+        assert must_contain in body.decode("utf8"), (
+            f"{url_path} did not serve the generated file — the catch-all is shadowing it"
+        )
+        assert headers.get("X-Content-Type-Options") == "nosniff", url_path

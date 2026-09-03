@@ -102,6 +102,58 @@ configMapGenerator:
       # generated set under the 1 MiB object ceiling so this cannot grow past
       # it unnoticed.
       - catalog.json=front-door/catalog.json
+      # The embed runtime and its stylesheet, generated from
+      # `platform/pages/embed.mjs` by `front-door.mjs --write`. Same reason
+      # again for riding here: every mirrored entry page links them absolutely
+      # at `/pf-embed.js` and `/pf-embed.css`, so they have to sit at the
+      # document root, and two ConfigMaps cannot mount at one `mountPath`.
+      #
+      # These are the only keys in this ConfigMap that a *mirrored* page
+      # references rather than the front page — the mirror's shards mount
+      # elsewhere, but the browser resolves these two against the document
+      # root, which is this volume. Shipping the mirror without them would
+      # serve 169 pages whose embed box is unstyled and whose copy button is
+      # dead. ~4 KB together; `front-door.test.mjs` holds the whole generated
+      # set under the 1 MiB object ceiling.
+      - pf-embed.js=front-door/pf-embed.js
+      - pf-embed.css=front-door/pf-embed.css
+      # The resizer, which is here for a different reason than the two above:
+      # no page on this host links it at all. It is named by the `<script src>`
+      # in the embed snippet each of the 169 entry pages offers for copying, so
+      # it is fetched from a stranger's site or not at all. Absent from this
+      # ConfigMap, every published snippet's second line 404s and every embed
+      # silently stays at its fallback height -- a failure with no symptom
+      # anywhere we can see it.
+      - pf-embed-host.js=front-door/pf-embed-host.js
+      # The seven category browse pages. Same reason as everything above for
+      # riding in this ConfigMap: they are served from the document root (the
+      # `^/c/(?<cat>…)/?$` block in `front-door/default.conf` rewrites
+      # `/c/trades/` to `/c__trades.html`), and two ConfigMaps cannot mount at
+      # one `mountPath`.
+      #
+      # Listed one line per file rather than generated, unlike `front-door-tools/`,
+      # because the set is seven and changes only when a category gains or
+      # loses its last mirrored tool — a generated nested kustomization would
+      # be more machinery than the thing it manages. `front-door.test.mjs`
+      # asserts this list against what the generator writes, so a category
+      # added without a line here fails CI rather than going dark.
+      #
+      # ~136 KB together, the largest being `c__trades.html` at ~55 KB for 116
+      # tools. Measured with `kustomize build gitops/prod`, the serialised
+      # object goes from ~350 KB to 487 KiB against the 1 MiB ceiling; the
+      # ceiling test in `front-door.test.mjs` covers the whole generated set,
+      # so this cannot grow past it unnoticed.
+      #
+      # Well past the 262144-byte annotation cap that makes the
+      # `ServerSideApply=true` above load-bearing rather than decoration —
+      # these seven keys roughly double the margin by which that is true.
+      - c__trades.html=front-door/c__trades.html
+      - c__evidence.html=front-door/c__evidence.html
+      - c__marketplace.html=front-door/c__marketplace.html
+      - c__backoffice.html=front-door/c__backoffice.html
+      - c__services.html=front-door/c__services.html
+      - c__logistics.html=front-door/c__logistics.html
+      - c__more.html=front-door/c__more.html
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

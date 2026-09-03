@@ -63,7 +63,9 @@ import {
   blankScriptBodies,
   dynamicLinks,
   NAV_CLASS,
+  NAV_STYLE,
   APEX_ROOT_PATHS,
+  decodeCharacterReferences,
   FAVICON_FILE,
   mirrorUrl,
   pageTitle,
@@ -1489,4 +1491,113 @@ test('every venture the canonical build publishes is one the mirror can resolve'
     'the canonical build publishes these ventures but the mirror finds no index.html for them — ' +
       'the entry-point rules have diverged again',
   );
+});
+
+// ---------------------------------------------------------------------------
+// The embed offer.
+//
+// `platform/pages/embed.mjs` calls itself "Priority 1 of the
+// marketing-distribution queue item" and, until 2026-09-03, shipped only on
+// `tools.marisstella.dev` -- the host that fails closed on the unsealed
+// `portfolio-site-repo` Secret and has never served a byte. The apex served
+// all 169 tools and offered no embed at all, so the portfolio's best organic
+// -distribution asset reached nobody. These tests pin the three properties
+// that make the apex copy worth having rather than a second, drifting one.
+// ---------------------------------------------------------------------------
+
+test('every mirrored entry page offers an embed pointing at a host that serves', async () => {
+  const { files } = await buildMirror();
+  const entries = files.filter((f) => f.file === 'index.html');
+  assert.ok(entries.length > 100, 'implausibly few entry pages');
+
+  for (const entry of entries) {
+    assert.ok(
+      entry.contents.includes('pf-embed-offer'),
+      `${entry.slug} has no embed offer — the mirror's best distribution asset is missing from it`,
+    );
+
+    // The property that matters most, and the one a reader cannot check by
+    // eye across 169 pages: a snippet is copied once into a stranger's page
+    // and then outlives every deploy here. Pointed at the tools host it would
+    // render a blank iframe today and stay blank until the seal.
+    const expected = `${mirrorCanonicalUrl(entry.slug, 'index.html')}?pfEmbed=1`;
+    assert.ok(
+      entry.contents.includes(expected.replaceAll('&', '&amp;')),
+      `${entry.slug}'s embed snippet does not point at ${expected}`,
+    );
+    assert.equal(
+      mirrorCanonicalUrl(entry.slug, 'index.html'),
+      apexUrl(entry.slug, 'index.html'),
+      'while TOOLS_HOST_SERVES is false the snippet must name the apex, which answers',
+    );
+
+    // The runtime and stylesheet, absolute so they resolve from a subpage's
+    // depth as well as the entry page's.
+    assert.ok(entry.contents.includes('src="/pf-embed.js"'), `${entry.slug} loads no embed runtime`);
+    assert.ok(
+      entry.contents.includes('href="/pf-embed.css"'),
+      `${entry.slug} loads no embed stylesheet`,
+    );
+
+    // The resizer the snippet offers. `validateLinks` cannot reach this one:
+    // the snippet lives inside a `<textarea>` as escaped text, so it is not a
+    // link on this page at all — it becomes one only after somebody pastes it
+    // onto their own site, where nothing we run can notice it 404ing. So the
+    // URL is resolved here and checked against the paths the apex serves.
+    const snippet = entry.contents.match(
+      /data-pf-embed-snippet>([\s\S]*?)<\/textarea>/,
+    )?.[1];
+    assert.ok(snippet, `${entry.slug} carries no embed snippet to check`);
+    const resizer = decodeCharacterReferences(snippet).match(/<script src="([^"]+)"/)?.[1];
+    assert.ok(resizer, `${entry.slug}'s snippet offers no resizer`);
+    const resolved = new URL(resizer);
+    assert.equal(
+      resolved.origin,
+      new URL(APEX_URL).origin,
+      `${entry.slug}'s snippet loads its resizer from an origin this host does not serve`,
+    );
+    assert.ok(
+      APEX_ROOT_PATHS.has(resolved.pathname),
+      `${entry.slug}'s snippet points at ${resolved.pathname}, which the apex document root `
+        + `does not serve (it serves ${[...APEX_ROOT_PATHS].join(', ')})`,
+    );
+  }
+});
+
+test('deep subpages carry no embed offer', async () => {
+  // They are articles, not the calculator, and offering to embed one would be
+  // offering the wrong page. `injectEmbedWidget` gates on `isEntry` for this
+  // reason; `injectMirrorEmbed` has to pass that gate through rather than
+  // around it.
+  const { files } = await buildMirror();
+  const subpages = files.filter((f) => f.file.endsWith('.html') && f.file !== 'index.html');
+  assert.ok(subpages.length > 0, 'no subpages in the mirror — this test proves nothing');
+
+  for (const page of subpages) {
+    assert.ok(
+      !page.contents.includes('pf-embed-offer'),
+      `${page.slug}/${page.file} is not the calculator but offers itself for embedding`,
+    );
+  }
+});
+
+test('the mirror nav hides when the page is the one being framed', async () => {
+  // `renderEmbedStyle` hides the chrome `build.mjs` writes and cannot know
+  // about `.fd-back`, which belongs to the mirror. Without this rule an
+  // embedded calculator shows a full-width "All 169 free tools on this site"
+  // banner inside someone else's page -- the site nav the embed bar replaces.
+  assert.ok(
+    NAV_STYLE.includes(`.pf-embed .${NAV_CLASS}{display:none}`),
+    'the mirror nav is not hidden under .pf-embed, so it would show inside an embed',
+  );
+});
+
+test('the embed runtime and stylesheet are reachable paths at the apex root', async () => {
+  // `validateLinks` rejects any absolute link the apex document root does not
+  // serve, so these two have to be in the allowlist or the whole mirror build
+  // fails. Named from `embed.mjs`'s constants rather than as literals, so a
+  // rename over there cannot leave this list pointing at the old names.
+  const { EMBED_MODULE_FILE, EMBED_STYLE_FILE } = await import('../pages/embed.mjs');
+  assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_MODULE_FILE}`));
+  assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_STYLE_FILE}`));
 });

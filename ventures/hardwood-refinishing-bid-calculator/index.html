@@ -9,7 +9,7 @@
   <meta property="og:description" content="Bid hardwood refinishing the way the trade does — field, stairs, closets, and stain — and see the margin before you send the price.">
   <link rel="canonical" href="https://example.invalid/hardwood-refinishing-bid-calculator/">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hardwood Refinishing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Field square-foot takeoff, stair treads and risers, closet hours, screen-and-recoat vs full sand, stain and color-change extra coat, loaded wage, overhead, target-margin price, price per square foot, walk-away price, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a 250 sq ft hallway with 14 treads a losing job at a per-square-foot rate?","acceptedAnswer":{"@type":"Answer","text":"Because stair treads are billed at their own hours per tread, not folded into the field square footage — each tread is estimated at about 4 sq ft of tread-and-riser for the finish and stain math, but its labor is a separate line entirely. A small hallway with a lot of stairs can carry more total labor hours than a much larger open room with none, which a flat rate written for the room square footage cannot see."}},{"@type":"Question","name":"Why does full sand cost so much more than screen and recoat on the same floor?","acceptedAnswer":{"@type":"Answer","text":"Screen and recoat starts at 3.5 hours per 100 sq ft with 2 base coats; full sand — cutting in and sanding the field down to bare wood — starts at 8 hours per 100 sq ft with 3 base coats. Both the labor rate and the coat count are higher, so the gap between the two methods compounds rather than adding once, which matters most on a same-color job where the temptation is to assume the cheaper method looks the same when it's done."}},{"@type":"Question","name":"Why does a stain color change add a whole extra coat, not just stain time?","acceptedAnswer":{"@type":"Answer","text":"A poly-only job needs no stain step at all. Stain-then-finish adds stain application time across the full finish area, but a color change adds an additional finish coat on top of that — because covering an existing color evenly typically takes one more pass than staining bare wood. That extra coat's hours and gallons are counted separately from the base coats the method itself sets."}},{"@type":"Question","name":"Why does the gallon count round up instead of matching the math exactly?","acceptedAnswer":{"@type":"Answer","text":"Because you can't buy a fraction of a gallon of finish or stain. Gallons needed is finish area times coat count divided by coverage per gallon, then rounded up to the next whole gallon — so a job that calculates to 4.05 gallons still buys 5, and that rounding happens independently for the clear finish and for the stain, since they don't share a coverage rate."}},{"@type":"Question","name":"Do closets and furniture moving get folded into the field square footage?","acceptedAnswer":{"@type":"Answer","text":"No — each closet adds its own fixed hours per closet regardless of its size, and furniture-move and repair hours are flat inputs on top of everything else, none of which scale with floor square footage. A job with several small closets and a furniture-heavy room can carry meaningfully more labor than the field square footage alone would suggest."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a 250 sq ft hallway with 14 treads a losing job at a per-square-foot rate?","acceptedAnswer":{"@type":"Answer","text":"Because stair treads are billed at their own hours per tread, not folded into the field square footage — each tread is estimated at about 4 sq ft of tread-and-riser for the finish and stain math, but its labor is a separate line entirely. A small hallway with a lot of stairs can carry more total labor hours than a much larger open room with none, which a flat rate written for the room square footage cannot see."}},{"@type":"Question","name":"Why does full sand cost so much more than screen and recoat on the same floor?","acceptedAnswer":{"@type":"Answer","text":"Screen and recoat starts at 3.5 hours per 100 sq ft with 2 base coats; full sand — cutting in and sanding the field down to bare wood — starts at 8 hours per 100 sq ft with 3 base coats. Both the labor rate and the coat count are higher, so the gap between the two methods compounds rather than adding once, which matters most on a same-color job where the temptation is to assume the cheaper method looks the same when it's done."}},{"@type":"Question","name":"Why does a stain color change add a whole extra coat, not just stain time?","acceptedAnswer":{"@type":"Answer","text":"A poly-only job needs no stain step at all. Stain-then-finish adds stain application time across the full finish area, but a color change adds an additional finish coat on top of that — because covering an existing color evenly typically takes one more pass than staining bare wood. That extra coat's hours and gallons are counted separately from the base coats the method itself sets."}},{"@type":"Question","name":"Why does the gallon count round up instead of matching the math exactly?","acceptedAnswer":{"@type":"Answer","text":"Because you can't buy a fraction of a gallon of finish or stain. Gallons needed is finish area times coat count divided by coverage per gallon, then rounded up to the next whole gallon — so a job that calculates to 4.05 gallons still buys 5, and that rounding happens independently for the clear finish and for the stain, since they don't share a coverage rate."}},{"@type":"Question","name":"Do closets and furniture moving get folded into the field square footage?","acceptedAnswer":{"@type":"Answer","text":"No — each closet adds its own fixed hours per closet regardless of its size, and furniture-move and repair hours are flat inputs on top of everything else, none of which scale with floor square footage. A job with several small closets and a furniture-heavy room can carry meaningfully more labor than the field square footage alone would suggest."}},{"@type":"Question","name":"What does \"Copy share link\" send, and does anything leave my browser?","acceptedAnswer":{"@type":"Answer","text":"It copies the current page's address with the field square footage, stair and closet counts, method, stain choice, coats, and every rate encoded after a # in the URL. A browser never sends the part after # to a server, so pasting that link into a text or email is the only way the figures travel — opening it re-runs the same bid immediately, so a partner, estimator, or customer sees the exact job you priced rather than a screenshot of the total. Your business name, licence, and the customer's name and address are never included; those stay on this device."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2318; background: #f3eee4; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -196,6 +196,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -255,6 +256,8 @@
         <p>Because you can't buy a fraction of a gallon of finish or stain. Gallons needed is finish area times coat count divided by coverage per gallon, then rounded up to the next whole gallon &mdash; so a job that calculates to 4.05 gallons still buys 5, and that rounding happens independently for the clear finish and for the stain, since they don't share a coverage rate.</p>
         <h3>Do closets and furniture moving get folded into the field square footage?</h3>
         <p>No &mdash; each closet adds its own fixed hours per closet regardless of its size, and furniture-move and repair hours are flat inputs on top of everything else, none of which scale with floor square footage. A job with several small closets and a furniture-heavy room can carry meaningfully more labor than the field square footage alone would suggest.</p>
+        <h3>What does "Copy share link" send, and does anything leave my browser?</h3>
+        <p>It copies the current page's address with the field square footage, stair and closet counts, method, stain choice, coats, and every rate encoded after a # in the URL. A browser never sends the part after # to a server, so pasting that link into a text or email is the only way the figures travel &mdash; opening it re-runs the same bid immediately, so a partner, estimator, or customer sees the exact job you priced rather than a screenshot of the total. Your business name, licence, and the customer's name and address are never included; those stay on this device.</p>
       </section>
 <!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
@@ -265,7 +268,7 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not flooring, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices. A share link encodes only the bid fields above in the page&rsquo;s URL hash &mdash; it is not sent to us, and it never includes your business or customer details.</p>
     <p>Related: <a href="how-much-to-charge-to-refinish-hardwood-floors.html">How much to charge to refinish hardwood floors</a> &middot; <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -280,6 +283,7 @@
       suggestedStain,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -405,6 +409,57 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyShare() {
+      const hash = encodeInputs({
+        ...readInput(),
+        methodId: el('methodId').value,
+        stainId: el('stainId').value,
+      });
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Share link copied — it reopens this bid with the same figures.';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only FIELD_IDS values are
+     * ever written back into the form -- see share.mjs -- so a crafted
+     * fragment cannot set anything this page does not already ask for.
+     */
+    function applyShare(payload) {
+      if (!payload) return;
+      for (const id of FIELD_IDS) {
+        if (payload[id] === undefined) continue;
+        el(id).value = payload[id];
+      }
+      if (payload.staining !== undefined) el('staining').checked = Boolean(payload.staining);
+      if (payload.methodId !== undefined) el('methodId').value = payload.methodId;
+      if (payload.stainId !== undefined) el('stainId').value = payload.stainId;
+      // A shared link already carries explicit hours and coat figures, so
+      // treat them as user-edited: switching the method or stain choice
+      // afterward must not silently overwrite what was shared.
+      el('hoursPer100').dataset.edited = '1';
+      el('baseCoats').dataset.edited = '1';
+      el('extraCoats').dataset.edited = '1';
+    }
+
     function applyJob(preset) {
       el('floorSqFt').value = preset.floorSqFt;
       el('treads').value = preset.treads;
@@ -464,6 +519,16 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the URL from the address bar.'; });
+    });
+
+    // A shared link takes priority over the page's own defaults -- a partner
+    // opening it should see the sender's job on first paint, not the default
+    // 800 sq ft / 12 tread example that then jumps to the real numbers.
+    const shared = decodeInputs(location.hash || location.search);
+    applyShare(shared);
+    if (Object.keys(shared).length) count('shared_link_opened');
 
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs

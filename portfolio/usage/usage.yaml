@@ -429,6 +429,20 @@ products:
           panel with no usage signal, so nothing recorded whether it was
           read. Public URL remains owner-gated; the counter stores only
           aggregate local events and remains opt-out.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          markdown_copied: 0
+          markdown_downloaded: 0
+          share_link_copied: 0
+          review_summary_downloaded: 0
+        note: >-
+          Backfilled this reading: the page already fires these four events
+          (copy/download the Markdown review, copy a share link, download the
+          plain-text review summary) with no corresponding usage.yaml entry,
+          found while reviewing a since-closed PR that tried to re-add the
+          same features under a different name. Public URL remains
+          owner-gated; the counter stores only aggregate local events.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:

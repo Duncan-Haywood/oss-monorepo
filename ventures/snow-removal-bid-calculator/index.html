@@ -471,9 +471,12 @@
       const verdict = el('verdict');
       const parts = [];
       if (result.proposedSeasonal) {
+        const survives = result.proposedSeasonal.breakEvenSnowEvents === null
+          ? 'an unlimited number of'
+          : `about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)}`;
         parts.push(result.proposedSeasonal.belowBreakEven
-          ? `At ${money(result.proposedSeasonal.price)} seasonal this winter <strong>loses ${money(Math.abs(result.proposedSeasonal.profit))}</strong>. It survives about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)} snow events after ice is paid. Walk-away is ${money(result.walkAwaySeasonal)}.`
-          : `At ${money(result.proposedSeasonal.price)} seasonal you keep <strong>${money(result.proposedSeasonal.profit)}</strong> — a ${result.proposedSeasonal.margin.toFixed(1)}% margin, surviving about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)} snow events.`);
+          ? `At ${money(result.proposedSeasonal.price)} seasonal this winter <strong>loses ${money(Math.abs(result.proposedSeasonal.profit))}</strong>. It survives ${survives} snow events after ice is paid. Walk-away is ${money(result.walkAwaySeasonal)}.`
+          : `At ${money(result.proposedSeasonal.price)} seasonal you keep <strong>${money(result.proposedSeasonal.profit)}</strong> — a ${result.proposedSeasonal.margin.toFixed(1)}% margin, surviving ${survives} snow events.`);
       }
       if (result.proposedPerPush) {
         parts.push(result.proposedPerPush.belowBreakEven

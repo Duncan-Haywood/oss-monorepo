@@ -39,4 +39,4 @@ jobs:
           python-version: "3.12"
       - run: pip install pytest ruff==0.15.8 mypy==1.19.1
       - run: ruff check .
-      - run: mypy
+      - run: mypy .

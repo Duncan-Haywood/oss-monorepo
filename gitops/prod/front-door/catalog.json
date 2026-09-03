@@ -12,47 +12,56 @@
   "collection_total": 169,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
+  "embed": {
+    "supported": true,
+    "url_pattern": "https://marisstella.dev/tools/{slug}/?pfEmbed=1",
+    "how": "Load any tool URL below with ?pfEmbed=1 inside an <iframe>.",
+    "suggested_min_height_px": 1400,
+    "cost": "free, including on commercial sites",
+    "privacy": "The calculator runs in the visitor’s browser and computes nothing on our servers. Embedding adds no tracking of any kind to the host page.",
+    "keeps": "the same arithmetic and the same disclaimer as the full page, and links back to it"
+  },
   "categories": [
     {
       "id": "trades",
       "name": "Trade & contractor bids",
-      "url": "https://marisstella.dev/#open-trades",
+      "url": "https://marisstella.dev/c/trades/",
       "tool_count": 116
     },
     {
       "id": "evidence",
       "name": "Compliance checks & evidence records",
-      "url": "https://marisstella.dev/#open-evidence",
+      "url": "https://marisstella.dev/c/evidence/",
       "tool_count": 14
     },
     {
       "id": "marketplace",
       "name": "Marketplace seller tools",
-      "url": "https://marisstella.dev/#open-marketplace",
+      "url": "https://marisstella.dev/c/marketplace/",
       "tool_count": 12
     },
     {
       "id": "backoffice",
       "name": "Back-office money & contracts",
-      "url": "https://marisstella.dev/#open-backoffice",
+      "url": "https://marisstella.dev/c/backoffice/",
       "tool_count": 11
     },
     {
       "id": "services",
       "name": "Service business pricing & quotes",
-      "url": "https://marisstella.dev/#open-services",
+      "url": "https://marisstella.dev/c/services/",
       "tool_count": 6
     },
     {
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
-      "url": "https://marisstella.dev/#open-logistics",
+      "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
     },
     {
       "id": "more",
       "name": "More free tools",
-      "url": "https://marisstella.dev/#open-more",
+      "url": "https://marisstella.dev/c/more/",
       "tool_count": 4
     }
   ],
@@ -407,7 +416,7 @@
       "url": "https://marisstella.dev/tools/portable-restroom-event-quote/",
       "category": "Service business pricing & quotes",
       "description": "Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "commercial-photo-license-calculator",
@@ -423,7 +432,7 @@
       "url": "https://marisstella.dev/tools/notary-trip-quote/",
       "category": "Service business pricing & quotes",
       "description": "Price a mobile notary appointment from mileage, drive time, print pages, witnesses and waiting — then test a signing service's flat offer against what you actually earn per hour after paper, toner and fuel.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "booth-rent-vs-commission",
@@ -519,7 +528,7 @@
       "url": "https://marisstella.dev/tools/asphalt-sealcoat-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "attic-insulation-bid-calculator",
@@ -583,7 +592,7 @@
       "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "chimney-sweep-bid-calculator",
@@ -623,7 +632,7 @@
       "url": "https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — plus the walk-away price a $4 / sq ft special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "crown-molding-bid-calculator",
@@ -671,7 +680,7 @@
       "url": "https://marisstella.dev/tools/dryer-vent-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a dryer vent cleaning from extra stories, extra feet of duct, extra dryers, a rooftop termination, camera inspection, crushed-flex replacement, and a nest — not a published $99 special. See the walk-away number before you match a cheaper wall-cap quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "drywall-bid-calculator",
@@ -727,7 +736,7 @@
       "url": "https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an epoxy or polyaspartic garage floor from grind hours, flake load, waste, cracks, and travel — not a $4/sq ft special. See kit cost, walk-away price, and whether a proposed number loses money.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "equipment-rental-break-even",
@@ -863,7 +872,7 @@
       "url": "https://marisstella.dev/tools/holiday-light-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price Christmas lights from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $3 / LF hang special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "home-elevator-bid-calculator",
@@ -879,7 +888,7 @@
       "url": "https://marisstella.dev/tools/hood-cleaning-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.",
-      "pages": 2
+      "pages": 4
     },
     {
       "slug": "hot-tub-bid-calculator",
@@ -1015,7 +1024,7 @@
       "url": "https://marisstella.dev/tools/parking-lot-striping-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a parking lot striping job from stall lines, ADA hash aisles, arrows, coats, and new-layout hours — plus price per stall, the extra a per-stall special hides, and the walk-away number.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "patio-door-bid-calculator",
@@ -1047,7 +1056,7 @@
       "url": "https://marisstella.dev/tools/pergola-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential pergola or patio cover from the posts a square-foot special cannot see, the shade layer, the height, and the attached ledger — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "pest-control-bid-calculator",
@@ -1151,7 +1160,7 @@
       "url": "https://marisstella.dev/tools/septic-pumping-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a septic tank pump from buried lids, hose run, extra tanks, baffles, risers, inspection, dump tickets, and after-hours dispatch — not a published $325 pump special. See the walk-away number before you match a cheaper per-gallon quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "sewer-hydrojet-bid-calculator",
@@ -1231,7 +1240,7 @@
       "url": "https://marisstella.dev/tools/sod-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a sod install from fescue, bermuda, or zoysia: lawn size, whole pallets, soil prep, delivery, slope, and watering — plus the walk-away price a $0.55-a-foot special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "soffit-fascia-bid-calculator",

@@ -6940,3 +6940,202 @@ entries:
         still blocked only on the owner sealing `codex-secrets` and flipping
         `suspend: false` / `enabled: true`. Nothing for a session to build.
     mrr_end: null
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR/branch drain re-verified before new work: 0 open PRs at session
+        start. Spot-checked the 7 branches with the most commits not on
+        `main` by ahead-count (tmp/ssh-key-smoke, agent/deploy-cicd-ledger-2868,
+        agent/marketing-distribution-gutter-guard-vs-jobnimbus,
+        claude/festive-mccarthy-xrn3ua, claude/sharp-volta-j555wn,
+        marketing/vs-smartmoving-moving-bid-calculator,
+        pipeline/dns-evidence-monitor, rematch-spray-foam) -- all fully
+        superseded, already landed on `main` under different final
+        commits/names. No repairable backlog found.
+      - >-
+        CI/CD readiness and marketing-distribution queue items re-checked
+        rather than re-swept: both already report full coverage as of
+        2026-09-02 (deploy-cicd-readiness.yaml, marketing-distribution.yaml
+        headers). Independently confirmed healthy today: `pytest gitops/tests
+        -q` 269 passed / 7 skipped, `publish_surface.py --check` and
+        `check_duplicate_symbols.py` both clean, full
+        `platform/pages/build.mjs` + `check.mjs` run -- 169 products, 600
+        pages, no dead links.
+      - >-
+        Codex-CLI-on-Hetzner ask (recorded again this session by the account
+        owner) is already fully built in `gitops/agents/` -- governor,
+        worker, dual auth modes including the plan-quota
+        `CODEX_AUTH_JSON` route the owner asked for -- and gated only on the
+        owner sealing `codex-secrets` and flipping `suspend`/`enabled`
+        (decision-queue row `codex-governor-enable`, #1996). Not duplicated.
+      - >-
+        Shipped: fixed a real crash in
+        `ventures/snow-removal-bid-calculator/index.html` (#2993) --
+        `proposedSeasonal.breakEvenSnowEvents.toFixed()` was called
+        unguarded even though `calc.mjs` can return that field `null` (an
+        ice-only route, `costPerSnowEvent === 0`), so entering a proposed
+        seasonal price against such a route threw uncaught mid-render and
+        silently dropped the verdict comparison with no error shown. Found
+        via a targeted bug-hunt across ~60 ventures untouched by the last 60
+        commits. Fixed with a null-checked local; added a calc.test.mjs case
+        pinning the zero-cost contract and a page.test.mjs regression check.
+        Verified: venture suite 72/72 (was 71/72 pre-fix), full site build
+        clean, suite re-run green after rebasing onto latest `main`.
+    mrr_end: null
+  - venture: medical-courier-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable route link (#2994), the missing completed-workflow
+        piece most sibling calculators already have: a courier pricing an
+        offer with a dispatcher, accountant, or another courier previously had
+        only a plain-text "Copy route summary" button, no way to send the
+        actual inputs. New share.mjs encodes all 13 route fields plus route
+        type into the URL fragment (never sent to a server), validated the
+        same way the form itself would (no negative numbers, route type
+        restricted to the page's own <select> options) -- the same allowlist
+        discipline that fixed the paver-patio/roofing share-link bug (#2962).
+        A test pins share.mjs's field list against the ids array index.html
+        actually renders so the two cannot drift apart silently. Added two
+        usage events (share_link_copied, shared_link_opened) and one FAQ
+        entry.
+      - >-
+        Caught by CI, not by me: the first push (64dad555b) went green on 6/7
+        checks but `validate` failed -- the committed front-door mirror
+        (`gitops/prod/front-door-tools/`) was stale after the index.html/
+        share.mjs edit. Ran `node platform/marketing/front-door-tools.mjs
+        --write`, which added the new share.mjs.gz shard file and updated
+        kustomization.yaml (1382 -> 1383 files); pushed as a second commit.
+        Confirms the "runners came back 2026-09-01" section of CLAUDE.md:
+        `ci_starvation.py` showed a real runner for the failing job, so it was
+        fixed forward rather than dismissed.
+      - >-
+        Tests: node --test ventures/medical-courier-route-margin/*.test.mjs
+        (22 passed: 16 pre-existing + 6 new); node --test
+        platform/marketing/front-door-tools.test.mjs (74 passed) after the
+        mirror regen. All 13 PR checks green on real runners before merge
+        (gitops 138s, build 175s, validate 236s -- confirmed via
+        ci_starvation.py, not assumed). Merged via squash.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: 0 open PRs existed at session start (verified via
+        list_pull_requests) -- the "none exist, start new work after the
+        overlap check" rule applies, so the drain phase was a genuine no-op.
+      - >-
+        Owner re-sent standing direction this session ("deployment and cicd
+        a priority", "building and deploying marketing materials on the
+        hetzner vms", "codex cli set up to use up the built in quota... on
+        the hetzner vm"). Verified all three are already answered on `main`
+        rather than re-building anything: `deploy-cicd-readiness` (priority
+        7) and `marketing-distribution` (priority 6) queue items were
+        reprioritized to the top on 2026-09-01 quoting this exact owner
+        instruction, and `gitops/agents/` already carries a complete
+        governor/worker system for Codex-on-Hetzner including the
+        `CODEX_AUTH_JSON` "plan quota" auth path. All three are gated only
+        on owner-only actions (sealing `codex-secrets`, flipping
+        `policy.json.enabled` and un-suspending the governor CronJob --
+        decision-queue row `codex-governor-enable`, #1996). Not duplicated.
+      - >-
+        Shipped: PR #3003 -- added `aria-live="polite"` to the dynamic
+        result panels of `marketplace-fee-compare` (#errors,
+        #resultSection, #copyStatus) and `retainage-cashflow-calculator`
+        (#output, #copyStatus), found via a sweep of all 163 ventures with a
+        top-level `index.html` for the aria-live gap already fixed
+        individually in other ventures (seller-net-sheet #2946,
+        notary-trip-quote #2987). 11 ventures lacked it; the other 9 were
+        static/non-interactive content, not applicable. Regenerated the
+        front-door-tools mirror for both (mirrored ventures).
+      - >-
+        `gitops` check failed once on the PR head on an unrelated flaky
+        test (`test_sigterm_reaches_the_runner_and_still_deregisters`, a
+        30s subprocess/SIGTERM timing test for `gitops/ci/runner-
+        entrypoint.sh` -- nothing this PR touches). Confirmed via
+        `ci_starvation.py` it ran on a real runner (not the starvation
+        signature) and that `gitops` was green on `main`'s own tip moments
+        earlier, so not a base-branch break either. Posted one comment
+        naming the failure and re-ran the job once per the CI-red rule; it
+        passed on re-run, confirming the flake. Verified: node --test in
+        both ventures (65/65, 27/27, including two new aria-live regression
+        tests), front-door-tools.test.mjs (74/74), full build.mjs +
+        check.mjs (169 products, 601 pages, no dead links), pytest
+        gitops/tests -q (271 passed, 9 skipped). Merged via squash.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Open-PR queue: one PR open at session start (#3003), so the
+        three-PR quota reduced to "process all of them". Its `gitops` check
+        was red on `test_sigterm_reaches_the_runner_and_still_deregisters`
+        -- the same test the previous session had re-run and recorded as a
+        flake. Root-caused it instead: the stub `run.sh` the test writes
+        backgrounds `sleep 30` and never kills it, so on SIGTERM the stub
+        exits but the sleep is orphaned holding the test's Popen stdout
+        pipe. `communicate()` returns on EOF rather than on the child
+        exiting, so the wait lasted the full remaining ~29.5s against its
+        own 30s timeout -- passing on about half a second of margin and
+        tipping over on any loaded runner, reporting "the entrypoint
+        ignored SIGTERM" when the entrypoint had exited promptly. Fixed in
+        #3004 (test-only; the stub now kills its sleep in the TERM trap):
+        ~30s to 0.83s, margin ~0.5s to ~29s. Merged. #3003 and #3005 were
+        merged concurrently by another session.
+      - >-
+        Shipped: PR #3007 -- brought the embeddable-widget feature to the
+        apex, the host that actually serves. `platform/pages/embed.mjs`
+        calls itself "Priority 1 of the marketing-distribution queue item"
+        and had shipped only on `tools.marisstella.dev`, which fails closed
+        on the unsealed `portfolio-site-repo` Secret and has never served a
+        byte -- so the portfolio's best organic-distribution asset reached
+        nobody while the apex served all 169 tools with no embed at all.
+        Same shape as the `ENTRY_OVERRIDES` bug in CLAUDE.md, and needing
+        no owner seal: a merge to `main` is the Argo deploy.
+        `injectMirrorEmbed` gives a mirrored entry page the `pf-chrome-foot`
+        the real `injectEmbedWidget` attaches to and then calls it (imported
+        whole, never restated); `front-door.mjs --write` ships
+        `pf-embed.js`/`pf-embed.css` at the apex root with a staleness test;
+        `front-door/default.conf` maps `?pfEmbed=1` to a framable response
+        on the tool entry page and nowhere else. Snippet points at
+        `mirrorCanonicalUrl` -- the address that actually serves -- so it
+        follows the seal automatically rather than handing out iframes that
+        render blank.
+      - >-
+        Also in #3007: `llms.txt` and `catalog.json` now state that every
+        tool is embeddable, with the parameter and starting height imported
+        from `embed.mjs` rather than typed. Neither surface had mentioned
+        it, which is a distribution gap rather than a documentation one --
+        an assistant asked "is there a free calculator for X I could put on
+        my site" had all 169 tools and no way to answer the second half.
+      - >-
+        Verified: real nginx over the real mirror (ordinary visit ->
+        `X-Frame-Options: DENY`; `?pfEmbed=1` -> no XFO plus
+        `frame-ancestors *;`; `?pfEmbed=0`, `=2`, `=yes`, `=1x` and the
+        front page, robots.txt, catalog.json, `.mjs`, LICENSE and deep
+        subpages all still DENY). pytest gitops/tests 282 passed 1 skipped
+        (was 271 + 9; nginx installed locally so the serving suite runs);
+        node --test platform/marketing/*.test.mjs 172 passed; embed.test.mjs
+        18 passed; build.mjs + check.mjs 169 products, 601 pages, no dead
+        links; kustomize build clean on all six overlays with
+        `portfolio-front-html` at 44.6% of the 1 MiB ceiling; mirror 72% of
+        its ceiling, 11 shards unchanged. Nine new tests, three of them
+        against real nginx. The pre-existing
+        `test_portfolio_front_every_content_location_sends_x_frame_options`
+        was narrowed rather than relaxed: it now also requires that exactly
+        one block uses the mapped form, that it pairs the CSP with it, and
+        that both maps default to denying.
+      - >-
+        Not duplicated, and checked rather than assumed: the 15 ventures the
+        mirror excludes really are non-static (verified via
+        `explainIneligible` -- 13 have no HTML at all, `photo-editing`'s are
+        internal viability docs, `retail-pilot-intel`'s portal is a Vite
+        shell); the usage CronJob already covers the apex pod; the front
+        door already has search; Codex-on-Hetzner is built and passing 99
+        tests, gated only on the owner's `codex login` + seal + un-suspend.
+    mrr_end: null

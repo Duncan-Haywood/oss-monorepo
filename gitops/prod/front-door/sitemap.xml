@@ -4,6 +4,27 @@
     <loc>https://marisstella.dev/</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/c/backoffice/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/c/evidence/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/c/logistics/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/c/marketplace/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/c/more/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/c/services/</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/c/trades/</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/3pl-quote-normalizer/</loc>
   </url>
   <url>
@@ -166,6 +187,9 @@
     <loc>https://marisstella.dev/tools/asphalt-sealcoat-bid-calculator/how-much-to-charge.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/asphalt-sealcoat-bid-calculator/vs-bitumio.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/attic-insulation-bid-calculator/</loc>
   </url>
   <url>
@@ -257,6 +281,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/carpet-install-bid-calculator/how-much-to-charge-to-install-carpet.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/carpet-install-bid-calculator/vs-measuresquare.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/cash-runway-planner/</loc>
@@ -385,6 +412,9 @@
     <loc>https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/how-much-to-charge-for-crawl-space-encapsulation.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/vs-quoteiq.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/crown-molding-bid-calculator/</loc>
   </url>
   <url>
@@ -434,6 +464,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/dryer-vent-bid-calculator/how-much-to-charge-for-dryer-vent-cleaning.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/dryer-vent-bid-calculator/vs-wepro.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/drywall-bid-calculator/</loc>
@@ -578,6 +611,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/how-much-to-charge-for-polyaspartic-garage-floor.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/vs-coatingos.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/equipment-rental-break-even/</loc>
@@ -850,6 +886,9 @@
     <loc>https://marisstella.dev/tools/holiday-light-bid-calculator/how-much-to-charge-to-hang-christmas-lights.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/holiday-light-bid-calculator/vs-realgreen.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/home-elevator-bid-calculator/</loc>
   </url>
   <url>
@@ -869,6 +908,12 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/hood-cleaning-bid-calculator/how-much-to-charge.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/hood-cleaning-bid-calculator/vs-hoodcleaningdispatch.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/hood-cleaning-bid-calculator/vs-hoodcleanpro.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/hot-tub-bid-calculator/</loc>
@@ -1096,6 +1141,9 @@
     <loc>https://marisstella.dev/tools/notary-trip-quote/how-much-to-charge-for-a-mobile-notary-appointment.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/notary-trip-quote/vs-notarygadget.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/npm-deployment-evidence/</loc>
   </url>
   <url>
@@ -1132,6 +1180,9 @@
     <loc>https://marisstella.dev/tools/parking-lot-striping-bid-calculator/how-much-to-charge-to-stripe-a-parking-lot.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/parking-lot-striping-bid-calculator/vs-saasphalt.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/patio-door-bid-calculator/</loc>
   </url>
   <url>
@@ -1160,6 +1211,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pergola-bid-calculator/how-much-to-charge-to-build-a-pergola.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/pergola-bid-calculator/vs-buildxact.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pest-control-bid-calculator/</loc>
@@ -1208,6 +1262,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/portable-restroom-event-quote/how-many.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/portable-restroom-event-quote/vs-servicecore.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/pressure-washing-bid-calculator/</loc>
@@ -1345,6 +1402,9 @@
     <loc>https://marisstella.dev/tools/septic-pumping-bid-calculator/how-much-to-charge-to-pump-a-septic-tank.html</loc>
   </url>
   <url>
+    <loc>https://marisstella.dev/tools/septic-pumping-bid-calculator/vs-servicecore.html</loc>
+  </url>
+  <url>
     <loc>https://marisstella.dev/tools/sewer-hydrojet-bid-calculator/</loc>
   </url>
   <url>
@@ -1472,6 +1532,9 @@
   </url>
   <url>
     <loc>https://marisstella.dev/tools/sod-install-bid-calculator/how-much-to-charge-to-install-sod.html</loc>
+  </url>
+  <url>
+    <loc>https://marisstella.dev/tools/sod-install-bid-calculator/vs-aspire.html</loc>
   </url>
   <url>
     <loc>https://marisstella.dev/tools/soffit-fascia-bid-calculator/</loc>

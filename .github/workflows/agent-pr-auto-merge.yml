@@ -1,0 +1,74 @@
+name: Agent PR auto-merge
+
+# Squash-merge when two allowed agent reviewers have approved and CI is green.
+# See platform/ci/agent_review/config.yaml for the approver list and threshold.
+#
+# SECURITY: this job runs review.py with a write-scoped GITHUB_TOKEN
+# (contents: write, pull-requests: write). It must always run the trusted
+# copy of review.py from the checked-out default branch, never a copy from
+# the PR under evaluation — a PR could otherwise edit review.py itself to
+# force its own merge regardless of reviews or CI (a pull_request_target-style
+# bypass). Do not add `gh pr checkout <pr>` (or any other step that replaces
+# the working tree with PR content) before the auto-merge step below.
+# review.py's merge_eligible()/try_auto_merge() read the PR's state entirely
+# through read-only `gh api` calls, so no local PR checkout is needed for it
+# to work correctly.
+
+on:
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+  workflow_run:
+    workflows: [Agent cross-review]
+    types: [completed]
+
+# File-level floor is read-only; the one job that needs to write declares
+# that itself below, rather than the grant being an accident of which file
+# the job lives in.
+permissions:
+  contents: read
+
+jobs:
+  auto-merge:
+    if: >-
+      github.event_name != 'pull_request_review' ||
+      github.event.review.state == 'APPROVED'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r portfolio/router/requirements.txt
+
+      - name: Auto-merge eligible open PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          prs=""
+          case "${{ github.event_name }}" in
+            pull_request_review)
+              prs="${{ github.event.pull_request.number }}"
+              ;;
+            check_suite)
+              prs="${{ github.event.check_suite.pull_requests[0].number }}"
+              ;;
+            workflow_run)
+              prs="$(gh pr list --state open --json number -q '.[].number' | tr '\n' ' ')"
+              ;;
+          esac
+          for pr in $prs; do
+            [ -n "$pr" ] || continue
+            # Deliberately NOT `gh pr checkout` here — see the SECURITY note
+            # above. review.py runs from this job's trusted checkout of the
+            # default branch and evaluates the PR entirely via `gh api`.
+            python3 platform/ci/agent_review/review.py --auto-merge --pr "$pr" || true
+          done
