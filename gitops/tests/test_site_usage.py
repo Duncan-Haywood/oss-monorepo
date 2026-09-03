@@ -571,6 +571,39 @@ def test_each_mirrored_tool_gets_its_own_row_rather_than_vanishing_into_the_fron
     }
 
 
+def test_each_category_page_keeps_its_own_row_rather_than_folding_into_one() -> None:
+    """`/c/trades/` and `/c/logistics/` are different pages and must count apart.
+
+    A category page's logged `$uri` carries `MIRROR_SEPARATOR` exactly as a
+    mirrored tool's does, because `try_files` resolves `/c/trades/` onto the
+    flattened ConfigMap key `/c__trades.html`. Split on the separator like a
+    tool, all seven collapse onto a single `_front/c` row — which reads in the
+    stored history as a venture called `c` that does not exist, and loses the
+    signal the pages were published for: which category a visitor browses is
+    the same question as which tool they open.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /c__trades.html",
+        "2026-09-02T10:02:00+00:00 200 /c__trades.html",
+        "2026-09-02T10:03:00+00:00 200 /c__logistics.html",
+        # A real mirrored tool alongside them, so the two branches are shown
+        # not to capture each other's lines.
+        "2026-09-02T10:04:00+00:00 200 /job-margin-variance__index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert module.fold_for_app(counts, "portfolio-front") == {
+        module.FRONT_KEY: 1,
+        f"{module.FRONT_TOOL_PREFIX}c/trades": 2,
+        f"{module.FRONT_TOOL_PREFIX}c/logistics": 1,
+        f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 1,
+    }
+    # And the name matches what the catalogue host calls the same page, so one
+    # page is one name whichever host served it.
+    assert module.slug_for("/c/trades/index.html") == "c/trades"
+
+
 def test_a_mirrored_tools_row_cannot_be_confused_with_the_catalogues() -> None:
     # While both hosts serve the same tool, a shared bare `<slug>` row would mix
     # a visit to the apex copy with a visit to the catalogue's -- and whether

@@ -37,6 +37,39 @@ compares; a stale commit fails with the command that fixes it.
 `platform/pages/launched.json` — the two inputs that can move the numbers the
 page states.
 
+### The category pages at `https://marisstella.dev/c/<id>/`
+
+`renderCategoryPage` in the same module writes one browse page per category the
+apex serves tools for — seven today, into `gitops/prod/front-door/c__<id>.html`,
+mounted at the document root and routed by the `^/c/(?<cat>…)/?$` block in
+`front-door/default.conf`. A ConfigMap key cannot contain `/`, which is the
+whole reason the URL and the stored key differ; `categoryPageKey` and that
+nginx rewrite are the two halves of the mapping and a test pins them together.
+
+**Why they exist.** `build.mjs` has rendered category pages since the site build
+was written, and every one has been published nowhere: they belong to
+`tools.marisstella.dev`, which fails closed on the unsealed `portfolio-site-repo`
+Secret. So `CATEGORY_PAGE_COPY`'s per-category copy and `SUBCATEGORY_RULES`'
+sub-grouping — both written, both tested — had never reached a reader. That is
+the same shape as the `ENTRY_OVERRIDES` bug in `CLAUDE.md`: a surface the
+canonical build knows how to make, on a host that does not serve.
+
+**Why they are not a second copy of the front page.** The front page lists every
+mirrored tool under a flat category heading. A category page carries
+`categoryPageCopy`'s own title, description and intro, and sub-groups its tools
+— which is the difference between browsing 116 trades calculators and scrolling
+past them. Both come from `build.mjs` by import, never by restatement; `CLAUDE.md`
+records two separate occasions where copying a rule out of that file instead of
+importing it cost live product.
+
+**What they replaced.** The page's JSON-LD `hasPart` named seven
+`CollectionPage` URLs on `tools.marisstella.dev`. The cards and the footer had
+already been fixed to stop sending clicks there; the structured data had not, so
+the page went on telling exactly the crawlers this portfolio is trying to be
+found by that its seven collections lived at URLs serving nothing. `hasPart`,
+the cards and the sitemap now all name the apex — and, because the pages are
+real, the sitemap can ask for them to be indexed.
+
 ### Why it does not list the tools
 
 `portfolio-apex.yaml` explains at length why two hostnames must not serve the

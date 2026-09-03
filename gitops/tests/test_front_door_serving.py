@@ -382,6 +382,60 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
     assert catalog["served_here"] == len(catalog["tools"])
 
 
+def test_every_category_page_is_served_at_the_url_it_claims(front_door: str) -> None:
+    # The category pages are the one part of the apex whose URL and whose
+    # storage key are different strings: a ConfigMap key cannot contain `/`,
+    # so `/c/trades/` is stored as `c__trades.html` and an nginx rewrite puts
+    # the shape back. That is the same class of mapping the module docstring
+    # above records going wrong twice on the tool mirror, both times silently,
+    # so it gets the same treatment — ask nginx, do not read the config.
+    #
+    # Driven off the sitemap rather than a hard-coded list of seven, because
+    # the sitemap is what actually asks crawlers to fetch these URLs. Anything
+    # advertised there and not served is a 404 in Search Console.
+    _, _, sitemap = _get(front_door + "/sitemap.xml", gzip_ok=True)
+    paths = sorted(
+        set(
+            re.findall(
+                r"<loc>https://marisstella\.dev(/c/[a-z0-9-]+/)</loc>",
+                sitemap.decode("utf-8"),
+            )
+        )
+    )
+    assert paths, "the sitemap advertised no category pages"
+
+    for url_path in paths:
+        status, headers, body = _get(front_door + url_path, gzip_ok=True)
+        assert status == 200, f"{url_path} is in the sitemap but returned {status}"
+        assert headers.get("Content-Type", "").startswith("text/html"), (
+            f"{url_path} was served as {headers.get('Content-Type')}"
+        )
+        # Not the front page. The catch-all answers every unmatched path with
+        # `index.html`, so a broken rewrite here returns 200 and looks fine to
+        # every check that only reads the status — while seven URLs quietly
+        # become duplicates of the home page, which is worse for ranking than
+        # not having them at all.
+        canonical = f'<link rel="canonical" href="https://marisstella.dev{url_path}">'
+        assert canonical.encode("utf-8") in body, (
+            f"{url_path} did not serve its own page — the catch-all probably shadowed it"
+        )
+        # Trailing slash is what the sitemap advertises; without one is what a
+        # person types. Both have to work, and the location's `/?$` is what
+        # makes that true.
+        status_bare, _, _ = _get(front_door + url_path.rstrip("/"), gzip_ok=True)
+        assert status_bare == 200, f"{url_path.rstrip('/')} returned {status_bare}"
+
+
+def test_an_unknown_category_is_a_404_rather_than_the_front_page(front_door: str) -> None:
+    # Same reasoning as the `/tools/` case below, for the same reason: a 200
+    # carrying the front door tells a crawler this domain has another page of
+    # identical HTML. `try_files ... =404` rather than a fallthrough is what
+    # makes this hold.
+    for url_path in ("/c/no-such-category/", "/c/no-such-category"):
+        status, _, _ = _get(front_door + url_path, gzip_ok=True)
+        assert status == 404, f"{url_path} returned {status} rather than 404"
+
+
 def test_a_path_the_mirror_does_not_hold_is_a_404_rather_than_the_front_page(front_door: str) -> None:
     # The catch-all answers every unmatched path with `index.html`, which is
     # right for a mistyped URL and wrong under `/tools/`: a 200 carrying the

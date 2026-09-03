@@ -76,7 +76,9 @@ import {
   FEED_FILE,
   SOCIAL_CARD_FILE,
   categoryFor,
+  categoryPageCopy,
   categoryPagePath,
+  groupBySubcategory,
 } from '../pages/build.mjs';
 
 // The feed's ordering, cap and `<updated>` rule come from the module that owns
@@ -755,6 +757,193 @@ export function orderedCategories(counts) {
 export const categoryAnchor = (id) => `open-${id}`;
 
 /**
+ * The ConfigMap key one category page is stored under.
+ *
+ * Flat, with the same `__` join the tool mirror uses, because a ConfigMap key
+ * must match `[-._a-zA-Z0-9]+` — a `/` in it is rejected by the API server, so
+ * `c/trades/index.html` cannot be a key however much it is the URL. nginx puts
+ * the shape back: see the `^/c/(?<cat>…)/?$` block in `front-door/default.conf`,
+ * which rewrites to this name before the content phase.
+ */
+export const categoryPageKey = (id) => `c__${id}.html`;
+
+/** Where `--write` puts one rendered category page. */
+export const categoryOutputFile = (id) =>
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', categoryPageKey(id));
+
+/**
+ * A category page's URL *on this host*.
+ *
+ * The path comes from `categoryPagePath`, the same function that names these
+ * pages on the catalogue host, so the two hosts cannot disagree about where a
+ * category lives — only about which of them is currently serving it. That is
+ * the whole difference this function encodes, and it is why the JSON-LD below
+ * stopped calling `${TOOLS_URL}${categoryPagePath(id)}`: those seven URLs
+ * described collection pages on a host that answers nothing, which is a
+ * structured-data claim about a 404.
+ */
+export const apexCategoryUrl = (id) => `${FRONT_DOOR_URL}${categoryPagePath(id)}`;
+
+/**
+ * One category's own browse page, served by this host at `/c/<id>/`.
+ *
+ * ## Why these exist here at all
+ *
+ * `build.mjs` has rendered category pages since the site build was written,
+ * and every one of them has been published nowhere: they belong to
+ * `tools.marisstella.dev`, which fails closed on the unsealed
+ * `portfolio-site-repo` Secret. So the copy in `CATEGORY_PAGE_COPY` and the
+ * sub-grouping in `SUBCATEGORY_RULES` — both written, both tested — have never
+ * been in front of a reader. This is the same shape as the `ENTRY_OVERRIDES`
+ * bug recorded in `CLAUDE.md`: a surface the canonical build knows how to make,
+ * that the host which actually serves does not carry.
+ *
+ * ## Why it is not a duplicate of the front page's own listing
+ *
+ * The front page groups every mirrored tool under a flat category heading.
+ * This page differs in the two ways that make it worth a URL:
+ *
+ * - it carries `categoryPageCopy`'s dedicated title, description and intro,
+ *   written for one category's reader rather than for the collection; and
+ * - it sub-groups via `groupBySubcategory`, which is what makes 105 trades
+ *   tools browsable. The front page's flat list is an alphabetical wall — the
+ *   exact complaint `SUBCATEGORY_RULES` was written to answer.
+ *
+ * Both are imported rather than restated. `CLAUDE.md` records two separate
+ * occasions where copying a rule out of `build.mjs` instead of importing it
+ * cost live product; this renderer is a third opportunity to make that mistake
+ * and declines it.
+ *
+ * ## What it deliberately does not claim
+ *
+ * `og:image` is this host's own `/social-card.png`, not `socialCardFileFor(id)`.
+ * The tinted per-category cards are real files in the site build's output and
+ * this ConfigMap serves none of them, so naming one here would be exactly the
+ * `og:image`-pointing-at-an-undelivered-file defect the write path below exists
+ * to prevent.
+ */
+export function renderCategoryPage({ category, tools = [], categories = [], total = 0 } = {}) {
+  const copy = categoryPageCopy(category);
+  const url = apexCategoryUrl(category.id);
+  const count = tools.length;
+  const plural = count === 1 ? 'tool' : 'tools';
+  const title = `${copy.title} — ${count} free ${plural}`;
+
+  // `groupBySubcategory` keys off `item.slug`, which is the field the mirror's
+  // tool records already carry, so the mirrored set can be handed to it
+  // unchanged. Groups that end up empty are dropped rather than rendered as a
+  // heading over nothing: the rules classify all 169 published slugs, but this
+  // host serves a subset, so an empty sub-group here is normal rather than a
+  // fault in the rules.
+  const groups = groupBySubcategory(category.id, tools).filter((group) => group.items.length);
+
+  const sections = groups
+    .map((group) => {
+      const heading = group.subcategory
+        ? `  <h2>${escapeHtml(group.subcategory.title)}</h2>\n`
+        : '';
+      const items = group.items
+        .map(
+          (tool) => `        <li class="card">
+          <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
+        </li>`,
+        )
+        .join('\n');
+      return `${heading}  <ul class="grid">
+${items}
+  </ul>`;
+    })
+    .join('\n');
+
+  // The other categories, so this page is not a dead end for a reader who
+  // followed a search result into the wrong one. Self is excluded rather than
+  // rendered unlinked: a link to the page you are on is noise, and the
+  // canonical above already names it.
+  const siblings = categories
+    .filter((other) => other.id !== category.id)
+    .map(
+      (other) =>
+        `<a href="${escapeHtml(apexCategoryUrl(other.id))}">${escapeHtml(categoryPageCopy(other).title)}</a>`,
+    )
+    .join(' · ');
+
+  // A CollectionPage whose `mainEntity` is the actual list, rather than a bare
+  // WebPage. This is the type the front page's `hasPart` promises these URLs
+  // are, so the two now agree — before this file existed it promised seven of
+  // them about a host serving nothing.
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: copy.title,
+    url,
+    description: copy.description,
+    inLanguage: 'en',
+    isAccessibleForFree: true,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: FRONT_DOOR_URL },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: count,
+      itemListElement: tools.map((tool, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: tool.title,
+        url: `${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url}`,
+      })),
+    },
+  };
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(title)}</title>
+<meta name="description" content="${escapeHtml(copy.description)}">
+<link rel="icon" href="/${escapeHtml(FAVICON_FILE)}" type="image/svg+xml">
+<meta name="theme-color" content="${escapeHtml(THEME_COLOR)}">
+<link rel="canonical" href="${escapeHtml(url)}">
+<link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — tools on ${FRONT_DOOR_HOST}`)}" href="/${escapeHtml(FEED_FILE)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(copy.description)}">
+<meta property="og:url" content="${escapeHtml(url)}">
+<meta property="og:image" content="${escapeHtml(`${FRONT_DOOR_URL}${SOCIAL_CARD_FILE}`)}">
+<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">
+<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">
+<meta property="og:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${escapeHtml(`${FRONT_DOOR_URL}${SOCIAL_CARD_FILE}`)}">
+<meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
+<meta name="robots" content="index, follow">
+<style>${STYLE}</style>
+<script type="application/ld+json">
+${jsonLd(structuredData)}
+</script>
+</head>
+<body>
+<header>
+  <h1>${escapeHtml(copy.title)}</h1>
+  <p class="lede">${escapeHtml(copy.intro)}</p>
+  <p class="fine">${escapeHtml(
+    `${count} of the ${total} free tools on this site, served from this domain. They run in your browser — nothing you type is uploaded.`,
+  )}</p>
+</header>
+<main>
+${sections}
+</main>
+<footer>
+  <p><a href="/">All ${total} tools</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a> · <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a></p>
+  <p class="fine">${siblings}</p>
+  <p class="fine"><strong>No warranty.</strong> ${escapeHtml(NO_WARRANTY)}</p>
+  <p class="fine"><strong>Best-effort hosting, no SLA.</strong> ${escapeHtml(NO_SLA.replace('Best-effort hosting, no SLA. ', ''))}</p>
+</footer>
+</body>
+</html>
+`;
+}
+
+/**
  * The mirrored tools grouped by the category their slug classifies into.
  *
  * Uses `categoryFor`, the same function that decides where a tool sits on the
@@ -1163,10 +1352,21 @@ export function renderFrontDoor({
     description,
     inLanguage: 'en',
     isAccessibleForFree: true,
+    // Where each category's collection page lives. Gated on the mirror for the
+    // same reason every other destination on this page is: with a mirror this
+    // host renders `/c/<id>/` itself (see `renderCategoryPage`), and without
+    // one it does not, so the only honest URL is the catalogue host's.
+    //
+    // This was unconditionally the catalogue host until the category pages
+    // landed, which made it the last place on the page still asserting the
+    // dead host after the cards and the footer had been fixed. Seven
+    // `CollectionPage` entries naming URLs that serve nothing is a worse
+    // failure than a dead link a person can see: structured data is read by
+    // exactly the crawlers this portfolio is trying to be found by.
     hasPart: categories.map((category) => ({
       '@type': 'CollectionPage',
       name: category.title,
-      url: `${toolsUrl}${categoryPagePath(category.id)}`,
+      url: mirrored.length ? apexCategoryUrl(category.id) : `${toolsUrl}${categoryPagePath(category.id)}`,
       description: category.blurb,
     })),
   };
@@ -1199,9 +1399,18 @@ export function renderFrontDoor({
       const here = grouped.get(category.id) ?? [];
       const plural = category.count === 1 ? 'tool' : 'tools';
       const hubUrl = `${toolsUrl}${categoryPagePath(category.id)}`;
+      // With a mirror the heading now leads to this host's own `/c/<id>/`
+      // page rather than to a fragment further down this one. Both destinations
+      // are real, so this is a judgement rather than a fix: the category page
+      // carries `categoryPageCopy`'s dedicated copy and sub-groups the tools,
+      // which is the difference between browsing 105 trades tools and scrolling
+      // past them. It is also a URL a search result can land on, which a
+      // fragment is not. The fragment section stays where it is, reachable from
+      // the hero call-to-action, and the count line below still says how much
+      // of the category this host serves.
       const heading =
         hasMirror && here.length
-          ? `<a href="#${escapeHtml(categoryAnchor(category.id))}">${escapeHtml(category.title)}</a>`
+          ? `<a href="${escapeHtml(apexCategoryUrl(category.id))}">${escapeHtml(category.title)}</a>`
           : hasMirror
             ? escapeHtml(category.title)
             : `<a href="${escapeHtml(hubUrl)}">${escapeHtml(category.title)}</a>`;
@@ -1423,10 +1632,52 @@ export async function buildFrontDoor() {
   // reading llms.txt, a client parsing catalog.json and a person reading the
   // page meet the collection in one order rather than three.
   const categories = orderedCategories(categoryCounts(slugs));
+
+  // One browse page per category this host actually serves tools for.
+  //
+  // Driven by `mirroredByCategory`/`orderedGroups` rather than by `categories`,
+  // for the reason `orderedGroups` documents: the cards count *published*
+  // slugs and the groups hold *mirrored* ones, so a category can be shown a
+  // count while this host serves none of it. Rendering a page for such a
+  // category would publish a browse page listing nothing.
+  //
+  // Empty when there is no mirror, which is the state this host returns to
+  // once `portfolio-site-repo` is sealed: the pages then belong to the
+  // catalogue host again, `hasPart` above swings back to it in the same
+  // expression, and the sitemap empties in the same run.
+  //
+  // The category objects come from `ALL_CATEGORIES`, not from the group
+  // records: `categoryPageCopy` falls back to a category's own `title`/`blurb`
+  // for an id it has no dedicated copy for, and a group record carries no
+  // `blurb` — so passing groups would render `content="undefined"` into a
+  // meta description the day someone adds a category without copy.
+  const served = orderedGroups(mirroredByCategory(tools), categories)
+    .map((group) => ({
+      category: ALL_CATEGORIES.find((entry) => entry.id === group.id),
+      tools: group.tools,
+    }))
+    .filter((entry) => entry.category);
+  const categoryPages = served.map(({ category, tools: categoryTools }) => ({
+    id: category.id,
+    html: renderCategoryPage({
+      category,
+      tools: categoryTools,
+      categories: served.map((entry) => entry.category),
+      total: slugs.length,
+    }),
+  }));
+
   return {
     html: renderFrontDoor({ slugs, mirrored: tools }),
     feed: renderFrontDoorFeed({ mirrored: tools, launched }),
-    sitemap: renderSitemap({ pages: indexablePages }),
+    categoryPages,
+    // The category pages join the mirrored tool pages as things this host
+    // answers for and therefore asks crawlers to index. Same guard: when the
+    // tools host is sealed `categoryPages` is empty and these vanish from the
+    // sitemap in the same commit that stops rendering them.
+    sitemap: renderSitemap({
+      pages: [...indexablePages, ...categoryPages.map((page) => `/${categoryPagePath(page.id)}`)],
+    }),
     llms: renderFrontDoorLlms({ mirrored: tools, total: slugs.length, categories }),
     catalog: renderFrontDoorCatalog({
       mirrored: tools,
@@ -1440,7 +1691,7 @@ export async function buildFrontDoor() {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const { html, feed, llms, sitemap, catalog } = await buildFrontDoor();
+  const { html, feed, llms, sitemap, catalog, categoryPages } = await buildFrontDoor();
   if (process.argv.includes('--write')) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
@@ -1481,6 +1732,28 @@ if (isMain) {
     // pointing a model at a path this host answers with the front page.
     await fs.writeFile(CATALOG_OUTPUT_FILE, catalog);
     console.log(`wrote ${path.relative(REPO_ROOT, CATALOG_OUTPUT_FILE)} (${catalog.length} bytes)`);
+    // The category pages, for the same reason as everything above: the page's
+    // own cards and its JSON-LD `hasPart` name these seven URLs, so a run that
+    // wrote the front page without them would ship the exact defect this
+    // change removes — navigation and structured data pointing at paths the
+    // catch-all answers with the front page.
+    //
+    // Stale files are swept rather than left: a category that loses its last
+    // mirrored tool stops being rendered, and its page would otherwise stay in
+    // git, stay in the ConfigMap, and stay in nobody's sitemap while still
+    // answering its URL with a list of tools this host no longer serves.
+    const wanted = new Set(categoryPages.map((page) => categoryPageKey(page.id)));
+    for (const name of await fs.readdir(path.dirname(OUTPUT_FILE))) {
+      if (name.startsWith('c__') && name.endsWith('.html') && !wanted.has(name)) {
+        await fs.rm(path.join(path.dirname(OUTPUT_FILE), name));
+        console.log(`removed ${name} (no mirrored tools in that category)`);
+      }
+    }
+    for (const page of categoryPages) {
+      const file = categoryOutputFile(page.id);
+      await fs.writeFile(file, page.html);
+      console.log(`wrote ${path.relative(REPO_ROOT, file)} (${page.html.length} bytes)`);
+    }
   } else {
     process.stdout.write(html);
   }
