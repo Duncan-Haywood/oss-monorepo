@@ -6842,3 +6842,58 @@ entries:
         present. Merging any of those stale branches would have deleted
         thousands of files.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue per this run's mandate: reviewed, fixed,
+        and merged #2981 (`paver-patio-bid-calculator` vs-Aspire page),
+        the only PR open at the time. Its `validate` and `gitops` checks
+        were red on a stale `gitops/prod/front-door/sitemap.xml` --
+        `front-door.mjs`, a generator separate from the tool-mirror
+        generator (`front-door-tools.mjs`), writes the apex's own
+        sitemap/llms.txt/feed.xml from the same page set, and the PR's
+        own earlier fix only regenerated the mirror. Merged `main` in,
+        regenerated both generators, verified 144/144 `platform/marketing`
+        tests and a clean 169-product/598-page site build, and merged.
+      - >-
+        Shipped three new `vs-*` comparison pages, each with its own test
+        file (7-8 assertions: disclaimer, no-affiliation statement, no
+        unverifiable competitor price, FAQPage JSON-LD validity, sitemap
+        listing, no external network calls) and linked from its venture's
+        index and sitemap: `well-pump-bid-calculator/vs-servicetitan.html`,
+        `hardwood-refinishing-bid-calculator/vs-jobber.html` (both #2980),
+        and `landscape-lighting-bid-calculator/vs-aspire.html` (#2983).
+        Each reuses company-identity facts already verified elsewhere in
+        the repo rather than asserting anything new and unconfirmable
+        (this session has no live web access). 3 of ~90 bid calculators
+        in the repo that lacked a comparison page at the start of the run.
+      - >-
+        Hit and documented the same "regenerated the tool mirror but not
+        the apex's own sitemap generator" CI failure independently on
+        #2980 and #2981 (a concurrent session's PR) -- both `validate`
+        and `gitops` red until `front-door.mjs --write` also ran. Named
+        the pattern explicitly in both fix commits so the next session
+        (this run's own #2983 included) regenerates both generators
+        up front instead of rediscovering it a third time.
+      - >-
+        Mid-run, a concurrent session force-pushed stale, already-merged
+        history (predating this run's own #2980 merge) onto this
+        session's designated branch with no open PR. Verified via `git
+        show origin/main:gitops/prod/front-door/sitemap.xml` that every
+        change in that history was already present on `main` before
+        resetting the branch to latest `main` and cherry-picking this
+        run's in-flight commit on top -- no work lost on either side.
+      - >-
+        Checked the "set up Codex CLI on the Hetzner VM to spend its
+        built-in quota for unattended dev work" ask against
+        `portfolio/ledger/decision_queue.py`: it is already fully built
+        (`gitops/agents/governor/`, budget-governed CronJob, `CODEX_AUTH_JSON`
+        plan-quota route wired and tested) and blocked only on two owner
+        steps already queued as asks 11/12 -- seal `codex-secrets`, then
+        flip `suspend: false` / `enabled: true`. Nothing left for a
+        session to build here; flagged to the owner rather than
+        re-describing it as unbuilt or attempting to seal secrets this
+        session does not hold.
+    mrr_end: null
