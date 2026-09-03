@@ -7532,6 +7532,47 @@ entries:
         sound, under this repo's no-review-ceremony rule for
         `ventures/*` product PRs.
     mrr_end: null
+  - venture: pole-barn-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "This calculator vs. JobTread" comparison page, following
+        the same honest, non-numeric-claims pattern already shipped for
+        other trades calculators (`vs-housecall-pro.html` on
+        walk-in-tub-bid-calculator, `vs-jobber.html` on
+        spray-foam-bid-calculator, `vs-stack.html` on
+        concrete-bid-calculator, and others). JobTread is real,
+        well-documented project-management and job-costing software used
+        by residential builders and remodelers, including post-frame and
+        pole-barn shops -- a plausible, accurate competitor for this
+        venture, chosen after checking `git log --all` and open branches
+        found no in-flight vs-page for this venture already.
+      - >-
+        Live today at
+        https://marisstella.dev/tools/pole-barn-bid-calculator/vs-jobtread.html
+        with no owner action needed -- this venture was already in the
+        front-door mirror, which was regenerated (`front-door-tools.mjs
+        --write` then `front-door.mjs --write`) and committed in the
+        same change, along with the apex's own sitemap.xml/catalog.json.
+      - >-
+        Linked from the venture's own `index.html` footer and listed in
+        the venture's `sitemap.xml`. The page's FAQPage JSON-LD answer
+        text was checked to match its visible `<p>` text verbatim (a new
+        test asserts this directly, beyond the sibling pages' pattern),
+        per this repo's standing warning about that class of regression.
+      - >-
+        Verified with `node --test` in the venture (120/120, 9 new in
+        `vs-jobtread.test.mjs`), a full `platform/pages/build.mjs` +
+        `check.mjs` run (169 tools, 621 pages, no dead links),
+        `node --test platform/pages/*.test.mjs` (867/867),
+        `node --test "platform/marketing/*.test.mjs"` (173/173 -- confirms
+        the regenerated mirror and kustomization are exactly what the
+        generator produces), and `node --test platform/pages/link.test.mjs`
+        (49/49). Opened as a PR and merged once checks were confirmed
+        sound, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
