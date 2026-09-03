@@ -9,7 +9,7 @@ test('landing page exposes searchable product, full disclaimer, and local app', 
   assert.match(html, /No warranty/);
   assert.match(html, /not legal, tax, financial, or accounting advice/i);
   assert.match(html, /application\/ld\+json/);
-  assert.match(html, /src\/app\.mjs/);
+  assert.match(html, /src="app\.mjs"/);
   assert.match(html, /Download review CSV/);
   assert.match(html, /Files are never uploaded/);
 });
@@ -30,7 +30,7 @@ test('editing the tolerance and pressing Enter re-runs the match, not only the b
   // keypad -- must reprice the match exactly as clicking "Run reconciliation"
   // does, or the table keeps showing results from the old tolerance with
   // nothing on screen to say they are stale.
-  const appSource = fs.readFileSync(new URL('./src/app.mjs', import.meta.url), 'utf8');
+  const appSource = fs.readFileSync(new URL('./app.mjs', import.meta.url), 'utf8');
   assert.match(
     appSource,
     /\$\('tolerance'\)\.addEventListener\('keydown', event => \{ if \(event\.key === 'Enter'\) \{ event\.preventDefault\(\); run\(\); \} \}\)/,

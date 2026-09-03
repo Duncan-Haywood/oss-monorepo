@@ -218,3 +218,48 @@ test('the offer box sets no opacity on inherited text', () => {
   // in `rates.mjs` — a de-emphasised aside, not body text a visitor must read.
   assert.ok(/opacity\s*:/.test(note));
 });
+
+test('every control this widget injects is inside .pf-chrome, so the sweep does not count it as the tool', () => {
+  // `sweep.mjs` decides whether a page is a landing page or a broken tool by
+  // counting the controls the *venture* wrote, and it separates those from the
+  // ones this build injects with `ownOnly()` — a `:not(.pf-chrome ...)` on
+  // each of `input, select, textarea, button`. So this widget's controls being
+  // descendants of `.pf-chrome` is not a styling detail: it is the contract
+  // that keeps them out of that count.
+  //
+  // It broke once, in the other direction. The count was the bare selector
+  // until 2026-09-01, so the `<textarea>` and "Copy embed code" `<button>`
+  // added here in #2561 counted on every entry page. On the 168 pages with
+  // controls of their own that changed nothing; on `ai-engineering-academy`,
+  // a hub linking to six calculators and owning no controls, it took
+  // `interactive` from 0 to 2 and turned a page doing its job into
+  // `NO-CONTROLS`, failing the whole sweep. The count is fixed; this pins the
+  // half of the contract that lives here, because moving these controls out
+  // of `.pf-chrome` would break it again from this side and the sweep needs a
+  // browser to notice.
+  const out = injectEmbedWidget(chromedPage(), {
+    slug: 'roofing-bid-calculator',
+    toRoot: '../',
+    canonical: CANONICAL,
+    title: TITLE,
+    isEntry: true,
+  });
+
+  // Everything this pass added, which is everything not in the page before it.
+  const added = out.replace(chromedPage(), '');
+  const controls = added.match(/<(?:input|select|textarea|button)\b/gi) ?? [];
+  assert.ok(controls.length > 0, 'the widget injects no controls at all — has its markup changed?');
+
+  // Each one has to sit inside a `.pf-chrome` element. The widget's own root
+  // carries the class (see `offerMarkup`), and it is injected into
+  // `.pf-chrome-foot`, so the check is that no control escaped that root.
+  const root = out.match(/<details class="pf-chrome[\s\S]*?<\/details>/)?.[0];
+  assert.ok(root, 'the widget root is not a .pf-chrome element any more');
+  const inRoot = root.match(/<(?:input|select|textarea|button)\b/gi) ?? [];
+  assert.equal(
+    inRoot.length,
+    controls.length,
+    `${controls.length - inRoot.length} injected control(s) sit outside .pf-chrome, `
+    + 'where sweep.mjs would count them as the venture\'s own',
+  );
+});

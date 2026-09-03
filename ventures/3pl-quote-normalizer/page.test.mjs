@@ -279,6 +279,26 @@ test('calculator surfaces compareAgedStorage on the quote itself', async () => {
   assert.equal(cells.length, columns, "renderAged emits a different cell count than the header row");
 });
 
+test('calculator builds a negotiation brief from the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const calc = await readFile(new URL('./calc.mjs', import.meta.url), 'utf8');
+  assert.match(index, /id="negotiation-brief"/);
+  assert.match(index, /negotiationLines/);
+  assert.match(index, /id="negotiationBrief"/);
+  assert.match(index, /id="copyNegotiation"/);
+  assert.match(index, /negotiation_brief_copied_from_quote/);
+  assert.match(index, /negotiation\.html/);
+  // The brief must not carry the in-house comparison or break-even volume --
+  // those are the sender's own competitive numbers, and this text is meant
+  // to be safe to hand to the provider being negotiated with.
+  assert.doesNotMatch(calc.match(/export function negotiationLines[\s\S]*?\n}/)[0], /inHouse|breakEvenOrders/);
+});
+
+test('negotiation page points back to the calculator’s own itemized brief', async () => {
+  const page = await readFile(new URL('./negotiation.html', import.meta.url), 'utf8');
+  assert.match(page, /index\.html/);
+});
+
 test('inbound SEO page explains the container-fee arithmetic', async () => {
   const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');

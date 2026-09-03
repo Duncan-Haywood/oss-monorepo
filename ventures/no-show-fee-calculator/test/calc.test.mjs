@@ -30,7 +30,7 @@ import {
   saveDraft,
   readDraft,
   clearDraft,
-} from "../src/calc.mjs";
+} from "../calc.mjs";
 
 test("parseInputs accepts valid numeric input", () => {
   const result = parseInputs({
@@ -746,24 +746,24 @@ function readHtml() {
 
 function readApp() {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  return readFileSync(path.join(here, "..", "src", "app.mjs"), "utf8");
+  return readFileSync(path.join(here, "..", "app.mjs"), "utf8");
 }
 
 test("index.html loads the module script after the markup it queries", () => {
   const html = readHtml();
-  const scriptIndex = html.indexOf('<script type="module" src="src/app.mjs">');
-  assert.ok(scriptIndex > 0, "src/app.mjs is not loaded as a module script");
+  const scriptIndex = html.indexOf('<script type="module" src="app.mjs">');
+  assert.ok(scriptIndex > 0, "app.mjs is not loaded as a module script");
   assert.ok(html.indexOf('id="calc-form"') < scriptIndex, "the form must be parsed before the script");
 });
 
-test("every id src/app.mjs looks up exists in index.html", () => {
+test("every id app.mjs looks up exists in index.html", () => {
   const html = readHtml();
   const ids = [...readApp().matchAll(/getElementById\("([^"]+)"\)/g)].map((m) => m[1]);
   assert.ok(ids.length > 0, "expected app.mjs to query some ids");
   for (const id of new Set(ids)) {
     assert.ok(
       html.includes(`id="${id}"`),
-      `src/app.mjs queries #${id}, which does not exist in index.html`,
+      `app.mjs queries #${id}, which does not exist in index.html`,
     );
   }
 });

@@ -15,7 +15,7 @@ test('calculator page is findable and usable without a build step', () => {
   assert.match(markup, /No warranty/);
   assert.match(markup, /Nothing leaves your browser/);
   assert.match(markup, /Do not keep anonymous local usage counts/);
-  assert.match(markup, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(markup, /href="LICENSE"/);
   assert.match(markup, /what-should-i-charge-per-hour\.html/);
   // The disclaimer has to disclaim the specific things this tool looks like it
   // is doing, which is more than the usual set: it handles payroll and comp.

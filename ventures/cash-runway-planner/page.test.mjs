@@ -12,6 +12,8 @@ test('landing page exposes searchable product, full disclaimer, and local app', 
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /app\.mjs/);
   assert.match(html, /Download CSV/);
+  assert.match(html, /id="share"[^>]*>Copy share link/);
+  assert.match(html, /id="shareStatus"/);
 });
 
 test('the page carries every one-off row the module reads', () => {

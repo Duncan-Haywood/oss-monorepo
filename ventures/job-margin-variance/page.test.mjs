@@ -98,4 +98,27 @@ test('the worked example the page ships with actually computes', async () => {
   const result = calculate(defaults);
   assert.ok(result.largest.label, 'the shipped defaults should compute a real result');
   assert.equal(result.costVariance, 60);
+  // The two new fields are optional and ship with no `value` attribute, so
+  // the defaults above must still compute the original six-field result --
+  // margin off by default rather than erroring on a missing labor rate.
+  assert.equal(result.margin, null);
+});
+
+test('the optional labor-rate and job-price fields are wired into the form, the read list, and the margin section', () => {
+  const html = page('index.html');
+  assert.match(html, /<input id="hourlyRate" type="number"/, 'labor rate input is missing');
+  assert.match(html, /<input id="bidPrice" type="number"/, 'job price input is missing');
+  assert.match(html, /const ids=\[[^\]]*'hourlyRate'[^\]]*'bidPrice'[^\]]*\]/, 'the two new fields are not read on every input event');
+  assert.match(html, /id="marginSection"[^>]*hidden/, 'the margin section should start hidden until a job price is entered');
+  for (const id of ['estimatedMargin', 'actualMargin', 'marginChange', 'profitVariance']) {
+    assert.match(html, new RegExp(`getElementById\\('${id}'\\)`), `#${id} is never written by the script`);
+  }
+  // The margin section and the labor-cost/total-cost rows must be re-hidden
+  // on a rejected input, for the same reason the original six outputs are
+  // cleared in the catch block: a stale margin next to a fresh error reads
+  // as if it still answers the numbers on screen.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  const catchBlock = scriptMatch[1].match(/}catch\(e\)\{([\s\S]*?)\n}}ids\.forEach/)[1];
+  assert.match(catchBlock, /getElementById\('marginSection'\)\.hidden\s*=\s*true/, 'marginSection is not hidden on a rejected input');
+  assert.match(catchBlock, /getElementById\('laborCostLabel'\)\.hidden\s*=\s*true/, 'laborCostLabel is not hidden on a rejected input');
 });

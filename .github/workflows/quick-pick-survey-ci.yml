@@ -1,4 +1,4 @@
-name: CI
+name: quick-pick-survey CI
 
 on:
   push:

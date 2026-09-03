@@ -33,16 +33,35 @@ It is not:
   serve a public site on the free tier, so the flip alone would not have
   put these tools in front of strangers. This was not accounted for when
   the row above was written.
-- **Nothing is building the artifact.** Every GitHub Actions run in this
-  repo has failed without a runner since 2026-08-26 (`runner_id: 0`,
-  3-second jobs), so `portfolio-pages.yml` has not produced a deployable
-  artifact in days, and would not on the day Pages was switched on.
+- ~~**Nothing is building the artifact.**~~ **Resolved 2026-09-01.** From
+  2026-08-26 every GitHub Actions run in this repo failed without a runner
+  (`runner_id: 0`, 3-second jobs), so `portfolio-pages.yml` produced no
+  deployable artifact for five days. Runners came back at
+  2026-09-01T00:00:53Z and `portfolio-pages.yml` would build again today.
+  The account-level ceiling looks like it cycles rather than being gone, so
+  treat this as "not currently blocking" rather than "cannot recur".
 
-The Hetzner path shares none of those three blockers: Argo syncs the
+The two blockers that remain are the first two, and the Hetzner path shares
+none of the three: Argo syncs the
 manifest from `main` and the site is built inside the cluster, so it needs
 neither Actions nor Pages. The box is already paid for and already runs
 ingress-nginx and cert-manager. Its own remaining step is now **one**: a
-sealed read-only clone token, listed in `gitops/README.md`. The DNS record
+sealed read-only clone token, listed in `gitops/README.md`.
+
+## Amended 2026-09-02: the apex serves without waiting for that seal
+
+`gitops/prod/portfolio-front.yaml` puts a generated front-door page on
+`marisstella.dev` and `www.marisstella.dev`, served by nginx from a
+kustomize ConfigMap. It clones nothing at pod start, so it needs no token;
+Argo applies it from `main`, so it needs no Actions run and no Pages flip.
+That makes it the portfolio's first surface a stranger can actually reach,
+and it went up on a merge with no owner action.
+
+This does not replace the row above or reduce the seal's value — the front
+door is one page describing the collection, and every category card on it
+links into `tools.marisstella.dev`. The seal is still what puts 169 tools
+in front of anyone. What changed is that the domain is no longer a dead
+redirect while that waits. The DNS record
 turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
 the subdomain, verified 2026-08-29), and the ACME contact stopped being a
 step on 2026-08-30 — an ACME account contact is optional, so the issuers
@@ -106,7 +125,10 @@ the live site is whichever finished last.
 
 That happened on 2026-08-26: `pages.yml` and `portfolio-pages.yml` were written
 within the hour from the same reasoning, neither pull request could see the
-other, and both merged deploying under `GITHUB_PAGES_ENABLED`.
+other, and both merged deploying under the same owner-set variable — spelled
+`GITHUB_PAGES_ENABLED` at the time, since renamed to `PAGES_ENABLED` (see
+below): GitHub rejects any Actions configuration-variable name starting with
+`GITHUB_`, so the original spelling could never actually have been set.
 
 `.github/workflows/pages.yml` still exists and still runs
 `platform/ci/build_pages_site.py`, but **it no longer deploys**. It is kept as an
@@ -147,7 +169,18 @@ python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages
-(`GITHUB_PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
+(`PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
 second platform ask. Until that variable is set, the build still runs on
 every push and the artifact is still uploaded; only the publish step is
 skipped. Flipping it publishes everything at once.
+
+**Not `GITHUB_PAGES_ENABLED`, which this section named until it was found
+to be unsettable.** GitHub rejects any Actions configuration-variable name
+starting with `GITHUB_` (case-insensitive) at creation time — reserved for
+GitHub's own use, per
+[the naming rules](https://docs.github.com/en/actions/learn-github-actions/variables#naming-conventions-for-configuration-variables)
+— so the owner could never have set it through Settings → Variables →
+Actions, and `.github/workflows/portfolio-pages.yml`'s `deploy` job would
+have stayed permanently skipped. The variable is `PAGES_ENABLED` now; the
+workflow, `platform/ci/publish_surface.py`, and the decision queue all read
+that name.

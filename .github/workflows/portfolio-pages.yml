@@ -3,9 +3,20 @@
 #
 # The build runs on every push to `main` so a broken site is caught at merge
 # time, whether or not publishing is switched on. Publishing itself is gated on
-# the owner-set `GITHUB_PAGES_ENABLED` variable, because `actions/deploy-pages`
+# the owner-set `PAGES_ENABLED` variable, because `actions/deploy-pages`
 # 404s until Pages is enabled in repository settings and would otherwise turn
 # this workflow red on every merge.
+#
+# Not `GITHUB_PAGES_ENABLED`, which this workflow's own gate carried until
+# found and fixed: GitHub rejects any Actions configuration-variable name that
+# starts with `GITHUB_` (case-insensitive), reserved for GitHub's own use --
+# see https://docs.github.com/en/actions/learn-github-actions/variables#naming-conventions-for-configuration-variables
+# -- and enforced at creation time, so the owner could never actually have
+# set it. `vars.GITHUB_PAGES_ENABLED` would always have read as unset,
+# `deploy` would always have been skipped, and the "one flip" the decision
+# queue and every doc pointed at would have silently done nothing. Confirmed
+# with `actionlint`, which flags any `vars.GITHUB_*` / `secrets.GITHUB_*`
+# reference for exactly this reason.
 #
 # This is the workflow that owner flip publishes. See portfolio/DIRECTION.md
 # ("Current priority: deploy what is already built") and platform/pages/README.md.
@@ -91,7 +102,7 @@ jobs:
     # `github.ref` as well as the event: `workflow_dispatch` can be run against
     # any branch, and publishing the live site from a feature branch by accident
     # is not a mistake anyone would notice quickly.
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true' }}
     # GitHub serves one Pages site per repository, so two deployments must never
     # race — this is where that constraint actually lives, and the group is
     # deliberately not keyed by ref so nothing can publish alongside `main`.
@@ -136,10 +147,14 @@ jobs:
           # after the deployment API reports success, hence the retries.
           curl --fail --silent --show-error --retry 5 --retry-delay 10 \
                --retry-all-errors "${base}/catalog.json" -o catalog.json
-          tools=$(python3 -c "import json;print(len(json.load(open('catalog.json'))['tools']))")
+          # jq, not python3: this job has no setup-python step, and the
+          # self-hosted runner image ships jq but no interpreter (see
+          # gitops/ci/README.md) -- ubuntu-latest happening to have python3
+          # available masked that until CI_RUNNER is flipped to self-hosted.
+          tools=$(jq '.tools | length' catalog.json)
           echo "Catalog lists ${tools} tool(s)"
           [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
-          slug=$(python3 -c "import json;print(json.load(open('catalog.json'))['tools'][0]['slug'])")
+          slug=$(jq -r '.tools[0].slug' catalog.json)
 
           for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/feed.xml" "/${slug}/"; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \

@@ -14,9 +14,21 @@ Policy knobs (all in git):
   enabled                  kill switch; default false
   maxConcurrent            start at 1 — the cpx22 is 4 GB
   targetUtilization        fraction of the 5-hour window to occupy
-  reserveForInteractive    unused here except as documentation of the slack
+  reserveForInteractive    caps the usable fraction at (1 - this) whenever
+                           that is tighter than targetUtilization — see
+                           Policy.effective_window_budget(). Raise it to
+                           actually shrink the automated budget when a
+                           CODEX_AUTH_JSON seat is shared with interactive
+                           use, per agents/secrets/README.md. At the
+                           policy.json default (0.10, against
+                           targetUtilization 0.90) the two exactly cancel
+                           and it has no effect — which is what made this
+                           look unused until it was raised.
   weeklyBudgetFraction     stop early in the week so you do not go dark
   cooldownOnLimitSeconds   sleep after a 429 instead of retrying immediately
+  cooldownOnAuthFailureSeconds
+                           sleep after a *rejected credential*, which retrying
+                           cannot fix — only a re-`codex login` and a re-seal
 """
 
 from __future__ import annotations
@@ -64,6 +76,32 @@ EXIT_LIMIT = 42
 NOOP_MARKER = "codex-noop"
 EXIT_NOOP = 44
 
+# The Codex credential was *rejected* — expired, rotated, revoked, or never
+# sealed at all. `worker.sh` has always exited EXIT_AUTH for this, deliberately
+# distinct from EXIT_LIMIT, and `agents/secrets/README.md` states the reason in
+# so many words: "Backing off for an hour does not fix an expired login, and
+# the two should not be read as the same event."
+#
+# Nothing on this side honoured that. The governor branched on EXIT_LIMIT and
+# on the no-op marker and treated everything else as an ordinary failure, so a
+# rejected credential fell through to "start the next item" — and the next
+# item's Job failed the same way, every five minutes, ~288 times a day. Each
+# one `apt-get install`s gh and `npm install -g`s the Codex CLI on the 4 GB
+# cpx22 before it can even discover the credential is bad, and none of it can
+# ever succeed: no amount of retrying re-runs `codex login` on the owner's
+# laptop.
+#
+# That matters most on the route the owner actually chose. A metered
+# OPENAI_API_KEY is static; `CODEX_AUTH_JSON` — the built-in-plan quota — is
+# the one Codex *rotates on use*, so a wedged credential is its ordinary
+# failure mode rather than a hypothetical one. It was the only failure mode of
+# the chosen route that the control loop could not report.
+#
+# Held, not stopped: see `Policy.cooldown_on_auth_failure_seconds` for why this
+# is a long cooldown rather than a latch.
+AUTH_MARKER = "codex-auth-rejected"
+EXIT_AUTH = 43
+
 # Ceiling on the consecutive-no-op count that damps an item's score. Without it
 # an item that has been empty for a week sinks so far it can never run again —
 # and then it cannot discover that its work came back. Capped, a fully damped
@@ -80,12 +118,36 @@ class Policy:
     weekly_budget_fraction: float = 0.85
     window_seconds: int = WINDOW_SECONDS_DEFAULT
     cooldown_on_limit_seconds: int = 60 * 60
+    # Longer than the limit cooldown because the two need opposite things. A
+    # 429 clears itself when the window rolls; a rejected credential clears
+    # only when a human re-runs `codex login` and re-seals, so retrying sooner
+    # buys nothing. Six hours puts the ceiling at four wasted Jobs a day
+    # instead of the CronJob's 288.
+    #
+    # A *cooldown* and not a latch, deliberately. A latch would be tighter on
+    # waste but would need something to release it, and the governor cannot
+    # see `codex-secrets` to notice a re-seal — its Role grants no Secret
+    # access, and widening that to watch a credential it must never read would
+    # trade a bounded amount of churn for an unbounded amount of blast radius.
+    # A cooldown needs no release: worker.sh re-seeds the PVC whenever the
+    # sealed value's fingerprint changes, so the first Job after the sleep
+    # picks the new credential up on its own, and a *transient* rejection
+    # cannot wedge the fleet for good.
+    cooldown_on_auth_failure_seconds: int = 6 * 60 * 60
     models: dict[str, str] = field(
         default_factory=lambda: {"chore": "gpt-5-mini", "deep": "gpt-5"}
     )
 
     def effective_window_budget(self) -> float:
-        # reserveForInteractive is the slack inside the window.
+        # reserveForInteractive is the slack inside the window. At the
+        # policy.json default it is exactly cancelled by targetUtilization
+        # (0.90 == 1 - 0.10), so the min() below is a no-op there — do not
+        # read that as reserveForInteractive having no effect. Raise it past
+        # (1 - targetUtilization) — the move agents/secrets/README.md
+        # describes for a shared ChatGPT-plan seat — and it binds, shrinking
+        # the budget below what targetUtilization alone would allow.
+        # test_effective_window_budget_reserve_can_bind_tighter_than_target
+        # exercises the case this comment used to leave untested.
         usable = min(self.target_utilization, 1.0 - self.reserve_for_interactive)
         return max(0.0, usable) * self.window_seconds
 
@@ -97,6 +159,9 @@ class BudgetState:
     week_started_at: float
     week_seconds_used: float
     last_limit_at: float | None = None
+    # When a Job last came back with a rejected Codex credential. See
+    # AUTH_MARKER / EXIT_AUTH.
+    last_auth_failure_at: float | None = None
     jobs_started_this_window: int = 0
     accounted_job_uids: list[str] = field(default_factory=list)
     # How many Jobs each queue item has been started for in the current
@@ -127,6 +192,8 @@ class JobView:
     item: str = ""
     # The run finished cleanly and changed nothing. See NOOP_MARKER.
     noop: bool = False
+    # The Codex credential was rejected. See AUTH_MARKER.
+    auth_failed: bool = False
 
 
 @dataclass(frozen=True)
@@ -172,6 +239,9 @@ def policy_from_dict(raw: dict[str, Any] | None) -> Policy:
         weekly_budget_fraction=float(data.get("weeklyBudgetFraction", 0.85)),
         window_seconds=int(data.get("windowSeconds", WINDOW_SECONDS_DEFAULT)),
         cooldown_on_limit_seconds=int(data.get("cooldownOnLimitSeconds", 3600)),
+        cooldown_on_auth_failure_seconds=int(
+            data.get("cooldownOnAuthFailureSeconds", 6 * 3600)
+        ),
         models={
             "chore": str(models.get("chore", "gpt-5-mini")),
             "deep": str(models.get("deep", "gpt-5")),
@@ -223,11 +293,8 @@ def pick_item(
 
     This used to be `sorted(key=(-priority, id))[0]` -- the single
     highest-priority enabled item, every tick, forever. That starves every
-    other item: with the real items (open-pr-repair-merge 7, branch-pr-drain 6,
-    deploy-cicd-readiness 5, marketing-distribution 4,
-    seo-discoverability-audit 3, product-feature-improvement 2) only the top
-    one could ever run, and the rest were unreachable until someone edited
-    priorities in git.
+    other item: with only one item able to run, the rest were unreachable
+    until someone edited priorities in git.
 
     That was tolerable while the PR/branch backlog was the bottleneck. It
     stopped being tolerable once the backlog drained: on 2026-08-30 the repo
@@ -239,13 +306,21 @@ def pick_item(
     priority-0 item from being weightless (score 0 can never win), so no
     enabled item starves. Within a window the first pick is still the
     highest-priority item, and over many picks the items run in roughly their
-    weight ratio -- 8:7:6:5:4:3 for the six above. Ties break toward higher
-    priority, then by id, so the choice stays deterministic.
+    weight ratio. As of the 2026-09-01 reprioritization the six enabled items
+    (`gitops/agents/queue/*.yaml` is the source of truth, not this docstring)
+    are deploy-cicd-readiness 7, marketing-distribution 6, open-pr-repair-merge
+    5, branch-pr-drain 4, seo-discoverability-audit 3,
+    product-feature-improvement 2 -- weight ratio 8:7:6:5:4:3. Ties break
+    toward higher priority, then by id, so the choice stays deterministic.
 
     That fixed starvation but not waste. Weighting by priority alone assumes
-    every item always has work, and two of the five provably do not: with zero
-    open PRs and every branch merged, `open-pr-repair-merge` and
-    `branch-pr-drain` are 13/25ths of the weight and 0 of the output. So the
+    every item always has work, and some provably do not: on 2026-08-31, with
+    zero open PRs and every branch merged, `open-pr-repair-merge` and
+    `branch-pr-drain` -- then the two highest-priority items -- were 13/25ths
+    of the weight and 0 of the output. Re-derive the current fraction from the
+    queue YAMLs rather than trusting a number here; it moves every time the
+    queue is reprioritized (weight is `priority + 1`, denominator is the sum
+    of `priority + 1` over every `enabled: true` item). So the
     score is damped a second time by `noops_by_item` -- how many finished runs
     in a row that item changed nothing:
 
@@ -301,6 +376,11 @@ def rollover(state: BudgetState, now: float, policy: Policy) -> BudgetState:
         week_started_at=week_started,
         week_seconds_used=week_used,
         last_limit_at=state.last_limit_at,
+        # Survives the window reset for the same reason `noops_by_item` does:
+        # a credential the API rejected at 12:00 is still rejected when the
+        # 5-hour window rolls at 13:00. Only a re-seal changes it, and only
+        # the cooldown expiring lets the fleet find that out.
+        last_auth_failure_at=state.last_auth_failure_at,
         jobs_started_this_window=started,
         # Copied, not aliased: BudgetState is mutable and absorb_finished_jobs
         # appends to this list, so sharing it would let the returned state and
@@ -352,6 +432,21 @@ def decide(
                 sleep_seconds=max(sleep_for, 1),
             )
 
+    # Below the limit cooldown deliberately. If both stand, the 429 is the one
+    # that will clear on its own, so reporting it is more useful than reporting
+    # the one that needs a laptop.
+    if state.last_auth_failure_at is not None:
+        elapsed = now - state.last_auth_failure_at
+        if elapsed < policy.cooldown_on_auth_failure_seconds:
+            sleep_for = int(policy.cooldown_on_auth_failure_seconds - elapsed)
+            return Decision(
+                "hold",
+                "Codex credential rejected — re-run `codex login` and re-seal "
+                "codex-secrets (gitops/agents/secrets/README.md); retrying "
+                "cannot fix this",
+                sleep_seconds=max(sleep_for, 1),
+            )
+
     if running_count >= policy.max_concurrent:
         return Decision("hold", f"already running {running_count} (max {policy.max_concurrent})")
 
@@ -372,6 +467,11 @@ def decide(
 
 def record_limit(state: BudgetState, now: float) -> BudgetState:
     state.last_limit_at = now
+    return state
+
+
+def record_auth_failure(state: BudgetState, now: float) -> BudgetState:
+    state.last_auth_failure_at = now
     return state
 
 
@@ -396,12 +496,14 @@ def state_to_dict(state: BudgetState) -> dict[str, Any]:
 def state_from_dict(raw: dict[str, Any] | None, now: float) -> BudgetState:
     data = raw or {}
     last = data.get("last_limit_at")
+    last_auth = data.get("last_auth_failure_at")
     return BudgetState(
         window_started_at=float(data.get("window_started_at") or now),
         estimated_seconds_used=float(data.get("estimated_seconds_used") or 0),
         week_started_at=float(data.get("week_started_at") or now),
         week_seconds_used=float(data.get("week_seconds_used") or 0),
         last_limit_at=None if last is None else float(last),
+        last_auth_failure_at=None if last_auth is None else float(last_auth),
         jobs_started_this_window=int(data.get("jobs_started_this_window") or 0),
         accounted_job_uids=[str(u) for u in (data.get("accounted_job_uids") or [])],
         runs_by_item={
@@ -439,6 +541,7 @@ def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) 
     item = str((meta.get("labels") or {}).get("governor.item") or "")
     limit_hit = False
     noop = False
+    auth_failed = False
     for pod in pods:
         labels = (pod.get("metadata") or {}).get("labels") or {}
         if labels.get("job-name") != job_name:
@@ -453,11 +556,23 @@ def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) 
                 limit_hit = True
             if exit_code == EXIT_NOOP or NOOP_MARKER in message:
                 noop = True
+            if exit_code == EXIT_AUTH or AUTH_MARKER in message:
+                auth_failed = True
     # A run that hit a quota limit did not "produce nothing" for any reason the
     # queue can act on — it was cut off. Damping the item for that would punish
     # it for the fleet's budget, and the limit cooldown already handles it.
-    if limit_hit:
+    #
+    # A rejected credential is the same shape of non-answer, and additionally
+    # must not be mistaken for a limit: `parse_limit_error` scans the
+    # termination message, and "401 unauthorized" is a substring away from
+    # phrases it matches. Whichever signal the pod carried, the credential
+    # verdict wins — an hour's limit cooldown is the wrong remedy for a login
+    # that expired, which is the whole reason worker.sh spends a separate exit
+    # code on it.
+    if limit_hit or auth_failed:
         noop = False
+    if auth_failed:
+        limit_hit = False
     return JobView(
         uid=uid,
         active=active,
@@ -467,6 +582,7 @@ def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) 
         limit_hit=limit_hit,
         item=item,
         noop=noop,
+        auth_failed=auth_failed,
     )
 
 
@@ -487,6 +603,8 @@ def absorb_finished_jobs(state: BudgetState, jobs: Iterable[JobView], now: float
             record_job_finished(state, job.duration_seconds)
         if job.limit_hit:
             record_limit(state, now)
+        if job.auth_failed:
+            record_auth_failure(state, now)
         # Only a run that reached its own end tells us anything about whether
         # the item still has work. A crash, an OOM kill or a rejected
         # credential says nothing about the queue, so it neither damps the item
@@ -580,20 +698,29 @@ def build_job_manifest(
                     # this container from gaining *more* than it starts with, and
                     # worker.sh never execs a setuid binary to escalate through.
                     #
-                    # `capabilities.drop: ["ALL"]`, `runAsNonRoot` and
-                    # `readOnlyRootFilesystem` are deliberately NOT set, unlike
-                    # every sibling above. `worker.sh`'s `install_tools()` runs
-                    # `apt-get install` against the base `node:22-bookworm` image
-                    # (root, not started as a fixed non-root UID) to add `gh` and
-                    # `git`, and dpkg's maintainer scripts for a fresh install can
-                    # need capabilities beyond the ones a dropped-to-ALL root
-                    # process retains (CAP_CHOWN, CAP_SETUID/CAP_SETGID for the
-                    # packages that provision a system user). `npm install -g` and
-                    # the clone into `mktemp -d` both write outside the two
-                    # read-only mounts below, so the root filesystem cannot be
-                    # read-only either. Narrowing those three needs a prebuilt
-                    # image with `gh`/`git`/`codex` baked in and a fixed non-root
-                    # user -- a bigger change than this fix.
+                    # `capabilities.drop: ["ALL"]` IS now set, on the container
+                    # below. It was not, and the reason given here was dpkg:
+                    # `install_tools()` ran `apt-get install` to add `gh`, and a
+                    # fresh install's maintainer scripts can need capabilities a
+                    # dropped-to-ALL root process no longer has (CAP_CHOWN,
+                    # CAP_SETUID/CAP_SETGID for packages that provision a system
+                    # user). That reason is gone: `install_tools()` no longer
+                    # uses a package manager at all. It fetches one checksum-
+                    # pinned `gh` tarball over HTTPS -- which it had to, because
+                    # `worker-egress` allows no port-80 egress and Debian's
+                    # mirrors are plain HTTP, so the apt path could never have
+                    # succeeded in this namespace in the first place. curl, tar,
+                    # `install(1)` into $HOME, `npm install -g` into $HOME and a
+                    # `git clone` need no capability between them.
+                    #
+                    # `runAsNonRoot` and `readOnlyRootFilesystem` are still NOT
+                    # set. `npm install -g` and the clone into `mktemp -d` both
+                    # write outside the two read-only mounts below, so the root
+                    # filesystem cannot be read-only; and the image starts as
+                    # root with $HOME=/root rather than at a fixed non-root UID,
+                    # so pinning one needs a writable HOME chosen here. Both are
+                    # now ordinary follow-ups rather than blocked on a prebuilt
+                    # image -- removing apt was the part that needed the image.
                     "securityContext": {
                         "seccompProfile": {"type": "RuntimeDefault"},
                     },
@@ -607,6 +734,13 @@ def build_job_manifest(
                                 {"name": "AGENT_MODEL", "value": model},
                                 {"name": "CODEX_LIMIT_EXIT", "value": str(EXIT_LIMIT)},
                                 {"name": "CODEX_NOOP_EXIT", "value": str(EXIT_NOOP)},
+                                # worker.sh defaulted this to 43 on its own
+                                # while nothing on this side knew the number,
+                                # which is how the two drifted apart in the
+                                # first place. Passing it makes the contract
+                                # one-sided in git rather than agreed by
+                                # coincidence.
+                                {"name": "CODEX_AUTH_EXIT", "value": str(EXIT_AUTH)},
                             ],
                             "envFrom": [{"secretRef": {"name": "codex-secrets", "optional": True}}],
                             "volumeMounts": [
@@ -620,6 +754,7 @@ def build_job_manifest(
                             ],
                             "securityContext": {
                                 "allowPrivilegeEscalation": False,
+                                "capabilities": {"drop": ["ALL"]},
                             },
                             "resources": {
                                 "requests": {"cpu": "500m", "memory": "1Gi"},

@@ -27,7 +27,7 @@ the control plane unless you change the Job tolerations in git.
 ## What Tofu is allowed to do
 
 - Import the two servers (`prevent_destroy = true`).
-- Attach a new private network (`10.42.0.10` / `10.42.0.11`) so k3s join
+- Attach a new private network (`10.10.0.10` / `10.10.0.11`) so k3s join
   traffic can leave the public internet.
 - Optionally take over the existing firewall so 6443 can later shrink.
 - Never replace either server. A plan that says `must be replaced` is a

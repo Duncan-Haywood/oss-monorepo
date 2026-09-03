@@ -98,6 +98,9 @@ workflows:
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
+- workflow: browser-checks-ci.yml
+  classification: none
+  publishes: []
 - workflow: cabinet-refinishing-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -458,7 +461,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
       == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
@@ -712,20 +715,18 @@ gitops:
   classification: live
   hosts:
   - host: marisstella.dev
-    serves: redirect
+    serves: workload
     unmet_secrets: &id001 []
   - host: tools.marisstella.dev
     serves: workload
     unmet_secrets:
     - portfolio-site-repo
   - host: www.marisstella.dev
-    serves: redirect
+    serves: workload
     unmet_secrets: *id001
   unmet_secrets:
   - portfolio-site-repo
-  redirects:
-    marisstella.dev: tools.marisstella.dev
-    www.marisstella.dev: tools.marisstella.dev
+  redirects: {}
 - application: root
   path: gitops/apps
   classification: none

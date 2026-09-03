@@ -55,7 +55,7 @@ export const EMBED_QUERY_PARAM = 'pfEmbed';
 /** A default tall enough for most of these forms without being copied blind:
  *  the box explains it is a starting point, not a promise about every tool's
  *  height, because there is no one true height across ~170 different forms. */
-const DEFAULT_EMBED_HEIGHT = 1400;
+export const DEFAULT_EMBED_HEIGHT = 1400;
 
 const attr = (value) => String(value)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');

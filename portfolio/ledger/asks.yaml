@@ -67,25 +67,34 @@ decisions:
   exposure: credential
   opened: "2026-08-26"
   action: >-
-    Two independent unblocks now exist; either clears this row. (a) Check
-    Settings → Billing → Spending limit for Actions (and that the payment
-    method is current) — the metered GitHub-hosted allowance this repo has
-    used since 2026-08-26. (b) Cheaper and does not touch billing: run the
-    self-hosted-runner path #2021/#2022 already shipped on hardware you
-    already pay for — seal `actions-runner-secrets` (a fine-grained PAT,
-    Administration: Read and write) per
+    **Nothing is blocked on you here as of 2026-09-01 — this row is now
+    optional.** GitHub started assigning real runners again at
+    2026-09-01T00:00:53Z, ending the starvation that opened this row on
+    2026-08-26. Verified directly rather than assumed: recent runs carry
+    runner ids in the `1000040xxx` range, and #2601 that evening was the
+    first PR in five days to go green on merit (`gitops` executed
+    `kustomize build`, `kubeconform` and 193 pytest cases). So option (a)
+    below — checking Settings → Billing → Spending limit for Actions — has
+    resolved itself, most likely a monthly allowance reset, and CI is
+    working today with no action from you. If you want to spend two
+    minutes on it anyway, confirming the payment method is current is the
+    thing that keeps the next cycle from happening. Option (b) is the one
+    still worth doing eventually, and it is now insurance rather than a
+    fix: the self-hosted-runner path #2021/#2022 already shipped on
+    hardware you already pay for — seal `actions-runner-secrets` (a
+    fine-grained PAT, Administration: Read and write) per
     `gitops/ci/secrets/actions-runner-token.template.yaml`, then set repo
-    variable `CI_RUNNER=self-hosted`. Typed out as owner-checklist item 9
-    in `infra/OWNER_CHECKLIST.md`; details in `gitops/ci/README.md`. Since
-    roughly 22:10–23:25 UTC on 2026-08-26 every workflow using the default
-    `ubuntu-latest` label dies in 3–6 seconds with `runner_id: 0`, an empty
-    check-run output and a 404 on log download — confirmed still true as of
-    2026-08-29T21:51Z (`Portfolio validate` on `main`, job 99165691846, 4s,
-    `ubuntu-latest`). No agent can grant either unblock; both are
-    account-level actions (billing access or a sealed secret).
+    variable `CI_RUNNER=self-hosted`. Self-hosted runners are not metered,
+    so that makes the next allowance cycle a non-event. Typed out as
+    owner-checklist item 9 in `infra/OWNER_CHECKLIST.md`; details in
+    `gitops/ci/README.md`. **Do this after the two seals that are actually
+    blocking** (`portfolio-site-repo` and `codex-secrets`), not before —
+    while CI was dark this row was told to sessions as the thing to
+    escalate, and it was competing for your attention with the seal that
+    stands between the portfolio and a live site.
   unlocks:
-    - "**Verification for the whole fleet.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build are the guards that stop a stale branch reverting newer work or re-declaring an existing export. All of them are dark, so every merge is landing on local verification alone."
-    - "The Pages build that `deploy-settings` would publish. That flip cannot produce a site while no runner will build one, so this ask now gates that one in practice."
+    - "**Durability of the fleet's verification, not its existence.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build all run again as of 2026-09-01, so merges are no longer landing on local verification alone. What this row still buys is that they keep running through the next allowance cycle instead of going dark again."
+    - "The Pages build that `deploy-settings` would publish. This ask no longer gates that one in practice — a runner will build the artifact today. (It did gate it from 2026-08-26 to 2026-09-01.)"
   blocked_by: []
   note: >-
     Recorded as a queue item on 2026-08-27, having been reported only on
@@ -128,13 +137,76 @@ decisions:
   action: >-
     Decide whether the 4-minute routine cadence runs, now that the merge half
     is already done: #788 landed on 2026-08-24 and
-    `.github/workflows/claude-routine-trigger.yml` is on `main` today. Yes
-    means creating the `CLAUDETRIGGERAPIKEY` repository secret (Settings ->
-    Secrets and variables -> Actions) and accepting the spend below; no means
-    deleting the workflow file, which no session may do on its own because
-    the owner requested it. Until one of those, the schedule fires and every
-    run fails on its first step for want of the secret -- the safe state, but
-    a noisy one.
+    `.github/workflows/claude-routine-trigger.yml` is on `main` today.
+
+    **Corrected 2026-09-01: the secret already exists, and its token is
+    revoked.** This row said until 2026-09-01 that the secret was unset and
+    every run "fails on its first step for want of the secret -- the safe
+    state, but a noisy one". That is not what is happening. Read from the job
+    log of run 33547527610 (job 99988623632): the step's env shows
+    `CLAUDE_TRIGGER_API_KEY: ***`, i.e. the secret is set and masked, and the
+    request reaches the API and comes back `HTTP 401 ...
+    {"type":"authentication_error","message":"OAuth access token has been
+    revoked."}`. An unset value would have exited at the workflow's own
+    preflight check (its `-z` guard on the key) before any request, and does not.
+
+    So the choice is now between: **yes**, mint a fresh token on the routine's
+    API trigger at https://claude.ai/code/routines and update the existing
+    `CLAUDETRIGGERAPIKEY` secret (Settings -> Secrets and variables ->
+    Actions), accepting the spend below; or **no**, delete the workflow file,
+    which no session may do on its own because the owner requested it.
+
+    **Magnitude corrected 2026-09-01 (second correction, measured).** This
+    row said "~360 fires a day are each making a real API call on a real
+    runner and getting 401 -- burning Actions minutes on the metered
+    allowance whose exhaustion caused the 2026-08-26 starvation window". The
+    direction is right and the cost is real, but both figures were about 5x
+    and 17x too high, because they assume the run loops. It does not. On 401
+    `fire()` returns 2, and the loop's `case` does `2) exit 1` on that value
+    (the `2) exit 1` arm of the loop's `case`), so the run aborts on its *first* fire and
+    never reaches the four remaining slots or their 240s sleeps.
+
+    Measured, not inferred: five consecutive runs (33553452882, 33551039615,
+    33549288450, 33547527610, 33545549251) each ran a single `fire` job for
+    **2-3 seconds** on a real runner, `ci_starvation.py --run` exit 0 on
+    each. A 5-fire loop would occupy ~16 minutes. So the standing waste is
+    **72 API calls a day, not 360** (one per run at `*/20`), and **~72 billed
+    Actions minutes a day** (GitHub rounds each job up to the minute) --
+    roughly 2,200 minutes, on the order of **$17** a month, against the
+    ~37,000 minutes / ~$300 the `unlocks` figure below quotes. That figure is
+    not wrong; it describes the *working* state, which is what a fresh token
+    would buy. Nothing fires today, so the Claude-side spend and the daily
+    routine-run cap are both untouched at zero.
+
+    What survives the correction: it is not free, and it is the standing
+    counter-example to "CI is green" -- every scheduled run has been red on
+    its own merits since the token was revoked, with no exception yet
+    (a fixed run count is not recorded here on purpose: this row is meant to
+    stay accurate as the count keeps climbing, not to be re-edited every time
+    it does). What does not survive: any reading of this row as an
+    urgent drain on the allowance whose exhaustion went dark on 2026-08-26.
+    At ~$17/month it is affordable to leave red while the owner decides,
+    which is the difference between "delete this today" and "answer it when
+    you get to it".
+
+    **The spend and the noise both stopped on 2026-09-02; the decision did
+    not.** The `fire` job now carries
+    `if: github.event_name == 'workflow_dispatch' || vars.ROUTINE_TRIGGER_ENABLED
+    == 'true'`, and the repository variable is unset, so a scheduled run is
+    skipped before a runner is assigned -- no minute billed, no red check. The
+    workflow file is untouched otherwise and `workflow_dispatch` still runs
+    unconditionally, so a fresh token can be tested from the Actions tab
+    without flipping anything.
+
+    Read that as the bleeding stopped, not the question answered. **Yes** is
+    now three steps rather than one: mint the token, update
+    `CLAUDETRIGGERAPIKEY`, dispatch the workflow once to confirm it reports
+    `fired:`, then set the variable `ROUTINE_TRIGGER_ENABLED` to `true` under
+    Settings -> Secrets and variables -> Actions -> Variables. The variable is
+    last on purpose -- it is what re-arms the schedule, and re-arming it before
+    the token works just restores the old burn. **No** is unchanged and still
+    the owner's alone: delete the workflow file. Leaving it exactly as it is
+    now is a third, cost-free option this row did not previously have.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,
@@ -236,7 +308,12 @@ decisions:
   opened: "2026-08-19"
   action: >-
     Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
-    Actions", and set repository variable `GITHUB_PAGES_ENABLED=true`.
+    Actions", and set repository variable `PAGES_ENABLED=true`. (Not
+    `GITHUB_PAGES_ENABLED` — that name is unsettable, and until this row
+    was corrected this ask could never actually have been completed as
+    written: GitHub rejects any Actions configuration-variable name
+    starting with `GITHUB_`, case-insensitive, at creation time. See
+    `portfolio/hosting/README.md`.)
     That is the remaining flip for static products. The host is already
     decided (GitHub Pages + existing Hetzner boxes; see
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
@@ -691,35 +768,35 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    ONE owner step remains, typed out with a verification command under
-    "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md` (the
-    rationale is in `gitops/README.md`): mint a fine-grained GitHub token
-    scoped to this one repository with Contents:Read-only and nothing
-    else, then seal it into `prod/kustomization.yaml` per
+    ONE owner step remains -- fewer than this row used to say -- typed out
+    with a verification command under "Publish `tools.marisstella.dev`" in
+    `infra/OWNER_CHECKLIST.md` (the rationale is in `gitops/README.md`):
+    mint a fine-grained GitHub token scoped to this one repository with
+    Contents:Read-only and nothing else, then seal it into
+    `prod/kustomization.yaml` per
     `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous). Both of the
-    other steps this row used to list are gone and need no action. DNS:
+    private, so the in-cluster clone cannot be anonymous). Every other step
+    this row used to list is gone and needs no action. DNS:
     `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
     2026-08-29 with `getent hosts tools.marisstella.dev`) --
     `marisstella.dev`'s existing wildcard `A/*` record already covers the
-    subdomain. ACME contact: dropped 2026-08-30. This row used to ask for
-    a real mailbox to replace `replace-me@duncanhaywood.dev`, on the
-    stated grounds that Let's Encrypt would refuse to register the
-    placeholder. An ACME account contact is optional (RFC 8555 makes
-    `contact` optional and cert-manager's `email` follows), so
-    `platform/cert-manager/issuer.yaml` now omits `email` entirely and
-    registers normally -- no address to choose, nothing to wait on.
-    Adding a real one later, purely to receive Let's Encrypt's expiry
-    warnings, is a one-line change per issuer that cert-manager applies by
-    updating the existing account registration; it is optional and it does
-    not block anything. That single remaining step is all that stands
-    between the portfolio and a live site; after it the site is
-    reachable on a Let's Encrypt *staging* certificate, which
-    browsers warn about. The last step -- flipping the Ingress annotation
-    from `letsencrypt-staging` to `letsencrypt-prod` and updating the
-    test that pins it -- is an ordinary code change, not an owner action:
-    once you confirm the staging certificate issued, ask a session to
-    open that PR rather than editing two files by hand.
+    subdomain. ACME contact: dropped 2026-08-30 -- an ACME account contact
+    is optional (RFC 8555 makes `contact` optional and cert-manager's
+    `email` follows), so `platform/cert-manager/issuer.yaml` omits `email`
+    entirely and registers normally. Adding a real one later, purely to
+    receive Let's Encrypt's expiry warnings, is a one-line change per
+    issuer that cert-manager applies by updating the existing account
+    registration; it is optional and does not block anything. **The
+    Ingress issuer flip is also done (#2545, 2026-08-31)** -- this row used
+    to describe it as a follow-up code change still waiting on "once you
+    confirm the staging certificate issued", but DNS resolving on
+    2026-08-29 retired that precondition before the wait ever mattered, so
+    the flip was made ahead of the seal rather than behind it. Both
+    `gitops/prod/portfolio-site.yaml` and `gitops/prod/portfolio-apex.yaml`
+    already carry `cert-manager.io/cluster-issuer: letsencrypt-prod`, and
+    `gitops/tests/test_manifests.py` pins it. So the token is now the only
+    remaining step, full stop -- after it the site issues straight to a
+    publicly trusted certificate, not a staging one browsers warn about.
   unlocks:
     - >-
       A public URL for 164 finished, tested, free tools at once --
@@ -727,20 +804,24 @@ decisions:
       build.mjs`'s output inside the k3s cluster and serves it through
       ingress-nginx and cert-manager that are already running on the paid-
       for cpx52 box. This path depends on neither GitHub Actions (dark
-      since 2026-08-26, see `actions-runners-unavailable`) nor GitHub
+      2026-08-26 to 2026-09-01 and working again since, see
+      `actions-runners-unavailable` — this path never needed it either
+      way) nor GitHub
       Pages (not enabled, and would not serve a private repo's Pages site
       publicly even if it were -- see `deploy-settings`'s note). Of the
       two live deploy asks, this is the cheaper one to grant: no billing
-      change, no new account -- DNS already resolves, so it is down to a
-      scoped read-only token and a real email address.
+      change, no new account -- DNS already resolves and the issuer is
+      already pointed at prod, so it is down to a single scoped read-only
+      token.
   blocked_by: []
   note: >-
     Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened
     2026-08-19). That ask is now known to be insufficient on its own --
     `portfolio/hosting/README.md`'s 2026-08-29 amendment records three
     stacked blockers on the Pages route (not enabled, repo is private so
-    Pages would not go public on the free tier, and no Actions runner to
-    build the artifact since 2026-08-26). This row is the separate Hetzner
+    Pages would not go public on the free tier, and — from 2026-08-26 to
+    2026-09-01, no longer true — no Actions runner to build the artifact).
+    Two of those three still stand. This row is the separate Hetzner
     path merged in #1999, which shares none of those three blockers and
     was not represented in this file before. Until any of these four steps
     land, Argo syncs the manifests and the pods crash-loop on the missing
@@ -774,5 +855,7 @@ decisions:
     not the dark Pages origin. `check.mjs` also exits 1 on both a missing
     and an empty site directory, which is what makes the build container
     fail the pod rather than serve an empty site. Nothing in the build
-    half of this deploy is waiting on anything; all four remaining steps
-    are the owner's.
+    half of this deploy is waiting on anything; the one remaining step is
+    the owner's (three others this note used to count -- DNS, the ACME
+    contact, and the issuer flip -- have since landed with no owner action,
+    see `action` above).

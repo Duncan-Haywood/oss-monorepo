@@ -43,8 +43,30 @@ AI-wrap by default.
 - **Do not re-verify** PRs recorded in `portfolio/ledger/verifications.yaml`
   unless `python3 portfolio/ledger/verification_status.py` says drift
   invalidated them.
-- **Do not open ledger-only PRs** that re-state known blockers. Build the
-  unblocked parts instead.
+- **Never land a change that is only ledger prose.** Not "avoid" — never.
+  Gate it mechanically before you push:
+
+  ```
+  python3 portfolio/ledger/check_ledger_only.py
+  ```
+
+  Exit 1 means every file in your branch is `portfolio/ledger/` data, and the
+  branch is not a deliverable. This bullet used to read "do not open
+  ledger-only PRs *that re-state known blockers*", and that escape hatch ate
+  the rule: in the seven days to 2026-09-02 the fleet landed **381 commits on
+  `main` touching nothing but ledger YAML — 34.6% of 1,102** — because every
+  session read its own entry as the new one. A third of the fleet's output
+  went into describing the other two thirds.
+
+  Recording an outcome is still right, and still cheap. It just **rides with
+  the work it describes** — same commit, or same PR. The ledger is a footnote
+  to a shipped thing, not a thing that ships.
+
+  If a session genuinely found a blocker instead of shipping: say so in the
+  reply and leave `main` alone. An unshipped session is a real outcome and
+  does not need a commit to be true. The ledger *tooling* (`.py` under
+  `portfolio/ledger/`) is exempt and passes the check — it is ordinary
+  platform code.
 - **Do not close a PR as "already on main"** until
   `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints the
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
@@ -57,15 +79,25 @@ AI-wrap by default.
   in. Merging that branch adds a duplicate button or a weaker copy of a live
   function; it is not new work. It is still not a licence to close unread — the
   one word that differs can be the point of the branch.
-- **A red check is not a failed check right now.** The repo-wide runner outage
-  (owner decision #1849) fails every workflow in 3-6 seconds with no runner, so
-  checks arrive *red*, not absent — including on `main` and on the commit that
-  queued the outage. An outage job has empty check-run output and 404s on log
-  download; a real `Portfolio validate` installs Python and Node and runs 36
-  steps, so it cannot finish in five seconds. Verify locally, record what you
-  ran, and do not "fix" code the check never executed. See `CLAUDE.md`. The
-  single field that settles it is `runner_id: 0` with an empty `runner_name` —
-  no runner was ever assigned, so no step ran.
+- **A red check is a failed check again, as of 2026-09-01.** This bullet read
+  "a red check is not a failed check right now" for five days, and that is no
+  longer true: Actions began assigning real runners again at
+  2026-09-01T00:00:53Z, and #2601 went green on merit that evening (`gitops`
+  ran `kustomize build`, `kubeconform` and 193 pytest cases on runner
+  `1000040xxx`). Treat red as red, and fix it.
+
+  The old signature is still worth knowing, because the ceiling appears to
+  **cycle** rather than to be gone — the recovery landed at 00:00:53Z on the
+  first of the month, which is what a metered minute allowance resetting looks
+  like. If starvation returns it looks like this: every workflow fails in 3-6
+  seconds with no runner, so checks arrive *red* rather than absent, including
+  on `main`; the job has empty check-run output and 404s on log download; and a
+  real `Portfolio validate` installs Python and Node and runs 36 steps, so it
+  cannot finish in five seconds. The single field that settles it is
+  `runner_id: 0` with an empty `runner_name` — no runner was ever assigned, so
+  no step ran. Do not judge that by eye: run
+  `python3 platform/ci/ci_starvation.py --run <run_id>`, which votes on that
+  one field. See `CLAUDE.md`.
 - **Verify with the workflow's own step list, not a subset you chose — and
   with every workflow your change would start, not just the one you know.**
 

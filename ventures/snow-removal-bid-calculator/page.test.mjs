@@ -18,7 +18,7 @@ test('disclaimer and privacy are visible, not only in the README', () => {
   assert.match(html, /not legal, tax, financial, engineering, or business advice/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
 });
 
 test('the shipped starting route matches the documented eight-driveway winter', () => {

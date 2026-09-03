@@ -57,6 +57,7 @@ import {
   SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
+  repairLinks,
   pageHasOwnShareControl,
   categoryPagePath,
   CATEGORY_PATH_PREFIX,
@@ -64,8 +65,13 @@ import {
   renderHubSitemap,
   renderLlmsTxt,
   renderCatalog,
+  externalCallExceptions,
+  surfaceExternalFetchHosts,
+  CARD_FOOTER,
+  CARD_FOOTER_EXCEPTION,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
+import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
 // themselves. See "the hub validates a saved bid with the tested definition".
@@ -355,7 +361,7 @@ test('every published page carries both liability clauses, not just the hub', as
   // clause on every hosted surface. Until this site existed the second one was
   // arguably moot -- nothing was hosted -- and eighteen pages across nine
   // ventures shipped without any availability statement at all. The moment the
-  // owner flips `GITHUB_PAGES_ENABLED` all of them are hosted surfaces, so the
+  // owner flips `PAGES_ENABLED` all of them are hosted surfaces, so the
   // clause is checked here, where a new landing page cannot slip past it.
   //
   // Matched loosely on purpose: several ventures word the clause in their own
@@ -642,10 +648,12 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Five trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, catalog.json, the sitemap, the Atom feed and
-  // the source repo — so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 5);
+  // Four trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, catalog.json, the sitemap and the Atom feed
+  // — so the count is tools plus those. A fifth, "Source", used to point at
+  // this repository's GitHub URL; the repository is private, so that link
+  // 404s for every real visitor and was removed rather than left false.
+  assert.equal(bullets.length, surfaces.length + 4);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1251,9 +1259,47 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
 });
 
+// A cutting planner for woodworkers and sign shops spent its whole life filed
+// under "Logistics, freight & cloud cost" because the `logistics` rule matched
+// the literal prefix `cut-list`. Nothing about the page was wrong; every
+// internal link out of it was. The four related tools it offered were a 3PL
+// quote normaliser, a cloud egress calculator, a medical-courier route margin
+// and an owner-operator CPM, and it was listed on the freight hub where its
+// readers do not look. Both halves are asserted here: where it now lives, and
+// that the freight section no longer claims it.
+test('the cut list planner is filed with the trades that cut sheet goods, not with freight', () => {
+  assert.equal(categoryFor('cut-list-optimizer').id, 'trades');
+  assert.equal(subcategoryFor('cut-list-optimizer').id, 'trades-interior');
+  assert.notEqual(categoryFor('cut-list-optimizer').id, 'logistics');
+  // The freight tools it used to sit beside are still freight tools.
+  for (const slug of ['3pl-quote-normalizer', 'ltl-freight-class-estimator', 'medical-courier-route-margin']) {
+    assert.equal(categoryFor(slug).id, 'logistics', `${slug} should still be logistics`);
+  }
+});
+
+// The consequence the misfiling actually had, asserted directly rather than
+// through the category id: a woodworker is offered woodworking tools.
+test('the cut list planner offers trade siblings, not freight tools', () => {
+  const surfaces = [
+    'cut-list-optimizer',
+    'countertop-bid-calculator',
+    'cabinet-refinishing-bid-calculator',
+    'crown-molding-bid-calculator',
+    'flooring-bid-calculator',
+    '3pl-quote-normalizer',
+    'cloud-egress-calculator',
+    'medical-courier-route-margin',
+  ].map((slug) => ({ slug, title: slug }));
+  const related = relatedTools(surfaces, 'cut-list-optimizer', 4);
+  assert.equal(related.length, 4);
+  for (const surface of related) {
+    assert.equal(categoryFor(surface.slug).id, 'trades', `${surface.slug} is not a trade tool`);
+  }
+});
+
 test('sub-groups only apply where a category is large enough to need them', () => {
   assert.equal(subcategoryFor('ebay-fee-calculator'), null, 'marketplace reads as one list');
-  assert.equal(subcategoryFor('cut-list-optimizer'), null, 'logistics reads as one list');
+  assert.equal(subcategoryFor('3pl-quote-normalizer'), null, 'logistics reads as one list');
   assert.equal(subcategoryFor('metal-roof-bid-calculator').id, 'trades-roof');
   assert.equal(subcategoryFor('quote-margin-check').id, 'trades-paid');
 });
@@ -1405,17 +1451,38 @@ test('renderRobots allows crawling', () => {
 });
 
 test('links that escape the site are repointed at the repository, not left broken', async () => {
-  const { repairs } = await site();
-  assert.ok(repairs.length > 0, 'the portfolio does contain such links today');
+  // This used to read a naturally-occurring case out of real venture content
+  // (ai-engineering-academy's own README link). That coupled the test to
+  // whatever venture happened to have such a link, which is how it went
+  // silent the day the portfolio's last one was fixed: this repository is
+  // private, so every one of those was a 404 for every real visitor (see
+  // CLAUDE.md and #2720), and by the time that was cleaned up across the
+  // site, zero remained for this test to find. Build an isolated case
+  // instead, so the fallback itself -- point at the repository rather than
+  // leave a raw broken relative link -- stays covered on its own.
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-repair-root-'));
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-repair-out-'));
+  const ventureDir = path.join(repoRoot, 'ventures', 'widget-co');
+  const siteDir = path.join(ventureDir, 'site');
+  await fs.mkdir(siteDir, { recursive: true });
+  // Stands in for a CLI-only module or test payload: it exists in the repo,
+  // but this build never publishes it.
+  await fs.writeFile(path.join(ventureDir, 'cli.py'), '# not published');
+  await fs.writeFile(path.join(siteDir, 'index.html'), '<a href="../cli.py">the CLI</a>');
 
-  // The concrete case: a tool published from a nested directory links to the
-  // venture README that sits one level above its own published root.
-  const academy = await read('ai-engineering-academy', 'index.html');
+  const destination = path.join(outDir, 'widget-co');
+  await fs.mkdir(destination, { recursive: true });
+  await fs.copyFile(path.join(siteDir, 'index.html'), path.join(destination, 'index.html'));
+
+  const repairs = await repairLinks({ publishedDir: destination, sourceDir: siteDir, repoRoot, outDir });
+  assert.ok(repairs.length > 0, 'a link to a genuinely unpublished file should be repointed, not left broken');
+
+  const built = await fs.readFile(path.join(destination, 'index.html'), 'utf8');
   assert.ok(
-    academy.includes(`${SOURCE_URL_PREFIX}ventures/ai-engineering-academy/README.md`),
-    'the README link should resolve on GitHub instead of 404ing',
+    built.includes(`${SOURCE_URL_PREFIX}ventures/widget-co/cli.py`),
+    'the escaping link should point at the file in the repository',
   );
-  assert.ok(!academy.includes('href="../README.md"'));
+  assert.ok(!built.includes('href="../cli.py"'));
 });
 
 test('repair leaves working in-site links untouched', async () => {
@@ -3497,6 +3564,135 @@ test('a category page counts its own visits without identifying anyone', async (
   assert.ok(/data-tool="[^"]+" data-pf-to="[^"]+"/.test(html));
 });
 
+test('surfaceExternalFetchHosts catches a browser-level third-party request an HTML file makes with no fetch() in any .js file', async () => {
+  // The scanner used to look only at `.js` files. A `<script src>` or a
+  // `<link rel="stylesheet">` pointing off-site is a real request the
+  // browser makes on page load -- exactly the thing the About and category
+  // pages' "nothing you type is uploaded" / "no third-party scripts" claims
+  // are about -- and it never appears as a `fetch(` call anywhere, so the
+  // old .js-only scan would silently miss it and the privacy claim would go
+  // uncaught-false for that page.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-'));
+  await fs.writeFile(
+    path.join(dir, 'index.html'),
+    `<!doctype html><html><head>
+      <link rel="canonical" href="https://example.test/site/should-not-count/">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">
+      <script src="https://cdn.example.com/widget.js"></script>
+    </head><body></body></html>`,
+  );
+  const hosts = await surfaceExternalFetchHosts(dir);
+  assert.deepEqual(hosts, ['cdn.example.com', 'fonts.googleapis.com']);
+});
+
+test('surfaceExternalFetchHosts ignores an HTML file with no off-origin request', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-clean-'));
+  await fs.writeFile(
+    path.join(dir, 'index.html'),
+    `<!doctype html><html><head>
+      <link rel="canonical" href="https://example.test/site/">
+      <link rel="alternate" type="application/atom+xml" href="https://example.test/feed.xml">
+      <link rel="icon" href="../favicon.svg">
+    </head><body><script>fetch('/local-only');</script></body></html>`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
+test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
+  // A category's "nothing you type is uploaded" line is a privacy claim, not
+  // decoration -- and it is false for a category that files a tool like
+  // Sponsor Ready, whose whole job is a live lookup. This is computed from
+  // `externalCallExceptions`, the same function the About page already
+  // trusts for its own version of this claim, rather than hand-written per
+  // category, so a future exception cannot leave one category's copy stale.
+  const { surfaces } = await site();
+  const exceptionSlugs = externalCallExceptions(surfaces).map((x) => x.slug);
+  assert.ok(exceptionSlugs.length > 0, 'expected at least one externalCallExceptions entry to exercise this test');
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    const html = await read(CATEGORY_PATH_PREFIX, category.id, 'index.html');
+    const [, count] = html.match(/<p class="count">([^<]+)<\/p>/) ?? [];
+    assert.ok(count, `${category.id} has no .count paragraph to check`);
+    const exceptions = externalCallExceptions(items);
+    if (exceptions.length) {
+      assert.ok(
+        count.includes('except on'),
+        `${category.id} files ${exceptions.map((x) => x.title).join(', ')} but its count line reads "${count}"`,
+      );
+      for (const x of exceptions) {
+        assert.ok(count.includes(x.title), `${category.id}'s count line omits ${x.title}: "${count}"`);
+      }
+    } else {
+      assert.equal(
+        count,
+        `${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded`,
+        `${category.id} holds no exception, so its count line should make the unconditional claim`,
+      );
+    }
+  }
+});
+
+test('a tool or category with a documented external-call exception gets the exception footer on its share card', async () => {
+  // `CARD_FOOTER` ("nothing you type is uploaded") is baked into a raster
+  // image -- these are the two lines every share card carries besides its
+  // headline -- so a card for Sponsor Ready or for the category that files it
+  // must not draw that claim. Regression target: before this test existed,
+  // both cards silently carried the default footer.
+  const { outDir, surfaces } = await site();
+  const exceptions = externalCallExceptions(surfaces);
+  assert.ok(exceptions.length > 0, 'expected at least one externalCallExceptions entry to exercise this test');
+
+  for (const ex of exceptions) {
+    const surface = surfaces.find((s) => s.slug === ex.slug);
+    const withDefaultFooter = renderSocialCard({
+      color: categoryFor(surface.slug).accent,
+      headline: surface.title,
+      kicker: SITE_NAME,
+      footer: CARD_FOOTER,
+    });
+    const withExceptionFooter = renderSocialCard({
+      color: categoryFor(surface.slug).accent,
+      headline: surface.title,
+      kicker: SITE_NAME,
+      footer: CARD_FOOTER_EXCEPTION,
+    });
+    const actual = await fs.readFile(path.join(outDir, toolCardFileFor(surface.slug)));
+    assert.ok(
+      actual.equals(withExceptionFooter),
+      `${surface.slug}'s share card should carry the exception footer`,
+    );
+    assert.ok(
+      !actual.equals(withDefaultFooter),
+      `${surface.slug}'s share card must not claim "nothing you type is uploaded"`,
+    );
+  }
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    const expectedFooter = externalCallExceptions(items).length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER;
+    const expected = renderSocialCard({
+      color: category.accent,
+      headline: category.title,
+      kicker: SITE_NAME,
+      footer: expectedFooter,
+    });
+    const actual = await fs.readFile(path.join(outDir, socialCardFileFor(category.id)));
+    assert.ok(actual.equals(expected), `${category.id}'s share card footer does not match its exceptions`);
+  }
+});
+
+test('the manifest description matches whether the site has a documented external-call exception', async () => {
+  const { outDir, surfaces } = await site();
+  const manifest = JSON.parse(await fs.readFile(path.join(outDir, 'manifest.webmanifest'), 'utf8'));
+  if (externalCallExceptions(surfaces).length) {
+    assert.ok(
+      !manifest.description.includes('nothing you type is uploaded'),
+      `manifest description makes the unconditional claim: "${manifest.description}"`,
+    );
+  } else {
+    assert.match(manifest.description, /nothing you type is uploaded/);
+  }
+});
+
 test('the hub links every category page, and the sitemap lists them', async () => {
   const { outDir, surfaces } = await site();
   const ids = groupByCategory(surfaces).map(({ category }) => category.id);
@@ -3560,6 +3756,27 @@ test('the About page ships, carries the disclaimer, and states the real catalogu
   );
 });
 
+test('the About page lede states the device-privacy claim honestly, with any documented exception named', async () => {
+  // Every other privacy claim on this page (the "What data..." panel, the
+  // copy-paste boilerplate) already runs through `externalCallExceptions`.
+  // The lede paragraph -- the very first sentence a visitor reads -- used to
+  // make the unconditional claim regardless, which is the drift this guards.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+  const [, lede] = about.match(/<p class="lede">([^<]+)<\/p>/) ?? [];
+  assert.ok(lede, 'About page has no .lede paragraph to check');
+
+  const exceptions = externalCallExceptions(surfaces);
+  assert.ok(!lede.includes('nothing you type into them is uploaded anywhere'), 'lede still makes the old unconditional claim');
+  if (exceptions.length) {
+    for (const x of exceptions) {
+      assert.ok(lede.includes(x.title), `lede has an exception but does not name ${x.title}: "${lede}"`);
+    }
+  } else {
+    assert.match(lede, /never leave their device/);
+  }
+});
+
 test('the About page is reachable from the hub, the categories and every tool page', async () => {
   const { outDir, surfaces } = await site();
 
@@ -3595,6 +3812,24 @@ test('the About page makes no off-origin request, which is the claim it makes', 
   // page that itself pulled a font or an analytics tag would make that a lie,
   // and it is the one page where the lie would be load-bearing.
   assert.deepEqual(offOriginResources(await read('about', 'index.html')), []);
+});
+
+test('the About page documents the embed feature that #2561 shipped, not just the per-tool box', async () => {
+  // The embed offer itself only exists on a tool's own footer (`embed.mjs`,
+  // `injectEmbedWidget`) -- nobody browsing the hub or About ever scrolls to
+  // one to discover the feature exists at all. This is the site-level surface
+  // for it: no snippet to copy (that one is already generated correctly, per
+  // tool, with that tool's own title and URL), just the fact that every tool
+  // supports it and the one shape the snippet always takes.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+
+  assert.match(about, /Embedding a tool on your own page/);
+  assert.match(about, new RegExp(`Every one of the ${surfaces.length} tools here can be framed`));
+  // The illustrated snippet uses the real query param and default height the
+  // shipped feature uses, not numbers written by hand that could drift from it.
+  assert.match(about, new RegExp(`\\?${EMBED_QUERY_PARAM}=1`));
+  assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
 test('the hub sitemap holds the hub, the categories and About, and nothing else', () => {
@@ -3646,4 +3881,49 @@ test('the catch-all holds only what no section claims', async () => {
     more.items.length <= 8,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
+});
+
+test('no link to a published venture is repaired out to the private repository', async () => {
+  // `repairLinks` decides "inside the site" by whether the target exists on
+  // disk. It used to run inside the copy loop, so a link to a sibling venture
+  // that sorts later alphabetically was tested before that sibling had been
+  // copied, judged to escape the site, and repointed at GitHub. This repository
+  // is private, so every one of those was a 404 for every visitor -- and
+  // `check.mjs` never saw it, because by then the link is absolute and it does
+  // not follow those.
+  //
+  // Ten links were affected and all seven distinct targets were live pages:
+  // no-show-fee-calculator, where-to-sell-calculator,
+  // walmart-marketplace-calculator, tiktok-shop-fee-calculator,
+  // shopify-fee-calculator, quote-margin-check, and one
+  // invoice-payment-terms-calculator page.
+  //
+  // Asserted over the whole built site rather than over those seven, so the
+  // same mistake cannot return through a venture nobody was watching.
+  const { surfaces, outDir } = await site();
+  const published = new Set(surfaces.map((s) => s.slug));
+  const offenders = [];
+
+  for (const file of await listFiles(outDir)) {
+    if (!file.endsWith('.html')) continue;
+    const html = await fs.readFile(file, 'utf8');
+    for (const [, target] of html.matchAll(
+      new RegExp(`${SOURCE_URL_PREFIX.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}ventures/([^"'\\s>]+)`, 'g'),
+    )) {
+      const [slug, ...rest] = target.split('/');
+      if (!published.has(slug)) continue;
+      // A link into a published venture is only legitimate when it names a file
+      // that venture does not publish -- its README or LICENCE, say.
+      const asPublished = path.join(outDir, slug, ...rest);
+      const candidates = rest.length ? [asPublished] : [path.join(outDir, slug, 'index.html')];
+      for (const candidate of candidates) {
+        try {
+          await fs.access(candidate);
+          offenders.push(`${path.relative(outDir, file)} -> ventures/${target}`);
+        } catch { /* genuinely unpublished: the repair is correct */ }
+      }
+    }
+  }
+
+  assert.deepEqual(offenders, [], `links sent off-site to a private repo: ${offenders.slice(0, 8).join(', ')}`);
 });

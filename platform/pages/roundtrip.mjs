@@ -75,8 +75,40 @@ const LAUNCH = chromePath ? { executablePath: chromePath } : {};
 // and matching it produced a 0×0 div this file then spent thirty seconds trying
 // to click. A probe whose failures are its own selectors teaches everyone to
 // ignore it.
+//
+// The kebab-case three were a silent blind spot until 2026-08-31. This list
+// grew one camelCase id at a time as ventures were written, so a venture that
+// spelled its button `share-link` rather than `shareLink` was not reported as
+// failing — it was reported as `skip … no copy-link control`, which reads like
+// a page that has no share link rather than one whose share link nobody is
+// checking. Three pages sat in that gap, all of them with a real link that
+// encodes real state:
+//
+//   no-show-fee-calculator        #share-link        (query params, src/app.mjs)
+//   quote-margin-check            #copy-share-link   (query params, site/calc.mjs)
+//   freelance-retainer-calculator #shareResult       (hash, share.mjs)
+//   equipment-rental-break-even   #copy-share        (hash, site/share.mjs)
+//
+// The last of those is why this is worth writing down rather than quietly
+// fixing: it landed on `main` the same day, hours before this list was
+// widened, under a fifth spelling nobody had used before. The gap is not a
+// historical accident that has now been cleaned up — it reopens every time a
+// venture names its button something new.
+//
+// That is the exact shape of the two defects this file exists to catch: a link
+// that drops half the form is invisible from the page, and here the *probe* was
+// invisible too. `freelance-retainer-calculator` is the sharper warning of the
+// three — `link.mjs` already documents it as the page whose script lives in
+// `app.js`, and names its button `share`; the id it actually ships is
+// `shareResult`, so neither that prose nor this list matched what is on the
+// page.
+//
+// A skip line is not a pass. If a venture adds a share control under a fourth
+// spelling, it lands in the skip list too, so treat a page you know has a link
+// appearing there as a bug in this list.
 const COPY_CONTROLS = ['button#copyShare', 'button#copyLink', 'button#shareLink',
-  'button#share', 'button#pf-link-copy'];
+  'button#share', 'button#pf-link-copy', 'button#share-link',
+  'button#copy-share-link', 'button#shareResult', 'button#copy-share'];
 
 // Fields no link should carry, and no comparison should demand.
 //

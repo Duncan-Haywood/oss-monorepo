@@ -110,3 +110,17 @@ test("the how-to article links back to the tool and carries the boundary", () =>
     assert.ok(article.includes(reason), `article never covers ${reason}`);
   }
 });
+
+test("the landing page links to the how-to article and the Chargeflow comparison", () => {
+  assert.match(html, /href="\.\/how-to-respond-to-a-chargeback\.html"/);
+  assert.match(html, /href="\.\/vs-chargeflow\.html"/);
+});
+
+test("the Chargeflow comparison links back to the tool, is honest about non-affiliation, and carries the boundary", () => {
+  const compare = readFileSync(new URL("./vs-chargeflow.html", import.meta.url), "utf8");
+  assert.match(compare, /href="\.\/"/);
+  assert.match(compare, /not affiliated with, endorsed by, or sponsored by Chargeflow/);
+  assert.match(compare, /No warranty/);
+  assert.match(compare, /not legal, tax, financial, or payment advice/);
+  assert.match(compare, /FAQPage/);
+});

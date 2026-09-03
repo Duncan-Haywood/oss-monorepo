@@ -36,6 +36,11 @@
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a68c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     .span2 { grid-column: 1 / -1; }
+    .proration-tool { background: #f6f0e6; border: 1px dashed #b7a68c; border-radius: 9px; padding: 10px 12px; }
+    .proration-fields { display: grid; grid-template-columns: repeat(2, 1fr) auto; gap: 10px; align-items: end; }
+    .proration-fields label { font-size: .82rem; }
+    .proration-fields button { white-space: nowrap; }
+    @media (max-width: 560px) { .proration-fields { grid-template-columns: 1fr; } }
     .result { position: sticky; top: 15px; background: #2c2416; color: #f7f1e6; border-color: #2c2416; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
     .result a { color: inherit; text-decoration: underline; }
@@ -109,7 +114,16 @@
           <label>HOA / resale fees <input id="hoaFees" type="number" min="0" step="1" value="350"></label>
           <label>Home warranty <input id="homeWarranty" type="number" min="0" step="1" value="550"></label>
           <label>Repair credits <input id="repairsCredits" type="number" min="0" step="1" value="0"></label>
-          <label>Tax / HOA proration <input id="taxProration" type="number" min="0" step="1" value="800"></label>
+          <label class="span2">Tax / HOA proration <input id="taxProration" type="number" min="0" step="1" value="800"></label>
+          <div class="span2 proration-tool">
+            <span class="hint" style="margin:0 0 6px">Estimate it: annual tax ÷ 365 × days charged to the seller</span>
+            <div class="proration-fields">
+              <label>Annual property tax <input id="prorationAnnualTax" type="number" min="0" step="1" placeholder="3650"></label>
+              <label>Days charged to seller <input id="prorationDays" type="number" min="0" step="1" placeholder="80"></label>
+              <button type="button" id="prorationApply">Use this estimate</button>
+            </div>
+            <span id="prorationPreview" class="hint" style="margin:6px 0 0"></span>
+          </div>
           <label>Other closing costs <input id="otherClosing" type="number" min="0" step="1" value="0"></label>
           <label>Prep / staging already spent <input id="prepCash" type="number" min="0" step="1" value="0"></label>
           <label>Target net to seller <input id="targetNet" type="number" min="0" step="100" value="120000"></label>
@@ -126,7 +140,7 @@
         </div>
       </section>
     </div>
-    <section class="result">
+    <section class="result" aria-live="polite">
       <h2>Cash to the seller</h2>
       <div id="net" class="hero-number">$—</div>
       <div id="label">estimated net on Offer A</div>
@@ -152,7 +166,7 @@
         <button type="button" id="copySheet">Copy Offer A worksheet</button>
         <button type="button" id="copyCompare">Copy comparison</button>
       </div>
-      <p id="copyStatus" class="status"></p>
+      <p id="copyStatus" class="status" role="status" aria-live="polite"></p>
       <p class="note">Transparent arithmetic from your inputs — not a closing disclosure, a tax opinion, or advice about which offer to accept. Confirm every line with title/escrow, the lender payoff, and your broker.</p>
     </section>
   </main>
@@ -180,20 +194,21 @@
   <h3>What sale price do I need to walk away with a target amount?</h3>
   <p>Enter the net you want, the loan payoff, and the same cost rates. Percentage fees scale with price; flat fees and the payoff do not. The calculator solves for the sale price that produces that net on those assumptions. Confirm the figure with title or escrow before listing or countering.</p>
   <h3>How do I estimate the Tax / HOA proration figure above?</h3>
-  <p>Take the annual property tax bill and divide by 365 for a daily rate, then multiply by the number of days in the tax period the seller is responsible for through closing. A $3,650 annual bill is $10/day; 80 days charged to the seller comes to $800 &mdash; which is why that field defaults to $800 above. Whether the seller owes days before or after closing depends on whether your local jurisdiction bills taxes in advance or in arrears, so use the title company's proration once you have it; this is a starting estimate, not the number on the closing statement.</p>
+  <p>Take the annual property tax bill and divide by 365 for a daily rate, then multiply by the number of days in the tax period the seller is responsible for through closing. A $3,650 annual bill is $10/day; 80 days charged to the seller comes to $800 &mdash; which is why that field defaults to $800 above. The <strong>Estimate it</strong> box under the field does this arithmetic for you: enter the annual tax and the days charged, then <strong>Use this estimate</strong> fills the proration field for you. Whether the seller owes days before or after closing depends on whether your local jurisdiction bills taxes in advance or in arrears, so use the title company's proration once you have it; this is a starting estimate, not the number on the closing statement.</p>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or real-estate advice, and it does not replace a qualified professional, title company, escrow officer, or attorney. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices, loan balances, and addresses are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it saved you from taking the wrong offer, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free and open source. If it saved you from taking the wrong offer, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
     import {
       applyCommissionPreset,
       calculateNetSheet,
       compareOffers,
+      estimateTaxProration,
       formatNetSheetSummary,
       formatOfferComparison,
     } from "./calc.mjs";
@@ -320,6 +335,36 @@
       count("commission_preset_applied");
     }
 
+    function prorationEstimate() {
+      const annualTax = el("prorationAnnualTax").value;
+      const days = el("prorationDays").value;
+      if (annualTax === "" || days === "") return null;
+      try {
+        return estimateTaxProration({ annualTax, daysChargedToSeller: days });
+      } catch {
+        return null;
+      }
+    }
+
+    function updateProrationPreview() {
+      const estimate = prorationEstimate();
+      el("prorationPreview").textContent = estimate === null
+        ? ""
+        : `= ${money(estimate)} — Tax / HOA proration is currently ${money(Number(el("taxProration").value) || 0)}`;
+    }
+
+    function applyProrationEstimate() {
+      const estimate = prorationEstimate();
+      if (estimate === null) {
+        el("prorationPreview").textContent = "Enter the annual tax and the days charged to the seller first.";
+        return;
+      }
+      el("taxProration").value = Math.round(estimate * 100) / 100;
+      updateProrationPreview();
+      update();
+      count("tax_proration_estimated");
+    }
+
     async function copySheet() {
       const text = formatNetSheetSummary(calculateNetSheet(readA()), { offerLabel: "Offer A" });
       await copyText(text);
@@ -350,6 +395,10 @@
     el("copyCompare").addEventListener("click", () => {
       copyCompare().catch(() => setCopyStatus("Copy failed; select the figures above."));
     });
+    el("prorationAnnualTax").addEventListener("input", updateProrationPreview);
+    el("prorationDays").addEventListener("input", updateProrationPreview);
+    el("taxProration").addEventListener("input", updateProrationPreview);
+    el("prorationApply").addEventListener("click", applyProrationEstimate);
     el("usageOptOut").addEventListener("change", update);
     update();
   </script>

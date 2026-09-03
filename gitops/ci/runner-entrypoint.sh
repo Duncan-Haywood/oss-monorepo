@@ -4,16 +4,56 @@
 # Ephemeral is the whole safety model. A runner that stays up between jobs
 # carries whatever the last job left in /home/runner -- a checked-out branch, a
 # node_modules, an env var -- into the next one. `--ephemeral` makes GitHub
-# hand this runner exactly one job and then deregister it; the Deployment
-# restarts the pod, and the next job starts on an empty filesystem. That is
-# also why this is a Deployment and not a StatefulSet: nothing here is worth
-# keeping.
+# hand this runner exactly one job and then deregister it; the container exits
+# and the kubelet starts it again, rebuilt from the image. That is also why
+# this is a Deployment and not a StatefulSet: nothing here is worth keeping.
+#
+# The one thing that restart does not rebuild is the `_work` emptyDir, which
+# outlives it. The clean-up block below is what makes the "starts on an empty
+# filesystem" half of this paragraph true on the second and every later job,
+# rather than only on the first job a brand-new pod runs.
 set -euo pipefail
 
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be owner/repo}"
-: "${RUNNER_TOKEN:?RUNNER_TOKEN (a PAT with repo scope) must be set}"
+: "${RUNNER_TOKEN:?RUNNER_TOKEN (a PAT that can mint a runner registration token -- see gitops/ci/README.md) must be set}"
 
 RUNNER_LABELS="${RUNNER_LABELS:-self-hosted,linux,x64,hetzner}"
+
+# Where the runner unpacks each job. In the pod this resolves to
+# /home/runner/_work, the emptyDir gitops/ci/runner.yaml mounts there;
+# RUNNER_DIR is overridden only so this script can be exercised outside the
+# runner image.
+RUNNER_WORK="${RUNNER_WORK:-${RUNNER_DIR:-/home/runner}/_work}"
+
+# Empty it before registering. This is the ephemerality this stack claims, not
+# a belt-and-braces extra.
+#
+# `--ephemeral` makes GitHub hand this runner exactly one job; run.sh then
+# exits and so does this script. What happens next is NOT a fresh pod. A
+# Deployment's pods may only set `restartPolicy: Always`, so the kubelet
+# restarts the container inside the *same* pod -- the Deployment sees nothing
+# to replace, because the pod never stopped Running. The container filesystem
+# is rebuilt from the image on that restart, but an emptyDir is only cleared
+# when the pod itself is removed from the node; a container restart leaves it
+# untouched (that is the documented guarantee it exists to give).
+#
+# So job N+1 was starting on job N's `_work`: its checkout, its `_temp`, and
+# its `_tool` cache. That is exactly the "carries whatever the last job left
+# into the next one" this file's header says --ephemeral prevents, and it is
+# the usual way self-hosted CI starts producing results that do not reproduce.
+# Only the first job after a genuinely new pod ever saw a clean tree.
+#
+# Fails closed: a runner that cannot prove it is starting clean must not take
+# a job.
+if [ -d "${RUNNER_WORK}" ]; then
+  find "${RUNNER_WORK}" -mindepth 1 -maxdepth 1 -exec rm -rf {} + || {
+    echo "Could not clear ${RUNNER_WORK}." >&2
+    echo "Refusing to register: a job here would inherit the previous one's tree." >&2
+    exit 1
+  }
+else
+  mkdir -p "${RUNNER_WORK}"
+fi
 
 # GitHub has two distinct endpoints for self-hosted runner tokens, and they are
 # not interchangeable: a registration-token is only accepted by `config.sh`,
@@ -42,7 +82,15 @@ if [ -z "${reg_token}" ]; then
   # Deliberately does not echo the API response: on some failures GitHub
   # returns the request back, and this log is the one place a token could leak.
   echo "Could not read a registration token from the API response." >&2
-  echo "Check that RUNNER_TOKEN is a PAT with 'repo' scope on ${GITHUB_REPOSITORY}." >&2
+  # Not just 'repo' scope: the documented, scripted path
+  # (bootstrap/scripts/seal-owner-secrets.sh, gitops/ci/README.md) mints a
+  # fine-grained PAT with the "Administration: Read and write" repository
+  # permission, which is the narrowest thing that can mint a runner
+  # registration token and carries no classic OAuth "scope" at all. A
+  # classic PAT with full 'repo' scope also works but is broader than
+  # necessary. Either way, check the token has not expired or been revoked,
+  # and that it is scoped to exactly ${GITHUB_REPOSITORY}.
+  echo "Check RUNNER_TOKEN can mint a runner registration token on ${GITHUB_REPOSITORY} -- see gitops/ci/README.md." >&2
   exit 1
 fi
 
@@ -55,7 +103,7 @@ cd "${RUNNER_DIR:-/home/runner}"
   --token "${reg_token}" \
   --name "${RUNNER_NAME:-hetzner-$(hostname)}" \
   --labels "${RUNNER_LABELS}" \
-  --work /home/runner/_work \
+  --work "${RUNNER_WORK}" \
   --ephemeral \
   --unattended \
   --replace

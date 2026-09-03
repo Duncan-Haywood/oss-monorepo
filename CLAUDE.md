@@ -87,7 +87,11 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
-(1) comes first while `publish_surface.py` reports nothing live.
+(1) comes first while a product on `main` still has no public route at all. As
+of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
+one still waiting on `portfolio-site-repo` — but the apex serves 168 of the
+169 tools itself, so "the catalogue is dark" is not the right reading. See the
+correction below before ranking the seal against shipping.
 
 **That tool now reads `gitops/` as well as `.github/workflows/`** (changed
 2026-08-31). It used to answer "what does a merge to `main` publish?" from the
@@ -100,27 +104,67 @@ that reads:
 
 ```
     prod  (gitops/prod)
-      + https://marisstella.dev/            (301 redirect at the ingress)
+      + https://marisstella.dev/            (serves content)
       - https://tools.marisstella.dev/      (serves content, waiting on Secret
                                              portfolio-site-repo)
-      + https://www.marisstella.dev/        (301 redirect at the ingress)
-
-  No stranger can reach content yet, despite the hosts marked + above:
-    - prod: https://marisstella.dev/ answers on merge but 301s to
-      https://tools.marisstella.dev/, which is waiting on Secret
-      portfolio-site-repo.
+      + https://www.marisstella.dev/        (serves content)
 ```
 
-Two of the three hostnames *do* answer on a merge today — the apex and `www`
-are annotation-only redirects needing no workload and no Secret. Both 301 to
-the one host that serves nothing, so the portfolio still has no reachable
-content. `--check` prints that dead-end as a note rather than leaving the
-"+" marks to be misread.
+**Changed 2026-09-02 (#2723): "nothing live" is no longer true.** The apex and
+`www` used to be annotation-only 301s into `tools.marisstella.dev`, which
+serves nothing until the clone token is sealed — so the two hosts that
+answered handed every visitor a dead end, and `--check` printed that as a
+note. They now serve `gitops/prod/portfolio-front.yaml`: a generated
+front-door page held in a kustomize ConfigMap, needing no clone token, no
+Actions runner and no Pages flip. A merge to `main` is the deploy.
 
-So "nothing live" still holds, but it now means **one seal away**, not
-"nothing is built": `portfolio-site-repo`, via
-`./bootstrap/scripts/seal-owner-secrets.sh site`. Do not read it as a reason
-to build a twelfth calculator.
+So the standing reading has two halves now, and they differ:
+
+- **The portfolio has a public surface.** A stranger typing the domain gets
+  positioning, one card per category, and the §5b clauses.
+- **1 of the 169 tools, and the canonical host, are one seal away**:
+  `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
+  It is queued.
+
+**Corrected 2026-09-02.** This section used to say the tools were *all* one
+seal away and that "every category card on the front door links into that
+host, so the seal is what turns the front door into a working funnel." That
+is not what the manifests do, and a session reading it mis-ranks its whole
+run. What is actually served today:
+
+- `portfolio-front.yaml` mounts the tool mirror into the apex pods as a
+  projected volume of eleven ConfigMap shards, and
+  `gitops/prod/front-door/default.conf` routes `^/tools/<slug>/` at it. So
+  `https://marisstella.dev/tools/<slug>/` serves the tool itself.
+- `front-door/index.html` carries **168 user-facing `/tools/…` links** and
+  exactly **one** href to `tools.marisstella.dev` — in fine print, honestly
+  labelled "goes live when its access token is sealed". Its primary CTA is
+  "Open one of the 168 tools running here now". The category cards link to
+  same-page anchors, not to the dark host.
+
+So the front door is already a working funnel, and the seal buys the
+remaining 1 tool plus the canonical hostname — worth doing, but it is not
+the difference between a dead end and a product. Do not describe the
+catalogue as dark, and do not rank the seal above shipping.
+
+**Changed 2026-09-03: 162 became 168.** The mirror generator resolved a
+venture's entry point as a root `index.html` only, while
+`platform/pages/build.mjs` — the canonical build — had always tried
+`site/index.html` too. Five ventures keeping a flat static site in `site/`
+(`quote-margin-check`, `tender-radar`, `equipment-rental-break-even`,
+`mcp-supply-chain-watch`, `shopify-permission-drift`) were therefore filed as
+"apps with a build step, not a gap the mirror can close", and
+`delivery-app-margin-calculator` dropped as collateral for linking to one of
+them. `venturePageRoot` now applies the same two candidates in the same
+order. The remaining 16 exclusions really are CLIs, servers and apps.
+
+(Read from the manifests and the generated page, not from a live fetch:
+outbound HTTPS to arbitrary hosts is refused by the agent egress proxy
+with `CONNECT tunnel failed, response 403`, so no session running under it
+can verify the public surface directly. That limit is why this line went
+stale unchallenged for as long as it did.)
+
+Neither half is a reason to build a twelfth calculator.
 
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.
@@ -224,33 +268,55 @@ resolution turned up a live bug (`share.mjs` carried its own field
 allowlist, so a shared link silently dropped `quantity` and `targetMargin`
 and the recipient computed a different profit than the sender saw).
 
-**Absent CI is not failed CI.** PRs opened by bots using `GITHUB_TOKEN` do
-not trigger Actions, so most PRs here show *zero* checks — not red ones.
-#1006 was triaged as "not merge-ready because Portfolio validate and
+**Absent CI is not failed CI** — but "most PRs here show zero checks" is no
+longer the default to expect, and this paragraph used to say it was. #1006
+(2026-08-24) was triaged as "not merge-ready because Portfolio validate and
 agent-permission-harness checks are failing" when neither check had ever
-run on it. If a PR shows no checks, verify locally (`node --test`, the
-venture's suite, a browser pass) and record what you ran; do not read the
-blank as a failure.
+run on it, and the reason given was "PRs opened by bots using `GITHUB_TOKEN`
+do not trigger Actions." That named the wrong mechanism: an agent PR here
+authenticates with a fine-grained PAT (`GH_TOKEN`, the agents identity in
+`infra/OWNER_CHECKLIST.md`), not the in-workflow `secrets.GITHUB_TOKEN` that
+GitHub's no-recursion rule actually applies to — a PAT is a full credential
+and triggers `pull_request` workflows the same as a human opening one would.
+**Verified 2026-09-02:** #2856, opened the ordinary way, created 13 check
+runs; 11 executed on real runners and passed. So a blank check list on a PR
+here is a thing to go verify (the checks tab or the `check-runs` endpoint,
+never the bare status call — see below), not the state to assume by
+default. If a PR genuinely shows no checks, verify locally (`node --test`,
+the venture's suite, a browser pass) and record what you ran; do not read
+the blank as a failure either way.
 
-**And while no runner is being assigned, red CI is not failed CI either.**
-Since 2026-08-26 every workflow in the repo fails without a runner, so checks
-now arrive *red* rather than absent — which reads very differently and is the
-easier mistake. On 2026-08-27 four PRs verified green locally each came back
-with `validate`, `check`, `test`, `build`, `site-test` and `page-integrity`
-failing; so did the merge of #1849, and every other session's merge that hour.
+**Runners came back on 2026-09-01. Read a red check as a real failure again.**
+From 2026-08-26 to 2026-09-01 every workflow in the repo failed without a
+runner, so checks arrived *red* rather than absent, and the standing advice was
+to discount them. **That window is closed.** Actions started assigning real
+runners again at **2026-09-01T00:00:53Z**, and #2601 that evening was the first
+PR in five days to go green on merit: `check`, `gitops`, `duplicate-symbols`,
+`scripts`, `hcloud-scope` and `tofu` all passing, on runner ids in the
+`1000040xxx` range, with `gitops` actually executing `kustomize build`,
+`kubeconform` and 193 pytest cases.
 
-**This is not an outage and it will not pass on its own.** Earlier revisions of
-this file called it one, and that word cost real time: an outage is something
-you wait out, so session after session re-derived the same signature, wrote it
-into the ledger, and moved on. The last green run was
-**2026-08-26T22:41:49Z** — a clean cliff, not a degradation. It affects all 218
-workflows at once, including ones that touch no code, which places it at the
-account level rather than anywhere in this repo. The repository is private and
-owned by a user account, so Actions minutes here are metered; the ceiling that
-was hit is some account-level Actions condition (exhausted included minutes, a
-spending limit, a payment problem, or Actions switched off).
+So the dangerous mistake has **inverted**. It used to be treating starvation as
+your regression and "fixing" green code. It is now the reverse: waving a
+genuine failure through because this file told you red means nothing. Do not
+discount a red check by reputation — check it.
 
-**Which one it is, is not knowable from a session.** Do not try to measure it:
+**Do not read this as "it is fixed forever" either.** Earlier revisions of this
+file swung too far the other way, insisting "this is not an outage and it will
+not pass on its own"; it did pass on its own, which is the correction this
+paragraph exists to make. But the recovery landed at 00:00:53Z on the first of
+the month, which is what an Actions minute allowance resetting looks like, so
+the honest reading is that the ceiling **cycles** rather than that it is gone.
+Expect it to recur when the allowance is spent again. The repository is private
+and owned by a user account, so Actions minutes here are metered.
+
+For history: the 2026-08-26 cliff was clean rather than a degradation, and hit
+all 218 workflows at once including ones that touch no code, which is what
+placed it at the account level rather than anywhere in this repo.
+
+**When a starvation window does recur, its sub-cause is not knowable from a
+session** — exhausted included minutes, a spending limit, a payment problem, or
+Actions switched off all look identical from here. Do not try to measure it:
 the run-timing API (`/actions/runs/<id>/timing`) reports a billable
 `total_ms` of 0 for this repo even on a *pre-cliff run that genuinely occupied
 a runner for 99 seconds*, so it cannot attribute burn per workflow, and any
@@ -259,26 +325,34 @@ minute or dollar figure derived from it is fiction. The cost note inside
 author wrote, not a reading. Only the owner's billing page settles the
 sub-cause.
 
-**What a session should do about it is report the unblock, not re-diagnose.**
-The fix does not depend on which sub-cause it is — self-hosted runners are not
-metered, so they restore CI either way — and it is already built and waiting in
-[`gitops/ci/`](gitops/ci/README.md). All 218 workflows already read
+**The self-hosted path is now insurance, not an emergency.** While CI was dark
+this section told sessions to report one unblock above all others: seal the
+runner PAT and set `CI_RUNNER` = `self-hosted`. That is still built and still
+waiting in [`gitops/ci/`](gitops/ci/README.md) — all 218 workflows already read
 `runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}`, so one repository variable
-moves every one of them at once. It needs two owner actions nobody else can
-take: seal the runner PAT (`./bootstrap/scripts/seal-owner-secrets.sh`, which
-seals this and the two other secrets the portfolio is dark behind) and set
-`CI_RUNNER` = `self-hosted`. If you are writing this up, write *that* — a
-ledger entry re-confirming the signature adds nothing the next session did not
-already know.
+still moves every one of them at once, and self-hosted runners are not metered,
+so they are what makes the next cycle a non-event.
 
-Tell them apart in one call, before you debug anything:
+But **GitHub-hosted runners work again today**, so this is no longer the thing
+standing between the portfolio and a working pipeline. Do not write it up as
+though CI were down, and do not present it to the owner as urgent — it competes
+for attention with the seal that actually is blocking, which is
+`portfolio-site-repo` (the site itself; see the Argo surface above). If you
+are writing any of this up, the useful sentence is which seals remain, not a
+re-derivation of a signature that no longer fires.
+
+**This tool matters more now, not less.** While every check was red it was a
+formality — the answer was always starvation. Now that runners are back, it is
+the thing that stops you dismissing a real failure as a ghost of the outage.
+Run it before you debug anything, and before you discount any red check:
 
 ```
 python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
 ```
 
 Exit 0 means every job ran on a real runner, so a failure there is a real
-result and yours to fix. Exit 1 means at least one job never got one.
+result and yours to fix — which, since 2026-09-01, is the expected answer.
+Exit 1 means at least one job never got one.
 
 **It no longer needs the `gh` CLI** (changed 2026-08-31). It did until then,
 which meant it exited 2 with "the gh CLI is not installed" in the web sessions
@@ -301,7 +375,10 @@ no steps) and the last green one before the cliff (`runner_id: 1000027517`,
 
 If it reports starvation, the failure is not yours: verify locally, say what
 you ran, and give the unblock above — do not "fix" green code, and do not
-spend the session re-establishing the signature.
+spend the session re-establishing the signature. If it reports a real runner,
+the failure **is** yours, however much this section's history invites you to
+assume otherwise: fix it and push, exactly as you would in a repo that had
+never had an outage.
 
 **And check for `check_runs`, not just statuses.** The commit-status API
 (`/commits/<sha>/status`, and the `get_status` method of the GitHub MCP tools)
@@ -315,12 +392,29 @@ checks tab — never the bare status call.
 
 ## Ledger (minimal)
 
-Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
-something new** — not when you looked and confirmed the same blockers. Never
-bundle a ledger entry into a PR waiting on the owner.
+**A ledger entry is never a deliverable on its own.** Run this before pushing:
+
+```
+python3 portfolio/ledger/check_ledger_only.py
+```
+
+Exit 1 means your branch is ledger prose and nothing else. That is not a
+session's output — it is a footnote to output that does not exist. In the
+seven days to 2026-09-02 the fleet landed **381 such commits, 34.6% of the
+1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still recorded
+zero observed users across all 184 products. The rule that was supposed to
+prevent that ("do not open ledger-only PRs that re-state known blockers") had
+an escape hatch, and every session used it.
+
+So: record outcomes per `portfolio/ledger/README.md` when you **shipped
+something**, in the same commit or PR as the thing you shipped. If you found a
+blocker instead, say so in your reply and leave `main` alone — an unshipped
+session is a real outcome and does not need a commit to be true. Never bundle
+a ledger entry into a PR waiting on the owner.
 
 `git fetch origin main` before appending; skip if the latest entry already
-covers your finding.
+covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
+ordinary platform code, exempt from the check and mergeable on its own.
 
 ## Automation
 

@@ -130,12 +130,31 @@ SEAL_PLAINTEXT=()
 # Ask GitHub whether the token can actually do the one thing its pod needs.
 # This is the difference between finding out now and finding out from a
 # CrashLoopBackOff after the next Argo sync.
+#
+# GET /repos/{owner}/{repo} is NOT that check, and used to be what this
+# function called. Every fine-grained PAT with any access to a repository
+# carries "Metadata: Read-only" automatically -- it is mandatory and cannot be
+# unchecked when the token is minted -- and that single mandatory permission
+# is all `/repos/{owner}/{repo}` needs to return 200. So the probe passed for
+# a token scoped to nothing at all: it proved the token exists and can see
+# the repository, never that it can read the repository's *contents*, which
+# is the one permission `git clone` (what the site's `fetch` init container
+# actually runs) is gated on for a fine-grained token. An owner who minted the
+# token and missed the "Contents" checkbox -- the exact mistake this probe
+# exists to catch before a seal -- got "token can read $REPO_SLUG" and a
+# CrashLoopBackOff on the next sync anyway.
+#
+# `GET /repos/{owner}/{repo}/contents/{path}` is gated on "Contents: Read",
+# per GitHub's fine-grained PAT permissions reference, so probing it for a
+# file this repository is guaranteed to carry (its own README) actually
+# exercises the permission a clone needs rather than the one every token has
+# by default.
 probe_can_read_repo() {
   local token="$1" code
   code="$(curl -sS -o /dev/null -w '%{http_code}' \
     -H "Authorization: Bearer $token" \
     -H "Accept: application/vnd.github+json" \
-    "https://api.github.com/repos/$REPO_SLUG" 2>/dev/null || echo 000)"
+    "https://api.github.com/repos/$REPO_SLUG/contents/README.md" 2>/dev/null || echo 000)"
   [[ "$code" == "200" ]]
 }
 
@@ -249,7 +268,7 @@ PY
 
 seal_site() {
   step "1/3  Public product site — tools.marisstella.dev"
-  say "  Serves 164 finished tools. The site pod's 'fetch' init container"
+  say "  Serves 169 finished tools. The site pod's 'fetch' init container"
   say "  clones this private repo, so it cannot be anonymous."
   say ""
   say "  Mint: https://github.com/settings/personal-access-tokens/new"
@@ -277,10 +296,18 @@ seal_site() {
 }
 
 seal_ci() {
-  step "2/3  Self-hosted Actions runners — restores CI"
-  say "  Every workflow here has died in 3-6 seconds with runner_id: 0 since"
-  say "  2026-08-26: metered GitHub-hosted minutes, never a real failure."
-  say "  Self-hosted runners are not metered."
+  step "2/3  Self-hosted Actions runners — OPTIONAL since 2026-09-01"
+  say "  Nothing is blocked on this one. Every workflow died in 3-6 seconds"
+  say "  with runner_id: 0 from 2026-08-26, but runner assignment resumed on"
+  say "  2026-09-01 and the PRs run since have passed on merit (#2601, #2603,"
+  say "  #2605). Individual workflows can still fail on their own merits."
+  say ""
+  say "  Seal it anyway for insurance: the recovery landed at midnight on the"
+  say "  1st, which is what a metered allowance resetting looks like, so the"
+  say "  ceiling likely cycles. Self-hosted runners are not metered."
+  say ""
+  say "  To skip it cleanly, re-run as: seal-owner-secrets.sh site agents"
+  say "  (Enter here also skips, but reports 'did not seal: ci' at the end.)"
   say ""
   say "  Mint: https://github.com/settings/personal-access-tokens/new"
   say "    Repository access : only $REPO_SLUG"
@@ -311,7 +338,7 @@ seal_ci() {
   say "  After this is pushed and Argo syncs, flip the switch:"
   say "    repo Settings -> Secrets and variables -> Actions -> Variables"
   say "    CI_RUNNER = self-hosted"
-  say "  That moves all 217 workflows at once. Clearing it moves them back."
+  say "  That moves every workflow at once. Clearing it moves them back."
 }
 
 seal_agents() {
@@ -329,9 +356,16 @@ seal_agents() {
   say "                         with a dashboard hard spend limit. Costs money,"
   say "                         with a ceiling. Never an Admin key."
   say ""
+  # Default to 1 on a bare Enter. Not a guess: the account owner asked for
+  # this route in as many words -- "I also want the codex cli to be set up to
+  # use up the built in quota for dev work" -- and infra/OWNER_CHECKLIST.md
+  # item 8 already records that as settled. The prompt still lists both,
+  # because a default is a shortcut through a decision already made, not a
+  # replacement for making it: typing 2 still seals the metered key.
   local choice
-  printf '  Which [1/2]: '
+  printf '  Which [1/2, Enter = 1]: '
   read -r choice
+  choice="${choice:-1}"
 
   local codex_key codex_val prompt
   case "$choice" in
@@ -414,8 +448,9 @@ cat <<EOF
             kubectl -n prod logs deploy/portfolio-site -c build | tail -1
             # ends in "built ... files"
             kubectl -n prod get certificate
-            # READY=True (on the STAGING issuer — browsers warn until the
-            # issuer flip, which is an ordinary PR, not an owner action)
+            # READY=True on letsencrypt-prod (the issuer flip landed
+            # 2026-08-31 -- this is a publicly trusted cert from the start,
+            # no browser warning and no follow-up PR to wait on)
 
     ci      kubectl -n ci get pods
             # then set CI_RUNNER=self-hosted and re-run any workflow

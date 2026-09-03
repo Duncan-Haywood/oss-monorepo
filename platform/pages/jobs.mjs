@@ -572,6 +572,162 @@ export function restoreMismatch(savedIds, formIds) {
 }
 
 // ---------------------------------------------------------------------------
+// Itemised rows: the eight calculators that build their form in script
+// ---------------------------------------------------------------------------
+//
+// `restoreMismatch` above is exactly right for a form whose fields are all in
+// the markup, and exactly wrong for the ones that are not. Eight tools here —
+// tree service by tree, carpet cleaning by room, window cleaning by glass type,
+// snow removal by stop, pest control by service, hood cleaning by component,
+// gutter cleaning by run, portable restrooms by unit type — create their rows
+// when the contractor clicks "+ Add a tree", with ids like `t3-dbh` off a
+// counter that starts at zero on every page load.
+//
+// That left both of this file's features half-working on precisely the jobs
+// that most need them:
+//
+//   * **A saved bid never restored.** Save a six-room carpet job, come back
+//     tomorrow, and the form has one room. Every `r2-`…`r6-` id is "missing",
+//     so the atomic-or-refused rule correctly refuses — and tells the visitor
+//     to "add or remove rows until the form matches", which is asking them to
+//     rebuild by hand the thing they saved to avoid rebuilding by hand.
+//   * **No share link at all.** `link.mjs` excluded these pages outright,
+//     reasoning that a link whose field set can never match is worse than no
+//     button. It was right, given the matching rule it had.
+//
+// Both fall out of matching by *raw id*. A row's id is an artefact of the order
+// somebody clicked, not a fact about the job: two contractors who each price
+// the same three rooms can hold `r1,r2,r3` and `r1,r3,r7`, and nothing about
+// those bids differs. So the fix is to stop comparing the counter.
+//
+// A page opts in by putting `data-pf-repeat="<prefix>"` on the control that
+// appends a row, naming the prefix its generated ids carry. The runtime then
+// (a) clicks that control until the group has as many rows as the bid, and
+// (b) compares by position within the group rather than by id. A page that
+// declares nothing keeps the old exact-id rule untouched, which is what keeps
+// this off the other 161 tools.
+//
+// Two properties are deliberately kept from the old rule. It is still atomic
+// or refused — growing the form is allowed, guessing at a mismatch is not. And
+// it still cannot shrink: no page here declares a remove control, so a form
+// holding more rows than the bid is refused exactly as before, with a message
+// that now says reloading is the cheap fix.
+
+/** How a page names the control that appends a row. */
+export const REPEAT_ATTR = 'data-pf-repeat';
+
+/** Ceiling on rows one restore may create, so a crafted bid cannot spin. */
+export const MAX_REPEAT_ROWS = 60;
+
+/**
+ * The row-group prefixes this page declares, in document order.
+ *
+ * Read from the markup rather than from a build-time list, for the same reason
+ * the runtime re-collects fields from the live document: the declaration lives
+ * next to the button it describes, so a venture that renames its groups cannot
+ * leave a stale copy here.
+ */
+export function pageRepeatPrefixes(html) {
+  if (typeof html !== 'string') return [];
+  const out = [];
+  const re = new RegExp(`${REPEAT_ATTR}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, 'gi');
+  let match;
+  while ((match = re.exec(html)) !== null) {
+    const prefix = (match[1] ?? match[2] ?? '').trim();
+    if (prefix !== '' && !out.includes(prefix)) out.push(prefix);
+  }
+  return out;
+}
+
+/**
+ * `t12-dbh` against prefix `t` → `{ prefix: 't', index: 12, field: 'dbh' }`.
+ *
+ * Null for anything else, which is most ids on these pages: the crew rate and
+ * the travel minutes live in the markup and must go on matching exactly.
+ *
+ * Longest prefix wins, so a page declaring both `r` and `rt` reads `rt4-x` as
+ * the `rt` group rather than an `r` group with a malformed index.
+ */
+export function splitRepeatId(id, prefixes) {
+  if (typeof id !== 'string' || !Array.isArray(prefixes)) return null;
+  let best = null;
+  for (const prefix of prefixes) {
+    if (typeof prefix !== 'string' || prefix === '') continue;
+    if (!id.startsWith(prefix)) continue;
+    const rest = id.slice(prefix.length);
+    const dash = rest.indexOf('-');
+    if (dash <= 0) continue;
+    const digits = rest.slice(0, dash);
+    if (!/^\d+$/.test(digits)) continue;
+    const field = rest.slice(dash + 1);
+    if (field === '') continue;
+    if (best === null || prefix.length > best.prefix.length) {
+      best = { prefix, index: Number(digits), field };
+    }
+  }
+  return best;
+}
+
+/**
+ * Ids → the ordinal each one holds inside its group.
+ *
+ * `{ r1-sqft, r7-sqft, crewRate }` with prefix `r` becomes
+ * `{ 'r1-sqft': 'r#1-sqft', 'r7-sqft': 'r#2-sqft', crewRate: 'crewRate' }`:
+ * the counter is replaced by the row's rank among the rows actually present.
+ * Ungrouped ids pass through unchanged, so they keep comparing exactly.
+ *
+ * Ranking by the numeric counter and not by the order ids were handed in is
+ * what makes the two sides comparable: the saved bid's key order is whatever
+ * `JSON.parse` produced, while the form's is DOM order, and only the counter
+ * is common to both.
+ */
+export function normalizeRepeatIds(ids, prefixes) {
+  const list = Array.isArray(ids) ? ids : [];
+  const groups = new Map();
+  for (const id of list) {
+    const split = splitRepeatId(id, prefixes);
+    if (!split) continue;
+    if (!groups.has(split.prefix)) groups.set(split.prefix, new Set());
+    groups.get(split.prefix).add(split.index);
+  }
+
+  const rank = new Map();
+  const counts = {};
+  for (const [prefix, indexes] of groups) {
+    const sorted = [...indexes].sort((a, b) => a - b);
+    counts[prefix] = sorted.length;
+    sorted.forEach((index, position) => rank.set(`${prefix} ${index}`, position + 1));
+  }
+
+  const map = {};
+  for (const id of list) {
+    const split = splitRepeatId(id, prefixes);
+    if (!split) { map[id] = id; continue; }
+    map[id] = `${split.prefix}#${rank.get(`${split.prefix} ${split.index}`)}-${split.field}`;
+  }
+  return { map, counts };
+}
+
+/**
+ * How many times to click each group's add control before restoring.
+ *
+ * Only ever positive: a group the form has too many of is not something this
+ * can fix, and reporting it as a negative click count would invite a caller to
+ * try. That case falls through to the ordinary refusal.
+ */
+export function rowsToGrow(savedCounts, formCounts, prefixes) {
+  const out = {};
+  for (const prefix of Array.isArray(prefixes) ? prefixes : []) {
+    const want = Number(savedCounts?.[prefix] ?? 0);
+    const have = Number(formCounts?.[prefix] ?? 0);
+    if (!Number.isFinite(want) || !Number.isFinite(have)) continue;
+    const grow = want - have;
+    if (grow > 0) out[prefix] = Math.min(grow, MAX_REPEAT_ROWS);
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Follow-up: how old a waiting bid is, and what the visitor is told about it
 // ---------------------------------------------------------------------------
 //
@@ -2275,6 +2431,22 @@ export const BID_FOLLOW_UP_HELPERS = [
 ].join('\n');
 
 /**
+ * The row-group rules, as source, for the injected restore and link paths.
+ *
+ * Same reason as the block above: the browser runs the definitions the tests
+ * run. It matters more here than anywhere else in this file, because the thing
+ * being computed is *which control to click how many times* — a paraphrase that
+ * drifted by one would add a row nobody asked for and then refuse the restore
+ * it was added for, and the visitor would see only the refusal.
+ */
+export const BID_REPEAT_HELPERS = [
+  `var REPEAT_ATTR = ${JSON.stringify(REPEAT_ATTR)};`,
+  `var MAX_REPEAT_ROWS = ${MAX_REPEAT_ROWS};`,
+  ...[splitRepeatId, normalizeRepeatIds, rowsToGrow]
+    .map((fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`),
+].join('\n');
+
+/**
  * `normalizeBid` and its whole closure, as source, for embedding in an injected
  * script.
  *
@@ -2743,6 +2915,7 @@ const JOBS_SCRIPT = () => `
   var UNSAVEABLE = ${JSON.stringify([...UNSAVEABLE_TYPES])};
 
 ${BID_FOLLOW_UP_HELPERS}
+${BID_REPEAT_HELPERS}
 ${BID_TREND_HELPERS}
 ${BID_AMOUNT_HELPER}
 ${BID_PRICE_BAND_HELPERS}
@@ -2775,6 +2948,59 @@ ${BID_PRICE_BAND_HELPERS}
       out.push(node);
     }
     return out;
+  };
+
+  // The "+ Add a room" controls this page declares, and the id prefix each one
+  // generates. Empty on 161 of the 169 tools, which is what keeps the exact-id
+  // rule below untouched everywhere it was already right.
+  var repeatControls = function(){
+    var out = [];
+    var nodes = document.querySelectorAll('[' + REPEAT_ATTR + ']');
+    for (var i = 0; i < nodes.length; i++) {
+      var prefix = (nodes[i].getAttribute(REPEAT_ATTR) || '').trim();
+      if (prefix !== '') out.push({ prefix: prefix, node: nodes[i] });
+    }
+    return out;
+  };
+
+  var repeatPrefixes = function(controls){
+    var out = [];
+    for (var i = 0; i < controls.length; i++) {
+      if (out.indexOf(controls[i].prefix) === -1) out.push(controls[i].prefix);
+    }
+    return out;
+  };
+
+  var fieldIds = function(nodes){
+    var out = [];
+    for (var i = 0; i < nodes.length; i++) out.push(nodes[i].id);
+    return out;
+  };
+
+  // Click each group's add control until the form holds as many rows as the
+  // record does. Clicking is the only way in: these rows are the venture's own
+  // markup, built by its own module, and reaching past the button to synthesise
+  // one here would mean a second implementation of every row on the site.
+  //
+  // Returns the fields as they stand afterwards, so a caller always compares
+  // against the grown form rather than the one it measured a moment ago.
+  var growRows = function(wantedIds){
+    var controls = repeatControls();
+    if (controls.length === 0) return formFields();
+    var prefixes = repeatPrefixes(controls);
+    var grow = rowsToGrow(
+      normalizeRepeatIds(wantedIds, prefixes).counts,
+      normalizeRepeatIds(fieldIds(formFields()), prefixes).counts,
+      prefixes
+    );
+    for (var i = 0; i < controls.length; i++) {
+      var todo = grow[controls[i].prefix] || 0;
+      // Two controls sharing a prefix would otherwise each add the whole
+      // shortfall; the first one to run owns it.
+      grow[controls[i].prefix] = 0;
+      for (var n = 0; n < todo; n++) controls[i].node.click();
+    }
+    return formFields();
   };
 
   var isToggle = function(node){
@@ -3167,19 +3393,37 @@ ${BID_PRICE_BAND_HELPERS}
     var bid = list[index];
     if (!bid) { render(); return; }
 
-    var fields = formFields();
-    var byId = {};
-    for (var i = 0; i < fields.length; i++) byId[fields[i].id] = fields[i];
+    var savedIds = [];
+    for (var s in bid.fields) {
+      if (Object.prototype.hasOwnProperty.call(bid.fields, s)) savedIds.push(s);
+    }
+
+    // Rebuild the rows the bid was priced with before deciding whether the form
+    // matches it. A no-op on the pages that declare no row groups.
+    var fields = growRows(savedIds);
+    var prefixes = repeatPrefixes(repeatControls());
+
+    // Compared by the row's position in its group rather than by the counter in
+    // its id, so a bid saved as r1,r7 restores into a form holding r1,r2.
+    // With no groups declared both maps are the identity and this is the
+    // exact-id rule it replaced.
+    var savedKeys = normalizeRepeatIds(savedIds, prefixes).map;
+    var formKeys = normalizeRepeatIds(fieldIds(fields), prefixes).map;
+
+    var byKey = {};
+    for (var i = 0; i < fields.length; i++) byKey[formKeys[fields[i].id]] = fields[i];
 
     // Atomic or refused. See the header of this module: a partial write leaves
     // a form that prices a real but different job, which is worse than not
     // restoring at all because it looks finished.
     var missing = [], extra = [];
     for (var id in bid.fields) {
-      if (Object.prototype.hasOwnProperty.call(bid.fields, id) && !byId[id]) missing.push(id);
+      if (Object.prototype.hasOwnProperty.call(bid.fields, id) && !byKey[savedKeys[id]]) missing.push(id);
     }
+    var savedKeySet = {};
+    for (var m = 0; m < savedIds.length; m++) savedKeySet[savedKeys[savedIds[m]]] = 1;
     for (var k = 0; k < fields.length; k++) {
-      if (!Object.prototype.hasOwnProperty.call(bid.fields, fields[k].id)) extra.push(fields[k].id);
+      if (!savedKeySet[formKeys[fields[k].id]]) extra.push(fields[k].id);
     }
 
     if (missing.length > 0 || extra.length > 0) {
@@ -3187,9 +3431,15 @@ ${BID_PRICE_BAND_HELPERS}
       var parts = [];
       if (missing.length > 0) parts.push(missing.length + ' the form does not have');
       if (extra.length > 0) parts.push(extra.length + ' the form has that this bid never priced');
+      // The advice differs by page. Where rows are added by hand the visitor can
+      // match the form to the job; where they are generated, the form has
+      // already been grown to the saved row count, so anything still off is a
+      // shape the page cannot reach from here and reloading is the cheap fix.
+      var advice = prefixes.length > 0
+        ? ' Reload this page and restore again before adding rows of your own — '
+        : ' Add or remove rows until the form matches the job you saved, then restore again — ';
       say(
-        'Not restored. “' + bid.name + '” has ' + parts.join(', and ') +
-        '. Add or remove rows until the form matches the job you saved, then restore again — ' +
+        'Not restored. “' + bid.name + '” has ' + parts.join(', and ') + '.' + advice +
         'a partly restored bid would price a different job.'
       );
       return;
@@ -3198,7 +3448,7 @@ ${BID_PRICE_BAND_HELPERS}
     var written = 0;
     for (var id2 in bid.fields) {
       if (!Object.prototype.hasOwnProperty.call(bid.fields, id2)) continue;
-      var node = byId[id2];
+      var node = byKey[savedKeys[id2]];
       var value = bid.fields[id2];
       if (isToggle(node)) node.checked = !!value; else node.value = String(value);
       // The venture's own module listens for one or the other depending on the

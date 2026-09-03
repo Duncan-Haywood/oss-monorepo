@@ -63,13 +63,13 @@ on:
       - ".github/scripts/**"
       - "CLAUDE.md"
       - "AGENTS.md"
-      - "IMPROVEMENT-PLAN.md"
       - "README.md"
       - "PRODUCT_PLAYBOOK.md"
       - "DEVELOPMENT_QUALITY.md"
       - "portfolio/**"
       - "ventures/**/AGENTS.md"
       - "ventures/**/VENTURE.yaml"
+      - "ventures/**/IMPROVEMENT-PLAN.md"
   push:
     branches: [main]
     paths:
@@ -79,13 +79,13 @@ on:
       - ".github/scripts/**"
       - "CLAUDE.md"
       - "AGENTS.md"
-      - "IMPROVEMENT-PLAN.md"
       - "README.md"
       - "PRODUCT_PLAYBOOK.md"
       - "DEVELOPMENT_QUALITY.md"
       - "portfolio/**"
       - "ventures/**/AGENTS.md"
       - "ventures/**/VENTURE.yaml"
+      - "ventures/**/IMPROVEMENT-PLAN.md"
   workflow_dispatch:
 
 permissions:

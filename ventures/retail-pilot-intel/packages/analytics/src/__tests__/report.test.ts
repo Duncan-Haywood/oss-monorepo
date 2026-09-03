@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { insertAggregate, insertSale, openDb } from "../db.js";
-import { dailySummary } from "../report.js";
-import { aggregateEvent, saleEvent, withTempDb } from "./test-db.js";
+import { dailySummary, latestDayWithActivity } from "../report.js";
+import { aggregateEvent, saleEvent, stubAggregateEvent, stubSaleEvent, withTempDb } from "./test-db.js";
 
 test("dailySummary computes conversion_rate from entries and purchases on the same day", () => {
   withTempDb((dbPath) => {
@@ -78,6 +78,44 @@ test("dailySummary returns zeroed conversion_rate (not NaN) when there are no en
       revenue_cents: 0,
       revenue_per_entrant_cents: 0,
     });
+  });
+});
+
+test("dailySummary excludes stub sample data from a real store's KPIs", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    // Real activity for the day.
+    insertAggregate(db, aggregateEvent({ event_id: "e-real", metric: "entry", value: 2, bucket_start: "2026-08-19T09:00:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s-real", closed_at: "2026-08-19T09:30:00Z", total_cents: 1000 }));
+    // A `--sample` smoke-test run against the same day/store must not count.
+    insertAggregate(db, stubAggregateEvent({ event_id: "e-stub", metric: "entry", value: 50, bucket_start: "2026-08-19T10:00:00Z" }));
+    insertSale(db, stubSaleEvent({ event_id: "s-stub", closed_at: "2026-08-19T10:30:00Z", total_cents: 50000 }));
+
+    const summary = dailySummary(dbPath, "2026-08-19");
+    assert.equal(summary.entries, 2, "the stub's inflated entry count must not leak into the real total");
+    assert.equal(summary.purchases, 1);
+    assert.equal(summary.revenue_cents, 1000, "the stub's revenue must not leak into the real total");
+  });
+});
+
+test("latestDayWithActivity ignores a day whose only rows are stub sample data", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "e-real", bucket_start: "2026-08-10T09:00:00Z" }));
+    insertAggregate(db, stubAggregateEvent({ event_id: "e-stub", bucket_start: "2026-08-19T09:00:00Z" }));
+
+    // Without the synthetic filter this would return the later stub-only day.
+    assert.equal(latestDayWithActivity(dbPath), "2026-08-10");
+  });
+});
+
+test("latestDayWithActivity is null when every row in the database is stub sample data", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, stubAggregateEvent({ event_id: "e-stub" }));
+    insertSale(db, stubSaleEvent({ event_id: "s-stub" }));
+
+    assert.equal(latestDayWithActivity(dbPath), null);
   });
 });
 

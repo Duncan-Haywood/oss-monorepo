@@ -3,8 +3,28 @@
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
 #
-# Priority 6, the highest of the real items, because it closes a hole the
-# other four left open: every one of them *ends* by opening a pull request,
+# Priority 5. **Changed 2026-09-01**, from 7 (where this comment called it
+# "the highest of the real items"), on the account owner's direction that
+# deployment/CI-CD and marketing come first -- see
+# deploy-cicd-readiness.yaml's header.
+#
+# Demoted, deliberately not disabled. Everything this comment says below is
+# still true and still the reason this item exists; the weights are
+# (priority + 1), so at 5 it still takes 6/33 of the queue -- roughly one
+# run in five -- which is enough to keep the drain real. Two things make
+# that safe rather than a regression: the four items above and below it all
+# open *and merge* their own PRs (`delivery: agent`), so the ordinary case
+# needs no separate drain at all, and this item is the safety net for the
+# exception -- a run whose verification did not come out clean and which
+# therefore left its PR open. A safety net does not need the top slot; it
+# needs to fire reliably, which at 6/33 it does.
+#
+# It is also the item with the least to do right now: the repo has zero
+# open PRs as of 2026-09-01. Do not read that as permanent -- it is exactly
+# the transient state the `noops` damping exists to track, and this item
+# should climb back if the backlog returns and the owner's direction
+# changes. It closes a hole the other items leave open:
+# every one of them *ends* by opening a pull request,
 # and three of them actively steer around PRs that already exist --
 # `branch-pr-drain` picks only branches "not already covered by an open
 # pull request", and `product-feature-improvement` and
@@ -23,7 +43,7 @@ repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: deep
-priority: 7
+priority: 5
 enabled: true
 # This item's prompt opens, repairs and merges pull requests directly, so
 # worker.sh must not fold the tree into one commit and open a second one.

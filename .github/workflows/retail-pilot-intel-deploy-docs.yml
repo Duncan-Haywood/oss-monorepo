@@ -72,7 +72,9 @@ jobs:
     # paths. Gate it on an owner-set variable (mirrors deploy-vercel below) so
     # the build always validates but publishing only fires once Pages is on.
     #
-    # Deliberately NOT `GITHUB_PAGES_ENABLED`. GitHub serves one Pages site per
+    # Deliberately NOT `PAGES_ENABLED` (originally spelled `GITHUB_PAGES_
+    # ENABLED`, which GitHub rejects outright -- Actions configuration
+    # variables cannot start with `GITHUB_`). GitHub serves one Pages site per
     # repository, and that variable now publishes `portfolio-pages.yml` — the
     # ~30 free calculators the portfolio's deploy-first priority is about. If
     # both workflows read the same flag, one owner flip would make two

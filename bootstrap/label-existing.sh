@@ -17,4 +17,4 @@ kubectl label node ubuntu-24gb-hel1-1 \
 
 echo "labeled control-plane node. Agent join still needs K3S_TOKEN from"
 echo "  /var/lib/rancher/k3s/server/node-token"
-echo "and SERVER_URL=https://10.42.0.10:6443 (or https://89.167.29.39:6443)."
+echo "and SERVER_URL=https://10.10.0.10:6443 (or https://89.167.29.39:6443)."

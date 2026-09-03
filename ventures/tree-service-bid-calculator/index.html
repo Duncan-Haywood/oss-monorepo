@@ -137,6 +137,7 @@
     <h1>Bid the tree, the access, and the wood.</h1>
     <p>A 24-inch backyard oak is four times the wood of a 12-inch street pine — not twice. Price a removal stop from diameter, height, species, access, targets, stump grinding, and haul, then add the drive, the loaded crew, and the margin you intend to keep. You get the bid, the walk-away number, and which tree is actually carrying the job.</p>
     <p class="docs"><a href="./how-to-bid-tree-removal.html">How tree services actually bid a removal</a></p>
+    <p class="docs"><a href="./vs-singleops.html">This calculator vs. SingleOps</a></p>
   </header>
 
   <main class="layout">
@@ -145,7 +146,7 @@
         <h2>The stop</h2>
         <p class="hint">One row per tree. Hours grow with the square of DBH because that is how wood volume grows. Access and targets change the hours more than species does.</p>
         <div id="trees"></div>
-        <button type="button" id="addTree">+ Add a tree</button>
+        <button type="button" id="addTree" data-pf-repeat="t">+ Add a tree</button>
       </section>
 
       <section>
@@ -290,7 +291,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a tree appraisal, a hazard rating, or a recommendation to remove a tree. Verify every figure against your own payroll, insurance, dump tickets, and site conditions, and against a qualified arborist or professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, trees, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

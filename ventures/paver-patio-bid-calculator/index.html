@@ -235,6 +235,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -300,9 +301,9 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your patio, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your patio, wages, costs, or prices. A share link encodes only the quote fields above in the page&rsquo;s URL hash &mdash; it is not sent to us.</p>
     <p>Related: <a href="how-much-to-charge-for-a-paver-patio.html">How much to charge for a paver patio</a>.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -315,6 +316,7 @@
       suggestedBaseDepthIn,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
     import {
       COMPANY_FIELDS,
       buildProposal,
@@ -323,6 +325,8 @@
       forgetCompany,
       renderProposalHtml,
     } from './proposal.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const FIELD_IDS = [
       'lengthFeet','widthFeet','wastePct','patternLaborFactor','hoursPerFinishedSf','hoursPerEdgeLf',
@@ -347,6 +351,8 @@
       return {
         ...values,
         haulAway: el('haulAway').checked,
+        patternId: el('patternId').value,
+        useId: el('useId').value,
       };
     }
 
@@ -432,6 +438,64 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copyShare() {
+      // The deposit split and how long the price is held are proposal terms,
+      // not part of the bid arithmetic -- see proposal-terms.mjs. Without
+      // them riding beside the payload, a recipient who opens a shared link
+      // reopens the venture's own defaults (30% / 30 days) under a headline
+      // price that still matches to the cent, so nothing on either screen
+      // says the deposit amount on the printed proposal has changed.
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await copyLink(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared quote from the URL hash. Only SHARE_FIELDS values are
+     * ever written back into the form -- see share.mjs -- so a crafted
+     * fragment cannot set anything this page does not already ask for.
+     */
+    function applyShare(payload) {
+      if (!payload) return;
+      for (const id of FIELD_IDS) {
+        if (payload[id] === undefined) continue;
+        el(id).value = payload[id];
+      }
+      if (payload.haulAway !== undefined) el('haulAway').checked = Boolean(payload.haulAway);
+      if (payload.patternId !== undefined) el('patternId').value = payload.patternId;
+      if (payload.useId !== undefined) el('useId').value = payload.useId;
+      // A shared link already carries explicit waste/labor/depth figures, so
+      // treat them as user-edited: switching the pattern or use preset after
+      // opening a shared link must not silently overwrite what was shared.
+      el('wastePct').dataset.edited = '1';
+      el('patternLaborFactor').dataset.edited = '1';
+      el('baseDepthIn').dataset.edited = '1';
+    }
+
     function applyJob(preset) {
       el('lengthFeet').value = preset.lengthFeet;
       el('widthFeet').value = preset.widthFeet;
@@ -481,6 +545,13 @@
     el('copySummary').addEventListener('click', () => {
       try {
         copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the URL from the address bar.'; });
       } catch (error) {
         el('summaryStatus').textContent = error.message;
       }
@@ -619,6 +690,9 @@
     document.addEventListener('input', refreshProposal);
     document.addEventListener('change', refreshProposal);
 
+    const incoming = splitTerms(location.hash);
+    applyShare(decodeShare(incoming.payload));
+    applyTerms(decodeTerms(incoming.terms), el);
     update();
     restoreCompany();
     refreshProposal();

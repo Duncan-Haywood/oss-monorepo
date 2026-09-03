@@ -1,4 +1,4 @@
-name: CI
+name: print-atelier CI
 
 on:
   pull_request:

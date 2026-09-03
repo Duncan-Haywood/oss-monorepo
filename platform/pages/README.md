@@ -95,8 +95,9 @@ notes cover running it from a Claude-on-the-web session.
 
 GitHub serves **one** Pages site per repository. Before this, the only workflow
 that could publish one built `retail-pilot-intel`'s passcode-gated docs app — so
-the owner's single `GITHUB_PAGES_ENABLED` flip would have put an internal docs
-site live and left every finished calculator with no public URL at all.
+the owner's single Pages-enable flip (`PAGES_ENABLED`, see below) would have put
+an internal docs site live and left every finished calculator with no public
+URL at all.
 
 `portfolio/DIRECTION.md` says deploy beats another build until a stranger can
 reach something. That means the site the flip publishes has to *be* the
@@ -1857,11 +1858,18 @@ Publishing is gated on an owner-set repository variable:
 | Setting | Where | Value |
 |---|---|---|
 | Pages source | Settings → Pages | **GitHub Actions** |
-| `GITHUB_PAGES_ENABLED` | Settings → Variables → Actions | `true` |
+| `PAGES_ENABLED` | Settings → Variables → Actions | `true` |
 | `PAGES_BASE_URL` *(optional)* | Settings → Variables → Actions | a custom domain, with trailing slash |
 
 That is the `deploy-settings` flip already in the owner decision queue. It is
 not a second ask — this workflow is what it now publishes.
+
+Not `GITHUB_PAGES_ENABLED`, which this table named until the rename below.
+GitHub rejects any Actions configuration-variable name starting with
+`GITHUB_` (case-insensitive) at creation time, so that spelling could never
+actually have been set — the owner following this table as written would
+have hit a validation error in Settings and no `deploy` job would ever have
+run.
 
 Until it is set, the `deploy` job is skipped and the `build` job still runs, so
 the artifact is always proven buildable. `actions/deploy-pages` 404s while Pages
@@ -1886,7 +1894,8 @@ the origin makes that choice explicitly rather than having two deployments race.
 
 The same applied to `pages.yml`, a **second portfolio site** built independently
 the same hour (`platform/ci/build_pages_site.py`), which deployed on the same
-`GITHUB_PAGES_ENABLED` flip from a different concurrency group — so the flip
+owner-set variable (spelled `GITHUB_PAGES_ENABLED` at the time) from a
+different concurrency group — so the flip
 would have armed two publishers of two different builds for the one origin. That
 is resolved on `main`: `pages.yml` no longer deploys, it still builds and checks
 its artifact as an independent second opinion on what `ventures/` contains, and
@@ -1899,7 +1908,7 @@ The site is rebuilt from `main` on every push and holds no state — no database
 no user data, nothing to migrate. To roll back, revert the offending commit and
 let the workflow republish, or re-run an earlier successful run of
 `Portfolio Pages` from the Actions tab. To take the site down entirely, set
-`GITHUB_PAGES_ENABLED` to anything other than `true`.
+`PAGES_ENABLED` to anything other than `true`.
 
 **Rolling back the service worker needs its own lever.** A worker lives on the
 visitor's device and keeps answering there, so reverting the commit does not

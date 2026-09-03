@@ -63,15 +63,28 @@ cluster on a public name.
 It builds the site *in the cluster* — two init containers (shallow clone,
 then `platform/pages/build.mjs`) writing into an emptyDir that nginx
 serves. That is deliberate: it means publishing does not depend on GitHub
-Actions, which has failed without a runner on every workflow in this repo
-since 2026-08-26, nor on GitHub Pages, which is not enabled. Neither
-blocker sits in this path.
+Actions — which failed without a runner on every workflow in this repo
+from 2026-08-26 until runners returned on 2026-09-01, and which this path
+would not have needed either way — nor on GitHub Pages, which is not
+enabled. Neither blocker sits in this path, and that was worth more than
+usual during those five days.
 
 A subdomain, because `tools.marisstella.dev` is the canonical host
 stamped into every page's canonical link, og:url and sitemap entry. The
-apex and `www` are served by `prod/portfolio-apex.yaml`, which 301s them
-here rather than putting two uncanonical copies of all 508 pages in front
-of crawlers.
+apex and `www` are served by `prod/portfolio-apex.yaml`, which used to 301
+them here rather than putting two uncanonical copies of all 544 pages in
+front of crawlers.
+
+**Changed 2026-09-02.** That redirect pointed at a host serving nothing for
+every day of its life, because of the seal below. The apex and `www` now
+serve `prod/portfolio-front.yaml` instead: a generated front-door page —
+positioning, one card per category, the §5b clauses — held in a kustomize
+ConfigMap and therefore needing nothing sealed, no runner and no Pages
+flip. It is a different document from the hub (its own canonical, no
+per-tool listing), so it does not reintroduce the duplicate the redirect
+existed to prevent. Regenerate it with `node
+platform/marketing/front-door.mjs --write`; the suite fails on a stale
+commit.
 
 This used to say the apex was left alone because it "already resolves to
 the cpx52 for something else". It does not: `infra/README.md` records
@@ -89,11 +102,53 @@ needed). **One thing remains**, and it is an owner action. Until it lands
 Argo syncs the manifests and the pods crash-loop on the missing secret,
 which is the intended fail-closed state.
 
+Note what this section is and is not about since 2026-09-02: it is the step
+that makes the **169 tools** reachable. The portfolio's apex is already
+serving (`prod/portfolio-front.yaml`, above), and every category card on
+that page links in here — so this seal is what turns a live front door into
+a live catalogue, not what turns the domain on.
+
 1. **The clone token.** The repository is private, so the init container
    cannot clone anonymously. Mint a fine-grained token scoped to this one
    repository with **Contents: Read-only** and nothing else, seal it, and
    add it to `prod/kustomization.yaml` — full instructions in
    `prod/secrets/portfolio-repo-token.template.yaml`.
+
+**The build behind that token is verified green (2026-09-01).** The one
+failure mode the cache cannot cover is a *first-ever* start: with no cached
+site to fall back on, a commit that fails `check.mjs` leaves the pod with
+nothing to serve. So the seal is only worth spending if `main` builds
+clean, and until now no session had run the pod's own command to find out.
+Run outside the cluster, with the same base URL the Deployment sets:
+
+```
+PAGES_BASE_URL=https://tools.marisstella.dev/ \
+  node platform/pages/build.mjs --out=/tmp/site && \
+  node platform/pages/check.mjs --dist=/tmp/site
+```
+
+Both exit 0 on `main`: 169 products, 7 category pages, 544 pages, no dead
+links. `build.mjs` reads the committed `launched.json` rather than shelling
+out to `git log` (see the comment at its line ~4648), so the `--depth 1`
+clone the `fetch` container does costs it nothing — the depth-1 checkout and
+a full one produce the same site.
+
+Re-verified same-day against a later `main`: the page count moved 517 → 518
+between the two runs (another venture merged in between; the product count
+held at 169). Expect this figure to keep moving by a page or two per session
+— it is not the property this check exists to pin, "still exits 0" is.
+Re-verified again on 2026-09-02 against a later `main` still: 524 pages,
+169 products unchanged, no dead links — the drift this paragraph predicted,
+not a regression. Re-verified once more the same day, at `main`'s
+d8e27a884: 544 pages, 169 products still unchanged, no dead links — the
+same drift, not a second regression.
+
+This says the seal will land on a working build; it does not confirm
+anything about the cluster. Certificate issuance and public reachability
+remain unverified from a session — see the note at the end of this section —
+because these sandboxes cannot route to `89.167.29.39` (the egress proxy
+returns 403 for both hostnames, which is a sandbox limit, not a fault on
+the box).
 
 ### After it is live: what happens when that token expires
 
@@ -188,7 +243,10 @@ both Ingresses **and** the test — never one without the others.
 Pods build from `main` at start-up, so a merged venture does not appear
 until something restarts them — and Argo will not, because this manifest
 does not change when a venture does. The `portfolio-site-refresh`
-CronJob does a `rollout restart` nightly at 04:17 UTC. Its Role is
+CronJob does a `rollout restart` nightly at 01:00 UTC, after the usage
+aggregator has read the day's log (see `portfolio/usage/README.md`) — moved
+there in #2330 so the restart's pod churn stops deleting nginx access logs
+the aggregator hasn't read yet. Its Role is
 namespaced and narrowed by resource name: it can restart this one
 Deployment and touch nothing else in `prod`.
 

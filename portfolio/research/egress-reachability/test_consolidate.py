@@ -224,7 +224,7 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
     The deployment asks added on 2026-08-29 name `tools.marisstella.dev`,
     which nothing fetches and nothing can measure. Left unexempted it failed
     this check, and `main` carried that failure unnoticed because no Actions
-    runner has run a job here since 2026-08-26.
+    runner ran a job here between 2026-08-26 and the 2026-09-01 recovery.
     """
 
     def extract(self, text):

@@ -2810,3 +2810,88 @@ test('the band bundle ships one sentence, not both', () => {
   // split was modelled on.
   assert.ok(!BID_PRICING_HELPERS.includes('var priceBandSentence = function'));
 });
+
+// ---------------------------------------------------------------------------
+// Itemised rows
+// ---------------------------------------------------------------------------
+
+test('a page declares its row groups on the control that appends a row', async () => {
+  const { pageRepeatPrefixes } = await import('./jobs.mjs');
+  assert.deepEqual(pageRepeatPrefixes('<button id="addTree" data-pf-repeat="t">+ Add</button>'), ['t']);
+  // Two groups on one page — carpet cleaning prices rooms and upholstery
+  // separately — come back in document order and without duplicates.
+  assert.deepEqual(
+    pageRepeatPrefixes(
+      '<button data-pf-repeat="r"></button><button data-pf-repeat="u"></button><button data-pf-repeat="r"></button>'),
+    ['r', 'u']);
+  // Silence is the answer for the 161 tools that declare nothing, which is what
+  // keeps the exact-id rule in place everywhere it was already right.
+  assert.deepEqual(pageRepeatPrefixes('<button id="addTree">+ Add</button>'), []);
+  assert.deepEqual(pageRepeatPrefixes('<button data-pf-repeat="  "></button>'), []);
+  assert.deepEqual(pageRepeatPrefixes(null), []);
+});
+
+test('a generated id splits into its group, its counter and its field', async () => {
+  const { splitRepeatId } = await import('./jobs.mjs');
+  assert.deepEqual(splitRepeatId('t12-dbh', ['t']), { prefix: 't', index: 12, field: 'dbh' });
+  // The static fields on the same page must go on comparing exactly, so
+  // anything that is not `<prefix><digits>-<field>` is not a row.
+  assert.equal(splitRepeatId('crewRate', ['t']), null);
+  assert.equal(splitRepeatId('t-dbh', ['t']), null);
+  assert.equal(splitRepeatId('tx1-dbh', ['t']), null);
+  assert.equal(splitRepeatId('t1-', ['t']), null);
+  assert.equal(splitRepeatId('t1-dbh', ['r']), null);
+  // Longest prefix wins, so declaring both `r` and `rt` is unambiguous.
+  assert.deepEqual(splitRepeatId('rt4-x', ['r', 'rt']), { prefix: 'rt', index: 4, field: 'x' });
+});
+
+test('rows are keyed by their position in the group, not by the counter', async () => {
+  const { normalizeRepeatIds } = await import('./jobs.mjs');
+  // The recorded case: a contractor who deleted the second room holds r1 and
+  // r3, and a form freshly grown to two rows holds r1 and r2. Nothing about
+  // those two bids differs, and by position they agree.
+  const saved = normalizeRepeatIds(['r1-sqft', 'r3-sqft', 'crewRate'], ['r']);
+  const form = normalizeRepeatIds(['r1-sqft', 'r2-sqft', 'crewRate'], ['r']);
+  assert.deepEqual(saved.map, { 'r1-sqft': 'r#1-sqft', 'r3-sqft': 'r#2-sqft', crewRate: 'crewRate' });
+  assert.deepEqual(form.map, { 'r1-sqft': 'r#1-sqft', 'r2-sqft': 'r#2-sqft', crewRate: 'crewRate' });
+  assert.deepEqual(Object.values(saved.map).sort(), Object.values(form.map).sort());
+  assert.deepEqual(saved.counts, { r: 2 });
+
+  // Carpet cleaning shares one counter across both groups, so its ids
+  // interleave (r1, u2, r3). Ranking happens inside a group, which is what
+  // makes the interleaving irrelevant.
+  const mixed = normalizeRepeatIds(['r1-sqft', 'u2-min', 'r3-sqft'], ['r', 'u']);
+  assert.equal(mixed.map['r3-sqft'], 'r#2-sqft');
+  assert.equal(mixed.map['u2-min'], 'u#1-min');
+  assert.deepEqual(mixed.counts, { r: 2, u: 1 });
+
+  // With no groups declared every id is its own key, which is the exact-id
+  // rule this replaced.
+  assert.deepEqual(normalizeRepeatIds(['r1-sqft', 'crewRate'], []).map,
+    { 'r1-sqft': 'r1-sqft', crewRate: 'crewRate' });
+});
+
+test('the form is grown to the bid, and only ever grown', async () => {
+  const { rowsToGrow, MAX_REPEAT_ROWS } = await import('./jobs.mjs');
+  assert.deepEqual(rowsToGrow({ r: 6, u: 2 }, { r: 1 }, ['r', 'u']), { r: 5, u: 2 });
+  // A group the form already satisfies asks for no clicks, and one the form has
+  // too many of is not reported as a negative: no page here declares a remove
+  // control, so that case has to fall through to the ordinary refusal rather
+  // than invite a caller to click backwards.
+  assert.deepEqual(rowsToGrow({ r: 2 }, { r: 2 }, ['r']), {});
+  assert.deepEqual(rowsToGrow({ r: 1 }, { r: 4 }, ['r']), {});
+  // A crafted bid cannot make the page click forever.
+  assert.deepEqual(rowsToGrow({ r: 9999 }, { r: 0 }, ['r']), { r: MAX_REPEAT_ROWS });
+  assert.deepEqual(rowsToGrow({ r: 3 }, {}, []), {});
+});
+
+test('the browser gets the tested row-group definitions, not a paraphrase', async () => {
+  const { BID_REPEAT_HELPERS } = await import('./jobs.mjs');
+  for (const name of ['splitRepeatId', 'normalizeRepeatIds', 'rowsToGrow']) {
+    assert.ok(BID_REPEAT_HELPERS.includes(`var ${name} = `), `${name} is injected`);
+  }
+  // The two constants the injected bodies close over are emitted as literals;
+  // `REPEAT_ATTR` is also read by the runtime's own querySelectorAll.
+  assert.match(BID_REPEAT_HELPERS, /var REPEAT_ATTR = "data-pf-repeat";/);
+  assert.match(BID_REPEAT_HELPERS, /var MAX_REPEAT_ROWS = \d+;/);
+});

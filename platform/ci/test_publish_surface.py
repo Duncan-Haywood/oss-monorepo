@@ -675,7 +675,20 @@ class GitOpsLiveRepository(unittest.TestCase):
         prod = next(r for r in rows if r["application"] == "prod")
         content = next(h for h in prod["hosts"] if h["host"] == "tools.marisstella.dev")
         self.assertEqual(content["unmet_secrets"], ["portfolio-site-repo"])
-        self.assertTrue(ps.dead_end_redirects(rows), "the apex 301s to a host serving nothing")
+
+        # The apex used to 301 into that same dark host, and this line used to
+        # assert exactly that. It stopped being true on 2026-09-02: the apex
+        # now serves `portfolio-front`, a ConfigMap-backed page that needs
+        # nothing sealed, so there is no dead-end redirect left to detect.
+        # `dead_end_redirects` stays exercised by the unit tests above on
+        # synthetic manifests; here the assertion is the one that matters —
+        # the two names a stranger types answer with content of their own
+        # while the tools host waits.
+        self.assertEqual(ps.dead_end_redirects(rows), [])
+        for host in ("marisstella.dev", "www.marisstella.dev"):
+            row = next(h for h in prod["hosts"] if h["host"] == host)
+            self.assertEqual(row["serves"], "workload")
+            self.assertEqual(row["unmet_secrets"], [])
 
     def test_the_snapshot_pins_the_gitops_surface(self):
         rows, _ = ps.gitops_survey()

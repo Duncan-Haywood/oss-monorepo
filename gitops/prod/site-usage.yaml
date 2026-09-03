@@ -75,9 +75,11 @@ metadata:
 rules:
   # Pod names change on every rollout, so the log read cannot be narrowed by
   # name the way the refresh Role is. It is narrowed the two ways that remain:
-  # to this namespace, and to reading only. `prod` holds this site and the
-  # placeholder landing page, neither of which logs anything about a person
-  # once the format above is in place.
+  # to this namespace, and to reading only. `prod` holds this site, the apex
+  # front door and the cluster-internal landing page, none of which logs
+  # anything about a person once the format above is in place — the front
+  # door's own log_format is pinned by
+  # test_portfolio_front_access_log_records_no_visitor.
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["list"]
@@ -133,6 +135,14 @@ spec:
     spec:
       backoffLimit: 2
       template:
+        # Named so `networkpolicy.yaml`'s egress rule can select this pod --
+        # a CronJob's pods otherwise carry only the auto-generated
+        # `job-name`/`controller-uid` labels, and the Job name changes on
+        # every run (a `-<timestamp>` suffix), so nothing durable exists to
+        # select on without this.
+        metadata:
+          labels:
+            app.kubernetes.io/name: portfolio-site-usage
         spec:
           restartPolicy: OnFailure
           serviceAccountName: portfolio-site-usage
@@ -151,8 +161,15 @@ spec:
               env:
                 - name: USAGE_NAMESPACE
                   value: prod
+                # Both public workloads: the tools site and the apex front
+                # door (`portfolio-front.yaml`, 2026-09-02). A set-based
+                # selector so it stays one list call and one code path.
+                # `aggregate.py`'s APP_KEYS decides which key each pod's lines
+                # land on — the front door gets `_front` rather than being
+                # added to the hub's row, which is the whole reason this is a
+                # selector change and not just a wider one.
                 - name: USAGE_SELECTOR
-                  value: app=portfolio-site
+                  value: app in (portfolio-site,portfolio-front)
                 - name: USAGE_CONTAINER
                   value: nginx
                 - name: USAGE_CONFIGMAP

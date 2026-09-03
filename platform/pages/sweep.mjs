@@ -33,15 +33,29 @@
 //
 //   curl -s http://localhost:8793/<slug>/ | grep -c 'the thing you just added'
 //
-// Not part of CI: it needs Playwright, which is not a dependency of this repo.
+// Runs in CI nightly, not per-PR — see the CI note further down for why, and
+// for how it gets Playwright without this repo depending on it.
 // PLAYWRIGHT overrides the module path for a global install.
 //
 // ## Running it from a Claude-on-the-web session
 //
-// Which is currently the only place it *can* run: GitHub Actions has had no
-// runner since 2026-08-26, so since then the whole-site sweep has been the
-// portfolio's only end-to-end proof that its products still compute, and the
-// scheduled sessions are what have to produce it. Those sessions ship Chromium
+// Which is where it usually runs, not the only place it can: the commands
+// above work on any machine with Playwright, and `platform/pages/README.md`
+// documents the global, `NODE_PATH` and in-repo installs for exactly that.
+//
+// This used to say **no CI workflow runs this sweep at all**, on the reasoning
+// that it needs Playwright and Playwright is not a dependency of this repo.
+// The second half is still true; the conclusion stopped being true on
+// 2026-09-01, when `.github/workflows/browser-checks-ci.yml` (#2616) began
+// running it nightly at 04:20 UTC, plus `workflow_dispatch`. It installs
+// Playwright into `$RUNNER_TEMP`, outside the checkout, so the sweep gained CI
+// coverage without the repo gaining a dependency.
+//
+// Nightly is not per-PR, though, and that is deliberate — a run is the whole
+// site, and `platform/pages/` takes enough commits a day that gating on it
+// would cost hours of metered Actions minutes. So the sweep still catches a
+// break the morning after it lands rather than before, and running it by hand
+// in a session is still worth doing. Those sessions ship Chromium
 // at `/opt/pw-browsers` but no `playwright` module, and `npm i playwright`
 // pulls a version whose pinned build number does not match what is on disk:
 //
@@ -60,7 +74,10 @@
 //     CHROME_PATH="$(echo /opt/pw-browsers/chromium-*/chrome-linux/chrome)" \
 //     node platform/pages/sweep.mjs
 //
-// Verified 2026-08-31: 169/169 tools answered with no errors.
+// Verified 2026-09-01: 175/175 tools answered with no errors — 169 from the
+// catalog plus the six electronics calculators nested under
+// `ai-engineering-academy`'s hub, which this sweep now follows into rather
+// than stopping at (see `discoverChildTools` below).
 
 // Playwright ships CommonJS, so a PLAYWRIGHT that names its entry *file*
 // resolves the exports under `.default`, while a bare specifier on the
@@ -289,8 +306,51 @@ async function pressPrimaryAction() {
 // cannot reach the API, so the sweep has no opinion on whether the tool works.
 const PASSING = new Set(['ok', 'links-only', 'needs-network']);
 
-const results = [];
-for (const slug of slugs) {
+/**
+ * Same-directory links a `links-only` page's own markup points at, one level
+ * deep — `ai-engineering-academy`'s hub links `resistor-calculator/`,
+ * `voltage-divider-calculator/`, and four more, each a real calculator this
+ * sweep otherwise never opens: the top-level catalog carries one `data-tool`
+ * entry for the whole venture (`ENTRY_OVERRIDES` in `build.mjs` points it at
+ * the hub), so `slugs` above never named them and nothing before this walked
+ * a link to find out what it led to.
+ *
+ * Scoped with `ownOnly` for the same reason as everywhere else in this file:
+ * the injected top nav and footer chrome link all over the site, and a link
+ * back to the site root or sideways to an unrelated tool is not a child of
+ * this hub. Restricted to one path segment past the hub's own, so a link
+ * that happens to reach three directories down (it does not, today, but
+ * nothing stops a future page) does not get walked as if it were a sibling
+ * tool.
+ */
+async function discoverChildTools(prefix) {
+  return page.$$eval(ownOnly('a[href]'), (nodes, prefix) => {
+    const out = new Set();
+    for (const node of nodes) {
+      let url;
+      try {
+        url = new URL(node.getAttribute('href') || '', location.href);
+      } catch {
+        continue;
+      }
+      if (url.origin !== location.origin || !url.pathname.startsWith(prefix)) continue;
+      const rest = url.pathname.slice(prefix.length).replace(/^\/+/, '');
+      const child = rest.split('/')[0];
+      if (child && child !== 'index.html') out.add(child);
+    }
+    return [...out];
+  }, prefix);
+}
+
+/**
+ * Loads one page and decides whether it works, whether it is a landing page
+ * doing its job, or whether it is dead. Pulled out of the sweep's main loop
+ * so the same judgment applies to a top-level tool and to a calculator only
+ * reachable through a hub's own links (see `discoverChildTools`) — a nested
+ * page is not exempt from being real product just because nothing on the
+ * catalog names it directly.
+ */
+async function sweepOne(url) {
   const errors = [];
   // A request to somewhere other than the site under test that could not be
   // made. Almost every tool here is offline by construction, but a couple call
@@ -317,7 +377,7 @@ for (const slug of slugs) {
   let filled = 0;
 
   try {
-    await page.goto(`${BASE}/${slug}/`, { waitUntil: 'load' });
+    await page.goto(url, { waitUntil: 'load' });
     await page.waitForTimeout(150);
 
     const before = await page.evaluate(() => document.body.innerText);
@@ -352,8 +412,27 @@ for (const slug of slugs) {
       }
     }
 
+    // `ownOnly`, for the reason that helper exists: this number decides whether
+    // a page is a landing page or a broken tool, and a control this build
+    // injected is neither the tool nor the author's.
+    //
+    // It was the bare selector until it miscounted. `injectEmbedWidget`
+    // (#2561, 2026-08-31) puts a `<textarea>` and a "Copy embed code"
+    // `<button>` inside `.pf-chrome` on every entry page, so every page in the
+    // catalog gained two controls it does not own. On 168 of them that changed
+    // nothing -- they have controls of their own and never reach this branch.
+    // On `ai-engineering-academy`, which is a hub linking to six calculators
+    // and has none of its own, `interactive` went 0 to 2: the `links-only`
+    // branch below stopped firing and a page doing exactly its job was
+    // reported `NO-CONTROLS -- 2 control(s) on the page, none of them usable`,
+    // failing the whole sweep. That branch's own comment names this page.
+    //
+    // Which is the failure this file warns about twice in its own words -- "a
+    // sweep that cries wolf twice is a sweep whose real findings get skimmed
+    // past". The count has to mean what the verdicts read it as: controls the
+    // venture wrote.
     const interactive = await page.$$eval(
-      'input, select, textarea, button',
+      ownOnly('input, select, textarea, button'),
       (nodes) => nodes.length,
     );
 
@@ -402,9 +481,29 @@ for (const slug of slugs) {
   page.off('console', onConsole);
   page.off('requestfailed', onRequestFailed);
 
-  results.push({ slug, verdict, detail });
+  return { verdict, detail };
+}
+
+function report(label, verdict, detail) {
+  results.push({ slug: label, verdict, detail });
   const flag = PASSING.has(verdict) ? '   ' : '>> ';
-  console.log(`${flag}${verdict.padEnd(12)} ${slug}${detail ? `  — ${detail}` : ''}`);
+  console.log(`${flag}${verdict.padEnd(12)} ${label}${detail ? `  — ${detail}` : ''}`);
+}
+
+const results = [];
+for (const slug of slugs) {
+  const { verdict, detail } = await sweepOne(`${BASE}/${slug}/`);
+  report(slug, verdict, detail);
+
+  // A hub that is only links is doing its job, and its job was to lead
+  // somewhere — follow it, the same way a visitor's next click would, rather
+  // than taking "renders" as the last word on pages this sweep never named.
+  if (verdict !== 'links-only') continue;
+  for (const child of await discoverChildTools(`/${slug}/`)) {
+    const label = `${slug}/${child}`;
+    const childResult = await sweepOne(`${BASE}/${slug}/${child}/`);
+    report(label, childResult.verdict, childResult.detail);
+  }
 }
 
 await browser.close();

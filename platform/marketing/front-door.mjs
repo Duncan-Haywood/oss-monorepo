@@ -1,0 +1,1312 @@
+/**
+ * The portfolio's front door: the page served at `https://marisstella.dev/`.
+ *
+ * ## Why this exists at all
+ *
+ * `gitops/prod/portfolio-apex.yaml` claimed the apex and `www` on 2026-08-28
+ * and answered both with a 301 to `https://tools.marisstella.dev/`. That was
+ * the right call for consolidating link equity onto one canonical host — and
+ * it has, since the day it merged, redirected every visitor to a hostname that
+ * serves nothing, because `portfolio-site.yaml`'s pods fail closed on the
+ * unsealed Secret `portfolio-site-repo`. `platform/ci/publish_surface.py
+ * --check` prints that dead end as a note under both hostnames.
+ *
+ * So the portfolio's only two reachable names spend a TLS handshake and a
+ * round trip to hand a stranger a redirect into a black hole. This page is
+ * what they answer with instead.
+ *
+ * ## Why it is generated rather than hand-written HTML in the manifest
+ *
+ * Two of its claims are counts — "169 free tools", and one per category — and
+ * a marketing page that states a number the repository has since outgrown is
+ * worse than one that states none. The counts are derived here from
+ * `platform/pages/launched.json`, which is the same file `check.mjs` already
+ * fails the site build over when a published tool is missing from it, so it is
+ * the one list in this repository that cannot silently drift from what is
+ * actually published.
+ *
+ * The output is committed (`gitops/prod/front-door/index.html`) because Argo
+ * CD, not a CI job, is what delivers it: kustomize reads that file into a
+ * ConfigMap and the pod mounts it. `front-door.test.mjs` regenerates and
+ * compares, so a stale commit fails the suite with the command that fixes it.
+ *
+ * ## Why it does not list the whole catalogue
+ *
+ * Because `tools.marisstella.dev` does, and `portfolio-apex.yaml`'s own
+ * comment explains at length why two hostnames must not serve the same bytes:
+ * `build.mjs` stamps one canonical host into all 524 pages, and a second copy
+ * in front of a crawler undoes that. This page is a different document — what
+ * the portfolio is, who the tools are for, and one link per category into the
+ * hub — with its own canonical URL. It stays distinct on purpose.
+ *
+ * That is also what keeps it from becoming dead weight once the clone token is
+ * sealed. A front door describing the collection is what a brand apex is for;
+ * the tools live one hop away either way.
+ *
+ * ## The one exception: the tools this host serves itself
+ *
+ * Every link above points at `tools.marisstella.dev`, which serves nothing
+ * until `portfolio-site-repo` is sealed — so for the whole life of this page a
+ * visitor who acted on any of it reached a dead host. `front-door-tools.mjs`
+ * mirrors a curated set of complete ventures into this host's own ConfigMap,
+ * and `renderFrontDoor`'s `mirrored` argument is the section that names them.
+ *
+ * That does not reopen the two-hosts-one-canonical question above: every
+ * mirrored page carries `noindex` and a canonical pointing back at its
+ * `tools.marisstella.dev` URL, so the mirror is reachable by people and
+ * invisible to crawlers. Read that module's header for the full argument.
+ *
+ * `mirrored` defaults to empty, so deleting the mirror after the seal removes
+ * this section without touching anything here.
+ */
+
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// Every path this page links to comes from `build.mjs`, never from a string
+// typed here. These four exports are what that build stamps into the site's
+// own navigation, so a renamed category prefix or a moved feed changes this
+// page in the same commit instead of leaving the apex pointing at a 404 that
+// nothing on the tools host would notice.
+import {
+  ABOUT_PATH,
+  ALL_CATEGORIES,
+  FEED_FILE,
+  SOCIAL_CARD_FILE,
+  categoryFor,
+  categoryPagePath,
+} from '../pages/build.mjs';
+
+// The feed's ordering, cap and `<updated>` rule come from the module that owns
+// the launch dates, not from a second implementation here: `renderFrontDoorFeed`
+// and `build.mjs`'s `renderFeed` are two views of one list, and a divergence in
+// how they sort or cap it would show up as a reader's feed re-ordering itself
+// the day the seal lands.
+import { FEED_MAX_ENTRIES, feedUpdatedAt, isIsoDate, orderForFeed } from '../pages/launched.mjs';
+
+// The share card is drawn, not copied: `renderSocialCard` is the same
+// dependency-free PNG encoder `build.mjs` uses for the hub's card, so the apex
+// and the tools host show one mark rather than two pictures that drift.
+import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, THEME_COLOR, renderSocialCard } from '../pages/offline.mjs';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(HERE, '..', '..');
+
+export const LAUNCHED_FILE = path.join(REPO_ROOT, 'platform', 'pages', 'launched.json');
+
+/**
+ * Where `--write` puts the rendered page.
+ *
+ * Inside `gitops/prod/` rather than beside this script because the file is an
+ * input to a kustomize `configMapGenerator`, and kustomize resolves generator
+ * file paths relative to the kustomization. Keeping it under the directory it
+ * is consumed from means the manifest never reaches up out of `gitops/`.
+ */
+export const OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'index.html');
+
+/** The file name the page points `rel="icon"` at, and nginx serves. */
+export const FAVICON_FILE = 'favicon.svg';
+
+/**
+ * The tab mark, and why it is SVG rather than a drawn PNG.
+ *
+ * Every browser requests `/favicon.ico` unprompted on the first view of an
+ * origin, and until this existed the apex answered that with a 404 on every
+ * single visit -- so the portfolio's one public page spent its whole life
+ * showing a blank default tab icon and logging a miss for each visitor. A
+ * declared `rel="icon"` is also what stops the unprompted `/favicon.ico`
+ * request being made at all, so this fixes the blank tab and the 404 together.
+ *
+ * SVG rather than the `renderSocialCard` PNG encoder used for the share card:
+ * at 16x16 a drawn raster of the wordmark is unreadable, the file is a few
+ * hundred bytes of text against a ConfigMap that stores it verbatim, and it
+ * stays sharp on any display. Modern browsers take `image/svg+xml` for an
+ * icon; the ones that do not simply fall back to no icon, which is what they
+ * had before, so there is no case this makes worse.
+ *
+ * The mark is the site's initial on `THEME_COLOR` -- the same constant
+ * `offline.mjs` gives the tools host -- so the apex and the tools host show
+ * one identity rather than two, for the same reason the share card is drawn
+ * from the shared encoder rather than copied.
+ */
+export const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Maris Stella">
+  <rect width="64" height="64" rx="12" fill="${THEME_COLOR}"/>
+  <text x="32" y="45" font-family="Georgia, 'Times New Roman', serif" font-size="38" font-weight="700" fill="#ffffff" text-anchor="middle">M</text>
+</svg>
+`;
+
+/** Where `--write` puts the tab mark, beside the page that declares it. */
+export const FAVICON_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', FAVICON_FILE);
+
+/**
+ * Where `--write` puts the share card, beside the page that references it.
+ *
+ * The apex has to serve this file itself, and that is the whole point of it
+ * existing here. Until 2026-09-02 the page's `og:image` pointed at
+ * `https://tools.marisstella.dev/social-card.png` — a file `build.mjs` does
+ * emit, on a host whose pods fail closed on the unsealed Secret
+ * `portfolio-site-repo`. So the one public surface this portfolio has was
+ * handing every link preview — Slack, LinkedIn, iMessage, a forum embed — an
+ * image URL that does not resolve, and `summary_large_image` degrades to a
+ * bare text row when the image is missing. That is a marketing defect on the
+ * only page anyone can reach, and it is invisible from the page itself: the
+ * front door renders perfectly for the person who typed the domain, and badly
+ * for everyone they then share it with.
+ *
+ * The card is ~6 KB against the same 1 MiB ConfigMap ceiling the 34 MB tool
+ * site cannot fit under, so serving it from the apex costs nothing the front
+ * door was not already paying. Unlike the tool mirror, this file does *not*
+ * become redundant when the clone token is sealed — the apex is its own
+ * canonical page with its own `og:url`, so it needs its own image regardless.
+ */
+export const SOCIAL_CARD_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  SOCIAL_CARD_FILE,
+);
+
+/** The apex itself — this page's own canonical URL. */
+export const FRONT_DOOR_URL = 'https://marisstella.dev/';
+
+/** The canonical host every tool page is stamped with; see `build.mjs`. */
+export const TOOLS_URL = 'https://tools.marisstella.dev/';
+
+/** The file name crawlers fetch unprompted before anything else on an origin. */
+export const ROBOTS_FILE = 'robots.txt';
+
+/** The sitemap `robots.txt` points at, and nginx serves. */
+export const SITEMAP_FILE = 'sitemap.xml';
+
+/** Where `--write` puts the two, beside the page they describe. */
+export const ROBOTS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ROBOTS_FILE);
+export const SITEMAP_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  SITEMAP_FILE,
+);
+
+/** Where `--write` puts the apex's own Atom feed. See `renderFrontDoorFeed`. */
+export const FEED_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', FEED_FILE);
+
+/**
+ * `robots.txt` for the apex, and why it allows everything.
+ *
+ * ## What this replaces
+ *
+ * The catch-all `location /` in `front-door/default.conf` answers *every* path
+ * with `index.html`, which is deliberate for a mistyped URL and wrong for the
+ * two paths a crawler asks for by convention. Until this file existed, a
+ * crawler fetching `https://marisstella.dev/robots.txt` was handed 16 KB of
+ * HTML with a `200` and `Content-Type: text/html` — the same failure the
+ * `/social-card.png` block above was added to fix, on the one file every
+ * crawler requests before it reads a single page.
+ *
+ * A 200 carrying unparseable content is the worst of the three outcomes here.
+ * A 404 is a clean "no restrictions, no sitemap" that every crawler
+ * understands; a valid file is better still. HTML with a 200 is neither: the
+ * portfolio's only indexable surface has been answering the discovery
+ * handshake with a document that does not parse as a directive.
+ *
+ * ## Why `Allow: /` and not a `Disallow` on the mirror
+ *
+ * The obvious-looking line to add here is `Disallow: /tools/`, since
+ * `front-door-tools.mjs` is emphatic that the mirrored pages are copies whose
+ * canonical lives on the tools host and must not compete in search. That line
+ * would be a mistake, and the reason is the standard trap:
+ *
+ * `robots.txt` governs *crawling*, not *indexing*. A crawler that is
+ * disallowed from `/tools/` never fetches those pages, and therefore never
+ * sees the `<meta name="robots" content="noindex,follow">` that
+ * `injectMirrorTags` puts in each one, nor the `X-Robots-Tag: noindex` header
+ * `default.conf` sets on the same paths. A URL that is blocked from crawling
+ * but linked to from an indexable page can still be indexed URL-only — title
+ * and bare link, no content, no way to consolidate onto the canonical.
+ *
+ * So blocking the crawl would *weaken* exactly the consolidation the mirror is
+ * careful to preserve. Letting crawlers fetch the mirror is what makes its
+ * `noindex` effective, because a directive is only obeyed by a crawler allowed
+ * to read it. `Allow: /` here and `noindex` there are the same policy stated
+ * in the layer that can actually enforce it.
+ */
+export const ROBOTS_TXT = `# ${FRONT_DOOR_URL}${ROBOTS_FILE}
+#
+# Crawling is unrestricted on purpose. The mirrored tools under /tools/ are
+# copies whose canonical lives on ${TOOLS_URL}
+# and they must not be indexed here. That is enforced by a noindex meta on
+# every mirrored page and an X-Robots-Tag: noindex header on every /tools/
+# response -- NOT by a Disallow. A disallowed page is never fetched, so its
+# noindex is never read, and the URL can still be indexed bare. Allowing the
+# crawl is what makes the noindex work.
+User-agent: *
+Allow: /
+
+Sitemap: ${FRONT_DOOR_URL}${SITEMAP_FILE}
+`;
+
+/**
+ * The sitemap: one URL, because this host has exactly one indexable page.
+ *
+ * Every other path the apex serves is either an asset (`/social-card.png`,
+ * `/favicon.svg`) or a mirrored tool page under `/tools/`, and all of the
+ * latter carry `noindex` plus a canonical pointing at the tools host. Listing
+ * a `noindex` URL in a sitemap is a direct contradiction — the sitemap asks a
+ * crawler to index what the page then tells it not to — and search consoles
+ * report it as an error rather than resolving it in either direction. So the
+ * mirror stays out, and this file grows a second entry only when the apex
+ * grows a second page of its own.
+ *
+ * No `<lastmod>`. The honest value would be the commit date of
+ * `front-door/index.html`, which this generator cannot read without making its
+ * output depend on git state — and a `<lastmod>` stamped with the *build* time
+ * would change on every regeneration, so `--write` would dirty the tree on
+ * runs that changed nothing and the staleness test below could never pass
+ * twice. `<lastmod>` is optional in the protocol and an inaccurate one is
+ * worse than none, since crawlers weight it and a date that moves without the
+ * content moving is a signal that trains them to stop trusting it.
+ */
+export function renderSitemap() {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${FRONT_DOOR_URL}</loc>
+  </url>
+</urlset>
+`;
+}
+
+/**
+ * The apex's own Atom feed, over the tools this host actually serves.
+ *
+ * ## The defect this fixes
+ *
+ * The footer of this page offered three links — "All 169 tools", "About these
+ * tools", "New tools feed" — and every one of them pointed at
+ * `tools.marisstella.dev`, which serves nothing until `portfolio-site-repo` is
+ * sealed. That is the same dead end `front-door-tools.mjs` fixed for the hero
+ * copy and the comment on `cards` fixed for the category headings, still live
+ * in the page's third and last navigation block. It was the worst of the three
+ * cases, because unlike the header's fine print it carried no warning at all:
+ * the page said "goes live when its access token is sealed" two screens above
+ * a bare link that did not.
+ *
+ * The feed is the link that mattered most. `gitops/agents/workers/mandate.md`
+ * calls it the mechanism by which "a reader, an aggregator, or a community's
+ * own moderators pick a tool up without us publishing outward" — the
+ * portfolio's only organic distribution channel that does not require the
+ * owner to post anything anywhere. It has been dead on the only reachable
+ * hostname for the whole life of this page.
+ *
+ * ## Why a second feed does not double anyone's subscription
+ *
+ * `build.mjs`'s `renderFeed` mints entry ids as
+ * `tag:marisstella.dev,2026:tool/<slug>` — an RFC 4151 tag URI keyed on the
+ * slug, with the authority *fixed* rather than taken from the base URL, and its
+ * comment says why in as many words: so that serving the same build from two
+ * hostnames "does not mint two different ids for one tool and double every
+ * subscriber's feed". This renderer reuses that exact id function.
+ *
+ * So a reader subscribed here who later moves to the tools host's feed sees
+ * entries they have already read stay read, and a reader subscribed to both is
+ * not notified twice. That property is what makes this feed safe to ship as a
+ * stopgap and safe to delete afterwards, which is the same contract the mirror
+ * itself keeps.
+ *
+ * ## Why the entries link here rather than at the canonical
+ *
+ * `<link rel="alternate">` points at `/tools/<slug>/` on this host, not at the
+ * tool's canonical `tools.marisstella.dev` URL. The canonical is the correct
+ * long-run address and it is also, today, a host that answers nothing — and a
+ * feed whose every entry is a dead link is worse than no feed, because a reader
+ * who follows one concludes the project is abandoned rather than that one
+ * hostname is pending.
+ *
+ * The SEO cost of that choice is nil, which is the reason it is available at
+ * all: the mirrored pages carry `noindex` in markup and in the `X-Robots-Tag`
+ * header, so search consolidation onto the canonical is unaffected by what a
+ * feed reader is handed. A feed is read by people and aggregators, and both
+ * want the URL that works.
+ *
+ * ## Scope
+ *
+ * Only the mirrored tools. The other 116 are not reachable from this host, so
+ * listing them would rebuild the dead end one layer down. `<subtitle>` says so
+ * rather than leaving a reader to infer that a feed on a 169-tool site carries
+ * 53 entries because the rest are old.
+ *
+ * `<updated>` is the newest entry's launch date, never the build time, for the
+ * reason `feedUpdatedAt` gives: a rebuild that changed nothing must not tell
+ * every aggregator that something changed. That is also what keeps `--write`
+ * from dirtying the tree on a no-op run, which the staleness test depends on.
+ */
+export function renderFrontDoorFeed({ mirrored = [], launched = {} } = {}) {
+  const dated = orderForFeed(mirrored, launched).filter((tool) => isIsoDate(launched[tool.slug]));
+  const entries = dated.slice(0, FEED_MAX_ENTRIES);
+  const updated = feedUpdatedAt(dated, launched);
+
+  const entryXml = (tool) => {
+    const date = `${launched[tool.slug]}T00:00:00Z`;
+    const summary = String(tool.description ?? '').replace(/\s+/g, ' ').trim();
+    return `  <entry>
+    <title>${escapeHtml(tool.title)}</title>
+    <link rel="alternate" type="text/html" href="${escapeHtml(`${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url}`)}"/>
+    <id>${escapeHtml(feedEntryId(tool.slug))}</id>
+    <published>${date}</published>
+    <updated>${date}</updated>
+    <category term="${escapeHtml(categoryFor(tool.slug).title)}"/>${
+      summary ? `\n    <summary type="text">${escapeHtml(summary)}</summary>` : ''
+    }
+  </entry>`;
+  };
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeHtml(SITE_NAME)} — tools on ${escapeHtml(FRONT_DOOR_HOST)}</title>
+  <subtitle>${escapeHtml(subtitleFor(mirrored.length, entries.length))}</subtitle>
+  <link rel="self" type="application/atom+xml" href="${escapeHtml(`${FRONT_DOOR_URL}${FEED_FILE}`)}"/>
+  <link rel="alternate" type="text/html" href="${escapeHtml(FRONT_DOOR_URL)}"/>
+  <id>${escapeHtml(FEED_ID)}</id>
+  <updated>${updated ?? EMPTY_FEED_UPDATED}</updated>
+  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+${entries.map(entryXml).join('\n')}
+</feed>
+`;
+}
+
+/**
+ * What the feed says it is, in the two states it has.
+ *
+ * The count matters and is easy to get wrong: `FEED_MAX_ENTRIES` caps the feed
+ * at 40 while the mirror serves 53, so a subtitle written from `entries.length`
+ * would tell a subscriber this host serves 40 tools — a false claim about the
+ * product, generated by an implementation detail of the feed. The first draft
+ * of this function did exactly that.
+ *
+ * So the subtitle states the real number served and, only when the cap is
+ * actually biting, says the feed carries the newest slice of it. That is the
+ * same distinction `renderFeed`'s own comment draws: the feed is the "new"
+ * list, not another catalogue, and a tool that scrolls off is still on the
+ * page.
+ */
+export function subtitleFor(served, listed) {
+  const catalogue = TOOLS_URL.replace(/^https:\/\//, '').replace(/\/$/, '');
+  const scope =
+    listed < served
+      ? `The ${served} free, browser-only tools served directly from ${FRONT_DOOR_HOST} — the newest ${listed} of them listed here, newest first.`
+      : `The ${served} free, browser-only tools served directly from ${FRONT_DOOR_HOST}, newest first.`;
+  return `${scope} No account, no upload: every number stays on your own device. The full catalogue is larger and lives at ${catalogue}.`;
+}
+
+/**
+ * An entry's stable id, shared with the tools host's feed on purpose — see the
+ * "double anyone's subscription" section above. Kept as a named function
+ * rather than inlined so the shape cannot drift from `build.mjs`'s `tagId`
+ * without `front-door.test.mjs`'s cross-check failing.
+ */
+export const feedEntryId = (slug) => `tag:marisstella.dev,2026:tool/${slug}`;
+
+/** The feed document's own id. Distinct from the tools host's, which names the site rather than this host's subset. */
+export const FEED_ID = 'tag:marisstella.dev,2026:front-door-tools';
+
+/** The apex's bare hostname, for copy that names it. */
+export const FRONT_DOOR_HOST = FRONT_DOOR_URL.replace(/^https:\/\//, '').replace(/\/$/, '');
+
+/**
+ * The `<updated>` of a feed with no dated entry.
+ *
+ * A fixed instant rather than `new Date()`: an Atom feed's `<updated>` is
+ * required, and generating one from the clock would make `--write` dirty the
+ * tree on every run and the staleness test unpassable. This value is only ever
+ * reached with an empty mirror, which is the post-seal state in which the whole
+ * file is deleted — `check.mjs` and the mirror's own tests are what stop a
+ * populated mirror from arriving here undated.
+ */
+export const EMPTY_FEED_UPDATED = '2026-08-28T00:00:00Z';
+
+/** The well-known path a model fetches without having to discover it first. */
+export const LLMS_FILE = 'llms.txt';
+
+/** Where `--write` puts it, beside the page it describes. */
+export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
+
+/**
+ * `llms.txt` for the apex — the AI-discovery half of what the last change fixed
+ * for feed readers.
+ *
+ * ## Why this host needs its own
+ *
+ * `build.mjs` writes an `llms.txt` for the tools host, and its comment makes
+ * the case for the format: `llms.txt` is a well-known path (llmstxt.org), so a
+ * model fetches it *without having to discover it first* — which is the whole
+ * difference for a portfolio whose growth plan is organic search and AI
+ * discovery rather than ad spend. `portfolio/DIRECTION.md` says the same.
+ *
+ * That file is on a host that serves nothing until `portfolio-site-repo` is
+ * sealed. So the one hostname a model can actually reach has, until now,
+ * answered `/llms.txt` with 21 KB of HTML and a 200 — the apex already served
+ * `robots.txt` and `sitemap.xml` explicitly and had nothing for the channel
+ * `DIRECTION.md` names as half the growth plan.
+ *
+ * ## Why it lists only the mirrored tools
+ *
+ * Same reason `renderFrontDoorFeed` does, and it matters more here. A model
+ * that reads a bullet list of URLs will *cite* those URLs, and a citation is
+ * repeated to a user who then clicks it. Listing the other 116 would mint
+ * confident recommendations of a host that answers nothing — the dead end this
+ * page has been fixing one element at a time, at the one layer where it
+ * propagates outward instead of costing a single click.
+ *
+ * So the catalogue host appears in prose, describing what it will hold, and
+ * never as a bullet a model can lift as a link. That is also why `## Optional`
+ * lists this host's feed and sitemap and not `catalog.json`, which lives on the
+ * tools host and is not served here.
+ *
+ * ## Format
+ *
+ * Markdown with one bullet per tool under its category heading, because the
+ * file is read by a model rather than parsed by a client and a link list under
+ * a heading survives chunking into a context window in a way a nested object
+ * does not — `renderLlmsTxt`'s reasoning, kept.
+ *
+ * Descriptions are flattened to one line each, for the failure `renderLlmsTxt`
+ * names: a stray newline inside a bullet silently ends the list item, so a
+ * wrapped meta description would publish its second half as body prose.
+ */
+export function renderFrontDoorLlms({ mirrored = [], total = 0, categories = ALL_CATEGORIES } = {}) {
+  const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  const grouped = mirroredByCategory(mirrored);
+  const catalogue = TOOLS_URL.replace(/^https:\/\//, '').replace(/\/$/, '');
+
+  const bullet = (tool) =>
+    `- [${oneLine(tool.title)}](${FRONT_DOOR_URL.replace(/\/$/, '')}${tool.url})${
+      oneLine(tool.description) ? `: ${oneLine(tool.description)}` : ''
+    }`;
+
+  const sections = orderedGroups(grouped, categories).map(
+    (group) => `## ${group.title}\n\n${group.tools.map(bullet).join('\n')}\n`,
+  );
+
+  // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
+  // short of context. Both entries are paths this host actually serves; the
+  // tools host's `catalog.json` is deliberately absent for the reason above.
+  const optional = [
+    '## Optional',
+    '',
+    `- [Atom feed](${FRONT_DOOR_URL}${FEED_FILE}): these tools as they are published, newest first. Poll this rather than re-reading this file to find out what is new.`,
+    `- [Sitemap](${FRONT_DOOR_URL}${SITEMAP_FILE}): the indexable page on this host.`,
+    '',
+  ].join('\n');
+
+  return `# Free calculators and checks for people who run a small business
+
+> ${mirrored.length} free, browser-only tools served directly from ${FRONT_DOOR_HOST}, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+
+Each tool is a static page that works offline once opened, and is free with no
+gated features. They are estimates and records to act on, not professional
+advice or a determination made on anyone's behalf; each page carries its own
+limitations.
+
+Every tool listed below is linked at a URL this host serves. The wider
+collection runs to ${total} tools and will be published at ${catalogue}; that
+hostname is not serving yet, so it is named here for context and deliberately
+not linked — a link there would resolve to nothing today.
+
+${sections.join('\n')}
+${optional}`;
+}
+
+/**
+ * What the collection calls itself.
+ *
+ * Taken from the built site rather than invented here: `build.mjs` stamps
+ * exactly this string into the hub's `og:site_name` and into the `isPartOf`
+ * of every page's JSON-LD. The apex and the tools host are one brand, and a
+ * front door that introduced a second name for it — a project codename, or
+ * the bare domain — would be the first place a visitor met the discrepancy.
+ */
+export const SITE_NAME = 'Free small-business calculators';
+
+/**
+ * What the share card actually shows, for a reader whose client announces the
+ * image but cannot render it — a screen reader on a Slack unfurl, or a mail
+ * client with images off.
+ *
+ * Written against `renderSocialCard()`'s no-headline branch specifically,
+ * which is the variant `--write` emits: the mark centred and alone on a plain
+ * field, with no text drawn anywhere on the card. Saying so is the point —
+ * alt text that promised a headline would send someone looking for words that
+ * are not there. `front-door.test.mjs` pins the two together so a later change
+ * to the card that adds a headline fails rather than silently lying here.
+ */
+export const SOCIAL_CARD_ALT =
+  'The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.';
+
+const escapeHtml = (value) =>
+  String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
+/** JSON-LD is embedded in a `<script>`; `</` inside it would close the tag early. */
+const jsonLd = (value) => JSON.stringify(value, null, 2).replaceAll('</', '<\\/');
+
+/**
+ * How many published tools sit in each category, and the total.
+ *
+ * Reads the launch list rather than the `ventures/` directory: a directory can
+ * exist without being published (`EXCLUDED_SLUGS` in `build.mjs`), and the
+ * launch list is what the site build already treats as the published set.
+ */
+export function categoryCounts(slugs) {
+  const counts = new Map(ALL_CATEGORIES.map((category) => [category.id, 0]));
+  for (const slug of slugs) {
+    const id = categoryFor(slug).id;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/**
+ * Categories in the order the page shows them: biggest first.
+ *
+ * Not the order `ALL_CATEGORIES` declares, which is the order the rules are
+ * *tested* in and therefore an implementation detail of slug matching. A
+ * visitor scanning seven cards should meet the 116-tool section before the
+ * 4-tool one. Ties keep declaration order so the output stays deterministic.
+ *
+ * A category with nothing published in it is dropped: an empty card is a link
+ * to an empty page, and `build.mjs` does not emit a category page for a
+ * category with no members either.
+ */
+export function orderedCategories(counts) {
+  return ALL_CATEGORIES.map((category, index) => ({
+    ...category,
+    count: counts.get(category.id) ?? 0,
+    index,
+  }))
+    .filter((category) => category.count > 0)
+    .sort((a, b) => b.count - a.count || a.index - b.index);
+}
+
+/**
+ * The on-page anchor a category's mirrored tools are listed under.
+ *
+ * A fragment, not a `/c/<id>/` URL, because these are the tools *this* host
+ * serves. The two must not collide in a reader's mind or in the markup:
+ * `categoryPagePath` names the catalogue host's own collection page, which is
+ * still what the JSON-LD and the footer point at.
+ */
+export const categoryAnchor = (id) => `open-${id}`;
+
+/**
+ * The mirrored tools grouped by the category their slug classifies into.
+ *
+ * Uses `categoryFor`, the same function that decides where a tool sits on the
+ * catalogue host, so a tool cannot appear under "Trades" here and "Services"
+ * there. Insertion order within a group follows `STARTER_SET`, which is the
+ * order `front-door-tools.mjs` justifies per entry.
+ */
+export function mirroredByCategory(mirrored) {
+  const groups = new Map();
+  for (const tool of mirrored) {
+    const id = categoryFor(tool.slug).id;
+    if (!groups.has(id)) groups.set(id, []);
+    groups.get(id).push(tool);
+  }
+  return groups;
+}
+
+/**
+ * The order the mirror's category groups are listed in.
+ *
+ * Driven by the groups, not by `orderedCategories`. Those two lists are built
+ * from different inputs — the cards count *published* slugs, the groups hold
+ * *mirrored* ones — and a group whose category has no published count would
+ * otherwise be dropped from the page while the ConfigMap went on serving it:
+ * a tool live on the host that nothing links to. Categories the cards do show
+ * lead, in the cards' own order, so the page reads in one direction; anything
+ * left over follows in the order the mirror supplied it.
+ */
+export function orderedGroups(groups, categories) {
+  const shown = categories.filter((category) => groups.has(category.id)).map((category) => category.id);
+  const rest = [...groups.keys()].filter((id) => !shown.includes(id));
+  const titles = new Map(ALL_CATEGORIES.map((category) => [category.id, category.title]));
+  return [...shown, ...rest].map((id) => ({ id, title: titles.get(id) ?? id, tools: groups.get(id) }));
+}
+
+/**
+ * The one-sentence promise under the headline.
+ *
+ * Every clause is a claim the site already makes on its About page and on
+ * every social card ("Runs in your browser · nothing you type is uploaded"),
+ * with the same hedge the category pages carry: a tool that calls out to an
+ * external API says so on its own page. Written without a number so it cannot
+ * become false when the exception list changes — `build.mjs` names the
+ * exceptions where a visitor is about to use one, which is where that belongs.
+ */
+export const PROMISE =
+  'Free, no signup, no account. Each tool runs in your browser — where one needs to look something up online, its own page says so before you use it.';
+
+const HOW_IT_WORKS = [
+  {
+    title: 'Open it and use it',
+    body:
+      'No sign-up, no trial, no seat count. Every tool is the full tool: the same arithmetic, the same printable output, whether it is your first visit or your hundredth.',
+  },
+  {
+    title: 'Your numbers stay yours',
+    body:
+      'The calculators run as JavaScript on your own device. There are no accounts, no tracking cookies and no analytics vendor — the hosting counts anonymous page views and nothing about who asked for them.',
+  },
+  {
+    title: 'Free while we learn what is useful',
+    body:
+      'Nothing here takes payment, and no feature is held back behind one. What people actually come back to is what gets built out next, so using a tool is the whole of what we ask.',
+  },
+];
+
+/**
+ * The two paragraphs `PRODUCT_PLAYBOOK.md` §5b requires on a hosted surface.
+ *
+ * Carried in full rather than linked: this page is itself a hosted surface, it
+ * is not built by `platform/pages/build.mjs`, and so the no-SLA injection that
+ * covers every tool page does not reach it. The no-warranty paragraph names
+ * what these tools are not advice about, in the same shape the ventures use.
+ */
+const NO_WARRANTY =
+  'These tools are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, engineering or professional advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.';
+
+const NO_SLA =
+  'Best-effort hosting, no SLA. These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.';
+
+const STYLE = `
+  :root {
+    color-scheme: light dark;
+    --ink: #16191d;
+    --ink-soft: #454c55;
+    --paper: #fbfaf8;
+    --card: #ffffff;
+    --rule: #ddd8d0;
+    --link: #12506b;
+    /* The call to action needs its own pair rather than reusing --link on a
+       white foreground. In dark mode --link is a pale blue, and white text on
+       it measured 1.93:1 — a headless contrast pass caught it before this page
+       ever shipped. The button inverts instead: pale fill, dark ink. */
+    --cta-bg: #12506b;
+    --cta-fg: #ffffff;
+    /* The search field's edge, and the one border on this page that is not
+       --rule. --rule measures 1.36:1 against --paper in light and 1.54:1 in
+       dark: fine for a card, whose shape a reader gets from its fill and its
+       content, and a failure of WCAG 2.1 SC 1.4.11 for a text input, where
+       the boundary is the only thing saying "you can type here". A headless
+       pass over the rendered page caught it before this shipped; both values
+       below clear 3:1 against --paper. */
+    --field-edge: #8a8379;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eceef1;
+      --ink-soft: #b3bac3;
+      --paper: #14171a;
+      --card: #1c2025;
+      --rule: #333940;
+      --link: #7fc4e2;
+      --cta-bg: #7fc4e2;
+      --cta-fg: #10161a;
+      --field-edge: #6f7780;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main, header, footer { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding-top: 3.5rem; padding-bottom: 1rem; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 0.75rem; letter-spacing: -0.015em; }
+  .lede { font-size: clamp(1.05rem, 2.4vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.5rem; max-width: 44rem; }
+  .cta {
+    display: inline-block;
+    background: var(--cta-bg);
+    color: var(--cta-fg);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.7rem 1.3rem;
+    border-radius: 0.4rem;
+  }
+  .cta:hover, .cta:focus { filter: brightness(1.1); }
+  h2 { font-size: 1.35rem; margin: 2.75rem 0 1rem; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent, var(--rule));
+    border-radius: 0.5rem;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
+  .card h3 a { color: var(--link); text-decoration: none; }
+  .card h3 a:hover, .card h3 a:focus { text-decoration: underline; }
+  .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  /* The category headings inside the mirror section. Sized between an h2 and a
+     card title so the section reads as one list with dividers rather than as
+     several sections; scroll-margin-top keeps a heading off the very top
+     edge when a card's fragment link jumps to it. */
+  .group { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 1.75rem 0 0.75rem; scroll-margin-top: 1rem; }
+  .group:first-of-type { margin-top: 0; }
+  header .fine { color: var(--ink-soft); font-size: 0.9rem; max-width: 60ch; margin: 0.75rem 0 0; }
+  .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; }
+  .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+  .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; }
+  footer a { color: var(--link); }
+  footer p { max-width: 52rem; }
+  .fine strong { color: var(--ink); }
+  /* The filter over the mirrored tools. Revealed by script — see
+     FILTER_SCRIPT — so a reader without JavaScript never meets a box that
+     does nothing.
+
+     Every element the filter hides needs a rule here, and the reason is the
+     cascade rather than specificity: the UA sheet's [hidden] { display: none }
+     loses to ANY author display declaration, however weak. .filter and .grid
+     both set display: grid, so without these two selectors the hidden element
+     keeps its box. For .grid that was not hypothetical — it was measured in a
+     browser: filtering to one trade left the six emptied category lists still
+     rendering. Nothing was visible, because a grid with no visible items has
+     no height, so the page looked right and a screen reader read six empty
+     lists between the heading and the one result. */
+  .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; }
+  .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; }
+  .filter label { font-size: 0.88rem; color: var(--ink-soft); }
+  .filter input {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--field-edge);
+    border-radius: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    width: 100%;
+  }
+  .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+  .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
+  .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
+`;
+
+/** Examples, not instructions: one trade, one marketplace, one back-office job. */
+const FILTER_PLACEHOLDER = 'roofing, ebay, cash flow…';
+
+/**
+ * What the reader sees when nothing matches.
+ *
+ * It names the three shapes of term that do work, because the failure it
+ * answers is almost always a vocabulary mismatch rather than an absent tool —
+ * someone typing "quote" for what this catalogue calls a bid.
+ */
+const FILTER_EMPTY =
+  'No tool here matches that. Try a trade ("roofing", "fence"), a marketplace ("ebay", "shopify"), or the job to be done ("bid", "fee", "cash flow").';
+
+/**
+ * The extra words a card is matched on, beyond the ones already visible in it.
+ *
+ * A card is matched against three things: its own visible title, its category
+ * heading, and this. The first two the script reads out of the DOM it already
+ * has — the title from the card's `textContent`, the category from the heading
+ * the card sits under — so neither is repeated into an attribute. That
+ * matters at this size: writing the full haystack out per card cost ~20 KB of
+ * HTML across 159 cards (~4 KB gzipped) to say what the page already said.
+ *
+ * What is left is the part the DOM does *not* carry: words that live in the
+ * slug but not in the title. `3pl-quote-normalizer` is titled "Normalise a 3PL
+ * Quote", so a reader searching "normalizer" with a z finds nothing without
+ * this; `where-to-sell-calculator` is titled "Where Should I Sell This?".
+ * Words already contained in the title are dropped, so most cards emit no
+ * attribute at all.
+ *
+ * A term matches as a **word prefix**, not as a bare substring: "roof" finds
+ * "roofing", because a prefix is where people stop typing, but "roofing" no
+ * longer drags in "waterproofing", which a plain `indexOf` did — measured in a
+ * browser before this rule went in, where searching "roofing" returned the
+ * basement waterproofing calculator as one of its two hits.
+ */
+export function extraTokens(tool) {
+  const title = String(tool.title).toLowerCase();
+  const words = String(tool.slug)
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word && !title.includes(word));
+  return [...new Set(words)].join(' ');
+}
+
+/**
+ * The filter over the mirrored tools.
+ *
+ * ## The problem
+ *
+ * The mirror section is the page's payload: 159 tools, seven category
+ * headings, one flat run of card titles. That is fine to *browse* and poor to
+ * *search*, and searching is what a visitor arriving from "roofing bid
+ * calculator" is doing. Ctrl-F does the job on a desktop browser and is not
+ * available on a phone, which is where a contractor pricing a job actually is.
+ *
+ * ## Why it is written this way
+ *
+ * - **Progressive enhancement, and the control is hidden until script runs.**
+ *   The markup ships \`hidden\` and this script clears it. A search box that
+ *   silently does nothing is worse than no search box, and this page's whole
+ *   value proposition is that it works without anything being set up.
+ * - **No network, no dependency, no build step.** The page is delivered as a
+ *   ConfigMap by Argo CD; there is no bundler in that path and nothing may be
+ *   fetched at render time. This is a few hundred bytes of inline ES5.
+ * - **It filters what is already in the DOM.** No index is shipped. Each
+ *   card's haystack is built once at start-up from its own \`textContent\` plus
+ *   its category heading's, so the two things the page already displays are
+ *   never repeated into attributes; only \`data-alt\` is written out, and only
+ *   for the minority of cards whose slug says something their title does not
+ *   (see \`extraTokens\`). Searching "marketplace" therefore returns a whole
+ *   section, and "normalizer" reaches a tool titled "Normalise".
+ * - **Group headings hide with their groups.** A heading left standing over
+ *   zero cards reads as "no results in this category" while the category above
+ *   it silently disappeared — inconsistent, and the sort of thing that makes a
+ *   filter feel broken. The two roles carry *different* attributes on purpose:
+ *   \`data-group\` marks the pair of elements that hide together (the heading
+ *   and its list), \`data-cat\` marks which pair a card belongs to. Spelling
+ *   both \`data-group\` would make \`querySelectorAll('[data-group]')\` select
+ *   all 159 cards as well, and every card would be hidden as an empty group.
+ * - **The status line is a \`role="status"\`**, so the result count reaches a
+ *   screen reader rather than only the sighted reader, and it is only written
+ *   when the count actually changes, so holding a key down does not queue one
+ *   announcement per keystroke.
+ *
+ * ES5 syntax and no optional chaining: this is served to whatever browser a
+ * visitor has, it is never transpiled, and one parse error would take the
+ * whole enhancement down silently.
+ *
+ * Must contain no \`</\` sequence, which would close the script element early.
+ */
+const FILTER_SCRIPT = `
+(function () {
+  var box = document.getElementById('tool-filter');
+  var input = document.getElementById('tool-search');
+  var status = document.getElementById('tool-filter-status');
+  var empty = document.getElementById('tool-filter-empty');
+  if (!box || !input || !status || !empty) return;
+
+  var cards = Array.prototype.slice.call(document.querySelectorAll('li.card[data-cat]'));
+  if (!cards.length) return;
+  var groups = Array.prototype.slice.call(document.querySelectorAll('[data-group]'));
+  var total = cards.length;
+  var announced = null;
+
+  function flatten(text) { return (text || '').toLowerCase().replace(/\\s+/g, ' ').trim(); }
+
+  // The category words, once per category rather than once per card.
+  var catText = {};
+  for (var h = 0; h < groups.length; h++) {
+    var key = groups[h].getAttribute('data-group');
+    if (groups[h].tagName === 'H3') catText[key] = flatten(groups[h].textContent);
+  }
+
+  // Each card's haystack, built once. Rebuilding it per keystroke would walk
+  // 159 subtrees on every character typed.
+  var hay = [];
+  for (var c = 0; c < cards.length; c++) {
+    hay.push(
+      ' ' +
+        flatten(cards[c].textContent) +
+        ' ' +
+        flatten(cards[c].getAttribute('data-alt')) +
+        ' ' +
+        (catText[cards[c].getAttribute('data-cat')] || ''),
+    );
+  }
+
+  function plural(n) { return n === 1 ? 'tool' : 'tools'; }
+
+  function apply() {
+    var query = flatten(input.value);
+    var terms = query ? query.split(' ') : [];
+    var shown = 0;
+    var perGroup = {};
+
+    for (var i = 0; i < cards.length; i++) {
+      var card = cards[i];
+      var haystack = hay[i];
+      var match = true;
+      for (var t = 0; t < terms.length; t++) {
+        if (haystack.indexOf(' ' + terms[t]) === -1) { match = false; break; }
+      }
+      card.hidden = !match;
+      if (match) {
+        shown++;
+        var group = card.getAttribute('data-cat') || '';
+        perGroup[group] = (perGroup[group] || 0) + 1;
+      }
+    }
+
+    for (var g = 0; g < groups.length; g++) {
+      var id = groups[g].getAttribute('data-group');
+      groups[g].hidden = !perGroup[id];
+    }
+
+    empty.hidden = shown !== 0;
+    var message = !terms.length
+      ? 'Showing all ' + total + ' ' + plural(total) + '.'
+      : shown === 0
+        ? 'No tool matches that.'
+        : shown + ' of ' + total + ' ' + plural(total) + ' match.';
+    if (message !== announced) {
+      status.textContent = message;
+      announced = message;
+    }
+  }
+
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && input.value) {
+      input.value = '';
+      apply();
+      event.preventDefault();
+    }
+  });
+
+  box.hidden = false;
+  apply();
+})();
+`;
+
+/**
+ * Render the page.
+ *
+ * Pure: everything it needs is passed in, so the test can render a fixed list
+ * of slugs and assert on the numbers without touching the repository.
+ */
+export function renderFrontDoor({
+  slugs,
+  toolsUrl = TOOLS_URL,
+  canonical = FRONT_DOOR_URL,
+  // The tools served from this host, from `front-door-tools.mjs`'s
+  // `STARTER_SET`. Defaulted empty so this module keeps rendering a correct
+  // page on its own, and so a test can pin both states.
+  mirrored = [],
+} = {}) {
+  const list = [...slugs].sort();
+  const counts = categoryCounts(list);
+  const categories = orderedCategories(counts);
+  const total = list.length;
+  const description = `${total} free calculators and checks for trade contractors, marketplace sellers, and small service businesses. Runs in your browser, no signup.`;
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    url: canonical,
+    description,
+    inLanguage: 'en',
+    isAccessibleForFree: true,
+    hasPart: categories.map((category) => ({
+      '@type': 'CollectionPage',
+      name: category.title,
+      url: `${toolsUrl}${categoryPagePath(category.id)}`,
+      description: category.blurb,
+    })),
+  };
+
+  // Whether this host serves any tools of its own. Every difference below is
+  // gated on it, so with the default empty `mirrored` the page renders exactly
+  // as it did before the mirror existed — which is the state it returns to
+  // when `portfolio-site-repo` is sealed and the mirror is deleted.
+  const grouped = mirroredByCategory(mirrored);
+  const hasMirror = mirrored.length > 0;
+
+  /**
+   * What a category card links to, and what its count line says.
+   *
+   * The defect this fixes: these seven cards are the page's primary
+   * navigation, and every one of them pointed at `tools.marisstella.dev`,
+   * which serves nothing until the clone token is sealed. A visitor who acted
+   * on the main affordance of the portfolio's only reachable page reached a
+   * dead host — the same failure `front-door-tools.mjs` fixed for the hero
+   * copy, still live one element down.
+   *
+   * So a category with mirrored tools now leads to them, on this host, by
+   * fragment; a category without any is not a link at all. An unlinked
+   * heading is deliberate over a disabled-looking link: there is nowhere
+   * honest to send that click today, and saying so in the count line is
+   * better than spending a visitor's click to find out.
+   */
+  const cards = categories
+    .map((category) => {
+      const here = grouped.get(category.id) ?? [];
+      const plural = category.count === 1 ? 'tool' : 'tools';
+      const hubUrl = `${toolsUrl}${categoryPagePath(category.id)}`;
+      const heading =
+        hasMirror && here.length
+          ? `<a href="#${escapeHtml(categoryAnchor(category.id))}">${escapeHtml(category.title)}</a>`
+          : hasMirror
+            ? escapeHtml(category.title)
+            : `<a href="${escapeHtml(hubUrl)}">${escapeHtml(category.title)}</a>`;
+      const count = !hasMirror
+        ? `${category.count} ${plural}`
+        : here.length
+          ? `${category.count} ${plural} · ${here.length} you can open here now`
+          : `${category.count} ${plural} · none on this host yet`;
+      return `        <li class="card" style="--accent: ${escapeHtml(category.accent)}">
+          <h3>${heading}</h3>
+          <span class="count">${escapeHtml(count)}</span>
+          <p>${escapeHtml(category.blurb)}</p>
+        </li>`;
+    })
+    .join('\n');
+
+  /**
+   * The footer's link row — the page's third and last navigation block, and
+   * the one that stayed broken longest.
+   *
+   * It read `All 169 tools · About these tools · New tools feed`, three bare
+   * links to `tools.marisstella.dev`, which serves nothing until
+   * `portfolio-site-repo` is sealed. The header's fine print two screens above
+   * says that host "goes live when its access token is sealed"; the footer said
+   * nothing, so the page contradicted itself within one scroll and spent a
+   * visitor's click to prove it. The `cards` comment above records the same fix
+   * for the category headings.
+   *
+   * With a mirror, all three become links that work:
+   *
+   * - the catalogue link becomes the on-host section the cards already point
+   *   at, counted honestly at what this host serves rather than at 169;
+   * - the feed becomes this host's own — see `renderFrontDoorFeed`, and note
+   *   that it is the one entry here with distribution value rather than
+   *   navigational value;
+   * - "About" is dropped rather than relabelled. There is no about page on this
+   *   host and inventing one to fill a footer slot would be a page written for
+   *   a link rather than for a reader. The header's fine print already names
+   *   the catalogue host and its state, which is what "About" would have said.
+   *
+   * Without a mirror the row is unchanged, which is the state this page returns
+   * to when the seal lands, the mirror is deleted, and all three destinations
+   * are live for real.
+   */
+  const footerLinks = hasMirror
+    ? `<a href="#open-now">The ${mirrored.length} tools on this host</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a> · <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a>`
+    : `<a href="${escapeHtml(toolsUrl)}">All ${total} tools</a> · <a href="${escapeHtml(`${toolsUrl}${ABOUT_PATH}`)}">About these tools</a> · <a href="${escapeHtml(`${toolsUrl}${FEED_FILE}`)}">New tools feed</a>`;
+
+  const how = HOW_IT_WORKS.map(
+    (item) => `        <li>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.body)}</p>
+        </li>`,
+  ).join('\n');
+
+  // The tools this host serves itself. Empty until `front-door-tools.mjs`
+  // passes a set in, which is what keeps this page correct in both states:
+  // once `portfolio-site-repo` is sealed the mirror can be deleted and this
+  // section disappears with it, rather than having to be found and removed.
+  // Grouped under the same category headings the cards above use, so a card's
+  // fragment lands on its own tools rather than on the top of a flat list of
+  // seventeen the reader then has to scan. Categories keep the `categories`
+  // order — biggest first — so the page reads in one direction throughout.
+  const mirrorSection = hasMirror
+    ? `
+  <h2 id="open-now">Open one now, on this page's own host</h2>
+  <p class="lede-sm">${escapeHtml(
+    `${mirrored.length} of the ${total} tools are served directly from this domain, so they work whether or not the catalogue host is up. They are the complete tools, not previews.`,
+  )}</p>
+  <div class="filter" id="tool-filter" hidden>
+    <label for="tool-search">Find a tool</label>
+    <input id="tool-search" type="search" autocomplete="off" spellcheck="false" placeholder="${escapeHtml(
+      FILTER_PLACEHOLDER,
+    )}" aria-describedby="tool-filter-status">
+    <p class="filter-status" id="tool-filter-status" role="status"></p>
+  </div>
+  <p class="filter-empty" id="tool-filter-empty" hidden>${escapeHtml(FILTER_EMPTY)}</p>
+${orderedGroups(grouped, categories)
+  .map(
+    (group) => `  <h3 class="group" id="${escapeHtml(categoryAnchor(group.id))}" data-group="${escapeHtml(group.id)}">${escapeHtml(group.title)}</h3>
+  <ul class="grid" data-group="${escapeHtml(group.id)}">
+${group.tools
+  .map((tool) => {
+    const extra = extraTokens(tool);
+    // Emitted only when it has something to add — see `extraTokens`. Most
+    // slugs are the title in kebab case and contribute nothing.
+    const alt = extra ? ` data-alt="${escapeHtml(extra)}"` : '';
+    return `        <li class="card" data-cat="${escapeHtml(group.id)}"${alt}>
+          <h3><a href="${escapeHtml(tool.url)}">${escapeHtml(tool.title)}</a></h3>
+        </li>`;
+  })
+  .join('\n')}
+  </ul>`,
+  )
+  .join('\n')}
+`
+    : '';
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(SITE_NAME)} — ${total} tools for people who quote, sell and bill</title>
+<meta name="description" content="${escapeHtml(description)}">
+<link rel="icon" href="/${escapeHtml(FAVICON_FILE)}" type="image/svg+xml">
+<meta name="theme-color" content="${escapeHtml(THEME_COLOR)}">
+<link rel="canonical" href="${escapeHtml(canonical)}">${
+    hasMirror
+      ? `
+<link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — tools on ${FRONT_DOOR_HOST}`)}" href="/${escapeHtml(FEED_FILE)}">`
+      : ''
+  }
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+<meta property="og:title" content="${escapeHtml(SITE_NAME)} — ${total} tools for people who quote, sell and bill">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:url" content="${escapeHtml(canonical)}">
+<meta property="og:image" content="${escapeHtml(`${canonical}${SOCIAL_CARD_FILE}`)}">
+<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">
+<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">
+<meta property="og:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${escapeHtml(`${canonical}${SOCIAL_CARD_FILE}`)}">
+<meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
+<meta name="robots" content="index, follow">
+<style>${STYLE}</style>
+<script type="application/ld+json">
+${jsonLd(structuredData)}
+</script>
+</head>
+<body>
+<header>
+  <h1>${total} free tools for people who quote, sell and bill</h1>
+  <p class="lede">${escapeHtml(PROMISE)}</p>
+  <p><a class="cta" href="${hasMirror ? '#open-now' : escapeHtml(toolsUrl)}">${
+    hasMirror ? `Open one of the ${mirrored.length} tools running here now` : `Browse all ${total} tools`
+  }</a></p>${
+    hasMirror
+      ? `
+  <p class="fine">The full catalogue of ${total} is at <a href="${escapeHtml(toolsUrl)}">tools.marisstella.dev</a>, which goes live when its access token is sealed.</p>`
+      : ''
+  }
+</header>
+<main>
+  <h2>What is here</h2>
+  <ul class="grid">
+${cards}
+  </ul>
+
+${mirrorSection}
+  <h2>How it works</h2>
+  <ul class="rows">
+${how}
+  </ul>
+</main>
+<footer>
+  <p>${footerLinks}</p>
+  <p class="fine"><strong>No warranty.</strong> ${escapeHtml(NO_WARRANTY)}</p>
+  <p class="fine"><strong>Best-effort hosting, no SLA.</strong> ${escapeHtml(NO_SLA.replace('Best-effort hosting, no SLA. ', ''))}</p>
+</footer>${
+    hasMirror
+      ? `
+<script>${FILTER_SCRIPT}</script>`
+      : ''
+  }
+</body>
+</html>
+`;
+}
+
+/** The published slugs, read from the launch list the site build already pins. */
+export async function publishedSlugs(file = LAUNCHED_FILE) {
+  const parsed = JSON.parse(await fs.readFile(file, 'utf8'));
+  return Object.keys(parsed.launched ?? {});
+}
+
+/** The launch dates, read from the same committed file the site build pins. */
+export async function launchedDates(file = LAUNCHED_FILE) {
+  const parsed = JSON.parse(await fs.readFile(file, 'utf8'));
+  return parsed.launched ?? {};
+}
+
+/**
+ * The page and the feed together.
+ *
+ * Both, rather than the page alone, because the page now declares the feed in
+ * `<link rel="alternate">` and links it from the footer. Building them on one
+ * call is what stops the two being written on different runs and committed out
+ * of step — the same reason `--write` emits the card, the icon, `robots.txt`
+ * and the sitemap alongside the page.
+ */
+export async function buildFrontDoor() {
+  // The mirror is imported lazily so `front-door.mjs` keeps working — and its
+  // own tests keep running — if `front-door-tools.mjs` is ever deleted, which
+  // is exactly what should happen once `portfolio-site-repo` is sealed.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { tools } = await buildMirror();
+  const launched = await launchedDates();
+  const slugs = await publishedSlugs();
+  return {
+    html: renderFrontDoor({ slugs, mirrored: tools }),
+    feed: renderFrontDoorFeed({ mirrored: tools, launched }),
+    // The same category ordering the page uses — biggest first — so a model
+    // reading llms.txt and a person reading the page meet the collection in
+    // one order rather than two.
+    llms: renderFrontDoorLlms({
+      mirrored: tools,
+      total: slugs.length,
+      categories: orderedCategories(categoryCounts(slugs)),
+    }),
+  };
+}
+
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMain) {
+  const { html, feed, llms } = await buildFrontDoor();
+  if (process.argv.includes('--write')) {
+    await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
+    await fs.writeFile(OUTPUT_FILE, html);
+    console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_FILE)} (${html.length} bytes)`);
+    // Written on the same run as the page that points at it, so the two can
+    // never be committed out of step — the failure mode this replaces was an
+    // `og:image` naming a file that was never delivered anywhere.
+    const card = renderSocialCard();
+    await fs.writeFile(SOCIAL_CARD_OUTPUT_FILE, card);
+    console.log(`wrote ${path.relative(REPO_ROOT, SOCIAL_CARD_OUTPUT_FILE)} (${card.length} bytes)`);
+    // Same reason as the card above: the page declares `rel="icon"` at this
+    // path, so writing it on any run that writes the page keeps the two from
+    // being committed out of step.
+    await fs.writeFile(FAVICON_OUTPUT_FILE, FAVICON_SVG);
+    console.log(`wrote ${path.relative(REPO_ROOT, FAVICON_OUTPUT_FILE)} (${FAVICON_SVG.length} bytes)`);
+    // Same reason again: `robots.txt` names the sitemap's URL and the sitemap
+    // names the page's, so all three are written by whichever run writes any
+    // of them. A sitemap referenced by a robots.txt that was never delivered
+    // is the `og:image` defect one layer out.
+    await fs.writeFile(ROBOTS_OUTPUT_FILE, ROBOTS_TXT);
+    console.log(`wrote ${path.relative(REPO_ROOT, ROBOTS_OUTPUT_FILE)} (${ROBOTS_TXT.length} bytes)`);
+    const sitemap = renderSitemap();
+    await fs.writeFile(SITEMAP_OUTPUT_FILE, sitemap);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, SITEMAP_OUTPUT_FILE)} (${sitemap.length} bytes)`,
+    );
+    // Same reason once more: the page declares this feed in `<link
+    // rel="alternate">` and links it from the footer, so a run that wrote the
+    // page without it would ship a document advertising a path nothing serves.
+    await fs.writeFile(FEED_OUTPUT_FILE, feed);
+    console.log(`wrote ${path.relative(REPO_ROOT, FEED_OUTPUT_FILE)} (${feed.length} bytes)`);
+    // And once more: `llms.txt` lists the same mirrored tools the page and the
+    // feed do, so a run that wrote one without the others would publish three
+    // documents disagreeing about what this host serves.
+    await fs.writeFile(LLMS_OUTPUT_FILE, llms);
+    console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
+  } else {
+    process.stdout.write(html);
+  }
+}

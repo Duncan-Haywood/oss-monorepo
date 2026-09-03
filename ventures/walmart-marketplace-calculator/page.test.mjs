@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+const vsWfsSeo = readFileSync(new URL("./vs-wfs-cost-estimator.html", import.meta.url), "utf8");
 
 const RAW_TEXT_ELEMENTS = ["textarea", "script", "style"];
 
@@ -116,4 +117,24 @@ test("the Buy Box match-take table is wired to the comparison", () => {
   assert.match(scriptSource, /matchTakeNote/);
   assert.match(scriptSource, /match_take_compared/);
   assert.match(markup, /should-i-match-the-walmart-buy-box\.html/);
+});
+
+test("the incumbent-comparison page links back, names Walmart's own tool honestly, and gives no unverifiable Walmart numbers", () => {
+  assert.match(markup, /vs-wfs-cost-estimator\.html/);
+  assert.match(vsWfsSeo, /<a href="\.\/">/);
+  // Names Walmart's own tool and links to Walmart's own domains so a reader
+  // can check the source directly -- this page must never claim a number
+  // for Walmart's estimator that only Walmart's own live schedule could
+  // confirm.
+  assert.match(vsWfsSeo, /seller\.walmart\.com/);
+  assert.match(vsWfsSeo, /marketplacelearn\.walmart\.com/);
+  assert.doesNotMatch(vsWfsSeo, /Walmart('s)? (charges|fee is|costs?) \$/i);
+  assert.match(vsWfsSeo, /not affiliated with, endorsed by, or sponsored by Walmart/i);
+  assert.match(vsWfsSeo, /trademarks of Walmart Inc\./i);
+});
+
+test("the incumbent-comparison page carries the standard disclaimer and sponsor link", () => {
+  assert.match(vsWfsSeo, /No warranty/);
+  assert.match(vsWfsSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsWfsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

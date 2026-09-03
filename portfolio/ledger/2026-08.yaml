@@ -22307,6 +22307,51 @@ entries:
           `portfolio/ledger/` only, publishes nothing, spends nothing, adds no
           automation. `payout-rail` remains the only queue item that moves the
           revenue ceiling off $0.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled "continue work on the repo" session, designated branch
+          `session/cleanup-2026-08-24`. `session_gate.py` -> PROCEED (cadence
+          0.92/h, at the maintenance rate). Fetched `main` fresh, read the open
+          pull requests and `decision_queue.py` before touching anything.
+      - >-
+          Found PR #777 (revert of #368 Dependabot merge) open with a failing
+          test check. The test failure was due to a stale
+          `results-2026-08-23.md` file (agent instruction closure count changed
+          from 120 to 121 due to `asks.yaml` changes). Regenerated the results
+          file, rebased the branch onto current `main` (resolved a conflict in
+          `asks.yaml`), and pushed. All CI checks passed (test, validate).
+      - >-
+          PR #777 was merged at 2026-08-24T09:57:16Z, reverting the Dependabot
+          config merge (#368) which had been merged against its own "Not
+          self-merging" statement and the decision queue's owner-gated note.
+          Dependabot is "automation that writes or spends unattended" per
+          CLAUDE.md, making it a human-gated decision.
+      - >-
+          Closed 28 orphaned Dependabot PRs (#737-#772) that were opened when
+          #368 was briefly merged. These PRs are orphaned since the config
+          (.github/dependabot.yml) no longer exists after the revert. Each was
+          closed with a comment explaining that the config was removed by #777
+          and the decision to re-enable Dependabot remains with the account
+          owner.
+      - >-
+          Closed PR #780 (stale/conflicting decision queue update) and PR #764
+          (ledger entry based on wrong premise that #368 was correctly merged).
+          Both were superseded by the #777 revert and subsequent corrections.
+      - >-
+          Updated `asks.yaml` to remove the `dependabot` row since #368 was
+          reverted and the 30+ Dependabot PRs were closed. The decision whether
+          to re-enable Dependabot remains with the account owner but is not
+          tracked in the queue without a concrete PR or ask to reference.
+          Verified by `decision_queue.py --check` (8 decisions, schema OK).
+      - >-
+          Opened PR #783 to merge the `asks.yaml` update. Agent-decidable per
+          CLAUDE.md: `portfolio/ledger/` only, no `ventures/*` code, publishes
+          nothing, spends nothing, removes no automation (already removed by
+          #777). Owner-gated PRs left untouched: #720, #731, #531. `payout-rail`
+          remains the only queue item that moves the revenue ceiling off $0.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
@@ -41030,3 +41075,245 @@ entries:
         decision-queue rows 10-13. Nothing new to add; this entry exists so
         the next session does not re-derive the same confirmation.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start (all 2569 PRs on this repo closed or
+        merged), so mined the 300+ PR-less remote branches for the three-PR
+        merge quota instead, per the mandate's branch-to-PR-presumption. Opened
+        PRs for 5 branches that looked real and unique from `git diff --stat`
+        and passed their own tests (#2575-#2579), then found via
+        `supersede_check.py` and, where that returned a false NOT-SUPERSEDED
+        (comment/wording differences only, not behaviour), via direct
+        function-level code reading, that all 5 were already superseded or
+        outright duplicated by independently-shipped work on `main` --
+        `fence-bid-calculator`'s preset-restore bug (fixed differently by
+        #2500/#2503), `invoice-payment-terms-calculator` and
+        `appointment-deposit-calculator` (both fully re-shipped and evolved
+        further), the governor RBAC ConfigMap scoping (#2276/#2551/#2555), and
+        `where-to-sell-calculator`'s rank-by-return-per-day (#2155). Closed all
+        5 naming what supersedes each; merged none of them.
+      - >-
+        Extends `claude/clever-bohr-rcp8ih`'s 15-branch triage (merged this
+        session as #2583) with 12 more branches checked past the line-scan to
+        actual code comparison, same result every time: `main` already has the
+        feature, often more developed --
+        `cursor/amazon-fba-sourcing-check-20260824` and
+        `cursor/cut-list-linear-cost-20260824` (zero-profit-ceiling / linear
+        stock cost, both byte-identical to `main` after a hand-resolved
+        merge), `cursor/shopify-local-delivery-c4a1` and
+        `cursor/ebay-top-rated-plus-a8c1` (both landing-page + calc features
+        already live under the same names), `cursor/janitorial-frequency-cut-e646`
+        (`frequencyReductionNote` already in `main`'s `calc.mjs`),
+        `cursor/no-show-exposure-20260824` and
+        `cursor/change-order-margin-calculator-20260824` (identical-merge
+        proof). Between the two sessions, 27 of the highest-signal PR-less
+        branches are now confirmed superseded -- the backlog is not an
+        unmined vein for product code, only for the two ledger-append
+        branches this session found and merged (#2582, #2583) that a
+        prior session's work had never recorded.
+      - >-
+        Practical note for the next session: `supersede_check.py`'s line-scan
+        gave a false NOT-SUPERSEDED reading on 3 of these (`where-to-sell`,
+        `ebay-top-rated-plus`, `janitorial-frequency-cut`) because the branch's
+        comment prose or a differently-worded test name didn't textually match
+        main's rewrite, even though the underlying function/feature was
+        already there under the same or a renamed export. A `RENAME SUSPECTED`
+        section, or a plain `grep` for the branch's key function name in
+        main's calc.mjs, catches what the line count alone doesn't -- worth
+        running before trusting a lone NOT SUPERSEDED verdict on a branch this
+        old.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item. Measured before picking, per the
+        item's own instruction: ran a real build.mjs + check.mjs and read the
+        output rather than trusting the candidate list, since #2580 had
+        already corrected it to note all four candidates (embed widget #2561,
+        venture compare pages, /c/ hub copy, /about/ press kit) had a baseline
+        shipped by 2026-08-31. Confirmed that directly -- 169/169 entry pages
+        carry an embed offer, no dead links, all 8 share-card PNGs present,
+        169+7-category counts on /about/ still sum correctly.
+      - >-
+        Found the real remaining gap: the embed feature works but is only
+        discoverable per-tool (the snippet lives in a <details> box on each
+        of 169 tool footers) -- nothing site-level ever told a stranger it
+        exists. Shipped #2585: an "Embedding a tool on your own page" section
+        on /about/, built from the real EMBED_QUERY_PARAM/DEFAULT_EMBED_HEIGHT
+        constants (now exported from embed.mjs) so the illustrated snippet
+        cannot drift from the shipped feature. Verified: build.mjs (169 tools,
+        embed offer unchanged) + check.mjs (508 pages, no dead links) +
+        node --test platform/pages (837/837, including a new About-page test)
+        all clean. Merged after confirming red CI (validate/check/build/etc.,
+        all ~2-4s) was the known runner starvation via
+        platform/ci/ci_starvation.py (runner_id: 0, exit 1), not a regression.
+      - >-
+        Did not attempt a venture "vs a named incumbent" comparison page
+        (candidate 2): WebFetch is allowlisted and blocked the one competitor
+        domain tried (sell.amazon.com), so a competitor's numbers could not be
+        verified from this session -- left it rather than guess or go stale.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        deploy-cicd-readiness queue item, run directly rather than waiting on
+        the governor flip. Found a real gap: gitops/agents/networkpolicy.yaml's
+        governor-egress and worker-egress NetworkPolicies each had a DNS
+        egress rule (port 53, UDP+TCP) with no `to:` selector -- unrestricted-
+        destination egress on port 53, the same bug class as the port-443
+        leak #2562 already fixed in this same file, left sitting unfixed
+        right next to it. That is a live DNS-tunneling exfiltration path out
+        of the agents namespace. Fixed in #2584 (merged): scoped both rules
+        to namespaceSelector kube-system, matching
+        gitops/ci/networkpolicy.yaml's existing DNS-scoping pattern exactly;
+        added test_agents_dns_egress_is_scoped_to_kube_system as a
+        regression test. Verified: python3 -m pytest gitops/tests -q (193
+        passed, was 192), kustomize build gitops/agents (v5.6.0, the pinned
+        CI version) exit 0, kubeconform -strict against the built manifest
+        (16/16 valid, 0 errors). No behaviour change for legitimate traffic
+        -- pods already resolve via the ClusterDNS Service in kube-system.
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item, candidate 2 (a comparison page vs
+        a well-known incumbent). A prior run on this same item logged that it
+        declined this candidate because WebFetch to the one competitor domain
+        it tried (sell.amazon.com) was blocked. Confirmed the same block goes
+        wider than that: every external domain tried in this session --
+        sell.amazon.com, sellercentral.amazon.com, www.ebay.com,
+        docs.aws.amazon.com, even en.wikipedia.org -- returned
+        connect_rejected (organization policy) from the egress proxy on both
+        the WebFetch tool and a direct curl. WebSearch still works (routed
+        differently) but only returns synthesized snippets, some from
+        low-reliability SEO-farm sites that disagreed with each other on
+        feature specifics (whether Amazon's calculator has guest access, a
+        compare column).
+      - >-
+        Shipped anyway, by narrowing what the page claims rather than
+        skipping it: #2590,
+        ventures/amazon-fba-calculator/vs-amazon-revenue-calculator.html.
+        Names Amazon's official FBA Revenue Calculator honestly, links its
+        two public pages so a reader can verify directly, and states zero fee
+        numbers or percentages for it anywhere -- the comparison rests on one
+        structural fact that needs no live fetch to be true (it is Amazon's
+        own live, authoritative per-listing lookup) plus this repo's own
+        already-shipped, tested features (FBA vs FBM on one screen, max buy
+        cost, saved scenarios, a shareable link, ~15 chained follow-on
+        decisions). Carries a "not affiliated with Amazon" trademark notice.
+        A new test pins that no `Amazon charges/costs $...`-shaped sentence
+        exists on the page.
+      - >-
+        Also confirmed, before picking, that this item's other three
+        candidates already had a shipped baseline as of this session's start
+        (embed widget #2561/#2567, /c/ hub intros via CATEGORY_PAGE_COPY,
+        /about/ press-kit section) -- consistent with the prior session's own
+        finding, re-checked directly against a fresh build.mjs + check.mjs
+        rather than trusted secondhand.
+      - >-
+        Verified: node --test in ventures/amazon-fba-calculator (305/305,
+        13 new), PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs + check.mjs (169 products, 7 category pages,
+        509 pages, no dead links), node platform/pages/faq-visible.test.mjs
+        (4/4, this page's FAQPage JSON-LD matches its visible copy exactly),
+        node --test in platform/pages (836/836), python3 platform/ci/
+        run_workflow_locally.py --for-changes (6/7 selected workflows' own
+        run: steps clean, including portfolio-validate.yml 46/46; pages.yml's
+        one FAIL was its own "Build the site" step being unrunnable locally
+        -- a ${{ }} expression -- not a real regression, and
+        portfolio-pages.yml's real build+check covered the same ground and
+        passed), and a full PLAYWRIGHT browser_checks.py pass (sideways,
+        presets, roundtrip, highlight, journey all clean; contrast skipped,
+        axe-core not installed in this sandbox; sweep's one failure,
+        ai-engineering-academy: NO-CONTROLS, is a pre-existing, untouched-by-
+        this-PR finding already explained by guide-coverage.mjs's own
+        comments as a docs-and-tools hub sweep.mjs's single-button heuristic
+        misreads). sideways initially failed on this new page alone (a raw
+        Amazon URL used as anchor text overflowed at 360px); fixed with
+        overflow-wrap: anywhere and reran clean. Merged as #2590.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Checked the 5 PR-less branches from
+        `git branch -r` for unique work per CLAUDE.md's branch-presumption
+        rule: `session/cleanup-2026-08-24` and
+        `session/remove-stale-local-site-studio-entry` are both already
+        superseded (the #777 ledger row and the asks.yaml removal they each
+        carry are already on `main`, the latter via #786/#787);
+        `venture/vendor-change-watch`'s single commit is an empty diff
+        against its own parent (nothing to merge); `tmp/ssh-key-smoke`'s only
+        unique content (a one-shot HETZNERSSHKEY format-probe workflow) is
+        superseded by the permanent "SSH preflight (read-only)" step already
+        in `.github/workflows/hetzner-gitops-ci.yml` on `main`. No PRs opened;
+        none needed one.
+      - >-
+        New finding, not previously recorded: GitHub Actions **got a real
+        runner again** starting 2026-09-01T00:00:53Z, right at what looks
+        like a day boundary. `platform/ci/ci_starvation.py --run
+        33453037361` (and the two more recent `main` pushes after it) show
+        `runner_id: 1000040393`/`1000040408`, 113-137s, real steps -- not the
+        `runner_id: 0`, 3s stub this file has recorded dozens of times since
+        2026-08-26. The run immediately before it, 21s earlier
+        (33452945145, 23:59:33Z), was still starved. Every prior entry in
+        this file treating the account-level ceiling as a standing outage
+        was correct at the time; this is the first evidence it cycles
+        (consistent with a daily included-minutes or spend-limit reset
+        rather than Actions being switched off outright). Not yet known
+        whether it holds through the day or the ceiling gets hit again on
+        the next burst of pushes -- next session should re-check with
+        `ci_starvation.py` rather than assume either the outage or the
+        recovery.
+      - >-
+        Confirmed CI/CD, the Hetzner portfolio-site deploy, and the
+        Codex-on-Hetzner governor are each still exactly one owner action
+        from live (self-hosted-runner PAT + `CI_RUNNER` repo var; the
+        `portfolio-site-repo` read-only clone token; the `codex-secrets`
+        credential + two suspend/enabled flips) -- same conclusion as
+        #2307/#2308 hours earlier, added nothing new to the decision queue.
+  - venture: moving-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2600: a shareable bid link and saved draft, the one gap
+        this venture had against 55 sibling `*-bid-calculator` tools --
+        found by an Explore pass over ventures not in that session's own
+        active-work list, then confirmed by grep (no `share.mjs`, and
+        `index.html` only ever persisted the proposal's company fields,
+        never the priced job itself). A mover who lost a multi-room
+        inventory to an accidental reload had to retype the whole job, and
+        had no way to send a dispatcher a link that reopened the exact
+        bid.
+      - >-
+        Found and worked around a real latent bug in the shared
+        `share.mjs` module along the way: the 36-venture copy (e.g.
+        `kitchen-tile-backsplash-bid-calculator`) has no `kind: 'text'`
+        branch in `encodeCell()`, so a `rows` field of that kind silently
+        encodes to an empty string. `platform/pages/roundtrip.mjs
+        moving-bid-calculator` caught it immediately -- the inventory
+        item's name came back as "Item 1" instead of the sender's actual
+        room/item type. `janitorial-bid-calculator`'s copy has the fix;
+        used that one instead. Checked all 36 ventures on the older copy
+        directly (`grep -l "kind: 'text'"`) -- none use a text-kind row
+        field today, so this is latent there, not active. Left as a
+        finding for a future session rather than fixing 36 files in a PR
+        about one venture.
+      - >-
+        Verified: node --test in the venture (109/109, including 7 new
+        structural guards pinning the link to a URL fragment and every
+        field to `BID_SPEC`), a fresh `platform/pages/build.mjs` (169
+        tools, shareable link count 151->152), and
+        `platform/pages/roundtrip.mjs moving-bid-calculator` against the
+        served build (36 fields round-trip clean, including the
+        inventory row) -- this is what caught the share.mjs bug above
+        before merge, not after.

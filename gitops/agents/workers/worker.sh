@@ -23,14 +23,22 @@ AUTH_EXIT="${CODEX_AUTH_EXIT:-43}"
 # reads for limit errors — so the Job still shows as Succeeded and an operator
 # reading `kubectl get jobs` is not told a clean run failed.
 NOOP_MARKER="codex-noop"
+# Same channel, for the credential the API refused. The exit code alone would
+# be enough for the governor, but the marker is what shows up in `kubectl
+# describe job` and `kubectl get pod -o yaml` without anyone having to look up
+# what 43 means or find logs from a Job that has since been TTL'd away.
+AUTH_MARKER="codex-auth-rejected"
 # Overridable so the test suite can run this script outside a container and
 # still assert the marker was written; in the Job it is the real path.
 NOOP_LOG="${CODEX_TERMINATION_LOG:-/dev/termination-log}"
-report_noop() {
-  echo "worker: $1"
+report_marker() {
   # Absent (a plain `bash worker.sh`) or unwritable — the marker is best-effort
   # and never worth failing a good run over.
-  printf '%s: %s\n' "$NOOP_MARKER" "$1" > "$NOOP_LOG" 2>/dev/null || true
+  printf '%s: %s\n' "$1" "$2" > "$NOOP_LOG" 2>/dev/null || true
+}
+report_noop() {
+  echo "worker: $1"
+  report_marker "$NOOP_MARKER" "$1"
 }
 
 export PATH="/usr/local/bin:$HOME/.npm-global/bin:$PATH"
@@ -74,16 +82,109 @@ hit_auth_failure() {
   grep -Eiq '401|unauthorized|invalid_(api_key|token|grant|client)|not logged in|please (run )?.?codex login|authentication (failed|error)|refresh token' <<<"$text"
 }
 
-install_tools() {
-  if ! command -v gh >/dev/null 2>&1; then
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-      | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg status=none
-    chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-      > /etc/apt/sources.list.d/github-cli.list
-    apt-get update -qq
-    apt-get install -y -qq gh git ca-certificates
+# ---------------------------------------------------------------------------
+# Everything this script needs that the base image lacks — over HTTPS only.
+#
+# `worker-egress` in gitops/agents/networkpolicy.yaml permits this pod exactly
+# two egress destinations: CoreDNS on 53, and 0.0.0.0/0 on **443**. There is no
+# port-80 rule, so nothing this script does may speak plain HTTP.
+#
+# This function used to `apt-get update && apt-get install -y gh git
+# ca-certificates`, and that could never have worked in the cluster. Debian
+# declares its own mirrors over plain HTTP in node:22-bookworm's
+# `/etc/apt/sources.list.d/debian.sources` (`URIs: http://deb.debian.org/debian`),
+# so `apt-get update` reaches for port 80 and the NetworkPolicy drops it. Under
+# `set -euo pipefail` the Job then dies here, before `codex exec` is reached —
+# so *every* queue item would have failed identically the moment the owner
+# sealed `codex-secrets` and unsuspended the governor, and the fleet's first
+# and most valuable quota window would have bought nothing. The failure would
+# also have looked like a Codex problem rather than a network one, because the
+# only thing an operator sees in `kubectl get jobs` is that the codex container
+# exited non-zero.
+#
+# Nothing caught it because the test harness puts stub `gh` and `codex` binaries
+# on PATH, so both `command -v` guards short-circuit and this function had never
+# executed under test. `test_install_tools_*` in gitops/tests/test_worker_run.py
+# now runs it for real against a stub `curl`.
+#
+# The replacement fetches one release tarball from github.com over 443 and
+# verifies it against a checksum pinned here, which is strictly stronger than
+# what apt gave us: the old path trusted whatever version the `stable` suite
+# happened to hold on the day a Job ran. `git`, `curl` and `ca-certificates`
+# are not installed at all any more — node:22-bookworm builds on
+# buildpack-deps:bookworm-scm and already ships all three — so this asserts
+# they are present rather than reaching for a package manager to add them.
+# ---------------------------------------------------------------------------
+
+# Pinned rather than "latest": a version this repository has not seen is a
+# supply-chain change, and it should arrive as a reviewed commit that moves
+# these three lines together, not silently on whichever Tuesday a Job runs.
+# Checksums are the ones cli/cli publishes in `gh_<version>_checksums.txt`.
+#
+# All three are `${VAR:-pin}` so the test suite can point the installer at a
+# tarball it built itself and still exercise the real verify-then-install path.
+# Nothing sets them in the cluster: governor.py passes a fixed env list, and
+# `codex-secrets` holds credentials. Anything able to set them here already
+# holds this Job's GitHub token, so the override adds no reachable attack.
+GH_VERSION="${GH_VERSION:-2.63.2}"
+GH_SHA256_AMD64="${GH_SHA256_AMD64:-912fdb1ca29cb005fb746fc5d2b787a289078923a29d0f9ec19a0b00272ded00}"
+GH_SHA256_ARM64="${GH_SHA256_ARM64:-0f31e2a8549c64b5c1679f0b99ce5e0dac7c91da9e86f6246adb8805b0f0b4bb}"
+
+# Where a downloaded binary lands. Deliberately not /usr/local/bin: the worker
+# runs as root today only because the apt path above required it, and this
+# change is what makes narrowing that securityContext possible later. A path
+# under $HOME needs no privilege at all.
+TOOLS_BIN="${CODEX_TOOLS_BIN:-$HOME/.local/bin}"
+export PATH="$TOOLS_BIN:$PATH"
+
+install_gh() {
+  local arch tarball url sha expected dir
+  case "$(uname -m)" in
+    x86_64)  arch=amd64; expected="$GH_SHA256_AMD64" ;;
+    aarch64) arch=arm64; expected="$GH_SHA256_ARM64" ;;
+    *)
+      echo "worker: no pinned gh build for $(uname -m)" >&2
+      return 1
+      ;;
+  esac
+
+  dir="$(mktemp -d)"
+  tarball="$dir/gh.tar.gz"
+  url="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_${arch}.tar.gz"
+
+  echo "worker: installing gh ${GH_VERSION} (${arch}) from ${url}"
+  curl -fsSL --retry 3 --retry-delay 2 -o "$tarball" "$url"
+
+  sha="$(sha256sum "$tarball" | cut -d' ' -f1)"
+  if [[ "$sha" != "$expected" ]]; then
+    echo "worker: gh tarball checksum mismatch — refusing to install." >&2
+    echo "worker:   expected $expected" >&2
+    echo "worker:   got      $sha" >&2
+    rm -rf "$dir"
+    return 1
   fi
+
+  tar -xzf "$tarball" -C "$dir"
+  mkdir -p "$TOOLS_BIN"
+  install -m 0755 "$dir/gh_${GH_VERSION}_linux_${arch}/bin/gh" "$TOOLS_BIN/gh"
+  rm -rf "$dir"
+}
+
+install_tools() {
+  # Present in node:22-bookworm. Checked rather than installed, so a base-image
+  # change that drops one fails with the reason instead of with `git: command
+  # not found` from somewhere three hundred lines below.
+  local missing=()
+  for tool in git curl tar sha256sum; do
+    command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
+  done
+  if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "worker: the base image is missing ${missing[*]} — it can no longer run this script." >&2
+    echo "worker: node:22-bookworm ships all of them; check the image in governor.py." >&2
+    return 1
+  fi
+
+  command -v gh >/dev/null 2>&1 || install_gh
   if ! command -v codex >/dev/null 2>&1; then
     npm install -g "@openai/codex@${CODEX_VERSION:-latest}"
   fi
@@ -105,6 +206,18 @@ install_tools() {
 # not bill; the mode is logged either way so a run is never ambiguous about
 # whose budget it just spent.
 #
+# "Wins" has to mean something the CLI can observe, not just which `if` this
+# script took. Choosing the subscription branch leaves `OPENAI_API_KEY` in the
+# environment `codex exec` inherits, and which credential the CLI then prefers
+# is not something this repository controls — so the tie was decided somewhere
+# we cannot see, and the failure is silent in the direction that costs money: a
+# run announcing the plan while billing the metered key. `unset_metered_key`
+# below removes it, which makes the preference true by construction.
+#
+# Both can be present in practice even though `seal-owner-secrets.sh` emits one
+# at a time: `secrets/codex-token.template.yaml` carries both keys, and
+# `secrets/README.md` documents sealing that template by hand with kubeseal.
+#
 # The subscription credential has to be written to disk: the Codex CLI reads
 # `auth.json` from $CODEX_HOME and has no environment variable for a plan
 # token. The old `CODEX_ACCESS_TOKEN` check here only proved a variable was
@@ -114,6 +227,17 @@ install_tools() {
 AUTH_FILE="$CODEX_HOME/auth.json"
 SEED_FINGERPRINT="$CODEX_STATE_DIR/.seed-sha256"
 AUTH_MODE=""
+
+# Take the metered key out of the environment before the CLI is handed it, so
+# a plan run cannot bill. Announced rather than done quietly: an operator who
+# sealed both should be able to see from the log which one was withheld and
+# why, instead of discovering it from an invoice.
+unset_metered_key() {
+  if [[ -n "${OPENAI_API_KEY:-}" ]]; then
+    unset OPENAI_API_KEY
+    echo "worker: OPENAI_API_KEY is also mounted — withheld from codex so this tick cannot bill"
+  fi
+}
 
 configure_auth() {
   printf '%s\n' 'cli_auth_credentials_store = "file"' > "$CODEX_HOME/config.toml"
@@ -136,10 +260,18 @@ configure_auth() {
     fi
     chmod 600 "$AUTH_FILE"
     AUTH_MODE="subscription"
+    unset_metered_key
     return 0
   fi
 
-  if [[ -s "$AUTH_FILE" ]]; then
+  # A credential on the volume with none in the Secret. The volume is a cache;
+  # the Secret is the owner's current intent. So this branch only speaks for a
+  # plan when the Secret names no other credential at all — if a metered key is
+  # sealed, the owner has since chosen it, and preferring a cached login over
+  # it would both spend the wrong budget and, once that cached login expires,
+  # exit 43 forever and hold the queue six hours at a time with a working key
+  # sitting unused beside it.
+  if [[ -s "$AUTH_FILE" && -z "${OPENAI_API_KEY:-}" ]]; then
     chmod 600 "$AUTH_FILE"
     echo "worker: using the persisted Codex credential (no \$CODEX_AUTH_JSON in the Secret)"
     AUTH_MODE="subscription"
@@ -162,11 +294,19 @@ gitops/agents/secrets/README.md.
 CODEX_ACCESS_TOKEN on its own is not usable: the CLI reads a whole auth.json,
 not a bare access token.
 MSG
+  report_marker "$AUTH_MARKER" "no Codex credential is mounted in codex-secrets"
   exit "$AUTH_EXIT"
 }
 
 install_tools
 configure_auth
+# One line, same shape on every run, naming the budget this tick will spend.
+# The per-branch messages above say what happened to the credential; this says
+# what it costs, which is the question an operator scanning `kubectl logs` for
+# a surprise bill is actually asking.
+echo "worker: auth mode: ${AUTH_MODE} ($([[ "$AUTH_MODE" == "subscription" ]] \
+  && echo "the plan's included quota — no per-token charge" \
+  || echo "metered — this run bills per token"))"
 
 # node:22-bookworm has node, not necessarily python3.
 read_item() {
@@ -201,13 +341,13 @@ BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
 #
 # `--depth` implies `--single-branch`, so the clone came back with its refspec
 # pinned to `+refs/heads/$REF:refs/remotes/origin/$REF` and no merge base for
-# anything else. That breaks the queue's two highest-priority items outright:
+# anything else. That breaks two of the queue's real items outright:
 #
-#   open-pr-repair-merge (6)  resolves a conflict by merging $REF into a PR
+#   open-pr-repair-merge (5)  resolves a conflict by merging $REF into a PR
 #                             branch. In a depth-50 clone that fetch comes back
 #                             shallow and the merge aborts with
 #                             `fatal: refusing to merge unrelated histories`.
-#   branch-pr-drain (5)       enumerates branches with unique commits. Under the
+#   branch-pr-drain (4)       enumerates branches with unique commits. Under the
 #                             pinned refspec `git branch -r` knows only $REF, so
 #                             there is nothing to enumerate.
 #
@@ -215,8 +355,16 @@ BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
 # before closing a PR — `supersede_check.py` needs a merge base with `main`, and
 # CLAUDE.md's own note ("Your clone is shallow. `git fetch --unshallow` before
 # any of this") is written for exactly this failure. Nothing in the prompt told
-# the agent to unshallow, so between them those items are 11/25ths of the
+# the agent to unshallow, so between them those items are 11/33rds of the
 # governor's weight aimed at work the checkout cannot do.
+#
+# The two priority numbers above, and the 11/33 they feed, move whenever the
+# queue is reprioritised (`gitops/agents/queue/*.yaml`'s own `priority:`
+# fields are the source of truth) — they read 6 and 5 out of 11/25 here until
+# the 2026-09-01 reordering that put deploy-cicd-readiness and
+# marketing-distribution ahead of both. Re-derive rather than trust this
+# comment: weight is `priority + 1`, and the denominator is the sum of
+# `priority + 1` over every `enabled: true` item in `gitops/agents/queue/`.
 #
 # The pack is ~64 MiB. A few seconds and that much disk on the cpx22, once per
 # Job, is the whole cost of the fix.
@@ -298,6 +446,7 @@ if [[ "$STATUS" -ne 0 ]] && hit_auth_failure "$OUTPUT"; then
   if [[ "$AUTH_MODE" == "subscription" ]]; then
     echo "worker: re-run \`codex login\` and re-seal CODEX_AUTH_JSON — a rotated refresh token cannot be recovered here." >&2
   fi
+  report_marker "$AUTH_MARKER" "credential rejected (mode: ${AUTH_MODE}); re-seal codex-secrets"
   exit "$AUTH_EXIT"
 fi
 
@@ -346,9 +495,22 @@ open_pr() {
 # the one state this repository's rules say a branch with real work must never
 # be left in. `gitops/tests/test_worker_run.py` reproduces it.
 #
-# `ls-remote` rather than a remote-tracking ref: the clone is shallow and
-# single-branch, so `git branch -r` only ever knows about $REF. Match on the
-# SHA rather than the branch name, because an agent that pushed
+# `ls-remote` rather than a remote-tracking ref, because this asks about the
+# remote as it is *now*. The branch we are looking for is one the agent pushed
+# during this run — minutes after the clone — so no remote-tracking ref can
+# know about it. `git branch -r` answers from the refs the last fetch wrote,
+# which is a snapshot from before the push happened.
+#
+# This comment used to give a different reason: that the clone was "shallow and
+# single-branch, so `git branch -r` only ever knows about $REF". That stopped
+# being true when the `--depth` was deliberately removed above (see the long
+# note on the `gh repo clone` line), and `test_worker_run.py` now asserts
+# `git rev-parse --is-shallow-repository` is false. Left as it was, the stale
+# reason invited exactly the wrong cleanup: a future reader who noticed the
+# clone is full would "simplify" this to `git branch -r` and silently break the
+# check, because the real reason is staleness, not clone depth.
+#
+# Match on the SHA rather than the branch name, because an agent that pushed
 # `HEAD:refs/heads/something-else` delivered the same commit under a name this
 # script never chose.
 #

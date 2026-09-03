@@ -117,10 +117,16 @@ public is the owner's.
 
 ## Verifying
 
-CI in this repository is unreliable and you must not read it naively:
+CI in this repository works again as of 2026-09-01, after five days in which
+every workflow failed for want of a runner. **Treat a red check as a real
+failure and fix it.** Two caveats, neither of which is licence to discount one:
 
-- A check that fails in 3-6 seconds with `runner_id: 0` is the known Actions
-  outage, not your regression. Verify locally and say so.
+- A check that fails in 3-6 seconds with `runner_id: 0` is the starvation
+  signature, not your regression. That window closed on 2026-09-01, but the
+  account-level ceiling looks like it cycles rather than being gone, so the
+  signature may return. Do not judge it by eye — run the tool below, which
+  votes on `runner_id` alone. If it says a real runner ran the job, the failure
+  is yours.
 - No checks at all is not failed checks — PRs opened with `GITHUB_TOKEN` do not
   trigger Actions here.
 

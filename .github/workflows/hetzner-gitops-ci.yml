@@ -23,6 +23,14 @@ on:
       # clone token. That check runs only when this workflow does, so a PR
       # touching check.mjs alone has to trigger it too.
       - "platform/pages/check.mjs"
+      # The apex front door. `gitops/prod/front-door/index.html` is generated
+      # from these two by `platform/marketing/front-door.mjs`, and
+      # `front-door.test.mjs` fails when the commit is stale — so a change to
+      # the generator, or a new venture arriving in `launched.json` and moving
+      # the tool count the page states, has to trigger this workflow even
+      # though neither file is under `gitops/`.
+      - "platform/marketing/**"
+      - "platform/pages/launched.json"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   pull_request:
@@ -32,6 +40,8 @@ on:
       - "gitops/**"
       - "platform/pages/build.mjs"
       - "platform/pages/check.mjs"
+      - "platform/marketing/**"
+      - "platform/pages/launched.json"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
@@ -63,10 +73,30 @@ jobs:
           node-version: "22"
       - name: Install test deps
         run: pip install -r gitops/tests/requirements.txt pyflakes
+      # `test_front_door_serving.py` boots a real nginx over the front door's
+      # own built ConfigMaps and fetches from it. That is the only check in the
+      # tree that can tell whether the apex actually serves a tool page — the
+      # rest read the config as text, and both ways the gz-only mirror could go
+      # dark (`try_files` on an absent uncompressed name, a positional capture
+      # in a `rewrite`) are textually clean. It skips with a reason when nginx
+      # is missing, so this step is what stops it skipping here.
+      #
+      # `|| true` because the self-hosted image has no apt and no sudo (same
+      # reason `setup-node` is explicit above). There the test skips, which is
+      # the honest answer; `test_it_did_not_skip_on_the_runner_that_is_supposed
+      # _to_run_it` fails if it ever skips on a *hosted* runner instead.
+      - name: Install nginx
+        run: sudo apt-get install -y --no-install-recommends nginx-light || true
       - name: pyflakes governor
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest
         run: pytest gitops/tests -v
+      # The generator behind `gitops/prod/front-door/index.html`. Run here
+      # rather than in portfolio-pages.yml because the page it produces is a
+      # GitOps input, not part of the Pages artifact — and because this is the
+      # workflow that already triggers on the directory it lands in.
+      - name: front door generator
+        run: node --test "platform/marketing/*.test.mjs"
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py
@@ -171,6 +201,39 @@ jobs:
           mkdir -p "${HOME}/.ssh"
           printf '%s\n' "${KEY}" > "${HOME}/.ssh/id_hetzner"
           chmod 600 "${HOME}/.ssh/id_hetzner"
+          # A malformed secret (a public key pasted by mistake, literal \n
+          # escapes from a JSON paste, or CRLF line endings) used to fail
+          # here with a bare, unhelpful ssh-keygen error. Classify the
+          # format first and normalize escaped newlines, so a bad rotation
+          # of HETZNERSSHKEY says exactly what is wrong instead of just
+          # "invalid format".
+          # printf above always appends one trailing real newline, so a
+          # secret pasted as a single JSON-escaped line still shows one
+          # newline here. More than that means it already has real line
+          # breaks and escaping it further would corrupt a valid key.
+          if grep -qF '\n' "${HOME}/.ssh/id_hetzner" && [ "$(grep -c '' "${HOME}/.ssh/id_hetzner")" -le 1 ]; then
+            sed -i 's/\\r\\n/\n/g; s/\\n/\n/g' "${HOME}/.ssh/id_hetzner"
+            echo "normalized literal \n escapes in the secret"
+          fi
+          # Real CR bytes are the other half of the case the comment above
+          # names. A key pasted from a Windows editor arrives with genuine
+          # CRLF endings, never reaches the escape branch (its \r is a byte,
+          # not the two characters that branch greps for), and ssh-keygen
+          # rejects it with the same unhelpful error this block replaces.
+          CR="$(printf '\r')"
+          if grep -q "${CR}" "${HOME}/.ssh/id_hetzner"; then
+            sed -i "s/${CR}\$//" "${HOME}/.ssh/id_hetzner"
+            echo "normalized CRLF line endings in the secret"
+          fi
+          if grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "${HOME}/.ssh/id_hetzner"; then
+            echo "HETZNERSSHKEY holds a public key, not a private key." >&2
+            echo "A public key cannot open an SSH session — store the matching private key instead." >&2
+            exit 1
+          fi
+          if ! grep -q "BEGIN .*PRIVATE KEY" "${HOME}/.ssh/id_hetzner"; then
+            echo "HETZNERSSHKEY is not an OpenSSH/PEM private key after normalization." >&2
+            exit 1
+          fi
           ssh-keygen -y -f "${HOME}/.ssh/id_hetzner" >/dev/null
           eval "$(ssh-agent -s)"
           ssh-add "${HOME}/.ssh/id_hetzner"

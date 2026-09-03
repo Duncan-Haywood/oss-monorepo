@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 """Run a GitHub Actions workflow's own commands on this machine.
 
-Why this exists. Since 2026-08-26 no runner has picked up a job in this
-repository: every workflow completes in 3-6 seconds with `runner_id: 0`,
+Why this exists. From 2026-08-26 to 2026-09-01 no runner picked up a job in
+this repository: every workflow completed in 3-6 seconds with `runner_id: 0`,
 an empty check-run output and a 404 on log download (`actions-runners-
-unavailable` in `portfolio/ledger/asks.yaml`). Checks therefore arrive
+unavailable` in `portfolio/ledger/asks.yaml`). Checks therefore arrived
 *red* without a single step having executed, which reads very differently
 from the blank check list a `GITHUB_TOKEN` bot PR produces, and is the
 easier mistake to make. `CLAUDE.md` tells a session to verify locally and
-say exactly what it ran before merging, and every merge in this window has
-been doing that -- by improvising a different set of commands each time.
+say exactly what it ran before merging, and every merge in that window did
+that -- by improvising a different set of commands each time.
+
+Runners came back on 2026-09-01, so CI is no longer the reason to run this.
+Two better ones remain, and they are why it is not deprecated. A local run
+is still the *fastest* way to know a diff is sound before you spend a CI
+cycle on it, and PRs opened with `GITHUB_TOKEN` still trigger no Actions at
+all, so for those this is the only verification there is. The account-level
+ceiling also looks like it cycles rather than being gone, so the original
+reason may well return.
 
 Improvising is the problem. On 2026-08-29 `main` was failing two
 `Portfolio validate` steps and had been for days, because the sessions

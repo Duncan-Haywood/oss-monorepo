@@ -10,6 +10,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 AGENTS = ROOT / "agents"
@@ -196,24 +197,28 @@ def test_job_manifest_has_no_kube_token_and_pins_agent_node() -> None:
     assert json.loads(env["QUEUE_ITEM_JSON"])["id"] == "task-a"
 
 
-def test_job_narrows_what_it_can_without_breaking_apt_get() -> None:
+def test_job_drops_every_capability_now_that_nothing_runs_dpkg() -> None:
     # Every sibling workload in this repo (portfolio-site's containers, its
     # CronJobs, the governor CronJob itself, the CI runner) sets a
     # securityContext; this Job -- the one actually holding the Codex/GitHub
     # credentials from `codex-secrets` -- never did.
     #
-    # `capabilities.drop: ["ALL"]`, `runAsNonRoot` and `readOnlyRootFilesystem`
-    # are deliberately absent: `worker.sh`'s `install_tools()` runs
-    # `apt-get install` as root against the base `node:22-bookworm` image, and
-    # `npm install -g` plus the `mktemp -d` clone both write outside the two
-    # read-only mounts. This only pins the two fields that are safe regardless
-    # -- neither needs root or a writable filesystem to hold.
+    # `capabilities.drop: ["ALL"]` used to be absent, because `install_tools()`
+    # ran `apt-get install` and dpkg's maintainer scripts can need CAP_CHOWN or
+    # CAP_SETUID/CAP_SETGID. That apt path could never have run in this
+    # namespace at all -- `worker-egress` permits no port-80 egress and Debian's
+    # mirrors are plain HTTP -- so it was replaced by a checksum-pinned HTTPS
+    # download. curl, tar, `install(1)`, `npm install -g` and `git clone` need
+    # no capability between them, so the exception has no reason left.
     manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
     pod = manifest["spec"]["template"]["spec"]
     assert pod["securityContext"]["seccompProfile"]["type"] == "RuntimeDefault"
     assert pod["containers"][0]["securityContext"]["allowPrivilegeEscalation"] is False
-    # Not asserting these is not the same as never having thought about them.
-    assert "capabilities" not in pod["containers"][0]["securityContext"]
+    assert pod["containers"][0]["securityContext"]["capabilities"]["drop"] == ["ALL"]
+    # Still absent, and still deliberate: `npm install -g` and the `mktemp -d`
+    # clone both write outside the two read-only mounts, and the image starts
+    # as root with $HOME=/root rather than at a fixed non-root UID. Not
+    # asserting them is not the same as never having thought about them.
     assert "readOnlyRootFilesystem" not in pod["containers"][0]["securityContext"]
     assert "runAsNonRoot" not in pod["securityContext"]
 
@@ -232,6 +237,71 @@ def test_job_mounts_the_persistent_codex_home() -> None:
     ][0]
     assert mount["mountPath"] == "/var/lib/codex"
     assert mount.get("readOnly") is not True
+
+
+def _millicores(value: str) -> int:
+    return int(value[:-1]) if value.endswith("m") else int(float(value) * 1000)
+
+
+def _mebibytes(value: str) -> float:
+    if value.endswith("Gi"):
+        return float(value[:-2]) * 1024
+    if value.endswith("Mi"):
+        return float(value[:-2])
+    raise AssertionError(f"unhandled memory unit: {value}")
+
+
+def test_governor_plus_one_worker_fits_the_agents_quota() -> None:
+    # `gitops/ci/test_runner_fits_the_ci_quota` and
+    # `gitops/tests/test_manifests.py::test_portfolio_site_fits_the_prod_quota`
+    # both pin that a namespace's live containers cannot outrun their own
+    # ResourceQuota's requests/limits. Nothing pinned the same thing here.
+    #
+    # `gitops/agents/quota.yaml`'s own comment reasons at length about the two
+    # OBJECT-COUNT quotas (`count/jobs.batch`, `pods`) -- the governor's
+    # finished-Job history -- but never about the `requests.*`/`limits.*`
+    # lines, which are the ones that actually gate whether a new Job can be
+    # scheduled at all. `policy.json`'s `maxConcurrent: 1` means at most one
+    # Codex worker Job runs at a time, but the governor CronJob's own pod can
+    # be running in the same namespace at the same moment (a tick that starts
+    # a worker Job still has to finish the rest of that tick's work before its
+    # own pod exits) -- so the quota has to hold both sets of containers'
+    # requests and limits at once, not the worker's alone.
+    #
+    # This was never wrong -- 520m/1088Mi requested and 1700m/3200Mi limited
+    # both fit under "2"/"3Gi" requests and "2"/"3500Mi" limits, the last with
+    # only 300Mi of margin -- but nothing would have caught it silently
+    # stopping being true. A worker Job whose containers no longer fit does
+    # not fail loudly: the API server rejects the CronJob's own tick with
+    # "exceeded quota", and `governor.py` never even gets to look at the
+    # queue -- the exact failure mode `quota.yaml`'s comment already
+    # describes for the count quotas, just for the resource ones instead.
+    quota = [
+        d
+        for d in yaml.safe_load_all((AGENTS / "quota.yaml").read_text())
+        if d and d["kind"] == "ResourceQuota"
+    ][0]["spec"]["hard"]
+
+    cronjob = [
+        d
+        for d in yaml.safe_load_all((AGENTS / "governor" / "cronjob.yaml").read_text())
+        if d and d["kind"] == "CronJob"
+    ][0]
+    governor_container = cronjob["spec"]["jobTemplate"]["spec"]["template"]["spec"][
+        "containers"
+    ][0]
+
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    worker_container = manifest["spec"]["template"]["spec"]["containers"][0]
+
+    for field in ("requests", "limits"):
+        governor_cpu = _millicores(governor_container["resources"][field]["cpu"])
+        worker_cpu = _millicores(worker_container["resources"][field]["cpu"])
+        assert governor_cpu + worker_cpu <= _millicores(quota[f"{field}.cpu"])
+
+        governor_mem = _mebibytes(governor_container["resources"][field]["memory"])
+        worker_mem = _mebibytes(worker_container["resources"][field]["memory"])
+        assert governor_mem + worker_mem <= _mebibytes(quota[f"{field}.memory"])
 
 
 def test_delivery_defaults_to_the_harness_and_rejects_anything_else() -> None:
@@ -401,40 +471,60 @@ def test_seo_item_measures_its_backlog_instead_of_naming_one() -> None:
 
 
 def test_governor_queue_configmap_includes_all_real_items() -> None:
+    # "all real items" means all six -- the same set
+    # test_delivery_reaches_the_worker_and_the_real_items_own_theirs (above)
+    # and the priority-ordering tests (below) already enumerate. This one had
+    # drifted to five: marketing-distribution.yaml sits in the
+    # configMapGenerator in `gitops/agents/kustomization.yaml` today (the
+    # governor's CronJob needs it there to see that queue item at all), but
+    # nothing here asserted it. A future edit that dropped that one line
+    # would silently stop the ConfigMap from carrying the item -- no crash,
+    # just an item that quietly stops being pickable -- and this test, whose
+    # name is the direct promise to catch exactly that, would still pass.
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
         "open-pr-repair-merge.yaml=queue/open-pr-repair-merge.yaml",
         "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
         "deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml",
+        "marketing-distribution.yaml=queue/marketing-distribution.yaml",
         "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
     ):
         assert entry in kustomization
 
 
-def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_then_features() -> None:
-    # pick_item weights `(priority + 1) / (runs + 1)`, so this ordering is
-    # what sets how often each item runs relative to the others (roughly
-    # 7:6:5:4:3) and which one opens each window. It used to be far more
-    # load-bearing than that: pick_item took the single highest-priority item
-    # every tick, so only `branch-pr-drain` could ever run and the other three
-    # were unreachable. Landing existing branch/PR work still comes first --
-    # it opens every window; deploy-cicd-readiness.yaml's own header comment
-    # puts it "below branch-pr-drain (6), because landing work that already
-    # exists still comes first, and above the three content and distribution
-    # items" -- fixing discoverability metadata, shipping a distribution
-    # asset, and open-ended feature work are all cheaper and more bounded
-    # than keeping the delivery path code-complete, so they must stay behind
-    # it. `open-pr-repair-merge` then sits above even branch-pr-drain: a
-    # branch that already has an open PR is further along than one without,
-    # so it is the cheaper thing to finish, and it is the only kind of work
-    # that gets more expensive by being left alone.
+def test_real_queue_items_are_priority_ordered_deploy_then_marketing_then_drain() -> None:
+    # pick_item weights `(priority + 1) / ((runs + 1) * (noops + 1))`, so this
+    # ordering is what sets how often each item runs relative to the others
+    # (roughly 8:7:6:5:4:3) and which one opens each window.
     #
-    # `marketing-distribution` slots between delivery and SEO: a distribution
-    # asset for a site nobody can reach yet is worth less than the path that
-    # makes it reachable, but worth more than another metadata pass over
-    # backlogs that both report full coverage. This pins that six-way
-    # ordering against an accidental priority edit to any one item.
+    # **Reordered 2026-09-01** on the account owner's direction: "I want to
+    # make sure deployment and cicd is a priority and building and deploying
+    # marketing materials on the hetzner vms". `deploy-cicd-readiness` and
+    # `marketing-distribution` took the top two slots from
+    # `open-pr-repair-merge` and `branch-pr-drain`, which held them while the
+    # PR/branch backlog was the bottleneck.
+    #
+    # It is not the bottleneck now -- the repo had zero open PRs on the day
+    # this changed -- so those two were holding 13/25ths of the weight over
+    # provably empty work. The `noops` damping corrects that eventually, but
+    # only after spending the runs that discover it, and the first window
+    # after an owner flips the governor on is the most valuable quota this
+    # fleet will ever spend.
+    #
+    # The demotion is not a disabling: at 5 and 4 the two backlog items still
+    # take 11/33 of the queue between them, and every item here opens and
+    # merges its own PR (`delivery: agent`), so `open-pr-repair-merge` is the
+    # safety net for a run whose verification did not come out clean rather
+    # than the ordinary drain. Deployment stays above marketing for the
+    # reason marketing-distribution.yaml always gave -- a distribution asset
+    # for a site nobody can reach is worth less than the path that makes it
+    # reachable -- and both stay above the two content items, whose backlogs
+    # each report full coverage.
+    #
+    # This pins that six-way ordering against an accidental priority edit to
+    # any one item. A deliberate reordering should change this assertion and
+    # say, here, whose direction it came from.
     items = {
         raw["id"]: raw["priority"]
         for raw in (
@@ -450,18 +540,47 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
         )
     }
     assert (
-        items["open-pr-repair-merge"]
-        > items["branch-pr-drain"]
-        > items["deploy-cicd-readiness"]
+        items["deploy-cicd-readiness"]
         > items["marketing-distribution"]
+        > items["open-pr-repair-merge"]
+        > items["branch-pr-drain"]
         > items["seo-discoverability-audit"]
         > items["product-feature-improvement"]
     )
+    # The demotion must stay a demotion and not become a disabling: at these
+    # weights `open-pr-repair-merge` still opens roughly one run in five, which
+    # is what keeps the drain a real safety net rather than a dead item.
+    assert (items["open-pr-repair-merge"] + 1) / sum(p + 1 for p in items.values()) > 0.15
 
 
 def test_effective_window_budget_leaves_interactive_slack() -> None:
     policy = _policy(target_utilization=0.90, reserve_for_interactive=0.10)
     assert policy.effective_window_budget() == 16_200
+
+
+def test_effective_window_budget_reserve_can_bind_tighter_than_target() -> None:
+    # The test above only ever runs policy.json's own defaults, where
+    # targetUtilization (0.90) and 1 - reserveForInteractive (1 - 0.10 = 0.90)
+    # are numerically equal -- so it passes identically whether or not
+    # effective_window_budget()'s min() is doing anything, and would keep
+    # passing if a future edit deleted reserveForInteractive from the
+    # computation entirely. governor.py's own module docstring said exactly
+    # that ("unused here except as documentation of the slack") until this
+    # test was written to check.
+    #
+    # It is not unused: agents/secrets/README.md tells an owner sharing a
+    # ChatGPT-plan seat with interactive use to raise reserveForInteractive to
+    # protect their own quota, and raising it past (1 - targetUtilization) has
+    # to actually shrink the automated budget for that advice to mean
+    # anything. This is that case: reserveForInteractive (0.30) now leaves
+    # less than targetUtilization (0.90) would alone, so the min() must bind.
+    policy = _policy(target_utilization=0.90, reserve_for_interactive=0.30)
+    assert policy.effective_window_budget() == 12_600
+    # And the reverse shape: a reserve below the target's own slack is the
+    # policy.json-default case, where targetUtilization is what actually
+    # binds and reserveForInteractive's value does not matter.
+    loose = _policy(target_utilization=0.90, reserve_for_interactive=0.0)
+    assert loose.effective_window_budget() == 16_200
 
 
 def test_state_roundtrip() -> None:
@@ -1031,3 +1150,162 @@ def test_a_crashed_run_neither_damps_nor_clears() -> None:
                         duration_seconds=5.0, item="branch-pr-drain", noop=False)
     state = g.absorb_finished_jobs(state, [crashed], NOW)
     assert state.noops_by_item == {"branch-pr-drain": 3}
+
+
+# --- A rejected credential is not a quota limit ----------------------------
+#
+# worker.sh has exited 43 for a refused credential since the subscription route
+# was wired, and agents/secrets/README.md states the contract: "Backing off for
+# an hour does not fix an expired login, and the two should not be read as the
+# same event." Nothing here honoured it. The governor branched on EXIT_LIMIT and
+# on the no-op marker; 43 fell through to "ordinary failure", so the next tick
+# five minutes later started the next item, which failed identically. ~288 Jobs
+# a day, each one apt-getting gh and npm-installing the Codex CLI on the 4 GB
+# cpx22 before finding out, and none of them able to succeed -- no amount of
+# retrying re-runs `codex login` on the owner's laptop.
+
+
+def test_a_rejected_credential_is_read_off_the_exit_code() -> None:
+    job = {
+        "metadata": {"uid": "a1", "name": "codex-a-1", "labels": {"governor.item": "a"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-a-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {"exitCode": g.EXIT_AUTH, "message": ""}}}
+        ]},
+    }]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.auth_failed is True
+    assert view.limit_hit is False
+    assert view.noop is False
+
+
+def test_a_rejected_credential_is_read_off_the_termination_marker() -> None:
+    # The Job's logs are gone once ttlSecondsAfterFinished expires; the
+    # terminated message is not, so the marker is what an operator reads.
+    job = {
+        "metadata": {"uid": "a2", "name": "codex-b-1", "labels": {"governor.item": "b"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-b-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {
+                "exitCode": 1,
+                "message": "codex-auth-rejected: credential rejected (mode: subscription)",
+            }}}
+        ]},
+    }]
+    assert g.job_view_from_k8s(job, pods).auth_failed is True
+
+
+def test_a_401_in_the_message_does_not_become_a_limit_cooldown() -> None:
+    # `parse_limit_error` scans the same free text, and "usage limit" is a
+    # phrase away from what an auth error prints. Whichever signal the pod
+    # carried, the credential verdict has to win: an hour's limit cooldown is
+    # the wrong remedy for a login that expired, and after that hour the fleet
+    # would retry the same dead credential.
+    job = {
+        "metadata": {"uid": "a3", "name": "codex-c-1", "labels": {"governor.item": "c"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-c-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {
+                "exitCode": g.EXIT_AUTH,
+                "message": "codex-auth-rejected: 401; usage limit language in the transcript",
+            }}}
+        ]},
+    }]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.auth_failed is True
+    assert view.limit_hit is False
+
+
+def test_a_rejected_credential_holds_the_queue_and_names_the_remedy() -> None:
+    state = _state()
+    job = g.JobView(uid="job-401", failed=True, duration_seconds=40, auth_failed=True)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    assert state.last_auth_failure_at == NOW
+
+    decision = g.decide(_policy(), state, 0, [_item()], NOW)
+    assert decision.action == "hold"
+    # The reason is the only place an operator learns what to do about it.
+    assert "codex login" in decision.reason
+    assert "re-seal" in decision.reason
+    assert decision.sleep_seconds > 0
+
+
+def test_the_auth_hold_is_a_cooldown_not_a_latch() -> None:
+    # It must expire on its own. The governor cannot see `codex-secrets` --
+    # its Role grants no Secret access, and widening that to notice a re-seal
+    # would trade bounded churn for unbounded blast radius. So the release is
+    # time: worker.sh re-seeds the PVC when the sealed fingerprint changes, and
+    # the first Job after the sleep picks up whatever the owner re-sealed.
+    policy = _policy(cooldown_on_auth_failure_seconds=6 * 3600)
+    state = _state(last_auth_failure_at=NOW - 6 * 3600 - 1)
+    decision = g.decide(policy, state, 0, [_item()], NOW)
+    assert decision.action == "start"
+
+
+def test_the_auth_hold_outlives_a_window_rollover() -> None:
+    # A credential the API rejected at 12:00 is still rejected when the 5-hour
+    # window rolls at 13:00. Clearing it with the window would restore exactly
+    # the every-five-minutes churn this exists to stop.
+    policy = _policy()
+    state = _state(
+        last_auth_failure_at=NOW - 60,
+        window_started_at=NOW - policy.window_seconds - 1,
+    )
+    rolled = g.rollover(state, NOW, policy)
+    assert rolled.last_auth_failure_at == NOW - 60
+    assert g.decide(policy, state, 0, [_item()], NOW).action == "hold"
+
+
+def test_the_auth_failure_timestamp_round_trips_through_the_state_configmap() -> None:
+    # `governor-state` is the only thing that survives a Job, so a cooldown
+    # that does not serialise is a cooldown that resets every five minutes.
+    state = _state(last_auth_failure_at=NOW - 120)
+    restored = g.state_from_dict(json.loads(json.dumps(g.state_to_dict(state))), NOW)
+    assert restored.last_auth_failure_at == NOW - 120
+
+
+def test_a_limit_still_reports_as_a_limit_when_both_could_apply() -> None:
+    # The other direction. A 429 clears itself when the window rolls, so
+    # nothing about this change may turn an ordinary rate limit into a
+    # six-hour sleep.
+    state = _state()
+    job = g.JobView(uid="job-429b", failed=True, duration_seconds=90, limit_hit=True)
+    state = g.absorb_finished_jobs(state, [job], NOW)
+    assert state.last_auth_failure_at is None
+    decision = g.decide(_policy(), state, 0, [_item()], NOW)
+    assert decision.action == "hold"
+    assert "cooldown" in decision.reason
+
+
+def test_the_worker_and_the_governor_agree_on_the_auth_exit_code() -> None:
+    # The two drifted apart precisely because the number lived in two places
+    # and neither side stated the other's. The Job env is where they meet now.
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    env = {
+        e["name"]: e["value"]
+        for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]
+    }
+    assert env["CODEX_AUTH_EXIT"] == str(g.EXIT_AUTH)
+
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert 'AUTH_EXIT="${CODEX_AUTH_EXIT:-43}"' in worker
+    assert g.EXIT_AUTH == 43
+    assert g.AUTH_MARKER in worker
+
+
+def test_the_shipped_policy_sets_an_auth_cooldown() -> None:
+    policy = g.policy_from_dict(
+        json.loads((AGENTS / "governor" / "policy.json").read_text())
+    )
+    # Longer than the limit cooldown: a 429 clears on its own, an expired
+    # login does not.
+    assert policy.cooldown_on_auth_failure_seconds > policy.cooldown_on_limit_seconds
