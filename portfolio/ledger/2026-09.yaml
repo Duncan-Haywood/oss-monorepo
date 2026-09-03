@@ -7365,3 +7365,36 @@ entries:
         went green, under this repo's no-review-ceremony rule for
         `ventures/*` product PRs.
     mrr_end: null
+  - venture: walk-in-tub-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "This calculator vs. Housecall Pro" comparison page,
+        following the same honest, non-numeric-claims pattern already
+        shipped for other trades calculators. This venture was one of 57
+        in the front-door mirror with no comparison page at all -- a real
+        gap in the "get in front of people" / organic-distribution
+        workstream this account owner has specifically asked to
+        prioritise.
+      - >-
+        Live today at
+        https://marisstella.dev/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html
+        with no owner action needed -- this venture is already in the
+        front-door mirror, which was regenerated (`--write`) and committed
+        in the same change, along with the apex's own sitemap/catalog.
+      - >-
+        Also fixed a pre-existing CI regression discovered while verifying
+        this change: `platform/pages/link.test.mjs`'s pinned
+        itemised-calculator counts were stale against #3048
+        (snow-removal-bid-calculator's own share control), which had been
+        failing on `main` since that PR merged. Landed separately as #3053
+        so it does not block this or any other in-flight PR.
+      - >-
+        Verified with `node --test` in the venture (140/140, 8 new tests),
+        `node --test "platform/marketing/*.test.mjs"` (173/173, front-door
+        mirror and apex-page consistency), and
+        `node --test platform/pages/link.test.mjs` (49/49, post-#3053-fix).
+        Opened as a PR and merged once its checks went green, under this
+        repo's no-review-ceremony rule for `ventures/*` product PRs.
+    mrr_end: null
