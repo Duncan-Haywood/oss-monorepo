@@ -48,6 +48,7 @@ from __future__ import annotations
 import base64
 import functools
 import gzip
+import json
 import os
 import re
 import shutil
@@ -358,6 +359,13 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
         ("/sitemap.xml", "application/xml"),
         ("/feed.xml", "application/atom+xml"),
         ("/llms.txt", "text/plain"),
+        # The loudest of the set to get wrong and the quietest to notice. If
+        # the catch-all shadows this one, a client asking for JSON gets ~50 KB
+        # of HTML under a 200 and throws at `JSON.parse` — with no status code
+        # to report and nothing in any log here saying the catalogue was
+        # dropped. The `Content-Type` assertion below is what actually
+        # distinguishes that case from success.
+        ("/catalog.json", "application/json"),
     ):
         status, headers, body = _get(front_door + url_path, gzip_ok=True)
         assert status == 200, f"{url_path} returned {status}"
@@ -365,6 +373,13 @@ def test_the_front_page_and_its_well_known_documents_are_served(front_door: str)
             f"{url_path} was served as {headers.get('Content-Type')}, not {content_type}"
         )
         assert body, f"{url_path} was empty"
+
+    # And the bytes really parse. Serving the right content type over a
+    # truncated or HTML body would satisfy every assertion above.
+    _, _, catalog_body = _get(front_door + "/catalog.json", gzip_ok=True)
+    catalog = json.loads(catalog_body)
+    assert catalog["tools"], "/catalog.json served no tools"
+    assert catalog["served_here"] == len(catalog["tools"])
 
 
 def test_a_path_the_mirror_does_not_hold_is_a_404_rather_than_the_front_page(front_door: str) -> None:

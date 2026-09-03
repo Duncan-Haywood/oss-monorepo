@@ -40,7 +40,27 @@ configMapGenerator:
   # Regenerate the page with:
   #   node platform/marketing/front-door.mjs --write
   # `platform/marketing/front-door.test.mjs` fails if the commit is stale.
+  #
+  # The `sync-options` below is not optional decoration, and this generator
+  # crossed the line that makes it load-bearing when `catalog.json` joined the
+  # set: the serialised ConfigMap went from ~226 KB to ~314 KB, past the
+  # 262144-byte cap the API server puts on an object's annotations. Argo CD
+  # applies client-side by default, which copies the whole object into
+  # `kubectl.kubernetes.io/last-applied-configuration` — so without this the
+  # apply fails with `metadata.annotations: Too long`, the hashed ConfigMap
+  # `portfolio-front.yaml` mounts is never created, the new pods sit in
+  # ContainerCreating, and `maxUnavailable: 0` leaves the *old* front door
+  # serving while `prod` stays permanently Degraded. Server-side apply writes
+  # no such annotation and is bounded only by etcd's 1 MiB.
+  #
+  # Same reasoning and same option as every shard in `front-door-tools/`, which
+  # crossed the same line first;
+  # `gitops/tests/test_manifests.py::test_a_configmap_too_large_for_client_side_apply_asks_for_server_side`
+  # is what fails if a future generator crosses it without saying so.
   - name: portfolio-front-html
+    options:
+      annotations:
+        argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
       - index.html=front-door/index.html
       # The page's own `og:image`. Not valid UTF-8, so kustomize puts it under
@@ -73,6 +93,15 @@ configMapGenerator:
       # `llms.txt`, the AI-discovery counterpart to the feed. Same reason again
       # for riding here: a well-known path has to resolve at the document root.
       - llms.txt=front-door/llms.txt
+      # `catalog.json`, the structured counterpart to `llms.txt` — the same
+      # tools as JSON for a client that filters rather than reads. Same reason
+      # again for riding here, with one extra: `llms.txt` above links it, so
+      # shipping that file without this one would publish a document pointing
+      # at a path the catch-all answers with the front page. The largest single
+      # key in this ConfigMap at ~88 KB; `front-door.test.mjs` holds the whole
+      # generated set under the 1 MiB object ceiling so this cannot grow past
+      # it unnoticed.
+      - catalog.json=front-door/catalog.json
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
