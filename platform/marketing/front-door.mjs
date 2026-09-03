@@ -464,6 +464,119 @@ export const LLMS_FILE = 'llms.txt';
 /** Where `--write` puts it, beside the page it describes. */
 export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', LLMS_FILE);
 
+/** The structured half of the same handshake. See `renderFrontDoorCatalog`. */
+export const CATALOG_FILE = 'catalog.json';
+
+/** Where `--write` puts it, beside the page it describes. */
+export const CATALOG_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  CATALOG_FILE,
+);
+
+/**
+ * `catalog.json` for the apex — the machine-readable index of what this host
+ * actually serves.
+ *
+ * ## Why this host needs its own
+ *
+ * `build.mjs` writes a `catalog.json` for the tools host and makes the case
+ * for the format: it is the flat, parseable thing a directory, an aggregator
+ * or an assistant answering "is there a free tool that does X" can fetch and
+ * filter in one request, without parsing a page of markup or reading prose.
+ *
+ * That file is on a host that serves nothing until `portfolio-site-repo` is
+ * sealed. So the structured index of this collection has, until now, existed
+ * only at an address nothing answers, while the one hostname a client can
+ * actually reach served 168 tools and no machine-readable index of them at
+ * all. `llms.txt` is markdown for a model to read; this is JSON for a client
+ * to parse. They are different consumers and the apex was missing the second.
+ *
+ * `renderFrontDoorLlms`'s `## Optional` section named this file as
+ * "deliberately absent ... lives on the tools host and is not served here".
+ * That premise is what this change retires: it is served here now, so
+ * `renderFrontDoorLlms` lists it.
+ *
+ * ## Why it lists only the mirrored tools
+ *
+ * Same reason `renderFrontDoorFeed` and `renderFrontDoorLlms` do, and it is
+ * sharpest in this file. Every entry here carries a `url`, and a client that
+ * parses JSON will follow one without a human ever reading it — so listing the
+ * unmirrored tools would hand aggregators a machine-checkable list of dead
+ * links to republish. `collection_total` states the wider figure as a number
+ * instead, which is a fact rather than a link, and `served_here` says plainly
+ * that this file covers only part of it. A consumer diffing the two learns the
+ * catalogue is larger without being given anywhere broken to go.
+ *
+ * ## Shape
+ *
+ * Deliberately the same envelope as `build.mjs`'s `renderCatalog` — same key
+ * names, same `price`/`privacy`/`license` vocabulary, same per-tool fields — so
+ * a client that learns to read one reads the other, and the day the seal lands
+ * and both hosts serve a catalogue they do not disagree about what a tool is.
+ * The two fields that differ are the two that must: `generated_by` names the
+ * generator that actually wrote the file, and `served_here`/`collection_total`
+ * exist only here, because only here is the answer a subset.
+ *
+ * No `sponsor` or funding key, matching `renderCatalog` and for its reason:
+ * whether this repo publishes a funding surface is an open owner decision
+ * (`funding-sponsors-live`), and a machine-readable file is the wrong place to
+ * pre-answer it.
+ */
+export function renderFrontDoorCatalog({
+  mirrored = [],
+  total = 0,
+  pageCounts = new Map(),
+  categories = ALL_CATEGORIES,
+} = {}) {
+  const base = FRONT_DOOR_URL.replace(/\/$/, '');
+  const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  const groups = orderedGroups(mirroredByCategory(mirrored), categories);
+
+  return `${JSON.stringify(
+    {
+      name: 'Free calculators for sellers, contractors, and small back offices',
+      url: FRONT_DOOR_URL,
+      license: 'MIT',
+      price: { amount: '0', currency: 'USD' },
+      privacy: 'client-side-only',
+      generated_by: 'platform/marketing/front-door.mjs',
+      // The two figures a consumer needs to know this list is a subset. Stated
+      // as numbers, never as links to the host that does not answer — see the
+      // block comment above.
+      served_here: mirrored.length,
+      collection_total: total,
+      feed: `${FRONT_DOOR_URL}${FEED_FILE}`,
+      sitemap: `${FRONT_DOOR_URL}${SITEMAP_FILE}`,
+      // Fragments rather than `/c/<id>/` URLs, because on this host a category
+      // is a section of the front page — `categoryAnchor`'s reasoning, kept, so
+      // a client following one lands where a reader following the same card
+      // does instead of on a 404.
+      categories: groups.map((group) => ({
+        id: group.id,
+        name: group.title,
+        url: `${base}/#${categoryAnchor(group.id)}`,
+        tool_count: group.tools.length,
+      })),
+      tools: mirrored.map((tool) => ({
+        slug: tool.slug,
+        name: oneLine(tool.title),
+        url: `${base}${tool.url}`,
+        category: categoryFor(tool.slug).title,
+        description: oneLine(tool.description),
+        // Counted from the mirrored files themselves rather than from the
+        // venture directory: this number answers "how many pages of this tool
+        // can I reach here", and the mirror is what decides that.
+        ...(pageCounts.has(tool.slug) ? { pages: pageCounts.get(tool.slug) } : {}),
+      })),
+    },
+    null,
+    2,
+  )}\n`;
+}
+
 /**
  * `llms.txt` for the apex — the AI-discovery half of what the last change fixed
  * for feed readers.
@@ -492,9 +605,14 @@ export const LLMS_OUTPUT_FILE = path.join(REPO_ROOT, 'gitops', 'prod', 'front-do
  * propagates outward instead of costing a single click.
  *
  * So the catalogue host appears in prose, describing what it will hold, and
- * never as a bullet a model can lift as a link. That is also why `## Optional`
- * lists this host's feed and sitemap and not `catalog.json`, which lives on the
- * tools host and is not served here.
+ * never as a bullet a model can lift as a link.
+ *
+ * `## Optional` used to list this host's feed and sitemap and explicitly not
+ * `catalog.json`, "which lives on the tools host and is not served here". That
+ * was true and is not any more: `renderFrontDoorCatalog` writes one for this
+ * host, nginx serves it at `/catalog.json`, and it is listed below. The rule
+ * that produced the old exclusion is unchanged — every entry here is a path
+ * this host actually answers.
  *
  * ## Format
  *
@@ -522,13 +640,14 @@ export function renderFrontDoorLlms({ mirrored = [], total = 0, categories = ALL
   );
 
   // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
-  // short of context. Both entries are paths this host actually serves; the
-  // tools host's `catalog.json` is deliberately absent for the reason above.
+  // short of context. Every entry is a path this host actually serves — see the
+  // note in the block comment above about `catalog.json`, which now is one.
   const optional = [
     '## Optional',
     '',
     `- [Atom feed](${FRONT_DOOR_URL}${FEED_FILE}): these tools as they are published, newest first. Poll this rather than re-reading this file to find out what is new.`,
     `- [Sitemap](${FRONT_DOOR_URL}${SITEMAP_FILE}): every indexable page on this host.`,
+    `- [Machine-readable catalogue](${FRONT_DOOR_URL}${CATALOG_FILE}): the same tools as JSON, with a category and a description each. Parse this instead of this file if you want to filter rather than read.`,
     '',
   ].join('\n');
 
@@ -1291,17 +1410,29 @@ export async function buildFrontDoor() {
   const indexablePages = TOOLS_HOST_SERVES
     ? []
     : files.filter((f) => f.file.endsWith('.html')).map((f) => mirrorUrl(f.slug, f.file));
+  // How many HTML pages of each tool this host answers for. Counted from the
+  // mirrored files rather than the venture directory for the reason
+  // `renderFrontDoorCatalog` gives: the mirror is what decides what is
+  // reachable here, so it is what the published number must come from.
+  const pageCounts = new Map();
+  for (const f of files) {
+    if (!f.file.endsWith('.html')) continue;
+    pageCounts.set(f.slug, (pageCounts.get(f.slug) ?? 0) + 1);
+  }
+  // The same category ordering the page uses — biggest first — so a model
+  // reading llms.txt, a client parsing catalog.json and a person reading the
+  // page meet the collection in one order rather than three.
+  const categories = orderedCategories(categoryCounts(slugs));
   return {
     html: renderFrontDoor({ slugs, mirrored: tools }),
     feed: renderFrontDoorFeed({ mirrored: tools, launched }),
     sitemap: renderSitemap({ pages: indexablePages }),
-    // The same category ordering the page uses — biggest first — so a model
-    // reading llms.txt and a person reading the page meet the collection in
-    // one order rather than two.
-    llms: renderFrontDoorLlms({
+    llms: renderFrontDoorLlms({ mirrored: tools, total: slugs.length, categories }),
+    catalog: renderFrontDoorCatalog({
       mirrored: tools,
       total: slugs.length,
-      categories: orderedCategories(categoryCounts(slugs)),
+      pageCounts,
+      categories,
     }),
   };
 }
@@ -1309,7 +1440,7 @@ export async function buildFrontDoor() {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const { html, feed, llms, sitemap } = await buildFrontDoor();
+  const { html, feed, llms, sitemap, catalog } = await buildFrontDoor();
   if (process.argv.includes('--write')) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
@@ -1345,6 +1476,11 @@ if (isMain) {
     // documents disagreeing about what this host serves.
     await fs.writeFile(LLMS_OUTPUT_FILE, llms);
     console.log(`wrote ${path.relative(REPO_ROOT, LLMS_OUTPUT_FILE)} (${llms.length} bytes)`);
+    // And once more, with one extra edge: `llms.txt` now *links* this file, so
+    // a run that wrote the one without the other would publish a document
+    // pointing a model at a path this host answers with the front page.
+    await fs.writeFile(CATALOG_OUTPUT_FILE, catalog);
+    console.log(`wrote ${path.relative(REPO_ROOT, CATALOG_OUTPUT_FILE)} (${catalog.length} bytes)`);
   } else {
     process.stdout.write(html);
   }

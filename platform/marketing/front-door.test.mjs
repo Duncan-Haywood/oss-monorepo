@@ -14,6 +14,8 @@ import {
   FAVICON_SVG,
   FEED_OUTPUT_FILE,
   FRONT_DOOR_URL,
+  CATALOG_FILE,
+  CATALOG_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
   OUTPUT_FILE,
@@ -36,6 +38,7 @@ import {
   feedEntryId,
   publishedSlugs,
   renderFrontDoor,
+  renderFrontDoorCatalog,
   renderFrontDoorFeed,
   renderFrontDoorLlms,
   renderSitemap,
@@ -924,7 +927,17 @@ test('llms.txt names the catalogue host but never links it', () => {
   // The Optional section offers only paths this host actually serves.
   assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + FEED_FILE)}\\)`));
   assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + SITEMAP_FILE)}\\)`));
-  assert.ok(!txt.includes('catalog.json'), 'catalog.json lives on the tools host and is not served here');
+  // `catalog.json` is a third such path as of this change. This line used to
+  // assert its absence, with the reason "lives on the tools host and is not
+  // served here" — true until `renderFrontDoorCatalog` gave the apex its own.
+  // The rule did not change, only which host satisfies it: what must never
+  // appear is a link at the *dark* host, which the two assertions above check
+  // by hostname rather than by filename.
+  assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + CATALOG_FILE)}\\)`));
+  assert.ok(
+    !txt.includes(`${TOOLS_URL}${CATALOG_FILE}`),
+    'the catalogue host\'s own catalog.json is still not something to link',
+  );
 });
 
 test('llms.txt keeps each tool to one bullet line', () => {
@@ -936,7 +949,7 @@ test('llms.txt keeps each tool to one bullet line', () => {
   ];
   const lines = renderFrontDoorLlms({ mirrored: wrapped, total: 1 }).split('\n');
   const bullets = lines.filter((l) => l.startsWith('- ['));
-  assert.equal(bullets.length, 3, 'one tool bullet plus the two Optional entries');
+  assert.equal(bullets.length, 4, 'one tool bullet plus the three Optional entries');
   assert.match(bullets[0], /^- \[Roofing Bid Calculator\]\(\S+\): First half\. Second half\.$/);
 });
 
@@ -968,7 +981,11 @@ test('every link in the committed llms.txt resolves on this host', async () => {
   const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
   const links = [...txt.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1]);
   assert.ok(links.length > 10, 'the committed llms.txt should carry the mirrored tools');
-  const served = new Set([`${FRONT_DOOR_URL}${FEED_FILE}`, `${FRONT_DOOR_URL}${SITEMAP_FILE}`]);
+  const served = new Set([
+    `${FRONT_DOOR_URL}${FEED_FILE}`,
+    `${FRONT_DOOR_URL}${SITEMAP_FILE}`,
+    `${FRONT_DOOR_URL}${CATALOG_FILE}`,
+  ]);
   for (const link of links) {
     if (served.has(link)) continue;
     const slug = link.match(/^https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/$/)?.[1];
@@ -1021,4 +1038,247 @@ test('the footer offers llms.txt only where this host serves one', () => {
   // With no mirror there is nothing to describe, and the footer returns to the
   // shape it takes after the seal.
   assert.ok(!renderFrontDoor({ slugs: SAMPLE }).includes(`href="/${LLMS_FILE}"`));
+});
+
+// ---------------------------------------------------------------------------
+// catalog.json — the structured counterpart to llms.txt.
+//
+// `llms.txt` is markdown a model reads; this is JSON a client parses. The
+// failure modes differ accordingly, and these tests are written against the
+// parsing one: a model handed the wrong bytes reports nothing useful, but a
+// client handed the wrong bytes throws at `JSON.parse` and silently drops the
+// whole collection. So every assertion below is about what a parser sees.
+// ---------------------------------------------------------------------------
+
+test('catalog.json is valid JSON with the envelope build.mjs uses', () => {
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  // The same key names `platform/pages/build.mjs`'s `renderCatalog` emits, so
+  // a client that learns to read one reads the other — and so the two hosts do
+  // not disagree about what a tool is on the day the seal lands.
+  for (const key of ['name', 'url', 'license', 'price', 'privacy', 'tools']) {
+    assert.ok(key in catalog, `catalog.json must carry ${key}, as the tools host's does`);
+  }
+  assert.equal(catalog.url, FRONT_DOOR_URL);
+  assert.equal(catalog.license, 'MIT');
+  assert.deepEqual(catalog.price, { amount: '0', currency: 'USD' });
+  assert.equal(catalog.privacy, 'client-side-only');
+  assert.equal(
+    catalog.generated_by,
+    'platform/marketing/front-door.mjs',
+    'must name the generator that actually wrote this file, not the tools host one',
+  );
+});
+
+test('catalog.json states the subset honestly and links nothing dark', () => {
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.equal(catalog.served_here, MIRROR.length);
+  assert.equal(catalog.collection_total, 169);
+  // The whole reason this file lists only the mirrored tools: every entry
+  // carries a URL a client will follow without a human reading it, so a link
+  // to the unsealed host would be a machine-checkable dead end republished by
+  // aggregators. The wider figure is a number instead.
+  const json = renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 });
+  assert.ok(
+    !json.includes(TOOLS_URL.replace(/\/$/, '')),
+    'catalog.json must never link the catalogue host while it serves nothing',
+  );
+});
+
+test('catalog.json describes every mirrored tool at a URL on this host', () => {
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.equal(catalog.tools.length, MIRROR.length);
+  for (const tool of catalog.tools) {
+    for (const key of ['slug', 'name', 'url', 'category']) {
+      assert.ok(tool[key], `every tool needs ${key}`);
+    }
+    assert.match(
+      tool.url,
+      new RegExp(`^${escapeForRegExp(FRONT_DOOR_URL.replace(/\/$/, ''))}/tools/[a-z0-9-]+/$`),
+      `${tool.url} is not a path this host serves`,
+    );
+  }
+});
+
+test('catalog.json category links land on anchors the page actually has', () => {
+  // A `/c/<id>/` URL would be the tools host's collection page, which serves
+  // nothing. On this host a category is a section of the front page, so the
+  // link has to be the fragment `renderFrontDoor` stamps an `id` for.
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  const html = renderFrontDoor({ slugs: SAMPLE, mirrored: MIRROR });
+  assert.ok(catalog.categories.length > 0);
+  for (const category of catalog.categories) {
+    const fragment = category.url.split('#')[1];
+    assert.ok(fragment, `${category.url} should be an on-page anchor, not a path`);
+    assert.equal(fragment, categoryAnchor(category.id));
+    assert.ok(html.includes(`id="${fragment}"`), `the page has no anchor #${fragment}`);
+  }
+  assert.equal(
+    catalog.categories.reduce((sum, c) => sum + c.tool_count, 0),
+    MIRROR.length,
+    'a tool counted twice, or dropped, would misstate the collection',
+  );
+});
+
+test('catalog.json flattens descriptions that would break a reader', () => {
+  // Not a JSON-escaping worry — `JSON.stringify` handles a newline. This is
+  // the same normalisation `renderFrontDoorLlms` does, kept so the two files
+  // quote a venture's description identically rather than one wrapping and one
+  // not.
+  const catalog = JSON.parse(
+    renderFrontDoorCatalog({
+      mirrored: [{ ...MIRROR[0], description: 'One line\n  and its wrapped   second half.' }],
+      total: 169,
+    }),
+  );
+  assert.equal(catalog.tools[0].description, 'One line and its wrapped second half.');
+});
+
+test('catalog.json omits the page count rather than guessing it', () => {
+  // `null` or `0` would both read as a fact to a client filtering on it. The
+  // key is absent when unknown, so a consumer that reads it at all can trust
+  // it — `renderCatalog`'s rule for `launched`, applied to the same problem.
+  const withCounts = JSON.parse(
+    renderFrontDoorCatalog({
+      mirrored: MIRROR,
+      total: 169,
+      pageCounts: new Map([[MIRROR[0].slug, 4]]),
+    }),
+  );
+  assert.equal(withCounts.tools[0].pages, 4);
+  assert.ok(!('pages' in withCounts.tools[1]), 'an unknown page count must be absent, not 0');
+});
+
+test('catalog.json carries no funding key', () => {
+  // Same reason `renderCatalog` refuses one: `funding-sponsors-live` is an
+  // open owner decision and a machine-readable file must not pre-answer it.
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.ok(!('sponsor' in catalog), 'catalog.json must not carry a funding field');
+  assert.ok(!('funding' in catalog));
+});
+
+test('the committed catalog.json matches what this generator produces', async () => {
+  const { catalog } = await buildFrontDoor();
+  assert.equal(
+    await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'),
+    catalog,
+    'gitops/prod/front-door/catalog.json is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('every tool in the committed catalog.json is backed by a mirrored page', async () => {
+  // The same check `llms.txt` gets, and it binds harder here: a client parses
+  // this file and follows a URL with nobody watching, so a stale entry is a
+  // 404 served to a machine that will republish it.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { files } = await buildMirror();
+  const keys = new Set(files.map((f) => f.key));
+  const catalog = JSON.parse(await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'));
+  assert.ok(catalog.tools.length > 10, 'the committed catalog should carry the mirrored tools');
+  for (const tool of catalog.tools) {
+    assert.ok(
+      keys.has(`${tool.slug}__index.html`),
+      `catalog.json lists ${tool.slug}, which the mirror lacks`,
+    );
+  }
+  assert.equal(
+    catalog.served_here,
+    catalog.tools.length,
+    'served_here must be the length of the list it describes',
+  );
+});
+
+test('the committed catalog.json parses and agrees with llms.txt', async () => {
+  // Three documents describing one host is three chances to disagree. The feed
+  // is capped and the sitemap counts pages, so the tool *set* is only
+  // comparable between these two — and a client that read both and got
+  // different collections would have no way to tell which was right.
+  const catalog = JSON.parse(await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'));
+  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const linked = new Set(
+    [...txt.matchAll(/\]\((https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/)\)/g)].map((m) => m[2]),
+  );
+  assert.deepEqual(
+    catalog.tools.map((t) => t.slug).sort(),
+    [...linked].sort(),
+    'catalog.json and llms.txt must describe the same tools',
+  );
+});
+
+test('llms.txt offers the catalogue now that this host serves one', async () => {
+  // The premise this change retired: `## Optional` used to say catalog.json
+  // "lives on the tools host and is not served here". It is served here now,
+  // and the rule that produced the old exclusion — every entry is a path this
+  // host answers — is what makes listing it correct rather than a regression.
+  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  assert.ok(
+    txt.includes(`${FRONT_DOOR_URL}${CATALOG_FILE}`),
+    'llms.txt should point a model at the structured catalogue',
+  );
+  const optional = txt.slice(txt.indexOf('## Optional'));
+  assert.ok(optional.includes(CATALOG_FILE), 'it belongs under ## Optional, beside the feed');
+});
+
+test('nginx answers /catalog.json as JSON, above the catch-all', async () => {
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(
+    new RegExp(`location = /${escapeForRegExp(CATALOG_FILE)} \\{[\\s\\S]*?\\n {2}\\}`),
+  );
+  assert.ok(block, `front-door/default.conf must serve /${CATALOG_FILE} explicitly`);
+  assert.match(block[0], /default_type application\/json;/);
+  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(CATALOG_FILE)} =404;`));
+  assert.match(block[0], /charset utf-8;/);
+  assert.ok(!/X-Robots-Tag/.test(block[0]), '/catalog.json exists to be fetched by clients');
+  // The highest-stakes ordering assertion in this file. Below the catch-all,
+  // `/catalog.json` returns 49 KB of HTML under a 200 and every client fails
+  // at JSON.parse with nothing to report.
+  assert.ok(
+    conf.indexOf(`location = /${CATALOG_FILE}`) < conf.indexOf('location / {'),
+    'keep the /catalog.json block above the catch-all',
+  );
+});
+
+test('catalog.json rides in the ConfigMap that mounts at the document root', async () => {
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.match(
+    kustomization,
+    new RegExp(`- ${escapeForRegExp(CATALOG_FILE)}=front-door/${escapeForRegExp(CATALOG_FILE)}`),
+  );
+});
+
+test('the generated front-door set stays under the ConfigMap object ceiling', async () => {
+  // Every file below rides in one ConfigMap because they all have to sit at
+  // the document root, and there are two ceilings on that object, not one:
+  //
+  //   262144 bytes — the API server's cap on an object's annotations, which a
+  //     client-side apply has to fit a whole copy of the object into. Adding
+  //     catalog.json took this generator from ~226 KB to ~314 KB and past it.
+  //     That is handled in `gitops/prod/kustomization.yaml` by asking Argo for
+  //     `ServerSideApply=true`, which writes no such annotation, and it is
+  //     `test_a_configmap_too_large_for_client_side_apply_asks_for_server_side`
+  //     in `gitops/tests/test_manifests.py` that enforces the pairing.
+  //   1 MiB — etcd's ceiling on the object itself, which nothing can opt out
+  //     of. That is the one this test guards, and with the cap above lifted it
+  //     is now the only thing standing between a growing mirror and a front
+  //     door that cannot be applied at all.
+  //
+  // The card is counted base64'd, which is how kustomize stores it.
+  const files = [
+    OUTPUT_FILE,
+    ROBOTS_OUTPUT_FILE,
+    SITEMAP_OUTPUT_FILE,
+    FEED_OUTPUT_FILE,
+    LLMS_OUTPUT_FILE,
+    CATALOG_OUTPUT_FILE,
+    FAVICON_OUTPUT_FILE,
+  ];
+  let total = 0;
+  for (const file of files) total += (await fs.readFile(file)).byteLength;
+  total += Math.ceil((await fs.readFile(SOCIAL_CARD_OUTPUT_FILE)).byteLength / 3) * 4;
+  assert.ok(
+    total < 1024 * 1024,
+    `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
+  );
 });
