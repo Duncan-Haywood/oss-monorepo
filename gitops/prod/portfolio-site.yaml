@@ -3,7 +3,7 @@
 #
 # WHY THIS EXISTS
 #
-# `platform/pages/build.mjs` assembles 169 finished tools into one static
+# `platform/pages/build.mjs` assembles 173 finished tools into one static
 # site (hub, per-tool pages, sitemaps, robots.txt, social cards). Until now
 # the only way to publish it was `.github/workflows/portfolio-pages.yml` ->
 # GitHub Pages, which is still blocked: Pages is not enabled on the
@@ -15,7 +15,7 @@
 # cert-manager and an auto-syncing `prod` Application with nothing in it but
 # a placeholder that says "add an Ingress when a product is ready".
 #
-# 169 products are ready. This is that Ingress, plus the workload behind it.
+# 173 products are ready. This is that Ingress, plus the workload behind it.
 #
 # It deliberately does NOT depend on GitHub Actions: Argo syncs this file
 # straight from `main`, and the site is built inside the cluster. That is
@@ -53,7 +53,7 @@
 # clone token is a 90-day fine-grained PAT, so the ordinary way to enter this
 # state is for it to expire on a Tuesday and for nobody to find out. The site
 # then sits un-restartable for as long as it takes someone to notice, and the
-# next node reboot, eviction or drain takes all 169 tools to zero with no
+# next node reboot, eviction or drain takes all 173 tools to zero with no
 # path back until a human mints a new token.
 #
 # So a pod no longer needs a successful build to serve. `portfolio-site-cache`

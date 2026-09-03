@@ -64,7 +64,7 @@ page describing the collection, and every category card on it links into
 anyone." Neither half is true, and a session reading it mis-ranks its whole run
 — the same correction `CLAUDE.md` already carries.
 
-- The apex **serves the 169 tools itself**, at `/tools/<slug>/`, from the
+- The apex **serves the 173 tools itself**, at `/tools/<slug>/`, from the
   mirror in `gitops/prod/front-door-tools/`. The seal buys no tool a stranger
   cannot already reach.
 - The category cards link to `https://marisstella.dev/c/<id>/` — seven browse

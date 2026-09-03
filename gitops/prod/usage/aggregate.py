@@ -9,7 +9,7 @@ wrote down does not exist. Every venture already carries a `usage.mjs`, but all
 of them are deliberately `localStorage`-only: the count lives in the visitor's
 own browser and never leaves the device. That is the right default for a
 contractor's pricing, and it means that on the day `tools.marisstella.dev`
-goes live the portfolio still learns nothing about which of its 169 tools
+goes live the portfolio still learns nothing about which of its 173 tools
 anyone opened. `usage.yaml` would stay `null` forever.
 
 This closes that without asking the browser to transmit anything new. nginx
