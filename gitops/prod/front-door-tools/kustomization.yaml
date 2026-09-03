@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 127 files, 555060 bytes
 #   portfolio-front-tools-6: 113 files, 552219 bytes
 #   portfolio-front-tools-7: 120 files, 556392 bytes
-#   portfolio-front-tools-8: 120 files, 551065 bytes
+#   portfolio-front-tools-8: 121 files, 555161 bytes
 #   portfolio-front-tools-9: 105 files, 555484 bytes
 #   portfolio-front-tools-10: 74 files, 377817 bytes
 #   portfolio-front-tools-11: 58 files, 264582 bytes
@@ -1173,6 +1173,7 @@ configMapGenerator:
       - pole-barn-bid-calculator__proposal.mjs.gz=pole-barn-bid-calculator__proposal.mjs.gz
       - pole-barn-bid-calculator__share.mjs.gz=pole-barn-bid-calculator__share.mjs.gz
       - pole-barn-bid-calculator__usage.mjs.gz=pole-barn-bid-calculator__usage.mjs.gz
+      - pole-barn-bid-calculator__vs-jobtread.html.gz=pole-barn-bid-calculator__vs-jobtread.html.gz
       - pool-plaster-bid-calculator__LICENSE.gz=pool-plaster-bid-calculator__LICENSE.gz
       - pool-plaster-bid-calculator__calc.mjs.gz=pool-plaster-bid-calculator__calc.mjs.gz
       - pool-plaster-bid-calculator__how-much-to-charge-to-replaster-a-pool.html.gz=pool-plaster-bid-calculator__how-much-to-charge-to-replaster-a-pool.html.gz
