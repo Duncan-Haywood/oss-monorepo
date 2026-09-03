@@ -6600,3 +6600,73 @@ entries:
         saturated by concurrent sessions in the hours before this run
         (dozens merged per this file's own recent entries).
     mrr_end: null
+  - venture: paver-patio-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        This run's brief asked to prioritize deployment/CI-CD and
+        marketing-material work on the Hetzner infrastructure, and to look
+        into standing up an autonomous Codex CLI worker there -- all three
+        already fully built and correctly prioritized by prior sessions
+        (gitops/ci/, gitops/agents/ governor + queue ordered
+        deploy-cicd-readiness > marketing-distribution per the owner's own
+        2026-09-01 instruction, per infra/OWNER_CHECKLIST.md), and both
+        blocked only on owner-only credential seals already recorded in
+        the decision queue. Zero open PRs existed and every CI/CD-,
+        Hetzner-, marketing-, and Codex-tagged unmerged branch (checked via
+        a dedicated Explore pass) was stale or already superseded by
+        `main`. Nothing to duplicate or drain.
+      - >-
+        Ran the repo's own end-to-end delivery verification instead:
+        `platform/pages/build.mjs` + `check.mjs` (169 products, 594 pages,
+        no dead links), then the Playwright browser-check suite
+        (`platform/ci/browser_checks.py`, installing playwright+axe-core
+        into a scratch dir). Its `roundtrip` check failed on two ventures:
+        sharing a link from paver-patio-bid-calculator with a non-default
+        pattern (herringbone) and use (walkway) selected silently reset
+        both dropdowns to their defaults for the recipient, because
+        `share.mjs`'s SHARE_FIELDS allowlist carried the *derived* numeric
+        fields those selects seed (waste %, labor factor, base depth) but
+        never the selects' own chosen values. The computed price was
+        right; the displayed pattern/use the recipient saw was wrong --
+        the same "shared link renders differently than what the sender
+        saw" bug class CLAUDE.md documents from `share.mjs`'s history.
+      - >-
+        Added `patternId`/`useId` to SHARE_FIELDS and wired
+        `readInput()`/`applyShare()` to carry them (restoring the value
+        directly, without dispatching a change event, so it doesn't
+        re-trigger the preset's own derived-field overwrite). Added a
+        regression test to share.test.mjs. Verified with a targeted
+        Playwright script driving the real page (stubbing
+        navigator.clipboard the way roundtrip.mjs does): select
+        non-default -> click share -> reload with the produced hash ->
+        confirmed the selection now survives, where before the fix it
+        reverted.
+      - >-
+        First CI push failed `validate` for a real reason (not the
+        starvation signature, confirmed via ci_starvation.py): the
+        committed front-door-tools mirror (a gzip snapshot of the changed
+        venture files served on the apex) was now stale. Regenerated it
+        (`front-door-tools.mjs --write`) and repushed; all 14 checks went
+        green, and the PR (#2962, also covering roofing-bid-calculator
+        below) merged automatically once CI passed.
+    mrr_end: null
+  - venture: roofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session and same PR (#2962) as the paver-patio-bid-calculator
+        entry above: roundtrip.mjs also failed on this venture's
+        `materialPreset` (covering) dropdown for the identical reason --
+        SHARE_FIELDS carried the derived costs-per-square the preset
+        seeds, never the preset selection itself, so a shared link with a
+        non-default covering reverted to the default option for the
+        recipient. Same fix shape (added `materialPreset` to
+        SHARE_FIELDS, wired readInput()/applyShare(), regression test),
+        same verification (101 and 105 unit tests passing across the two
+        ventures, 136/136 platform/marketing tests after the mirror
+        regeneration, a targeted Playwright round-trip confirming
+        `materialPreset` now survives a share/reload cycle).
+    mrr_end: null
