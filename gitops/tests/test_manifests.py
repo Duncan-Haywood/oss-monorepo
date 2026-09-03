@@ -418,12 +418,24 @@ def test_the_mandate_does_not_teach_the_retired_absent_ci_excuse() -> None:
     # (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
     # no-recursion rule applies to, so it triggers `pull_request` workflows
     # like anyone else's. `platform/pages/clauses.mjs` had already retired the
-    # same sentence in its own comment; this file was the last place carrying
-    # it, and the one where it does the most damage: a worker told to expect a
-    # blank check list shrugs at one instead of going to look.
+    # same sentence in its own comment, and this test used to say the mandate
+    # was "the last place carrying it". It was not: `queue/open-pr-repair-merge
+    # .yaml` still had it on 2026-09-03, because this test only ever read
+    # mandate.md. Fixing a rule in one file while a copy of it survives in
+    # another is the exact failure CLAUDE.md records twice against the
+    # front-door mirror -- so the assertion below now walks every queue prompt
+    # too, and a new item inherits the check by existing.
     mandate = (AGENTS / "workers" / "mandate.md").read_text()
     assert "`GITHUB_TOKEN` do not\n  trigger Actions here" not in mandate
     assert "GH_TOKEN" in mandate, "the correct credential should be named"
+
+    # Every queue item's prompt is read by a worker the same way the mandate
+    # is, so the claim is just as wrong there.
+    for item in sorted((AGENTS / "queue").glob("*.yaml")):
+        prompt = yaml.safe_load(item.read_text()).get("prompt") or ""
+        assert "GITHUB_TOKEN` do not trigger Actions" not in prompt, (
+            f"{item.name} teaches the retired absent-CI excuse"
+        )
 
     # And the distinction that makes a blank list actionable rather than an
     # excuse: the commit-status API reports total_count 0 on a PR whose checks

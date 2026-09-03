@@ -46,6 +46,20 @@ active branches for work touching the same venture, file, or feature. Repairing
 and landing an existing branch is worth more than a parallel implementation of
 the same thing. Overlap is not a reason to discard work — integrate it.
 
+**Drain open PRs first, to a minimum of three.** On the account owner's
+direction, the first delivery work of every run — whichever queue item drew it
+— is to review, repair and *merge* existing open pull requests. Merge at least
+three before you open a new feature branch; if fewer than three are open,
+process all of them; if none are, go straight to your item's work. Only merges
+count toward that floor — a review, a comment, or a PR left for its author does
+not. A PR blocked on an owner-only action (a sealed secret, a repository
+variable, an account) does not count either: name the PR and the exact
+unblocker, then move to the next one.
+
+`open-pr-repair-merge` is the item that owns this loop in depth, but the floor
+above is not its property — a run drawing any other item still clears the queue
+before starting something new, then does its own item's work.
+
 The ordering is: **an open PR, then a branch with no PR, then something new.**
 A PR that already exists is the furthest-along and therefore cheapest thing to
 finish, and it is the only one that gets more expensive by being left. Red or
