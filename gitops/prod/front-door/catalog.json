@@ -592,7 +592,7 @@
       "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a carpet install from floor yards, stairs, stretch-in versus glue-down versus carpet tile, patterned waste, and extras — plus the walk-away price a $2-a-yard special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "chimney-sweep-bid-calculator",
@@ -888,7 +888,7 @@
       "url": "https://marisstella.dev/tools/hood-cleaning-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "hot-tub-bid-calculator",
