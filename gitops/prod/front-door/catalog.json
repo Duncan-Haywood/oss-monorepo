@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 168,
+  "served_here": 169,
   "collection_total": 169,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -53,7 +53,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/#open-more",
-      "tool_count": 3
+      "tool_count": 4
     }
   ],
   "tools": [
@@ -480,6 +480,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.",
       "pages": 3
+    },
+    {
+      "slug": "ai-engineering-academy",
+      "name": "Free Electronics Calculators — AI Engineering Academy",
+      "url": "https://marisstella.dev/tools/ai-engineering-academy/",
+      "category": "More free tools",
+      "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
+      "pages": 7
     },
     {
       "slug": "appointment-deposit-calculator",

@@ -76,7 +76,7 @@ import {
   SOCIAL_CARD_ALT as FRONT_DOOR_SOCIAL_CARD_ALT,
   renderFrontDoor,
 } from './front-door.mjs';
-import { SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD } from '../pages/build.mjs';
+import { SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD, discoverSurfaces } from '../pages/build.mjs';
 import {
   SOCIAL_CARD_WIDTH as OFFLINE_CARD_WIDTH,
   SOCIAL_CARD_HEIGHT as OFFLINE_CARD_HEIGHT,
@@ -1449,4 +1449,44 @@ test('every mirrored URL routes to its own stored key through the real config', 
   // Two levels is refused rather than answered wrongly: `ventureFiles` never
   // generates one, and the blocks decode exactly one separator.
   assert.equal(route('/tools/demo/a/b/c.html'), null, 'a two-level path found a block to answer it');
+});
+
+// The divergence this pins has now happened twice, and both times it removed
+// working tools from the only host serving them.
+//
+// `build.mjs` decides what the canonical site publishes; this module decides
+// what the apex mirrors. They answer the same question — "is this venture a
+// static page, and where does it start?" — and every time the mirror has
+// restated the answer instead of importing it, the copy has gone stale:
+//
+//   2026-09-03 (a): the mirror knew `index.html` but not `site/index.html`,
+//                   so six flat static ventures were filed as apps.
+//   2026-09-03 (b): the mirror knew both candidates but not that
+//                   `ENTRY_OVERRIDES` exists, so `ai-engineering-academy` --
+//                   a hub page and six working electronics calculators --
+//                   was reported as "not a static page the mirror can serve"
+//                   while `build.mjs` published all seven. The canonical host
+//                   serves nothing until `portfolio-site-repo` is sealed, so
+//                   those pages were public nowhere.
+//
+// Asserting the two agree on the whole real venture tree is what makes a
+// third divergence a failing test rather than a silent absence. It compares
+// behaviour, not constants, so it still holds if either side grows a rule.
+test('every venture the canonical build publishes is one the mirror can resolve', async () => {
+  const venturesDir = path.join(REPO_ROOT, 'ventures');
+  const surfaces = await discoverSurfaces(venturesDir);
+  assert.ok(surfaces.length > 100, 'discoverSurfaces returned implausibly few ventures');
+
+  const unresolvable = [];
+  for (const surface of surfaces) {
+    const files = await ventureFiles(surface.slug, venturesDir).catch(() => null);
+    if (!files?.includes('index.html')) unresolvable.push(surface.slug);
+  }
+
+  assert.deepEqual(
+    unresolvable,
+    [],
+    'the canonical build publishes these ventures but the mirror finds no index.html for them — ' +
+      'the entry-point rules have diverged again',
+  );
 });

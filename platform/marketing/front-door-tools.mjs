@@ -85,6 +85,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+// The canonical site build's own entry-point rules, imported rather than
+// restated. `venturePageRoot` is the only consumer; see its comment for why a
+// copy here has twice gone stale against the original.
+import { ENTRY_CANDIDATES, ENTRY_OVERRIDES } from '../pages/build.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -863,7 +867,7 @@ export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
       excluded.push({
         slug,
         kind: 'not-a-page',
-        reason: `no index.html at the venture root or in ${NESTED_PAGE_ROOT}/ — not a static page the mirror can serve`,
+        reason: `no index.html at the venture root, in ${NESTED_PAGE_ROOT}/, or at its ENTRY_OVERRIDES path — not a static page the mirror can serve`,
       });
       continue;
     }
@@ -1143,6 +1147,22 @@ async function isPageDirectory(pageRoot, name) {
  * path.join('site', 'index.html')]` for as long as this mirror has existed.
  * The mirror knowing only the first of the two is what made the apex disagree
  * with the canonical host about which ventures are static pages at all.
+ *
+ * **That disagreement recurred on 2026-09-03, and this constant is now a label
+ * rather than the rule.** Restating `build.mjs`'s resolution here fixed the
+ * `site/` half and froze the mistake in place: `build.mjs` also carries
+ * `ENTRY_OVERRIDES`, for ventures whose surface is at neither standard path,
+ * and a copied constant could not know that. `ai-engineering-academy` declares
+ * `tools`, so the canonical build published its hub and six working
+ * electronics calculators while this module reported the venture as "not a
+ * static page the mirror can serve" — and since the canonical host serves
+ * nothing until `portfolio-site-repo` is sealed, those seven pages were public
+ * nowhere.
+ *
+ * `venturePageRoot` therefore imports both `ENTRY_CANDIDATES` and
+ * `ENTRY_OVERRIDES` from `build.mjs` instead of restating either. This name is
+ * kept only because the prose and the exclusion message read better with a
+ * word for the `site/` case; nothing resolves a path through it.
  */
 const NESTED_PAGE_ROOT = 'site';
 
@@ -1166,9 +1186,16 @@ const NESTED_PAGE_ROOT = 'site';
  */
 async function venturePageRoot(slug, venturesDir = VENTURES_DIR) {
   const root = path.join(venturesDir, slug);
-  if (await fs.access(path.join(root, 'index.html')).then(() => true, () => false)) return root;
-  const nested = path.join(root, NESTED_PAGE_ROOT);
-  if (await fs.access(path.join(nested, 'index.html')).then(() => true, () => false)) return nested;
+  // An override replaces the candidate list rather than extending it, exactly
+  // as `discoverSurfaces` does — a venture that declares where its surface
+  // lives is not also searched at the standard paths, so it cannot be served
+  // from two roots depending on which file you asked about.
+  const override = ENTRY_OVERRIDES[slug];
+  const candidates = override ? [path.join(override, 'index.html')] : ENTRY_CANDIDATES;
+  for (const candidate of candidates) {
+    const dir = path.join(root, path.dirname(candidate));
+    if (await fs.access(path.join(root, candidate)).then(() => true, () => false)) return dir;
+  }
   // No entry point anywhere. Return the venture root so callers report "no
   // index.html" against the directory a reader would go looking in, rather
   // than against a `site/` that may not exist.
