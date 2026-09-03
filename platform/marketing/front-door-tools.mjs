@@ -99,7 +99,12 @@ import { ENTRY_CANDIDATES, ENTRY_OVERRIDES } from '../pages/build.mjs';
 // product. So `injectMirrorEmbed` below contributes exactly one thing the
 // original cannot know — where the box attaches on a mirrored page — and
 // borrows the rest.
-import { EMBED_MODULE_FILE, EMBED_STYLE_FILE, injectEmbedWidget } from '../pages/embed.mjs';
+import {
+  EMBED_HOST_FILE,
+  EMBED_MODULE_FILE,
+  EMBED_STYLE_FILE,
+  injectEmbedWidget,
+} from '../pages/embed.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -1113,6 +1118,10 @@ export const APEX_ROOT_PATHS = new Set([
   // drift from the filenames the injector writes.
   `/${EMBED_MODULE_FILE}`,
   `/${EMBED_STYLE_FILE}`,
+  // The resizer. Not linked from any page here — the embed snippet names it,
+  // and the page that runs it is somebody else's — but it is served from this
+  // document root and so belongs in the same allowlist.
+  `/${EMBED_HOST_FILE}`,
 ]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);

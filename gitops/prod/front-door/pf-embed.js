@@ -38,6 +38,26 @@ bar.appendChild(document.createTextNode(' · '));
 bar.appendChild(link);
 if (document.body) document.body.appendChild(bar);
 if (slug) bump('embed_view:' + slug);
+var lastHeight = 0;
+var report = function(){
+try {
+var doc = document.documentElement;
+var height = Math.max(doc ? doc.scrollHeight : 0, document.body ? document.body.scrollHeight : 0);
+if (!height || Math.abs(height - lastHeight) < 2) return;
+lastHeight = height;
+window.parent.postMessage({ source: 'pf-embed', slug: slug, height: height }, '*');
+} catch (e) {}
+};
+report();
+window.addEventListener('load', report);
+window.addEventListener('resize', report);
+if (window.ResizeObserver && document.body) {
+try { new ResizeObserver(report).observe(document.body); } catch (e) {}
+} else {
+document.addEventListener('input', report);
+document.addEventListener('change', report);
+document.addEventListener('click', report);
+}
 }
 var button = document.querySelector('[data-pf-embed-copy]');
 if (button) {

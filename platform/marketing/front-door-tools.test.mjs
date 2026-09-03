@@ -65,6 +65,7 @@ import {
   NAV_CLASS,
   NAV_STYLE,
   APEX_ROOT_PATHS,
+  decodeCharacterReferences,
   FAVICON_FILE,
   mirrorUrl,
   pageTitle,
@@ -1536,6 +1537,29 @@ test('every mirrored entry page offers an embed pointing at a host that serves',
     assert.ok(
       entry.contents.includes('href="/pf-embed.css"'),
       `${entry.slug} loads no embed stylesheet`,
+    );
+
+    // The resizer the snippet offers. `validateLinks` cannot reach this one:
+    // the snippet lives inside a `<textarea>` as escaped text, so it is not a
+    // link on this page at all — it becomes one only after somebody pastes it
+    // onto their own site, where nothing we run can notice it 404ing. So the
+    // URL is resolved here and checked against the paths the apex serves.
+    const snippet = entry.contents.match(
+      /data-pf-embed-snippet>([\s\S]*?)<\/textarea>/,
+    )?.[1];
+    assert.ok(snippet, `${entry.slug} carries no embed snippet to check`);
+    const resizer = decodeCharacterReferences(snippet).match(/<script src="([^"]+)"/)?.[1];
+    assert.ok(resizer, `${entry.slug}'s snippet offers no resizer`);
+    const resolved = new URL(resizer);
+    assert.equal(
+      resolved.origin,
+      new URL(APEX_URL).origin,
+      `${entry.slug}'s snippet loads its resizer from an origin this host does not serve`,
+    );
+    assert.ok(
+      APEX_ROOT_PATHS.has(resolved.pathname),
+      `${entry.slug}'s snippet points at ${resolved.pathname}, which the apex document root `
+        + `does not serve (it serves ${[...APEX_ROOT_PATHS].join(', ')})`,
     );
   }
 });

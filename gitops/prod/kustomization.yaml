@@ -117,6 +117,14 @@ configMapGenerator:
       # set under the 1 MiB object ceiling.
       - pf-embed.js=front-door/pf-embed.js
       - pf-embed.css=front-door/pf-embed.css
+      # The resizer, which is here for a different reason than the two above:
+      # no page on this host links it at all. It is named by the `<script src>`
+      # in the embed snippet each of the 169 entry pages offers for copying, so
+      # it is fetched from a stranger's site or not at all. Absent from this
+      # ConfigMap, every published snippet's second line 404s and every embed
+      # silently stays at its fallback height -- a failure with no symptom
+      # anywhere we can see it.
+      - pf-embed-host.js=front-door/pf-embed-host.js
       # The seven category browse pages. Same reason as everything above for
       # riding in this ConfigMap: they are served from the document root (the
       # `^/c/(?<cat>…)/?$` block in `front-door/default.conf` rewrites

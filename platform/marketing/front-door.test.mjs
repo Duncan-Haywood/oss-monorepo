@@ -16,6 +16,7 @@ import {
   FRONT_DOOR_URL,
   CATALOG_FILE,
   CATALOG_OUTPUT_FILE,
+  EMBED_HOST_OUTPUT_FILE,
   EMBED_MODULE_OUTPUT_FILE,
   EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
@@ -321,7 +322,8 @@ test('the committed embed runtime and stylesheet match what embed.mjs renders', 
   // week's runtime with no test anywhere noticing. `CLAUDE.md` records two
   // occasions where a copied-instead-of-imported rule cost live product; this
   // is the check that keeps the import honest at the file level too.
-  const { renderEmbedModule, renderEmbedStyle } = await import('../pages/embed.mjs');
+  const { renderEmbedModule, renderEmbedStyle, renderEmbedHostModule } =
+    await import('../pages/embed.mjs');
 
   const committedModule = await fs.readFile(EMBED_MODULE_OUTPUT_FILE, 'utf8');
   assert.equal(
@@ -336,6 +338,16 @@ test('the committed embed runtime and stylesheet match what embed.mjs renders', 
     renderEmbedStyle(),
     'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/front-door.mjs --write`',
   );
+
+  // The resizer matters more here than either file above, not less: nothing on
+  // this host loads it, so a stale or missing copy is invisible from every
+  // page we can look at and broken on every site that pasted the snippet.
+  const committedHost = await fs.readFile(EMBED_HOST_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    committedHost,
+    renderEmbedHostModule(),
+    'gitops/prod/front-door/pf-embed-host.js is stale — run `node platform/marketing/front-door.mjs --write`',
+  );
 });
 
 test('nginx serves the embed runtime and stylesheet as their own types', async () => {
@@ -348,6 +360,10 @@ test('nginx serves the embed runtime and stylesheet as their own types', async (
   for (const [file, type] of [
     ['pf-embed.js', 'text/javascript'],
     ['pf-embed.css', 'text/css'],
+    // The resizer, whose failure mode is worse than a wrong type: served as
+    // `text/html` by the catch-all it is refused outright, and the only person
+    // who ever sees that is the embedder whose page silently stopped sizing.
+    ['pf-embed-host.js', 'text/javascript'],
   ]) {
     assert.ok(
       conf.includes(`location = /${file} {`),
@@ -416,7 +432,7 @@ test('the kustomization mounts the embed runtime and stylesheet', async () => {
     path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
     'utf8',
   );
-  for (const key of ['pf-embed.js', 'pf-embed.css']) {
+  for (const key of ['pf-embed.js', 'pf-embed.css', 'pf-embed-host.js']) {
     assert.ok(
       kustomization.includes(`- ${key}=front-door/${key}`),
       `gitops/prod/kustomization.yaml must mount ${key}; without it the embed offer is inert`,

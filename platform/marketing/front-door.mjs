@@ -110,8 +110,10 @@ import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, THEME_COLOR, renderSocialCard } 
 // reads `data-pf-embed-url`/`-title`/`-slug` off its own script tag -- so the
 // apex needs the same bytes, not a variant of them.
 import {
+  renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
+  EMBED_HOST_FILE,
   EMBED_MODULE_FILE,
   EMBED_STYLE_FILE,
   EMBED_QUERY_PARAM,
@@ -528,6 +530,21 @@ export const EMBED_STYLE_OUTPUT_FILE = path.join(
   'prod',
   'front-door',
   EMBED_STYLE_FILE,
+);
+/**
+ * The resizer, same root, one extra reason to be here: unlike the two above it
+ * is not linked by any page this host serves. It is named by the `<script src>`
+ * in the embed snippet every mirrored entry page offers for copying, so it has
+ * to answer at the apex or the second line of every published snippet 404s on
+ * a stranger's site — a failure that is invisible from here and visible to
+ * exactly the people this feature is for.
+ */
+export const EMBED_HOST_OUTPUT_FILE = path.join(
+  REPO_ROOT,
+  'gitops',
+  'prod',
+  'front-door',
+  EMBED_HOST_FILE,
 );
 
 /**
@@ -1909,6 +1926,11 @@ if (isMain) {
     await fs.writeFile(EMBED_STYLE_OUTPUT_FILE, embedStyle);
     console.log(
       `wrote ${path.relative(REPO_ROOT, EMBED_STYLE_OUTPUT_FILE)} (${embedStyle.length} bytes)`,
+    );
+    const embedHost = renderEmbedHostModule();
+    await fs.writeFile(EMBED_HOST_OUTPUT_FILE, embedHost);
+    console.log(
+      `wrote ${path.relative(REPO_ROOT, EMBED_HOST_OUTPUT_FILE)} (${embedHost.length} bytes)`,
     );
     // The category pages, for the same reason as everything above: the page's
     // own cards and its JSON-LD `hasPart` name these seven URLs, so a run that

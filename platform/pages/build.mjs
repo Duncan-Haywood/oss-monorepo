@@ -74,10 +74,12 @@ import {
 } from './link.mjs';
 import {
   DEFAULT_EMBED_HEIGHT,
+  EMBED_HOST_FILE,
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
@@ -4504,6 +4506,10 @@ export async function collectOfflineBundle(outDir, surfaces) {
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
+    // Not loaded by any page on this site — it runs on the embedder's — but
+    // precached all the same so the snippet's second line is served from the
+    // same revision as the first.
+    EMBED_HOST_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -4732,9 +4738,13 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
   await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
-  // The embed-widget runtime and its stylesheet, on the same terms.
+  // The embed-widget runtime and its stylesheet, on the same terms. The
+  // resizer joins them because the snippet every entry page offers names it
+  // absolutely: a build that wrote the snippet without the file would hand
+  // embedders a `<script src>` that 404s.
   await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
   await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
+  await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
