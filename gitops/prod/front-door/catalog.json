@@ -120,7 +120,7 @@
       "url": "https://marisstella.dev/tools/seller-net-sheet/",
       "category": "Back-office money & contracts",
       "description": "Free seller net sheet: see cash at closing after listing commission, optional buyer-broker compensation, concessions, title, and payoff. Compare two offers — the higher price is not always more cash.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "subscription-price-impact",
@@ -512,7 +512,7 @@
       "url": "https://marisstella.dev/tools/artificial-turf-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an artificial turf install from landscape, pet, or putting-green turf: lawn square footage, 15-foot-roll waste, crushed-rock base, sod demo, infill, seams, and tree wells — not a published $8-a-square-foot special. See the turf you have to buy and the walk-away number.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "asphalt-driveway-pave-bid-calculator",
@@ -1080,7 +1080,7 @@
       "url": "https://marisstella.dev/tools/pole-barn-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away price a $45-a-foot ag special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "pool-plaster-bid-calculator",
@@ -1192,7 +1192,7 @@
       "url": "https://marisstella.dev/tools/shop-rate-calculator/",
       "category": "Trade & contractor bids",
       "description": "Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "shopify-fee-calculator",
@@ -1360,7 +1360,7 @@
       "url": "https://marisstella.dev/tools/walk-in-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "water-heater-bid-calculator",
@@ -1376,7 +1376,7 @@
       "url": "https://marisstella.dev/tools/water-softener-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a water-softener install from extra pipe past the included run, copper versus PEX, an iron filter or under-sink RO, the brine drain, haul-away of the old unit, and a brine receptacle — not a published $799 installed special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "well-pump-bid-calculator",
