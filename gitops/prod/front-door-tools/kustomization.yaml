@@ -39,9 +39,9 @@
 #   portfolio-front-tools-3: 125 files, 555463 bytes
 #   portfolio-front-tools-4: 136 files, 556250 bytes
 #   portfolio-front-tools-5: 123 files, 556802 bytes
-#   portfolio-front-tools-6: 109 files, 556283 bytes
-#   portfolio-front-tools-7: 118 files, 551244 bytes
-#   portfolio-front-tools-8: 116 files, 550932 bytes
+#   portfolio-front-tools-6: 109 files, 555965 bytes
+#   portfolio-front-tools-7: 119 files, 554226 bytes
+#   portfolio-front-tools-8: 116 files, 550950 bytes
 #   portfolio-front-tools-9: 109 files, 552104 bytes
 #   portfolio-front-tools-10: 111 files, 539654 bytes
 #
@@ -933,6 +933,7 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz=hardwood-refinishing-bid-calculator__how-much-to-charge-to-refinish-hardwood-floors.html.gz
       - hardwood-refinishing-bid-calculator__index.html.gz=hardwood-refinishing-bid-calculator__index.html.gz
       - hardwood-refinishing-bid-calculator__proposal.mjs.gz=hardwood-refinishing-bid-calculator__proposal.mjs.gz
+      - hardwood-refinishing-bid-calculator__share.mjs.gz=hardwood-refinishing-bid-calculator__share.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
       - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
       - holiday-light-bid-calculator__LICENSE.gz=holiday-light-bid-calculator__LICENSE.gz
@@ -1024,12 +1025,12 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
       - landscape-lighting-bid-calculator__LICENSE.gz=landscape-lighting-bid-calculator__LICENSE.gz
       - landscape-lighting-bid-calculator__calc.mjs.gz=landscape-lighting-bid-calculator__calc.mjs.gz
-      - landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz=landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz=landscape-lighting-bid-calculator__how-much-to-charge-to-install-landscape-lighting.html.gz
       - landscape-lighting-bid-calculator__index.html.gz=landscape-lighting-bid-calculator__index.html.gz
       - landscape-lighting-bid-calculator__proposal.mjs.gz=landscape-lighting-bid-calculator__proposal.mjs.gz
       - landscape-lighting-bid-calculator__share.mjs.gz=landscape-lighting-bid-calculator__share.mjs.gz

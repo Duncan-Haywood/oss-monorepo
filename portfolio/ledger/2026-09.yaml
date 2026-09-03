@@ -7020,3 +7020,50 @@ entries:
         (gitops 138s, build 175s, validate 236s -- confirmed via
         ci_starvation.py, not assumed). Merged via squash.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: 0 open PRs existed at session start (verified via
+        list_pull_requests) -- the "none exist, start new work after the
+        overlap check" rule applies, so the drain phase was a genuine no-op.
+      - >-
+        Owner re-sent standing direction this session ("deployment and cicd
+        a priority", "building and deploying marketing materials on the
+        hetzner vms", "codex cli set up to use up the built in quota... on
+        the hetzner vm"). Verified all three are already answered on `main`
+        rather than re-building anything: `deploy-cicd-readiness` (priority
+        7) and `marketing-distribution` (priority 6) queue items were
+        reprioritized to the top on 2026-09-01 quoting this exact owner
+        instruction, and `gitops/agents/` already carries a complete
+        governor/worker system for Codex-on-Hetzner including the
+        `CODEX_AUTH_JSON` "plan quota" auth path. All three are gated only
+        on owner-only actions (sealing `codex-secrets`, flipping
+        `policy.json.enabled` and un-suspending the governor CronJob --
+        decision-queue row `codex-governor-enable`, #1996). Not duplicated.
+      - >-
+        Shipped: PR #3003 -- added `aria-live="polite"` to the dynamic
+        result panels of `marketplace-fee-compare` (#errors,
+        #resultSection, #copyStatus) and `retainage-cashflow-calculator`
+        (#output, #copyStatus), found via a sweep of all 163 ventures with a
+        top-level `index.html` for the aria-live gap already fixed
+        individually in other ventures (seller-net-sheet #2946,
+        notary-trip-quote #2987). 11 ventures lacked it; the other 9 were
+        static/non-interactive content, not applicable. Regenerated the
+        front-door-tools mirror for both (mirrored ventures).
+      - >-
+        `gitops` check failed once on the PR head on an unrelated flaky
+        test (`test_sigterm_reaches_the_runner_and_still_deregisters`, a
+        30s subprocess/SIGTERM timing test for `gitops/ci/runner-
+        entrypoint.sh` -- nothing this PR touches). Confirmed via
+        `ci_starvation.py` it ran on a real runner (not the starvation
+        signature) and that `gitops` was green on `main`'s own tip moments
+        earlier, so not a base-branch break either. Posted one comment
+        naming the failure and re-ran the job once per the CI-red rule; it
+        passed on re-run, confirming the flake. Verified: node --test in
+        both ventures (65/65, 27/27, including two new aria-live regression
+        tests), front-door-tools.test.mjs (74/74), full build.mjs +
+        check.mjs (169 products, 601 pages, no dead links), pytest
+        gitops/tests -q (271 passed, 9 skipped). Merged via squash.
+    mrr_end: null
