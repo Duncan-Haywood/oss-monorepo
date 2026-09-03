@@ -8036,6 +8036,32 @@ entries:
         (181 products, 358 readings — no new venture, so no new usage
         entry needed).
     mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a real core-usefulness fix, not a comparison page: the
+        review queue only ever offered "Clear all saved awards", so
+        correcting one mistyped award or dropping a grant whose reporting
+        obligation ended required wiping every other tracked award too.
+        Ported the sibling venture grant-deadline-tracker's existing
+        pattern -- a per-row Remove button backed by removeGrant(grants,
+        index) and a sourceIndex attached to each row before the queue
+        sorts, so a row's on-screen position (not its storage position
+        once sorted by urgency) still maps back to the right saved
+        award. PR #3074. Verified: 17/17 venture tests (was 14, +3 new,
+        including a sourceIndex-survives-sort case), 867/867
+        platform/pages tests, 182/182 platform/marketing tests after
+        regenerating the apex tool mirror for the changed index.html/
+        calc.mjs bytes, a manual Playwright smoke test against the page
+        served over HTTP (remove one of three sample rows, confirm
+        exactly that row is gone and the removal survives a reload), and
+        `run_workflow_locally.py --for-changes` (42/48 portfolio-validate
+        run steps pass; the other 6 are a pre-existing "No module named
+        pytest" dependency-install gap in unrelated Python probe suites,
+        not caused by this change).
+    mrr_end: null
   - venture: real-estate-agent-photo-app
     agent_spend_usd: null
     human_hours: 0

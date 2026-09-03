@@ -4374,6 +4374,11 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped private browser deadline queue and CSV export; public publishing is owner-gated, so this is the initial baseline.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a per-row Remove button (grant_removed event) so a single mistyped or completed award can be dropped without clearing the whole queue. No live traffic to observe; also reachable today at https://marisstella.dev/tools/grant-reporting-tracker/ via the apex front-door mirror, not owner-gated as the earlier reading said.
   - slug: vendor-watch
     surface: process-host-in-repo
     readings:
