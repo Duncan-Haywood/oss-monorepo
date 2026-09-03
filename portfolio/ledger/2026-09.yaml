@@ -6757,3 +6757,35 @@ entries:
         commit b8b6fc678) under this repo's no-review-ceremony rule for
         `ventures/*` product PRs.
     mrr_end: null
+  - venture: cash-runway-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a shareable forecast link (`share.mjs` + a "Copy share
+        link" button), following the encode/decode pattern already used
+        by `retainage-cashflow-calculator` and `paver-patio-bid-calculator`.
+        Every input round-trips through a URL fragment (never sent to a
+        server) -- starting cash, weekly income/costs, collection delay,
+        forecast length, and all 8 one-off rows -- so a business owner
+        can hand a bookkeeper or partner the exact forecast they are
+        looking at instead of a screenshot or a re-typed summary. The
+        `Kind` select ('in'/'out') is allowlisted by value rather than by
+        presence, specifically guarding against the drift class #2962
+        fixed elsewhere (a select silently reverting to its default while
+        derived numbers round-trip fine). Opening a shared link runs the
+        forecast immediately and takes priority over a saved local draft.
+      - >-
+        Verified with `node --test` in the venture (54/54, 10 new tests)
+        and `node --test "platform/marketing/*.test.mjs"` (136/136,
+        front-door mirror consistency). First CI push failed `validate`
+        for a real reason (confirmed via `ci_starvation.py` against a
+        real runner): the regenerated front-door mirror was committed
+        onto a merge commit whose regeneration step never actually got
+        committed before push -- a real mistake, not a race. Fixed by
+        re-running `platform/marketing/front-door-tools.mjs --write` and
+        committing its output; all 13 checks then went green (`gitops`,
+        `Portfolio Pages` build, `Portfolio validate`, and the venture's
+        own CI). PR #2966 merged (squash, commit 767b62702) under this
+        repo's no-review-ceremony rule for `ventures/*` product PRs.
+    mrr_end: null
