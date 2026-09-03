@@ -39,11 +39,11 @@
 #   portfolio-front-tools-3: 127 files, 546496 bytes
 #   portfolio-front-tools-4: 126 files, 550693 bytes
 #   portfolio-front-tools-5: 126 files, 553339 bytes
-#   portfolio-front-tools-6: 112 files, 555362 bytes
-#   portfolio-front-tools-7: 119 files, 545077 bytes
-#   portfolio-front-tools-8: 120 files, 556846 bytes
-#   portfolio-front-tools-9: 105 files, 555383 bytes
-#   portfolio-front-tools-10: 61 files, 324653 bytes
+#   portfolio-front-tools-6: 112 files, 555823 bytes
+#   portfolio-front-tools-7: 121 files, 553009 bytes
+#   portfolio-front-tools-8: 120 files, 556389 bytes
+#   portfolio-front-tools-9: 105 files, 556908 bytes
+#   portfolio-front-tools-10: 62 files, 327982 bytes
 #   portfolio-front-tools-11: 58 files, 266851 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -948,6 +948,7 @@ configMapGenerator:
       - holiday-light-bid-calculator__proposal.mjs.gz=holiday-light-bid-calculator__proposal.mjs.gz
       - holiday-light-bid-calculator__share.mjs.gz=holiday-light-bid-calculator__share.mjs.gz
       - holiday-light-bid-calculator__usage.mjs.gz=holiday-light-bid-calculator__usage.mjs.gz
+      - holiday-light-bid-calculator__vs-realgreen.html.gz=holiday-light-bid-calculator__vs-realgreen.html.gz
       - home-elevator-bid-calculator__LICENSE.gz=home-elevator-bid-calculator__LICENSE.gz
       - home-elevator-bid-calculator__acrylic-vs-glass-home-elevator-cab.html.gz=home-elevator-bid-calculator__acrylic-vs-glass-home-elevator-cab.html.gz
       - home-elevator-bid-calculator__calc.mjs.gz=home-elevator-bid-calculator__calc.mjs.gz
@@ -1021,12 +1022,12 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__LICENSE.gz=kitchen-tile-backsplash-bid-calculator__LICENSE.gz
       - kitchen-tile-backsplash-bid-calculator__calc.mjs.gz=kitchen-tile-backsplash-bid-calculator__calc.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__do-leftover-tile-boxes-cover-the-next-wall.html.gz=kitchen-tile-backsplash-bid-calculator__do-leftover-tile-boxes-cover-the-next-wall.html.gz
-      - kitchen-tile-backsplash-bid-calculator__how-much-to-charge-for-a-kitchen-tile-backsplash.html.gz=kitchen-tile-backsplash-bid-calculator__how-much-to-charge-for-a-kitchen-tile-backsplash.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - kitchen-tile-backsplash-bid-calculator__how-much-to-charge-for-a-kitchen-tile-backsplash.html.gz=kitchen-tile-backsplash-bid-calculator__how-much-to-charge-for-a-kitchen-tile-backsplash.html.gz
       - kitchen-tile-backsplash-bid-calculator__index.html.gz=kitchen-tile-backsplash-bid-calculator__index.html.gz
       - kitchen-tile-backsplash-bid-calculator__proposal.mjs.gz=kitchen-tile-backsplash-bid-calculator__proposal.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__share.mjs.gz=kitchen-tile-backsplash-bid-calculator__share.mjs.gz
@@ -1105,6 +1106,7 @@ configMapGenerator:
       - parking-lot-striping-bid-calculator__proposal.mjs.gz=parking-lot-striping-bid-calculator__proposal.mjs.gz
       - parking-lot-striping-bid-calculator__share.mjs.gz=parking-lot-striping-bid-calculator__share.mjs.gz
       - parking-lot-striping-bid-calculator__usage.mjs.gz=parking-lot-striping-bid-calculator__usage.mjs.gz
+      - parking-lot-striping-bid-calculator__vs-saasphalt.html.gz=parking-lot-striping-bid-calculator__vs-saasphalt.html.gz
       - patio-door-bid-calculator__LICENSE.gz=patio-door-bid-calculator__LICENSE.gz
       - patio-door-bid-calculator__calc.mjs.gz=patio-door-bid-calculator__calc.mjs.gz
       - patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz=patio-door-bid-calculator__how-much-to-charge-to-replace-a-sliding-glass-door.html.gz
@@ -1243,6 +1245,7 @@ configMapGenerator:
       - septic-pumping-bid-calculator__index.html.gz=septic-pumping-bid-calculator__index.html.gz
       - septic-pumping-bid-calculator__proposal.mjs.gz=septic-pumping-bid-calculator__proposal.mjs.gz
       - septic-pumping-bid-calculator__usage.mjs.gz=septic-pumping-bid-calculator__usage.mjs.gz
+      - septic-pumping-bid-calculator__vs-servicecore.html.gz=septic-pumping-bid-calculator__vs-servicecore.html.gz
       - sewer-hydrojet-bid-calculator__LICENSE.gz=sewer-hydrojet-bid-calculator__LICENSE.gz
       - sewer-hydrojet-bid-calculator__calc.mjs.gz=sewer-hydrojet-bid-calculator__calc.mjs.gz
       - sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz=sewer-hydrojet-bid-calculator__how-much-to-charge-for-hydro-jetting.html.gz
@@ -1270,12 +1273,12 @@ configMapGenerator:
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__LICENSE.gz=shopify-fee-calculator__LICENSE.gz
-      - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
       - shopify-fee-calculator__calc.mjs.gz=shopify-fee-calculator__calc.mjs.gz
       - shopify-fee-calculator__index.html.gz=shopify-fee-calculator__index.html.gz
       - shopify-fee-calculator__refunds.html.gz=shopify-fee-calculator__refunds.html.gz
@@ -1380,12 +1383,12 @@ configMapGenerator:
       - stucco-repair-bid-calculator__usage.mjs.gz=stucco-repair-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__LICENSE.gz=sump-pump-bid-calculator__LICENSE.gz
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
-      - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
       - sump-pump-bid-calculator__proposal.mjs.gz=sump-pump-bid-calculator__proposal.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
