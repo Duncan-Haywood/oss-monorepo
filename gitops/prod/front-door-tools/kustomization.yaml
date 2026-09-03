@@ -37,11 +37,11 @@
 #   portfolio-front-tools-1: 125 files, 556474 bytes
 #   portfolio-front-tools-2: 163 files, 555310 bytes
 #   portfolio-front-tools-3: 125 files, 554410 bytes
-#   portfolio-front-tools-4: 135 files, 556504 bytes
-#   portfolio-front-tools-5: 121 files, 554151 bytes
-#   portfolio-front-tools-6: 108 files, 555815 bytes
-#   portfolio-front-tools-7: 123 files, 553538 bytes
-#   portfolio-front-tools-8: 114 files, 545385 bytes
+#   portfolio-front-tools-4: 135 files, 556945 bytes
+#   portfolio-front-tools-5: 120 files, 554402 bytes
+#   portfolio-front-tools-6: 110 files, 556844 bytes
+#   portfolio-front-tools-7: 123 files, 556763 bytes
+#   portfolio-front-tools-8: 115 files, 548409 bytes
 #   portfolio-front-tools-9: 109 files, 552335 bytes
 #   portfolio-front-tools-10: 56 files, 298840 bytes
 #   portfolio-front-tools-11: 58 files, 266851 bytes
@@ -734,6 +734,7 @@ configMapGenerator:
       - dryer-vent-bid-calculator__index.html.gz=dryer-vent-bid-calculator__index.html.gz
       - dryer-vent-bid-calculator__proposal.mjs.gz=dryer-vent-bid-calculator__proposal.mjs.gz
       - dryer-vent-bid-calculator__usage.mjs.gz=dryer-vent-bid-calculator__usage.mjs.gz
+      - dryer-vent-bid-calculator__vs-wepro.html.gz=dryer-vent-bid-calculator__vs-wepro.html.gz
       - drywall-bid-calculator__LICENSE.gz=drywall-bid-calculator__LICENSE.gz
       - drywall-bid-calculator__calc.mjs.gz=drywall-bid-calculator__calc.mjs.gz
       - drywall-bid-calculator__how-much-to-charge.html.gz=drywall-bid-calculator__how-much-to-charge.html.gz
@@ -781,12 +782,12 @@ configMapGenerator:
       - einvoice-preflight__terms.mjs.gz=einvoice-preflight__terms.mjs.gz
       - einvoice-preflight__ubl.mjs.gz=einvoice-preflight__ubl.mjs.gz
       - einvoice-preflight__usage.mjs.gz=einvoice-preflight__usage.mjs.gz
-      - einvoice-preflight__vat.mjs.gz=einvoice-preflight__vat.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - einvoice-preflight__vat.mjs.gz=einvoice-preflight__vat.mjs.gz
       - einvoice-preflight__what-does-this-e-invoice-error-code-mean.html.gz=einvoice-preflight__what-does-this-e-invoice-error-code-mean.html.gz
       - electrical-panel-upgrade-bid-calculator__LICENSE.gz=electrical-panel-upgrade-bid-calculator__LICENSE.gz
       - electrical-panel-upgrade-bid-calculator__calc.mjs.gz=electrical-panel-upgrade-bid-calculator__calc.mjs.gz
@@ -906,13 +907,13 @@ configMapGenerator:
       - gutter-cleaning-bid-calculator__calc.mjs.gz=gutter-cleaning-bid-calculator__calc.mjs.gz
       - gutter-cleaning-bid-calculator__index.html.gz=gutter-cleaning-bid-calculator__index.html.gz
       - gutter-cleaning-bid-calculator__proposal.mjs.gz=gutter-cleaning-bid-calculator__proposal.mjs.gz
-      - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
-      - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz=gutter-cleaning-bid-calculator__two-story-gutter-cleaning-cost.html.gz
+      - gutter-cleaning-bid-calculator__usage.mjs.gz=gutter-cleaning-bid-calculator__usage.mjs.gz
       - gutter-cleaning-bid-calculator__vs-jobber.html.gz=gutter-cleaning-bid-calculator__vs-jobber.html.gz
       - gutter-guard-bid-calculator__LICENSE.gz=gutter-guard-bid-calculator__LICENSE.gz
       - gutter-guard-bid-calculator__calc.mjs.gz=gutter-guard-bid-calculator__calc.mjs.gz
@@ -960,6 +961,7 @@ configMapGenerator:
       - hood-cleaning-bid-calculator__index.html.gz=hood-cleaning-bid-calculator__index.html.gz
       - hood-cleaning-bid-calculator__proposal.mjs.gz=hood-cleaning-bid-calculator__proposal.mjs.gz
       - hood-cleaning-bid-calculator__usage.mjs.gz=hood-cleaning-bid-calculator__usage.mjs.gz
+      - hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz=hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz
       - hot-tub-bid-calculator__LICENSE.gz=hot-tub-bid-calculator__LICENSE.gz
       - hot-tub-bid-calculator__calc.mjs.gz=hot-tub-bid-calculator__calc.mjs.gz
       - hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz=hot-tub-bid-calculator__how-much-to-charge-to-install-a-hot-tub.html.gz
@@ -1020,12 +1022,12 @@ configMapGenerator:
       - kitchen-tile-backsplash-bid-calculator__how-much-to-charge-for-a-kitchen-tile-backsplash.html.gz=kitchen-tile-backsplash-bid-calculator__how-much-to-charge-for-a-kitchen-tile-backsplash.html.gz
       - kitchen-tile-backsplash-bid-calculator__index.html.gz=kitchen-tile-backsplash-bid-calculator__index.html.gz
       - kitchen-tile-backsplash-bid-calculator__proposal.mjs.gz=kitchen-tile-backsplash-bid-calculator__proposal.mjs.gz
-      - kitchen-tile-backsplash-bid-calculator__share.mjs.gz=kitchen-tile-backsplash-bid-calculator__share.mjs.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - kitchen-tile-backsplash-bid-calculator__share.mjs.gz=kitchen-tile-backsplash-bid-calculator__share.mjs.gz
       - kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-install-customer-supplied-backsplash-tile.html.gz
       - kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz=kitchen-tile-backsplash-bid-calculator__should-i-tile-a-backsplash-after-hours.html.gz
       - kitchen-tile-backsplash-bid-calculator__usage.mjs.gz=kitchen-tile-backsplash-bid-calculator__usage.mjs.gz
@@ -1148,12 +1150,12 @@ configMapGenerator:
       - plantation-shutter-bid-calculator__usage.mjs.gz=plantation-shutter-bid-calculator__usage.mjs.gz
       - pole-barn-bid-calculator__LICENSE.gz=pole-barn-bid-calculator__LICENSE.gz
       - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
-      - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
       - pole-barn-bid-calculator__index.html.gz=pole-barn-bid-calculator__index.html.gz
       - pole-barn-bid-calculator__proposal.mjs.gz=pole-barn-bid-calculator__proposal.mjs.gz
       - pole-barn-bid-calculator__share.mjs.gz=pole-barn-bid-calculator__share.mjs.gz
