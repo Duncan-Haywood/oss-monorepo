@@ -396,6 +396,27 @@ test("a quantity in the wrong unit is refused rather than converted", () => {
   assert.match(priced.reason, /pallets but REWEIGH is rated per cwt/);
 });
 
+test("shipment weight in pounds prices against a per-cwt rate", () => {
+  // A carrier's own weight column is pounds far more often than it is
+  // hundredweight. Reading "5000 lb" as 5000 cwt would put $22,500 of
+  // expected reweigh on a line that should expect $225.
+  const { rates } = parseRateCard("REWEIGH 4.50/cwt");
+  const priced = expectedFor(rates.get("REWEIGH"), "5000 lbs");
+  assert.equal(priced.ok, true);
+  assert.equal(priced.amount, 225);
+  assert.match(priced.basis, /50 cwts from pounds/);
+});
+
+test("a free-weight allowance in pounds converts against a per-cwt rate", () => {
+  const { rates, issues } = parseRateCard("REWEIGH 4.50/cwt after 500 lb free");
+  assert.deepEqual(issues, []);
+  assert.equal(rates.get("REWEIGH").free, 5);
+  const priced = expectedFor(rates.get("REWEIGH"), "5500 lbs");
+  assert.equal(priced.ok, true);
+  // 55 cwt total, less the 5 cwt (500 lb) free allowance, at $4.50/cwt.
+  assert.equal(priced.amount, 225);
+});
+
 test("a per-unit rule with no quantity leaves the expected amount blank, never zero", () => {
   // The whole honesty rule of this importer in one case: a $0.00 expected
   // amount would headline the entire billed line as recoverable.
@@ -470,6 +491,19 @@ test("a quantity cell reads the way a carrier export writes one", () => {
   assert.equal(parseQuantity("1,250 cwt", "cwt").value, 1250);
   assert.equal(parseQuantity("", "hour").ok, false);
   assert.equal(parseQuantity("n/a", "hour").ok, false);
+});
+
+test("parseQuantity converts pounds against a per-cwt rate, and only that pair", () => {
+  const pounds = parseQuantity("250 lbs", "cwt");
+  assert.equal(pounds.ok, true);
+  assert.equal(pounds.value, 2.5);
+  assert.equal(pounds.unit, "cwt");
+  assert.equal(pounds.converted, "pounds");
+  // Pounds do not convert against any other unit — only the documented cwt
+  // pairing exists, same as minutes only converts against hour.
+  const wrongTarget = parseQuantity("250 lbs", "hour");
+  assert.equal(wrongTarget.ok, false);
+  assert.equal(wrongTarget.reason, "wrong-unit");
 });
 
 test("the rate card prices hand-entered rows, and never overwrites a typed figure", () => {

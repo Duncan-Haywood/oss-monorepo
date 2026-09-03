@@ -8,6 +8,7 @@ from review import (
     checks_all_success,
     count_allowed_approvals,
     load_config,
+    mergeable_state_ok,
     path_touches_ventures,
     reviewer_already_approved,
 )
@@ -182,6 +183,35 @@ class HumanGateTest(unittest.TestCase):
     def test_ventures_paths_are_human_gated(self):
         self.assertTrue(path_touches_ventures(["ventures/local-site-studio/app/page.tsx"]))
         self.assertFalse(path_touches_ventures(["platform/ci/agent_review/review.py"]))
+
+
+class MergeableStateTest(unittest.TestCase):
+    def test_clean_passes(self):
+        ok, reasons = mergeable_state_ok({"mergeable_state": "clean"})
+        self.assertTrue(ok)
+        self.assertTrue(any("clean" in r for r in reasons))
+
+    def test_has_hooks_passes(self):
+        # "has_hooks" is clean plus a pre-receive hook; still fully protected.
+        ok, _ = mergeable_state_ok({"mergeable_state": "has_hooks"})
+        self.assertTrue(ok)
+
+    def test_unstable_blocks(self):
+        # A pending or failing (non-required) check on the head => unstable.
+        ok, reasons = mergeable_state_ok({"mergeable_state": "unstable"})
+        self.assertFalse(ok)
+        self.assertTrue(any("unstable" in r for r in reasons))
+
+    def test_blocked_behind_dirty_block(self):
+        for state in ("blocked", "behind", "dirty"):
+            ok, _ = mergeable_state_ok({"mergeable_state": state})
+            self.assertFalse(ok, f"{state} should block merge")
+
+    def test_unknown_or_missing_blocks(self):
+        # GitHub reports "unknown" (or omits the field) while it recomputes the
+        # head; a merge must wait rather than proceed on a stale/absent verdict.
+        self.assertFalse(mergeable_state_ok({"mergeable_state": None})[0])
+        self.assertFalse(mergeable_state_ok({})[0])
 
 
 if __name__ == "__main__":

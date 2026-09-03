@@ -88,7 +88,7 @@ import { fileURLToPath } from 'node:url';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
-import { ENTRY_CANDIDATES, ENTRY_OVERRIDES } from '../pages/build.mjs';
+import { ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
 
 // The embed offer, imported whole rather than reproduced for this host.
 //
@@ -1420,7 +1420,11 @@ export function injectMirrorTags(html, { slug, file }) {
     `<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">` +
     `<meta property="og:image:alt" content="${SOCIAL_CARD_ALT}">` +
     `<meta name="twitter:card" content="summary_large_image">` +
-    NAV_STYLE;
+    NAV_STYLE +
+    // Only entry pages carry the cross-link block, so only they need its rule.
+    // Shipping it on all 544 mirrored pages would spend bytes on 375 that have
+    // no element to match.
+    (file === 'index.html' ? RELATED_STYLE : '');
   const stripped = html
     .replace(STRIPPED_LINK, '')
     .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '')
@@ -1506,12 +1510,20 @@ export const NAV_STYLE =
  * category. The link is what makes that grouping reachable from where people
  * actually land.
  *
- * ## Why one link, at the top, rather than a related-tools block
+ * ## Why one link, at the top
  *
- * Bytes are the mirror's binding constraint — see `MIRROR_BYTE_CEILING` — and
- * a per-page block of siblings would cost several times this and go stale
- * against `STARTER_SET`. One link to the front door reaches all of them,
- * because the front door is already the catalogue.
+ * It reaches every tool, because the front door is already the catalogue, and
+ * it costs one anchor on a page where bytes are the binding constraint — see
+ * `MIRROR_BYTE_CEILING`.
+ *
+ * This comment used to end "rather than a related-tools block", on the grounds
+ * that a per-page list of siblings "would cost several times this and go stale
+ * against `STARTER_SET`". `injectMirrorRelated` is that block, and its own
+ * comment records why both halves of that argument expired: there is no
+ * `STARTER_SET` left to drift against, and the measured cost of the block is
+ * 48 KB against ~2 MB of headroom. The two are complements now — this one is
+ * the hop back to the catalogue, that one is the hop sideways to the three or
+ * four tools the same visitor actually sells.
  *
  * It goes immediately after `<body>` rather than in the footer because a
  * calculator page is long: a footer link is below a form nobody scrolls past
@@ -1537,6 +1549,108 @@ export function injectMirrorNav(html, { toolCount }) {
   }
   const at = html.indexOf(body[0]) + body[0].length;
   return html.slice(0, at) + nav + html.slice(at);
+}
+
+/**
+ * The class the cross-link block takes. Same reasoning as `NAV_CLASS`: an
+ * `fd-` prefix no venture uses, asserted by a test over the mirrored sources.
+ */
+export const RELATED_CLASS = 'fd-related';
+
+/** How many sibling tools an entry page offers. `relatedTools`' own default. */
+export const RELATED_LIMIT = 4;
+
+/**
+ * The rule for the cross-link block. Injected into the head beside
+ * `NAV_STYLE`, and for the same three reasons: a `@media print` rule the
+ * venture stylesheets would otherwise not apply (a contractor's printed bid
+ * must not carry a list of other calculators), a `.pf-embed` rule so the block
+ * disappears when this page is the one inside someone else's iframe, and
+ * literal colours because the venture pages do not define the front door's
+ * custom properties.
+ *
+ * Deliberately quiet: a bordered-top list in the page's own text colour at
+ * inherited size, not a second call-to-action competing with the tool. The
+ * visitor came for a number; this is what they see after they have it.
+ */
+export const RELATED_STYLE =
+  // `display` is declared on all three elements, and that is not padding.
+  // These rules are injected ahead of the venture's own <style>, so on a tie
+  // the venture wins; a class selector outranks a bare element one, so we win
+  // — but only for properties we actually state. Three mirrored ventures set
+  // `display` on a bare `nav`, `ul` or `p` (`nav{display:flex}` in
+  // faire-wholesale-calculator lays the heading beside the list;
+  // `p{display:none}` would delete the heading outright), and every one of
+  // those would have reached the block through a property this rule left
+  // unmentioned. Stating the layout is what makes the block's appearance a
+  // property of the block rather than of whichever venture it lands in.
+  `<style>.${RELATED_CLASS}{display:block;margin:2.5rem 0 0;padding:1rem 0 0;` +
+  `border-top:1px solid #c9d4da;font:400 14px system-ui,sans-serif}` +
+  `.${RELATED_CLASS} p{display:block;margin:0 0 .5rem;font-weight:600}` +
+  `.${RELATED_CLASS} ul{display:block;margin:0;padding:0 0 0 1.1rem;list-style:disc}` +
+  `.${RELATED_CLASS} li{display:list-item;margin:.25rem 0}` +
+  `.${RELATED_CLASS} a{color:#12506b}` +
+  `@media print{.${RELATED_CLASS}{display:none!important}}` +
+  `.pf-embed .${RELATED_CLASS}{display:none}</style>`;
+
+/**
+ * Offer four sibling tools at the foot of a mirrored entry page.
+ *
+ * ## Why this exists, and why the old answer stopped being right
+ *
+ * `injectMirrorNav`'s comment argues for one link to the front door "rather
+ * than a related-tools block", on two grounds: that a block "would cost
+ * several times this" against `MIRROR_BYTE_CEILING`, and that it would "go
+ * stale against `STARTER_SET`". Both were true when written and neither is
+ * now.
+ *
+ * `STARTER_SET` is gone — the mirror covers every eligible venture, so there
+ * is no curated subset for a per-page list to drift out of step with. And the
+ * ceiling stopped binding at this scale when the mirror went gzip-only: the
+ * committed mirror is ~6.0 MB against 8 MiB, and four anchors on 169 entry
+ * pages is a fraction of the ~2.0 MB spare. The byte argument was sound
+ * arithmetic against a 5 MiB ceiling holding 53 uncompressed tools; it is not
+ * arithmetic about the mirror that exists.
+ *
+ * What the one link cannot do is the part that matters. It reaches the
+ * catalogue, but it asks a visitor who has just got their number to go back to
+ * a page of 169 tools and work out which of them also applies to them. A
+ * contractor on the fence calculator is one click from the concrete, deck and
+ * retaining-wall bids — *if* something names them. Internal links between
+ * related pages are also the single largest on-site lever a static catalogue
+ * has for search, and these are the pages that carry it: while
+ * `TOOLS_HOST_SERVES` is false the apex is each tool's canonical and the only
+ * indexable copy.
+ *
+ * ## Why it imports `relatedTools` rather than choosing its own four
+ *
+ * `build.mjs` already ranks siblings — same sub-group first, then the rest of
+ * the category, then the rest of the site, rotated by the tool's own position
+ * so neighbouring tools do not all advertise the same four. That ranking is
+ * the reason a metal-roof page offers another roof and not a music-lesson
+ * break-even, and it is tested where it lives. `CLAUDE.md` records two
+ * occasions where restating a `build.mjs` rule here instead of importing it
+ * cost live product; this module already imports `ENTRY_CANDIDATES` and
+ * `injectEmbedWidget` for exactly that reason.
+ *
+ * The links are root-absolute `/tools/<slug>/` rather than `../<slug>/`
+ * because a mirrored page can be served from `/tools/<slug>/` or from a
+ * subdirectory below it, so a relative hop would resolve differently by depth.
+ * `validateLinks` checks them against the mirror's own file list, so a link
+ * here can no more go dead than a venture's own can.
+ */
+export function injectMirrorRelated(html, { file, related }) {
+  if (file !== 'index.html' || !related?.length) return html;
+  const items = related
+    .map(({ slug, title }) => `<li><a href="${mirrorUrl(slug, 'index.html')}">${title}</a></li>`)
+    .join('');
+  const block =
+    `<nav class="${RELATED_CLASS}" aria-label="Other free tools">` +
+    `<p>Other free tools for the same work</p><ul>${items}</ul></nav>`;
+  if (!/<\/body>/i.test(html)) {
+    throw new Error('a mirrored entry page has no </body>, so the related tools have nowhere to go');
+  }
+  return html.replace(/<\/body>/i, `${block}</body>`);
 }
 
 /**
@@ -1720,6 +1834,20 @@ export function validateLinks(files) {
       // root, not by this mirror, so it is checked against what that root
       // actually holds rather than resolved against the venture directory.
       if (target.startsWith('/')) {
+        // `/tools/<slug>/` is this mirror's own address space, not the front
+        // door's document root, so it is checked against the file list rather
+        // than the root allowlist. `injectMirrorRelated` is the only injector
+        // that writes one, and this is what stops it offering a tool the
+        // mirror does not serve — the same guarantee a venture's own relative
+        // links get below.
+        if (target.startsWith(`/${MIRROR_PREFIX}`)) {
+          const within = target.slice(`/${MIRROR_PREFIX}`.length);
+          const candidate = within.endsWith('/') ? `${within}index.html` : within;
+          if (!present.has(candidate)) {
+            problems.push(`${slug}/${file} → "${href}" (no ${candidate} in the mirror)`);
+          }
+          continue;
+        }
         if (!APEX_ROOT_PATHS.has(target)) {
           problems.push(
             `${slug}/${file} → "${href}" (the apex document root serves only ` +
@@ -1758,8 +1886,16 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // filesystem; a caller passing an explicit `set` (every test that exercises
   // packing or a deliberate failure) must not pay for a scan of `ventures/`.
   set ??= await mirrorSet(venturesDir);
-  const files = [];
-  const tools = [];
+
+  // Read every venture first, inject afterwards.
+  //
+  // The passes used to be one loop, and could be until `injectMirrorRelated`
+  // arrived: what a page needs to name its siblings is *their* titles, and a
+  // single pass has only read the ventures before it. Reading first is the
+  // cheap fix — the raw contents were already all held in `files` by the end
+  // of the old loop, so this costs no memory the function did not spend
+  // anyway, and the filesystem reads are unchanged in number and order.
+  const sources = [];
   for (const { slug, why } of set) {
     // Before the filesystem read, so an unroutable slug reports why it is
     // unroutable rather than an ENOENT from a directory nobody should add.
@@ -1773,13 +1909,35 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
     if (!names.includes('index.html')) {
       throw new Error(`${slug} has no index.html — it cannot be an entry in STARTER_SET`);
     }
+    const raws = new Map();
     for (const file of names) {
       if (!ROUTABLE_SUBPATH.test(file)) {
         throw new Error(
           `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
         );
       }
-      const raw = await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8');
+      raws.set(file, await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8'));
+    }
+    sources.push({ slug, why, names, raws });
+  }
+
+  // What `relatedTools` ranks over, and the titles the block displays. The
+  // title is the venture's own `<title>` taken from `raw`, which is what a
+  // link to that page should say — the same source `tools` below uses.
+  const surfaces = sources.map(({ slug, raws }) => ({
+    slug,
+    title: pageTitle(raws.get('index.html')),
+  }));
+  const bySlug = new Map(surfaces.map((surface) => [surface.slug, surface]));
+
+  const files = [];
+  const tools = [];
+  for (const { slug, why, names, raws } of sources) {
+    // Resolved once per venture rather than per file: only `index.html`
+    // carries the block, and `relatedTools` is a ranking over all 169.
+    const related = relatedTools(surfaces, slug, RELATED_LIMIT).map(({ slug: id }) => bySlug.get(id));
+    for (const file of names) {
+      const raw = raws.get(file);
       // The title is read from the venture's own markup before any pass runs.
       // `pageTitle` is applied to the *injected* contents further down for the
       // feed, and either would do here — but taking it from `raw` keeps the
@@ -1787,7 +1945,10 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
       // is what a stranger's page ends up displaying.
       const contents = file.endsWith('.html')
         ? injectMirrorEmbed(
-            injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length }),
+            injectMirrorRelated(
+              injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length }),
+              { file, related },
+            ),
             { slug, file, title: file === 'index.html' ? pageTitle(raw) : undefined },
           )
         : raw;

@@ -278,6 +278,36 @@ def checks_all_success(check_runs: list[dict[str, Any]]) -> tuple[bool, list[str
     return True, ["all completed check runs passed or were skipped/neutral"]
 
 
+# GitHub's mergeable_state folds conflicts AND required-check status into one
+# field. Only "clean" (and "has_hooks", which is clean plus a pre-receive hook)
+# means every configured branch protection is satisfied on the current head;
+# "unstable"/"blocked" mean a check is still pending or failing, "behind"/"dirty"
+# mean the branch needs updating or has conflicts, and "unknown" means GitHub has
+# not finished computing it yet.
+#
+# checks_all_success() above only judges the check runs that already EXIST on the
+# head commit, so it cannot see a slow job (build, validate) whose check run has
+# not registered yet. That is the exact window a ventures PR slipped through once
+# — merged after its fast checks were green but before `build` reported, landing a
+# red build on main. Gating the merge on mergeable_state closes that window: while
+# any workflow is still queued/running GitHub reports "unstable", not "clean".
+# This is defense-in-depth behind the proper fix (make the CI checks *required* in
+# the main ruleset — see platform/ci/agent_review/README.md), not a replacement
+# for it.
+MERGEABLE_STATES_OK = frozenset({"clean", "has_hooks"})
+
+
+def mergeable_state_ok(pr: dict[str, Any]) -> tuple[bool, list[str]]:
+    """Return (ok, reasons). Only a fully-clean head is eligible to merge."""
+    state = pr.get("mergeable_state")
+    if state in MERGEABLE_STATES_OK:
+        return True, [f"mergeable_state={state}"]
+    return False, [
+        f"mergeable_state={state or 'unknown'} "
+        f"(need one of {sorted(MERGEABLE_STATES_OK)})"
+    ]
+
+
 def changed_files(pr_number: int) -> list[str]:
     slug = repo_slug()
     files: list[str] = []
@@ -457,6 +487,15 @@ def merge_eligible(pr_number: int) -> tuple[bool, list[str]]:
         return False, ["already merged"]
     if pr.get("state") != "open":
         return False, [f"state={pr.get('state')}"]
+
+    # Gate on GitHub's own head-commit summary first: this blocks a merge while
+    # any workflow is still queued or running, even before its check run has
+    # registered — the gap checks_all_success() cannot see. See the note on
+    # MERGEABLE_STATES_OK above.
+    ok_state, state_reasons = mergeable_state_ok(pr)
+    reasons.extend(state_reasons)
+    if not ok_state:
+        return False, reasons
 
     ok_checks, check_reasons = checks_all_success(fetch_check_runs(pr_number))
     reasons.extend(check_reasons)
