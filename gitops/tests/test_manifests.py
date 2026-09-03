@@ -1092,13 +1092,29 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # *correct*. A checker that forces prose to be ungrammatical to pass is
     # checking the wrong thing; the count is what matters and it is still
     # pinned exactly.
+    #
+    # The remainder reached 0 on 2026-09-03, when the mirror learned
+    # `ENTRY_OVERRIDES` and picked up `ai-engineering-academy`. There is no
+    # grammatical sentence of this shape for zero — "publishes the remaining 0
+    # tools" is not English, and the paragraph now says the seal buys the
+    # canonical hostname and search rather than any tool's reachability, which
+    # is the true claim. So at parity the requirement inverts: the sentence
+    # must be *absent*, and any surviving "remaining N" claim is a stale
+    # number to catch. Below parity it is required and pinned exactly, as
+    # before. Both branches assert; neither is a hole.
     other_tools = re.findall(r"publishes the remaining\s+(\d+)\s+tools?", checklist)
-    assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
-    for value in other_tools:
-        assert int(value) == total - actual, (
-            f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
-            f"actual is {total - actual}"
+    if total == actual:
+        assert not other_tools, (
+            "the mirror serves every tool, but OWNER_CHECKLIST.md still claims "
+            f"{other_tools} remain unmirrored"
         )
+    else:
+        assert other_tools, "OWNER_CHECKLIST.md's 'the remaining N tools' sentence not found or reworded"
+        for value in other_tools:
+            assert int(value) == total - actual, (
+                f"OWNER_CHECKLIST.md claims {value} tools remain unmirrored, "
+                f"actual is {total - actual}"
+            )
 
     aggregate = (REPO / "gitops" / "prod" / "usage" / "aggregate.py").read_text()
     aggregate_match = re.search(r"mirrors (\d+) complete ventures", aggregate)
