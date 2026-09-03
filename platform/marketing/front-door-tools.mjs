@@ -81,6 +81,7 @@
  * commit with the command that fixes it.
  */
 
+import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -88,7 +89,7 @@ import { fileURLToPath } from 'node:url';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
-import { ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
+import { ABOUT_PATH, ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
 
 // The embed offer, imported whole rather than reproduced for this host.
 //
@@ -329,6 +330,69 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  * dropping it.
  */
 export const MIRROR_BYTE_CEILING = 8 * 1024 * 1024;
+
+/**
+ * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
+ * running out of room, rather than merely measured.
+ *
+ * ## Why a second, lower number
+ *
+ * `MIRROR_BYTE_CEILING` is a wall, not a warning: `buildMirror` throws on it,
+ * and the throw lands in `portfolio-validate` — which every PR that touches a
+ * venture page runs. So the first session to cross it does not discover a
+ * capacity problem, it discovers that *no tool can be published at all* until
+ * someone resolves one, in the middle of whatever else it was shipping. The
+ * catalogue is the portfolio's entire public surface and the fleet adds tools
+ * daily, so that is a stop-the-world failure arriving with no notice.
+ *
+ * Measured 2026-09-03: 173 tools, 6,397,664 stored bytes, 76.3% of the
+ * ceiling, ~36,981 stored bytes per tool. At that rate the wall is ~53 tools
+ * out. Nothing in the tree was tracking the number, which is how it got to
+ * three quarters unremarked.
+ *
+ * 85% is chosen so the report fires with roughly a third of the runway still
+ * unspent — ~19 tools before it trips, ~34 more between it and the wall. That
+ * is enough room for the remedy below to land as an ordinary reviewed change
+ * rather than an emergency, and it is far enough above today's 76.3% that
+ * nothing fails on the day this ships.
+ *
+ * ## What the remedy is, when it fires
+ *
+ * Not "drop a venture", which is what the wall's message used to say. That
+ * advice predates the mirror covering the whole catalogue: dropping a tool to
+ * publish a tool is a wash, and `STARTER_SET` is no longer where the bulk is.
+ *
+ * The measured answer is `duplicateBytes` below: **18.5% of the mirror
+ * (1,186,041 stored bytes on 2026-09-03) is byte-identical duplicate
+ * content.** Ventures here are deliberately self-contained — each ships its
+ * own copy of the shared helpers — so `proposal.mjs` is stored 104 times
+ * identically (760,552 redundant bytes), `share.mjs` 37 times (224,964),
+ * `LICENSE` 161 times (104,960) and `proposal-terms.mjs` 21 times (82,940).
+ * Every one of those files is genuinely referenced by the pages that ship
+ * beside it, so none can simply be dropped from the mirror.
+ *
+ * Recovering them means storing one copy and presenting it under many names.
+ * Two mechanisms exist and neither is a one-line change, which is why this
+ * reports rather than guesses:
+ *
+ * - **Project one ConfigMap key to many paths.** A projected volume's
+ *   `items: [{key, path}]` can list the same key under several paths, so the
+ *   stored object shrinks by the full 18.5% while the pod's tmpfs still
+ *   materialises every filename. That fixes the ceiling this constant guards
+ *   (repository and ConfigMap bytes) and not the memory cost, so the two
+ *   would need separating first.
+ * - **An nginx `map` from `<slug>__<file>` to a canonical stored key**, with
+ *   an identity default so only duplicated files are affected. This shrinks
+ *   both costs, and it edits the routing that serves all 173 tools — which
+ *   wants an environment that can actually run nginx against the built
+ *   mirror. This one cannot: no nginx binary and no Docker daemon, verified
+ *   2026-09-03.
+ *
+ * Do not raise `MIRROR_BYTE_CEILING` to clear this report without reading its
+ * comment above: both costs it names are real, and 18.5% of the mirror is
+ * recoverable without spending either.
+ */
+export const MIRROR_HEADROOM_WARN_RATIO = 0.85;
 
 /** The name prefix every mirror shard's ConfigMap takes; `-0`, `-1`, ... follow. */
 export const SHARD_PREFIX = 'portfolio-front-tools';
@@ -1122,6 +1186,13 @@ export const APEX_ROOT_PATHS = new Set([
   // and the page that runs it is somebody else's — but it is served from this
   // document root and so belongs in the same allowlist.
   `/${EMBED_HOST_FILE}`,
+  // The About and press-kit page, `renderFrontDoorAbout` in `front-door.mjs`,
+  // served from the document root by `default.conf`'s `^/about/?$` block. In
+  // the allowlist so a mirrored page may link to it — the injected chrome does
+  // not today, but `validateLinks` rejects any absolute link this root does not
+  // serve, and a page that *can* be linked to belongs here rather than being
+  // discovered as a build failure by whoever first adds the link.
+  `/${ABOUT_PATH}`,
 ]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);
@@ -1988,9 +2059,19 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
 
   const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
+    // Name the measured remedy, not a guess. This message used to say "drop a
+    // venture from STARTER_SET", which stopped being the answer when the
+    // mirror grew to cover the whole catalogue: dropping a tool to publish a
+    // tool is a wash, and the bulk is no longer in `STARTER_SET`. The
+    // duplicate figure is computed here rather than quoted from a comment so
+    // it cannot go stale, and it is worth more than any single venture.
+    const dup = duplicateBytes(files);
     throw new Error(
-      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling — ` +
-        `drop a venture from STARTER_SET rather than raising it without reading its comment`,
+      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling.\n` +
+        `${dup.redundant} of those bytes (${(100 * (dup.redundant / bytes)).toFixed(1)}%) are ` +
+        `byte-identical duplicates across ${dup.groups} group(s) — see MIRROR_HEADROOM_WARN_RATIO ` +
+        `for the two mechanisms that recover them.\n` +
+        `Do not raise MIRROR_BYTE_CEILING without reading its comment: both costs it names are real.`,
     );
   }
   // What the mirror would have cost uncompressed, reported rather than
@@ -1999,6 +2080,100 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   const sourceBytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
 
   return { files, tools, bytes, sourceBytes, shards: packShards(files) };
+}
+
+/**
+ * The mirror's byte-identical duplication, by content.
+ *
+ * Ventures here are self-contained on purpose — `platform/pages/build.mjs`
+ * publishes each one as a standalone directory, so a venture that needs
+ * `proposal.mjs` ships its own copy rather than importing a shared one. That
+ * is the right call for the product and it is invisible on the canonical host,
+ * where each venture is served from its own tree. The mirror is where it costs
+ * something: it flattens every venture into one key space under a single
+ * ceiling, so the 104th identical copy of `proposal.mjs` spends 7,384 bytes of
+ * a budget the other 172 tools share.
+ *
+ * Grouped by the *stored* (compressed) bytes rather than the source, because
+ * stored bytes are what every ceiling in this file measures. gzip is
+ * deterministic at a fixed level, so identical source compresses to identical
+ * output and the two groupings agree — hashing the stored form just means the
+ * number reported is the number recoverable.
+ *
+ * `redundant` is what deduplication would return: every group's size times one
+ * fewer than its member count, since one copy always has to stay.
+ *
+ * Reported, never enforced. There is no ceiling on duplication itself — it is
+ * a property of how the ventures are built, not a defect in any one of them,
+ * and the day a venture stops sharing a helper byte-for-byte is not a day
+ * anything should fail.
+ */
+export function duplicateBytes(files) {
+  const byHash = new Map();
+  for (const file of files) {
+    const digest = createHash('sha256').update(file.bytes).digest('hex');
+    const group = byHash.get(digest) ?? { size: file.bytes.length, keys: [] };
+    group.keys.push(file.key);
+    byHash.set(digest, group);
+  }
+  const duplicated = [...byHash.values()]
+    .filter((group) => group.keys.length > 1)
+    .map((group) => ({
+      size: group.size,
+      copies: group.keys.length,
+      redundant: group.size * (group.keys.length - 1),
+      // The shared filename when every copy has one — `proposal.mjs` for the
+      // 104-way group. Falls back to a key so a group of unrelated files that
+      // happen to be identical still names something findable.
+      file: sharedFileName(group.keys),
+    }))
+    .sort((a, b) => b.redundant - a.redundant);
+  return {
+    groups: duplicated.length,
+    redundant: duplicated.reduce((sum, group) => sum + group.redundant, 0),
+    largest: duplicated,
+  };
+}
+
+/** The file name every one of these `<slug>__<file>` keys shares, or the first key. */
+function sharedFileName(keys) {
+  const names = new Set(keys.map((key) => key.slice(key.lastIndexOf('__') + 2)));
+  return names.size === 1 ? [...names][0] : keys[0];
+}
+
+/**
+ * How much room the mirror has left, and what it would cost to make more.
+ *
+ * Exists because `MIRROR_BYTE_CEILING` is a wall with no approach lights: it
+ * throws inside `buildMirror`, which `portfolio-validate` runs on every PR
+ * touching a venture page, so crossing it stops the whole catalogue from
+ * publishing with no warning to the session that happens to be holding the
+ * pen. See `MIRROR_HEADROOM_WARN_RATIO` for why 85% and what to do when it
+ * trips.
+ *
+ * `toolsRemaining` divides by the *mean* tool, which is the honest estimate
+ * available here and not a promise — tools range from a single page to
+ * `ebay-fee-calculator`'s 818,849 bytes, so the next one could spend a
+ * twentieth of the remaining room or half of it. It answers "roughly how many
+ * more" well enough to tell a comfortable margin from a tight one, which is
+ * the decision it exists to inform.
+ */
+export function mirrorHeadroom({ files, tools, bytes }) {
+  const remaining = MIRROR_BYTE_CEILING - bytes;
+  const perTool = tools.length ? bytes / tools.length : 0;
+  return {
+    bytes,
+    ceiling: MIRROR_BYTE_CEILING,
+    ratio: bytes / MIRROR_BYTE_CEILING,
+    remaining,
+    perTool: Math.round(perTool),
+    toolsRemaining: perTool > 0 ? Math.floor(remaining / perTool) : Infinity,
+    // Below the warn ratio the mirror is merely large; at or above it, the
+    // runway is short enough that the remedy has to start now to land before
+    // the wall.
+    tight: bytes / MIRROR_BYTE_CEILING >= MIRROR_HEADROOM_WARN_RATIO,
+    duplicates: duplicateBytes(files),
+  };
 }
 
 /**
@@ -2383,15 +2558,66 @@ const shardSummary = (shards) =>
     )
     .join('\n');
 
+/**
+ * The headroom report `--headroom` prints and every other mode appends.
+ *
+ * Always printed, not only when tight: the number nobody was looking at is how
+ * the mirror reached three quarters of its ceiling unremarked, and a figure
+ * that appears only once it is already a problem trains no one to watch it.
+ */
+const headroomSummary = (headroom) => {
+  const { bytes, ceiling, ratio, remaining, perTool, toolsRemaining, tight, duplicates } = headroom;
+  const lines = [
+    `mirror headroom: ${bytes} of ${ceiling} stored bytes (${(100 * ratio).toFixed(1)}%), ` +
+      `${remaining} left — roughly ${toolsRemaining} more tools at ${perTool} bytes each`,
+  ];
+  if (duplicates.groups) {
+    lines.push(
+      `  ${duplicates.redundant} of those bytes (${(100 * (duplicates.redundant / bytes)).toFixed(1)}%) ` +
+        `are byte-identical duplicates in ${duplicates.groups} group(s):`,
+    );
+    for (const group of duplicates.largest.slice(0, 5)) {
+      lines.push(
+        `    ${String(group.copies).padStart(4)}x ${String(group.size).padStart(7)} bytes ` +
+          `→ ${String(group.redundant).padStart(8)} recoverable  ${group.file}`,
+      );
+    }
+  }
+  if (tight) {
+    lines.push(
+      '',
+      `  WARNING: at or above ${(100 * MIRROR_HEADROOM_WARN_RATIO).toFixed(0)}% of the ceiling.`,
+      '  Crossing the ceiling itself throws inside buildMirror, which portfolio-validate runs on',
+      '  every PR touching a venture page — so it stops the whole catalogue publishing, not just',
+      '  the tool that crossed it. Start the remedy now: read MIRROR_HEADROOM_WARN_RATIO in',
+      '  platform/marketing/front-door-tools.mjs for the two mechanisms that recover the',
+      '  duplicate bytes above, and why raising MIRROR_BYTE_CEILING is not the first answer.',
+    );
+  }
+  return lines.join('\n');
+};
+
 if (isMain) {
   const totals = ({ files, tools, bytes, sourceBytes, shards }) =>
     `${tools.length} tools, ${files.length} files, ${bytes} stored bytes ` +
     `(${Math.round((bytes / MIRROR_BYTE_CEILING) * 100)}% of the mirror ceiling; ` +
     `${sourceBytes} uncompressed, ${(sourceBytes / bytes).toFixed(2)}x) ` +
     `in ${shards.length} shards\n${shardSummary(shards)}`;
-  if (process.argv.includes('--write')) {
+  if (process.argv.includes('--headroom')) {
+    // The CI mode. Prints the same report the other modes append and exits
+    // non-zero once the mirror is tight, so `portfolio-validate` fails while
+    // there is still room to act rather than when the ceiling has already
+    // stopped every venture PR in the repository. Deliberately skips the
+    // per-tool listing and the ineligibility report: this answers one
+    // question, and a check whose output has to be scrolled past is a check
+    // people stop reading.
+    const headroom = mirrorHeadroom(await buildMirror());
+    console.log(headroomSummary(headroom));
+    if (headroom.tight) process.exitCode = 1;
+  } else if (process.argv.includes('--write')) {
     const built = await writeMirror();
     console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    console.log(headroomSummary(mirrorHeadroom(built)));
     // Say so out loud: a changed mount list means the shard count moved, which
     // is the one outcome of a regeneration that alters a file outside the
     // mirror directory and so is easy to leave out of a commit.
@@ -2405,6 +2631,7 @@ if (isMain) {
     const built = await buildMirror();
     for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
     console.log(`\n${totals(built)}`);
+    console.log(`\n${headroomSummary(mirrorHeadroom(built))}`);
     // The other half of the answer, and the half that used to need a
     // throwaway script: which ventures are *not* here, and why each one is
     // not. See `explainIneligible` for what the reasons mean and which of

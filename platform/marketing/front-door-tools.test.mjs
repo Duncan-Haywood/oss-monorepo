@@ -27,6 +27,9 @@ import {
   discoverEligible,
   explainIneligible,
   MIRROR_BYTE_CEILING,
+  MIRROR_HEADROOM_WARN_RATIO,
+  duplicateBytes,
+  mirrorHeadroom,
   SHARD_BYTE_CEILING,
   packShards,
   shardName,
@@ -1785,4 +1788,118 @@ test('the embed runtime and stylesheet are reachable paths at the apex root', as
   const { EMBED_MODULE_FILE, EMBED_STYLE_FILE } = await import('../pages/embed.mjs');
   assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_MODULE_FILE}`));
   assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_STYLE_FILE}`));
+});
+
+test('duplicateBytes counts only what deduplication would actually return', () => {
+  // One copy of every group always has to stay, so an N-way group recovers
+  // N-1 copies and never N. Getting that off by one would overstate the
+  // remedy in the one report a session reads when deciding whether the
+  // ceiling is worth acting on.
+  const file = (key, body) => ({ key, bytes: Buffer.from(body) });
+  const { groups, redundant, largest } = duplicateBytes([
+    file('a__proposal.mjs', 'shared'),
+    file('b__proposal.mjs', 'shared'),
+    file('c__proposal.mjs', 'shared'),
+    file('a__calc.mjs', 'unique-a'),
+    file('b__calc.mjs', 'unique-b'),
+  ]);
+  assert.equal(groups, 1, 'the two distinct calc.mjs files are not a duplicate group');
+  assert.equal(redundant, 'shared'.length * 2, 'three copies recover two, not three');
+  assert.deepEqual(largest[0], {
+    size: 6,
+    copies: 3,
+    redundant: 12,
+    file: 'proposal.mjs',
+  });
+});
+
+test('duplicateBytes names the shared file, and falls back when there is none', () => {
+  // The report is read to decide what to do about a group, so it has to say
+  // *what* is duplicated. When every key ends in the same file name that name
+  // is the answer; when they do not, a key is at least findable, where an
+  // empty string or a bare count would not be.
+  const file = (key, body) => ({ key, bytes: Buffer.from(body) });
+  const named = duplicateBytes([file('a__share.mjs', 'x'), file('b__share.mjs', 'x')]);
+  assert.equal(named.largest[0].file, 'share.mjs');
+
+  const mixed = duplicateBytes([file('a__robots.txt', 'x'), file('b__humans.txt', 'x')]);
+  assert.equal(mixed.largest[0].file, 'a__robots.txt');
+});
+
+test('duplicateBytes reports nothing when every file is distinct', () => {
+  const file = (key, body) => ({ key, bytes: Buffer.from(body) });
+  assert.deepEqual(duplicateBytes([file('a__x.mjs', '1'), file('b__y.mjs', '2')]), {
+    groups: 0,
+    redundant: 0,
+    largest: [],
+  });
+});
+
+test('mirrorHeadroom warns below the ceiling, not at it', async () => {
+  // The point of the warn ratio: `MIRROR_BYTE_CEILING` throws inside
+  // `buildMirror`, which `portfolio-validate` runs on every PR touching a
+  // venture page — so the session that crosses it discovers that nothing in
+  // the catalogue can publish, mid-way through shipping something else. This
+  // asserts the warning is strictly earlier than that wall, which is the only
+  // property that makes it useful.
+  assert.ok(
+    MIRROR_HEADROOM_WARN_RATIO > 0 && MIRROR_HEADROOM_WARN_RATIO < 1,
+    'a warn ratio at or above 1 fires only once the build already throws',
+  );
+
+  const at = (ratio) =>
+    mirrorHeadroom({
+      files: [],
+      tools: [{ slug: 'a' }],
+      bytes: Math.round(MIRROR_BYTE_CEILING * ratio),
+    });
+  assert.equal(at(MIRROR_HEADROOM_WARN_RATIO - 0.01).tight, false);
+  assert.equal(at(MIRROR_HEADROOM_WARN_RATIO).tight, true, 'the ratio itself is tight, not just above it');
+  assert.equal(at(0.99).tight, true);
+});
+
+test('mirrorHeadroom estimates the remaining tools from the mean tool', async () => {
+  const headroom = mirrorHeadroom({
+    files: [],
+    tools: Array.from({ length: 10 }, (_, i) => ({ slug: `t${i}` })),
+    bytes: 1000,
+  });
+  assert.equal(headroom.perTool, 100);
+  assert.equal(headroom.remaining, MIRROR_BYTE_CEILING - 1000);
+  assert.equal(headroom.toolsRemaining, Math.floor((MIRROR_BYTE_CEILING - 1000) / 100));
+});
+
+test('mirrorHeadroom does not divide by zero on an empty mirror', () => {
+  // Reachable through `--headroom` against a tree with no eligible venture,
+  // and a NaN in the one number a session reads to decide whether to act is
+  // worse than no report at all.
+  const headroom = mirrorHeadroom({ files: [], tools: [], bytes: 0 });
+  assert.equal(headroom.perTool, 0);
+  assert.equal(headroom.toolsRemaining, Infinity);
+  assert.equal(headroom.tight, false);
+});
+
+test('the real mirror is under the warn ratio, and its duplication is measured', async () => {
+  // The live reading. If this fails the mirror has crossed the warn ratio and
+  // the remedy in `MIRROR_HEADROOM_WARN_RATIO`'s comment is now due — that is
+  // the test doing its job, not a test to relax. Do not "fix" it by raising
+  // either constant without reading both comments.
+  const headroom = mirrorHeadroom(await buildMirror());
+  assert.equal(
+    headroom.tight,
+    false,
+    `the mirror is at ${(100 * headroom.ratio).toFixed(1)}% of its ceiling, over the ` +
+      `${(100 * MIRROR_HEADROOM_WARN_RATIO).toFixed(0)}% warn ratio — ` +
+      `${headroom.duplicates.redundant} bytes are recoverable duplicates`,
+  );
+  // Not an assertion about a number that moves with the catalogue: only that
+  // the accounting is wired to the real build and self-consistent. The exact
+  // figures live in the constant's comment, dated, where a stale one is prose
+  // rather than a false test.
+  assert.ok(headroom.duplicates.redundant < headroom.bytes);
+  assert.equal(
+    headroom.duplicates.redundant,
+    headroom.duplicates.largest.reduce((sum, g) => sum + g.redundant, 0),
+    'the reported total does not match the groups it is summed from',
+  );
 });

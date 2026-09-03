@@ -185,6 +185,24 @@ jobs:
       - name: Check the apex tool mirror is not stale
         run: node --test "platform/marketing/*.test.mjs"
 
+      # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
+      # throws on it, and that throw lands in the step above -- which this
+      # workflow runs on every PR touching a venture page. So the first session
+      # to cross it does not learn that the mirror is full, it learns that
+      # *nothing in the catalogue can publish* until someone frees room, in the
+      # middle of shipping something unrelated. The apex is the portfolio's
+      # entire public surface and the fleet adds tools daily.
+      #
+      # This step fails at `MIRROR_HEADROOM_WARN_RATIO` (85%) instead, leaving
+      # roughly a third of the runway to land the remedy as an ordinary
+      # reviewed change. It was at 76.3% when the step was added -- 173 tools,
+      # ~53 from the wall -- so it passes today and exists for the day it does
+      # not. Its output also names the 18.5% of the mirror that is byte-
+      # identical duplication, which is the remedy the constant's comment
+      # spells out; raising the ceiling is not the first answer.
+      - name: Check the apex tool mirror has room left
+        run: node platform/marketing/front-door-tools.mjs --headroom
+
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
 

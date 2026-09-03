@@ -8261,3 +8261,157 @@ entries:
         fixture was `cra-evidence-desk` itself and is now
         `vendor-change-watch`.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Open-PR queue was empty (verified twice, `list_pull_requests` and
+        an `is:open` search): zero open PRs, so the three-PR floor's "if
+        none exist, start new work after the overlap check" branch applies.
+        Swept every remote branch with commits not on `main` and found no
+        uncovered work worth a PR. The recent-looking ones are all
+        superseded: `spray-foam-bid-calculator-vs-jobber` and
+        `claude/boiler-replacement-vs-servicetitan` landed as #3081/#3084,
+        `marketing/vs-smartmoving-moving-bid-calculator`'s page is on main,
+        and `claude/happy-wozniak-cabmcx`'s `explainIneligible` is on main
+        in a *newer* form (its branch doc still describes the
+        `no-show-fee-calculator` subdirectory case as open, which main
+        fixed). Attempted the merge, read the conflict, aborted rather than
+        regressing the doc.
+      - >-
+        Measured the delivery path instead, per the owner's "deployment and
+        cicd is a priority". It is healthy -- 271 gitops tests, 189
+        marketing, 867 platform/pages, `publish_surface.py --check` and
+        `validate_workflows.py` all clean, apex serving 173 tools -- but
+        the mirror that publishes all of them is at **76.3% of
+        `MIRROR_BYTE_CEILING`** (6,397,664 of 8,388,608 stored bytes,
+        ~36,981 per tool, ~53 tools from the wall) and nothing in the tree
+        was tracking the number. That ceiling is not a warning: it throws
+        inside `buildMirror`, which `portfolio-validate` runs on every PR
+        touching a venture page, so the first session to cross it learns
+        that *nothing in the catalogue can publish*, mid-way through
+        shipping something else.
+      - >-
+        Shipped the approach lights. `mirrorHeadroom` and `duplicateBytes`
+        report remaining bytes, estimated remaining tools, and the
+        duplication behind them; `--headroom` is a CI mode that exits 1 at
+        `MIRROR_HEADROOM_WARN_RATIO` (85%), wired into both workflows that
+        can move the number -- `portfolio-validate.yml` for a venture edit,
+        `hetzner-gitops-ci.yml` for a `platform/marketing/**` change. At
+        76.3% it passes today; it fires with ~34 tools of runway left, so
+        the remedy can land as an ordinary reviewed change.
+      - >-
+        The measurement found the remedy: **18.5% of the mirror
+        (1,186,041 stored bytes) is byte-identical duplication.** Ventures
+        here are self-contained by design, so `proposal.mjs` is stored 104
+        times identically (760,552 redundant bytes), `share.mjs` 37 times
+        (224,964), `LICENSE` 161 times (104,960), `proposal-terms.mjs` 21
+        times (82,940). Checked and rejected the easy answers first: every
+        one of those files is genuinely referenced by the pages beside it
+        (124 pages carry `href="LICENSE"`), so none can be dropped; and
+        `GZIP_LEVEL` is already 9, so there is no compression slack. The
+        two real mechanisms are written up on
+        `MIRROR_HEADROOM_WARN_RATIO`, and the ceiling's own throw now names
+        the measured figure instead of its old advice to "drop a venture
+        from STARTER_SET" -- a wash, now that the mirror covers the whole
+        catalogue rather than a starter subset.
+      - >-
+        Deliberately did not ship the dedup itself. Both mechanisms edit
+        how all 173 tools are served -- one changes the projected volume's
+        key-to-path mapping, the other adds an nginx `map` over the routing
+        -- and this environment has no nginx binary and no Docker daemon
+        (verified), so neither could be exercised against the built mirror.
+        A projected volume that fails to mount leaves `maxUnavailable: 0`
+        serving a stale mirror with nothing failing loudly, which is the
+        exact outcome the module's own comments call the bad one. Measured,
+        costed, and left as a reviewed follow-up with the runway to do it.
+      - >-
+        Verified: 189/189 platform/marketing (7 new), 271 passed / 12
+        skipped gitops/tests, 867/867 platform/pages, `validate_workflows.py`
+        (223 files), `publish_surface.py --check`. Exercised both exit paths
+        of the new CI mode end-to-end, not just the unit logic -- exit 0 at
+        76.3%, and exit 1 with the warning block after temporarily lowering
+        the ratio to 0.5, then reverted. `--write` regenerated the mirror to
+        a byte-identical tree, confirming the change touches no published
+        artifact.
+      - >-
+        Owner-blocked and unchanged, named here rather than re-queued: the
+        Codex-CLI-on-Hetzner stack the owner asked for is already built and
+        wired into Argo (`gitops/agents/`, `worker.sh` handles both the
+        `CODEX_AUTH_JSON` plan credential and a metered key, withholding the
+        metered one so a plan tick cannot bill), and its mandate already
+        carries the three-PR floor. It needs the `codex-secrets` seal and
+        the governor unsuspend, both owner-only and both already in
+        `infra/OWNER_CHECKLIST.md`.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second deliverable of the same run, on the "building and deploying
+        marketing materials on the hetzner vms" half of the owner's
+        direction. The apex is the only host serving anything, and it had no
+        About page at all: no positioning, no press kit, and no statement of
+        what happens to what a visitor types. `build.mjs`'s `renderAboutPage`
+        has existed since the site build was written and publishes to
+        `tools.marisstella.dev`, which fails closed on the unsealed
+        `portfolio-site-repo` Secret -- so the page had been written,
+        reviewed and reachable by nobody. The front door's own footer linked
+        it at `${toolsUrl}about/`, a URL that has never served a byte.
+      - >-
+        Rendering that same page on the apex was the obvious move and was
+        wrong. Checked before writing anything: its copy makes two privacy
+        claims that are false here -- that the tally of opened tools is "in
+        your own browser's local storage" (this host ships no such counter;
+        nothing in `front-door/index.html` touches localStorage) and that
+        there is "an opt-out checkbox at the foot of the tool list" (there is
+        none, because there is nothing client-side to opt out of). It also
+        loads `pf-site.js` and a `favicon.ico`, neither of which this
+        document root serves. `PRODUCT_PLAYBOOK.md` and the mandate both make
+        "marketing claims must be true" an absolute limit, so the apex got
+        its own renderer stating its own mechanism.
+      - >-
+        `renderFrontDoorAbout` in `front-door.mjs`, served at `/about/`. Its
+        strongest claim is this host's actual one and is better than the
+        catalogue host's: nginx's `log_format privacy` records four fields --
+        time, status, path, embed bit -- and deliberately no `$remote_addr`,
+        `$http_user_agent` or `$http_referer`, so "no profile of you" is a
+        property of the configuration rather than a promise about the data.
+        Every claim is either derived from the build (tool count, category
+        list, press-kit boilerplate) or pinned by a test. Verified before
+        writing: MIT licences ship beside every tool, and the built mirror
+        contains zero `fetch(`, `XMLHttpRequest` or external `src=` -- the
+        only absolute URLs in it are schema.org JSON-LD contexts, github.com,
+        and citation links a reader chooses to click. Unlike the catalogue
+        host this one needs no documented exception.
+      - >-
+        Wired end to end rather than rendered and left dark, which is the
+        seam the category pages fell through once: nginx `^/about/?$` block
+        (a regex, so `/aboutanything` cannot fall to the catch-all and
+        `/about` without the slash still resolves), `about.html` in the
+        `portfolio-front` ConfigMap, `/about/` in `APEX_ROOT_PATHS`, in the
+        sitemap unconditionally, and linked from the live front-door footer
+        branch -- which had no About link at all, only the dark-host one.
+      - >-
+        Caught two real defects in my own work before pushing. `ABOUT_PATH`
+        was already imported from `build.mjs` at line 74 and I had
+        redeclared it -- a duplicate binding, and exactly the "restated a
+        rule that lives in build.mjs" mistake CLAUDE.md says has twice cost
+        live product; removed and imported instead. And the first version of
+        the no-invented-traction test matched the bare word "certified",
+        which failed on the page's own "please do not describe these as
+        certified, audited, guaranteed" -- the disclaimer, not a boast. The
+        test now matches claim shapes (`is/are/been certified`, `used by
+        N`, `trusted by`) and separately asserts the caveat is present.
+      - >-
+        Verified: 197/197 platform/marketing (11 new), 867/867
+        platform/pages, 271 passed / 12 skipped gitops/tests,
+        `check_duplicate_symbols.py`, `publish_surface.py --check`. Checked
+        every href the rendered page emits resolves to something this host
+        serves -- `/`, catalog.json, llms.txt, sitemap.xml, feed.xml,
+        favicon.svg, all seven `/c/<id>/`, its own canonical, and the
+        GitHub Sponsors link -- and a test now enforces that rather than
+        leaving it to a one-off check. `--headroom` unchanged at 76.3%.
+    mrr_end: null

@@ -104,6 +104,14 @@ jobs:
       # workflow that already triggers on the directory it lands in.
       - name: front door generator
         run: node --test "platform/marketing/*.test.mjs"
+      # Same guard as `portfolio-validate.yml`'s, on the other half of the
+      # trigger surface: that workflow catches a venture edit growing the
+      # mirror, this one catches a `platform/marketing/**` change doing it --
+      # a wider `STARTER_SET`, or an injection that adds bytes to all 173
+      # mirrored pages at once, which is the change most able to move the
+      # number in one commit. See `MIRROR_HEADROOM_WARN_RATIO`.
+      - name: front door mirror has room left
+        run: node platform/marketing/front-door-tools.mjs --headroom
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py

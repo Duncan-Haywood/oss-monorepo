@@ -154,6 +154,12 @@ configMapGenerator:
       - c__services.html=front-door/c__services.html
       - c__logistics.html=front-door/c__logistics.html
       - c__more.html=front-door/c__more.html
+      # The About and press-kit page, served from the document root by the
+      # `^/about/?$` block in `front-door/default.conf`. Same ConfigMap for the
+      # same reason as the seven above; ~9 KB, and unlike them it is not
+      # conditional on any category having mirrored tools, so it is always
+      # present.
+      - about.html=front-door/about.html
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf
