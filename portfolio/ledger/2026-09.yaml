@@ -6984,3 +6984,39 @@ entries:
         Verified: venture suite 72/72 (was 71/72 pre-fix), full site build
         clean, suite re-run green after rebasing onto latest `main`.
     mrr_end: null
+  - venture: medical-courier-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable route link (#2994), the missing completed-workflow
+        piece most sibling calculators already have: a courier pricing an
+        offer with a dispatcher, accountant, or another courier previously had
+        only a plain-text "Copy route summary" button, no way to send the
+        actual inputs. New share.mjs encodes all 13 route fields plus route
+        type into the URL fragment (never sent to a server), validated the
+        same way the form itself would (no negative numbers, route type
+        restricted to the page's own <select> options) -- the same allowlist
+        discipline that fixed the paver-patio/roofing share-link bug (#2962).
+        A test pins share.mjs's field list against the ids array index.html
+        actually renders so the two cannot drift apart silently. Added two
+        usage events (share_link_copied, shared_link_opened) and one FAQ
+        entry.
+      - >-
+        Caught by CI, not by me: the first push (64dad555b) went green on 6/7
+        checks but `validate` failed -- the committed front-door mirror
+        (`gitops/prod/front-door-tools/`) was stale after the index.html/
+        share.mjs edit. Ran `node platform/marketing/front-door-tools.mjs
+        --write`, which added the new share.mjs.gz shard file and updated
+        kustomization.yaml (1382 -> 1383 files); pushed as a second commit.
+        Confirms the "runners came back 2026-09-01" section of CLAUDE.md:
+        `ci_starvation.py` showed a real runner for the failing job, so it was
+        fixed forward rather than dismissed.
+      - >-
+        Tests: node --test ventures/medical-courier-route-margin/*.test.mjs
+        (22 passed: 16 pre-existing + 6 new); node --test
+        platform/marketing/front-door-tools.test.mjs (74 passed) after the
+        mirror regen. All 13 PR checks green on real runners before merge
+        (gitops 138s, build 175s, validate 236s -- confirmed via
+        ci_starvation.py, not assumed). Merged via squash.
+    mrr_end: null
