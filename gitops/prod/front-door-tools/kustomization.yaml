@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 148 files, 544884 bytes
+#   portfolio-front-tools-0: 149 files, 549542 bytes
 #   portfolio-front-tools-1: 124 files, 555234 bytes
 #   portfolio-front-tools-2: 160 files, 544360 bytes
 #   portfolio-front-tools-3: 126 files, 546486 bytes
 #   portfolio-front-tools-4: 119 files, 552800 bytes
 #   portfolio-front-tools-5: 133 files, 553162 bytes
 #   portfolio-front-tools-6: 108 files, 550744 bytes
-#   portfolio-front-tools-7: 124 files, 555821 bytes
+#   portfolio-front-tools-7: 124 files, 555968 bytes
 #   portfolio-front-tools-8: 120 files, 552275 bytes
-#   portfolio-front-tools-9: 102 files, 550119 bytes
-#   portfolio-front-tools-10: 92 files, 467859 bytes
-#   portfolio-front-tools-11: 56 files, 262802 bytes
+#   portfolio-front-tools-9: 103 files, 555208 bytes
+#   portfolio-front-tools-10: 90 files, 463776 bytes
+#   portfolio-front-tools-11: 57 files, 262540 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -103,6 +103,7 @@ configMapGenerator:
       - seller-net-sheet__index.html.gz=seller-net-sheet__index.html.gz
       - seller-net-sheet__offer-comparison.html.gz=seller-net-sheet__offer-comparison.html.gz
       - seller-net-sheet__usage.mjs.gz=seller-net-sheet__usage.mjs.gz
+      - seller-net-sheet__vs-title-company-net-sheet.html.gz=seller-net-sheet__vs-title-company-net-sheet.html.gz
       - subscription-price-impact__LICENSE.gz=subscription-price-impact__LICENSE.gz
       - subscription-price-impact__calc.mjs.gz=subscription-price-impact__calc.mjs.gz
       - subscription-price-impact__how-much-can-i-raise-my-saas-price.html.gz=subscription-price-impact__how-much-can-i-raise-my-saas-price.html.gz
@@ -1290,6 +1291,7 @@ configMapGenerator:
       - shop-rate-calculator__index.html.gz=shop-rate-calculator__index.html.gz
       - shop-rate-calculator__shop-rates.mjs.gz=shop-rate-calculator__shop-rates.mjs.gz
       - shop-rate-calculator__usage.mjs.gz=shop-rate-calculator__usage.mjs.gz
+      - shop-rate-calculator__vs-servicetitan.html.gz=shop-rate-calculator__vs-servicetitan.html.gz
       - shop-rate-calculator__what-should-i-charge-per-hour.html.gz=shop-rate-calculator__what-should-i-charge-per-hour.html.gz
       - shopify-fee-calculator__LICENSE.gz=shopify-fee-calculator__LICENSE.gz
       - shopify-fee-calculator__basic-vs-grow.html.gz=shopify-fee-calculator__basic-vs-grow.html.gz
@@ -1471,13 +1473,13 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__proposal.mjs.gz=walk-in-tub-bid-calculator__proposal.mjs.gz
       - walk-in-tub-bid-calculator__share.mjs.gz=walk-in-tub-bid-calculator__share.mjs.gz
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
-      - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
-      - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz=walk-in-tub-bid-calculator__should-i-take-a-saturday-walk-in-tub-call.html.gz
+      - walk-in-tub-bid-calculator__usage.mjs.gz=walk-in-tub-bid-calculator__usage.mjs.gz
       - walk-in-tub-bid-calculator__vs-housecall-pro.html.gz=walk-in-tub-bid-calculator__vs-housecall-pro.html.gz
       - water-heater-bid-calculator__LICENSE.gz=water-heater-bid-calculator__LICENSE.gz
       - water-heater-bid-calculator__calc.mjs.gz=water-heater-bid-calculator__calc.mjs.gz
@@ -1494,7 +1496,6 @@ configMapGenerator:
       - water-softener-bid-calculator__index.html.gz=water-softener-bid-calculator__index.html.gz
       - water-softener-bid-calculator__proposal.mjs.gz=water-softener-bid-calculator__proposal.mjs.gz
       - water-softener-bid-calculator__usage.mjs.gz=water-softener-bid-calculator__usage.mjs.gz
-      - water-softener-bid-calculator__vs-jobber.html.gz=water-softener-bid-calculator__vs-jobber.html.gz
       - well-pump-bid-calculator__LICENSE.gz=well-pump-bid-calculator__LICENSE.gz
       - well-pump-bid-calculator__calc.mjs.gz=well-pump-bid-calculator__calc.mjs.gz
       - well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz=well-pump-bid-calculator__how-much-to-charge-to-replace-a-well-pump.html.gz
