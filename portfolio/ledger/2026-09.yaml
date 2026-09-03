@@ -6842,3 +6842,52 @@ entries:
         present. Merging any of those stale branches would have deleted
         thousands of files.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Open-PR queue was 0 at the start of this run, and re-checked
+        ~20 of the ~93 stale remote branches carrying unmerged commits
+        with `supersede_check.py`: all but two came back SUPERSEDED
+        (identical-merge proof or "adds nothing"). The two flagged
+        NOT SUPERSEDED --
+        `claude/hotfix-boiler-conflict-marker` (a test-regex loosening
+        with no failing test behind it -- the exact assertion already
+        passes on `main`) and
+        `marketing/vs-smartmoving-moving-bid-calculator` (a
+        `vs-smartmoving.html` whose content `main` had already
+        independently re-shipped, word-for-word different but the same
+        feature) -- read as substantively spent on inspection, the
+        RENAME-SUSPECTED trap this file warns about but for prose
+        instead of filenames. Neither was merged.
+      - >-
+        Two fleet PRs opened mid-run (#2980, #2981, each a `vs-*`
+        comparison page) both failed `Portfolio validate` /
+        `hetzner-gitops CI` on "apex tool mirror is not stale": each
+        added a venture page and regenerated
+        `platform/marketing/front-door-tools.mjs` (the tool mirror) but
+        not the sibling generator `front-door.mjs`, which writes the
+        apex's own `sitemap.xml`/`llms.txt`/`feed.xml` from the same
+        page set -- a two-generator gap, not a one-off mistake, since
+        both PRs hit it independently. Pushed the missing
+        `front-door.mjs --write` fix to both branches; #2980 was
+        merged by its own session shortly after, #2981 merged here
+        (squash, commit 6636424c9) once `node --test
+        "platform/marketing/*.test.mjs"` (144/144), `pytest gitops/tests`
+        (269 passed/7 skipped) and the venture's own tests were clean.
+      - >-
+        Confirmed the Codex-on-Hetzner unattended dev-work pipeline
+        (`gitops/agents/`, referenced in this session's own standing
+        instruction) is fully built, wired into the priority-ordered
+        queue (`deploy-cicd-readiness` then `marketing-distribution`,
+        matching the owner's 2026-09-01 direction verbatim), and
+        exhaustively re-verified gap-free as of 2026-09-02 per both
+        queue items' own headers. It remains owner-blocked on sealing
+        `codex-secrets` (`codex login` + `kubeseal`, both laptop-only
+        actions) -- already the top real item in
+        `decision_queue.py` (`codex-governor-enable`, #1996). Nothing
+        code-side is missing; flipping `governor/cronjob.yaml`
+        `suspend` and `policy.json` `enabled` after the seal is the
+        whole remaining step.
+    mrr_end: null
