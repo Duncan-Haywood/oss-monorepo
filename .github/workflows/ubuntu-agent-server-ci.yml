@@ -46,8 +46,21 @@ jobs:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
+      # Same gap the `yaml-sanity` job below already carries a comment about,
+      # one tool over: bare `shellcheck` exists on GitHub-hosted ubuntu-latest
+      # and nowhere on the self-hosted runner image (curl, jq, unzip and git
+      # only -- see gitops/ci/README.md), so flipping CI_RUNNER would turn
+      # this job red on its own single step. shellcheck-py ships the real
+      # shellcheck binary as a wheel, which is how hetzner-gitops-ci.yml's
+      # `scripts` job installs it on either runner; apt-get would need sudo
+      # and a package index, and the self-hosted image has neither.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: shellcheck
-        run: shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh
+        run: |
+          pip install shellcheck-py
+          shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh
 
   python:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}

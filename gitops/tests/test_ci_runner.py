@@ -123,6 +123,12 @@ def test_readme_runs_on_count_matches_reality() -> None:
 
 _PYTHON_NEEDLE = re.compile(r"\b(python3?|pip3?)\b")
 _NODE_NEEDLE = re.compile(r"\b(node|npm|npx)\b")
+# Not an interpreter, but the same failure shape: a binary GitHub's image
+# happens to preinstall and the runner image does not. `shellcheck-py` is how
+# both jobs that need it install the real binary on either runner, so an
+# invocation preceded by that install is fine and a bare one is not.
+_SHELLCHECK_NEEDLE = re.compile(r"\bshellcheck\b")
+_SHELLCHECK_INSTALL = re.compile(r"\bpip3?\s+install\b.*\bshellcheck-py\b")
 
 
 def _run_code_lines(step: dict) -> list[str]:
@@ -188,6 +194,44 @@ def test_every_job_that_runs_python_or_node_sets_it_up() -> None:
                 failures.append(f"{path.name}:{name} runs python3/pip with no actions/setup-python step")
             if needs_node and not has_setup_node:
                 failures.append(f"{path.name}:{name} runs node/npm/npx with no actions/setup-node step")
+    assert not failures, "\n".join(failures)
+
+
+def test_every_job_that_runs_shellcheck_installs_it() -> None:
+    # The test above generalized the bare-`python3` gap across every workflow
+    # at once, and that was the right move -- but it generalized over the
+    # wrong axis. It asks "which *interpreters* does this job assume", when
+    # the property that actually matters is "which *binaries* does this job
+    # assume GitHub's image preinstalls". shellcheck is the second member of
+    # that set, and it slipped through: ubuntu-agent-server-ci.yml's
+    # `shellcheck` job ran the bare binary with no install step, one job above
+    # the `yaml-sanity` job whose comment explains this exact hazard for
+    # python3. It passed every check, because GitHub-hosted ubuntu-latest
+    # ships shellcheck and nothing here looked for anything but python/node.
+    #
+    # hetzner-gitops-ci.yml's `scripts` job had it right all along: install
+    # the shellcheck-py wheel, which carries the real binary and works on
+    # either runner. This pins that as the rule rather than one job's habit.
+    #
+    # Exemptions match the test above for the same reasons: DOCKER_DEPENDENT_
+    # JOBS and any job with `container:`/`services:` bring their own image.
+    failures: list[str] = []
+    for path in sorted(WORKFLOWS.glob("*.yml")):
+        spec = yaml.safe_load(path.read_text())
+        for name, job in (spec.get("jobs") or {}).items():
+            if (path.name, name) in DOCKER_DEPENDENT_JOBS:
+                continue
+            if "container" in job or "services" in job:
+                continue
+            steps = job.get("steps") or []
+            lines = [line for s in steps for line in _run_code_lines(s)]
+            if not any(_SHELLCHECK_NEEDLE.search(line) for line in lines):
+                continue
+            if any(_SHELLCHECK_INSTALL.search(line) for line in lines):
+                continue
+            failures.append(
+                f"{path.name}:{name} runs shellcheck with no `pip install shellcheck-py` step"
+            )
     assert not failures, "\n".join(failures)
 
 
