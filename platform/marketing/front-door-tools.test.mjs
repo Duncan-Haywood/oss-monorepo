@@ -48,6 +48,10 @@ import {
   claimedCategory,
   TOOLS_URL,
   APEX_URL,
+  SOCIAL_CARD_FILE,
+  SOCIAL_CARD_ALT,
+  SOCIAL_CARD_WIDTH,
+  SOCIAL_CARD_HEIGHT,
   buildMirror,
   canonicalUrl,
   apexUrl,
@@ -64,7 +68,16 @@ import {
   validateLinks,
   ventureFiles,
 } from './front-door-tools.mjs';
-import { FAVICON_FILE as FRONT_DOOR_FAVICON, renderFrontDoor } from './front-door.mjs';
+import {
+  FAVICON_FILE as FRONT_DOOR_FAVICON,
+  SOCIAL_CARD_ALT as FRONT_DOOR_SOCIAL_CARD_ALT,
+  renderFrontDoor,
+} from './front-door.mjs';
+import { SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD } from '../pages/build.mjs';
+import {
+  SOCIAL_CARD_WIDTH as OFFLINE_CARD_WIDTH,
+  SOCIAL_CARD_HEIGHT as OFFLINE_CARD_HEIGHT,
+} from '../pages/offline.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
@@ -254,6 +267,61 @@ test('no mirrored page ships a share card pointed at a domain that resolves nowh
     );
   }
   assert.ok(repaired > 0, 'no page carried an og:url, so this check proved nothing');
+});
+
+test('every mirrored page carries a share card the apex actually serves', async () => {
+  // `build.mjs` found no venture source declares an `og:image`, so before this
+  // every mirrored tool pasted into a chat rendered as a bare text row. The
+  // image is not carried in the mirror: `/social-card.png` is already at the
+  // apex document root in `portfolio-front-html`, the same place `/favicon.svg`
+  // these pages already point at lives.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const { slug, file, contents } of pages) {
+    const images = contents.match(/<meta\b[^>]*\bproperty=["']og:image["'][^>]*>/gi) ?? [];
+    assert.equal(images.length, 1, `${slug}/${file} has ${images.length} og:image tags`);
+    assert.equal(
+      images[0],
+      `<meta property="og:image" content="https://marisstella.dev/${SOCIAL_CARD_FILE}">`,
+      `${slug}/${file} should point at the card the apex serves`,
+    );
+    // Absolute, because a scraper fetching the card off a pasted link does not
+    // reliably resolve a relative one.
+    assert.ok(images[0].includes('content="https://'), `${slug}/${file}'s card URL is not absolute`);
+    assert.match(contents, /<meta name="twitter:card" content="summary_large_image">/);
+  }
+});
+
+test('the mirror agrees with the front door about the card it points at', () => {
+  // Declared in both modules rather than shared, for the reason `FAVICON_FILE`
+  // is: this mirror has to build with the front door's generator absent. So
+  // the drift that would leave every mirrored page naming a file the apex does
+  // not serve, or lying about its shape, is pinned here instead.
+  assert.equal(SOCIAL_CARD_FILE, FRONT_DOOR_SOCIAL_CARD);
+  assert.equal(SOCIAL_CARD_ALT, FRONT_DOOR_SOCIAL_CARD_ALT);
+  assert.equal(SOCIAL_CARD_WIDTH, OFFLINE_CARD_WIDTH);
+  assert.equal(SOCIAL_CARD_HEIGHT, OFFLINE_CARD_HEIGHT);
+  assert.ok(APEX_ROOT_PATHS.has(`/${SOCIAL_CARD_FILE}`), 'validateLinks would call the card a dead link');
+  // The alt text goes into an HTML attribute unescaped, so it must not carry a
+  // quote. Pinned rather than escaped at the point of use: a card description
+  // that needs escaping is a sign the copy changed shape, not a case to absorb.
+  assert.ok(!/["'<>&]/.test(SOCIAL_CARD_ALT), 'card alt text needs escaping');
+});
+
+test('a venture that later declares its own card gets it reconciled, not duplicated', () => {
+  // No venture does today. The rule exists because the gap in exactly this
+  // rule is what let `og:url` ship broken to 64 pages.
+  const html =
+    '<head><meta charset="utf-8">' +
+    '<meta property="og:image" content="https://example.invalid/own-card.png">' +
+    '<meta name="twitter:card" content="summary">' +
+    '</head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
+  assert.equal((out.match(/property="og:image"/g) ?? []).length, 1);
+  assert.equal((out.match(/name="twitter:card"/g) ?? []).length, 1);
+  assert.ok(!out.includes('own-card.png'));
+  assert.ok(!out.includes('content="summary">'), 'the venture\'s smaller card type must not survive');
 });
 
 test('every mirrored path is one nginx can actually route', async () => {
