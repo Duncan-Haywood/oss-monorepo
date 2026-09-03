@@ -44,3 +44,23 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  # The static surface at `site/` is dependency-free ESM with its own
+  # `node --test` suite, so it neither needs nor uses the Next.js app's
+  # `npm ci` above. Without this job its 42 tests — including the parity
+  # guard that pins the port against `src/lib/print-file-preflight.ts` —
+  # would never run in CI, which is exactly the gap #3077 closed for
+  # `real-estate-agent-photo-app`.
+  site-test:
+    name: site/ tests
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ventures/print-atelier/site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
