@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 159 files, 556869 bytes
 #   portfolio-front-tools-3: 119 files, 551520 bytes
 #   portfolio-front-tools-4: 131 files, 551479 bytes
-#   portfolio-front-tools-5: 119 files, 549521 bytes
+#   portfolio-front-tools-5: 120 files, 553695 bytes
 #   portfolio-front-tools-6: 114 files, 552022 bytes
 #   portfolio-front-tools-7: 125 files, 555860 bytes
 #   portfolio-front-tools-8: 109 files, 553731 bytes
@@ -902,6 +902,7 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__index.html.gz=hardwood-refinishing-bid-calculator__index.html.gz
       - hardwood-refinishing-bid-calculator__proposal.mjs.gz=hardwood-refinishing-bid-calculator__proposal.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
+      - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
       - holiday-light-bid-calculator__LICENSE.gz=holiday-light-bid-calculator__LICENSE.gz
       - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
       - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
