@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addMonths, reviewAll, reviewGrant, toCsv, loadGrants, sampleGrants, removeGrant } from './calc.mjs';
+import { addMonths, reviewAll, reviewGrant, toCsv, loadGrants, sampleGrants, removeGrant, markReportFiled } from './calc.mjs';
+import { readFileSync } from 'node:fs';
 
 test('adds months without overflowing short months', () => {
   assert.equal(addMonths('2026-01-31', 1), '2026-02-28');
@@ -220,4 +221,37 @@ test('reviewGrant and sampleGrants default to the visitor\'s local calendar date
     if (originalTZ === undefined) delete process.env.TZ;
     else process.env.TZ = originalTZ;
   }
+});
+
+test('markReportFiled rolls a saved award forward without re-keying it', () => {
+  const grants = [
+    { name: 'A', awardDate: '2023-01-01', intervalMonths: 3, awardAmount: 100, spentAmount: 10 },
+    { name: 'B', awardDate: '2023-01-01', intervalMonths: 3 },
+  ];
+  const after = markReportFiled(grants, 0, '2026-08-24');
+  assert.equal(after[0].lastReportFiled, '2026-08-24');
+  assert.equal(after[0].awardAmount, 100, 'every other field on the award survives');
+  assert.equal(after[1].lastReportFiled, undefined, 'only the named row is stamped');
+  assert.equal(grants[0].lastReportFiled, undefined, 'the saved array is not mutated in place');
+  // The whole point: the next due date moves one interval past the filing.
+  assert.equal(reviewGrant(after[0], '2026-08-24').nextReport, '2026-11-24');
+});
+
+test('markReportFiled refuses an out-of-range index or an unparseable date instead of corrupting the queue', () => {
+  const grants = [{ name: 'A', awardDate: '2026-01-01', intervalMonths: 6 }];
+  assert.deepEqual(markReportFiled(grants, 5, '2026-08-24'), grants);
+  assert.deepEqual(markReportFiled(grants, -1, '2026-08-24'), grants);
+  assert.deepEqual(markReportFiled(grants, 1.5, '2026-08-24'), grants);
+  assert.deepEqual(markReportFiled(grants, 0, 'not-a-date'), grants, 'a bad stamp would anchor every future due date');
+  assert.deepEqual(markReportFiled(null, 0, '2026-08-24'), []);
+});
+
+test('the review queue exposes the Filed-today action and the Last-filed column it stamps', () => {
+  // The calc-side roll-forward is only reachable for a returning user through
+  // this button, so a page that drops it silently reverts the feature to
+  // "delete the award and type it again".
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /markReportFiled/, 'the page imports and calls the roll-forward');
+  assert.match(page, /data-filed=/, 'each queue row carries a Filed-today control');
+  assert.match(page, /<th>Last filed<\/th>/, 'the queue shows the anchor it is counting from');
 });

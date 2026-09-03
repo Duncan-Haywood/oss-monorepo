@@ -128,6 +128,26 @@ export function removeGrant(grants, index) {
   return grants.filter((_, i) => i !== index);
 }
 
+// Recording a filing has to work on an award that is *already saved*, which
+// is the only state a returning user is ever in. `lastReportFiled` on the add
+// form only helps someone typing a multi-year award in for the first time;
+// without this the way to roll a tracked award forward after actually sending
+// its report was to remove it and re-key every field, which is exactly the
+// hand-maintained-spreadsheet work the tracker exists to replace -- and the
+// row most likely to be re-keyed wrong is the one whose numbers a board sees.
+// Index semantics match `removeGrant`: `sourceIndex` from `reviewAll`, not the
+// row's sorted position.
+export function markReportFiled(grants, index, filedOn = localToday()) {
+  if (!Array.isArray(grants)) return [];
+  if (!Number.isInteger(index) || index < 0 || index >= grants.length) {
+    return grants.slice();
+  }
+  // A filing date that does not parse would silently become the anchor for
+  // every future due date, so refuse it rather than writing it to storage.
+  if (!parseDate(filedOn)) return grants.slice();
+  return grants.map((grant, i) => (i === index ? { ...grant, lastReportFiled: filedOn } : grant));
+}
+
 // Every field the queue reads, not just the ones the table renders. A CSV
 // exported to a board member, a co-signer, or a funder's file is often the
 // only copy of an award that leaves this browser -- so a recipient with only
