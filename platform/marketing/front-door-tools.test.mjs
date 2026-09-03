@@ -47,8 +47,10 @@ import {
   WHY_CATEGORY_WORD,
   claimedCategory,
   TOOLS_URL,
+  APEX_URL,
   buildMirror,
   canonicalUrl,
+  apexUrl,
   injectMirrorTags,
   injectMirrorNav,
   blankScriptBodies,
@@ -182,6 +184,76 @@ test('no mirrored page ships more than one robots directive', async () => {
     assert.equal(robots.length, 1, `${slug}/${file} has ${robots.length} robots directives`);
     assert.match(robots[0], /noindex/);
   }
+});
+
+test('a venture-declared og:url is repointed at the URL this host actually serves', () => {
+  // The venture sources carry `https://example.invalid/...` deliberately —
+  // `build.mjs` calls it `PLACEHOLDER_ORIGIN` and overwrites it when it
+  // publishes to the canonical host. This mirror is the other publisher and
+  // used to copy the placeholder through, so a mirrored tool pasted into Slack
+  // or LinkedIn built its share card against a domain reserved by RFC 2606.
+  const html =
+    '<head><meta charset="utf-8">' +
+    '<meta property="og:url" content="https://example.invalid/demo/vs-jobber.html">' +
+    '</head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'vs-jobber.html' });
+  assert.ok(!out.includes('example.invalid'), 'the placeholder origin must not survive');
+  const tags = out.match(/<meta[^>]*property="og:url"[^>]*>/g);
+  assert.equal(tags.length, 1, 'two og:url tags let the scraper choose which one to believe');
+  assert.equal(tags[0], '<meta property="og:url" content="https://marisstella.dev/tools/demo/vs-jobber.html">');
+});
+
+test('og:url names the apex, while the canonical still names the tools host', () => {
+  // These two tags disagree on purpose and the disagreement is the point: a
+  // crawler consolidating on `tools.marisstella.dev` is correct, and a person
+  // clicking a share card needs the host that answers today. Asserted together
+  // so a future session cannot "fix" one into the other without this failing.
+  const html = '<head><meta charset="utf-8"><meta property="og:url" content="https://example.invalid/d/"></head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
+  assert.ok(out.includes(`<link rel="canonical" href="${canonicalUrl('demo', 'index.html')}">`));
+  assert.ok(out.includes(`<meta property="og:url" content="${apexUrl('demo', 'index.html')}">`));
+  assert.ok(canonicalUrl('demo', 'index.html').startsWith(TOOLS_URL));
+  assert.ok(apexUrl('demo', 'index.html').startsWith(APEX_URL));
+  // `index.html` drops off both, so neither advertises a second URL for the
+  // page the directory itself already answers.
+  assert.equal(apexUrl('demo', 'index.html'), 'https://marisstella.dev/tools/demo/');
+});
+
+test('a bare `>` inside a neighbouring meta tag does not derail the og:url repair', () => {
+  // Why the whole-tag matcher rather than `[^>]*`: venture copy really does
+  // contain comparisons, and a matcher that stopped at the first `>` would
+  // rewrite the wrong span of the document.
+  const html =
+    '<head><meta charset="utf-8">' +
+    '<meta name="description" content="works when net > 0 and margin > cost">' +
+    '<meta property="og:url" content="https://example.invalid/demo/x.html">' +
+    '</head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'x.html' });
+  assert.ok(out.includes('content="works when net > 0 and margin > cost"'), 'the description is untouched');
+  assert.ok(out.includes('<meta property="og:url" content="https://marisstella.dev/tools/demo/x.html">'));
+});
+
+test('no mirrored page ships a share card pointed at a domain that resolves nowhere', async () => {
+  // The end-to-end form, over what is actually committed. `og:url` is repaired
+  // where present and never inserted where absent — a page with none lets the
+  // scraper key the card to the pasted URL, which is already this host's.
+  const { files } = await buildMirror();
+  let repaired = 0;
+  for (const { slug, file, contents } of files.filter((f) => f.file.endsWith('.html'))) {
+    const tags = contents.match(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*property=["']og:url["'](?:[^>"']|"[^"]*"|'[^']*')*>/gi) ?? [];
+    assert.ok(tags.length <= 1, `${slug}/${file} has ${tags.length} og:url tags`);
+    if (tags.length === 0) continue;
+    repaired += 1;
+    assert.ok(
+      !tags[0].includes('example.invalid'),
+      `${slug}/${file} still advertises the placeholder origin to every share scraper`,
+    );
+    assert.ok(
+      tags[0].includes(`content="${apexUrl(slug, file)}"`),
+      `${slug}/${file} should key its share card to ${apexUrl(slug, file)}`,
+    );
+  }
+  assert.ok(repaired > 0, 'no page carried an og:url, so this check proved nothing');
 });
 
 test('every mirrored path is one nginx can actually route', async () => {
