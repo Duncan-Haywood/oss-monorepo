@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should You Accept Net 30 on a Freelance Retainer?</title>
+  <meta name="description" content="A monthly retainer price is not cash. Compare prepaid, Net 15, Net 30, and month-end billing to see the cash a freelancer must float before the first payment.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Should You Accept Net 30 on a Freelance Retainer?">
+  <meta property="og:description" content="Invoicing at month-end plus Net 30 is about 60 days. Calculate the cash you must float before you agree.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/retainer-payment-terms.html">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/retainer-payment-terms.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float one monthly revenue target for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff."}},{"@type":"Question","name":"How much cash do I need to float a retainer?","acceptedAnswer":{"@type":"Answer","text":"Multiply the monthly take-home plus costs by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months."}}]}</script>
+</head>
+<body>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">← Freelance retainer calculator</a></p>
+    <header>
+      <h1>A retainer price is not cash in the bank.</h1>
+      <p class="lede">Freelancers often accept Net 30 on a monthly retainer, then work 30–60 days before the first payment lands. The cash you must float is a pricing decision, not a courtesy.</p>
+    </header>
+    <section class="workspace" aria-label="Payment-term cash float">
+      <form id="floatForm" class="card">
+        <h2>Your monthly revenue target</h2>
+        <p class="note">Take-home plus business costs and taxes. The default $7,800 is the calculator’s default plan.</p>
+        <label>Monthly revenue target <span data-currency-symbol>$</span><input id="floatTarget" type="number" min="0" step="100" value="7800" required></label>
+        <label>Currency <select id="floatCurrency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
+        <button type="submit">Compare payment terms</button>
+        <p id="floatErrors" class="error" role="alert" hidden></p>
+      </form>
+      <section id="floatResults" class="card result" aria-live="polite" hidden>
+        <p class="eyebrow">CASH YOU LEND THE CLIENT</p>
+        <div class="table-wrap">
+          <table class="usage-table">
+            <caption>Days until first cash × monthly target ÷ 30. Arithmetic only.</caption>
+            <thead>
+              <tr>
+                <th scope="col">If they pay</th>
+                <th scope="col">Days</th>
+                <th scope="col">Cash to float</th>
+              </tr>
+            </thead>
+            <tbody id="floatRows"></tbody>
+          </table>
+        </div>
+        <p id="floatVerdict" class="verdict"></p>
+      </section>
+    </section>
+    <section class="copy card">
+      <h2>How the float is calculated</h2>
+      <p>Take the monthly revenue target — take-home plus business costs and taxes — and multiply by days until first cash divided by 30. That is the savings or other-client cash you need while this retainer is unpaid.</p>
+      <ul>
+        <li>Prepaid on kickoff: 0 days, no float.</li>
+        <li>Invoice on kickoff, Net 15: about 15 days, half a month.</li>
+        <li>Invoice on kickoff, Net 30: about 30 days, one month.</li>
+        <li>Invoice at month-end, Net 15: about 45 days.</li>
+        <li>Invoice at month-end, Net 30: about 60 days, two months.</li>
+      </ul>
+      <p>If a $7,800 monthly target is billed at month-end plus Net 30, you float $15,600 before first cash. That is not a late fee. It is working capital you are lending the client.</p>
+      <h2>What to put in the agreement</h2>
+      <p>Write the payment trigger, not just “Net 30”. Prepaid on kickoff, or invoice on the first of each month due on receipt, removes the silent extra month. 50% on kickoff and 50% on the invoice date splits the float if the client will not prepay in full.</p>
+      <p>Price the block first, then check the float. <a href="index.html">Open the retainer calculator</a> to pair this with usage. <a href="retainer-vs-hourly.html">Retainer vs hourly</a> is the one-month failure mode. <a href="unused-hour-rollover.html">Unused-hour rollover</a> is the two-month version of the same gift.</p>
+      <p class="note">This page is a planning aid, not financial or legal advice. Review the numbers and the contract before you send either. Hosted URLs, when they exist, carry no availability SLA.</p>
+    </section>
+  <h2>Common questions</h2>
+  <h3>Should I accept Net 30 on a freelance retainer?</h3>
+  <p>Only if you can float one monthly revenue target for the days until first cash. Month-end invoicing plus Net 30 is about 60 days. If you cannot float that amount, require prepaid or 50% on kickoff.</p>
+  <h3>How much cash do I need to float a retainer?</h3>
+  <p>Multiply the monthly take-home plus costs by days-until-cash divided by 30. Prepaid is zero. Kickoff plus Net 30 is one month. Month-end plus Net 30 is two months.</p>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser (<code>payment_terms_compared</code>, <code>payment-terms-float</code>); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Free and open source. If it stopped you from floating two months of cash, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

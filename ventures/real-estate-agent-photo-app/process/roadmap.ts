@@ -7,6 +7,9 @@ import type { RoadmapPhase, RoadmapTask } from "./types";
  * they're discovered. Do not delete history — if a task is abandoned, set
  * its status to "blocked" and explain why in `blockedReason` rather than
  * removing it, so future agents don't repeat the same dead end.
+ *
+ * Portfolio rule (2026-08-25): deploy what is already built before more
+ * process or GTM scaffolding. See portfolio/DIRECTION.md "Current priority".
  */
 export const roadmap: RoadmapPhase[] = [
   {
@@ -24,6 +27,16 @@ export const roadmap: RoadmapPhase[] = [
         owner: "agent",
         rationale: "Document feasibility, audience fit, competition, and pricing.",
         doneWhen: "research/ builds and exports statically.",
+      },
+      {
+        id: "p0-deploy-built-surfaces",
+        title: "Put already-built public surfaces on a live URL before more process work",
+        status: "not_started",
+        owner: "both",
+        rationale:
+          "The research site and /photo-check tool already exist. A static export nobody can open does not produce interviews, usage, or a first concierge lead. Portfolio-wide, undeployed products on main outrank new scaffolding — see portfolio/DIRECTION.md Current priority. The owner flip for Pages/Cloudflare is deploy-settings; do not open a second ask.",
+        doneWhen:
+          "A stranger can open the already-built research report and /photo-check without cloning this repo. Agent prepares the deploy artifact; owner flips the existing gated workflow. No new product is started in this venture until that URL exists.",
       },
       {
         id: "p0-docs-site",
@@ -292,6 +305,16 @@ export const roadmap: RoadmapPhase[] = [
           "process/referral-followup.ts exists with followUpMessageText() (a 3-7-days-after-delivery check-in that asks for a concrete testimonial and offers a zero-cash-spend discount-based referral incentive), a TESTIMONIAL_PROMPT for turning a vague reply into a usable quote, and REFERRAL_INCENTIVE defined as future-delivery discounts (not cash) so it doesn't violate the no-real-spend guardrail; has a passing self-test (npm test) with no real listing/customer data required. See process/referral-followup.ts, pipeline/src/referral-followup.test.ts.",
       },
       {
+        id: "p2-photo-preflight-record",
+        title: "Download a dated MLS photo preflight record",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "The browser preflight check showed findings but did not let an agent keep the dated evidence artifact described by the product-line candidate. A local Markdown download completes the review workflow without uploading photos or adding a backend.",
+        doneWhen:
+          "The /photo-check browser tool downloads a Markdown record containing the checked date, spec ID, per-file findings, skipped-file count, and explicit unimplemented checks; downloading is counted as an opt-out local usage event and no photo bytes leave the browser.",
+      },
+      {
         id: "p2-promise-consistency-audit",
         title: "Audit outreach/delivery/referral copy for drifted customer promises",
         status: "done",
@@ -388,6 +411,16 @@ export const roadmap: RoadmapPhase[] = [
         rationale: "Resolves the open scope question in STRATEGY.md before any iOS work starts.",
         doneWhen: "A decision is logged in decisions-log.ts with rationale.",
         gatedOn: ["p1-run-interviews", "p2-first-deliveries"],
+      },
+      {
+        id: "p2-photo-check-read-recovery",
+        title: "Recover clearly when a browser cannot read selected photos",
+        status: "done",
+        owner: "agent",
+        rationale:
+          "Mobile file pickers and temporary file handles can fail after selection. A silent rejected read leaves an agent without a report or a recovery path during a delivery preflight.",
+        doneWhen:
+          "The browser preflight catches file-read failures, shows an actionable alert, clears processing state, and has a regression test for the message contract.",
       },
     ],
   },

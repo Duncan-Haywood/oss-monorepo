@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I bundle TikTok Shop orders? | Multi-buy discount vs separate orders</title>
+  <meta name="description" content="TikTok Shop bundle-discount calculator. See whether a 'buy 2, save X%' deal beats two separate full-price orders after referral, affiliate commission, and returns, and the discount ceiling that still matches them.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-bundle-tiktok-shop-orders.html">
+  <meta property="og:title" content="Should I bundle TikTok Shop orders?">
+  <meta property="og:description" content="A multi-buy discount saves one order's worth of flat per-order costs. Compare that against the discount's cost, and find the discount that still matches selling separately.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "TikTok Shop bundle-discount calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Bundle vs separate-orders expected leftover, discount ceiling that still matches separate orders, expected profit after returns"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I offer a bundle discount on TikTok Shop?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator example — a $19.99 item, 6% referral, 15% creator commission, 12% returns — a 2-pack at 10% off keeps $2.30 less than two separate full-price orders ($1.62 vs $3.92). Bundling only saves the flat per-order costs a second checkout would repeat (packaging and other per-order costs here), and a 10% price cut spends far more than that saves. Dropping the discount to about 1.5% would match selling the two units separately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why would bundling ever beat two separate orders?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Because some costs are charged once per order regardless of how many units are on it — a payment processor's flat fee, packaging, or any other per-order cost — while referral, creator commission, product cost, and ad spend all scale with units either way. A bundle at 0% discount keeps exactly those saved per-order costs; on the calculator defaults that is $0.40 more than two separate orders. Any real discount has to beat that number, not the other way around."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What discount can I offer without losing money on a bundle?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The page solves for it: the discount percentage at which the bundle's expected leftover exactly equals selling the same units separately. On the calculator example that ceiling is about 1.5% — well short of a typical \"buy 2 save 10%\" offer. Replace the rates and costs with your own SKU to get your own ceiling; it moves with referral rate, commission, and how large your genuinely per-order costs are."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b1824; background: #f3eef6; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7a1fa2; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d7cce0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a183310; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #9a88ad; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .hint { font-weight: 500; font-size: .78rem; color: #5c4e68; }
+    .result { position: sticky; top: 15px; background: #2a1038; color: #f7f1fb; border-color: #2a1038; }
+    .result a { color: inherit; text-decoration: underline; }
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 1.15rem; font-weight: 650; line-height: 1.35; margin: 8px 0 16px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .82rem; opacity: .84; }
+    .error { color: #ffb0a2; }
+    footer { margin-top: 25px; font-size: .82rem; color: #53485f; }
+    footer a { color: #7a1fa2; }
+    a { color: #7a1fa2; }
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">TIKTOK SHOP · BUNDLE DISCOUNT</p>
+    <h1>The discount has to beat one saved order, not two sales.</h1>
+    <p>
+      A "buy 2, save X%" deal only avoids the per-order costs a second
+      checkout would repeat — referral, creator commission, product cost,
+      and ad spend all scale with units either way. This page compares a
+      bundle against selling the same units as separate full-price orders,
+      and solves for the discount that still matches them.
+      <a href=".">Back to the full calculator</a>.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section>
+      <h2>The bundle</h2>
+      <div class="fields">
+        <label>Item price
+          <input id="itemPrice" type="number" min="0" step="0.01" value="19.99">
+        </label>
+        <label>Units in the bundle
+          <input id="bundleQuantity" type="number" min="2" step="1" value="2">
+        </label>
+        <label>Bundle discount (%)
+          <input id="bundleDiscountPct" type="number" min="0" max="99.9" step="0.1" value="10">
+        </label>
+        <label>Referral rate (%)
+          <input id="referralRate" type="number" min="0" step="0.01" value="6">
+        </label>
+        <label>Affiliate commission you set (%)
+          <input id="affiliateRate" type="number" min="0" step="0.1" value="15">
+        </label>
+        <label>Return rate (%)
+          <input id="returnRate" type="number" min="0" max="100" step="0.1" value="12">
+        </label>
+        <label>You paid for the item
+          <input id="cogs" type="number" min="0" step="0.01" value="5.50">
+        </label>
+        <label>Fulfillment / postage you pay
+          <input id="fulfillmentCost" type="number" min="0" step="0.01" value="4.28">
+        </label>
+        <label>Packaging / other per order
+          <input id="otherPerOrder" type="number" min="0" step="0.01" value="0.40">
+          <span class="hint">Charged once per order, not once per unit — this is what a bundle actually saves.</span>
+        </label>
+        <label>Ads allocated to this order
+          <input id="adSpend" type="number" min="0" step="0.01" value="1.50">
+        </label>
+        <label>Returned units you cannot resell (%)
+          <input id="unsellableRate" type="number" min="0" max="100" step="1" value="80">
+        </label>
+      </div>
+    </section>
+
+    <section class="result" aria-live="polite">
+      <h2>Bundle vs separate orders</h2>
+      <p class="hero-number" id="note"></p>
+      <p class="error" id="error" hidden></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Price</th>
+            <th scope="col">Expected leftover</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="note" id="breakeven"></p>
+      <p class="note">Transparent arithmetic from your inputs — not a ranking, a conversion forecast, or advice about what discount to run.</p>
+    </section>
+  </main>
+
+  <h2>Common questions</h2>
+  <h3>Should I offer a bundle discount on TikTok Shop?</h3>
+  <p>On the calculator example — a $19.99 item, 6% referral, 15% creator commission, 12% returns — a 2-pack at 10% off keeps $2.30 less than two separate full-price orders ($1.62 vs $3.92). Bundling only saves the flat per-order costs a second checkout would repeat (packaging and other per-order costs here), and a 10% price cut spends far more than that saves. Dropping the discount to about 1.5% would match selling the two units separately.</p>
+  <h3>Why would bundling ever beat two separate orders?</h3>
+  <p>Because some costs are charged once per order regardless of how many units are on it — a payment processor's flat fee, packaging, or any other per-order cost — while referral, creator commission, product cost, and ad spend all scale with units either way. A bundle at 0% discount keeps exactly those saved per-order costs; on the calculator defaults that is $0.40 more than two separate orders. Any real discount has to beat that number, not the other way around.</p>
+  <h3>What discount can I offer without losing money on a bundle?</h3>
+  <p>The page solves for it: the discount percentage at which the bundle's expected leftover exactly equals selling the same units separately. On the calculator example that ceiling is about 1.5% — well short of a typical "buy 2 save 10%" offer. Replace the rates and costs with your own SKU to get your own ceiling; it moves with referral rate, commission, and how large your genuinely per-order costs are.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400">
+      <input id="usageOptOut" type="checkbox" style="width:auto">
+      Do not keep anonymous local usage counts
+    </label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your prices, costs, or creator rates.</p>
+    <p>Free and open source. <a href=".">Full TikTok Shop calculator</a> · <a href="should-i-offer-free-shipping-on-tiktok-shop.html">Free shipping example</a> · <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional.</p>
+  </footer>
+
+  <script type="module">
+    import { compareBundleDiscount, bundleDiscountNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const FIELD_IDS = [
+      "itemPrice", "bundleQuantity", "bundleDiscountPct", "referralRate",
+      "affiliateRate", "returnRate", "cogs", "fulfillmentCost",
+      "otherPerOrder", "adSpend", "unsellableRate",
+    ];
+
+    const money = (value) => {
+      if (value === null || value === undefined) return "n/a";
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+    const el = (id) => document.getElementById(id);
+    const count = (event) => recordUsage(localStorage, el("usageOptOut").checked, event);
+
+    function readInput() {
+      const value = (id) => el(id).value;
+      return {
+        itemPrice: value("itemPrice"),
+        bundleQuantity: value("bundleQuantity"),
+        bundleDiscountPct: value("bundleDiscountPct"),
+        referralRate: value("referralRate"),
+        affiliateRate: value("affiliateRate"),
+        returnRate: value("returnRate"),
+        cogs: value("cogs"),
+        fulfillmentCost: value("fulfillmentCost"),
+        otherPerOrder: value("otherPerOrder"),
+        adSpend: value("adSpend"),
+        unsellableRate: value("unsellableRate"),
+      };
+    }
+
+    function paint() {
+      el("error").hidden = true;
+      try {
+        const comparison = compareBundleDiscount(readInput());
+        el("note").textContent = bundleDiscountNote(comparison);
+        const rows = [
+          {
+            id: "separate",
+            label: `${comparison.bundleQuantity} separate orders`,
+            leftover: comparison.separateTotal,
+          },
+          {
+            id: "bundle",
+            label: `1 bundle of ${comparison.bundleQuantity}`,
+            price: money(comparison.bundlePrice),
+            leftover: comparison.bundle.expectedProfit,
+          },
+        ];
+        el("rows").innerHTML = rows.map((row) => {
+          const winner = comparison.winner === row.id;
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${row.id === "separate" ? "full price" : row.price}</td><td>${money(row.leftover)}</td></tr>`;
+        }).join("");
+        el("breakeven").textContent = comparison.breakEvenDiscountPct === null
+          ? "No discount recovers the saved per-order costs on these numbers."
+          : `Break-even discount: about ${comparison.breakEvenDiscountPct.toFixed(1)}% — the deepest cut that still matches selling separately.`;
+      } catch (error) {
+        el("error").hidden = false;
+        el("error").textContent = error.message;
+        el("note").textContent = "";
+        el("rows").innerHTML = "";
+        el("breakeven").textContent = "";
+      }
+    }
+
+    FIELD_IDS.forEach((id) => {
+      el(id).addEventListener("input", paint);
+      el(id).addEventListener("change", () => count("bundle_discount_compared"));
+    });
+    el("usageOptOut").addEventListener("change", paint);
+
+    paint();
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "public-record-watch"
+version = "0.1.0"
+description = "Compare authorized public-register snapshots and produce source-linked change reports"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+
+[project.scripts]
+public-record-watch = "public_record_watch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

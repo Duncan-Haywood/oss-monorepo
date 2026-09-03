@@ -1,0 +1,32 @@
+name: carpet-cleaning-bid-calculator
+description: A private browser calculator for carpet-cleaning technicians that prices a stop from soil-specific extraction rates — rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — and shows the quote, the effective hourly rate including the drive, and the walk-away price below which a posted per-room special loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent carpet-cleaning technicians will use a production-rate stop calculator because the per-room specials they copy from competitors cannot see stairs, pet urine, upholstery, furniture moving, or the drive, which is how a $129 three-bedroom special turns into a losing stop.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the share of hours that are not carpet extraction are the two numbers a technician actually decides on when a customer asks for the posted special, more than the per-room rate itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Drive time and pet extra passes are the two costs most often left out of a small operator's own quote, so making both first-class inputs changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified carpet-cleaning technicians use the calculator twice within 90 days.
+  - Technicians report that splitting rooms, stairs, pet treatment, and drive time is more work than their existing method without changing the price they would have quoted.
+  - The starting extraction rates prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

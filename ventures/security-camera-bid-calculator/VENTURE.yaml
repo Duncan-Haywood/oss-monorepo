@@ -1,0 +1,42 @@
+name: security-camera-bid-calculator
+description: >-
+  A private browser calculator for low-voltage and security installers that
+  prices an IP camera install from the drops, the cable, the head end, and the
+  shop's own wage and margin — and checks the three things a camera bid gets
+  wrong before it goes out: whether the fitted drives hold the recording days
+  the customer was quoted, whether the switch's PoE budget covers the cameras,
+  and whether any run is past the 328 ft Ethernet limit.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Low-voltage and security installers will use a camera bid calculator because the per-camera price they quote from cannot see that eight cameras through masonry with a lift is several times eight through an accessible attic, which is how a bid that looked like the last job turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      "Days these drives actually hold" is the output that makes installers
+      return, more than the bid total — because quoting a retention the system
+      cannot deliver is the failed handover that costs a callback, a drive
+      swap, and the reference.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Making the PoE budget and the Ethernet run-length check required, explained outputs rather than walkthrough habits is what separates this from a generic job-costing spreadsheet, because both faults surface after handover rather than during the bid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified low-voltage or security installers use the calculator twice within 90 days.
+  - Installers report that entering resolution, codec, retention, and construction type is more work than their existing method without changing the price they would have bid.
+  - The storage and PoE checks prove to restate what installers already size correctly by habit, so the engineering half adds nothing over a plain job-costing sheet.
+links:
+  production: null
+  analytics: null

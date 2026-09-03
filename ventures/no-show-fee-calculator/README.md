@@ -7,9 +7,10 @@ cancellation fee, an estimate of what no-shows cost you a year, and a
 ready-to-copy cancellation policy.
 
 **After using this, you can now** state and defend a specific
-no-show/late-cancellation fee — and hand clients a ready-to-use policy —
-**which used to take** guessing a number or copying a boilerplate template
-that doesn't match your prices.
+no-show/late-cancellation fee, see whether a 24-hour or 48-hour notice
+window actually recovers more empty-slot cash on your waitlist, and hand
+clients a ready-to-use policy — **which used to take** guessing a number
+or copying a boilerplate template that doesn't match your prices.
 
 ## Who this is for
 
@@ -41,21 +42,62 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    price you'd charge as a fee.
 3. Choose the currency your prices already use. The calculator labels amounts
    in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
-4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
+4. Optionally enter the booking deposit you could require instead of (or
+   together with) chasing a no-show invoice after the fact.
+5. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a plain-text
-   cancellation policy you can copy straight into your booking system,
-   client agreement, or website.
+   revenue you could collect if you enforce the policy, the modeled share of
+   lost slot value recovered, and the exposure still unrecovered (both per
+   month and as a full-year figure) — plus a comparison of
+   that after-the-fact fee against keeping a deposit, a table that compares
+   collecting the fee on a full book against overbooking 50%, 100%, and 150%
+   of the empty chairs (and against dropping the fee and only overbooking),
+   and a plain-text cancellation policy (including how you plan to collect
+   the fee) you can copy straight into your booking system, client
+   agreement, or website. Optionally type what a
+   double-booked chair costs you; leave it blank to price overflow as one
+   session.
 
-All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
+All the arithmetic is in [`calc.mjs`](calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
 guesswork — it's your numbers, run through a fixed formula you can read.
 
 After calculating, use **Copy share link** to create a bookmarkable URL that
 restores the form and results on another device. The link contains the values
-in its query string, including the selected currency and any business or
-service names, so treat it like any other link containing business information.
-It is not uploaded or stored by this tool.
+in its query string, including the selected currency, deposit percentage, and
+any business or service names, so treat it like any other link containing
+business information. It is not uploaded or stored by this tool.
+
+The deposit comparison is complementary to a standalone appointment-deposit
+calculator if one is opened later. This page does not replace that tool; it
+answers a different question on numbers the user already entered here: for the
+same missed slots, does keeping a deposit recover more cash than chasing a
+no-show fee after the fact.
+
+**Compare notice windows** answers the 24-hour vs 48-hour question with
+your own waitlist fill-rate assumption. Same-day, 24-hour, and 48-hour
+rows show how many late cancels you refill, how much empty-slot cash that
+recovers, and the extra versus a same-day rule. The fee table stays
+separate: collecting a fee does not put another client in the chair. A
+crawlable explainer lives at
+[`24h-vs-48h-cancellation-notice.html`](24h-vs-48h-cancellation-notice.html).
+
+A worked example of the overbooking table lives on
+[`should-i-overbook-or-charge-a-no-show-fee.html`](should-i-overbook-or-charge-a-no-show-fee.html).
+
+Use **Download .txt** to save the generated policy as a plain-text file for your
+booking system, client agreement, or records. The download is created locally
+in your browser; no policy text is uploaded.
+
+The calculator also saves the current form locally in your browser as you edit,
+so a return visit starts with your own prices and policy assumptions. Use
+**Reset saved numbers** to remove that draft and restore the shipped defaults.
+Shared-link values take precedence over the saved draft. The draft never leaves
+your browser and is separate from the anonymous usage event log.
+
+Use **Download .txt** to save the generated policy as a plain-text file for your
+booking system, client agreement, or records. The download is created locally
+in your browser; no policy text is uploaded.
 
 ## Disclaimer
 
@@ -68,18 +110,27 @@ cancellation/no-show fee is permitted for your business type and location
 before you publish a policy. To the maximum extent permitted by law, the
 authors accept no liability for any loss or damage arising from its use.
 
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
+
 ## Privacy
 
 Everything runs in your browser. There is no server, no account, and no
 third-party analytics vendor — your prices and business details are never
 uploaded anywhere. The page counts a small number of anonymous local events
 (e.g. "a calculation ran", "the policy was copied") so it can tell whether
-anyone is using it at all; each event is just a name and a date, stored only
+anyone is using it at all. The page recalculates as you type, but a
+calculation is only *counted* once a field is settled — the count is meant to
+measure calculations, not keystrokes, and the result shown on first load is
+not counted at all, since nobody asked for it. Each event is just a name and a date, stored only
 in `localStorage` on your own device, visible to you in the page's "Usage"
 section, and clearable or disable-able at any time (a "don't count my usage"
 checkbox is right there, and the tool also honors your browser's Do Not
 Track / Global Privacy Control signal automatically). See
-[`src/usage.mjs`](src/usage.mjs) for the full implementation and
+[`usage.mjs`](usage.mjs) for the full implementation and
 [`portfolio/usage/README.md`](../../portfolio/usage/README.md) for the
 portfolio-wide rules this follows.
 
@@ -105,6 +156,11 @@ portfolio-wide rules this follows.
   different, recurring, quantifiable pain.
 - **Shape:** pure static site, zero marginal cost, zero third-party
   dependency, no AI needed — deterministic arithmetic is the whole product.
+
+The recovery percentage is a comparison of modeled fee collections with the
+appointment value at risk. It reflects the enforcement assumption you enter;
+it is not a forecast of client behavior or a guarantee that fees can be
+collected.
 
 ## Usage tracking
 

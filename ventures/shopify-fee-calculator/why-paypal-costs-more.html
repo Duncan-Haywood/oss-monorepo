@@ -16,6 +16,7 @@
     h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
     footer { margin-top: 2rem; font-size: .85rem; color: #3d5649; }
   </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does PayPal cost more than Shopify Payments on the same order?","acceptedAnswer":{"@type":"Answer","text":"Because a checkout that uses PayPal or another outside processor can pay twice: the processor's own rate, plus Shopify's third-party transaction fee on the order total. Shopify Payments replaces that extra Shopify fee with the Shopify Payments processing rate, so only one rate applies to the order."}},{"@type":"Question","name":"How much is Shopify's third-party transaction fee?","acceptedAnswer":{"@type":"Answer","text":"It depends on your plan, country, card type, and contract, and this page does not publish Shopify's live schedule. The worked example uses an illustrative 2% third-party fee on a Basic plan alongside a 3.49% + $0.49 processor, against a 2.9% + $0.30 Shopify Payments rate. Enter the percentages from your own statements to see the real gap."}}]}</script>
 </head>
 <body>
   <p><a href="./">← Shopify fee calculator</a></p>
@@ -42,11 +43,27 @@
     shipping, cost of goods, and a share of the monthly plan.
   </p>
   <p>
+    Refunds change the comparison again: PayPal often keeps its processing
+    fee when the order is reversed.
+    <a href="refunds.html">What a refund rate still leaves</a> mixes
+    completed-order profit with a full-refund outcome on both paths.
+  </p>
+  <p>
     The calculator is arithmetic, not advice. It does not recommend a
     processor or claim a store is more profitable after switching.
   </p>
+  <p>
+    Comparing plans instead of processors?
+    <a href="basic-vs-grow.html">When does Shopify Grow beat Basic?</a>
+  </p>
+  <h2>Common questions</h2>
+  <h3>Why does PayPal cost more than Shopify Payments on the same order?</h3>
+  <p>Because a checkout that uses PayPal or another outside processor can pay twice: the processor's own rate, plus Shopify's third-party transaction fee on the order total. Shopify Payments replaces that extra Shopify fee with the Shopify Payments processing rate, so only one rate applies to the order.</p>
+  <h3>How much is Shopify's third-party transaction fee?</h3>
+  <p>It depends on your plan, country, card type, and contract, and this page does not publish Shopify's live schedule. The worked example uses an illustrative 2% third-party fee on a Basic plan alongside a 3.49% + $0.49 processor, against a 2.9% + $0.30 Shopify Payments rate. Enter the percentages from your own statements to see the real gap.</p>
   <footer>
     <p><strong>No warranty.</strong> This is not tax, financial, or business advice. Verify every rate against your Shopify and processor statements before relying on it.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
   </footer>
 </body>
 </html>

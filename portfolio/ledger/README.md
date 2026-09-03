@@ -66,13 +66,10 @@ do instead of skipping the record entirely.
   table still lists it as available. `exposure` separates a repository Settings
   toggle from opening a merchant-of-record account, which a cheapest-first sort
   puts side by side. Ordered by `break-even.md`'s own ranking (what each item
-  gates), the nine live asks (#139 lists ten; Ask 8 is superseded and has
-  nothing to grant) and the open pull requests they cover collapse to a
-  smaller set of decisions, of which exactly one moves the revenue ceiling off
-  `$0`. Run `decision_queue.py` for the current count rather than trusting a
-  number in this prose — three of the pull requests this paragraph originally
-  counted (#372, #368, #583) merged on 2026-08-24, which is exactly the kind
-  of drift a static count in a README goes stale against.
+  gates). Exactly one item moves the revenue ceiling off `$0`. Product-code
+  merges are not in this file — answered yes on 2026-08-25. Run
+  `decision_queue.py` for the current count rather than trusting a number in
+  this prose.
 
   Update it when an ask is granted, withdrawn, or added — not by appending a
   second record for the same ask. `--check` runs in CI and rejects an ask or

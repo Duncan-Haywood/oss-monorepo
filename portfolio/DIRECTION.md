@@ -7,9 +7,12 @@ ledger, or session notes that still treat policy compliance as the primary job.
 Two companion documents carry the parts this one only names:
 
 - [`PRODUCT_PLAYBOOK.md`](../PRODUCT_PLAYBOOK.md) — how to actually build one of
-  these products in a session: picking the niche, product shapes that cost $0
-  per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
-  checklist, and the definition of done.
+    these products in a session: picking the niche, product shapes that cost $0
+    per user, the API-key switch, the disclaimer text to copy, the SEO/AI-discovery
+    checklist, and the definition of done.
+- [`portfolio/hosting/`](hosting/README.md) — where a product goes live:
+    GitHub Pages for static tools, the existing Hetzner boxes for
+    processes. Not Cloudflare. Not Vercel.
 - [`portfolio/usage/`](usage/README.md) — what may be counted (events, never
   people), which free signals already exist, and where readings land
   (`usage/usage.yaml`) so the next session and the router can see them.
@@ -35,6 +38,70 @@ Revenue comes later. For now:
 - **Do** add GitHub Sponsors or a donation link where it fits — optional
   support, not a paywall.
 
+## Current priority: deploy what is already built
+
+A product that only exists as `index.html` in this repo is not yet a product
+people use. As of 2026-08-25 a cluster of calculators and CLIs is on `main`
+(seller-fee tools, trade bids, quote-margin, retainage, e-invoice preflight,
+and others) and **none of them have a public URL**. Every usage reading is
+still a zero baseline. `python3 platform/ci/publish_surface.py` still
+reports nothing live on a push to `main`.
+
+That tool reads `gitops/` as well as the workflows since 2026-08-31, so
+"nothing live" was a statement about both delivery paths rather than only
+the one this paragraph was written about.
+
+**Half of it stopped being true on 2026-09-02 (#2723).** `marisstella.dev`
+and `www.marisstella.dev` had answered on merge since 2026-08-28, but only
+as annotation-only 301s into `tools.marisstella.dev` — the host that serves
+the 169 tools and fails closed on the unsealed Secret
+`portfolio-site-repo`. Two hosts answering, nobody reaching content. Those
+two names now serve a generated front-door page from a kustomize ConfigMap
+(`gitops/prod/portfolio-front.yaml`), which needs no clone token, no
+Actions runner and no Pages flip, so it deploys on merge with no owner
+action at all. `publish_surface.py --check` reports **2 hostnames serving
+content**.
+
+What has not changed: the catalogue is still behind the seal.
+`./bootstrap/scripts/seal-owner-secrets.sh site` is what makes the front
+door's category links land on the tools they describe, and it remains the
+highest-value owner action in the queue.
+
+Until the already-built catalogue is reachable by a stranger, **deploy
+beats another build**:
+
+1. Get a live URL (or install command) in front of a niche user.
+2. Record a usage reading that is not `null`.
+3. Only then graduate a new candidate or clone another bid calculator.
+
+The host is decided: GitHub Pages for static products, the existing
+Hetzner boxes for processes — see [`hosting/README.md`](hosting/README.md).
+The remaining owner flip is `deploy-settings` (enable GitHub Pages). Do
+not open a second platform ask, and do not add Cloudflare or Vercel as
+the way a product goes live. Agents prepare the deploy artifact; they
+do not register a domain, store listing, or npm publish. Building
+privately remains allowed. Cloning a twelfth undeployed calculator is
+not.
+
+**The artifact is prepared** (2026-08-26).
+[`platform/pages/`](../platform/pages/README.md) assembles every static venture
+surface — 33 tools at the time of writing — into the one Pages site this
+repository gets, and `.github/workflows/portfolio-pages.yml` builds and tests it
+on every push to `main`. Until then, the flip would have published only
+`retail-pilot-intel`'s passcode-gated docs and left every calculator dark, so it
+was worth far less than the queue implied; that workflow now reads its own
+variable rather than racing for the origin. Two consequences for a session
+picking work:
+
+- **Nothing further is needed to publish.** A new calculator is discovered
+  automatically on the next push — no manifest to update, no per-venture deploy
+  workflow to write. If a venture must stay private, add its slug to
+  `EXCLUDED_SLUGS` with a reason.
+- **The deploy half of deploy-first is done.** What is still missing is the
+  owner flip, and nothing an agent builds changes that. So the next unit of
+  work is making the tools that will go live better — depth, correctness,
+  onboarding, discoverability — not a thirty-fourth front page.
+
 ## What a good product looks like here
 
 | Criterion | Why it matters |
@@ -58,6 +125,11 @@ usage tracking, bug fixes, performance, SEO content, integrations behind
 env vars. Every session should leave a venture closer to something a stranger
 could use and benefit from.
 
+**Rely on the owner as little as possible.** Merge product PRs. Do not
+ask whether product code may land. Flag only when the session cannot
+finish without a secret, a legal-person account, taking money, publishing
+under the public name, or turning on unattended paid spend.
+
 **Not the default job:**
 
 - Re-verifying pull requests another session already verified
@@ -65,10 +137,13 @@ could use and benefit from.
 - Debating whether a prior rule was followed
 - Opening analysis documents when code could ship instead
 - Expanding the owner decision queue with items that do not block product work
+- Asking whether a green product PR may merge — that is yes
 
 Run `python3 portfolio/ledger/session_gate.py` on a generic brief ("continue
-work", "improve the process", etc.). If it says **BUILD**, build — do not
-meta-work. If it says **PROCEED**, keep building what you were building.
+work", "improve the process", etc.). If it says **BUILD**, build — and if
+anything already on `main` still has no public URL, that deploy is the
+build. Do not meta-work. If it says **PROCEED**, keep building what you
+were building.
 
 ## Development flow
 
@@ -90,15 +165,20 @@ when product work is actually blocked):
 - **Publishing** under the portfolio's public name (store listing, npm publish,
   production domain cutover) — building privately is always allowed
 - Enabling unattended automation that spends paid API budget
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
-Internal surfaces (`platform/`, `portfolio/`, docs, tests, CI) are
-**agent-decidable**: verify, merge, ship. Nothing live on `main` does not
-make `ventures/*` app code agent-decidable on its own — breaking changes
-to deployable venture code stay owner-gated until Ask 9
-(`venture-gate-premise`) is answered.
+Internal surfaces and `ventures/*` product code are **agent-decidable**:
+verify, merge, ship. Answered 2026-08-25: yes, merge product PRs. Do not
+re-ask. `python3 platform/ci/publish_surface.py` still tells you whether a
+merge publishes anything live; it does not block the merge.
 
 ## Graduating new products
+
+The portfolio may expand beyond its current venture list when a candidate is
+genuinely new, addresses a narrow painful problem, and can ship a useful free
+slice with the safeguards below. Existing ventures remain the default home for
+adjacent features, but historical limits on the number of ventures are not a
+reason to defer a strong, non-duplicative product.
 
 1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
    `screened-out.md`.
@@ -108,8 +188,10 @@ to deployable venture code stay owner-gated until Ask 9
    - `graduate_as: product-line` — add the slug under `product_lines` in
      its host venture's `VENTURE.yaml` (the host must already be routable).
      Do not open a second venture directory.
-3. Ship on the VM or a preview deploy; record usage, not opinions.
-4. Let organic traffic and return usage decide what gets more investment.
+3. Ship on GitHub Pages or the Hetzner product box; record usage, not opinions.
+4. If the product is already on `main` and still has no public URL, **that
+   deploy is the next task** — not a second product in the same niche.
+5. Let organic traffic and return usage decide what gets more investment.
 
 Pipeline candidates with a `build-now` verdict are pre-researched starting
 points — graduate and build them instead of re-screening.
@@ -122,7 +204,8 @@ These stay in every product regardless of the speed mandate:
   Produce evidence, drafts, and monitoring; the user decides and signs.
 - **No "you are compliant" warranties.** Report what was tested and when.
 - **No scraping personal data or bought lead lists.**
-- **Terms/disclaimers** on user-facing surfaces limiting liability.
+- **Terms/disclaimers** on user-facing surfaces limiting liability,
+  including the no-SLA hosting clause in `PRODUCT_PLAYBOOK.md` §5b.
 
 Payment is deferred, not disclaimers.
 

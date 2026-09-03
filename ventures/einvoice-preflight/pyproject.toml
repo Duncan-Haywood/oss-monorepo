@@ -8,5 +8,8 @@ version = "0.1.0"
 description = "Local, explainable preflight checks for structured e-invoice JSON"
 requires-python = ">=3.10"
 
+[project.scripts]
+einvoice-preflight = "einvoice_preflight.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["src"]

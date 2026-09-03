@@ -15,7 +15,9 @@
 export type EngagementEventName =
   | "page_view"
   | "owner_value_cta_click"
-  | "presenter_guide_toggle";
+  | "presenter_guide_toggle"
+  | "kpis_live_viewed"
+  | "kpis_api_unreachable";
 
 export type EngagementEvent = {
   name: EngagementEventName;
@@ -53,7 +55,9 @@ export function getEngagementSummary(): EngagementSummary {
   return {
     totalEvents: events.length,
     pageViewCount: pageViews.length,
-    ctaClicks: events.filter((event) => event.name !== "page_view").length,
+    ctaClicks: events.filter(
+      (event) => event.name === "owner_value_cta_click" || event.name === "presenter_guide_toggle",
+    ).length,
     sectionsVisited: TOUR_PATHS.filter((path) => visitedPaths.has(path)).length,
     sectionsTotal: TOUR_PATHS.length,
     visitedPaths: Array.from(visitedPaths),

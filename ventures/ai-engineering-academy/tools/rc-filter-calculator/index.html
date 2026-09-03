@@ -115,6 +115,7 @@
     RC or RL filter — or work backwards from a target cutoff to the component
     you need. Everything runs in this page; nothing is uploaded.
   </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
 
   <section aria-labelledby="calc-heading">
     <h2 id="calc-heading">Filter</h2>
@@ -143,7 +144,7 @@
           <label for="r">Resistance, R</label>
           <div class="field-unit">
             <input type="number" id="r" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="r-unit">
+            <select id="r-unit" aria-label="Resistance unit">
               <option value="1">Ω</option>
               <option value="1e3" selected>kΩ</option>
               <option value="1e6">MΩ</option>
@@ -154,7 +155,7 @@
           <label for="c">Capacitance, C</label>
           <div class="field-unit">
             <input type="number" id="c" inputmode="decimal" value="100" step="any" min="0" />
-            <select id="c-unit">
+            <select id="c-unit" aria-label="Capacitance unit">
               <option value="1e-12">pF</option>
               <option value="1e-9" selected>nF</option>
               <option value="1e-6">µF</option>
@@ -166,7 +167,7 @@
           <label for="l">Inductance, L</label>
           <div class="field-unit">
             <input type="number" id="l" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="l-unit">
+            <select id="l-unit" aria-label="Inductance unit">
               <option value="1e-9">nH</option>
               <option value="1e-6">µH</option>
               <option value="1e-3" selected>mH</option>
@@ -184,7 +185,7 @@
           <label for="target">Target cutoff frequency, f<sub>c</sub></label>
           <div class="field-unit">
             <input type="number" id="target" inputmode="decimal" value="1" step="any" min="0" />
-            <select id="target-unit">
+            <select id="target-unit" aria-label="Target cutoff frequency unit">
               <option value="1">Hz</option>
               <option value="1e3" selected>kHz</option>
               <option value="1e6">MHz</option>
@@ -202,7 +203,7 @@
           <label for="dr">Resistance, R (known)</label>
           <div class="field-unit">
             <input type="number" id="dr" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="dr-unit">
+            <select id="dr-unit" aria-label="Resistance unit">
               <option value="1">Ω</option>
               <option value="1e3" selected>kΩ</option>
               <option value="1e6">MΩ</option>
@@ -213,7 +214,7 @@
           <label for="dc">Capacitance, C (known)</label>
           <div class="field-unit">
             <input type="number" id="dc" inputmode="decimal" value="100" step="any" min="0" />
-            <select id="dc-unit">
+            <select id="dc-unit" aria-label="Capacitance unit">
               <option value="1e-12">pF</option>
               <option value="1e-9" selected>nF</option>
               <option value="1e-6">µF</option>
@@ -225,7 +226,7 @@
           <label for="dl">Inductance, L (known)</label>
           <div class="field-unit">
             <input type="number" id="dl" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="dl-unit">
+            <select id="dl-unit" aria-label="Inductance unit">
               <option value="1e-9">nH</option>
               <option value="1e-6">µH</option>
               <option value="1e-3" selected>mH</option>
@@ -239,6 +240,14 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How do I calculate the cutoff frequency of an RC filter?</h3>
+  <p>For a first-order RC filter the -3 dB cutoff frequency is f_c = 1 / (2·π·R·C), where R is in ohms and C is in farads. The time constant is τ = R·C. Whether the filter is low-pass or high-pass only changes where the output is taken, not the cutoff frequency.</p>
+  <h3>What is the cutoff frequency of an RL filter?</h3>
+  <p>For a first-order RL filter the -3 dB cutoff frequency is f_c = R / (2·π·L), with R in ohms and L in henries. The time constant is τ = L / R.</p>
+  <h3>What does the -3 dB cutoff frequency mean?</h3>
+  <p>It is the frequency at which the filter's output power has fallen to half of the input (voltage down to about 70.7%). Beyond it, a first-order filter rolls off at -20 dB per decade (-6 dB per octave).</p>
 
   <footer>
     <h2>What this is (and isn't)</h2>
@@ -262,6 +271,7 @@
       by law, the authors accept no liability for any loss or damage arising
       from its use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2 id="privacy-heading">Privacy</h2>
     <p>
@@ -278,8 +288,9 @@
     </p>
 
     <p>
-      Part of <a href="../../README.md">AI Engineering Academy</a>. MIT
-      licensed — see <a href="LICENSE">LICENSE</a>. See also the
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT
+      licensed — see <a href="../LICENSE">LICENSE</a>. See also the
       <a href="../resistor-calculator/">resistor color code &amp; Ohm's law
       calculator</a>, the
       <a href="../led-resistor-calculator/">LED series resistor
@@ -301,7 +312,7 @@
     formatInductance,
     formatTime,
   } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
   const typeEl = $("type");
@@ -346,7 +357,7 @@
     solveForEl.value = prev === "resistance" ? "resistance" : other;
   }
 
-  function renderCutoff() {
+  function renderCutoff(userAction) {
     const type = typeEl.value;
     const inputs = { type, resistanceOhms: scaled("r", "r-unit") };
     if (isRc()) inputs.capacitanceFarads = scaled("c", "c-unit");
@@ -364,7 +375,7 @@
       </dl>
       <p class="note">${describeFilter(type)}</p>
     `;
-    recordEvent("cutoff_calculated");
+    if (userAction) recordEventSettled("cutoff_calculated");
   }
 
   function fmtComponent(label, value) {
@@ -373,7 +384,7 @@
     return formatResistance(value);
   }
 
-  function renderDesign() {
+  function renderDesign(userAction) {
     const type = typeEl.value;
     const solveFor = solveForEl.value;
     const inputs = { type, targetCutoffHz: scaled("target", "target-unit"), solveFor };
@@ -397,13 +408,19 @@
       </dl>
       <p class="note">${describeFilter(type)}</p>
     `;
-    recordEvent("component_designed");
+    if (userAction) recordEventSettled("component_designed");
   }
 
-  function update() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- the on-load
+  // call was recording a calculation for every page view, bounces included,
+  // which is exactly the difference portfolio/usage/ exists to measure.
+  // Real-interaction call sites pass `true`; the on-load call passes nothing.
+  function update(userAction) {
     try {
-      if (mode() === "cutoff") renderCutoff();
-      else renderDesign();
+      if (mode() === "cutoff") renderCutoff(userAction);
+      else renderDesign(userAction);
       result.classList.remove("error");
     } catch (err) {
       result.textContent = err.message;
@@ -411,31 +428,30 @@
     }
   }
 
-  function syncMode() {
+  function syncMode(userAction) {
     const design = mode() === "design";
     cutoffInputs.classList.toggle("hidden", design);
     designInputs.classList.toggle("hidden", !design);
     syncComponentVisibility();
-    update();
+    update(userAction);
   }
 
   typeEl.addEventListener("change", () => {
     typeDesc.textContent = describeFilter(typeEl.value);
     rebuildSolveOptions();
     syncComponentVisibility();
-    update();
+    update(true);
   });
   solveForEl.addEventListener("change", () => {
     syncComponentVisibility();
-    update();
+    update(true);
   });
   for (const el of document.querySelectorAll('input[name="mode"]')) {
-    el.addEventListener("change", syncMode);
+    el.addEventListener("change", () => syncMode(true));
   }
   for (const el of document.querySelectorAll("input, select")) {
     if (el.name === "mode" || el === typeEl || el === solveForEl) continue;
-    el.addEventListener("input", update);
-    if (el.tagName === "SELECT") el.addEventListener("change", update);
+    el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => update(true));
   }
 
   // Initial paint.

@@ -1,0 +1,32 @@
+name: booth-rent-vs-commission
+description: A private browser calculator for stylists, barbers, and nail techs that compares a salon commission split to a booth-rent lease on the same client book — take-home, take-home per hour after unpaid laundry and booking time, the break-even client count, and the rent that matches the current split.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent stylists will use a two-path take-home calculator because the "keep 100% of your ticket" pitch for booth rent hides rent, card fees, backbar, and unpaid hours, and a generic profit calculator does not model those two compensation structures.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The hourly figure (take-home divided by chair hours plus unpaid hours) flips decisions that look obvious on the weekly check, more often than the dollar difference itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The break-even client count and the max rent that matches the current split are the two numbers a stylist actually uses when a salon quotes a chair, more than a single recommended deal.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified stylists or barbers use the calculator twice within 90 days.
+  - Users report that modelling unpaid hours is more work than their existing napkin math without changing the deal they would have taken.
+  - The starting example book proves so far from real chairs that the tool cannot be used without survey data we have no way to gather.
+links:
+  production: null
+  analytics: null

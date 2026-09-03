@@ -1,0 +1,32 @@
+name: electrical-panel-upgrade-bid-calculator
+description: A private browser calculator for licensed electricians that prices a panel replacement or 100A-to-200A service upgrade from feeder feet, circuit landing, AFCI/GFCI, overhead versus underground, grounding, meter socket, and temporary power — and shows the price per amp of new service, the hours the first finished-space feeder actually consumes, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent electricians will use a feeder-and-landing bid calculator because the generic price-per-amp or "$2,500 panel upgrade" rules of thumb they are shopped on cannot see that a 100A same-amp garage swap is a different job from a 100A-to-200A underground service with twenty AFCI breakers and a finished-space feeder.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published per-amp number) are the two figures an electrician actually decides on when a homeowner asks them to match a cheaper panel-swap quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating feeder feet, AFCI, underground path, grounding, meter socket, and temporary power as their own hours, instead of a blended add-on to the amp rating, changes the bid enough that shops notice which part of a high number is the first finished-space feeder.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified electricians use the calculator twice within 90 days.
+  - Electricians report that splitting feeder, AFCI, path, and utility is more work than their existing per-amp method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

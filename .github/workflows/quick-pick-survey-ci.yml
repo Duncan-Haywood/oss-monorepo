@@ -1,4 +1,4 @@
-name: CI
+name: quick-pick-survey CI
 
 on:
   push:
@@ -26,6 +26,19 @@ defaults:
 
 jobs:
   verify:
+    # NOT the CI_RUNNER switch (see gitops/README.md and gitops/ci/README.md).
+    # `services:` needs a Docker daemon to run postgres:16 alongside the job,
+    # and the self-hosted runner pod (gitops/ci/runner.yaml) has none: no
+    # docker.sock mount, no DinD sidecar, and its securityContext sets
+    # allowPrivilegeEscalation: false and capabilities.drop: ["ALL"], which
+    # rules out running one inside that pod too. Once an owner flips
+    # CI_RUNNER to self-hosted, a job that read the switch here would not
+    # fail with the runner-starvation signature (runner_id: 0) -- it would
+    # register on a real runner and then fail to reach 127.0.0.1:5432 in
+    # Integration tests, which reads as a new, unrelated break. Staying on
+    # ubuntu-latest keeps this job on Docker-capable GitHub-hosted runners
+    # regardless of the switch. gitops/tests/test_ci_runner.py pins this as a
+    # named exception.
     runs-on: ubuntu-latest
     env:
       # The build only needs these to be present and well-formed — nothing is

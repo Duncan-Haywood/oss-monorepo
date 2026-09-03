@@ -168,6 +168,36 @@
       `gh auth setup-git` so plain `git clone`/`push` also use it.
   when: "'Logged in' not in agent_runner_gh_auth_status.stdout"
 
+# Codex authenticates two different ways that spend two different budgets:
+# `codex login` draws on the signed-in ChatGPT plan's included quota, an
+# OPENAI_API_KEY bills the metered API. Nothing in the run output tells you
+# which one served a request, so an unnoticed key means the first sign is
+# the invoice. runners/codex.sh drops the key from the child environment
+# unless CODEX_USE_API_KEY=true; this reports the login half.
+- name: Check codex login status
+  ansible.builtin.command: codex login status
+  become: true
+  become_user: "{{ agent_user }}"
+  environment:
+    PATH: "/home/{{ agent_user }}/.npm-global/bin:{{ ansible_env.PATH }}"
+  register: agent_runner_codex_login_status
+  changed_when: false
+  failed_when: false
+  when: install_codex_cli | bool
+
+- name: Codex auth reminder
+  ansible.builtin.debug:
+    msg: >-
+      `codex` is not logged in as {{ agent_user }} yet — every codex run
+      will fail its preflight until you fix that. SSH in and run
+      `codex login` to authenticate against your ChatGPT plan's included
+      quota, then `codex login status` to confirm. Only set OPENAI_API_KEY
+      (with CODEX_USE_API_KEY=true) if you specifically want metered API
+      billing instead of the quota you already pay for.
+  when:
+    - install_codex_cli | bool
+    - (agent_runner_codex_login_status.rc | default(1)) != 0
+
 - name: Load repos.yml for status reporting
   ansible.builtin.set_fact:
     agent_runner_configured_repos: "{{ (lookup('file', playbook_dir + '/config/repos.yml') | from_yaml).repos | default([]) }}"

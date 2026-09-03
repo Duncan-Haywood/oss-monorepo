@@ -1,0 +1,95 @@
+# Build every browser product in `ventures/` into a Pages artifact, and check it.
+#
+# Why this workflow does NOT deploy
+# ---------------------------------
+# It used to. It was written to close a real gap -- 32 finished calculators with
+# no public URL -- and gated its deploy on `GITHUB_PAGES_ENABLED`, deliberately
+# reusing the one owner flip rather than opening a second ask.
+#
+# `portfolio-pages.yml` was written to close the same gap, from the same
+# reasoning, in the same hour. Neither pull request could see the other, and both
+# merged. GitHub serves exactly one Pages site per repository and
+# `actions/deploy-pages` replaces the whole of it, so with both deploying, the
+# single `GITHUB_PAGES_ENABLED` flip would have armed two publishers of two
+# different builds, triggered by the same `ventures/**` paths, in different
+# concurrency groups -- racing on every push, with the live site left as whichever
+# finished last.
+#
+# That variable was renamed to `PAGES_ENABLED` once it turned out
+# `GITHUB_PAGES_ENABLED` could never have been set at all -- GitHub rejects any
+# Actions configuration-variable name starting with `GITHUB_` (case-insensitive,
+# enforced at creation time). The race this section describes was real, but
+# nobody could have flipped either variable to trigger it.
+#
+# `portfolio-pages.yml` keeps the deploy: it is the more developed of the two
+# (site navigation, favicon, sitemap repair, the no-SLA clause check) and the
+# later Pages work built on it. Nothing here is deleted, because this builder is
+# still worth running: it is an independent implementation of the same site, so
+# when it and the Node builder disagree about what `ventures/` contains, one of
+# them has a bug. `check_pages_links.py` has no equivalent on the other side.
+#
+# `publish_surface.py --check` now fails if any one variable would arm two Pages
+# deployments, so this cannot silently come back.
+
+name: Portfolio Pages site build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**"
+      - "platform/ci/build_pages_site.py"
+      - "platform/ci/test_build_pages_site.py"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "ventures/**"
+      - "platform/ci/build_pages_site.py"
+      - "platform/ci/test_build_pages_site.py"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Nothing here publishes, so a superseded run has no value: cancel it.
+concurrency:
+  group: pages-build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Site-builder unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_build_pages_site
+
+      - name: Validate what would be published
+        run: python3 platform/ci/build_pages_site.py --check
+
+      - name: Build the site
+        run: |
+          python3 platform/ci/build_pages_site.py \
+            --base-url "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}"
+
+      # A published site whose links 404 is worse than no site: it burns the
+      # crawl budget and the first visitor. Check the artifact before it ships.
+      - name: Check every hub link resolves in the built artifact
+        run: python3 platform/ci/check_pages_links.py _site
+
+      # Kept, though nothing here deploys: the tarball is what a reviewer
+      # downloads to see the site this builder actually produces.
+      - name: Upload the built site for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-site-python-builder
+          path: _site
+          retention-days: 7
+

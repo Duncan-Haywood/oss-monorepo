@@ -1,0 +1,12 @@
+{
+  "vendor": "AcmeSaaS",
+  "page_url": "https://acmesaas.test/legal/subprocessors",
+  "page_type": "subprocessor",
+  "captured_at": "2026-08-24T09:00:00Z",
+  "fetch_status": "ok",
+  "sections": [
+    {"heading": "Notification", "text": "We will notify customers   7 days\n before adding a new subprocessor."},
+    {"heading": "Introduction", "text": "We use the following  subprocessors\nto provide the service."},
+    {"heading": "Subprocessor list", "text": "AWS (US-EAST-1), Twilio (US), SendGrid (US), OpenAI (US)."}
+  ]
+}

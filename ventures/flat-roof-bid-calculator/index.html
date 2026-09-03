@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flat Roof Bid Calculator — Price a TPO or EPDM Roof</title>
+  <meta name="description" content="Price a low-slope TPO, EPDM, PVC, or modified-bitumen roof from the membrane squares a per-square special cannot see, the tear-off, the insulation, and the parapet — plus walk-away price and proposed-price margin check.">
+  <meta property="og:title" content="Flat Roof Bid Calculator">
+  <meta property="og:description" content="Bid the membrane, the tear-off, and the insulation — not the per-square coupon. See the margin before you send the price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Flat Roof Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Low-slope squares, TPO 45/60/80 vs EPDM vs PVC vs modified bitumen, recover vs tear-off vs wet insulation, polyiso layers, parapet flashing, roof drains, HVAC curbs, walk pads, cover board, walk-away price, proposed-price margin check, copyable customer-facing summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a competitor advertise “$650 a square”?","acceptedAnswer":{"@type":"Answer","text":"Usually because the special is written around one specific job, and that job is a preset here: a 12-square TPO-45 recover over an existing membrane on a one-story garage. It really does price low. What the per-square number cannot see is recover versus tear-off, wet insulation, parapet flashing, drains, curbs, and story count. Price your actual roof beside the special and the gap becomes a list of line items instead of an argument about who is honest."}},{"@type":"Question","name":"Why does a tear-off cost so much more than a recover for the same square footage?","acceptedAnswer":{"@type":"Answer","text":"A recover installs new membrane over what is already up there. A tear-off strips the old roof down to deck first — labor and disposal that a recover skips entirely. Adding wet insulation on top of that means replacing waterlogged polyiso discovered under the old membrane, which is exactly the kind of cost a flat per-square special from a garage recover was never priced to cover."}},{"@type":"Question","name":"Why do parapet walls, drains, and curbs get their own line items?","acceptedAnswer":{"@type":"Answer","text":"Because they are flashed and sealed individually, not spread across the field membrane. Eighty linear feet of parapet on a commercial building is eighty feet of detail work at the wall-to-roof transition. Each roof drain and HVAC curb is its own penetration that has to be flashed watertight. None of that scales with plan squares the way flat field membrane does."}},{"@type":"Question","name":"Does this check building code, wind-uplift rating, or engineering requirements?","acceptedAnswer":{"@type":"Answer","text":"No. Membrane rates, waste, and insulation figures here are common starting points for residential and light-commercial bids, not a building-code opinion, a permit, a wind-uplift rating, or an engineering stamp. Confirm the jurisdiction and a qualified professional before sending a price, especially on multi-story or high-wind-zone work."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit, and the optional usage counter records only which features were used and the day, never your roof dimensions, wages, or prices."}},{"@type":"Question","name":"What’s the difference between the bid price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The bid price already includes your target margin on top of labor, materials, and overhead. The walk-away price is the total cost underneath it — membrane, tear-off, insulation, parapet, drains, curbs, and permit — the point below which the job stops being profitable at all. Typing a price you are considering shows you the margin or the loss before you send it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5a6a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+    .check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #16343c; color: #eef6f4; border-color: #16343c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec8c0; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c5a6a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #c5e8e2; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #16343c; --pr-accent: #1c5a6a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR TPO, EPDM, PVC, AND MOD-BIT CREWS</p>
+    <h1>Bid the membrane, the tear-off, and the insulation.</h1>
+    <p>Price a low-slope roof the way the trade actually loses money: membrane squares a per-square special cannot see, then the tear-off, the insulation, the parapet, the drains, extras, permit, and the margin you intend to keep. You get the job price, what it works out to per square, and the number below which the job loses money.</p>
+    <p class="hint" style="margin:0">Looking up <a href="./how-much-to-charge-for-a-flat-roof.html">how much to charge for a flat roof</a>? Start here, then replace every starting figure with your own crew times. &middot; <a href="vs-acculynx.html">This calculator vs. AccuLynx</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>A starting job</h2>
+        <p class="hint">Pick a common call to fill the squares, membrane, tear-off, and extras. Changing a kit never overwrites hours or material costs you have already typed.</p>
+        <label>Job preset
+          <select id="jobPresets">
+            <option value="">Choose a starting job…</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>The roof</h2>
+        <p class="hint">Length and width are the building plan. Slope barely changes a flat roof. These are starting points, not a code opinion.</p>
+        <div class="fields">
+          <label>Membrane
+            <select id="membrane"></select>
+          </label>
+          <label>Scope
+            <select id="scope"></select>
+          </label>
+          <label>Slope
+            <select id="slope"></select>
+          </label>
+          <label>Stories
+            <select id="stories"></select>
+          </label>
+          <label>Length (feet) <input id="lengthFeet" type="number" min="8" step="0.5" value="40"></label>
+          <label>Width (feet) <input id="widthFeet" type="number" min="8" step="0.5" value="30"></label>
+          <label>Parapet (lineal feet) <input id="parapetLf" type="number" min="0" step="0.5" value="0"></label>
+          <label>Roof drains <input id="drainCount" type="number" min="0" step="1" value="2"></label>
+          <label>HVAC curbs <input id="curbCount" type="number" min="0" step="1" value="0"></label>
+          <label>Walk-pad squares <input id="walkPadSquares" type="number" min="0" step="0.1" value="0"></label>
+          <label>Polyiso layers <input id="insulationLayers" type="number" min="0" step="1" value="0"></label>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label class="check"><input id="includeCoverBoard" type="checkbox"> Cover board</label>
+          <label class="check"><input id="includePermit" type="checkbox"> Include permit allowance</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and counts</h2>
+        <p class="hint">Squares, membrane squares, and tear-off start from the plan. Membrane hours apply to the wasted squares. Change them when the site disagrees.</p>
+        <div class="fields">
+          <label>Trip / setup hours <input id="hoursTrip" type="number" min="0" step="0.1" value="3"></label>
+          <label>Hours per membrane square <input id="hoursPerSquare" type="number" min="0" step="0.05" value="1.4"></label>
+          <label>Extra hours per square (stories) <input id="extraHoursPerSquare" type="number" min="0" step="0.05" value="0"></label>
+          <label>Hours per tear-off square <input id="hoursTearoffPerSquare" type="number" min="0" step="0.05" value="0"></label>
+          <label>Hours per insulation square <input id="hoursPerInsulationSquare" type="number" min="0" step="0.05" value="0.55"></label>
+          <label>Hours per lf of parapet <input id="hoursPerParapetLf" type="number" min="0" step="0.01" value="0.12"></label>
+          <label>Hours per drain <input id="hoursPerDrain" type="number" min="0" step="0.05" value="0.8"></label>
+          <label>Hours per HVAC curb <input id="hoursPerCurb" type="number" min="0" step="0.05" value="1.4"></label>
+          <label>Hours per walk-pad square <input id="hoursPerWalkPadSquare" type="number" min="0" step="0.05" value="0.6"></label>
+          <label>Welder hours <input id="weldHours" type="number" min="0" step="0.1" value="4"></label>
+          <label>Cover-board hours <input id="hoursCoverBoard" type="number" min="0" step="0.1" value="3"></label>
+          <label>Travel hours <input id="siteHours" type="number" min="0" step="0.1" value="0.8"></label>
+          <label>Slope multiplier <input id="slopeMultiplier" type="number" min="1" step="0.001" value="1"></label>
+          <label>Roof square feet <input id="roofSf" type="number" min="0" step="1" value="1200"></label>
+          <label>Roof squares <input id="squares" type="number" min="0" step="0.01" value="12"></label>
+          <label>Waste (%) <input id="wastePct" type="number" min="0" step="0.5" value="8"></label>
+          <label>Parapet waste (%) <input id="parapetWastePct" type="number" min="0" step="0.1" value="0"></label>
+          <label>Membrane squares <input id="membraneSquares" type="number" min="0" step="0.01" value="12.96"></label>
+          <label>Tear-off squares <input id="tearOffSquares" type="number" min="0" step="0.01" value="0"></label>
+          <label>Insulation squares <input id="insulationSquares" type="number" min="0" step="0.01" value="0"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Materials and your costs</h2>
+        <div class="fields">
+          <label>Membrane per square <input id="membranePerSquare" type="number" min="0" step="1" value="165"></label>
+          <label>Insulation per square <input id="insulationPerSquare" type="number" min="0" step="0.5" value="95"></label>
+          <label>Cover board per square <input id="coverBoardPerSquare" type="number" min="0" step="0.5" value="48"></label>
+          <label>Parapet per lf <input id="parapetPerLf" type="number" min="0" step="0.25" value="18"></label>
+          <label>Cost per drain <input id="drainEach" type="number" min="0" step="1" value="165"></label>
+          <label>Cost per HVAC curb <input id="curbEach" type="number" min="0" step="1" value="240"></label>
+          <label>Walk pad per square <input id="walkPadPerSquare" type="number" min="0" step="0.5" value="85"></label>
+          <label>Fasteners / plates / adhesive <input id="fastenerLump" type="number" min="0" step="5" value="160"></label>
+          <label>Dumpster per tear-off square <input id="dumpsterPerSquare" type="number" min="0" step="0.5" value="28"></label>
+          <label>Welder rental <input id="weldFee" type="number" min="0" step="5" value="220"></label>
+          <label>Mobilization <input id="mobilizationFee" type="number" min="0" step="5" value="350"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="425"></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="36"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel and equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="160"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 7800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. A square special written on the plan never sees it — or the membrane mil.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Plan / roof</dt><dd id="planRoof"></dd>
+        <dt>Squares / membrane squares</dt><dd id="squareLine"></dd>
+        <dt>Tear-off</dt><dd id="tearoffLine"></dd>
+        <dt>Insulation / parapet</dt><dd id="fieldLine"></dd>
+        <dt>Membrane share of direct</dt><dd id="membraneShare"></dd>
+        <dt>Crew hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Travel, welder, extras</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per square</dt><dd id="perSquare"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting slopes, waste, hours, and material rates are common ballpark figures, not a building-code opinion, a permit, a wind-uplift rating, a warranty, or an engineering stamp. Time your own crews and replace them.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Levelseam Roofing LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Recover 12.5 squares of TPO over a 40×30 garage roof&#10;Flash two drains and 60 lf of parapet"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Structural deck repair found after tear-off&#10;Interior ceiling repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Seams probe-tested before handover."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can a competitor advertise &ldquo;$650 a square&rdquo;?</h3>
+      <p>Usually because the special is written around one specific job, and that job is a preset here: a
+        12-square TPO-45 recover over an existing membrane on a one-story garage. It really does price low.
+        What the per-square number cannot see is recover versus tear-off, wet insulation, parapet flashing,
+        drains, curbs, and story count. Price your actual roof beside the special and the gap becomes a
+        list of line items instead of an argument about who is honest.</p>
+
+      <h3>Why does a tear-off cost so much more than a recover for the same square footage?</h3>
+      <p>A recover installs new membrane over what is already up there. A tear-off strips the old roof down
+        to deck first &mdash; labor and disposal that a recover skips entirely. Adding wet insulation on top
+        of that means replacing waterlogged polyiso discovered under the old membrane, which is exactly the
+        kind of cost a flat per-square special from a garage recover was never priced to cover.</p>
+
+      <h3>Why do parapet walls, drains, and curbs get their own line items?</h3>
+      <p>Because they are flashed and sealed individually, not spread across the field membrane. Eighty
+        linear feet of parapet on a commercial building is eighty feet of detail work at the wall-to-roof
+        transition. Each roof drain and HVAC curb is its own penetration that has to be flashed watertight.
+        None of that scales with plan squares the way flat field membrane does.</p>
+
+      <h3>Does this check building code, wind-uplift rating, or engineering requirements?</h3>
+      <p>No. Membrane rates, waste, and insulation figures here are common starting points for residential
+        and light-commercial bids, not a building-code opinion, a permit, a wind-uplift rating, or an
+        engineering stamp. Confirm the jurisdiction and a qualified professional before sending a price,
+        especially on multi-story or high-wind-zone work.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit, and the optional
+        usage counter records only which features were used and the day, never your roof dimensions, wages,
+        or prices.</p>
+
+      <h3>What&rsquo;s the difference between the bid price and the walk-away price?</h3>
+      <p>The bid price already includes your target margin on top of labor, materials, and overhead. The
+        walk-away price is the total cost underneath it &mdash; membrane, tear-off, insulation, parapet,
+        drains, curbs, and permit &mdash; the point below which the job stops being profitable at all.
+        Typing a price you are considering shows you the margin or the loss before you send it.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a roof is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use. Hosted URLs, when they exist, may be taken offline without notice; there is no availability SLA.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your squares, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      MEMBRANE_PRESETS,
+      SCOPE_PRESETS,
+      SLOPE_PRESETS,
+      STORY_PRESETS,
+      suggestedSlopeMultiplier,
+      suggestedRoofSf,
+      suggestedSquares,
+      suggestedParapetWastePct,
+      suggestedMembraneSquares,
+      suggestedTearOffSquares,
+      suggestedInsulationSquares,
+      suggestedMembraneKit,
+      suggestedScopeKit,
+      suggestedStoryKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
+
+    const FIELD_IDS = [
+      'membrane','scope','slope','stories','lengthFeet','widthFeet','parapetLf','drainCount','curbCount',
+      'walkPadSquares','insulationLayers',
+      'hoursTrip','hoursPerSquare','extraHoursPerSquare','hoursTearoffPerSquare','hoursPerInsulationSquare',
+      'hoursPerParapetLf','hoursPerDrain','hoursPerCurb','hoursPerWalkPadSquare','weldHours','hoursCoverBoard','siteHours',
+      'slopeMultiplier','roofSf','squares','wastePct','parapetWastePct','membraneSquares','tearOffSquares','insulationSquares',
+      'membranePerSquare','insulationPerSquare','coverBoardPerSquare','parapetPerLf','drainEach','curbEach',
+      'walkPadPerSquare','fastenerLump','dumpsterPerSquare','weldFee',
+      'mobilizationFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const KIT_IDS = new Set([
+      'slopeMultiplier','roofSf','squares','wastePct','parapetWastePct','membraneSquares','tearOffSquares','insulationSquares',
+      'hoursPerSquare','membranePerSquare','hoursTearoffPerSquare','dumpsterPerSquare','extraHoursPerSquare',
+      'weldHours','weldFee',
+    ]);
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, items) {
+      el(id).innerHTML = items.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+    fillSelect('membrane', MEMBRANE_PRESETS);
+    fillSelect('scope', SCOPE_PRESETS);
+    fillSelect('slope', SLOPE_PRESETS);
+    fillSelect('stories', STORY_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyMembraneKit() {
+      const kit = suggestedMembraneKit(el('membrane').value);
+      if (!el('hoursPerSquare').dataset.edited) el('hoursPerSquare').value = kit.hoursPerSquare;
+      if (!el('membranePerSquare').dataset.edited) el('membranePerSquare').value = kit.membranePerSquare;
+      if (!el('wastePct').dataset.edited) el('wastePct').value = kit.wastePct;
+      if (!el('weldHours').dataset.edited) el('weldHours').value = kit.weldHours;
+      if (!el('weldFee').dataset.edited) el('weldFee').value = kit.weldFee;
+    }
+
+    function applyScopeKit() {
+      const kit = suggestedScopeKit(el('scope').value);
+      if (!el('hoursTearoffPerSquare').dataset.edited) el('hoursTearoffPerSquare').value = kit.hoursPerSquare;
+      if (!el('dumpsterPerSquare').dataset.edited) el('dumpsterPerSquare').value = kit.dumpsterPerSquare;
+    }
+
+    function applyStoryKit() {
+      const kit = suggestedStoryKit(el('stories').value);
+      if (!el('extraHoursPerSquare').dataset.edited) el('extraHoursPerSquare').value = kit.extraHoursPerSquare;
+    }
+
+    function applyGeometryKits() {
+      const length = Number(el('lengthFeet').value);
+      const width = Number(el('widthFeet').value);
+      const parapet = Number(el('parapetLf').value);
+      const layers = Number(el('insulationLayers').value);
+      if (![length, width, parapet, layers].every(Number.isFinite) || length <= 0 || width <= 0) return;
+      const slope = el('slope').value;
+      const multiplier = suggestedSlopeMultiplier(slope);
+      if (!el('slopeMultiplier').dataset.edited) el('slopeMultiplier').value = multiplier;
+      const roofSf = suggestedRoofSf(length, width, slope);
+      if (!el('roofSf').dataset.edited) el('roofSf').value = roofSf.toFixed(1);
+      const squares = suggestedSquares(length, width, slope);
+      if (!el('squares').dataset.edited) el('squares').value = squares.toFixed(3);
+      const extraWaste = suggestedParapetWastePct(parapet);
+      if (!el('parapetWastePct').dataset.edited) el('parapetWastePct').value = extraWaste;
+      const waste = Number(el('wastePct').value);
+      if (Number.isFinite(waste) && !el('membraneSquares').dataset.edited) {
+        el('membraneSquares').value = suggestedMembraneSquares(squares, waste, extraWaste).toFixed(3);
+      }
+      if (!el('tearOffSquares').dataset.edited) {
+        el('tearOffSquares').value = suggestedTearOffSquares(squares, el('scope').value).toFixed(3);
+      }
+      if (!el('insulationSquares').dataset.edited) {
+        el('insulationSquares').value = suggestedInsulationSquares(squares, layers).toFixed(3);
+      }
+    }
+
+    // The checkboxes as a list rather than two hand-written reads, so the
+    // form has one place that says which flags exist and saving, sharing,
+    // and reading a bid cannot disagree about them.
+    const FLAG_IDS = ['includeCoverBoard', 'includePermit'];
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['planRoof','squareLine','tearoffLine','fieldLine','membraneShare','totalHours','labor','materials','soft','overhead','cost','profit','perSquare','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('planRoof').textContent = `${result.planSf.toFixed(0)} sf plan / ${result.roofSf.toFixed(0)} sf roof`;
+      el('squareLine').textContent = `${result.squares.toFixed(2)} / ${result.membraneSquares.toFixed(2)} after waste`;
+      el('tearoffLine').textContent = result.tearOffSquares ? `${result.tearOffSquares.toFixed(2)} squares` : 'recover';
+      el('fieldLine').textContent = `${result.insulationLayers} layer${result.insulationLayers === 1 ? '' : 's'} / ${result.parapetLf.toFixed(0)} lf`;
+      el('membraneShare').textContent = `${result.membraneShareOfDirect.toFixed(0)}%`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSquare').textContent = result.pricePerSquare === null ? 'n/a' : money(result.pricePerSquare);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const parts = [
+        ['Trip / setup', result.hourShares.trip],
+        ['Membrane', result.hourShares.membrane],
+        ['Stories', result.hourShares.stories],
+        ['Tear-off', result.hourShares.tearoff],
+        ['Insulation', result.hourShares.insulation],
+        ['Parapet', result.hourShares.parapet],
+        ['Drains', result.hourShares.drains],
+        ['HVAC curbs', result.hourShares.curbs],
+        ['Walk pads', result.hourShares.walk],
+        ['Welder', result.hourShares.weld],
+        ['Cover board', result.hourShares.cover],
+        ['Travel', result.hourShares.site],
+      ].filter(part => part[1] > 0.5);
+      el('split').innerHTML = parts.length === 0
+        ? '<li class="empty">Enter a roof and the hour split appears here.</li>'
+        : parts
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Flat roof');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('membrane').addEventListener('change', () => {
+      applyMembraneKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('scope').addEventListener('change', () => {
+      applyScopeKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('stories').addEventListener('change', () => {
+      applyStoryKit();
+      count('bid_calculated');
+      update();
+    });
+    el('slope').addEventListener('change', () => {
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    ['lengthFeet','widthFeet','parapetLf','insulationLayers','wastePct'].forEach(id => {
+      el(id).addEventListener('input', () => {
+        applyGeometryKits();
+        update();
+      });
+    });
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      if (KIT_IDS.has(id)) {
+        el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+      }
+    });
+    ['includeCoverBoard','includePermit'].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('jobPresets').addEventListener('change', () => {
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
+      if (!preset) return;
+      el('membrane').value = preset.membrane;
+      el('scope').value = preset.scope;
+      el('slope').value = preset.slope;
+      el('stories').value = preset.stories;
+      el('lengthFeet').value = preset.lengthFeet;
+      el('widthFeet').value = preset.widthFeet;
+      el('parapetLf').value = preset.parapetLf;
+      el('drainCount').value = preset.drainCount;
+      el('curbCount').value = preset.curbCount;
+      el('walkPadSquares').value = preset.walkPadSquares;
+      el('insulationLayers').value = preset.insulationLayers;
+      el('includeCoverBoard').checked = preset.includeCoverBoard;
+      el('includePermit').checked = preset.includePermit;
+      KIT_IDS.forEach(id => { delete el(id).dataset.edited; });
+      applyMembraneKit();
+      applyScopeKit();
+      applyStoryKit();
+      applyGeometryKits();
+      count('preset_applied');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyMembraneKit();
+    applyScopeKit();
+    applyStoryKit();
+    applyGeometryKits();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['membrane', 'scope', 'slope', 'stories'];
+    const BID_SPEC = {
+      key: 'flat-roof-bid',
+      numbers: FIELD_IDS.filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'flat-roof-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not a roof design, a deck-condition determination, or a drainage calculation; concealed deck damage is priced separately once exposed.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{scopeLabel} — {membraneSquares~2} squares of {membraneLabel} over a {lengthFeet} ft × {widthFeet} ft roof",
+        {
+          "line": "Tear off and dispose of {tearOffSquares~2} squares of existing roof",
+          "when": "tearOffSquares"
+        },
+        {
+          "line": "Install {insulationSquares~2} squares of insulation in {insulationLayers} layer{insulationLayers+s}",
+          "when": "insulationSquares"
+        },
+        {
+          "line": "Cover board over the insulation",
+          "when": "includeCoverBoard"
+        },
+        {
+          "line": "Flash {parapetLf~0} lf of parapet wall",
+          "when": "parapetLf"
+        },
+        {
+          "line": "Flash {drainCount} roof drain{drainCount+s}",
+          "when": "drainCount"
+        },
+        {
+          "line": "Flash {curbCount} curb or penetration{curbCount+s}",
+          "when": "curbCount"
+        },
+        {
+          "line": "Install {walkPadSquares~2} squares of walk pad",
+          "when": "walkPadSquares"
+        },
+        "Access: {storyLabel}",
+        "Weld and probe every seam, then leave the roof and grounds clean"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "membraneLabel": el('membrane')?.selectedOptions?.[0]?.textContent?.trim(),
+        "scopeLabel": el('scope')?.selectedOptions?.[0]?.textContent?.trim(),
+        "storyLabel": el('stories')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Flat roof — {squares~2} squares'], proposalFields(result))[0] || 'Flat roof — squares',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

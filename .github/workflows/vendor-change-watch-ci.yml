@@ -1,0 +1,42 @@
+name: vendor-change-watch CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/vendor-change-watch/**"
+      - ".github/workflows/vendor-change-watch-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/vendor-change-watch/**"
+      - ".github/workflows/vendor-change-watch-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/vendor-change-watch
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e . pytest
+      - run: python3 -m pytest -q
+
+  lint:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest ruff==0.15.8 mypy==1.19.1
+      - run: ruff check .
+      - run: mypy

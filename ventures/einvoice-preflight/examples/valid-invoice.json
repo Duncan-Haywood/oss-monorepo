@@ -2,10 +2,11 @@
   "invoice_number": "INV-1001",
   "issue_date": "2026-08-24",
   "currency": "EUR",
-  "supplier": {"id": "DE123", "name": "Supplier GmbH"},
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "payment": {"means": "30", "iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
   "lines": [
     {"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}
   ],
-  "totals": {"net": 200, "tax": 38, "gross": 238}
+  "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
 }

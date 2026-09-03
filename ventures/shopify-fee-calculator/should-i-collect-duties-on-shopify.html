@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I collect duties on Shopify? | DDP vs DAP leftover</title>
+  <meta name="description" content="Compare Shopify Markets DDP (collect duties at checkout) with DAP (buyer pays at the door) and skipping international. See the card fee on the duty, the door-refuse leftover, and the take rate that flips the table.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-collect-duties-on-shopify.html">
+  <meta property="og:title" content="Should I collect duties on Shopify?">
+  <meta property="og:description" content="See whether collecting duties at Shopify checkout still beats letting the buyer pay at the door after the extra card fee and refused packages.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify Markets DDP vs DAP leftover",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "DDP vs DAP vs skipping international, card fee on the collected duty, door-refuse leftover after the return label, take rate that flips DDP"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I collect duties on Shopify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Collecting duties at checkout (DDP) adds the duty to the card swipe — Shopify Payments charges its percentage on that extra amount — and usually lowers conversion. Letting the buyer pay at the door (DAP) keeps checkout cheaper and raises door-refuses. On the calculator defaults ($48 item + $6 shipping, 15% duty, 2.9%+$0.30, $14 cost, $5 outbound, $8 return, 55% DAP take / 18% refuse, 42% DDP take / 6% refuse) DAP expects $12.59 per international-interested visitor and DDP expects $12.00. That is arithmetic on your inputs, not advice to turn Shopify Markets duties on or off."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Shopify charge fees on duties I collect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Card fees sit on the checkout total. If you collect $8.10 of duty on a $54 ticket, Shopify Payments at 2.9% + $0.30 charges $2.10 instead of $1.87 — $0.23 extra on the duty. You then remit the $8.10. A delivered DDP order on the defaults keeps $31.51 versus $31.74 on DAP."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does DAP lose to DDP on Shopify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When enough DAP buyers refuse the package at the door. A refuse refunds the checkout, leaves the leftover $0.30 fixed fee, and eats outbound plus the return label. On the defaults DAP refuses have to reach about 20.2% before DDP matches, or DDP take has to reach about 44.1%. At a 25% DAP refuse rate DDP keeps more ($12.00 vs $10.69)."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether collecting duties still beats the door bill.</h1>
+    <p>
+      Shopify Markets can collect duties at checkout (DDP) or leave them
+      for the buyer at the door (DAP). DDP adds the duty to the card
+      swipe. DAP looks cheaper and raises refused packages. The table
+      keeps the same SKU, then compares skip, DAP, and DDP on one
+      international-interested visitor.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Typical order and the duty</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US card defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <label>Duty / VAT on item + shipping (%) <input id="dutyRatePct" type="number" min="0" max="100" step="0.1" value="15"></label>
+        <label>DAP take rate (%) <input id="dapTakePct" type="number" min="0" max="100" step="0.1" value="55"></label>
+        <label>DDP take rate (%) <input id="ddpTakePct" type="number" min="0" max="100" step="0.1" value="42"></label>
+        <label>DAP door-refuse rate (%) <input id="dapRefusePct" type="number" min="0" max="100" step="0.1" value="18"></label>
+        <label>DDP door-refuse rate (%) <input id="ddpRefusePct" type="number" min="0" max="100" step="0.1" value="6"></label>
+        <label>International return label <input id="dutyReturnLabel" type="number" min="0" step="0.01" value="8"></label>
+        <label>Restockable after a refuse (%) <input id="dutyRestockablePct" type="number" min="0" max="100" step="0.1" value="80"></label>
+        <label>Leftover card fee after a refund <input id="dutyRefundFeeLeftover" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>International-interested visitors / month <input id="monthlyIntlVisitors" type="number" min="0" step="1" value="20"></label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>DAP vs DDP</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">DAP keeps this much more per visitor</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>DAP expected leftover</dt><dd id="dapExpected"></dd>
+        <dt>DDP expected leftover</dt><dd id="ddpExpected"></dd>
+        <dt>Duty collected / remitted</dt><dd id="dutyAmount"></dd>
+        <dt>Extra card fee on the duty</dt><dd id="feeOnDuty"></dd>
+        <dt>DAP delivered leftover</dt><dd id="dapDelivered"></dd>
+        <dt>DDP delivered leftover</dt><dd id="ddpDelivered"></dd>
+        <dt>Refuse leftover</dt><dd id="refusedProfit"></dd>
+        <dt>DAP refuse floor</dt><dd id="refuseFloor"></dd>
+        <dt>DDP take floor</dt><dd id="takeFloor"></dd>
+        <dt>Monthly gap vs DDP</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same visitor, three ways the cash lands</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Checkout</th>
+            <th scope="col">Duty</th>
+            <th scope="col">Take</th>
+            <th scope="col">Refuse</th>
+            <th scope="col">Expected</th>
+            <th scope="col">vs skip</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Card fees sit on the checkout total, including duties you collect. A refuse refunds that checkout, leaves the leftover fixed fee, and eats outbound plus the return label. Duty is remitted only on a delivered DDP order. Transparent arithmetic from your inputs — not Shopify Markets policy or a customs quote.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Merchants search “should I collect duties on Shopify” because a
+      $54 checkout looks cheaper than a $62.10 DDP total. The $8.10
+      still has to be paid. DAP puts it on the door. DDP puts it on
+      the card — and Shopify Payments takes 2.9% of it.
+    </p>
+    <p>
+      On the defaults — $48 item, $6 shipping charged, 15% duty,
+      $5.00 outbound, $8.00 return, Basic 2.9% + $0.30, $14 cost,
+      $1 pack, $39 / 100 plan, 55% DAP take / 18% refuse, 42% DDP
+      take / 6% refuse, 20 visitors — DAP expects $12.59 per
+      visitor. DDP expects $12.00 ($0.59 less, $11.72 / month).
+      A delivered DAP order keeps $31.74; DDP keeps $31.51. A
+      refuse leaves −$17.49. DAP refuses have to reach about 20.2%
+      before DDP matches. Raise DAP refuse to 25% and DDP expects
+      $12.00 versus DAP $10.69.
+    </p>
+    <p>
+      It does not tell you to turn Shopify Markets duties on or off,
+      and it is not tax, customs, or financial advice. Buying one
+      label versus another is a different question —
+      <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs your own label</a>.
+      A local drop-off is on
+      <a href="should-i-offer-local-delivery-on-shopify.html">local delivery vs the carrier label</a>.
+      A requested return is on
+      <a href="should-i-offer-store-credit-instead-of-a-refund.html">store credit vs a cash refund</a>.
+      An abandoned checkout is on
+      <a href="should-i-recover-abandoned-checkouts-on-shopify.html">leave vs recovery emails vs a coupon</a>.
+      The main <a href="./">Shopify fee calculator</a> still compares
+      Shopify Payments with PayPal.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I collect duties on Shopify?</h3>
+  <p>Collecting duties at checkout (DDP) adds the duty to the card swipe — Shopify Payments charges its percentage on that extra amount — and usually lowers conversion. Letting the buyer pay at the door (DAP) keeps checkout cheaper and raises door-refuses. On the calculator defaults ($48 item + $6 shipping, 15% duty, 2.9%+$0.30, $14 cost, $5 outbound, $8 return, 55% DAP take / 18% refuse, 42% DDP take / 6% refuse) DAP expects $12.59 per international-interested visitor and DDP expects $12.00. That is arithmetic on your inputs, not advice to turn Shopify Markets duties on or off.</p>
+  <h3>Does Shopify charge fees on duties I collect?</h3>
+  <p>Card fees sit on the checkout total. If you collect $8.10 of duty on a $54 ticket, Shopify Payments at 2.9% + $0.30 charges $2.10 instead of $1.87 — $0.23 extra on the duty. You then remit the $8.10. A delivered DDP order on the defaults keeps $31.51 versus $31.74 on DAP.</p>
+  <h3>When does DAP lose to DDP on Shopify?</h3>
+  <p>When enough DAP buyers refuse the package at the door. A refuse refunds the checkout, leaves the leftover $0.30 fixed fee, and eats outbound plus the return label. On the defaults DAP refuses have to reach about 20.2% before DDP matches, or DDP take has to reach about 44.1%. At a 25% DAP refuse rate DDP keeps more ($12.00 vs $10.69).</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, customs, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, duty rates, and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from collecting duties that a cheaper DAP checkout would have beaten — or from a door-refuse pile that DDP would have avoided — the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareMarketsDuties } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "dutyRatePct", "dapTakePct", "ddpTakePct", "dapRefusePct", "ddpRefusePct",
+      "dutyReturnLabel", "dutyRestockablePct", "dutyRefundFeeLeftover",
+      "monthlyIntlVisitors", "price", "shippingCharged", "shippingCost",
+      "paymentsRate", "paymentsFixed", "costOfGoods", "packagingCost",
+      "otherCost", "monthlyPlan", "monthlyOrders",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+    const pct = (value) => Number.isFinite(value) ? `${value.toFixed(1)}%` : "—";
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareMarketsDuties(readInput());
+        const extra = result.extraOnDapVsDdp;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "DAP keeps this much more per visitor" :
+          extra < 0 ? "DDP keeps this much more per visitor" :
+          "DAP and DDP keep the same per visitor";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("dapExpected").textContent = money(result.dap.expected);
+        document.getElementById("ddpExpected").textContent = money(result.ddp.expected);
+        document.getElementById("dutyAmount").textContent = money(result.dutyAmount);
+        document.getElementById("feeOnDuty").textContent = money(result.feeOnDuty);
+        document.getElementById("dapDelivered").textContent = money(result.dap.deliveredProfit);
+        document.getElementById("ddpDelivered").textContent = money(result.ddp.deliveredProfit);
+        document.getElementById("refusedProfit").textContent = money(result.dap.refusedProfit);
+        document.getElementById("refuseFloor").textContent = pct(result.breakEvenDapRefusePct);
+        document.getElementById("takeFloor").textContent = pct(result.breakEvenDdpTakePct);
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnDapVsDdp >= 0
+            ? `${money(result.monthlyExtraOnDapVsDdp)} more on DAP`
+            : `${money(-result.monthlyExtraOnDapVsDdp)} more on DDP`;
+        const best = Math.max(result.dap.expected, result.ddp.expected, result.skip.expected);
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.id !== "skip" && Math.abs(row.expected - best) < 1e-9 ? "best" : ""}"><td>${row.label}</td><td>${money(row.charged)}</td><td>${money(row.duty)}</td><td>${row.takePct.toFixed(1)}%</td><td>${row.refusePct.toFixed(1)}%</td><td>${money(row.expected)}</td><td>${money(row.vsSkip)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["dapExpected", "ddpExpected", "dutyAmount", "feeOnDuty", "dapDelivered", "ddpDelivered", "refusedProfit", "refuseFloor", "takeFloor", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "markets_duties_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", () => {
+      const filled = applyPlanPreset(readInput(), document.getElementById("plan").value);
+      ["paymentsRate", "paymentsFixed", "monthlyPlan"].forEach((id) => {
+        document.getElementById(id).value = filled[id];
+      });
+      update();
+      recordCompare();
+    });
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

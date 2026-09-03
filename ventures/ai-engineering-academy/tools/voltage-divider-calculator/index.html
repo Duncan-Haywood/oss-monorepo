@@ -22,11 +22,43 @@
   "description": "Free voltage divider calculator with load-loading correction and E24 resistor-pair suggestion. Runs entirely client-side."
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How much does a load pull down a divider's output?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It depends on how the load resistance compares with R2, since a load at Vout sits electrically in parallel with R2. With this page's own defaults — 12 V in through R1 = 10 kΩ and R2 = 10 kΩ — the unloaded output is 6.0000 V. Connect a 10 kΩ load and the effective R2 halves to 5 kΩ, so the output falls to 4.0000 V, a 33.33% drop. A load much larger than R2 barely moves the output; a load equal to R2 cuts it by a third, and a load smaller than R2 sags it further still."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the target-output tool suggest a different R2 than the exact math gives?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because real resistors only come in a fixed set of standard values — the E24 series this calculator snaps to — not any number the arithmetic happens to produce. Asking for 3.3 V out of a 12 V supply through a 10 kΩ R1, for example, calls for an exact R2 of 3793.10 Ω, a value nobody sells. The nearest E24 value is 3.9 kΩ, which the calculator recommends instead; wired up, it actually delivers 3.3669 V, about 2.03% high of the 3.3 V target, and the price of using a resistor you can actually buy."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why shouldn't I use a plain resistive divider to power something?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because, as the first question shows, its output voltage changes the moment real current is drawn — it is a voltage reference, not a regulator. It's a reasonable choice for feeding a high-impedance point such as an ADC input, which draws very little current; for a load that draws real current, use a proper linear or switching regulator instead. It also wastes power on its own: at the page's default 12 V, 10 kΩ / 10 kΩ, the divider dissipates 3.6 mW in R1 and 3.6 mW in R2 even before anything is connected to Vout."
+      }
+    }
+  ]
+}
+</script>
 <style>
   :root {
     color-scheme: light dark;
     --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
-    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0; --warn: #b7791f;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0; --warn: #a0691b;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #ecc94b; }
@@ -39,6 +71,7 @@
   main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
   h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
   p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
   section {
     background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
     padding: 1.25rem; margin: 1.5rem 0;
@@ -77,6 +110,7 @@
     a real load pull that down? Everything runs in this page — nothing is
     uploaded.
   </p>
+  <nav class="toolbar"><a href="../">← All free electronics tools</a></nav>
 
   <section aria-labelledby="divider-heading">
     <h2 id="divider-heading">Divider output</h2>
@@ -130,6 +164,14 @@
     <div class="result" id="target-result" role="status" aria-live="polite"></div>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>How much does a load pull down a divider's output?</h3>
+  <p>It depends on how the load resistance compares with R2, since a load at V<sub>out</sub> sits electrically in parallel with R2. With this page's own defaults — 12 V in through R1 = 10 kΩ and R2 = 10 kΩ — the unloaded output is 6.0000 V. Connect a 10 kΩ load and the effective R2 halves to 5 kΩ, so the output falls to 4.0000 V, a 33.33% drop. A load much larger than R2 barely moves the output; a load equal to R2 cuts it by a third, and a load smaller than R2 sags it further still.</p>
+  <h3>Why does the target-output tool suggest a different R2 than the exact math gives?</h3>
+  <p>Because real resistors only come in a fixed set of standard values — the E24 series this calculator snaps to — not any number the arithmetic happens to produce. Asking for 3.3 V out of a 12 V supply through a 10 kΩ R1, for example, calls for an exact R2 of 3793.10 Ω, a value nobody sells. The nearest E24 value is 3.9 kΩ, which the calculator recommends instead; wired up, it actually delivers 3.3669 V, about 2.03% high of the 3.3 V target, and the price of using a resistor you can actually buy.</p>
+  <h3>Why shouldn't I use a plain resistive divider to power something?</h3>
+  <p>Because, as the first question shows, its output voltage changes the moment real current is drawn — it is a voltage reference, not a regulator. It's a reasonable choice for feeding a high-impedance point such as an ADC input, which draws very little current; for a load that draws real current, use a proper linear or switching regulator instead. It also wastes power on its own: at the page's default 12 V, 10 kΩ / 10 kΩ, the divider dissipates 3.6 mW in R1 and 3.6 mW in R2 even before anything is connected to V<sub>out</sub>.</p>
+
   <footer>
     <h2>Disclaimer</h2>
     <p>
@@ -144,6 +186,7 @@
       To the maximum extent permitted by law, the authors accept no
       liability for any loss or damage arising from its use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2 id="privacy-heading">Privacy</h2>
     <p>
@@ -160,8 +203,9 @@
     </p>
 
     <p>
-      Part of <a href="../../README.md">AI Engineering Academy</a>. MIT
-      licensed — see <a href="LICENSE">LICENSE</a>. See also the
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT
+      licensed — see <a href="../LICENSE">LICENSE</a>. See also the
       <a href="../resistor-calculator/">resistor color code &amp; Ohm's
       law calculator</a> and the
       <a href="../led-resistor-calculator/">LED series resistor
@@ -172,7 +216,7 @@
 
 <script type="module">
   import { calculateVoltageDivider, suggestDividerForTarget, formatResistance } from "./calc.mjs";
-  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
 
   const vin = document.getElementById("vin");
   const r1 = document.getElementById("r1");
@@ -180,7 +224,14 @@
   const load = document.getElementById("load");
   const dividerResult = document.getElementById("divider-result");
 
-  function updateDivider() {
+  // `update` runs both on page load (to render a first result from the
+  // prefilled defaults) and whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- previously
+  // the on-load call recorded a calculation for every page view, bounces
+  // included, which is exactly the difference portfolio/usage/ exists to
+  // measure. Real-interaction call sites pass `true`; the on-load call
+  // passes nothing.
+  function updateDivider(userAction) {
     const inputs = {
       vin: Number(vin.value),
       r1: Number(r1.value),
@@ -206,13 +257,13 @@
       html += "</dl>";
       dividerResult.innerHTML = html;
       dividerResult.classList.remove("error");
-      recordEvent("divider_calculated");
+      if (userAction) recordEventSettled("divider_calculated");
     } catch (err) {
       dividerResult.textContent = err.message;
       dividerResult.classList.add("error");
     }
   }
-  for (const el of [vin, r1, r2, load]) el.addEventListener("input", updateDivider);
+  for (const el of [vin, r1, r2, load]) el.addEventListener("input", () => updateDivider(true));
   updateDivider();
 
   const tVin = document.getElementById("t-vin");
@@ -220,7 +271,7 @@
   const tR1 = document.getElementById("t-r1");
   const targetResult = document.getElementById("target-result");
 
-  function updateTarget() {
+  function updateTarget(userAction) {
     try {
       const s = suggestDividerForTarget({
         vin: Number(tVin.value),
@@ -236,13 +287,13 @@
         </dl>
       `;
       targetResult.classList.remove("error");
-      recordEvent("target_suggested");
+      if (userAction) recordEventSettled("target_suggested");
     } catch (err) {
       targetResult.textContent = err.message;
       targetResult.classList.add("error");
     }
   }
-  for (const el of [tVin, tTarget, tR1]) el.addEventListener("input", updateTarget);
+  for (const el of [tVin, tTarget, tR1]) el.addEventListener("input", () => updateTarget(true));
   updateTarget();
 
   const usageToggle = document.getElementById("usage-toggle");

@@ -3,13 +3,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { AggregateEvent, SaleEvent } from "@retail-pilot/schemas";
 
-export function withTempDb<T>(fn: (dbPath: string) => T): T {
+export function withTempDb<T>(fn: (dbPath: string) => T): T;
+export function withTempDb<T>(fn: (dbPath: string) => Promise<T>): Promise<T>;
+export function withTempDb<T>(fn: (dbPath: string) => T | Promise<T>): T | Promise<T> {
   const dir = mkdtempSync(join(tmpdir(), "analytics-test-"));
   const dbPath = join(dir, "pilot.db");
-  try {
-    return fn(dbPath);
-  } finally {
+  const cleanup = (): void => {
     rmSync(dir, { recursive: true, force: true });
+  };
+  try {
+    const result = fn(dbPath);
+    if (result instanceof Promise) {
+      return result.finally(cleanup);
+    }
+    cleanup();
+    return result;
+  } catch (error) {
+    cleanup();
+    throw error;
   }
 }
 
@@ -26,6 +37,15 @@ export function aggregateEvent(overrides: Partial<AggregateEvent> = {}): Aggrega
   };
 }
 
+/** A synthetic event as produced by `--sample` (packages/edge's stub CLI). */
+export function stubAggregateEvent(overrides: Partial<AggregateEvent> = {}): AggregateEvent {
+  return aggregateEvent({
+    event_id: "agg-stub-1",
+    metadata: { model: "stub", version: "0.1.0" },
+    ...overrides,
+  });
+}
+
 export function saleEvent(overrides: Partial<SaleEvent> = {}): SaleEvent {
   return {
     event_id: "sale-1",
@@ -38,4 +58,13 @@ export function saleEvent(overrides: Partial<SaleEvent> = {}): SaleEvent {
     payment_class: "card",
     ...overrides,
   };
+}
+
+/** A synthetic sale as produced by `--sample` (packages/pos's stub CLI). */
+export function stubSaleEvent(overrides: Partial<SaleEvent> = {}): SaleEvent {
+  return saleEvent({
+    event_id: "sale-stub-1",
+    pos_vendor: "stub",
+    ...overrides,
+  });
 }

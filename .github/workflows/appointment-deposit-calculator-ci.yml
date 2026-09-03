@@ -1,0 +1,24 @@
+name: appointment-deposit-calculator CI
+on:
+  push:
+    paths: ["ventures/appointment-deposit-calculator/**", ".github/workflows/appointment-deposit-calculator-ci.yml"]
+  pull_request:
+    paths: ["ventures/appointment-deposit-calculator/**", ".github/workflows/appointment-deposit-calculator-ci.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ventures/appointment-deposit-calculator
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs appointment-deposit-calculator

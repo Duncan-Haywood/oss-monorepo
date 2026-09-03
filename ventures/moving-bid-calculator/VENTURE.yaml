@@ -1,0 +1,32 @@
+name: moving-bid-calculator
+description: A private browser calculator for local moving companies that prices a job from inventory hours plus stairs, long carry, packing, and drive time — labor, truck, materials, overhead, and margin — and shows the price per cubic foot, the effective hourly per mover, and the walk-away price below which a cheap bedroom-count quote loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Local movers will use an access-aware bid calculator because the bedroom-count quotes they find online and match against cannot see that a third-floor walk-up of the same furniture is extra trips, which is how a Saturday that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the share of the day that is stairs or long carry are the two numbers a mover actually decides on when a customer asks them to match a cheaper quote, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Pricing stairs and carry from cubic feet rather than a flat surcharge changes the resulting bid materially on walk-ups and long carries, which is the failure the bedroom-count rule cannot catch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified local movers use the calculator twice within 90 days.
+  - Movers report that the access-hours model is more work than their existing method without changing the price they would have bid.
+  - The starting hours and cubic-foot figures prove so far from real crews' times that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

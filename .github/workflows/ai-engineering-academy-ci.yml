@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/site
@@ -33,13 +33,35 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+      - run: node --test tools.test.mjs
       - run: npm run build
+      # The calculators are the only part of this venture a stranger can
+      # actually use, and they are reachable only through what the build emits:
+      # the hub page that lists them and the nav entry that points at the hub.
+      # `npm run build` succeeding says the build ran, not that either survived
+      # it -- a tool directory added without a hub entry, or a nav refactor that
+      # drops the link, ships a green build and an unreachable product.
+      - name: Built site exposes every calculator
+        run: |
+          test -f dist/tools/index.html || { echo "build emitted no calculator hub"; exit 1; }
+          for tool in ../tools/*/; do
+            slug=$(basename "$tool")
+            test -f "dist/tools/$slug/index.html" || { echo "missing built tool: $slug"; exit 1; }
+            grep -q "href=\"$slug/\"" dist/tools/index.html || { echo "hub does not link: $slug"; exit 1; }
+          done
+          grep -q 'href="tools/"' dist/index.html || { echo "site nav does not link the calculators"; exit 1; }
 
   tools-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     strategy:
       matrix:
-        tool: [resistor-calculator, led-resistor-calculator, voltage-divider-calculator, rc-filter-calculator]
+        tool:
+          - resistor-calculator
+          - led-resistor-calculator
+          - voltage-divider-calculator
+          - 555-timer-calculator
+          - rc-filter-calculator
+          - rc-time-calculator
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/tools/${{ matrix.tool }}
@@ -49,3 +71,14 @@ jobs:
         with:
           node-version: "22"
       - run: node --test
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page, and it is the half build.mjs cannot inject: what a tool is not
+      # advice *about* is written in the venture's own voice. So it stays the
+      # venture's to get right -- but nothing showed the author that until the
+      # Pages job went red on main, after the merge, naming a workflow they
+      # never touched. Checked here so the venture that needs the clause is the
+      # one that goes red, before the merge.
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs ai-engineering-academy
+

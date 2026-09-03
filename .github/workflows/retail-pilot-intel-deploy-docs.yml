@@ -30,7 +30,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
     steps:
@@ -63,7 +63,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       pages: write
       id-token: write
@@ -71,7 +71,20 @@ jobs:
     # repo settings, which turns this workflow red on every push to the docs
     # paths. Gate it on an owner-set variable (mirrors deploy-vercel below) so
     # the build always validates but publishing only fires once Pages is on.
-    if: ${{ vars.GITHUB_PAGES_ENABLED == 'true' }}
+    #
+    # Deliberately NOT `PAGES_ENABLED` (originally spelled `GITHUB_PAGES_
+    # ENABLED`, which GitHub rejects outright -- Actions configuration
+    # variables cannot start with `GITHUB_`). GitHub serves one Pages site per
+    # repository, and that variable now publishes `portfolio-pages.yml` — the
+    # ~30 free calculators the portfolio's deploy-first priority is about. If
+    # both workflows read the same flag, one owner flip would make two
+    # deployments race and the live site would flap between them.
+    #
+    # These docs are passcode-gated and internal, so they are not what the
+    # public origin should serve. Setting `RETAIL_PILOT_INTEL_PAGES=true` hands
+    # the origin to them instead; the Vercel job below is the better route if
+    # both are wanted at once.
+    if: ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -82,7 +95,7 @@ jobs:
 
   deploy-vercel:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
     if: ${{ vars.VERCEL_DEPLOY == 'true' }}

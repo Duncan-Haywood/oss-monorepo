@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I offer local delivery on Shopify? | Label vs driver time</title>
+  <meta name="description" content="Compare a Shopify / carrier label with local delivery on the same order. See driver minutes, mileage, the delivery fee after card fees, and the run cost that still beats the label.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-offer-local-delivery-on-shopify.html">
+  <meta property="og:title" content="Should I offer local delivery on Shopify?">
+  <meta property="og:description" content="See whether a 25-minute drop-off still beats a $5 label after driver time, mileage, and card fees on the delivery charge.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify local delivery vs carrier label",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "local delivery vs carrier label, charge shipping and deliver yourself, driver run cost after card fees, break-even delivery cost"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I offer local delivery on Shopify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Local delivery replaces a postage label with driver time and miles. Card fees still sit on the delivery fee you charge. On the calculator defaults ($48 item, $6 shipping / $5 label, 2.9%+$0.30, $8 delivery fee, 25 minutes at $18/hour, 8 miles at $0.70) the label keeps $31.74 and local delivery keeps $25.59. The run has to cost about $6.94 before local delivery matches. That is arithmetic on your inputs, not advice to turn Local Delivery on or off."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I charge shipping and just drop the order off myself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You can, but you keep the typed postage and still pay the driver run. On the defaults that path keeps $23.64 — worse than charging an $8 delivery fee — because you ate a $13.10 run and only collected $6.00 of postage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does Shopify local delivery beat a carrier label?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the run is short. The same $8 delivery fee with 12 minutes and 3 miles keeps $32.99 — $1.24 more than the $5 label. Pickup (the buyer comes in) is a different comparison on the pickup page."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether local delivery still beats the carrier label.</h1>
+    <p>
+      Shopify Local Delivery replaces a postage label with your time and
+      miles. The usual pitch is “save the $5 label.” The missing piece is
+      the run. The table keeps the same SKU, then compares buying the
+      typed label, driving it over, and charging shipping while you still
+      make the drop-off.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, label and the run</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US card defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Local delivery fee <input id="localDeliveryFee" type="number" min="0" step="0.01" value="8"></label>
+        <label>Minutes on the run <input id="localDeliveryMinutes" type="number" min="0" step="1" value="25"></label>
+        <label>Hourly rate <input id="localHourlyRate" type="number" min="0" step="0.01" value="18"></label>
+        <label>Miles round-trip <input id="localMiles" type="number" min="0" step="0.1" value="8"></label>
+        <label>Mileage rate <input id="localMileageRate" type="number" min="0" step="0.01" value="0.70"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Label vs local delivery</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by local delivery versus the label</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Label leftover</dt><dd id="shipProfit"></dd>
+        <dt>Local-delivery leftover</dt><dd id="localProfit"></dd>
+        <dt>Charge shipping, deliver yourself</dt><dd id="chargeProfit"></dd>
+        <dt>Driver run cost</dt><dd id="deliveryCost"></dd>
+        <dt>Run cost that still ties the label</dt><dd id="breakEvenCost"></dd>
+        <dt>Monthly gap vs the label</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, three ways it leaves the shop</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Charged</th>
+            <th scope="col">Fulfillment cost</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Leftover</th>
+            <th scope="col">vs label</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Card fees sit on whatever you charge for postage or delivery. The driver run is cash out either way. Transparent arithmetic from your inputs — not Shopify Local Delivery policy or a published mileage schedule.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Merchants search “Shopify local delivery vs shipping” because a
+      $5.00 label looks expensive and a neighborhood drop-off looks free.
+      Twenty-five minutes at $18/hour is $7.50. Eight miles at $0.70 is
+      $5.60. That $13.10 run is the postage.
+    </p>
+    <p>
+      On the defaults — $48 item, $6 shipping charged, $5.00 label,
+      Basic 2.9% + $0.30, $14 cost, $1 pack, $39 / 100 plan, $8.00
+      delivery fee, 25 minutes, 8 miles — the label keeps $31.74. Local
+      delivery keeps $25.59 ($6.16 less, −$615.80 / month). Charging the
+      $6.00 shipping quote and still driving it over keeps $23.64. The
+      run has to cost about $6.94 before local delivery matches. Cut the
+      run to 12 minutes and 3 miles and local delivery keeps $32.99
+      ($1.24 more).
+    </p>
+    <p>
+      It does not tell you to turn Local Delivery on or off, and it is
+      not tax or financial advice. Buying one label versus another is a
+      different question —
+      <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs your own label</a>.
+      Pickup (they come in) is on
+      <a href="should-i-offer-pickup-on-shopify.html">pickup vs the carrier label</a>.
+      A counter tap is on
+      <a href="shopify-pos-vs-online-fees.html">POS vs online fees</a>.
+      A card-network pull is a different question —
+      <a href="should-i-fight-a-shopify-chargeback.html">refund vs fight vs accept</a>.
+      Selling stored value is a different question —
+      <a href="should-i-sell-gift-cards-on-shopify.html">gift card vs selling the SKU now</a>.
+      Collecting duties at checkout is a different question —
+      <a href="should-i-collect-duties-on-shopify.html">DDP vs DAP vs skipping international</a>.
+      The main <a href="./">Shopify fee calculator</a> still compares
+      Shopify Payments with PayPal.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I offer local delivery on Shopify?</h3>
+  <p>Local delivery replaces a postage label with driver time and miles. Card fees still sit on the delivery fee you charge. On the calculator defaults ($48 item, $6 shipping / $5 label, 2.9%+$0.30, $8 delivery fee, 25 minutes at $18/hour, 8 miles at $0.70) the label keeps $31.74 and local delivery keeps $25.59. The run has to cost about $6.94 before local delivery matches. That is arithmetic on your inputs, not advice to turn Local Delivery on or off.</p>
+  <h3>Can I charge shipping and just drop the order off myself?</h3>
+  <p>You can, but you keep the typed postage and still pay the driver run. On the defaults that path keeps $23.64 — worse than charging an $8 delivery fee — because you ate a $13.10 run and only collected $6.00 of postage.</p>
+  <h3>When does Shopify local delivery beat a carrier label?</h3>
+  <p>When the run is short. The same $8 delivery fee with 12 minutes and 3 miles keeps $32.99 — $1.24 more than the $5 label. Pickup (the buyer comes in) is a different comparison on the pickup page.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, run, and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from a 25-minute run that a $5 label would have beaten, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareLocalDelivery } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "shippingCost", "localDeliveryFee",
+      "localDeliveryMinutes", "localHourlyRate", "localMiles", "localMileageRate",
+      "paymentsRate", "paymentsFixed", "costOfGoods", "packagingCost",
+      "otherCost", "monthlyPlan", "monthlyOrders",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareLocalDelivery(readInput());
+        const extra = result.extraKeptOnLocal;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by local delivery versus the label" :
+          extra < 0 ? "local delivery keeps less than the label" :
+          "local delivery and the label keep the same";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("shipProfit").textContent = money(result.ship.profit);
+        document.getElementById("localProfit").textContent = money(result.local.profit);
+        document.getElementById("chargeProfit").textContent = money(result.chargeShipDeliver.profit);
+        document.getElementById("deliveryCost").textContent = money(result.deliveryCost);
+        document.getElementById("breakEvenCost").textContent = Number.isFinite(result.breakEvenDeliveryCost)
+          ? money(result.breakEvenDeliveryCost)
+          : "n/a";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnLocal >= 0
+            ? `${money(result.monthlyExtraOnLocal)} more`
+            : `${money(-result.monthlyExtraOnLocal)} less`;
+        const best = Math.max(...result.rows.map((row) => row.profit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.profit === best ? "best" : ""}"><td>${row.label}</td><td>${money(row.charged)}</td><td>${money(row.fulfillmentCost)}</td><td>${money(row.fees)}</td><td>${money(row.profit)}</td><td>${money(row.vsShip)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["shipProfit", "localProfit", "chargeProfit", "deliveryCost", "breakEvenCost", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "local_delivery_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", () => {
+      const filled = applyPlanPreset(readInput(), document.getElementById("plan").value);
+      ["paymentsRate", "paymentsFixed", "monthlyPlan"].forEach((id) => {
+        document.getElementById(id).value = filled[id];
+      });
+      update();
+      recordCompare();
+    });
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

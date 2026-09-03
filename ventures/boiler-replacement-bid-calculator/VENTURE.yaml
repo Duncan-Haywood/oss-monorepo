@@ -1,0 +1,40 @@
+name: boiler-replacement-bid-calculator
+description: A private browser calculator for hydronic and steam techs that prices a residential boiler replacement from input MBH, hot-water versus steam, like-for-like versus condensing upgrade versus steam-to-hot-water, fuel, zones, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent hydronic techs will use an MBH-versus-scope bid calculator because the generic "$4,500 boiler special" they are shopped on cannot see that an 80 MBH gas hot-water like-for-like swap with two zones is a different job from a 140 MBH oil steam-to-hot-water conversion with four zones, an indirect tank, and a chimney liner.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published boiler special) are the two figures a tech actually decides on when an owner asks them to match a cheaper hot-water quote on a steam conversion.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing like-for-like, condensing upgrade, and steam-to-hot-water on the same plant, with zone hours and liner footage, changes the bid enough that techs notice which scope keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Techs will use a this-visit versus this-winter versus replace comparison on a no-heat call because the $280 circulator special they are shopped on cannot see the extra callbacks a leaking heat exchanger generates before spring.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Techs will use a you-supply versus owner-supplied comparison because the $4,500 hang-only special they are shopped on cannot see that setting a matching crate still costs a trip, and a wrong-system unit is a second dispatch.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified hydronic or steam techs use the calculator twice within 90 days.
+  - Contractors report that splitting plant, system, and extras is more work than their existing boiler-special method without changing the price they would have bid.
+  - The starting hours and boiler invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

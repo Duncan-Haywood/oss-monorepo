@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I offer a partial refund on eBay? | Partial vs taking the return</title>
+  <meta name="description" content="Compare a partial refund that lets the buyer keep the item, taking the eBay return, and refunding the whole order without getting the item back. See the cash that leaves, the fees that come back, and the concession that still beats a return label.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-offer-a-partial-refund-on-ebay.html">
+  <meta property="og:title" content="Should I offer a partial refund on eBay?">
+  <meta property="og:description" content="See whether a $15 make-it-right still beats taking the return after the outbound label and return postage.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay partial refund vs take the return",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "partial refund vs take the return, cash kept after this case, fees returned on the concession, break-even partial"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I offer a partial refund on eBay instead of taking the return?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A partial refund keeps the item out and usually returns final-value fees only on the amount you send back. Taking the return refunds the whole order, often refunds fees, and still eats the outbound label, packaging, and return postage. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $5 return label) a $15 partial leaves $8.59 and taking the return leaves -$11.00. That is arithmetic on your inputs, not advice to refuse a required return."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does taking the eBay return beat a partial refund?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the concession is larger than the gap between completed-sale profit and return profit, after the percentage fees that come back on the refunded amount. On the defaults that ceiling is about $37.59. A $45 'just make it go away' offer loses to taking the return."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is a full refund without a return cheaper than a real return?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Usually no. Refunding the whole order and letting them keep the item loses the sourcing cost that a return recovers. On the defaults that path leaves -$18.30 — worse than the -$11.00 return — because the $12 item stays gone."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether a partial refund still beats taking the return.</h1>
+    <p>
+      A buyer case is not the same decision as a return rate. Once they
+      open it you can send a concession and let them keep the item, take
+      the return, or refund the whole order without getting the item back.
+      The table keeps the original sale, then subtracts the cash you send
+      and the fees that come back on that amount.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, fees and the concession</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Partial refund you would offer <input id="partialRefundAmount" type="number" min="0" step="0.01" value="15"></label>
+        <label>Buyer cases per month <input id="monthlyCases" type="number" min="0" step="1" value="4"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
+        <label>International fee (%) <input id="intlFeeRate" type="number" min="0" step="0.01" value="0"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>Shipping label cost <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Fees refunded on return (%) <input id="feeRefundOnReturnPercent" type="number" min="0" max="100" step="1" value="100"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Partial vs taking the return</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by the partial versus taking the return</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Completed-sale profit</dt><dd id="completedProfit"></dd>
+        <dt>Partial-refund keep</dt><dd id="partialKept"></dd>
+        <dt>Take-the-return keep</dt><dd id="returnKept"></dd>
+        <dt>Full refund, they keep it</dt><dd id="keepItemFullKept"></dd>
+        <dt>Ceiling partial that still ties a return</dt><dd id="breakEvenPartial"></dd>
+        <dt>Monthly gap vs taking the return</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same case, three ways to close it</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Cash back</th>
+            <th scope="col">Item back?</th>
+            <th scope="col">Fees returned</th>
+            <th scope="col">Keep after this case</th>
+            <th scope="col">vs taking the return</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">A partial refund leaves the item with the buyer. Taking the return refunds the order and recovers inventory. A full no-return refund loses both. Transparent arithmetic from your inputs — not eBay’s case or Money Back Guarantee policy.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Resellers search “should I offer a partial refund on eBay” because
+      the return button looks automatic and a $15 concession looks like
+      throwing money away. The missing piece is the return label: taking
+      the item back usually costs the outbound postage a second time.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 shipping charged, 13.25% final value
+      fee, $0.30 fixed, $12 cost, $5 outbound, $1 pack, $5 return label,
+      100% of percentage fees refunded — a $15 partial keeps $8.59, taking
+      the return keeps −$11.00, and a full refund they keep leaves
+      −$18.30. The partial’s gap versus the return is $19.59 on this case
+      and $78.37 across four cases. The concession can rise to about
+      $37.59 before taking the return wins. Change the rates from your
+      own statements.
+    </p>
+    <p>
+      It does not tell you to refuse a required return, and it is not tax
+      or financial advice. A return-<em>rate</em> mix on completed orders
+      is a different question. Compare
+      <a href="do-ebay-returns-wipe-the-profit.html">what a return rate still leaves</a>
+      or
+      <a href="should-i-list-ebay-auction-or-buy-it-now.html">auction vs Buy It Now</a>
+      on the main <a href="./">eBay fee calculator</a> when the question
+      is mix-rate or listing format. Authenticity Guarantee is a different
+      listing-path question —
+      <a href="is-ebay-authenticity-guarantee-worth-it.html">is eBay Authenticity Guarantee worth it?</a>
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I offer a partial refund on eBay instead of taking the return?</h3>
+  <p>A partial refund keeps the item out and usually returns final-value fees only on the amount you send back. Taking the return refunds the whole order, often refunds fees, and still eats the outbound label, packaging, and return postage. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, $5 return label) a $15 partial leaves $8.59 and taking the return leaves -$11.00. That is arithmetic on your inputs, not advice to refuse a required return.</p>
+  <h3>When does taking the eBay return beat a partial refund?</h3>
+  <p>When the concession is larger than the gap between completed-sale profit and return profit, after the percentage fees that come back on the refunded amount. On the defaults that ceiling is about $37.59. A $45 'just make it go away' offer loses to taking the return.</p>
+  <h3>Is a full refund without a return cheaper than a real return?</h3>
+  <p>Usually no. Refunding the whole order and letting them keep the item loses the sourcing cost that a return recovers. On the defaults that path leaves -$18.30 — worse than the -$11.00 return — because the $12 item stays gone.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from taking a return you could have closed with a smaller concession, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { comparePartialRefund, partialRefundNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "partialRefundAmount", "monthlyCases",
+      "finalValueRate", "fixedFee", "promotedRate", "intlFeeRate",
+      "costOfGoods", "shippingCost", "packagingCost", "otherCost",
+      "returnShippingCost", "feeRefundOnReturnPercent",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = comparePartialRefund(readInput());
+        const extra = result.extraKeptOnPartial;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by the partial versus taking the return" :
+          extra < 0 ? "the partial keeps less than taking the return" :
+          "the partial and taking the return keep the same";
+        document.getElementById("summary").textContent = partialRefundNote(result);
+        document.getElementById("completedProfit").textContent = money(result.completedProfit);
+        document.getElementById("partialKept").textContent = money(result.partial.kept);
+        document.getElementById("returnKept").textContent = money(result.takeReturn.kept);
+        document.getElementById("keepItemFullKept").textContent = money(result.keepItemFull.kept);
+        document.getElementById("breakEvenPartial").textContent = Number.isFinite(result.breakEvenPartial)
+          ? money(result.breakEvenPartial)
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnPartial >= 0
+            ? `${money(result.monthlyExtraOnPartial)} more`
+            : `${money(-result.monthlyExtraOnPartial)} less`;
+        const bestKept = Math.max(...result.rows.map((row) => row.kept));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.kept === bestKept ? "best" : ""}"><td>${row.label}</td><td>${money(row.cashBack)}</td><td>${row.itemRecovered ? "Yes" : "No"}</td><td>${money(row.feeReturned)}</td><td>${money(row.kept)}</td><td>${money(row.vsReturn)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["completedProfit", "partialKept", "returnKept", "keepItemFullKept", "breakEvenPartial", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "partial_refund_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

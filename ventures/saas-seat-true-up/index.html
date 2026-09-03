@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SaaS Seat True-Up Calculator — Find Unused Spend</title>
+  <meta name="description" content="Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="SaaS seat true-up calculator">
+  <meta property="og:description" content="Find unused subscription seats before renewal with a private, browser-local calculator.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SaaS Seat True-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What counts as a “used” seat?","acceptedAnswer":{"@type":"Answer","text":"Whatever your own review decides, and the definition is the whole game. A seat assigned to someone who left, a seat held for a contractor whose project ended, a seat that has not seen a login in ninety days — all of them are provisioned and billed, and none of them are used in any sense your finance team would recognise. Most vendor admin consoles will export last-login per user; that export, not the assigned-seat count, is the number to type here."}},{"@type":"Question","name":"Why does it show both a remaining-term figure and an annual one?","acceptedAnswer":{"@type":"Answer","text":"Because they answer different questions. The remaining-term figure is what the current contract still commits you to — on the worked example, 6 unused seats at $18 with 4 months left is $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if you renew at the same count. The first is usually sunk; the second is the one you can actually act on, and it is why a seat review is worth doing before the renewal conversation rather than after it."}},{"@type":"Question","name":"What if we are over the purchased count instead of under?","acceptedAnswer":{"@type":"Answer","text":"Then the tool prices the overage rather than the saving, and that is often the more urgent number. Overage is commonly billed at list plus a contracted premium, so there is a field for that premium — leave it at 0% if your agreement charges plain list. Being over is not necessarily bad; it can mean the product is working. It just should not be a surprise on the true-up invoice."}},{"@type":"Question","name":"Does this tell me what to do at renewal?","acceptedAnswer":{"@type":"Answer","text":"No. It sizes the number so you can decide, and a contracted seat minimum — enter it in the field above — is already subtracted from what counts as droppable, so it will not tell you to cut below a floor your agreement enforces. It still cannot see step pricing: dropping from 20 to 14 may not save what the per-seat math implies if it crosses a volume pricing tier, and a seat released today may have to be re-bought at a worse rate in six months. Read your own agreement for true-up timing and whether reductions are permitted mid-term at all — many contracts allow additions any time and reductions only at renewal."}},{"@type":"Question","name":"What does the contract seat minimum field do?","acceptedAnswer":{"@type":"Answer","text":"It caps how many of the unused seats the tool treats as actually droppable. Some agreements will not let the seat count fall below a floor at renewal no matter how low usage is — enter that floor and the avoidable figures shrink to match what you can really cut. On 20 purchased, 14 used, and a 17-seat minimum, the tool still reports 6 unused seats but only 3 as droppable, because the other 3 are locked in by the minimum regardless of usage. Leave it at 0 if your agreement has no floor."}},{"@type":"Question","name":"Can I use this across several tools at once?","acceptedAnswer":{"@type":"Answer","text":"Run them one at a time and add up the annual figures. Each subscription has its own price, term, and overage treatment, so averaging them together hides the one that matters. In practice a handful of tools usually account for most of the waste, and doing them individually is what makes that visible."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculation runs entirely in your browser. A saved scenario stores only the totals you typed and stays in this browser; reset deletes it. There are no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned off below. Seat counts and prices are commercially sensitive, which is exactly why none of this leaves the page."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#18252b; --muted:#5e6c70; --paper:#f7f3eb; --accent:#af5331; --line:#d9d0c2; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+    main { max-width:980px; margin:auto; padding:52px 20px 40px; } .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.75rem; }
+    h1 { max-width:680px; font:800 clamp(2.2rem,6vw,4.8rem)/.98 Georgia,serif; margin:14px 0; } .lede { max-width:650px; color:var(--muted); font-size:1.15rem; }
+    .grid { display:grid; grid-template-columns: minmax(260px, .8fr) 1.2fr; gap:24px; margin-top:34px; } .panel { background:#fffdf8; border:1px solid var(--line); border-radius:18px; padding:24px; box-shadow:0 10px 30px #4b332010; }
+    label { display:block; font-weight:700; margin:15px 0 5px; } input { width:100%; border:1px solid #b9afa1; border-radius:8px; padding:11px; font:inherit; background:white; } button { margin-top:20px; border:0; border-radius:999px; background:var(--accent); color:white; padding:12px 20px; font-weight:800; cursor:pointer; } .actions { display:flex; flex-wrap:wrap; gap:10px; } .actions button { margin-top:16px; } button.secondary { background:#4a5a60; } .status { margin-top:10px; color:var(--muted); font-size:.9rem; min-height:1.2em; }
+    .results { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; } .metric { background:#f1e9dd; border-radius:12px; padding:16px; } .metric strong { display:block; font-size:1.6rem; } .metric span { color:var(--muted); font-size:.9rem; }
+    .callout { margin-top:18px; border-left:4px solid var(--accent); padding:12px 15px; background:#fff5ed; } footer { color:var(--muted); font-size:.85rem; margin-top:32px; } a { color:inherit; }
+    @media (max-width:700px) { main { padding-top:30px; } .grid { grid-template-columns:1fr; } }
+    /* Two 1fr columns leave ~140px each on a 320px phone, and "seat
+       utilization" under a $432.00 needs more than that — the pair pushed the
+       whole page 34px wider than the window, so every figure on it rendered
+       zoomed out. Stacked below that width instead. */
+    @media (max-width:380px) { .results { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">Renewal prep for SaaS operators</div>
+  <h1>Stop renewing seats nobody uses.</h1>
+  <p class="lede">Enter the seats you bought, the seats people actually use, and the per-seat price. Get a private, defensible estimate of avoidable subscription spend before your next renewal conversation.</p>
+  <p class="lede"><a href="./how-many-unused-saas-seats-am-i-paying-for.html">How many unused SaaS seats am I paying for?</a> &middot; <a href="./vs-zylo.html">vs. Zylo</a></p>
+  <section class="grid">
+    <form class="panel" id="form">
+      <h2>Plan details</h2>
+      <label for="purchased">Seats purchased</label><input id="purchased" type="number" min="0" value="20" required>
+      <label for="used">Seats used in the latest review</label><input id="used" type="number" min="0" value="14" required>
+      <label for="price">Price per seat per month</label><input id="price" type="number" min="0" step="0.01" value="18" required>
+      <label for="months">Months remaining in current term</label><input id="months" type="number" min="0" value="4" required>
+      <label for="overageRate">Overage premium above list price (%)</label><input id="overageRate" type="number" min="0" step="0.1" value="0">
+      <p class="status">Leave at 0% when extra seats bill at the same price. Enter the contracted premium when the vendor charges more for unpurchased seats.</p>
+      <label for="seatMinimum">Contract seat minimum (optional)</label><input id="seatMinimum" type="number" min="0" value="0">
+      <p class="status">Some contracts will not let you renew below a minimum seat count. Enter it here so the avoidable figures reflect what you can actually drop, not the full unused count.</p>
+      <div class="actions">
+        <button type="submit">Calculate true-up</button>
+        <button type="button" class="secondary" id="save">Save scenario</button>
+        <button type="button" class="secondary" id="reset">Reset</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+    <section class="panel" aria-live="polite"><h2>Your review</h2><div class="results">
+      <div class="metric"><strong id="unused">6</strong><span id="unusedLabel">unused seats</span></div><div class="metric"><strong id="utilization">70%</strong><span>seat utilization</span></div>
+      <div class="metric"><strong id="monthly">$108.00</strong><span id="monthlyLabel">avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span id="remainingLabel">avoidable through renewal</span></div>
+    </div><div class="callout" id="message">A seat review could release $1,296.00 over a full year if the unused seats are not renewed.</div></section>
+  </section>
+
+  <section class="panel" id="faq">
+    <h2>Common questions</h2>
+
+    <h3>What counts as a &ldquo;used&rdquo; seat?</h3>
+    <p>Whatever your own review decides, and the definition is the whole game. A seat assigned to
+      someone who left, a seat held for a contractor whose project ended, a seat that has not seen a
+      login in ninety days &mdash; all of them are provisioned and billed, and none of them are used in
+      any sense your finance team would recognise. Most vendor admin consoles will export last-login
+      per user; that export, not the assigned-seat count, is the number to type here.</p>
+
+    <h3>Why does it show both a remaining-term figure and an annual one?</h3>
+    <p>Because they answer different questions. The remaining-term figure is what the current contract
+      still commits you to &mdash; on the worked example, 6 unused seats at $18 with 4 months left is
+      $432 you are going to pay regardless. The annual figure, $1,296, is what those same seats cost if
+      you renew at the same count. The first is usually sunk; the second is the one you can actually
+      act on, and it is why a seat review is worth doing <em>before</em> the renewal conversation rather
+      than after it.</p>
+
+    <h3>What if we are over the purchased count instead of under?</h3>
+    <p>Then the tool prices the overage rather than the saving, and that is often the more urgent
+      number. Overage is commonly billed at list plus a contracted premium, so there is a field for that
+      premium &mdash; leave it at 0% if your agreement charges plain list. Being over is not necessarily
+      bad; it can mean the product is working. It just should not be a surprise on the true-up
+      invoice.</p>
+
+    <h3>Does this tell me what to do at renewal?</h3>
+    <p>No. It sizes the number so you can decide, and a contracted seat minimum &mdash; enter it in the
+      field above &mdash; is already subtracted from what counts as droppable, so it will not tell you to
+      cut below a floor your agreement enforces. It still cannot see step pricing: dropping from 20 to
+      14 may not save what the per-seat math implies if it crosses a volume pricing tier, and a seat
+      released today may have to be re-bought at a worse rate in six months. Read your own agreement for
+      true-up timing and whether reductions are permitted mid-term at all &mdash; many contracts allow
+      additions any time and reductions only at renewal.</p>
+
+    <h3>What does the contract seat minimum field do?</h3>
+    <p>It caps how many of the unused seats the tool treats as actually droppable. Some agreements will
+      not let the seat count fall below a floor at renewal no matter how low usage is &mdash; enter that
+      floor and the avoidable figures shrink to match what you can really cut. On 20 purchased, 14 used,
+      and a 17-seat minimum, the tool still reports 6 unused seats but only 3 as droppable, because the
+      other 3 are locked in by the minimum regardless of usage. Leave it at 0 if your agreement has no
+      floor.</p>
+
+    <h3>Can I use this across several tools at once?</h3>
+    <p>Run them one at a time and add up the annual figures. Each subscription has its own price, term,
+      and overage treatment, so averaging them together hides the one that matters. In practice a
+      handful of tools usually account for most of the waste, and doing them individually is what makes
+      that visible.</p>
+
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No account and no network requests &mdash; the calculation runs entirely in your browser. A saved
+      scenario stores only the totals you typed and stays in this browser; reset deletes it. There are
+      no cookies and no analytics vendors, and the anonymous feature counter is local and can be turned
+      off below. Seat counts and prices are commercially sensitive, which is exactly why none of this
+      leaves the page.</p>
+  </section>
+
+  <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Saved scenarios store only the totals entered here and stay in this browser. Reset deletes the saved scenario. Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events are stored only in this browser and can be disabled with <a href="#" id="disable">turning usage counting off</a>.</footer>
+</main><script type="module">
+  import { calculateTrueUp, formatMoney, reviewMessage } from './calc.mjs';
+  import { recordEvent, disableUsage, saveScenario, loadScenario, clearScenario } from './usage.mjs';
+  const form = document.querySelector('#form');
+  const ids = ['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum'];
+  const example = [20, 14, 18, 4, 0, 0];
+  const read = id => document.querySelector(`#${id}`).value;
+  const values = () => Object.fromEntries(ids.map(id => [id, read(id)]));
+  const status = text => { document.querySelector('#status').textContent = text; };
+  function render(count = false) {
+    try {
+      const result = calculateTrueUp({ seatsPurchased:read('purchased'), seatsUsed:read('used'), monthlyPrice:read('price'), monthsRemaining:read('months'), overageRatePct:read('overageRate'), seatMinimum:read('seatMinimum') });
+      const over = result.extra > 0;
+      document.querySelector('#unused').textContent = over ? result.extra : result.unused;
+      document.querySelector('#unusedLabel').textContent = over ? 'seats over purchased' : 'unused seats';
+      document.querySelector('#utilization').textContent = Number.isFinite(result.utilizationPercent) ? `${result.utilizationPercent.toFixed(1)}%` : 'n/a';
+      document.querySelector('#monthly').textContent = formatMoney(over ? result.monthlyOverage : result.monthlyAvoidable);
+      document.querySelector('#monthlyLabel').textContent = over ? 'extra per month' : 'avoidable per month';
+      document.querySelector('#remaining').textContent = formatMoney(over ? result.remainingOverage : result.remainingAvoidable);
+      document.querySelector('#remainingLabel').textContent = over ? 'extra through remaining term' : 'avoidable through renewal';
+      document.querySelector('#message').textContent = reviewMessage(result);
+      if (count) recordEvent('true_up_calculated');
+    } catch (error) {
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid review on screen next to a small error line -- that
+      // reads as if the stale unused-seat count, utilization, and dollar
+      // figures still answer the inputs now in the form. Clear every derived
+      // field and show the message only in its own region.
+      document.querySelector('#unused').textContent = '';
+      document.querySelector('#unusedLabel').textContent = '';
+      document.querySelector('#utilization').textContent = '';
+      document.querySelector('#monthly').textContent = '';
+      document.querySelector('#monthlyLabel').textContent = '';
+      document.querySelector('#remaining').textContent = '';
+      document.querySelector('#remainingLabel').textContent = '';
+      document.querySelector('#message').textContent = error.message;
+    }
+  }
+  form.addEventListener('submit', event => { event.preventDefault(); render(true); });
+  document.querySelector('#save').addEventListener('click', () => {
+    if (saveScenario(null, values())) {
+      recordEvent('scenario_saved');
+      status('Scenario saved in this browser.');
+    } else {
+      status('This browser could not save the scenario.');
+    }
+  });
+  document.querySelector('#reset').addEventListener('click', () => {
+    example.forEach((value, index) => { document.querySelector(`#${ids[index]}`).value = value; });
+    clearScenario();
+    render(false);
+    status('Reset to the example scenario.');
+  });
+  const saved = loadScenario();
+  if (saved) {
+    ids.forEach(id => { document.querySelector(`#${id}`).value = saved[id]; });
+    recordEvent('scenario_restored');
+    status('Saved scenario restored from this browser.');
+    render(false);
+  }
+  document.querySelector('#disable').addEventListener('click', event => { event.preventDefault(); disableUsage(); });
+</script></body></html>
