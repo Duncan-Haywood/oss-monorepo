@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 108 files, 538985 bytes
 #   portfolio-front-tools-7: 111 files, 543930 bytes
 #   portfolio-front-tools-8: 124 files, 554982 bytes
-#   portfolio-front-tools-9: 102 files, 550803 bytes
+#   portfolio-front-tools-9: 103 files, 554915 bytes
 #   portfolio-front-tools-10: 107 files, 553827 bytes
 #   portfolio-front-tools-11: 55 files, 262434 bytes
 #
@@ -1362,6 +1362,7 @@ configMapGenerator:
       - soffit-fascia-bid-calculator__proposal.mjs.gz=soffit-fascia-bid-calculator__proposal.mjs.gz
       - soffit-fascia-bid-calculator__share.mjs.gz=soffit-fascia-bid-calculator__share.mjs.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
+      - soffit-fascia-bid-calculator__vs-jobber.html.gz=soffit-fascia-bid-calculator__vs-jobber.html.gz
       - solar-pv-bid-calculator__LICENSE.gz=solar-pv-bid-calculator__LICENSE.gz
       - solar-pv-bid-calculator__calc.mjs.gz=solar-pv-bid-calculator__calc.mjs.gz
       - solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz=solar-pv-bid-calculator__how-much-to-charge-to-install-solar-panels.html.gz

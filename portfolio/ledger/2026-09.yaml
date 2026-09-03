@@ -7964,3 +7964,75 @@ entries:
         platform/marketing tests pass, full-site build clean (no dead
         links across 622 pages).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs existed at session start (confirmed
+        via both `list_pull_requests` and a `search_pull_requests`
+        cross-check). Unshallowed the clone first (`git fetch
+        --unshallow`) after the initial ahead-count scan produced
+        nonsense 5000+-commit deltas — the exact shallow-clone pitfall
+        CLAUDE.md's "Duplicate PRs" section warns about.
+      - >-
+        Checked ~25 of the 93 remote branches carrying real commits ahead
+        of `main` (out of 234 total remote branches) for repairable,
+        non-duplicate work: `supersede_check.py` against several, direct
+        two-dot diffs and grep-based existence checks against the rest.
+        Every one of the 25 checked (vendor-watch, chargeback-evidence-packet,
+        3pl-quote-normalizer's compare page, backup-verification-evidence,
+        boiler/toilet/spray-foam vs-servicetitan/vs-jobber pages,
+        automatic-driveway-gate, equipment-rental-break-even,
+        repository-branch-hygiene, no-show-fee scenarios,
+        hardwood-refinishing FAQ, the boiler-replacement conflict-marker
+        hotfix, a governor RBAC "patch" verb addition, and the bid-link
+        query-string-vs-fragment privacy fix) was already superseded by
+        an independent, more advanced implementation already on `main` —
+        the same pattern the 2026-09-02 and 2026-09-03 ledger rows below
+        record for a different ~20-branch sample. This corroborates
+        rather than duplicates that finding: two independent samples of
+        this branch backlog, checked by different sessions, both came up
+        empty of repairable work. No PR opened, no branch closed (a close
+        is not this run's to make). Did not exhaustively check all 93 —
+        that would be the disproportionate meta-work CLAUDE.md warns
+        against once the pattern is this consistent.
+      - >-
+        Re-verified the standing account-owner instruction ("make sure
+        deployment and CI/CD is a priority, and building/deploying
+        marketing materials, and set up Codex CLI on the Hetzner VM to
+        use its plan quota") is fully built and already the literal
+        top-priority queue item, not unbuilt: `gitops/agents/queue/deploy-cicd-readiness.yaml`
+        carries priority 7 (highest) and `marketing-distribution.yaml`
+        priority 6, both citing this exact instruction verbatim in their
+        own comments. The Codex-on-Hetzner path (`gitops/ci/README.md`,
+        `infra/OWNER_CHECKLIST.md`) is fully implemented — plan-quota
+        route via `CODEX_AUTH_JSON`, governor and worker manifests on
+        `main` — and blocked on three owner-only actions: `codex login`
+        on a non-personal seat, sealing `codex-secrets`, then flipping
+        `governor/cronjob.yaml` `suspend: false` and `policy.json`
+        `"enabled": true`. Confirmed both are still `true`/`false`
+        (unflipped) and no `codex-secrets` file exists in
+        `gitops/ci/secrets/` — nothing for an agent session to build
+        here; already queued as `codex-governor-enable` in the decision
+        queue, no duplicate ask added. Portfolio-site deployment itself
+        (`portfolio-site-hetzner-deploy`, #1999) is likewise one scoped
+        read-only GitHub token away, unchanged since the last check.
+      - >-
+        Shipped one product increment: soffit-fascia-bid-calculator: add
+        a vs-Jobber comparison page, following the same honest,
+        non-numeric-claims pattern as the spray-foam/foundation-repair/
+        chimney-sweep/gutter-guard/artificial-turf vs-Jobber pages. This
+        was 1 of 22 bid-calculator ventures with no competitor comparison
+        page of any kind (a broader recount than the "57 ventures"
+        figure in #3070's message, since that count wasn't scoped to
+        bid-calculator ventures alone). 117/117 venture tests pass
+        (up from 115), 867/867 platform/pages tests pass, front-door
+        mirror regenerated with `front-door-tools.mjs --write` (169
+        tools, 75% of the mirror byte ceiling), full-site build clean
+        (`build.mjs` + `check.mjs`: 169 products, 626 pages, no dead
+        links, up from 622), `check_duplicate_symbols.py` and
+        `check_conflict_markers.py` both clean, `usage.yaml` still valid
+        (181 products, 358 readings — no new venture, so no new usage
+        entry needed).
+    mrr_end: null
