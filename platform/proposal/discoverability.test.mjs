@@ -22,7 +22,19 @@ import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 
 const VENTURES = new URL('../../ventures/', import.meta.url);
-const CLAIM = /printable customer proposal/i;
+/**
+ * The claim a page makes when it can print the document.
+ *
+ * Both nouns are alternations because the artifact outgrew the trades: a
+ * translator sends a *client* a *quote*, and forcing "printable customer
+ * proposal" into their feature list to satisfy this check would put a
+ * contractor's vocabulary in front of the freelancer searching for the thing
+ * they actually need. What must not vary is the substance — that the page can
+ * print a document for the buyer — so "printable" and the buyer-plus-document
+ * pair are still required, and a page that ships no proposal still cannot
+ * claim one.
+ */
+const CLAIM = /printable (customer|client) (proposal|quote)/i;
 
 /** Every `featureList` string in the document, however the JSON-LD is nested. */
 function featureLists(node, found = []) {

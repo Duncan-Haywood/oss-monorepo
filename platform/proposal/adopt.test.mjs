@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { companyKey, declaredRowFields, detectFunctions, disclaimerFor, jsString, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
+import { companyKey, declaredFields, declaredRowFields, detectFunctions, disclaimerFor, jsString, markup, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VENTURES = path.resolve(HERE, '../../ventures');
@@ -220,4 +220,68 @@ test('every component a hood-cleaning bid can list has customer wording', async 
   for (const preset of COMPONENT_PRESETS) {
     assert.ok(map[preset.label], `no customer wording for component preset "${preset.label}"`);
   }
+});
+
+// ---------------------------------------------------------------------------
+// Reaching past the trades
+//
+// The proposal is the artifact that wins the job, and until now it could only
+// be generated for a `*-bid-calculator`: a US contractor, quoting in dollars,
+// for a customer at a job address. Everything below is what a freelancer
+// quoting a translation needed, and each one is a defect the trades never hit
+// because their own answer happened to be the hard-coded one.
+// ---------------------------------------------------------------------------
+
+test('a numeric field left at zero keeps its line off the customer sheet', () => {
+  // An `<input>`'s value is a string, and `"0"` is truthy. Read with `input`,
+  // a `when` guarding an optional charge the user left at zero passed anyway
+  // and printed "Rush or weekend delivery" on a quote with nothing for it in
+  // the price — the sheet promising work the price does not cover.
+  const generated = declaredFields({ rushFee: { number: 'rush_fee' } });
+  assert.match(generated, /"rushFee": Number\(el\('rush_fee'\)\?\.value\)/);
+
+  // `input` still yields the trimmed string, which is what a language name or
+  // a reference number needs.
+  const asText = declaredFields({ sourceLang: { input: 'source_lang' } });
+  assert.match(asText, /"sourceLang": el\('source_lang'\)\?\.value\?\.trim\(\)/);
+});
+
+test('a trade may rename the form fields without a fork of the generator', () => {
+  const renamed = markup({
+    labels: {
+      heading: 'Send the client a quote',
+      clientName: 'Client name',
+      clientAddress: 'Client company and address',
+      printButton: 'Print quote / Save as PDF',
+    },
+  });
+  assert.match(renamed, /<h2>Send the client a quote<\/h2>/);
+  assert.match(renamed, /<label>Client name /);
+  assert.match(renamed, /<label>Client company and address /);
+  assert.match(renamed, /id="printProposal">Print quote \/ Save as PDF</);
+  // The words it replaced are gone, not merely joined.
+  assert.doesNotMatch(renamed, /Hand the customer a proposal/);
+  assert.doesNotMatch(renamed, /<label>Job address /);
+});
+
+test('a trade that renames nothing gets exactly the wording it has today', () => {
+  // The 102 adopters pass no `labels`, and their pages are committed. A
+  // default that drifted would rewrite all of them on the next sweep.
+  const plain = markup({});
+  assert.match(plain, /<h2>Hand the customer a proposal<\/h2>/);
+  assert.match(plain, /<label>Customer name /);
+  assert.match(plain, /<label>Job address /);
+  assert.match(plain, /<label>Licence number \(optional\) /);
+  assert.match(plain, /id="printProposal">Print proposal \/ Save as PDF</);
+  assert.deepEqual(markup({}), markup({ labels: {} }), 'an empty labels block is not a change');
+});
+
+test('a label supplied by a trade cannot inject markup', () => {
+  const hostile = markup({ labels: { clientName: '<script>alert(1)</script>' } });
+  assert.doesNotMatch(hostile, /<script>alert/);
+  assert.match(hostile, /&lt;script&gt;/);
+});
+
+test('a blank label falls back rather than printing an empty one', () => {
+  assert.match(markup({ labels: { clientName: '   ' } }), /<label>Customer name /);
 });

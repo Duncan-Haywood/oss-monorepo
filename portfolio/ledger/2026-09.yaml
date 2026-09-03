@@ -7403,3 +7403,861 @@ entries:
         under this repo's no-review-ceremony rule for `ventures/*` product
         PRs.
     mrr_end: null
+  - venture: walk-in-tub-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "This calculator vs. Housecall Pro" comparison page,
+        following the same honest, non-numeric-claims pattern already
+        shipped for other trades calculators. This venture was one of 57
+        in the front-door mirror with no comparison page at all -- a real
+        gap in the "get in front of people" / organic-distribution
+        workstream this account owner has specifically asked to
+        prioritise.
+      - >-
+        Live today at
+        https://marisstella.dev/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html
+        with no owner action needed -- this venture is already in the
+        front-door mirror, which was regenerated (`--write`) and committed
+        in the same change, along with the apex's own sitemap/catalog.
+      - >-
+        Also fixed a pre-existing CI regression discovered while verifying
+        this change: `platform/pages/link.test.mjs`'s pinned
+        itemised-calculator counts were stale against #3048
+        (snow-removal-bid-calculator's own share control), which had been
+        failing on `main` since that PR merged. Landed separately as #3053
+        so it does not block this or any other in-flight PR.
+      - >-
+        Verified with `node --test` in the venture (140/140, 8 new tests),
+        `node --test "platform/marketing/*.test.mjs"` (173/173, front-door
+        mirror and apex-page consistency), and
+        `node --test platform/pages/link.test.mjs` (49/49, post-#3053-fix).
+        Opened as a PR and merged once its checks went green, under this
+        repo's no-review-ceremony rule for `ventures/*` product PRs.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: only one open PR existed at session start (#3047,
+        "freight-accessorial-auditor: convert pounds against a per-cwt
+        rate"). Reviewed it -- its `Portfolio validate` check was
+        genuinely red (not the runner-starvation signature:
+        `ci_starvation.py` confirmed a real runner), because the venture
+        edit left the committed front-door mirror stale
+        (`platform/marketing/front-door-tools.test.mjs` failing). Fixed
+        by regenerating the mirror; a concurrent session pushed the
+        identical fix (byte-for-byte matching shard sizes) seconds later,
+        so no duplicate commit was needed. Merged once green. A second PR
+        (#3048, "snow-removal-bid-calculator: add a shareable quote
+        link") opened concurrently mid-session; verified locally (own
+        suite 78/78, marketing-mirror suite 173/173) and merged once its
+        CI went green. That brought the open-PR count to zero. Ran a
+        dedicated branch-triage pass (24 non-auto-generated-name
+        branches, cross-checked against open/closed/merged PRs and
+        `main`'s current content) rather than trusting an old branch
+        list; every one was already merged, verifiably superseded, or
+        empty of unique content -- the fleet had picked this list clean
+        in the hours before this session ran. Per the "fewer than three
+        exist, process all of them" rule, the quota phase is complete
+        with an empty, verified-empty queue; no third PR existed to
+        merge.
+      - >-
+        Checked this session's explicit brief -- prioritize deployment/
+        CI/CD and building/deploying marketing materials on the Hetzner
+        VMs, and set up the Codex CLI on the Hetzner VM to spend its own
+        included quota on unattended dev work following a mandate similar
+        to this session's. All three are already built and already
+        queued for the owner, not missing: `gitops/agents/` (governor
+        CronJob, budget policy, RBAC, and a six-item work queue) is a
+        complete, tested, unattended Codex-on-Hetzner pipeline, disabled
+        only by two owner-only flips (`policy.json` "enabled" and the
+        CronJob's `suspend`) gated on a sealed credential --
+        `decision-queue` item `codex-governor-enable` (#1996) names the
+        exact three owner steps and is current. Its own top-priority
+        queue item, `deploy-cicd-readiness.yaml`, and the item below it,
+        `marketing-distribution.yaml`, were reordered to priorities 7 and
+        6 on 2026-09-01 quoting the owner's own words -- "I want to make
+        sure deployment and cicd is a priority and building and deploying
+        marketing materials on the hetzner vms" -- essentially verbatim
+        this session's brief. Since an agent can do the code half of both
+        items today without waiting for the governor flip, ran their own
+        verification commands myself as a fresh sweep (`pytest gitops/
+        tests -q`: 271 passed / 12 skipped; `check_duplicate_symbols.py`
+        and `publish_surface.py --check`: both clean; every one of 223
+        workflow files carries `timeout-minutes`) -- no new gap found
+        since the item's own 2026-09-02 dedicated sweep, which already
+        reported the same. No decision-queue row was added: `#1996`
+        already covers it precisely and `CLAUDE.md` and this file's own
+        discipline both say not to duplicate a queued ask.
+      - >-
+        With the deploy/CI/CD lane swept clean and no new gap to fix,
+        picked the still-open half of the marketing-distribution item's
+        own candidate list (comparison pages aside, which need outbound
+        web access this environment does not have to verify a new
+        competitor's numbers) and did the *product* work the queue item
+        describes for its own top-priority sibling instead: extended the
+        "Copy share link" pattern already used by 82 ventures (including
+        both PRs merged above) to `gutter-cleaning-bid-calculator`, one
+        of 81 ventures with a form and no share link yet. Added
+        `share.mjs` (URL-fragment allowlist encode/decode covering every
+        run's linear feet/story/pitch/guards/debris/downspouts plus the
+        cost and margin inputs) and `share.test.mjs` (6 tests), wired a
+        "Copy share link" button next to "Copy bid summary", made a
+        shared link take priority over the three-run starting example on
+        load, corrected the FAQ text (visible and JSON-LD) that
+        previously said this venture "has no shareable bid link", and
+        regenerated the front-door mirror so the feature ships to
+        `https://marisstella.dev/tools/gutter-cleaning-bid-calculator/`
+        the moment this merges -- no further owner action. Corrected the
+        venture's `usage.yaml` "public URL remains owner-gated" note the
+        same way done for other ventures this month, in a new reading
+        rather than rewritten in place.
+      - >-
+        Verified with `node --test` in the venture (73/73, 6 new in
+        `share.test.mjs`), `node --test "platform/marketing/*.test.mjs"`
+        (173/173 -- confirms the regenerated mirror and kustomization are
+        exactly what the generator produces, and the auto-injected
+        generic share-link chrome correctly stepped aside for the
+        venture's own control, dropping the site-wide auto-injected count
+        by exactly one as designed), a full `platform/pages/build.mjs` +
+        `check.mjs` run (169 tools / 618 pages, no dead links), that
+        suite's own tests (`build.test.mjs` + `check.test.mjs`, 320/320),
+        `python3 -m pytest gitops/tests/test_manifests.py gitops/tests/
+        test_front_door_serving.py` (81 passed, 12 skipped -- k8s-only),
+        and `python3 portfolio/usage/validate_usage.py` (valid, 181
+        products). Opened as a PR and merged once checks were confirmed
+        sound, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a genuine crash in the sheet-goods (2D) packer's core logic,
+        following this fleet's `product-feature-improvement` queue item.
+        `optimizeSheets()`'s pre-check for "does this panel fit anywhere"
+        tests each panel against every on-hand offcut's *original* size,
+        not against what is still free on it once earlier placements have
+        consumed part of it. When a panel's only fit is a large on-hand
+        offcut whose free space is already spoken for by an earlier
+        placement, the "open a fresh purchased sheet" fallback assumed a
+        fresh sheet would always fit and read `.width` off an `undefined`
+        orientation option, throwing `TypeError: Cannot read properties
+        of undefined (reading 'width')` instead of returning a plan.
+        Reproduced directly: a 48x96 sheet (1" trim) with a 100x100
+        on-hand offcut and two panels (90x90 and 95x95, each too big for
+        a fresh sheet but not for the offcut) crashed every time before
+        the fix.
+      - >-
+        The fix checks whether a fresh purchased sheet can actually hold
+        the piece before opening one; when it cannot, the piece now lands
+        in the existing `oversize` report (already how the tool handles
+        "does not fit anywhere new") instead of throwing. No UI, schema,
+        or disclaimer change -- `oversize` already had this exact shape
+        and every consumer (`index.html`, `formatSheetPlan`,
+        `compareSheetSizes`) already handled it.
+      - >-
+        Verified with `node --test *.test.mjs` in the venture (112/112,
+        including one new regression test reproducing the crash
+        scenario above and asserting the plan comes back cuttable
+        instead), and confirmed no other venture imports
+        `optimizeSheets` (`grep -r optimizeSheets` outside this venture's
+        own files and this ledger). Opened as a PR and merged once local
+        verification was sound -- no `github-actions` check suite was
+        ever created for the PR's head commit (only the four cross-review
+        bot apps' suites, queued with zero runs), confirmed via the
+        commits/check-suites endpoint over 15+ minutes while sibling
+        branches merged CI-green in the same window, so this is absent
+        CI, not a starved or failing run -- under this repo's
+        no-review-ceremony rule for `ventures/*` product PRs.
+    mrr_end: null
+  - venture: pole-barn-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "This calculator vs. JobTread" comparison page, following
+        the same honest, non-numeric-claims pattern already shipped for
+        other trades calculators (`vs-housecall-pro.html` on
+        walk-in-tub-bid-calculator, `vs-jobber.html` on
+        spray-foam-bid-calculator, `vs-stack.html` on
+        concrete-bid-calculator, and others). JobTread is real,
+        well-documented project-management and job-costing software used
+        by residential builders and remodelers, including post-frame and
+        pole-barn shops -- a plausible, accurate competitor for this
+        venture, chosen after checking `git log --all` and open branches
+        found no in-flight vs-page for this venture already.
+      - >-
+        Live today at
+        https://marisstella.dev/tools/pole-barn-bid-calculator/vs-jobtread.html
+        with no owner action needed -- this venture was already in the
+        front-door mirror, which was regenerated (`front-door-tools.mjs
+        --write` then `front-door.mjs --write`) and committed in the
+        same change, along with the apex's own sitemap.xml/catalog.json.
+      - >-
+        Linked from the venture's own `index.html` footer and listed in
+        the venture's `sitemap.xml`. The page's FAQPage JSON-LD answer
+        text was checked to match its visible `<p>` text verbatim (a new
+        test asserts this directly, beyond the sibling pages' pattern),
+        per this repo's standing warning about that class of regression.
+      - >-
+        Verified with `node --test` in the venture (120/120, 9 new in
+        `vs-jobtread.test.mjs`), a full `platform/pages/build.mjs` +
+        `check.mjs` run (169 tools, 621 pages, no dead links),
+        `node --test platform/pages/*.test.mjs` (867/867),
+        `node --test "platform/marketing/*.test.mjs"` (173/173 -- confirms
+        the regenerated mirror and kustomization are exactly what the
+        generator produces), and `node --test platform/pages/link.test.mjs`
+        (49/49). Opened as a PR and merged once checks were confirmed
+        sound, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: only one open PR existed at session start (#3052,
+        "gutter-cleaning-bid-calculator: add a shareable quote link").
+        Reviewed the complete diff (share.mjs allowlist encode/decode, 6
+        new tests, FAQ/JSON-LD correction, regenerated front-door mirror,
+        ledger entry) -- all four cross-agent reviewer checks
+        (review-claude/gh/cursor/kilo) had already passed and every other
+        check was green; waited out the two still-running checks (build,
+        validate) rather than merging early, confirmed both went green,
+        then merged. That emptied the open-PR queue. Per the "fewer than
+        three exist, process all of them" rule, the quota phase is
+        complete with zero PRs remaining.
+      - >-
+        Sampled the branch-to-PR backlog for real (non-auto-generated-name)
+        work relevant to this session's explicit brief -- deploy/CI/CD and
+        marketing distribution on Hetzner -- rather than trusting the prior
+        session's own triage claim at face value: `ci/hetzner-ssh-key-
+        diagnostic`, `agent/marketing-distribution-gutter-guard-vs-
+        jobnimbus`, `gitops-governor-rbac-narrow-jobs-pods-verbs` /
+        `fix/governor-rbac-narrow-jobs-pods-verbs` (a duplicate pair),
+        `gitops/regen-front-door-mirror`, and `agent/deploy-cicd-ledger-
+        2868`. All six were confirmed already merged or fully superseded
+        by content already on `main` (the SSH diagnostic as #2958, the
+        vs-JobNimbus page as #2907, the RBAC narrowing already in
+        `gitops/agents/governor/rbac.yaml` with its own test on `main`,
+        and the mirror regen already current -- `front-door-tools.test.mjs`
+        passes clean without it; the ledger branch was stale prose from an
+        earlier session's own quota phase). No PRs opened for these --
+        opening one would have been a guaranteed-closed duplicate.
+      - >-
+        Verified this session's explicit brief item by item against actual
+        repo state rather than re-asking it: (1) deploy/CI/CD readiness --
+        `pytest gitops/tests -q`: 271 passed / 12 skipped, matching the
+        `deploy-cicd-readiness` queue item's own 2026-09-02 sweep exactly,
+        so no new gap since; that queue item's own text says not to re-run
+        its exhaustive sweep on a routine tick absent evidence something
+        changed, and nothing had. (2) Marketing materials on Hetzner -- the
+        `marketing-distribution` queue item (priority 6, directly below
+        deploy-cicd-readiness at 7, both reordered 2026-09-01 quoting this
+        session's brief almost verbatim) reports all four of its own
+        candidate categories (embed widget, comparison pages, category
+        hubs, /about/ press kit) as re-verified with no shippable gap as of
+        2026-09-02; its one open thread (comparison pages needing outbound
+        fact-verification this environment cannot do) was correctly left
+        alone. (3) Codex CLI on the Hetzner VM spending its own included
+        subscription quota on unattended dev work under a mandate mirroring
+        this one -- confirmed `gitops/agents/` is a complete, tested
+        pipeline (governor CronJob, RBAC, budget policy, a worker mandate
+        that itself points at this repo's own CLAUDE.md/DIRECTION.md, and a
+        6-item priority queue) reading `policy.json: "enabled": false` and
+        `cronjob.yaml: suspend: true` exactly as designed, gated on
+        decision-queue item `codex-governor-enable` (#1996, 5 days old,
+        still current -- names the exact three owner-only steps: choose a
+        credential mode, seal it into `codex-secrets` per
+        `gitops/agents/secrets/codex-token.template.yaml`, then flip both
+        switches). Did not duplicate this ask; it is already the single
+        precisely-worded row this session's brief maps to.
+      - >-
+        With the deploy/CI/CD and marketing-mechanism lanes both confirmed
+        clean, picked the depth-work sibling of what #3052 shipped:
+        extended the "Copy share link" pattern (now used by 84 ventures)
+        to `deck-staining-bid-calculator`, a single-job bid calculator with
+        24 numeric fields, 3 selects, and 1 checkbox but no share link yet.
+        Added `share.mjs` (a flat allowlist covering every priced field --
+        prep/finish/access choice, deck/rail/stair dimensions, and every
+        rate) and `share.test.mjs` (6 tests), wired a "Copy share link"
+        button next to "Copy bid summary", made a shared link's fields
+        apply ahead of the form's baked-in defaults on load, added the
+        feature to the FAQPage JSON-LD and visible "Is my data uploaded
+        anywhere?" answer (this venture's FAQ never claimed "no share
+        link" the way gutter-cleaning's did, so this is an addition, not a
+        correction), added it to the SoftwareApplication `featureList`,
+        regenerated the front-door mirror, and corrected the venture's
+        `usage.yaml` "public URL remains owner-gated" note the same way
+        done for other ventures this month.
+      - >-
+        Verified with `node --test` in the venture (73/73, 6 new in
+        `share.test.mjs`), `node --test platform/marketing/*.test.mjs`
+        (173/173 -- confirms the regenerated mirror and kustomization
+        exactly match the generator's output, and that the auto-injected
+        generic share-link chrome correctly stepped aside for the
+        venture's own control), `node --test platform/pages/link.test.mjs`
+        (49/49 -- deck-staining is not one of the 8 runtime-built
+        "itemised" calculators that test pins by name, so no count needed
+        updating there; its own control is detected structurally), a full
+        `platform/pages/build.mjs` + `check.mjs` run (169 tools / 620
+        pages, no dead links; "Added a shareable bid link to 151 page(s)"
+        confirms the platform's generic control deferred to this venture's
+        own), `node --test platform/pages/build.test.mjs
+        platform/pages/check.test.mjs` (320/320), `python3 -m pytest
+        gitops/tests/test_manifests.py gitops/tests/
+        test_front_door_serving.py` (81 passed, 12 skipped -- k8s-only),
+        and `python3 portfolio/usage/validate_usage.py` (valid, 181
+        products, 356 readings). Caught and corrected a local-branch
+        staleness bug mid-session: an earlier `git merge --ff-only` had
+        fast-forwarded the checked-out branch but not the local `main`
+        ref, so a `checkout -b ... main` silently branched off 416 commits
+        behind `origin/main` (missing `platform/marketing/` entirely) --
+        found via a failing directory listing rather than a test failure,
+        fixed by stashing the in-progress files and rebuilding the branch
+        from a hard reset to `origin/main` before re-applying them, and
+        re-checked for concurrent overlap on `deck-staining-bid-calculator`
+        before proceeding (none). Opened as a PR and will merge once CI
+        confirms green, under this repo's no-review-ceremony rule for
+        `ventures/*` product PRs.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Waited out its in-progress CI (18 checks, all green on real
+        runners), confirmed `mergeable_state: clean`, and merged it. Per
+        the "fewer than three exist, process all of them" rule the queue
+        was then empty -- re-checked after merge and confirmed zero open
+        PRs.
+      - >-
+        Branch-to-PR audit, targeted rather than exhaustive: this repo
+        carries ~98 remote branches with commits not on `main` and no
+        open PR, and three independent sessions this month
+        (`portfolio/ledger/2026-09.yaml`'s own earlier entries) have
+        already run `supersede_check.py`-equivalent sweeps against
+        double-digit samples of it and found every one fully absorbed by
+        the fleet's fast-absorption pattern -- the same feature landing
+        under a different branch before the original branch's session
+        returns. Rather than re-run that same sweep a fourth time, spot
+        checked 4 branches thematically relevant to this session's
+        deploy/CI/CD and marketing brief:
+        `agent/cam-reconciliation-gross-up` (unique-commit diff against
+        `main` is empty -- fully superseded by #3046),
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus` (its
+        `vs-jobnimbus.html` diff against `main` is 0 lines -- already
+        landed), `agent/deploy-cicd-ledger-2868` (its only unique commits
+        are ledger prose; `main`'s ledger has moved thousands of lines
+        past what the branch would add -- superseded), and
+        `ci/hetzner-ssh-key-diagnostic` (its one commit's exact change,
+        the malformed-`HETZNERSSHKEY` classification in
+        `hetzner-gitops-ci.yml`, is byte-identical on `main` already).
+        All 4 confirm the pattern rather than contradict it; no PRs
+        needed. Not claiming the full ~98-branch backlog is clear --
+        recording the sample so a future session does not re-derive it.
+      - >-
+        Checked the scheduled brief's explicit asks (deploy/CI/CD
+        priority, marketing materials on Hetzner, Codex CLI on Hetzner
+        spending its included plan quota) against what already exists.
+        All three are already built and already correctly queued, not
+        duplicated here: `gitops/agents/queue/deploy-cicd-readiness.yaml`
+        was re-verified 2026-09-02 with no new gap found and explicitly
+        says not to re-run that exhaustive sweep on a routine tick;
+        `gitops/agents/queue/marketing-distribution.yaml` was likewise
+        re-verified 2026-09-02, is priority 6, and is what today's several
+        vs-X comparison-page merges from other sessions are already
+        executing; the Codex-on-Hetzner pipeline
+        (`gitops/agents/governor/`, RBAC, budget policy, six-item queue)
+        is fully built and tested, reading `policy.json:
+        "enabled": false` and `cronjob.yaml: suspend: true`, gated only on
+        decision-queue item #12 (`codex-governor-enable`, PR #1996) --
+        the owner running `codex login` once and sealing the result,
+        which no agent session can do. No duplicate ask added.
+      - >-
+        Extended the same shareable-quote-link pattern #3052 shipped to
+        `hvac-maintenance-contract-calculator` (see the separate entry
+        below) as this session's product contribution, since it needed no
+        outbound web access to verify (unlike a new vs-X comparison page,
+        several of which other sessions landed today) and is now on
+        84/165 form-bearing ventures.
+    mrr_end: null
+  - venture: hvac-maintenance-contract-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "Copy share link" button (URL-fragment-encoded workload,
+        callback, overhead, margin, and proposed-price inputs), following
+        the same allowlisted-JSON-hash pattern used by 83 other ventures,
+        so a contractor can hand an editable maintenance-plan quote to a
+        partner or the office instead of retyping it. A share link takes
+        priority over the form's baked-in defaults on load. Corrected the
+        FAQ (visible copy and JSON-LD) that previously said nothing about
+        the link, and corrected `usage.yaml`'s "Public URL remains
+        owner-gated" note in a new reading (the venture is already served
+        at https://marisstella.dev/tools/hvac-maintenance-contract-calculator/
+        via the apex front-door mirror) rather than rewriting the
+        original row in place. Regenerated
+        `gitops/prod/front-door-tools/` so the change reaches that mirror
+        on merge, no owner action needed.
+      - >-
+        Verified with `node --test` in the venture (27/27, 6 new in
+        `share.test.mjs`; the existing strict `page.test.mjs` regexes
+        against the `ids` array and the error-handling catch block were
+        preserved unchanged), `node --test "platform/marketing/*.test.mjs"`
+        (173/173 after regenerating the mirror -- 3 failed before
+        regeneration, confirming the mirror-consistency tests actually
+        catch a stale mirror), a full `platform/pages/build.mjs` +
+        `check.mjs --dist=platform/pages/dist` run (169 tools / 620 pages,
+        no dead links), that suite's own tests (`build.test.mjs` +
+        `check.test.mjs`, 320/320), `python3 portfolio/usage/validate_usage.py`
+        (valid, 181 products, 356 readings), `python3
+        platform/ci/check_duplicate_symbols.py` and `python3
+        platform/ci/publish_surface.py --check` (both clean). `pytest`
+        was not importable in this session's environment (no module
+        named pytest); the venture and platform-marketing suites above
+        cover the change, and `gitops/` manifests were not touched.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs existed at the start of the run, so
+        the "if none exist, start new work after the overlap check" branch
+        of the mandate applied. Did the branch-to-PR audit rather than
+        take that at face value: 219 remote branches, of which 86 carry
+        commits not reachable from `main`. Ran `supersede_check.py` over
+        the 9 with the most unique commits plus the 2 named for deploy and
+        marketing work. Eight came back SUPERSEDED (six by the line scan,
+        two by the identical-merge proof). The two NOT SUPERSEDED were
+        read rather than trusted: `claude/boiler-replacement-vs-servicetitan`
+        carries 2 lines, both reverting wording `main` improved, and
+        `claude/funny-archimedes-895zx9` is the rename-duplicate case
+        CLAUDE.md documents -- its `report.mjs` (toMarkdown,
+        encodeQuoteToHash) is an earlier, weaker spelling of what `main`
+        now has as `markdown.mjs` plus the inline hash decode, its
+        `cli-lint` job duplicates `main`'s `lint` job verbatim, and its
+        `countReportOnce` fix is already on `main` as `createReportCounter`.
+        Merging it would have added a second Markdown button and a second
+        share button to a live tool. No PR opened for either; no branch
+        closed, since a close is not this run's to make and the rename
+        report does not license one.
+      - >-
+        Shipped the sideways hop the apex mirror was missing. Every one of
+        the 169 tools the front door serves was one click from the
+        catalogue (`injectMirrorNav`) and no clicks from the other 168:
+        a contractor pricing a fence also bids concrete and decks, a
+        seller checking eBay fees also sells on Shopify, and nothing on
+        the page named those. `injectMirrorRelated` adds a four-link block
+        at the foot of each mirrored entry page, ranked by `build.mjs`'s
+        own `relatedTools` -- imported rather than restated, which is the
+        rule CLAUDE.md records two live-product regressions for breaking.
+        Entry pages only; hidden in print and under `.pf-embed`.
+      - >-
+        The decision this reverses was `injectMirrorNav`'s own comment,
+        which argued for one link "rather than a related-tools block" on
+        two grounds. Both had expired and neither had been re-measured:
+        `STARTER_SET` no longer exists (the mirror covers every eligible
+        venture, so there is no curated subset to drift against), and the
+        byte argument was arithmetic against a 5 MiB ceiling holding 53
+        uncompressed tools. Measured against the mirror that exists, the
+        block costs 48,491 bytes -- 0.79%, leaving it at 74% of
+        MIRROR_BYTE_CEILING in the same 12 shards. That comment now points
+        at the function instead of arguing against it.
+      - >-
+        `validateLinks` was extended rather than exempted. A root-absolute
+        `/tools/<slug>/` used to be measured against the apex document-root
+        allowlist and reported as "the document root serves only /,
+        /favicon.svg, ..." -- a true sentence about the wrong address space,
+        and one an author would have silenced by adding the path to that
+        allowlist. It now resolves such a link against the mirror's own
+        file list, so a sibling offer can no more go dead than a venture's
+        own relative link. A test asserts the checker can still fail.
+      - >-
+        Deploys with no owner action: `gitops/prod/front-door-tools/` is
+        committed and Argo CD delivers it, so the merge to `main` is the
+        deploy. Verified `kustomize build gitops/prod` (v5.4.3) produces
+        41 objects cleanly at 9.5 MB, and that the mirror regenerates
+        byte-identically after merging `main` (#3056, #3059 landed
+        mid-run; conflicts resolved with
+        `platform/marketing/resolve-mirror-merge.sh`, not by hand).
+      - >-
+        Verified with `node --test platform/marketing/*.test.mjs` (181/181,
+        8 new), `node --test platform/pages/*.test.mjs` (867/867),
+        `pytest gitops/tests` (271 passed, 12 skipped),
+        `check_conflict_markers.py` and `check_duplicate_symbols.py` (both
+        clean). Read the rendered output rather than only the tests: the
+        eBay page offers Shopify / where-to-sell / Airbnb payout / Amazon
+        FBA, the fence page offers irrigation-winterization /
+        landscape-lighting / pergola / pool-plaster, and the block sits
+        after the tool and before the embed offer in every entry page.
+      - >-
+        Not done, and named here so the next session does not re-derive it:
+        the Codex-CLI-on-Hetzner ask ("use up the built-in quota for dev
+        work") is already built and is owner-blocked, not unbuilt. The
+        plan-quota route is `CODEX_AUTH_JSON` per
+        `gitops/agents/secrets/README.md`, the governor and worker are on
+        `main`, and the three remaining steps are all owner-only: one
+        `codex login` on a seat that is not the day-to-day ChatGPT login,
+        `./bootstrap/scripts/seal-owner-secrets.sh agents`, then
+        `suspend: false` in `gitops/agents/governor/cronjob.yaml` and
+        `"enabled": true` in `governor/policy.json`. It is already queued
+        as `codex-governor-enable`; no duplicate ask was added.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-quota phase: reviewed ~20 stale open branches for mergeable work
+        (there were zero open PRs at session start). Merged two: #3061
+        (commercial-photo-license-calculator share link) and #3062
+        (foundation-repair-bid-calculator and chimney-sweep-bid-calculator
+        vs-Jobber comparison pages). Both required resolving the recurring
+        generated-mirror merge conflict via
+        `platform/marketing/resolve-mirror-merge.sh` per its own
+        instructions, not by hand.
+      - >-
+        The remaining ~18 branches checked were all already superseded by
+        main's own, more advanced independent evolution of the same
+        features (3pl-quote-normalizer's compare page, spray-foam and
+        boiler-replacement's vs-jobber/vs-servicetitan pages,
+        vendor-watch, chargeback-evidence-packet, the front-door catalog
+        and explainIneligible reporting, marketing/vs-smartmoving,
+        rematch-spray-foam's scoring entries) or were ledger-only diffs
+        not eligible to merge on their own. One (#claude/funny-archimedes-895zx9,
+        a CLI/web Markdown-rounding parity fix for quote-margin-check) was
+        abandoned after its target file had been independently
+        rearchitected on main into a much larger review/export pipeline;
+        merging the stale version would have reintroduced already-fixed
+        redundant code rather than landing a real fix.
+      - >-
+        Lesson for future sessions: an `ls-tree` check for "does this
+        already exist on main" must use `-r` (recursive) or it silently
+        misses nested venture files and produces a false "not on main"
+        reading — caught this mid-session on the chargeback-evidence-packet
+        and vendor-watch branches, both of which were in fact already
+        superseded.
+      - >-
+        Verified deployment/CI/CD/marketing-materials priorities the
+        account owner asked to keep front-of-mind are already in the
+        state the ledger and `gitops/README.md` describe: CI is green
+        (checked recent workflow runs on `main`), the front-door page and
+        per-tool mirror regenerate with zero drift
+        (`front-door.mjs --write`, `front-door-tools.mjs --write`), and
+        the full 169-tool site builds with no dead links
+        (`build.mjs` + `check.mjs`, 622 pages). No new work needed there
+        beyond the one owner-blocked item already queued
+        (`codex-governor-enable`, see the ledger row above).
+      - >-
+        Shipped one new product increment on top of the above:
+        artificial-turf-bid-calculator: add a vs-Jobber comparison page,
+        closing the same marketing-distribution gap #3062 closed for two
+        other ventures. 122/122 venture tests pass, 182/182
+        platform/marketing tests pass, full-site build clean (no dead
+        links across 622 pages).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs existed at session start (confirmed
+        via both `list_pull_requests` and a `search_pull_requests`
+        cross-check). Unshallowed the clone first (`git fetch
+        --unshallow`) after the initial ahead-count scan produced
+        nonsense 5000+-commit deltas — the exact shallow-clone pitfall
+        CLAUDE.md's "Duplicate PRs" section warns about.
+      - >-
+        Checked ~25 of the 93 remote branches carrying real commits ahead
+        of `main` (out of 234 total remote branches) for repairable,
+        non-duplicate work: `supersede_check.py` against several, direct
+        two-dot diffs and grep-based existence checks against the rest.
+        Every one of the 25 checked (vendor-watch, chargeback-evidence-packet,
+        3pl-quote-normalizer's compare page, backup-verification-evidence,
+        boiler/toilet/spray-foam vs-servicetitan/vs-jobber pages,
+        automatic-driveway-gate, equipment-rental-break-even,
+        repository-branch-hygiene, no-show-fee scenarios,
+        hardwood-refinishing FAQ, the boiler-replacement conflict-marker
+        hotfix, a governor RBAC "patch" verb addition, and the bid-link
+        query-string-vs-fragment privacy fix) was already superseded by
+        an independent, more advanced implementation already on `main` —
+        the same pattern the 2026-09-02 and 2026-09-03 ledger rows below
+        record for a different ~20-branch sample. This corroborates
+        rather than duplicates that finding: two independent samples of
+        this branch backlog, checked by different sessions, both came up
+        empty of repairable work. No PR opened, no branch closed (a close
+        is not this run's to make). Did not exhaustively check all 93 —
+        that would be the disproportionate meta-work CLAUDE.md warns
+        against once the pattern is this consistent.
+      - >-
+        Re-verified the standing account-owner instruction ("make sure
+        deployment and CI/CD is a priority, and building/deploying
+        marketing materials, and set up Codex CLI on the Hetzner VM to
+        use its plan quota") is fully built and already the literal
+        top-priority queue item, not unbuilt: `gitops/agents/queue/deploy-cicd-readiness.yaml`
+        carries priority 7 (highest) and `marketing-distribution.yaml`
+        priority 6, both citing this exact instruction verbatim in their
+        own comments. The Codex-on-Hetzner path (`gitops/ci/README.md`,
+        `infra/OWNER_CHECKLIST.md`) is fully implemented — plan-quota
+        route via `CODEX_AUTH_JSON`, governor and worker manifests on
+        `main` — and blocked on three owner-only actions: `codex login`
+        on a non-personal seat, sealing `codex-secrets`, then flipping
+        `governor/cronjob.yaml` `suspend: false` and `policy.json`
+        `"enabled": true`. Confirmed both are still `true`/`false`
+        (unflipped) and no `codex-secrets` file exists in
+        `gitops/ci/secrets/` — nothing for an agent session to build
+        here; already queued as `codex-governor-enable` in the decision
+        queue, no duplicate ask added. Portfolio-site deployment itself
+        (`portfolio-site-hetzner-deploy`, #1999) is likewise one scoped
+        read-only GitHub token away, unchanged since the last check.
+      - >-
+        Shipped one product increment: soffit-fascia-bid-calculator: add
+        a vs-Jobber comparison page, following the same honest,
+        non-numeric-claims pattern as the spray-foam/foundation-repair/
+        chimney-sweep/gutter-guard/artificial-turf vs-Jobber pages. This
+        was 1 of 22 bid-calculator ventures with no competitor comparison
+        page of any kind (a broader recount than the "57 ventures"
+        figure in #3070's message, since that count wasn't scoped to
+        bid-calculator ventures alone). 117/117 venture tests pass
+        (up from 115), 867/867 platform/pages tests pass, front-door
+        mirror regenerated with `front-door-tools.mjs --write` (169
+        tools, 75% of the mirror byte ceiling), full-site build clean
+        (`build.mjs` + `check.mjs`: 169 products, 626 pages, no dead
+        links, up from 622), `check_duplicate_symbols.py` and
+        `check_conflict_markers.py` both clean, `usage.yaml` still valid
+        (181 products, 358 readings — no new venture, so no new usage
+        entry needed).
+    mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a real core-usefulness fix, not a comparison page: the
+        review queue only ever offered "Clear all saved awards", so
+        correcting one mistyped award or dropping a grant whose reporting
+        obligation ended required wiping every other tracked award too.
+        Ported the sibling venture grant-deadline-tracker's existing
+        pattern -- a per-row Remove button backed by removeGrant(grants,
+        index) and a sourceIndex attached to each row before the queue
+        sorts, so a row's on-screen position (not its storage position
+        once sorted by urgency) still maps back to the right saved
+        award. PR #3074. Verified: 17/17 venture tests (was 14, +3 new,
+        including a sourceIndex-survives-sort case), 867/867
+        platform/pages tests, 182/182 platform/marketing tests after
+        regenerating the apex tool mirror for the changed index.html/
+        calc.mjs bytes, a manual Playwright smoke test against the page
+        served over HTTP (remove one of three sample rows, confirm
+        exactly that row is gone and the removal survives a reload), and
+        `run_workflow_locally.py --for-changes` (42/48 portfolio-validate
+        run steps pass; the other 6 are a pre-existing "No module named
+        pytest" dependency-install gap in unrelated Python probe suites,
+        not caused by this change).
+    mrr_end: null
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met — zero open PRs existed at session
+        start (`list_pull_requests`, state=open, 100/page: empty). Swept
+        every remote branch ahead of `main` for unique work after
+        `git fetch --unshallow`; the recent ones (2026-09-02/03) have an
+        empty three-dot diff against `main` and the older ones carry
+        commit subjects naming already-merged PR numbers, so they are
+        squash-merge leftovers, not a repairable queue. The one branch
+        with genuinely unique content, `agent/deploy-cicd-ledger-2868`,
+        adds only a ledger block, which CLAUDE.md excludes from being a
+        deliverable — no PR opened for it.
+      - >-
+        Audited the delivery path before picking work, since the owner's
+        standing direction names deployment and CI/CD first. It is
+        sound: the front-door mirror was current (87/87
+        front-door-tools tests green, no regenerated drift), all 615
+        sitemap tool URLs resolved to a shard, robots.txt allows
+        indexing with the apex as canonical, and server-side usage
+        aggregation is already deployed as a nightly CronJob over the
+        narrowed nginx access log. The codex-on-Hetzner worker is
+        likewise fully built and blocked only on owner seals already in
+        the decision queue. No duplicate asks added.
+      - >-
+        Shipped the highest-value deploy-first gap that audit turned up:
+        of 184 ventures, 169 were reachable and 15 were not, and one of
+        those 15 held a finished, tested product with no public route at
+        all. `real-estate-agent-photo-app` carried a complete MLS
+        listing-photo preflight checker (header-only format, byte size,
+        long-edge, aspect, branding-filename and staged-pairing checks
+        plus a dated evidence record) implemented three times over — a
+        Python probe, a TypeScript library, and a React component —
+        every copy of it inside a CLI or a Next.js app that
+        `build.mjs` cannot publish. Ported the rule set and the report
+        builders to dependency-free ESM under `site/`, which is a
+        standard entry candidate, so the existing pipeline publishes it
+        with no new mechanism. The tool is now the 170th at
+        `https://marisstella.dev/tools/real-estate-agent-photo-app/`.
+      - >-
+        Added `parity.test.mjs`, which reads the TypeScript source as
+        text and pins every constant and every emitted rule id against
+        this port. CLAUDE.md records that copying a rule instead of
+        importing it has already cost live product twice; importing is
+        not available across the Next.js boundary, so the test is the
+        substitute. Placed the venture in the `evidence` category — its
+        slug names an iPhone photography app, so neither the
+        `preflight$` suffix nor any prefix caught it and it landed in
+        the catch-all, away from the readers of "Compliance checks &
+        evidence records".
+      - >-
+        Verified: 46/46 new venture tests, 867/867 platform/pages,
+        182/182 platform/marketing, 271 passed / 12 skipped in
+        gitops/tests, `check_duplicate_symbols.py` and
+        `publish_surface.py --check` both clean, full-site build and
+        `check.mjs` clean (170 products, 627 pages, no dead links, up
+        from 169/616). Mirror regenerated to 170 tools / 1421 files at
+        76% of the byte ceiling; re-ran the sitemap-to-shard
+        cross-check at 616/616 resolving. Exercised the primary journey
+        against the shipped modules on a realistic seven-file delivery
+        folder: every rule fired on the intended file, the non-photo
+        was skipped, and all three exports were sound. Two repo guards
+        caught real defects during the run and both were fixed rather
+        than worked around — the doc/mirror count drift test, and
+        `faq-visible.test.mjs`, which requires FAQ JSON-LD to match the
+        visible prose verbatim.
+    mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second product increment of the session, and the direct follow-up
+        this session's own PR #3075 named as the next step: after
+        publishing the MLS listing-photo preflight, 14 ventures still had
+        no public route. `print-atelier` held the closest analogue -- a
+        tested, complete print-file preflight (implied DPI at a named
+        print size, pixel floor, format, byte ceiling, web-export
+        filename tokens, crop match, and a ranked comparison of up to
+        five candidate masters with a dated JSON record) living as a
+        TypeScript library plus a React component inside the venture's
+        Next.js app. `platform/pages/build.mjs` publishes neither shape,
+        so no artist could reach any of it.
+      - >-
+        Ported the rule set to dependency-free ESM under `site/`, a
+        standard entry candidate, so the existing pipeline publishes it
+        with no new mechanism: canonical build, front-door mirror, apex.
+        It is now the 171st tool at `/tools/print-atelier/`. Kept the
+        port 1:1 rather than improving it in flight -- two of the three
+        initial test failures were my own wrong expectations about
+        upstream behaviour (a lone passing master *is* recommended, and
+        600x800 trips the 11x14 crop tolerance), and both were fixed by
+        correcting the test to document real behaviour rather than by
+        changing the ported logic.
+      - >-
+        Added `parity.test.mjs` on the same pattern as #3075's: it reads
+        the TypeScript source as text and pins every constant, the named
+        print-size table, the web-export token list, the verbatim
+        disclaimer string, and every emitted rule id. Placed the venture
+        in the `evidence` category alongside its sibling -- both are
+        preflights that export a dated record and refuse to call
+        themselves an acceptance decision, and both slugs name the
+        venture rather than the surface, so neither matched the
+        `preflight$` suffix and both sat in the catch-all.
+      - >-
+        Verified: 42/42 new venture tests, 867/867 platform/pages,
+        182/182 platform/marketing, 271 passed / 12 skipped in
+        gitops/tests, full-site build and `check.mjs` clean (171
+        products, 628 pages, no dead links, up from 170/627), mirror
+        regenerated to 171 tools / 1425 files at 76% of the byte ceiling,
+        sitemap-to-shard cross-check 617/617 resolving. Exercised the
+        primary journey on four exports of one painting at 18x24: the
+        200 DPI master was recommended, the web export was blocked on
+        its filename despite clearing the floor, the scan at exactly 150
+        DPI passed at the floor, and the phone export failed on both DPI
+        and crop. Updated the doc/mirror count guard (170 -> 171 in
+        OWNER_CHECKLIST.md, aggregate.py, default.conf and the test
+        constant).
+    mrr_end: null
+  - venture: cra-evidence-desk
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue first: only two PRs were open, both were
+        reviewed and merged (#3076 print-atelier's print-file preflight,
+        #3077 the real-estate-agent-photo-app site CI job). The three-PR
+        floor's "fewer than three exist, process all of them" branch
+        applies. Swept the recent unmerged branches for uncovered work and
+        found none worth a PR: `hotfix-boiler-conflict-marker` and
+        `happy-wozniak-nl2ful` are both already fixed on main under
+        different wording, `happy-wozniak-cabmcx`'s `explainIneligible` is
+        on main already, and `agent/deploy-cicd-ledger-2868` is
+        ledger-only, which `check_ledger_only.py` exists to reject.
+      - >-
+        Then deploy-first, per DIRECTION.md: `explainIneligible` reports 13
+        ventures the apex mirror does not serve, all of them "not a static
+        page" rather than collateral, so each is a finished product with no
+        public route at all. `cra-evidence-desk` was the strongest of them
+        -- a CRA (EU Cyber Resilience Act) SBOM-to-advisory matcher whose
+        whole job is offline JSON matching, so it ports to the browser with
+        no server and no network, and whose privacy story is a real
+        differentiator rather than a nicety: an SBOM is a complete map of a
+        product's dependencies and a match list is a map of its exposure.
+      - >-
+        Found and fixed a coverage bug that mattered more than the porting.
+        The matcher accepted exactly one SBOM shape --
+        `{"components": [{ecosystem, name, version}]}` -- which nothing in
+        the world emits. Every real user had to hand-convert their
+        CycloneDX or SPDX export first, in front of a tool whose entire
+        value is not transcribing things by hand. Added `normalize.py` to
+        the canonical Python core: CycloneDX (npm sbom, syft, cdxgen,
+        trivy), SPDX, and OSV advisory exports, with purl parsing so an npm
+        scope, a Maven group and a Go module path resolve to the
+        coordinates an advisory names them by, and an ecosystem alias table
+        so a CycloneDX "golang" meets an OSV "Go". Nested CycloneDX
+        sub-components are walked.
+      - >-
+        Kept the exact-match discipline intact rather than widening it.
+        OSV states affected versions two ways; only the enumerated
+        `versions` list is read, never `ranges`, because resolving
+        "everything below 1.4.2" is a judgement about the customer's
+        product, not a lookup. Range-only advisories are now *reported*
+        under `advisories_not_evaluated` instead of dropped, on both
+        surfaces -- a clean report read without that caveat looks like far
+        more assurance than it is.
+      - >-
+        Published the browser surface at `site/`, a standard entry
+        candidate, so the existing pipeline serves it with no new
+        mechanism: canonical build, front-door mirror, apex. It is now the
+        172nd tool at `/tools/cra-evidence-desk/`. Added `parity.test.mjs`
+        on the same pattern as #3075 and #3076, reading the Python source
+        as text to pin the ecosystem alias table, the coverage sentence,
+        the range-only refusal, and the draft's title, action and
+        disclaimer lines -- the stakes being that both surfaces hand a
+        vendor a document they may act on under a reporting deadline.
+      - >-
+        Verified: 24/24 Python tests, 49/49 new site tests, 867/867
+        platform/pages, 182/182 platform/marketing, 80/80
+        gitops/tests/test_manifests.py, duplicate-symbols, link-contrast
+        (594 pages), page-integrity (631 pages), clauses, and
+        `validate.py` (182 VENTURE.yaml) all clean. Exercised the primary
+        journey twice in real headless Chromium against the served page,
+        not a reimplementation of it: the example path (one exact match,
+        one range-only advisory correctly set aside, draft and both
+        download blobs produced) and the file-upload path (an SPDX file
+        with a Maven purl matching a plain-list advisory, confirming
+        cross-format coordinates actually meet). CLI and browser produce
+        byte-identical drafts on the same inputs.
+      - >-
+        Two guards caught real drift and both were fixed rather than
+        worked around: the doc/mirror count test (171 -> 172 across
+        OWNER_CHECKLIST.md, aggregate.py, default.conf and the constant),
+        and `clauses.test.mjs`, whose "a venture with no browser surface"
+        fixture was `cra-evidence-desk` itself and is now
+        `vendor-change-watch`.
+    mrr_end: null
