@@ -6940,3 +6940,47 @@ entries:
         still blocked only on the owner sealing `codex-secrets` and flipping
         `suspend: false` / `enabled: true`. Nothing for a session to build.
     mrr_end: null
+  - venture: snow-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR/branch drain re-verified before new work: 0 open PRs at session
+        start. Spot-checked the 7 branches with the most commits not on
+        `main` by ahead-count (tmp/ssh-key-smoke, agent/deploy-cicd-ledger-2868,
+        agent/marketing-distribution-gutter-guard-vs-jobnimbus,
+        claude/festive-mccarthy-xrn3ua, claude/sharp-volta-j555wn,
+        marketing/vs-smartmoving-moving-bid-calculator,
+        pipeline/dns-evidence-monitor, rematch-spray-foam) -- all fully
+        superseded, already landed on `main` under different final
+        commits/names. No repairable backlog found.
+      - >-
+        CI/CD readiness and marketing-distribution queue items re-checked
+        rather than re-swept: both already report full coverage as of
+        2026-09-02 (deploy-cicd-readiness.yaml, marketing-distribution.yaml
+        headers). Independently confirmed healthy today: `pytest gitops/tests
+        -q` 269 passed / 7 skipped, `publish_surface.py --check` and
+        `check_duplicate_symbols.py` both clean, full
+        `platform/pages/build.mjs` + `check.mjs` run -- 169 products, 600
+        pages, no dead links.
+      - >-
+        Codex-CLI-on-Hetzner ask (recorded again this session by the account
+        owner) is already fully built in `gitops/agents/` -- governor,
+        worker, dual auth modes including the plan-quota
+        `CODEX_AUTH_JSON` route the owner asked for -- and gated only on the
+        owner sealing `codex-secrets` and flipping `suspend`/`enabled`
+        (decision-queue row `codex-governor-enable`, #1996). Not duplicated.
+      - >-
+        Shipped: fixed a real crash in
+        `ventures/snow-removal-bid-calculator/index.html` (#2993) --
+        `proposedSeasonal.breakEvenSnowEvents.toFixed()` was called
+        unguarded even though `calc.mjs` can return that field `null` (an
+        ice-only route, `costPerSnowEvent === 0`), so entering a proposed
+        seasonal price against such a route threw uncaught mid-render and
+        silently dropped the verdict comparison with no error shown. Found
+        via a targeted bug-hunt across ~60 ventures untouched by the last 60
+        commits. Fixed with a null-checked local; added a calc.test.mjs case
+        pinning the zero-cost contract and a page.test.mjs regression check.
+        Verified: venture suite 72/72 (was 71/72 pre-fix), full site build
+        clean, suite re-run green after rebasing onto latest `main`.
+    mrr_end: null
