@@ -6,6 +6,8 @@
 // unexpected behavior.
 
 export const SHARE_FIELDS = Object.freeze([
+  'patternId',
+  'useId',
   'lengthFeet',
   'widthFeet',
   'wastePct',

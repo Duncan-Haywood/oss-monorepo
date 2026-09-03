@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addMonths, reviewAll, reviewGrant, toCsv, loadGrants, sampleGrants } from './calc.mjs';
+import { addMonths, reviewAll, reviewGrant, toCsv, loadGrants, sampleGrants, removeGrant } from './calc.mjs';
 
 test('adds months without overflowing short months', () => {
   assert.equal(addMonths('2026-01-31', 1), '2026-02-28');
@@ -96,6 +96,39 @@ test('the sample rows carry the fields the queue and CSV read', () => {
   }
   // A fully spent award is worth showing: the balance column reads 0.00, not blank.
   assert.equal(rows.find((row) => row.name === 'Winter shelter capital').restrictedBalance, 0);
+});
+
+test('reviewAll attaches the source array index, surviving the sort so a queue row can be removed by identity', () => {
+  // The queue is sorted by daysUntilReport, so a row's on-screen position is
+  // not its position in the saved grants array. Before sourceIndex existed
+  // there was no way to translate "the third row on screen" back into "the
+  // grant actually at index 2 in storage" -- the only removal available was
+  // wiping every saved award at once.
+  const rows = reviewAll([
+    { name: 'Soonest', awardDate: '2025-01-01', intervalMonths: 1, awardAmount: 10, spentAmount: 0 },
+    { name: 'Latest', awardDate: '2026-01-01', intervalMonths: 12, awardAmount: 10, spentAmount: 0 },
+    { name: 'Middle', awardDate: '2026-06-01', intervalMonths: 1, awardAmount: 10, spentAmount: 0 },
+  ], '2026-08-24');
+  // Sorted by urgency, not input order:
+  assert.deepEqual(rows.map((r) => r.name), ['Soonest', 'Middle', 'Latest']);
+  // But each row still points back at its own slot in the original array:
+  assert.deepEqual(rows.map((r) => r.sourceIndex), [0, 2, 1]);
+});
+
+test('removeGrant drops exactly the award at the given source index', () => {
+  const grants = [{ name: 'A' }, { name: 'B' }, { name: 'C' }];
+  assert.deepEqual(removeGrant(grants, 1), [{ name: 'A' }, { name: 'C' }]);
+  // The original array is untouched -- the page still owns replacing it.
+  assert.equal(grants.length, 3);
+});
+
+test('removeGrant is a no-op on an out-of-range or malformed index, rather than deleting the wrong row', () => {
+  const grants = [{ name: 'A' }, { name: 'B' }];
+  assert.deepEqual(removeGrant(grants, -1), grants);
+  assert.deepEqual(removeGrant(grants, 2), grants);
+  assert.deepEqual(removeGrant(grants, 1.5), grants);
+  assert.deepEqual(removeGrant(grants, NaN), grants);
+  assert.deepEqual(removeGrant(null, 0), []);
 });
 
 test('sampleGrants survives an unusable today', () => {

@@ -57,11 +57,23 @@ Argo applies it from `main`, so it needs no Actions run and no Pages flip.
 That makes it the portfolio's first surface a stranger can actually reach,
 and it went up on a merge with no owner action.
 
-This does not replace the row above or reduce the seal's value — the front
-door is one page describing the collection, and every category card on it
-links into `tools.marisstella.dev`. The seal is still what puts 169 tools
-in front of anyone. What changed is that the domain is no longer a dead
-redirect while that waits. The DNS record
+This does not replace the row above, but it does reduce what the seal is still
+for. **Corrected 2026-09-03:** this paragraph used to say "the front door is one
+page describing the collection, and every category card on it links into
+`tools.marisstella.dev`. The seal is still what puts 169 tools in front of
+anyone." Neither half is true, and a session reading it mis-ranks its whole run
+— the same correction `CLAUDE.md` already carries.
+
+- The apex **serves the 169 tools itself**, at `/tools/<slug>/`, from the
+  mirror in `gitops/prod/front-door-tools/`. The seal buys no tool a stranger
+  cannot already reach.
+- The category cards link to `https://marisstella.dev/c/<id>/` — seven browse
+  pages this host renders and serves. They pointed at the dark host once; they
+  have not since the cards were fixed, and since 2026-09-03 they point at real
+  pages rather than at fragments.
+
+What the seal still buys is the canonical hostname and indexability under it.
+Worth doing, and not the difference between a dead end and a product. The DNS record
 turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
 the subdomain, verified 2026-08-29), and the ACME contact stopped being a
 step on 2026-08-30 — an ACME account contact is optional, so the issuers

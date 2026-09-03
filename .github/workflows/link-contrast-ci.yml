@@ -51,6 +51,11 @@ concurrency:
 jobs:
   link-contrast:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A node --test run plus a contrast sweep over every venture page --
+    # normally under 30s. See hetzner-gitops-ci.yml's timeout-minutes
+    # addition for why an unbounded job is worth capping on a
+    # metered-minutes account.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

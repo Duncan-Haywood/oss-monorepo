@@ -483,15 +483,21 @@
 
       const verdict = el("verdict");
       verdict.hidden = false;
+      // expectedMargin is null whenever expectedRevenue is 0 -- a 100% return
+      // rate (every order comes back) is the realistic way a seller hits
+      // this, and it does not imply belowBreakEven: a SKU with no per-order
+      // costs to lose on a return breaks exactly even. Render a placeholder
+      // instead of calling .toFixed on null.
+      const marginText = result.expectedMargin === null ? "n/a" : `${result.expectedMargin.toFixed(1)}%`;
       if (result.belowBreakEven) {
         verdict.className = "verdict bad";
         verdict.innerHTML = `On these assumptions this SKU <strong>loses ${money(Math.abs(result.expectedProfit))} per order</strong> after returns. The walk-away price is ${bePrice === null ? "above any price this model can find" : money(bePrice)}.`;
       } else if (!result.hitsTargetMargin) {
         verdict.className = "verdict";
-        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> (${result.expectedMargin.toFixed(1)}%), which is under the ${result.targetMargin}% target. Price at ${targetPrice === null ? "a higher figure than this model can reach" : money(targetPrice)} to hit it.`;
+        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> (${marginText}), which is under the ${result.targetMargin}% target. Price at ${targetPrice === null ? "a higher figure than this model can reach" : money(targetPrice)} to hit it.`;
       } else {
         verdict.className = "verdict";
-        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> — ${result.expectedMargin.toFixed(1)}%, at or above the ${result.targetMargin}% target.`;
+        verdict.innerHTML = `You keep <strong>${money(result.expectedProfit)}</strong> — ${marginText}, at or above the ${result.targetMargin}% target.`;
       }
     }
 

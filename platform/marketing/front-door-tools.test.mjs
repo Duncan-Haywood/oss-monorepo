@@ -14,6 +14,7 @@
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import zlib from 'node:zlib';
@@ -34,17 +35,41 @@ import {
   SYNC_OPTIONS_ANNOTATION,
   ROUTABLE_FILE,
   ROUTABLE_SLUG,
+  ROUTABLE_SUBPATH,
+  STRIPPED_LINK_RELS,
+  blankStrippedLinks,
   OUTPUT_DIR,
+  FRONT_DOOR_DEPLOYMENT,
+  renderMountSources,
+  writeMountList,
+  assertNoConflictMarkers,
   STARTER_SET,
   WHY_CATEGORY_WORD,
   claimedCategory,
   TOOLS_URL,
+  APEX_URL,
+  SOCIAL_CARD_FILE,
+  SOCIAL_CARD_ALT,
+  SOCIAL_CARD_WIDTH,
+  SOCIAL_CARD_HEIGHT,
   buildMirror,
   canonicalUrl,
+  mirrorCanonicalUrl,
+  MIRROR_ROBOTS_CONTENT,
+  TOOLS_HOST_SERVES,
+  apexUrl,
   injectMirrorTags,
   injectMirrorNav,
+  injectMirrorRelated,
+  blankScriptBodies,
+  dynamicLinks,
   NAV_CLASS,
+  NAV_STYLE,
+  RELATED_CLASS,
+  RELATED_LIMIT,
+  RELATED_STYLE,
   APEX_ROOT_PATHS,
+  decodeCharacterReferences,
   FAVICON_FILE,
   mirrorUrl,
   pageTitle,
@@ -52,7 +77,20 @@ import {
   validateLinks,
   ventureFiles,
 } from './front-door-tools.mjs';
-import { FAVICON_FILE as FRONT_DOOR_FAVICON, renderFrontDoor } from './front-door.mjs';
+import {
+  FAVICON_FILE as FRONT_DOOR_FAVICON,
+  SOCIAL_CARD_ALT as FRONT_DOOR_SOCIAL_CARD_ALT,
+  renderFrontDoor,
+} from './front-door.mjs';
+import {
+  SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD,
+  discoverSurfaces,
+  relatedTools,
+} from '../pages/build.mjs';
+import {
+  SOCIAL_CARD_WIDTH as OFFLINE_CARD_WIDTH,
+  SOCIAL_CARD_HEIGHT as OFFLINE_CARD_HEIGHT,
+} from '../pages/offline.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
@@ -101,22 +139,21 @@ test('no mirrored page links to something the mirror does not serve', async () =
   assert.deepEqual(validateLinks(files), []);
 });
 
-test('every mirrored page is noindex and points its canonical at the tools host', async () => {
+test('every mirrored page carries the robots directive and canonical the switch names', async () => {
   // `portfolio-apex.yaml` is right that two hostnames serving the same bytes
-  // undoes the canonical consolidation `build.mjs` stamps in. These two tags
-  // are why that argument does not apply to the mirror: no copy here is
-  // eligible to be indexed, and any signal that leaks consolidates on the
-  // tools host. `front-door/default.conf` repeats the first as a header.
+  // undoes the canonical consolidation `build.mjs` stamps in — but that binds
+  // only while two hosts actually serve. `TOOLS_HOST_SERVES` is that premise,
+  // and this asserts against it rather than against either answer, so the test
+  // keeps its meaning when the seal lands and the switch flips.
   const { files } = await buildMirror();
   const pages = files.filter((f) => f.file.endsWith('.html'));
   assert.ok(pages.length >= STARTER_SET.length);
   for (const page of pages) {
-    assert.match(
-      page.contents,
-      /<meta name="robots" content="noindex,follow">/,
-      `${page.key} is missing its noindex`,
+    assert.ok(
+      page.contents.includes(`<meta name="robots" content="${MIRROR_ROBOTS_CONTENT}">`),
+      `${page.key} does not carry the ${MIRROR_ROBOTS_CONTENT} directive`,
     );
-    const canonical = canonicalUrl(page.slug, page.file);
+    const canonical = mirrorCanonicalUrl(page.slug, page.file);
     assert.ok(
       page.contents.includes(`<link rel="canonical" href="${canonical}">`),
       `${page.key} should be canonical to ${canonical}`,
@@ -126,7 +163,40 @@ test('every mirrored page is noindex and points its canonical at the tools host'
       1,
       `${page.key} has more than one canonical, which leaves the crawler to pick`,
     );
-    assert.ok(canonical.startsWith(TOOLS_URL));
+    // The point of the switch: the canonical must name a host that answers.
+    // A canonical pointing at the dark tools host is the defect this replaced,
+    // and it is silent — a crawler discards the hint and the `noindex` beside
+    // it then decides alone.
+    assert.ok(canonical.startsWith(TOOLS_HOST_SERVES ? TOOLS_URL : APEX_URL));
+  }
+});
+
+test('an indexable mirror never also ships a noindex header, in markup or nginx', async () => {
+  // The two layers disagreeing is the failure this whole change exists to
+  // remove, and it fails in the expensive direction: a header silently beats
+  // the markup, so the pages would be excluded while every generated artifact
+  // claimed otherwise. Whichever way `TOOLS_HOST_SERVES` points, the page
+  // blocks in `default.conf` and `MIRROR_ROBOTS_CONTENT` must agree.
+  const conf = await fs.readFile(
+    path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
+    'utf8',
+  );
+  // The blocks that serve pages, as opposed to the `.mjs` and `LICENSE` blocks
+  // which stay noindex either way because a raw module is not a search result.
+  const pageBlocks = [...conf.matchAll(/location ~ "\^\/tools\/[^"]*"\s*\{[^}]*\}/g)]
+    .map((m) => m[0])
+    .filter((b) => !/\\\.mjs|LICENSE/.test(b));
+  assert.ok(pageBlocks.length >= 4, `expected the page-serving blocks, found ${pageBlocks.length}`);
+  for (const block of pageBlocks) {
+    const hasHeader = /X-Robots-Tag "noindex"/.test(block);
+    assert.equal(
+      hasHeader,
+      TOOLS_HOST_SERVES,
+      hasHeader
+        ? 'a page block sends X-Robots-Tag: noindex while the mirror claims to be indexable — ' +
+            'the header wins and the catalogue silently leaves the index'
+        : 'the mirror is noindex in markup but a page block no longer says so to a header-only crawler',
+    );
   }
 });
 
@@ -138,7 +208,11 @@ test('the charset declaration survives the injection inside the first 1024 bytes
   const html = '<!doctype html><html><head><meta charset="utf-8"><title>x</title></head><body></body></html>';
   const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
   assert.ok(out.indexOf('<meta charset="utf-8">') < 1024);
-  assert.ok(out.indexOf('charset') < out.indexOf('noindex'));
+  // The injected block is located by the tag the switch actually wrote, not
+  // by a hardcoded 'noindex' — that literal stopped appearing when the mirror
+  // became indexable, and `indexOf` returning -1 made this pass or fail for
+  // reasons unrelated to charset placement.
+  assert.ok(out.indexOf('charset') < out.indexOf(`content="${MIRROR_ROBOTS_CONTENT}"`));
 });
 
 test('a pre-existing canonical is replaced rather than duplicated', () => {
@@ -158,7 +232,9 @@ test('a venture-declared robots directive is replaced, not contradicted', () => 
   const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
   const robots = out.match(/<meta[^>]*name="robots"[^>]*>/g);
   assert.equal(robots.length, 1, 'two robots directives let the crawler choose which one to believe');
-  assert.equal(robots[0], '<meta name="robots" content="noindex,follow">');
+  assert.equal(robots[0], `<meta name="robots" content="${MIRROR_ROBOTS_CONTENT}">`);
+  // The venture's own spacing ("index, follow") must be gone whichever
+  // directive replaced it — that is what "replaced, not contradicted" means.
   assert.ok(!out.includes('index, follow'));
 });
 
@@ -170,8 +246,138 @@ test('no mirrored page ships more than one robots directive', async () => {
   for (const { slug, file, contents } of files.filter((f) => f.file.endsWith('.html'))) {
     const robots = contents.match(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi) ?? [];
     assert.equal(robots.length, 1, `${slug}/${file} has ${robots.length} robots directives`);
-    assert.match(robots[0], /noindex/);
+    assert.ok(robots[0].includes(MIRROR_ROBOTS_CONTENT));
   }
+});
+
+test('a venture-declared og:url is repointed at the URL this host actually serves', () => {
+  // The venture sources carry `https://example.invalid/...` deliberately —
+  // `build.mjs` calls it `PLACEHOLDER_ORIGIN` and overwrites it when it
+  // publishes to the canonical host. This mirror is the other publisher and
+  // used to copy the placeholder through, so a mirrored tool pasted into Slack
+  // or LinkedIn built its share card against a domain reserved by RFC 2606.
+  const html =
+    '<head><meta charset="utf-8">' +
+    '<meta property="og:url" content="https://example.invalid/demo/vs-jobber.html">' +
+    '</head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'vs-jobber.html' });
+  assert.ok(!out.includes('example.invalid'), 'the placeholder origin must not survive');
+  const tags = out.match(/<meta[^>]*property="og:url"[^>]*>/g);
+  assert.equal(tags.length, 1, 'two og:url tags let the scraper choose which one to believe');
+  assert.equal(tags[0], '<meta property="og:url" content="https://marisstella.dev/tools/demo/vs-jobber.html">');
+});
+
+test('og:url and the canonical both name a host that answers', () => {
+  // These two used to disagree on purpose: the canonical named
+  // `tools.marisstella.dev` for consolidation while `og:url` named the apex so
+  // a share card resolved. With `TOOLS_HOST_SERVES` false they agree, because
+  // the apex is both the host that answers and the canonical home — and the
+  // property worth pinning was never that they differ, but that neither ever
+  // names a dead host.
+  const html = '<head><meta charset="utf-8"><meta property="og:url" content="https://example.invalid/d/"></head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
+  assert.ok(out.includes(`<link rel="canonical" href="${mirrorCanonicalUrl('demo', 'index.html')}">`));
+  assert.ok(out.includes(`<meta property="og:url" content="${apexUrl('demo', 'index.html')}">`));
+  assert.ok(canonicalUrl('demo', 'index.html').startsWith(TOOLS_URL));
+  assert.ok(
+    mirrorCanonicalUrl('demo', 'index.html').startsWith(TOOLS_HOST_SERVES ? TOOLS_URL : APEX_URL),
+  );
+  assert.ok(apexUrl('demo', 'index.html').startsWith(APEX_URL));
+  // `index.html` drops off both, so neither advertises a second URL for the
+  // page the directory itself already answers.
+  assert.equal(apexUrl('demo', 'index.html'), 'https://marisstella.dev/tools/demo/');
+});
+
+test('a bare `>` inside a neighbouring meta tag does not derail the og:url repair', () => {
+  // Why the whole-tag matcher rather than `[^>]*`: venture copy really does
+  // contain comparisons, and a matcher that stopped at the first `>` would
+  // rewrite the wrong span of the document.
+  const html =
+    '<head><meta charset="utf-8">' +
+    '<meta name="description" content="works when net > 0 and margin > cost">' +
+    '<meta property="og:url" content="https://example.invalid/demo/x.html">' +
+    '</head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'x.html' });
+  assert.ok(out.includes('content="works when net > 0 and margin > cost"'), 'the description is untouched');
+  assert.ok(out.includes('<meta property="og:url" content="https://marisstella.dev/tools/demo/x.html">'));
+});
+
+test('no mirrored page ships a share card pointed at a domain that resolves nowhere', async () => {
+  // The end-to-end form, over what is actually committed. `og:url` is repaired
+  // where present and never inserted where absent — a page with none lets the
+  // scraper key the card to the pasted URL, which is already this host's.
+  const { files } = await buildMirror();
+  let repaired = 0;
+  for (const { slug, file, contents } of files.filter((f) => f.file.endsWith('.html'))) {
+    const tags = contents.match(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*property=["']og:url["'](?:[^>"']|"[^"]*"|'[^']*')*>/gi) ?? [];
+    assert.ok(tags.length <= 1, `${slug}/${file} has ${tags.length} og:url tags`);
+    if (tags.length === 0) continue;
+    repaired += 1;
+    assert.ok(
+      !tags[0].includes('example.invalid'),
+      `${slug}/${file} still advertises the placeholder origin to every share scraper`,
+    );
+    assert.ok(
+      tags[0].includes(`content="${apexUrl(slug, file)}"`),
+      `${slug}/${file} should key its share card to ${apexUrl(slug, file)}`,
+    );
+  }
+  assert.ok(repaired > 0, 'no page carried an og:url, so this check proved nothing');
+});
+
+test('every mirrored page carries a share card the apex actually serves', async () => {
+  // `build.mjs` found no venture source declares an `og:image`, so before this
+  // every mirrored tool pasted into a chat rendered as a bare text row. The
+  // image is not carried in the mirror: `/social-card.png` is already at the
+  // apex document root in `portfolio-front-html`, the same place `/favicon.svg`
+  // these pages already point at lives.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const { slug, file, contents } of pages) {
+    const images = contents.match(/<meta\b[^>]*\bproperty=["']og:image["'][^>]*>/gi) ?? [];
+    assert.equal(images.length, 1, `${slug}/${file} has ${images.length} og:image tags`);
+    assert.equal(
+      images[0],
+      `<meta property="og:image" content="https://marisstella.dev/${SOCIAL_CARD_FILE}">`,
+      `${slug}/${file} should point at the card the apex serves`,
+    );
+    // Absolute, because a scraper fetching the card off a pasted link does not
+    // reliably resolve a relative one.
+    assert.ok(images[0].includes('content="https://'), `${slug}/${file}'s card URL is not absolute`);
+    assert.match(contents, /<meta name="twitter:card" content="summary_large_image">/);
+  }
+});
+
+test('the mirror agrees with the front door about the card it points at', () => {
+  // Declared in both modules rather than shared, for the reason `FAVICON_FILE`
+  // is: this mirror has to build with the front door's generator absent. So
+  // the drift that would leave every mirrored page naming a file the apex does
+  // not serve, or lying about its shape, is pinned here instead.
+  assert.equal(SOCIAL_CARD_FILE, FRONT_DOOR_SOCIAL_CARD);
+  assert.equal(SOCIAL_CARD_ALT, FRONT_DOOR_SOCIAL_CARD_ALT);
+  assert.equal(SOCIAL_CARD_WIDTH, OFFLINE_CARD_WIDTH);
+  assert.equal(SOCIAL_CARD_HEIGHT, OFFLINE_CARD_HEIGHT);
+  assert.ok(APEX_ROOT_PATHS.has(`/${SOCIAL_CARD_FILE}`), 'validateLinks would call the card a dead link');
+  // The alt text goes into an HTML attribute unescaped, so it must not carry a
+  // quote. Pinned rather than escaped at the point of use: a card description
+  // that needs escaping is a sign the copy changed shape, not a case to absorb.
+  assert.ok(!/["'<>&]/.test(SOCIAL_CARD_ALT), 'card alt text needs escaping');
+});
+
+test('a venture that later declares its own card gets it reconciled, not duplicated', () => {
+  // No venture does today. The rule exists because the gap in exactly this
+  // rule is what let `og:url` ship broken to 64 pages.
+  const html =
+    '<head><meta charset="utf-8">' +
+    '<meta property="og:image" content="https://example.invalid/own-card.png">' +
+    '<meta name="twitter:card" content="summary">' +
+    '</head>';
+  const out = injectMirrorTags(html, { slug: 'demo', file: 'index.html' });
+  assert.equal((out.match(/property="og:image"/g) ?? []).length, 1);
+  assert.equal((out.match(/name="twitter:card"/g) ?? []).length, 1);
+  assert.ok(!out.includes('own-card.png'));
+  assert.ok(!out.includes('content="summary">'), 'the venture\'s smaller card type must not survive');
 });
 
 test('every mirrored path is one nginx can actually route', async () => {
@@ -182,7 +388,10 @@ test('every mirrored path is one nginx can actually route', async () => {
   const { files } = await buildMirror();
   for (const { slug, file } of files) {
     assert.match(slug, ROUTABLE_SLUG, `${slug} is not routable`);
-    assert.match(file, ROUTABLE_FILE, `${slug}/${file} is not routable`);
+    // `ROUTABLE_SUBPATH`, not `ROUTABLE_FILE`: a mirrored file may sit one
+    // page subdirectory down (`tool/index.html`). Two levels is still refused,
+    // because only one separator is decoded on the nginx side.
+    assert.match(file, ROUTABLE_SUBPATH, `${slug}/${file} is not routable`);
   }
   const conf = await fs.readFile(
     path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
@@ -444,7 +653,9 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   // The four properties a gz-only mirror needs from every `/tools/` location,
   // each of which is a silent whole-mirror 404 if it is missing.
   const toolBlocks = conf.match(/location ~ "\^\/tools\/[\s\S]*?\n  \}/g) ?? [];
-  assert.equal(toolBlocks.length, 4, 'the mirror is routed by four location blocks');
+  // Eight since page subdirectories landed: four for a flat venture (root,
+  // `.mjs`, `LICENSE`, anything else) and the same four one level down.
+  assert.equal(toolBlocks.length, 8, 'the mirror is routed by eight location blocks');
   for (const block of toolBlocks) {
     // `gzip_static always`, not `on`: `on` only consults the stored `.gz` when
     // the client sent `Accept-Encoding: gzip`, and falls through to a plain
@@ -465,7 +676,11 @@ test('the nginx config serves every shape of path the mirror produces', async ()
       /rewrite \^ \/\$\d/,
       `a /tools/ block uses a positional capture in its rewrite, which resolves empty:\n${block}`,
     );
-    assert.match(block, /X-Robots-Tag "noindex"/);
+    // The `X-Robots-Tag` assertion that used to sit here moved to
+    // 'an indexable mirror never also ships a noindex header': it is a policy
+    // that follows `TOOLS_HOST_SERVES` and differs between the page blocks and
+    // the source-file blocks, where every property above is a routing
+    // invariant that holds for all eight regardless.
   }
 
   // `.mjs` must be typed, or the module is refused and every calculator is an
@@ -474,6 +689,33 @@ test('the nginx config serves every shape of path the mirror produces', async ()
   // ...and its block must come before the general file rule, since nginx takes
   // the first matching regex location.
   assert.ok(conf.indexOf('\\.mjs)$"') < conf.indexOf('<any_file>[A-Za-z0-9._-]+)$"'));
+  // The same ordering one level down, where the same trap applies: the
+  // subdirectory `.mjs` rule is the only one of the three that can set a type,
+  // so a general subdirectory rule placed above it would serve every sub-tool's
+  // modules untyped and the page would render inert with a 200.
+  assert.ok(
+    conf.indexOf('<sdm_file>[A-Za-z0-9._-]+\\.mjs)$"') <
+      conf.indexOf('<sda_file>[A-Za-z0-9._-]+)$"'),
+    'the subdirectory .mjs rule must precede the general subdirectory rule',
+  );
+  // The directory-index rule takes the trailing slash and rewrites to
+  // `index.html`, for the same reason the venture-root rule does: a flattened
+  // key has no `index.html` to append.
+  assert.match(
+    conf,
+    /rewrite \^ \/\$\{sd_slug\}__\$\{sd_dir\}__index\.html break;/,
+    'the subdirectory index rule must rewrite to __index.html',
+  );
+  // Both segments of a subdirectory path are captured with the *slug* class,
+  // not the filename class. That is what keeps `/tools/<slug>/calc.mjs` and
+  // `/tools/<slug>/LICENSE` from ever being read as a directory: neither a dot
+  // nor an uppercase letter can match it.
+  for (const prefix of ['sd', 'sdm', 'sdl', 'sda']) {
+    assert.ok(
+      conf.includes(`(?<${prefix}_dir>${ROUTABLE_SLUG.source.replace(/^\^|\$$/g, '')})`),
+      `the ${prefix} block's directory capture is not ROUTABLE_SLUG's class`,
+    );
+  }
 });
 
 test('every stored key is one the nginx rewrites reconstruct', async () => {
@@ -486,9 +728,14 @@ test('every stored key is one the nginx rewrites reconstruct', async () => {
   for (const file of files) {
     const url = mirrorUrl(file.slug, file.file);
     const [, slug, tail] = url.match(/^\/tools\/([^/]+)\/(.*)$/);
-    // The trailing-slash location is a separate rule for exactly this reason:
-    // an empty tail is `index.html`, not an empty filename.
-    assert.equal(`${slug}__${tail || 'index.html'}.gz`, file.stored);
+    // Rebuilt the way the `location` blocks do: every `/` in the tail becomes
+    // the same `__` separator that joins the slug, and an empty tail (or one
+    // that is only a directory) is `index.html` rather than an empty filename.
+    // That last case is why the trailing-slash rules exist at all — a
+    // flattened key cannot have `index.html` appended to it by nginx.
+    const segments = tail.split('/');
+    if (segments[segments.length - 1] === '') segments[segments.length - 1] = 'index.html';
+    assert.equal(`${slug}__${segments.join('__')}.gz`, file.stored);
     assert.equal(storedKey(file.slug, file.file), file.stored);
   }
 });
@@ -639,6 +886,89 @@ test('a root-absolute link is checked against the apex root, not the mirror', ()
   assert.match(dead[0], /apex document root serves only/);
 });
 
+test('an href built from a template string in a script is not a dead link', () => {
+  // The defect: `validateLinks` ran one regex over the whole document, so a
+  // page building hrefs in JS was judged on its unexpanded source. That is
+  // what held `marketplace-fee-compare` — a finished, linked-to comparison
+  // page — off the apex, for a link that resolves fine in a browser.
+  const page = {
+    slug: 'a',
+    file: 'index.html',
+    contents: '<script>el.innerHTML = `<a href="../${tool}/">go</a>`;</script>',
+  };
+  assert.deepEqual(validateLinks([page]), []);
+  // Not judged is not the same as unseen: it is still reported, advisorily.
+  assert.deepEqual(dynamicLinks([page]), ['a/index.html → "../${tool}/"']);
+});
+
+test('a fully literal href inside a script is still checked', () => {
+  // The detection the previous revision was protecting when it left the whole
+  // document in scope. Narrowing to skip script bodies wholesale would lose
+  // it; resolving the literal ones keeps it.
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<script>x = `<a href="../gone/">g</a>`;</script>' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /no gone\/index\.html in the mirror/);
+
+  // And the same literal resolves when the target is present.
+  assert.deepEqual(
+    validateLinks([
+      { slug: 'a', file: 'index.html', contents: '<script>x = `<a href="../b/">g</a>`;</script>' },
+      { slug: 'b', file: 'index.html', contents: '<p>b</p>' },
+    ]),
+    [],
+  );
+});
+
+test('a dead link in ordinary markup is still caught', () => {
+  // The regression guard that matters most: blanking script bodies must not
+  // blank anything else.
+  const dead = validateLinks([
+    { slug: 'a', file: 'index.html', contents: '<a href="missing.html">x</a>' },
+  ]);
+  assert.equal(dead.length, 1);
+  assert.match(dead[0], /no a\/missing\.html in the mirror/);
+});
+
+test('blanking a script body preserves the rest of the document and its length', () => {
+  const html = '<a href="keep.html">k</a><script>`<a href="../drop/">d</a>`</script><b>after</b>';
+  const blanked = blankScriptBodies(html);
+  assert.equal(blanked.length, html.length, 'byte offsets must not shift');
+  assert.ok(blanked.includes('href="keep.html"'));
+  assert.ok(!blanked.includes('../drop/'));
+  assert.ok(blanked.includes('<b>after</b>'), 'markup after the script survives');
+  assert.ok(blanked.includes('<script>') && blanked.includes('</script>'), 'tags survive');
+});
+
+test('a style body is blanked too', () => {
+  // `url(...)` in CSS is not an href/src attribute, but a stylesheet quoting
+  // one in a string would read as markup to the attribute scan.
+  const blanked = blankScriptBodies('<style>.a{background:url("../gone/x.png")}</style>');
+  assert.ok(!blanked.includes('../gone/x.png'));
+});
+
+test('marketplace-fee-compare is served by the mirror', async () => {
+  // The tool the fix above buys. Its seven `deepTool` links are what made
+  // admitting it correct rather than merely quieter, so assert those resolve
+  // in the mirror too — that is the property that would make serving the page
+  // a disservice if it broke.
+  const { files } = await buildMirror();
+  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
+  assert.ok(present.has('marketplace-fee-compare/index.html'));
+  for (const slug of [
+    'ebay-fee-calculator',
+    'etsy-profit-calculator',
+    'amazon-fba-calculator',
+    'walmart-marketplace-calculator',
+    'tiktok-shop-fee-calculator',
+    'shopify-fee-calculator',
+    'faire-wholesale-calculator',
+  ]) {
+    assert.ok(present.has(`${slug}/index.html`), `${slug} is linked at runtime but not mirrored`);
+  }
+});
+
 test('every mirrored page carries a way back to the front door', async () => {
   // The defect this guards: before the return link, a mirrored page's only
   // links were its own siblings, its LICENSE, and a canonical to a host that
@@ -721,6 +1051,183 @@ test('no venture source already uses the return link class', async () => {
   }
 });
 
+test('every mirrored entry page offers sibling tools, and no other page does', async () => {
+  // The defect this guards is the one `injectMirrorNav` half-fixed: the return
+  // link reaches the catalogue, but it asks a visitor who has just got their
+  // number to go back to a page of 169 and work out which others apply to
+  // them. Asserted over what is committed rather than over
+  // `injectMirrorRelated` alone, because the unit test below would still pass
+  // if `buildMirror` stopped calling it.
+  //
+  // The negative half matters as much: a venture's sub-pages are its own
+  // articles and comparisons, and a block of other trades' calculators at the
+  // foot of each would be 375 more places to go stale for no added reach the
+  // entry page does not already give.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    const has = page.contents.includes(`<nav class="${RELATED_CLASS}"`);
+    if (page.file === 'index.html') {
+      assert.ok(has, `${page.key} is an entry page with no sibling tools offered`);
+      assert.ok(
+        page.contents.includes(`.${RELATED_CLASS}{`),
+        `${page.key} offers siblings with no rule to style them`,
+      );
+      assert.equal(
+        page.contents.match(new RegExp(`<nav class="${RELATED_CLASS}"`, 'g')).length,
+        1,
+        `${page.key} carries more than one sibling block`,
+      );
+    } else {
+      assert.ok(!has, `${page.key} is not an entry page but offers sibling tools`);
+      assert.ok(
+        !page.contents.includes(`.${RELATED_CLASS}{`),
+        `${page.key} pays for the sibling rule with no element to match it`,
+      );
+    }
+  }
+});
+
+test('every tool a mirrored page offers is one the mirror actually serves', async () => {
+  // `validateLinks` already refuses a dead *relative* link. These are
+  // root-absolute `/tools/<slug>/`, which it used to wave through against the
+  // apex root allowlist — so this is the assertion that makes the new links as
+  // checked as a venture's own. A stranger following one to a 404 on the one
+  // page the portfolio can show them is the failure being ruled out.
+  const { files } = await buildMirror();
+  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
+  let offered = 0;
+  for (const page of files.filter((f) => f.file === 'index.html')) {
+    const block = page.contents.match(
+      new RegExp(`<nav class="${RELATED_CLASS}"[\\s\\S]*?</nav>`),
+    );
+    assert.ok(block, `${page.key} has no sibling block to check`);
+    const hrefs = [...block[0].matchAll(/href="([^"]*)"/g)].map(([, href]) => href);
+    assert.equal(hrefs.length, RELATED_LIMIT, `${page.key} offers ${hrefs.length} tools`);
+    for (const href of hrefs) {
+      const slug = href.replace(/^\/tools\//, '').replace(/\/$/, '');
+      assert.ok(present.has(`${slug}/index.html`), `${page.key} offers ${href}, which is not mirrored`);
+      assert.notEqual(slug, page.slug, `${page.key} offers itself`);
+      offered += 1;
+    }
+  }
+  assert.ok(offered > 0);
+});
+
+test('validateLinks catches a sibling offer the mirror does not serve', () => {
+  // The guarantee above is only worth having if the checker can actually fail.
+  // Without the `/tools/` branch this link was measured against the apex root
+  // allowlist and reported as "the document root serves only /, /favicon.svg,
+  // …" — a true sentence about the wrong address space, and one that would
+  // have been silenced by adding the path to that allowlist.
+  const problems = validateLinks([
+    {
+      slug: 'demo',
+      file: 'index.html',
+      contents: '<body><a href="/tools/not-mirrored/">gone</a></body>',
+    },
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /no not-mirrored\/index\.html in the mirror/);
+});
+
+test('the tools a page offers come from build.mjs’ ranking, not a second one here', () => {
+  // `CLAUDE.md` records two occasions where restating a `build.mjs` rule in
+  // this module cost live product, so the ranking is imported. This asserts
+  // the import is load-bearing: same sub-group first is what makes a fence
+  // page offer another outdoor trade rather than whichever four a flat
+  // rotation lands on.
+  const surfaces = [
+    { slug: 'fence-bid-calculator', title: 'Fence' },
+    { slug: 'deck-bid-calculator', title: 'Deck' },
+    { slug: 'pergola-bid-calculator', title: 'Pergola' },
+    { slug: 'ebay-fee-calculator', title: 'eBay' },
+    { slug: 'etsy-profit-calculator', title: 'Etsy' },
+  ];
+  const picked = relatedTools(surfaces, 'fence-bid-calculator', RELATED_LIMIT).map((s) => s.slug);
+  assert.ok(!picked.includes('fence-bid-calculator'));
+  // The marketplace tools are in a different category, so they rank last.
+  assert.ok(
+    picked.indexOf('ebay-fee-calculator') > picked.indexOf('deck-bid-calculator'),
+    `a trades page offered a marketplace tool ahead of a trades one: ${picked.join(', ')}`,
+  );
+});
+
+test('the sibling block states its own layout rather than inheriting a venture’s', async () => {
+  // The hazard is not hypothetical and specificity alone does not close it.
+  // These rules are injected ahead of the venture's own <style>, so a class
+  // selector beats a bare element one — but only for properties the class
+  // rule states. Three mirrored ventures set `display` on a bare `nav`, `ul`
+  // or `p`: `faire-wholesale-calculator`'s `nav{display:flex}` would lay the
+  // heading beside the list, and a bare `p{display:none}` would delete the
+  // heading. Both reach the block through a property an unstated rule leaves
+  // open.
+  for (const selector of [RELATED_CLASS, `${RELATED_CLASS} p`, `${RELATED_CLASS} ul`]) {
+    assert.match(
+      RELATED_STYLE,
+      new RegExp(`\\.${selector.replace(' ', ' \\.?')}\\{[^}]*display:`),
+      `.${selector} does not state a display, so a venture's bare element rule decides it`,
+    );
+  }
+  // And the hazard is still live in the mirror — if it ever stops being, this
+  // assertion is what says the guard above may be reconsidered rather than
+  // quietly kept forever.
+  const risky = [];
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (file !== 'index.html') continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      if (/(?:^|[;{}>\s])(?:nav|ul|p)\s*\{[^}]*display\s*:/.test(raw)) risky.push(slug);
+    }
+  }
+  assert.ok(risky.length > 0, 'no venture styles a bare nav/ul/p display any more');
+});
+
+test('the sibling block is hidden when a venture page is printed or embedded', () => {
+  // Same two reasons as the return link. A contractor's printed bid is the one
+  // page of this portfolio a stranger's own customer sees, and it must not
+  // carry a list of other calculators; and an embedded calculator inside
+  // someone else's page has no business advertising the rest of this site.
+  assert.match(RELATED_STYLE, /@media print\{\.fd-related\{display:none!important\}\}/);
+  assert.ok(RELATED_STYLE.includes(`.pf-embed .${RELATED_CLASS}{display:none}`));
+});
+
+test('injectMirrorRelated refuses a document with no closing body', () => {
+  assert.throws(
+    () =>
+      injectMirrorRelated('<body><main>x</main>', {
+        file: 'index.html',
+        related: [{ slug: 'demo', title: 'Demo' }],
+      }),
+    { message: /no <\/body>/ },
+  );
+});
+
+test('injectMirrorRelated leaves a page alone when there is nothing to offer', () => {
+  // A one-venture mirror (every fixture-driven test in this file) has no
+  // siblings to name, and an empty list rendered as an empty <ul> would be a
+  // heading promising links that are not there.
+  const html = '<body><main>x</main></body>';
+  assert.equal(injectMirrorRelated(html, { file: 'index.html', related: [] }), html);
+  assert.equal(injectMirrorRelated(html, { file: 'guide.html', related: [{ slug: 'a', title: 'A' }] }), html);
+});
+
+test('no venture source already uses the sibling block class', async () => {
+  // Same cascade hazard as the return link: the rule is injected near the top
+  // of <head>, ahead of the venture's own <style>.
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (!file.endsWith('.html')) continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      assert.ok(
+        !raw.includes(RELATED_CLASS),
+        `${slug}/${file} already uses "${RELATED_CLASS}" — rename RELATED_CLASS rather than shipping the collision`,
+      );
+    }
+  }
+});
+
 test('every unmirrored venture is explained, and a collateral drop is not blamed on itself', async () => {
   // The report is only worth having if its reasons are the fixpoint's real
   // ones. Re-checking an excluded venture on its own does not give those: in
@@ -764,4 +1271,518 @@ test('a collateral drop names a later pass than the venture that caused it', asy
   for (const entry of excluded.filter((e) => e.kind === 'dead-link')) {
     assert.equal(entry.pass, 1, `${entry.slug} is a first-pass drop but reports pass ${entry.pass}`);
   }
+});
+
+// --- the Deployment's mount list -------------------------------------------
+//
+// `writeMirror` regenerates the shards and the Deployment that mounts them in
+// one call, because a tree carrying only half of that is the exact state
+// `test_portfolio_front_mounts_every_generated_mirror_shard` rejects. These
+// pin the writer against a copy of the file rather than the real one, so a
+// failing test can never leave `gitops/prod/portfolio-front.yaml` rewritten.
+
+const deploymentFixture = async (shardNames) => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mount-list-'));
+  const file = path.join(dir, 'portfolio-front.yaml');
+  const sources = shardNames
+    .map((name) => `              - configMap:\n                  name: ${name}\n`)
+    .join('');
+  await fs.writeFile(
+    file,
+    '        - name: tools\n' +
+      '          # a comment the writer must not disturb\n' +
+      '          projected:\n' +
+      '            sources:\n' +
+      sources +
+      '        - name: conf\n',
+  );
+  return file;
+};
+
+test('the mount list is rewritten when the shard count grows', async () => {
+  // The case this automation exists for: one more comparison page tips the
+  // packer over SHARD_BYTE_CEILING and opens a shard nothing mounted.
+  const file = await deploymentFixture([shardName(0), shardName(1)]);
+  const result = await writeMountList([0, 1, 2].map((i) => ({ name: shardName(i) })), file);
+  assert.equal(result.changed, true);
+  const after = await fs.readFile(file, 'utf8');
+  assert.match(after, new RegExp(`name: ${shardName(2)}`));
+  assert.equal((after.match(/- configMap:/g) || []).length, 3);
+});
+
+test('the mount list is rewritten when the shard count shrinks', async () => {
+  // The other direction, which is the one that wedges the cluster: a mounted
+  // ConfigMap nothing generates leaves the pods in ContainerCreating.
+  const file = await deploymentFixture([0, 1, 2].map((i) => shardName(i)));
+  const result = await writeMountList([{ name: shardName(0) }], file);
+  assert.equal(result.changed, true);
+  const after = await fs.readFile(file, 'utf8');
+  assert.doesNotMatch(after, new RegExp(`name: ${shardName(1)}`));
+  assert.equal((after.match(/- configMap:/g) || []).length, 1);
+});
+
+test('rewriting the mount list leaves the surrounding file intact', async () => {
+  // The volume's long comment explains why it is projected at all; a
+  // structural YAML round-trip would reflow it away, so the writer is a
+  // targeted replacement and this is what says so.
+  const file = await deploymentFixture([shardName(0)]);
+  await writeMountList([{ name: shardName(0) }, { name: shardName(1) }], file);
+  const after = await fs.readFile(file, 'utf8');
+  assert.match(after, /# a comment the writer must not disturb/);
+  assert.match(after, /^ {8}- name: conf$/m);
+});
+
+test('an unchanged mount list is reported as unchanged and not rewritten', async () => {
+  const file = await deploymentFixture([shardName(0), shardName(1)]);
+  const before = await fs.readFile(file, 'utf8');
+  const result = await writeMountList([{ name: shardName(0) }, { name: shardName(1) }], file);
+  assert.equal(result.changed, false);
+  assert.equal(await fs.readFile(file, 'utf8'), before);
+});
+
+test('a restructured volume fails loudly rather than silently writing nothing', async () => {
+  // If someone reshapes the volume, the writer must not quietly no-op and let
+  // a stale mount list reach the cluster wearing a successful --write.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'mount-list-'));
+  const file = path.join(dir, 'portfolio-front.yaml');
+  await fs.writeFile(file, '        - name: tools\n          emptyDir: {}\n');
+  await assert.rejects(() => writeMountList([{ name: shardName(0) }], file), /could not find/);
+});
+
+test('the committed Deployment already mounts exactly the committed shards', async () => {
+  // The staleness assertion for this file, matching how the mirror's own
+  // freshness is pinned above: the real file must equal what the writer would
+  // produce from the shards actually committed in kustomization.yaml.
+  const kustomization = await fs.readFile(path.join(OUTPUT_DIR, 'kustomization.yaml'), 'utf8');
+  const generated = [...new Set(kustomization.match(/portfolio-front-tools-\d+/g) || [])].sort(
+    (a, b) => Number(a.split('-').pop()) - Number(b.split('-').pop()),
+  );
+  assert.ok(generated.length > 1, 'expected the committed mirror to be sharded');
+  const deployment = await fs.readFile(FRONT_DOOR_DEPLOYMENT, 'utf8');
+  assert.ok(
+    deployment.includes(renderMountSources(generated.map((name) => ({ name })))),
+    'gitops/prod/portfolio-front.yaml does not mount exactly the committed shards — ' +
+      'regenerate with `node platform/marketing/front-door-tools.mjs --write`',
+  );
+});
+
+// --- conflict markers -------------------------------------------------------
+
+test('a page carrying a conflict marker is refused, not mirrored', () => {
+  // The regression this exists for: on 2026-09-02 a conflict hunk reached
+  // main in a venture's index.html and the next regeneration packed it into
+  // the shard the apex serves, so visitors saw `<<<<<<< HEAD` and the
+  // paragraph twice. The venture's own suite passed throughout, because its
+  // assertions matched links present on both sides of the hunk.
+  const files = [{ key: 'demo__index.html', contents: '<p>a</p>\n<<<<<<< HEAD\n<p>b</p>\n' }];
+  assert.throws(() => assertNoConflictMarkers(files), /unresolved merge-conflict marker/);
+});
+
+test('each conflict marker git writes is caught', () => {
+  for (const marker of ['<<<<<<< HEAD', '=======', '>>>>>>> origin/main']) {
+    assert.throws(
+      () => assertNoConflictMarkers([{ key: 'demo__index.html', contents: `<p>a</p>\n${marker}\n` }]),
+      /unresolved merge-conflict marker/,
+      `${marker} was not caught`,
+    );
+  }
+});
+
+test('prose that merely contains angle brackets is not a conflict', () => {
+  // The check is anchored to the line start. A page explaining a diff, or one
+  // with `=======` inside a sentence, is legitimate content and must build.
+  const files = [
+    { key: 'demo__index.html', contents: '<p>compare a &gt;&gt;&gt;&gt;&gt;&gt;&gt; b</p>\n' },
+    { key: 'demo__faq.html', contents: '<p>the ======= rule is a horizontal one</p>\n' },
+  ];
+  assert.doesNotThrow(() => assertNoConflictMarkers(files));
+});
+
+test('no committed mirror page carries a conflict marker', async () => {
+  // The end-to-end form, over what is actually committed. `buildMirror` itself
+  // now throws on one, so this asserts the committed tree is clean rather than
+  // just that the guard exists.
+  const { files } = await buildMirror();
+  assert.doesNotThrow(() => assertNoConflictMarkers(files));
+});
+
+// ---------------------------------------------------------------------------
+// Page subdirectories, and the `<link>` rels the mirror strips.
+//
+// Both of these landed on 2026-09-02 to close the same gap from two sides:
+// three finished, tested, free static tools were being held off the apex by
+// `discoverEligible`, not because anything about them was wrong but because
+// the mirror could not express what their pages linked to. Two of the three
+// are now served. The tests below are the regression guards for each half.
+// ---------------------------------------------------------------------------
+
+test('a <link> the mirror strips is not held against the venture that carries it', () => {
+  // `einvoice-preflight/index.html` carries `<link rel="sitemap" href=
+  // "sitemap.xml">`. `sitemap.xml` is deliberately not mirrored — it describes
+  // the tools host's URLs — so `validateLinks` reported a dead link and the
+  // whole venture was dropped. It is not a dead link: `injectMirrorTags`
+  // deletes the element, so no browser ever resolves that href.
+  const page =
+    '<html><head><meta charset="utf-8">' +
+    '<link rel="sitemap" type="application/xml" href="sitemap.xml">' +
+    '<link rel="canonical" href="nowhere.html">' +
+    '<link rel="icon" href="missing.png">' +
+    '</head><body><a href="index.html">home</a></body></html>';
+  const files = [{ slug: 'demo', file: 'index.html', contents: page }];
+  assert.deepEqual(validateLinks(files), []);
+
+  // ...and the reason it is not a problem is that the tag really is gone.
+  const mirrored = injectMirrorTags(page, { slug: 'demo', file: 'index.html' });
+  assert.ok(!/rel=["']sitemap["']/i.test(mirrored), 'the sitemap link survived injectMirrorTags');
+  assert.ok(!mirrored.includes('nowhere.html'), 'the venture canonical survived');
+  assert.ok(!mirrored.includes('missing.png'), 'the venture icon survived');
+
+  // A real navigable link to something absent is still a problem — the point
+  // is to stop policing tags the mirror removes, not to stop policing.
+  assert.equal(
+    validateLinks([
+      { slug: 'demo', file: 'index.html', contents: '<a href="gone.html">g</a>' },
+    ]).length,
+    1,
+  );
+});
+
+test('blanking a stripped link preserves every byte offset around it', () => {
+  // Same contract as `blankScriptBodies`: only the element's own characters
+  // change, so anything downstream that indexes into the document still points
+  // where a human reading the source would look.
+  const html = '<head><link rel="icon" href="a.png"><title>t</title></head>';
+  const blanked = blankStrippedLinks(html);
+  assert.equal(blanked.length, html.length);
+  assert.equal(blanked.indexOf('<title>'), html.indexOf('<title>'));
+  assert.ok(!blanked.includes('a.png'));
+});
+
+test('every rel the mirror strips is one validateLinks also ignores', () => {
+  // The two used to be written out independently, and the drift cost a venture
+  // its place in the mirror. Derived from one set now; this asserts the set is
+  // what both actually use rather than trusting that they still agree.
+  for (const rel of STRIPPED_LINK_RELS) {
+    const html = `<head><link rel="${rel}" href="absent-${rel}.html"></head>`;
+    assert.deepEqual(
+      validateLinks([{ slug: 'demo', file: 'index.html', contents: html }]),
+      [],
+      `rel="${rel}" is stripped but still policed`,
+    );
+    assert.ok(
+      !injectMirrorTags(html, { slug: 'demo', file: 'index.html' }).includes(`absent-${rel}.html`),
+      `rel="${rel}" is ignored by validateLinks but not actually stripped`,
+    );
+  }
+});
+
+test('a subdirectory is mirrored only when it is a page, not a source tree', async () => {
+  // The rule is "it holds its own index.html". Everything `ventures/` calls
+  // `src`, `tests`, `examples`, `scripts` or `docs` fails it, which is what
+  // keeps a Node source tree from being published and from spending the
+  // mirror's byte ceiling on files no visitor can use.
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'fd-subdir-'));
+  const venture = path.join(root, 'demo');
+  for (const dir of ['src', 'tests', 'tool', '.hidden']) {
+    await fs.mkdir(path.join(venture, dir), { recursive: true });
+  }
+  await fs.writeFile(path.join(venture, 'index.html'), '<html></html>');
+  await fs.writeFile(path.join(venture, 'src', 'lib.mjs'), 'export const a = 1;');
+  await fs.writeFile(path.join(venture, 'tests', 'run.mjs'), 'export const b = 2;');
+  await fs.writeFile(path.join(venture, 'tool', 'index.html'), '<html></html>');
+  await fs.writeFile(path.join(venture, 'tool', 'calc.mjs'), 'export const c = 3;');
+  await fs.writeFile(path.join(venture, 'tool', 'calc.test.mjs'), 'test');
+  // A page directory nginx could not route is refused rather than shipped dark.
+  await fs.writeFile(path.join(venture, '.hidden', 'index.html'), '<html></html>');
+
+  const names = await ventureFiles('demo', root);
+  assert.deepEqual(names, ['index.html', 'tool/calc.mjs', 'tool/index.html']);
+  await fs.rm(root, { recursive: true, force: true });
+});
+
+test('a link inside a page subdirectory resolves from its own directory', () => {
+  // `consent-change-record/tool/index.html` links `../LICENSE`. Resolved from
+  // the venture root instead of the file's own directory that escapes the
+  // venture and reads as dead; and a sibling module would resolve one level
+  // too high and read as present when the browser asks for a file that is not
+  // there. Both directions are silent, so both are pinned.
+  const files = [
+    { slug: 'demo', file: 'LICENSE', contents: 'MIT' },
+    { slug: 'demo', file: 'tool/calc.mjs', contents: '' },
+    {
+      slug: 'demo',
+      file: 'tool/index.html',
+      contents: '<a href="../LICENSE">l</a><a href="calc.mjs">c</a>',
+    },
+  ];
+  assert.deepEqual(validateLinks(files), []);
+
+  const wrong = [
+    { slug: 'demo', file: 'calc.mjs', contents: '' },
+    { slug: 'demo', file: 'tool/index.html', contents: '<a href="calc.mjs">c</a>' },
+  ];
+  assert.deepEqual(validateLinks(wrong), [
+    'demo/tool/index.html → "calc.mjs" (no demo/tool/calc.mjs in the mirror)',
+  ]);
+});
+
+test('the two ventures these fixes admitted are actually in the committed mirror', async () => {
+  // The end-to-end assertion. Both were reported by `explainIneligible` as
+  // held out by a link the mirror could not follow, and both are pages a
+  // stranger can now open on the apex.
+  const { files } = await buildMirror();
+  const keys = new Set(files.map((f) => f.key));
+  assert.ok(keys.has('einvoice-preflight__index.html'), 'einvoice-preflight is not mirrored');
+  assert.ok(
+    keys.has('consent-change-record__tool__index.html'),
+    'the consent-change-record sub-tool is not mirrored',
+  );
+  // Its modules have to come with it, or the page renders and does nothing.
+  for (const mod of ['har-diff', 'trackers', 'usage']) {
+    assert.ok(keys.has(`consent-change-record__tool__${mod}.mjs`), `${mod}.mjs is missing`);
+  }
+  // And it must not have dragged the venture's `test/` directory along.
+  assert.ok(
+    ![...keys].some((k) => k.startsWith('consent-change-record__test__')),
+    'the venture test directory was mirrored',
+  );
+});
+
+test('every mirrored URL routes to its own stored key through the real config', async () => {
+  // ## Why this test exists
+  //
+  // `default.conf` is delivered to a pod by Argo CD, so no test in this tree
+  // executes it and `nginx -t` is not available in the sessions that change it.
+  // Every other assertion about routing in this file compares the config's
+  // *text* against a pattern — which catches a typo and misses the thing that
+  // actually breaks: two `location` blocks whose regexes overlap, so a request
+  // is answered by the wrong one. That failure is invisible in review and
+  // silent in production, because the wrong block still returns 200 for some
+  // paths and 404 for others.
+  //
+  // So this walks the mirror's real URLs through nginx's own rule — regex
+  // `location` blocks are tried in file order and the first match wins — and
+  // asserts each one lands on the block that reconstructs its stored key.
+  //
+  // The regexes are PCRE in nginx and RegExp here. The patterns in this file
+  // use only character classes, anchors and named captures, which mean the same
+  // thing in both, so the simulation is faithful for what it is asked to judge.
+  const conf = await fs.readFile(
+    path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
+    'utf8',
+  );
+  const blocks = [...conf.matchAll(/location ~ "([^"]+)" \{\n([\s\S]*?)\n  \}/g)].map(
+    ([, pattern, body]) => ({
+      pattern: new RegExp(pattern),
+      rewrite: body.match(/rewrite \^ \/(\S+) break;/)?.[1] ?? null,
+      typed: /default_type text\/javascript;/.test(body),
+    }),
+  );
+  assert.ok(blocks.length >= 8, `only ${blocks.length} regex locations parsed out of the config`);
+
+  const route = (url) => {
+    for (const block of blocks) {
+      const m = block.pattern.exec(url);
+      if (!m) continue;
+      // nginx substitutes `${name}` in the rewrite replacement from the
+      // location's own named captures.
+      const key = block.rewrite.replace(/\$\{(\w+)\}/g, (_, name) => {
+        assert.ok(name in (m.groups ?? {}), `\${${name}} is not a capture of the block that matched`);
+        return m.groups[name];
+      });
+      return { key, typed: block.typed };
+    }
+    return null;
+  };
+
+  const { files } = await buildMirror();
+  let subdirChecked = 0;
+  for (const file of files) {
+    const hit = route(mirrorUrl(file.slug, file.file));
+    assert.ok(hit, `no location block matches ${mirrorUrl(file.slug, file.file)}`);
+    // `gzip_static` appends `.gz` to whatever the rewrite produced, so this is
+    // the exact filename the pod opens.
+    assert.equal(`${hit.key}.gz`, file.stored, `${mirrorUrl(file.slug, file.file)} routes to the wrong key`);
+    // A module served without an explicit JavaScript type is refused by the
+    // browser, and the page renders inert with a 200 in the log.
+    assert.equal(
+      hit.typed,
+      file.file.endsWith('.mjs'),
+      `${mirrorUrl(file.slug, file.file)} is ${hit.typed ? '' : 'not '}typed as JavaScript`,
+    );
+    if (file.file.includes('/')) subdirChecked += 1;
+  }
+  assert.ok(subdirChecked > 0, 'no page-subdirectory file was exercised, so those blocks are unproven');
+
+  // The directory-index form: a trailing slash has to reach `__index.html`,
+  // because a flattened key has nothing for nginx to append `index.html` to.
+  assert.equal(route('/tools/consent-change-record/').key, 'consent-change-record__index.html');
+  assert.equal(
+    route('/tools/consent-change-record/tool/').key,
+    'consent-change-record__tool__index.html',
+  );
+
+  // The overlap that would be silent: a flat file must never be captured as a
+  // directory by the deeper blocks, and a deep path must never be answered by
+  // a flat one. Both are asserted through the same first-match-wins walk.
+  assert.equal(route('/tools/demo/calc.mjs').key, 'demo__calc.mjs');
+  assert.equal(route('/tools/demo/LICENSE').key, 'demo__LICENSE');
+  assert.equal(route('/tools/demo/tool/calc.mjs').key, 'demo__tool__calc.mjs');
+  assert.equal(route('/tools/demo/tool/LICENSE').key, 'demo__tool__LICENSE');
+  assert.ok(route('/tools/demo/calc.mjs').typed, 'a flat module lost its JavaScript type');
+  assert.ok(route('/tools/demo/tool/calc.mjs').typed, 'a nested module lost its JavaScript type');
+  assert.ok(!route('/tools/demo/tool/LICENSE').typed, 'a LICENSE was typed as JavaScript');
+
+  // Two levels is refused rather than answered wrongly: `ventureFiles` never
+  // generates one, and the blocks decode exactly one separator.
+  assert.equal(route('/tools/demo/a/b/c.html'), null, 'a two-level path found a block to answer it');
+});
+
+// The divergence this pins has now happened twice, and both times it removed
+// working tools from the only host serving them.
+//
+// `build.mjs` decides what the canonical site publishes; this module decides
+// what the apex mirrors. They answer the same question — "is this venture a
+// static page, and where does it start?" — and every time the mirror has
+// restated the answer instead of importing it, the copy has gone stale:
+//
+//   2026-09-03 (a): the mirror knew `index.html` but not `site/index.html`,
+//                   so six flat static ventures were filed as apps.
+//   2026-09-03 (b): the mirror knew both candidates but not that
+//                   `ENTRY_OVERRIDES` exists, so `ai-engineering-academy` --
+//                   a hub page and six working electronics calculators --
+//                   was reported as "not a static page the mirror can serve"
+//                   while `build.mjs` published all seven. The canonical host
+//                   serves nothing until `portfolio-site-repo` is sealed, so
+//                   those pages were public nowhere.
+//
+// Asserting the two agree on the whole real venture tree is what makes a
+// third divergence a failing test rather than a silent absence. It compares
+// behaviour, not constants, so it still holds if either side grows a rule.
+test('every venture the canonical build publishes is one the mirror can resolve', async () => {
+  const venturesDir = path.join(REPO_ROOT, 'ventures');
+  const surfaces = await discoverSurfaces(venturesDir);
+  assert.ok(surfaces.length > 100, 'discoverSurfaces returned implausibly few ventures');
+
+  const unresolvable = [];
+  for (const surface of surfaces) {
+    const files = await ventureFiles(surface.slug, venturesDir).catch(() => null);
+    if (!files?.includes('index.html')) unresolvable.push(surface.slug);
+  }
+
+  assert.deepEqual(
+    unresolvable,
+    [],
+    'the canonical build publishes these ventures but the mirror finds no index.html for them — ' +
+      'the entry-point rules have diverged again',
+  );
+});
+
+// ---------------------------------------------------------------------------
+// The embed offer.
+//
+// `platform/pages/embed.mjs` calls itself "Priority 1 of the
+// marketing-distribution queue item" and, until 2026-09-03, shipped only on
+// `tools.marisstella.dev` -- the host that fails closed on the unsealed
+// `portfolio-site-repo` Secret and has never served a byte. The apex served
+// all 169 tools and offered no embed at all, so the portfolio's best organic
+// -distribution asset reached nobody. These tests pin the three properties
+// that make the apex copy worth having rather than a second, drifting one.
+// ---------------------------------------------------------------------------
+
+test('every mirrored entry page offers an embed pointing at a host that serves', async () => {
+  const { files } = await buildMirror();
+  const entries = files.filter((f) => f.file === 'index.html');
+  assert.ok(entries.length > 100, 'implausibly few entry pages');
+
+  for (const entry of entries) {
+    assert.ok(
+      entry.contents.includes('pf-embed-offer'),
+      `${entry.slug} has no embed offer — the mirror's best distribution asset is missing from it`,
+    );
+
+    // The property that matters most, and the one a reader cannot check by
+    // eye across 169 pages: a snippet is copied once into a stranger's page
+    // and then outlives every deploy here. Pointed at the tools host it would
+    // render a blank iframe today and stay blank until the seal.
+    const expected = `${mirrorCanonicalUrl(entry.slug, 'index.html')}?pfEmbed=1`;
+    assert.ok(
+      entry.contents.includes(expected.replaceAll('&', '&amp;')),
+      `${entry.slug}'s embed snippet does not point at ${expected}`,
+    );
+    assert.equal(
+      mirrorCanonicalUrl(entry.slug, 'index.html'),
+      apexUrl(entry.slug, 'index.html'),
+      'while TOOLS_HOST_SERVES is false the snippet must name the apex, which answers',
+    );
+
+    // The runtime and stylesheet, absolute so they resolve from a subpage's
+    // depth as well as the entry page's.
+    assert.ok(entry.contents.includes('src="/pf-embed.js"'), `${entry.slug} loads no embed runtime`);
+    assert.ok(
+      entry.contents.includes('href="/pf-embed.css"'),
+      `${entry.slug} loads no embed stylesheet`,
+    );
+
+    // The resizer the snippet offers. `validateLinks` cannot reach this one:
+    // the snippet lives inside a `<textarea>` as escaped text, so it is not a
+    // link on this page at all — it becomes one only after somebody pastes it
+    // onto their own site, where nothing we run can notice it 404ing. So the
+    // URL is resolved here and checked against the paths the apex serves.
+    const snippet = entry.contents.match(
+      /data-pf-embed-snippet>([\s\S]*?)<\/textarea>/,
+    )?.[1];
+    assert.ok(snippet, `${entry.slug} carries no embed snippet to check`);
+    const resizer = decodeCharacterReferences(snippet).match(/<script src="([^"]+)"/)?.[1];
+    assert.ok(resizer, `${entry.slug}'s snippet offers no resizer`);
+    const resolved = new URL(resizer);
+    assert.equal(
+      resolved.origin,
+      new URL(APEX_URL).origin,
+      `${entry.slug}'s snippet loads its resizer from an origin this host does not serve`,
+    );
+    assert.ok(
+      APEX_ROOT_PATHS.has(resolved.pathname),
+      `${entry.slug}'s snippet points at ${resolved.pathname}, which the apex document root `
+        + `does not serve (it serves ${[...APEX_ROOT_PATHS].join(', ')})`,
+    );
+  }
+});
+
+test('deep subpages carry no embed offer', async () => {
+  // They are articles, not the calculator, and offering to embed one would be
+  // offering the wrong page. `injectEmbedWidget` gates on `isEntry` for this
+  // reason; `injectMirrorEmbed` has to pass that gate through rather than
+  // around it.
+  const { files } = await buildMirror();
+  const subpages = files.filter((f) => f.file.endsWith('.html') && f.file !== 'index.html');
+  assert.ok(subpages.length > 0, 'no subpages in the mirror — this test proves nothing');
+
+  for (const page of subpages) {
+    assert.ok(
+      !page.contents.includes('pf-embed-offer'),
+      `${page.slug}/${page.file} is not the calculator but offers itself for embedding`,
+    );
+  }
+});
+
+test('the mirror nav hides when the page is the one being framed', async () => {
+  // `renderEmbedStyle` hides the chrome `build.mjs` writes and cannot know
+  // about `.fd-back`, which belongs to the mirror. Without this rule an
+  // embedded calculator shows a full-width "All 169 free tools on this site"
+  // banner inside someone else's page -- the site nav the embed bar replaces.
+  assert.ok(
+    NAV_STYLE.includes(`.pf-embed .${NAV_CLASS}{display:none}`),
+    'the mirror nav is not hidden under .pf-embed, so it would show inside an embed',
+  );
+});
+
+test('the embed runtime and stylesheet are reachable paths at the apex root', async () => {
+  // `validateLinks` rejects any absolute link the apex document root does not
+  // serve, so these two have to be in the allowlist or the whole mirror build
+  // fails. Named from `embed.mjs`'s constants rather than as literals, so a
+  // rename over there cannot leave this list pointing at the old names.
+  const { EMBED_MODULE_FILE, EMBED_STYLE_FILE } = await import('../pages/embed.mjs');
+  assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_MODULE_FILE}`));
+  assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_STYLE_FILE}`));
 });

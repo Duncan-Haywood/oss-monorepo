@@ -99,10 +99,16 @@ test('a slug narrows the walk to one venture', async () => {
 test('a venture with no browser surface yields no pages rather than throwing', async () => {
   // Venture CI passes its slug unconditionally, including for CLIs and
   // libraries. Throwing there would turn those workflows red for no defect.
-  // `cra-evidence-desk` is a real venture that ships no browser surface --
+  // `vendor-change-watch` is a real venture that ships no browser surface --
   // this used to be asserted with a made-up slug, which is the conflation the
   // `known` flag below exists to undo.
-  const { pages, surfaces, known } = await collectPages({ slug: 'cra-evidence-desk' });
+  //
+  // It was `cra-evidence-desk` until 2026-09-03, when that venture gained a
+  // `site/` and stopped being an example of the case. That is the hazard of
+  // picking the fixture from the live tree, and it is still the right trade:
+  // the alternative is a slug that cannot go stale because it never described
+  // anything real, which is exactly what this test was fixed away from.
+  const { pages, surfaces, known } = await collectPages({ slug: 'vendor-change-watch' });
   assert.deepEqual(surfaces, []);
   assert.deepEqual(pages, []);
   assert.equal(known, true);

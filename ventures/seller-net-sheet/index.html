@@ -140,7 +140,7 @@
         </div>
       </section>
     </div>
-    <section class="result">
+    <section class="result" aria-live="polite">
       <h2>Cash to the seller</h2>
       <div id="net" class="hero-number">$—</div>
       <div id="label">estimated net on Offer A</div>
@@ -166,7 +166,7 @@
         <button type="button" id="copySheet">Copy Offer A worksheet</button>
         <button type="button" id="copyCompare">Copy comparison</button>
       </div>
-      <p id="copyStatus" class="status"></p>
+      <p id="copyStatus" class="status" role="status" aria-live="polite"></p>
       <p class="note">Transparent arithmetic from your inputs — not a closing disclosure, a tax opinion, or advice about which offer to accept. Confirm every line with title/escrow, the lender payoff, and your broker.</p>
     </section>
   </main>
@@ -178,7 +178,9 @@
       <strong>which offer leaves more cash</strong> once buyer-broker
       compensation and concessions are separate lines.
       <a href="offer-comparison.html">Higher offer vs cleaner offer</a>
-      walks through that in search-query words.
+      walks through that in search-query words, and
+      <a href="vs-title-company-net-sheet.html">this calculator vs. your title company's net sheet</a>
+      explains which of the two to reach for at which point in the sale.
     </p>
     <p>
       It does not recommend a list price, a commission, or an offer, and it

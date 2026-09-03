@@ -37,6 +37,7 @@ concurrency:
 jobs:
   module-test:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: platform/proposal

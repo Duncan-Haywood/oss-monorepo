@@ -71,7 +71,7 @@
         "name": "Where is my quote and draft stored?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it."
+          "text": "In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it. “Copy share link” is a separate option for handing the scope to someone else: it encodes the same fields into this page's own URL, so opening the link reopens the form with those fields filled in — still nothing sent to any server."
         }
       },
       {
@@ -119,6 +119,8 @@
         </div>
         <button type="submit">Build license quote</button>
         <button type="button" class="secondary" id="save-draft">Save draft locally</button>
+        <button type="button" class="secondary" id="copy-share">Copy share link</button>
+        <span id="share-status" class="small" role="status" aria-live="polite"></span>
       </section>
     </form>
 
@@ -150,13 +152,13 @@
       <h3>Does this replace a licensing contract?</h3>
       <p>No. It produces a quote draft and records your assumptions so you and the client start the conversation from the same numbers. You remain responsible for the signed agreement — defining the specific images, permitted uses, credit, renewal, payment terms, model releases, and termination. Ask a qualified lawyer about contract and copyright questions specific to your situation.</p>
       <h3>Where is my quote and draft stored?</h3>
-      <p>In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it.</p>
+      <p>In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it. &ldquo;Copy share link&rdquo; is a separate option for handing the scope to someone else: it encodes the same fields into this page's own URL, so opening the link reopens the form with those fields filled in &mdash; still nothing sent to any server.</p>
       <h3>Can I use this for stock or per-image licensing instead of a project quote?</h3>
       <p>It is built for a commissioned project: one creative fee plus a usage-rights calculation, with a per-image figure shown only as an allocation of that total. Stock and microstock licensing is usually priced per download against a published rate card rather than derived from a shoot's creative fee, so this worksheet is a starting point to adapt, not a stock pricing tool.</p>
       <p>See the territory multiplier worked into a full table: <a href="how-much-more-does-a-national-or-worldwide-license-cost.html">how much more does a national or worldwide license cost than local?</a></p>
       <p>Already have fotoQuote Pro, or wondering whether to buy it? See <a href="vs-fotoquote.html">this calculator vs. fotoQuote Pro</a>.</p>
     </section>
-    <section class="plain" aria-labelledby="privacy-title"><h2 id="privacy-title">Privacy and usage</h2><p>Everything runs in your browser. Your numbers and draft are never uploaded; there are no accounts, cookies, or analytics vendors. We count only anonymous feature events in local storage, never people or quote content. The counter is off-switchable:</p><label class="check"><input type="checkbox" id="usage-opt-out"> Don't count feature usage in this browser</label> <button type="button" class="link-button" id="clear-usage">Clear local usage</button><p id="usage-summary" class="small"></p></section>
+    <section class="plain" aria-labelledby="privacy-title"><h2 id="privacy-title">Privacy and usage</h2><p>Everything runs in your browser. Your numbers and draft are never uploaded; there are no accounts, cookies, or analytics vendors. &ldquo;Copy share link&rdquo; encodes your inputs into this page's own URL fragment rather than sending them anywhere — the fragment is never included in any network request, so nothing leaves your browser when you share it. We count only anonymous feature events in local storage, never people or quote content. The counter is off-switchable:</p><label class="check"><input type="checkbox" id="usage-opt-out"> Don't count feature usage in this browser</label> <button type="button" class="link-button" id="clear-usage">Clear local usage</button><p id="usage-summary" class="small"></p></section>
     <section class="disclaimer"><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or copyright advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p></section>
   </main>
   <footer>Free and open source under MIT. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. <a href="LICENSE">Licence</a></footer>
