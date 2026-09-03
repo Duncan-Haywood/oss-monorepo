@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseTenders, filterTenders, parseTradeTerms, parseValueNumber, escapeHtml, safeUrl, toCsv, isUrgent, isClosed } from "./calc.mjs";
+import { parseTenders, filterTenders, parseTradeTerms, parseValueNumber, escapeHtml, safeUrl, toCsv, isUrgent, isClosed, daysUntil } from "./calc.mjs";
 
 const SAMPLE = `title,buyer,deadline,category,value,url
 School roof repairs,City Council,2026-09-18,roofing,85000,https://example.test/tender
@@ -137,6 +137,14 @@ Value marked TBD,City,2026-09-18,roofing,TBD,https://example.test/tbd`);
   // A zero (or unset) minimum keeps behaving exactly as before: nothing is
   // excluded on value when the visitor has not asked for a floor.
   assert.equal(filterTenders(rows, { minimum: 0 }).length, 2);
+});
+
+test("daysUntil counts calendar days regardless of the visitor's timezone offset", () => {
+  // Parsed as UTC calendar dates, not `new Date(string)`, so a deadline of
+  // "tomorrow" reads as 1 no matter what offset the browser is on.
+  assert.equal(daysUntil("2026-09-01", "2026-08-30"), 2);
+  assert.equal(daysUntil("2026-08-30", "2026-08-30"), 0);
+  assert.equal(daysUntil("2026-08-29", "2026-08-30"), -1);
 });
 
 test("CSV export quotes embedded quotes", () => {

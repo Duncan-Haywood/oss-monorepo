@@ -43,7 +43,7 @@
 #   portfolio-front-tools-7: 120 files, 556392 bytes
 #   portfolio-front-tools-8: 120 files, 551065 bytes
 #   portfolio-front-tools-9: 105 files, 554993 bytes
-#   portfolio-front-tools-10: 70 files, 365482 bytes
+#   portfolio-front-tools-10: 71 files, 366698 bytes
 #   portfolio-front-tools-11: 58 files, 266851 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1412,6 +1412,7 @@ configMapGenerator:
       - sunroom-bid-calculator__usage.mjs.gz=sunroom-bid-calculator__usage.mjs.gz
       - tender-radar__LICENSE.gz=tender-radar__LICENSE.gz
       - tender-radar__calc.mjs.gz=tender-radar__calc.mjs.gz
+      - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
       - tender-radar__index.html.gz=tender-radar__index.html.gz
       - tender-radar__usage.mjs.gz=tender-radar__usage.mjs.gz
       - tender-radar__which-tenders-are-worth-bidding-on.html.gz=tender-radar__which-tenders-are-worth-bidding-on.html.gz

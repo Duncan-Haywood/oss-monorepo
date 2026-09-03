@@ -85,6 +85,7 @@ permissions:
 jobs:
   resolve-config:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     outputs:
       num_agents: ${{ steps.config.outputs.num_agents }}
       agent_ids: ${{ steps.config.outputs.agent_ids }}
