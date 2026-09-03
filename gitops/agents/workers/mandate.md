@@ -127,8 +127,21 @@ failure and fix it.** Two caveats, neither of which is licence to discount one:
   signature may return. Do not judge it by eye — run the tool below, which
   votes on `runner_id` alone. If it says a real runner ran the job, the failure
   is yours.
-- No checks at all is not failed checks — PRs opened with `GITHUB_TOKEN` do not
-  trigger Actions here.
+- No checks at all is not failed checks either — but do not *expect* a blank
+  list, and do not read one as an explanation. This bullet used to say "PRs
+  opened with `GITHUB_TOKEN` do not trigger Actions here", which names the
+  wrong mechanism: an agent PR here authenticates with a fine-grained PAT
+  (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
+  no-recursion rule applies to, so it triggers `pull_request` workflows exactly
+  as a human's PR does. Measured: #2856 created 13 check runs, 11 on real
+  runners. So a blank check list is a thing to go and verify, not a state to
+  assume — and when it really is blank, verify locally and record what you ran
+  rather than reading the blank as a pass or a fail.
+- And read *check runs*, not the commit-status API. `/commits/<sha>/status`
+  (and the GitHub MCP `get_status` method) returns only legacy commit statuses
+  and reports `total_count: 0` on a PR whose checks are red — which reads as
+  "absent CI" and is handled differently from a real failure. Use
+  `/commits/<sha>/check-runs` or the PR's checks tab.
 
 Do not re-derive that by hand; there is a tool, and hand-derivation is where it
 goes wrong in both directions — "fixing" green code, or merging something
