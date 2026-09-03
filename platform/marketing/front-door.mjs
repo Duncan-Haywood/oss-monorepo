@@ -641,6 +641,48 @@ export function renderFrontDoorLlms({ mirrored = [], total = 0, categories = ALL
     (group) => `## ${group.title}\n\n${group.tools.map(bullet).join('\n')}\n`,
   );
 
+  // Whether the mirror is a *subset* of the collection is a fact that changed
+  // under this paragraph, and the paragraph did not notice.
+  //
+  // It was written while `venturePageRoot` could not resolve every venture, so
+  // the apex served a proper subset and the honest thing to tell a model was
+  // "there are more, they land elsewhere, do not follow me there". The two
+  // mirror fixes on 2026-09-03 (162 → 168 → 169) closed that gap: `mirrored`
+  // and `total` are now the same number, and the sentence went on asserting a
+  // "wider collection" that does not exist and a hostname where the tools
+  // "will be published" when they are already published here.
+  //
+  // That is worse than untidy in this file specifically. `llms.txt` exists to
+  // be read by a model that will paraphrase it to a user, and both halves of
+  // the stale sentence push that paraphrase somewhere false: it implies the
+  // 169 links above are partial (so an assistant hedges, or goes looking for
+  // the rest), and it names a dark hostname as the collection's real home (so
+  // the answer sends someone to a host that serves nothing). CLAUDE.md flags
+  // exactly this misreading — "do not describe the catalogue as dark" — and
+  // this was the one place it had leaked into a public, crawler-facing asset.
+  //
+  // Both branches keep the invariant `front-door.test.mjs` guards, because it
+  // is the one that survives either state: the catalogue host is *named* so a
+  // model that meets the hostname elsewhere knows not to send anyone there,
+  // and it is never *linked*.
+  //
+  // Both are hard-wrapped to match the body prose above them. The tool bullets
+  // are long single lines because a newline inside one silently ends the list
+  // item; body paragraphs carry no such constraint and the rest of this file
+  // wraps, so an unwrapped paragraph would be the only one.
+  const coverage =
+    mirrored.length >= total
+      ? `Every tool in the collection is listed below — all ${total} of them — and
+every one is linked at a URL this host serves. Nothing is held back for
+another hostname: ${catalogue} is reserved as this collection's
+eventual canonical address, is not serving yet, and is named here only so it
+is not mistaken for a fuller index — a link there would resolve to nothing
+today.`
+      : `Every tool listed below is linked at a URL this host serves. The wider
+collection runs to ${total} tools and will be published at ${catalogue}; that
+hostname is not serving yet, so it is named here for context and deliberately
+not linked — a link there would resolve to nothing today.`;
+
   // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
   // short of context. Every entry is a path this host actually serves — see the
   // note in the block comment above about `catalog.json`, which now is one.
@@ -662,10 +704,7 @@ gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool listed below is linked at a URL this host serves. The wider
-collection runs to ${total} tools and will be published at ${catalogue}; that
-hostname is not serving yet, so it is named here for context and deliberately
-not linked — a link there would resolve to nothing today.
+${coverage}
 
 ${sections.join('\n')}
 ${optional}`;
