@@ -3327,6 +3327,30 @@ products:
           Repair-and-merge of unique #1204 construction daily log evidence
           pack onto current main. Public URL remains owner-gated; local
           counting is opt-in and honors DNT/GPC.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          entry_saved: 0
+          combined_pack_downloaded: 0
+        note: >-
+          Closed a real workflow gap: the tool called itself a "log" but every
+          submission was a single one-off record with nothing tying days
+          together — the page's own FAQ said outright that closing the tab
+          before downloading lost the entry, and there was no way to see, let
+          alone export, more than one day at a time. Each entry a contractor
+          submits is now saved in this browser (record.mjs `buildEvidencePack`
+          / `packSummary`), listed in a new project log history section
+          (filterable by project name), and exportable as one combined,
+          date-sorted JSON pack spanning the whole job with per-day review
+          notes carried through, plus per-entry delete and clear-all. Privacy
+          copy, the on-page FAQ, and its FAQPage JSON-LD were rewritten to
+          match the new (still browser-only, still nothing uploaded)
+          persistence honestly. 12 tests (7 new: pack building/sorting/empty
+          case, plus a page-integrity test asserting every id app.js queries
+          exists in the markup and the FAQ stays in sync with its JSON-LD),
+          `node platform/webcheck/check_pages.mjs` (619 pages, all sound), and
+          `node platform/pages/clauses.mjs construction-evidence-log` (no-
+          warranty clause present) all pass. Public URL remains owner-gated.
 
   - slug: saas-seat-true-up
     surface: static-page-in-repo
