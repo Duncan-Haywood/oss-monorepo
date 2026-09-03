@@ -1000,6 +1000,20 @@ products:
           dedicated calculator now carry the item through; local/direct and the
           free-text "other" channel have no target by design. Public URL remains
           owner-gated.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          share_link_opened: 0
+        note: >-
+          Carried expected days-to-sell and the profit-per-sale/profit-per-day
+          ranking choice into the share-link encoding. Before this, a link
+          shared from a page ranked by speed opened on the recipient's screen
+          ranked by profit with every turnaround number reset to the default —
+          the recipient saw a different answer from the sender with no sign
+          anything was missing. `rankBy` is validated against a known set so a
+          hand-edited link cannot inject an unknown ranking mode. Public URL
+          remains owner-gated; 38 unit tests pass and the round trip was
+          verified end to end in Chromium through the page's own share button.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
