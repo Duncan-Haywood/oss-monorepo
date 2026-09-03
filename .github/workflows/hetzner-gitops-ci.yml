@@ -57,6 +57,13 @@ permissions:
 jobs:
   gitops:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Normally ~2-3 minutes (pytest + two network downloads + a front-door
+    # generator run). Without a cap here a hung apt-get, curl, or nginx
+    # boot rides the default 360-minute GitHub-hosted ceiling — on a
+    # metered-minutes account (see CLAUDE.md's CI-starvation history) that
+    # is the difference between one stuck job and the next allowance cycle
+    # arriving early.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -132,6 +139,7 @@ jobs:
 
   tofu:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -146,6 +154,7 @@ jobs:
 
   scripts:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -171,6 +180,7 @@ jobs:
 
   hcloud-scope:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Prove HETZNERREADAPIKEY is Read-only
@@ -186,6 +196,11 @@ jobs:
   preflight:
     if: github.event_name == 'workflow_dispatch' && inputs.preflight == true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # SSHes to two live boxes; ssh-keyscan and the preflight script have no
+    # timeout of their own, so this is the only thing that stops a
+    # network stall (a firewalled port, a box mid-reboot) from riding the
+    # runner to its 360-minute default.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: SSH preflight (read-only)
