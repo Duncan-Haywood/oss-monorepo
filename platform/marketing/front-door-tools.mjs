@@ -89,7 +89,7 @@ import { fileURLToPath } from 'node:url';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
-import { ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
+import { ABOUT_PATH, ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
 
 // The embed offer, imported whole rather than reproduced for this host.
 //
@@ -1186,6 +1186,13 @@ export const APEX_ROOT_PATHS = new Set([
   // and the page that runs it is somebody else's — but it is served from this
   // document root and so belongs in the same allowlist.
   `/${EMBED_HOST_FILE}`,
+  // The About and press-kit page, `renderFrontDoorAbout` in `front-door.mjs`,
+  // served from the document root by `default.conf`'s `^/about/?$` block. In
+  // the allowlist so a mirrored page may link to it — the injected chrome does
+  // not today, but `validateLinks` rejects any absolute link this root does not
+  // serve, and a page that *can* be linked to belongs here rather than being
+  // discovered as a build failure by whoever first adds the link.
+  `/${ABOUT_PATH}`,
 ]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);

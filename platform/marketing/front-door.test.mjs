@@ -32,6 +32,11 @@ import {
   SOCIAL_CARD_ALT,
   SOCIAL_CARD_OUTPUT_FILE,
   TOOLS_URL,
+  ABOUT_KEY,
+  PRIVACY_LOG_FIELDS,
+  SPONSORS_URL,
+  aboutOutputFile,
+  apexAboutUrl,
   buildFrontDoor,
   categoryAnchor,
   apexCategoryUrl,
@@ -44,6 +49,7 @@ import {
   feedEntryId,
   publishedSlugs,
   renderFrontDoor,
+  renderFrontDoorAbout,
   renderFrontDoorCatalog,
   renderFrontDoorFeed,
   renderFrontDoorLlms,
@@ -1632,4 +1638,182 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
     total < 1024 * 1024,
     `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
   );
+});
+
+test('the About page is mounted by the kustomization and served by nginx', async () => {
+  // The same seam the category-page test guards, and the About page falls
+  // through it identically: rendered, linked from the front page, and in the
+  // sitemap, but never delivered unless the ConfigMap carries it and nginx has
+  // a route to it. Both halves, because either alone is a 404 on a URL two
+  // other artifacts advertise.
+  const frontDoorDir = path.dirname(OUTPUT_FILE);
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(frontDoorDir), 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.ok(
+    kustomization.includes(`- ${ABOUT_KEY}=front-door/${ABOUT_KEY}`),
+    `gitops/prod/kustomization.yaml must mount ${ABOUT_KEY}; without it /about/ is a 404`,
+  );
+  const conf = await fs.readFile(path.join(frontDoorDir, 'default.conf'), 'utf8');
+  assert.match(
+    conf,
+    /location ~ "\^\/about\/\?\$"/,
+    'front-door/default.conf must route /about/, or the catch-all answers it with the front page',
+  );
+  assert.ok(
+    conf.includes(`try_files /${ABOUT_KEY} =404`),
+    `the /about/ block must rewrite to ${ABOUT_KEY}, the key the kustomization mounts`,
+  );
+});
+
+test('the About page claim about the access log matches the log_format that ships', async () => {
+  // The page's strongest claim is that this host records no IP address, no
+  // user agent and no referrer — stated as a property of the configuration
+  // rather than a promise. A later change that widens `log_format privacy`
+  // would make that claim false with nothing else failing, so it fails here
+  // instead, in a test that names the page.
+  const conf = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), 'default.conf'),
+    'utf8',
+  );
+  const logFormats = [...conf.matchAll(/^log_format\s+\w+\s+(.*);$/gm)].map((m) => m[1]);
+  assert.ok(logFormats.length, 'no log_format found — the About page describes one that must exist');
+  for (const field of PRIVACY_LOG_FIELDS) {
+    for (const format of logFormats) {
+      assert.ok(
+        !format.includes(field),
+        `${field} is now logged, so /about/'s "no addresses, no user agent, no referrer" claim ` +
+          `is false. Either drop the field or rewrite renderFrontDoorAbout — do not delete this test.`,
+      );
+    }
+  }
+});
+
+test('the About page states no claim this host cannot keep', async () => {
+  // The two claims `build.mjs`'s About page makes that are false here, and the
+  // reason this page exists separately rather than reusing it. Asserted as
+  // absences because the failure mode is a future session "unifying" the two
+  // renderers and silently importing copy about a counter this host does not
+  // ship.
+  const { about } = await buildFrontDoor();
+  assert.ok(
+    !/local storage|localStorage/i.test(about),
+    'the apex ships no local-storage counter — see renderFrontDoorAbout on why this page is separate',
+  );
+  assert.ok(
+    !/opt-out checkbox/i.test(about),
+    'the apex front page has no opt-out checkbox, so the page must not send a reader looking for one',
+  );
+  // And nothing this document root does not serve. `pf-site.js` and
+  // `favicon.ico` are the two build.mjs loads that would 404 here.
+  assert.ok(!about.includes('pf-site.js'), 'the apex does not serve pf-site.js');
+  assert.ok(!about.includes('favicon.ico'), 'the apex serves favicon.svg only');
+});
+
+test('every link on the About page is one this host serves', async () => {
+  // `validateLinks` covers the mirrored pages; this page is not mirrored, so
+  // nothing else checks it. A dead link on the one page whose whole job is
+  // credibility is worse than a dead link anywhere else here.
+  const { about, categoryPages } = await buildFrontDoor();
+  const served = new Set([
+    '/',
+    `/${ABOUT_PATH}`,
+    `/${FAVICON_FILE}`,
+    `/${FEED_FILE}`,
+    `/${LLMS_FILE}`,
+    `/${CATALOG_FILE}`,
+    `/${SITEMAP_FILE}`,
+    ...categoryPages.map((page) => `/${categoryPagePath(page.id)}`),
+  ]);
+  const hrefs = [...about.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(hrefs.length > 5, 'the About page rendered with almost no links — something is wrong');
+  for (const href of hrefs) {
+    if (href.startsWith('https://')) {
+      // Absolute links are either this host (the canonical and the category
+      // links, both checked below in their root-relative form) or an outside
+      // address a reader chooses to click.
+      if (href.startsWith(FRONT_DOOR_URL)) {
+        assert.ok(
+          served.has(`/${href.slice(FRONT_DOOR_URL.length)}`),
+          `${href} is on this host but is not a path it serves`,
+        );
+      }
+      continue;
+    }
+    assert.ok(served.has(href), `${href} is not a path this host serves`);
+  }
+});
+
+test('the About page carries the §5b clauses, the sponsor link, and no invented traction', async () => {
+  const { about } = await buildFrontDoor();
+  assert.ok(about.includes('No warranty.'), 'a hosted surface here carries the no-warranty clause');
+  assert.ok(about.includes('no SLA'), 'a hosted surface here carries the no-SLA clause');
+  // GitHub Sponsors is the only monetisation this portfolio has, and the page
+  // has to say declining costs the reader nothing.
+  assert.ok(about.includes(SPONSORS_URL));
+  assert.match(about, /entirely optional/);
+  // The absolute limit on this page: never claim traction that does not exist.
+  // Matched as claim *shapes* rather than bare words — the page legitimately
+  // uses "certified" and "guaranteed" to say these tools are neither, and a
+  // word-level check would forbid the disclaimer along with the boast. That is
+  // not a hypothetical: the first version of this test failed on the page's
+  // own "please do not describe these as certified, audited, guaranteed".
+  for (const forbidden of [
+    /\btrusted by\b/i,
+    /\bused by [\d,]+/i,
+    /\btestimonial/i,
+    /\b(is|are|been)\s+(certified|audited|guaranteed)\b/i,
+    /\b[\d,]+\+?\s+(users|customers|businesses|contractors)\b/i,
+  ]) {
+    assert.ok(!forbidden.test(about), `the About page must not claim ${forbidden}`);
+  }
+  // And the caveat itself is present, which is the other half of the same
+  // rule: the page tells a linker not to describe these as certified.
+  assert.match(about, /do not describe these as certified/i);
+});
+
+test('the About page counts the tools and categories this host actually serves', async () => {
+  // Derived, never written down: the count on this page is the same mirror the
+  // front page and the catalogue read, so the three cannot disagree. The
+  // failure this prevents is a press-kit paragraph a linker copies that names
+  // a tool count the site has not had for weeks.
+  const { about, categoryPages } = await buildFrontDoor();
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { tools } = await buildMirror();
+  assert.ok(
+    about.includes(`${tools.length} free, private calculators`),
+    'the one-line boilerplate does not carry the live tool count',
+  );
+  assert.ok(
+    about.includes(`<strong>${tools.length} tools</strong> across ${categoryPages.length} categories`),
+    'the facts list does not carry the live tool and category counts',
+  );
+  assert.equal(apexAboutUrl(), `${FRONT_DOOR_URL}${ABOUT_PATH}`);
+  assert.ok(aboutOutputFile().endsWith(ABOUT_KEY));
+});
+
+test('the front page and the sitemap both lead to the About page', async () => {
+  // It existed and was reachable from nowhere for as long as the only link to
+  // it was `${toolsUrl}${ABOUT_PATH}` on a host that serves nothing.
+  const { html, sitemap } = await buildFrontDoor();
+  assert.ok(
+    html.includes(`href="/${ABOUT_PATH}"`),
+    'the front page must link /about/, or the page is published and unreachable',
+  );
+  assert.ok(
+    sitemap.includes(`<loc>${FRONT_DOOR_URL}${ABOUT_PATH}</loc>`),
+    'the sitemap must list /about/',
+  );
+});
+
+test('renderFrontDoorAbout survives an empty catalogue', async () => {
+  // Reachable on the day `portfolio-site-repo` is sealed: the mirror empties,
+  // `categoryPages` goes to zero, and this page keeps being served because it
+  // is this host's own. It must not render "0 free tools" as a broken sentence
+  // or throw on the empty category list.
+  const about = renderFrontDoorAbout();
+  assert.ok(about.includes('<!doctype html>'));
+  assert.ok(about.includes('No warranty.'));
+  assert.ok(about.includes(SPONSORS_URL));
 });

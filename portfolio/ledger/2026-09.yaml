@@ -8345,3 +8345,73 @@ entries:
         the governor unsuspend, both owner-only and both already in
         `infra/OWNER_CHECKLIST.md`.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second deliverable of the same run, on the "building and deploying
+        marketing materials on the hetzner vms" half of the owner's
+        direction. The apex is the only host serving anything, and it had no
+        About page at all: no positioning, no press kit, and no statement of
+        what happens to what a visitor types. `build.mjs`'s `renderAboutPage`
+        has existed since the site build was written and publishes to
+        `tools.marisstella.dev`, which fails closed on the unsealed
+        `portfolio-site-repo` Secret -- so the page had been written,
+        reviewed and reachable by nobody. The front door's own footer linked
+        it at `${toolsUrl}about/`, a URL that has never served a byte.
+      - >-
+        Rendering that same page on the apex was the obvious move and was
+        wrong. Checked before writing anything: its copy makes two privacy
+        claims that are false here -- that the tally of opened tools is "in
+        your own browser's local storage" (this host ships no such counter;
+        nothing in `front-door/index.html` touches localStorage) and that
+        there is "an opt-out checkbox at the foot of the tool list" (there is
+        none, because there is nothing client-side to opt out of). It also
+        loads `pf-site.js` and a `favicon.ico`, neither of which this
+        document root serves. `PRODUCT_PLAYBOOK.md` and the mandate both make
+        "marketing claims must be true" an absolute limit, so the apex got
+        its own renderer stating its own mechanism.
+      - >-
+        `renderFrontDoorAbout` in `front-door.mjs`, served at `/about/`. Its
+        strongest claim is this host's actual one and is better than the
+        catalogue host's: nginx's `log_format privacy` records four fields --
+        time, status, path, embed bit -- and deliberately no `$remote_addr`,
+        `$http_user_agent` or `$http_referer`, so "no profile of you" is a
+        property of the configuration rather than a promise about the data.
+        Every claim is either derived from the build (tool count, category
+        list, press-kit boilerplate) or pinned by a test. Verified before
+        writing: MIT licences ship beside every tool, and the built mirror
+        contains zero `fetch(`, `XMLHttpRequest` or external `src=` -- the
+        only absolute URLs in it are schema.org JSON-LD contexts, github.com,
+        and citation links a reader chooses to click. Unlike the catalogue
+        host this one needs no documented exception.
+      - >-
+        Wired end to end rather than rendered and left dark, which is the
+        seam the category pages fell through once: nginx `^/about/?$` block
+        (a regex, so `/aboutanything` cannot fall to the catch-all and
+        `/about` without the slash still resolves), `about.html` in the
+        `portfolio-front` ConfigMap, `/about/` in `APEX_ROOT_PATHS`, in the
+        sitemap unconditionally, and linked from the live front-door footer
+        branch -- which had no About link at all, only the dark-host one.
+      - >-
+        Caught two real defects in my own work before pushing. `ABOUT_PATH`
+        was already imported from `build.mjs` at line 74 and I had
+        redeclared it -- a duplicate binding, and exactly the "restated a
+        rule that lives in build.mjs" mistake CLAUDE.md says has twice cost
+        live product; removed and imported instead. And the first version of
+        the no-invented-traction test matched the bare word "certified",
+        which failed on the page's own "please do not describe these as
+        certified, audited, guaranteed" -- the disclaimer, not a boast. The
+        test now matches claim shapes (`is/are/been certified`, `used by
+        N`, `trusted by`) and separately asserts the caveat is present.
+      - >-
+        Verified: 197/197 platform/marketing (11 new), 867/867
+        platform/pages, 271 passed / 12 skipped gitops/tests,
+        `check_duplicate_symbols.py`, `publish_surface.py --check`. Checked
+        every href the rendered page emits resolves to something this host
+        serves -- `/`, catalog.json, llms.txt, sitemap.xml, feed.xml,
+        favicon.svg, all seven `/c/<id>/`, its own canonical, and the
+        GitHub Sponsors link -- and a test now enforces that rather than
+        leaving it to a one-off check. `--headroom` unchanged at 76.3%.
+    mrr_end: null
