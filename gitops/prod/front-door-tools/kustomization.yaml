@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 119 files, 551520 bytes
 #   portfolio-front-tools-4: 131 files, 551479 bytes
 #   portfolio-front-tools-5: 120 files, 553695 bytes
-#   portfolio-front-tools-6: 114 files, 552022 bytes
+#   portfolio-front-tools-6: 115 files, 556457 bytes
 #   portfolio-front-tools-7: 124 files, 556244 bytes
 #   portfolio-front-tools-8: 110 files, 542761 bytes
 #   portfolio-front-tools-9: 112 files, 555613 bytes
@@ -1002,6 +1002,7 @@ configMapGenerator:
       - landscape-lighting-bid-calculator__proposal.mjs.gz=landscape-lighting-bid-calculator__proposal.mjs.gz
       - landscape-lighting-bid-calculator__share.mjs.gz=landscape-lighting-bid-calculator__share.mjs.gz
       - landscape-lighting-bid-calculator__usage.mjs.gz=landscape-lighting-bid-calculator__usage.mjs.gz
+      - landscape-lighting-bid-calculator__vs-aspire.html.gz=landscape-lighting-bid-calculator__vs-aspire.html.gz
       - marketplace-fee-compare__LICENSE.gz=marketplace-fee-compare__LICENSE.gz
       - marketplace-fee-compare__calc.mjs.gz=marketplace-fee-compare__calc.mjs.gz
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
