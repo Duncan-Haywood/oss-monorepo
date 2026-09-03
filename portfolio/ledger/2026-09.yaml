@@ -8131,3 +8131,55 @@ entries:
         `faq-visible.test.mjs`, which requires FAQ JSON-LD to match the
         visible prose verbatim.
     mrr_end: null
+  - venture: print-atelier
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second product increment of the session, and the direct follow-up
+        this session's own PR #3075 named as the next step: after
+        publishing the MLS listing-photo preflight, 14 ventures still had
+        no public route. `print-atelier` held the closest analogue -- a
+        tested, complete print-file preflight (implied DPI at a named
+        print size, pixel floor, format, byte ceiling, web-export
+        filename tokens, crop match, and a ranked comparison of up to
+        five candidate masters with a dated JSON record) living as a
+        TypeScript library plus a React component inside the venture's
+        Next.js app. `platform/pages/build.mjs` publishes neither shape,
+        so no artist could reach any of it.
+      - >-
+        Ported the rule set to dependency-free ESM under `site/`, a
+        standard entry candidate, so the existing pipeline publishes it
+        with no new mechanism: canonical build, front-door mirror, apex.
+        It is now the 171st tool at `/tools/print-atelier/`. Kept the
+        port 1:1 rather than improving it in flight -- two of the three
+        initial test failures were my own wrong expectations about
+        upstream behaviour (a lone passing master *is* recommended, and
+        600x800 trips the 11x14 crop tolerance), and both were fixed by
+        correcting the test to document real behaviour rather than by
+        changing the ported logic.
+      - >-
+        Added `parity.test.mjs` on the same pattern as #3075's: it reads
+        the TypeScript source as text and pins every constant, the named
+        print-size table, the web-export token list, the verbatim
+        disclaimer string, and every emitted rule id. Placed the venture
+        in the `evidence` category alongside its sibling -- both are
+        preflights that export a dated record and refuse to call
+        themselves an acceptance decision, and both slugs name the
+        venture rather than the surface, so neither matched the
+        `preflight$` suffix and both sat in the catch-all.
+      - >-
+        Verified: 42/42 new venture tests, 867/867 platform/pages,
+        182/182 platform/marketing, 271 passed / 12 skipped in
+        gitops/tests, full-site build and `check.mjs` clean (171
+        products, 628 pages, no dead links, up from 170/627), mirror
+        regenerated to 171 tools / 1425 files at 76% of the byte ceiling,
+        sitemap-to-shard cross-check 617/617 resolving. Exercised the
+        primary journey on four exports of one painting at 18x24: the
+        200 DPI master was recommended, the web export was blocked on
+        its filename despite clearing the floor, the scan at exactly 150
+        DPI passed at the floor, and the phone export failed on both DPI
+        and crop. Updated the doc/mirror count guard (170 -> 171 in
+        OWNER_CHECKLIST.md, aggregate.py, default.conf and the test
+        constant).
+    mrr_end: null

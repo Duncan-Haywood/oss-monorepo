@@ -33,18 +33,18 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 146 files, 556615 bytes
-#   portfolio-front-tools-1: 125 files, 551540 bytes
-#   portfolio-front-tools-2: 162 files, 555110 bytes
-#   portfolio-front-tools-3: 127 files, 555338 bytes
-#   portfolio-front-tools-4: 118 files, 542362 bytes
-#   portfolio-front-tools-5: 130 files, 556432 bytes
-#   portfolio-front-tools-6: 109 files, 542975 bytes
-#   portfolio-front-tools-7: 111 files, 543935 bytes
-#   portfolio-front-tools-8: 122 files, 551181 bytes
-#   portfolio-front-tools-9: 103 files, 551002 bytes
-#   portfolio-front-tools-10: 108 files, 553566 bytes
-#   portfolio-front-tools-11: 61 files, 288189 bytes
+#   portfolio-front-tools-0: 146 files, 556643 bytes
+#   portfolio-front-tools-1: 125 files, 551542 bytes
+#   portfolio-front-tools-2: 162 files, 555145 bytes
+#   portfolio-front-tools-3: 127 files, 555341 bytes
+#   portfolio-front-tools-4: 118 files, 542333 bytes
+#   portfolio-front-tools-5: 130 files, 556475 bytes
+#   portfolio-front-tools-6: 109 files, 542981 bytes
+#   portfolio-front-tools-7: 111 files, 543909 bytes
+#   portfolio-front-tools-8: 124 files, 547238 bytes
+#   portfolio-front-tools-9: 104 files, 553544 bytes
+#   portfolio-front-tools-10: 108 files, 552381 bytes
+#   portfolio-front-tools-11: 62 files, 305692 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1201,6 +1201,10 @@ configMapGenerator:
       - pressure-washing-bid-calculator__share.mjs.gz=pressure-washing-bid-calculator__share.mjs.gz
       - pressure-washing-bid-calculator__usage.mjs.gz=pressure-washing-bid-calculator__usage.mjs.gz
       - pressure-washing-bid-calculator__vs-gorilladesk.html.gz=pressure-washing-bid-calculator__vs-gorilladesk.html.gz
+      - print-atelier__LICENSE.gz=print-atelier__LICENSE.gz
+      - print-atelier__index.html.gz=print-atelier__index.html.gz
+      - print-atelier__preflight.mjs.gz=print-atelier__preflight.mjs.gz
+      - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
       - quote-margin-check__LICENSE.gz=quote-margin-check__LICENSE.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
@@ -1255,13 +1259,13 @@ configMapGenerator:
       - security-camera-bid-calculator__LICENSE.gz=security-camera-bid-calculator__LICENSE.gz
       - security-camera-bid-calculator__calc.mjs.gz=security-camera-bid-calculator__calc.mjs.gz
       - security-camera-bid-calculator__how-much-to-charge.html.gz=security-camera-bid-calculator__how-much-to-charge.html.gz
-      - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
-      - security-camera-bid-calculator__proposal-terms.mjs.gz=security-camera-bid-calculator__proposal-terms.mjs.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - security-camera-bid-calculator__index.html.gz=security-camera-bid-calculator__index.html.gz
+      - security-camera-bid-calculator__proposal-terms.mjs.gz=security-camera-bid-calculator__proposal-terms.mjs.gz
       - security-camera-bid-calculator__proposal.mjs.gz=security-camera-bid-calculator__proposal.mjs.gz
       - security-camera-bid-calculator__share.mjs.gz=security-camera-bid-calculator__share.mjs.gz
       - security-camera-bid-calculator__usage.mjs.gz=security-camera-bid-calculator__usage.mjs.gz
@@ -1364,12 +1368,12 @@ configMapGenerator:
       - soffit-fascia-bid-calculator__LICENSE.gz=soffit-fascia-bid-calculator__LICENSE.gz
       - soffit-fascia-bid-calculator__calc.mjs.gz=soffit-fascia-bid-calculator__calc.mjs.gz
       - soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz=soffit-fascia-bid-calculator__how-much-to-charge-for-soffit-and-fascia.html.gz
-      - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - soffit-fascia-bid-calculator__index.html.gz=soffit-fascia-bid-calculator__index.html.gz
       - soffit-fascia-bid-calculator__proposal.mjs.gz=soffit-fascia-bid-calculator__proposal.mjs.gz
       - soffit-fascia-bid-calculator__share.mjs.gz=soffit-fascia-bid-calculator__share.mjs.gz
       - soffit-fascia-bid-calculator__usage.mjs.gz=soffit-fascia-bid-calculator__usage.mjs.gz
@@ -1477,12 +1481,12 @@ configMapGenerator:
       - walk-in-tub-bid-calculator__LICENSE.gz=walk-in-tub-bid-calculator__LICENSE.gz
       - walk-in-tub-bid-calculator__calc.mjs.gz=walk-in-tub-bid-calculator__calc.mjs.gz
       - walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz=walk-in-tub-bid-calculator__how-much-to-charge-to-install-a-walk-in-tub.html.gz
-      - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
   - name: portfolio-front-tools-11
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - walk-in-tub-bid-calculator__index.html.gz=walk-in-tub-bid-calculator__index.html.gz
       - walk-in-tub-bid-calculator__proposal.mjs.gz=walk-in-tub-bid-calculator__proposal.mjs.gz
       - walk-in-tub-bid-calculator__share.mjs.gz=walk-in-tub-bid-calculator__share.mjs.gz
       - walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz=walk-in-tub-bid-calculator__should-i-install-a-customer-supplied-walk-in-tub.html.gz
