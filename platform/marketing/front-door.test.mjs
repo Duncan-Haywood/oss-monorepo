@@ -32,6 +32,8 @@ import {
   buildFrontDoor,
   categoryAnchor,
   categoryCounts,
+  categoryOutputFile,
+  categoryPageKey,
   extraTokens,
   mirroredByCategory,
   orderedCategories,
@@ -195,16 +197,145 @@ test('a category card with tools on this host leads to them, not to the dark hub
   // tools.marisstella.dev, which serves nothing until portfolio-site-repo is
   // sealed. A card that has tools here must lead to them.
   for (const id of ['trades', 'logistics']) {
-    assert.match(html, new RegExp(`<h3><a href="#${categoryAnchor(id)}">`));
+    // The heading leads to this host's own category page. It was a fragment
+    // into the section further down this page until `renderCategoryPage`
+    // existed, which was the best available destination at the time; now that
+    // `/c/<id>/` is served here it is the better one, because it carries
+    // `categoryPageCopy`'s own copy, sub-groups the tools, and is a URL a
+    // search result can land on. The fragment section it replaced is still
+    // rendered and still reachable from the hero call-to-action.
+    assert.match(html, new RegExp(`<h3><a href="${FRONT_DOOR_URL}${categoryPagePath(id)}">`));
     assert.match(html, new RegExp(`id="${categoryAnchor(id)}"`));
   }
-  // No *clickable* category link into the dark host remains. The JSON-LD's
-  // `hasPart` still names those `/c/<id>/` URLs and should: structured data
-  // describes where the collection's parts canonically live, which is the hub,
-  // and a crawler reading it is not a visitor spending a click.
+  // No category link into the dark host remains anywhere in the document —
+  // not in the cards, and no longer in the JSON-LD either.
+  //
+  // This assertion used to be scoped to `href="…"` on purpose, with the
+  // reasoning that `hasPart` should keep naming the hub because "structured
+  // data describes where the collection's parts canonically live, which is the
+  // hub, and a crawler reading it is not a visitor spending a click".
+  //
+  // That reasoning does not survive `TOOLS_HOST_SERVES === false`. The mirror
+  // already declares *this* host canonical for every tool page it serves, so a
+  // `hasPart` naming the catalogue host contradicted the canonical policy one
+  // level down, and described seven CollectionPages at URLs that answer
+  // nothing. "A crawler is not spending a click" is true and beside the point:
+  // being found by crawlers is the entire purpose of this portfolio's
+  // structured data, and pointing them at 404s is a worse failure than a dead
+  // link a person can at least see and route around.
   assert.ok(
-    !html.includes(`href="${TOOLS_URL}c/`),
-    'no category card should still send a click into the host that serves nothing',
+    !html.includes(`${TOOLS_URL}c/`),
+    'no category URL on the dark host should remain, in a link or in structured data',
+  );
+});
+
+test('each served category gets a page on this host, and it is what the page points at', async () => {
+  const { html, categoryPages, sitemap } = await buildFrontDoor();
+  assert.ok(categoryPages.length > 0, 'the mirror serves tools, so it must serve category pages');
+
+  for (const page of categoryPages) {
+    const url = `${FRONT_DOOR_URL}${categoryPagePath(page.id)}`;
+
+    // The card, the JSON-LD and the sitemap must all name the same URL. These
+    // three drifted apart before: the cards were fixed to stop pointing at the
+    // dark host while `hasPart` went on doing it, so the page disagreed with
+    // itself about where its own collections lived.
+    assert.ok(html.includes(url), `the front page must link ${page.id} at ${url}`);
+    assert.ok(sitemap.includes(`<loc>${url}</loc>`), `${page.id} must be in the sitemap`);
+
+    // The page has to declare itself canonical at the URL nginx serves it
+    // from, or the whole set is indexed under the front page's canonical and
+    // the seven pages compete with it instead of ranking for their own intent.
+    assert.match(page.html, new RegExp(`<link rel="canonical" href="${url}">`));
+
+    // Every user-facing surface in this portfolio carries the no-warranty
+    // clause (PRODUCT_PLAYBOOK §5b). A generated page is not exempt because it
+    // is generated.
+    assert.match(page.html, /<strong>No warranty\.<\/strong>/);
+    assert.match(page.html, /<strong>Best-effort hosting, no SLA\.<\/strong>/);
+
+    // Nothing on these pages may point at the host that serves nothing.
+    assert.ok(!page.html.includes(TOOLS_URL), `${page.id} must not link the dark host`);
+  }
+});
+
+test('a category page lists exactly the tools this host serves in that category', async () => {
+  const { categoryPages } = await buildFrontDoor();
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { tools } = await buildMirror();
+  const grouped = mirroredByCategory(tools);
+
+  for (const page of categoryPages) {
+    const expected = grouped.get(page.id) ?? [];
+    // Every tool in the category appears, and the count in the fine print is
+    // the real one. A browse page that silently drops a tool is worse than no
+    // browse page: the tool is live, reachable, and now invisible to anyone
+    // browsing rather than searching — the same "public nowhere" failure the
+    // ENTRY_OVERRIDES bug caused, one layer up.
+    for (const tool of expected) {
+      assert.ok(
+        page.html.includes(`href="${tool.url}"`),
+        `${page.id} must list ${tool.slug}, which this host serves`,
+      );
+    }
+    const links = page.html.match(/href="\/tools\/[^"]*"/g) ?? [];
+    assert.equal(
+      links.length,
+      expected.length,
+      `${page.id} must list only the tools this host serves in that category`,
+    );
+  }
+});
+
+test('the nginx rewrite and the ConfigMap key agree about where a category page is stored', async () => {
+  // These two are the halves of one mapping, written in two languages in two
+  // files: `categoryPageKey` names the file, and the `^/c/(?<cat>…)/?$` block
+  // in `default.conf` rewrites the URL to that name. If they disagree the
+  // pages are dark while every other check in this file still passes — the
+  // generator writes them, the kustomization mounts them, the sitemap asks
+  // crawlers to fetch them, and nginx answers 404.
+  const conf = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), 'default.conf'),
+    'utf8',
+  );
+  assert.match(conf, /location ~ "\^\/c\/\(\?<cat>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$" \{/);
+  assert.match(conf, /try_files \/c__\$\{cat\}\.html =404;/);
+
+  const { categoryPages } = await buildFrontDoor();
+  for (const page of categoryPages) {
+    // The URL path the sitemap advertises, run through the rewrite by hand,
+    // must be the key the generator writes.
+    const served = categoryPagePath(page.id).replace(/^c\/([a-z0-9-]+)\/$/, 'c__$1.html');
+    assert.equal(served, categoryPageKey(page.id));
+  }
+});
+
+test('every rendered category page is mounted by the kustomization', async () => {
+  // The set is generated but the file list in `gitops/prod/kustomization.yaml`
+  // is hand-kept, which is the seam a new category falls through: it would be
+  // rendered, linked, and in the sitemap, but never delivered — the ConfigMap
+  // would not carry it and nginx would 404 the URL the page advertises.
+  const { categoryPages } = await buildFrontDoor();
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  for (const page of categoryPages) {
+    const key = categoryPageKey(page.id);
+    assert.ok(
+      kustomization.includes(`- ${key}=front-door/${key}`),
+      `gitops/prod/kustomization.yaml must mount ${key}; add it or the page is dark`,
+    );
+  }
+  // And nothing stale: a line for a category that is no longer rendered makes
+  // `kustomize build` fail on a missing file, which takes the whole prod
+  // Application down rather than just that page.
+  const mounted = [...kustomization.matchAll(/- (c__[a-z0-9-]+\.html)=front-door\//g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(
+    mounted.sort(),
+    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
   );
 });
 
@@ -591,6 +722,42 @@ test('the committed robots.txt and sitemap match what this generator produces', 
     await fs.readFile(SITEMAP_OUTPUT_FILE, 'utf8'),
     sitemap,
     'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('the committed category pages match what this generator produces', async () => {
+  // Same contract as every other generated file here: Argo CD delivers what is
+  // in git, so a stale commit ships stale bytes.
+  //
+  // These have a wider blast radius than the rest of the set, because their
+  // content comes from `build.mjs` — `categoryPageCopy` and the
+  // `SUBCATEGORY_RULES` behind `groupBySubcategory`. Editing a category's copy
+  // there is an edit to seven published pages that names none of them, and the
+  // only thing standing between that and a stale deploy is this assertion.
+  // `hetzner-gitops-ci.yml` already triggers on `platform/pages/build.mjs`, so
+  // such an edit runs this test.
+  const { categoryPages } = await buildFrontDoor();
+  for (const page of categoryPages) {
+    assert.equal(
+      await fs.readFile(categoryOutputFile(page.id), 'utf8'),
+      page.html,
+      `gitops/prod/front-door/${categoryPageKey(page.id)} is stale — run: node platform/marketing/front-door.mjs --write`,
+    );
+  }
+
+  // And no orphans on disk. A category that loses its last mirrored tool stops
+  // being rendered and stops being mounted, but its file would stay in git and
+  // stay in the tree — the kustomization test above would then fail on a key
+  // it cannot find a line for, which is a confusing way to learn this. The
+  // `--write` path sweeps them; this is what proves it did.
+  const dir = path.dirname(OUTPUT_FILE);
+  const onDisk = (await fs.readdir(dir)).filter(
+    (name) => name.startsWith('c__') && name.endsWith('.html'),
+  );
+  assert.deepEqual(
+    onDisk.sort(),
+    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+    'a category page on disk is no longer rendered — run: node platform/marketing/front-door.mjs --write',
   );
 });
 
