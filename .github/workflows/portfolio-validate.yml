@@ -256,6 +256,10 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      - name: Agent cross-review unit tests
+        working-directory: platform/ci/agent_review
+        run: python3 -m unittest test_review
+
       # The local workflow runner is what sessions verify with while no
       # runner picks up a job here, so its own tests have to run somewhere.
       - name: Local workflow-runner unit tests
