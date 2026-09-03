@@ -39,7 +39,7 @@
 #   portfolio-front-tools-3: 127 files, 555341 bytes
 #   portfolio-front-tools-4: 118 files, 542333 bytes
 #   portfolio-front-tools-5: 130 files, 556475 bytes
-#   portfolio-front-tools-6: 108 files, 538977 bytes
+#   portfolio-front-tools-6: 109 files, 542981 bytes
 #   portfolio-front-tools-7: 111 files, 543909 bytes
 #   portfolio-front-tools-8: 124 files, 547238 bytes
 #   portfolio-front-tools-9: 104 files, 553544 bytes
@@ -983,6 +983,7 @@ configMapGenerator:
       - hot-tub-bid-calculator__index.html.gz=hot-tub-bid-calculator__index.html.gz
       - hot-tub-bid-calculator__proposal.mjs.gz=hot-tub-bid-calculator__proposal.mjs.gz
       - hot-tub-bid-calculator__usage.mjs.gz=hot-tub-bid-calculator__usage.mjs.gz
+      - hot-tub-bid-calculator__vs-jobber.html.gz=hot-tub-bid-calculator__vs-jobber.html.gz
       - interior-door-bid-calculator__LICENSE.gz=interior-door-bid-calculator__LICENSE.gz
       - interior-door-bid-calculator__calc.mjs.gz=interior-door-bid-calculator__calc.mjs.gz
       - interior-door-bid-calculator__how-much-to-charge-to-replace-interior-doors.html.gz=interior-door-bid-calculator__how-much-to-charge-to-replace-interior-doors.html.gz
