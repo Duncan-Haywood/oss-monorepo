@@ -6550,3 +6550,53 @@ entries:
         fine print labelled as not yet live. The seal is worth doing and
         buys 7 tools plus the canonical hostname.
     mrr_end: null
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous run. Checked first: zero open PRs, zero extra
+        remote branches (integration-drain quota trivially met, nothing to
+        repair). The three specific asks in this run's brief (prioritize
+        deployment/CI-CD, build and deploy marketing materials on the
+        Hetzner VMs, set up Codex CLI on the Hetzner VM against its own
+        quota) are already fully built by prior sessions --
+        gitops/agents/ (governor CronJob running Codex Jobs on the hel1
+        cpx22 box against gitops/agents/queue/*.yaml, already reordered
+        deploy-cicd-readiness > marketing-distribution > ... per the
+        owner's own 2026-09-01 instruction quoted verbatim in
+        gitops/agents/queue/README.md) and blocked only on two owner-only
+        seals already recorded in portfolio/ledger/decision_queue.py. Did
+        not duplicate that ask.
+      - >-
+        Picked product-feature-improvement-shaped work instead: a
+        background agent found and fixed a real bug in
+        owner-operator-cpm-calculator/calc.mjs -- rateForTarget (the
+        loaded $/mile a driver needs to hit a typed weekly take-home
+        target) had no floor on its numerator, so a week with large
+        accessorial income (long detention, a real layover) could push the
+        numerator negative and the page would print a nonsensical negative
+        rate ("-$0.30/mi"), read by a driver as owing the broker money on a
+        route that had already cleared their target. Floored it at
+        Math.max(0, ...), matching the sibling loadedMilesToBreakEven
+        guard already in the same file. Added two tests (bug reproduction,
+        and a regression guard on the unclamped normal-case path).
+      - >-
+        The fix also touched a mirrored file (calc.mjs is one of the raw
+        assets front-door-tools.mjs copies into the apex front-door
+        ConfigMap), which the first CI push correctly caught as a real
+        "committed mirror is stale" failure on a real runner
+        (ci_starvation.py --run confirmed a real runner_id, 53s duration)
+        rather than the starvation signature. Regenerated the mirror
+        (front-door-tools.mjs --write) and repushed; all 11 checks (check,
+        build x2, site-test, gitops, scripts, hcloud-scope, tofu,
+        validate, preflight) went green. Verified locally: the venture's
+        own suite (35/35, node --test *.test.mjs) and node --test
+        "platform/marketing/*.test.mjs" (136/136).
+      - >-
+        Merged as #2959 (squash 9a3eb6c). No new venture started this run
+        -- one complete, verified bug fix was judged higher value than a
+        thirteenth vs-X comparison page, a pattern already heavily
+        saturated by concurrent sessions in the hours before this run
+        (dozens merged per this file's own recent entries).
+    mrr_end: null
