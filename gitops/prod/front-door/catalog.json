@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 169,
-  "collection_total": 169,
+  "served_here": 170,
+  "collection_total": 170,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 14
+      "tool_count": 15
     },
     {
       "id": "marketplace",
@@ -1121,6 +1121,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.",
       "pages": 3
+    },
+    {
+      "slug": "real-estate-agent-photo-app",
+      "name": "MLS Listing Photo Preflight — free listing photo checker for real estate agents",
+      "url": "https://marisstella.dev/tools/real-estate-agent-photo-app/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.",
+      "pages": 1
     },
     {
       "slug": "retainage-cashflow-calculator",
