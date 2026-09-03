@@ -113,11 +113,21 @@ def test_sigterm_reaches_the_runner_and_still_deregisters(runner) -> None:
     and the runner must still be removed from the repository afterwards.
     """
     stopped = runner["home"] / "stopped"
+    # The stub kills its own `sleep` before exiting, and that matters to the
+    # harness rather than to the entrypoint. `sleep` inherits this Popen's
+    # stdout pipe, so an orphaned one holds the write end open after everything
+    # else has exited -- and `communicate()` returns on EOF, not on the child
+    # exiting. Leaving it unkilled made the wait below last the full remaining
+    # 30s of the sleep against a 30s timeout, so the test passed on about half a
+    # second of margin and failed on any loaded runner, reporting "the
+    # entrypoint ignored SIGTERM" when the entrypoint had in fact exited
+    # promptly.
     (runner["home"] / "run.sh").write_text(
         "#!/usr/bin/env bash\n"
-        f"trap 'touch {stopped}; exit 0' TERM\n"
+        f"trap 'touch {stopped}; kill \"$SLEEP_PID\" 2>/dev/null; exit 0' TERM\n"
         "sleep 30 &\n"
-        "wait $!\n"
+        "SLEEP_PID=$!\n"
+        "wait $SLEEP_PID\n"
     )
     (runner["home"] / "run.sh").chmod(0o755)
 
