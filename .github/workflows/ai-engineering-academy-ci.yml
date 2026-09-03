@@ -24,6 +24,7 @@ permissions:
 jobs:
   build:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/site
@@ -53,6 +54,7 @@ jobs:
 
   tools-test:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     strategy:
       matrix:
         tool:

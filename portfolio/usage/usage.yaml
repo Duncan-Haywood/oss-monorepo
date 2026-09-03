@@ -6,6 +6,50 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: cra-evidence-desk
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          sbom_matched: 0
+          record_exported: 0
+        note: >-
+          First public route. The SBOM/advisory matcher existed only as a
+          Python CLI, so nobody could reach it without cloning the repo -- one
+          of the 13 ventures still without a public URL after #3076. It also
+          only accepted a bespoke component-list shape that no tool emits, so
+          even a reader who installed it had to hand-convert their SBOM first.
+          This run added CycloneDX/SPDX/OSV support to the canonical Python
+          core and ported the rules to dependency-free ESM at `site/`, which
+          the canonical build and the front-door mirror both pick up, so it now
+          serves from the apex at `/tools/cra-evidence-desk/`. Counts are zero
+          because the page is new, not because nothing was measured:
+          `sbom_matched` is the activation event (running a match is what the
+          tool is for; a page view is not), and the apex nginx log feeds the
+          nightly `portfolio-site-usage` job for the server-side half. Local
+          counting deliberately records only that a match ran, never which
+          components or advisories were in it.
+  - slug: print-atelier
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          files_compared: 0
+          record_exported: 0
+        note: >-
+          First public route. The print-file preflight existed as a tested
+          TypeScript library and a React component inside the venture's
+          Next.js app, so `build.mjs` never published it and no artist could
+          reach it -- one of the 14 ventures still without a public URL after
+          #3075. Ported to dependency-free ESM at `site/`, which the canonical
+          build and the front-door mirror both pick up, so it now serves from
+          the apex at `/tools/print-atelier/`. Counts are zero because the
+          page is new, not because nothing was measured: `files_compared` is
+          the activation event (comparing masters is what the tool is for; a
+          page view is not), and the apex nginx log feeds the nightly
+          `portfolio-site-usage` job for the server-side half.
   - slug: music-lesson-break-even
     surface: static-page-in-repo
     readings:
@@ -38,6 +82,11 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped browser-local commercial usage-rights quote worksheet; public distribution remains owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: Added a "Copy share link" button (URL-fragment-encoded quote scope, share link outranks a saved draft on load) so a photographer can hand an editable quote to a client or colleague instead of only static draft text. Also reachable today at https://marisstella.dev/tools/commercial-photo-license-calculator/ via the apex front-door mirror, not owner-gated as the earlier reading said.
   - slug: appliance-repair-quote-calculator
     surface: static-page-in-repo
     readings:
@@ -1408,6 +1457,26 @@ products:
           PRs #1333, #1358, and #1385 — those export the evidence record;
           this tells the photographer which rooms to recapture. Public URL
           remains owner-gated (`deploy-settings`).
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          check_completed: 0
+          record_exported_json: 0
+          record_exported_markdown: 0
+          handoff_copied: 0
+        note: >-
+          First public route. The preflight existed three times over (a
+          Python probe, a TypeScript library, a React component) and every
+          copy sat behind a CLI or a Next.js build, so `build.mjs` never
+          published it and no stranger could reach it. Ported to
+          dependency-free ESM at `site/`, which the canonical build and the
+          front-door mirror both pick up, so it now serves from the apex at
+          `/tools/real-estate-agent-photo-app/` — the 170th tool, and the
+          first of the 15 previously unreachable ventures to get a public
+          URL. Counts are zero because the page is new, not because nothing
+          was measured: the event names above are the local ones the page
+          records, and the apex nginx log feeds the nightly
+          `portfolio-site-usage` job for the server-side half.
   - slug: carpet-install-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1507,6 +1576,18 @@ products:
   - slug: pole-barn-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added a "This calculator vs. JobTread" comparison page for organic
+          distribution. Live today at
+          https://marisstella.dev/tools/pole-barn-bid-calculator/vs-jobtread.html
+          via the apex front-door mirror -- the prior reading's "public URL
+          remains owner-gated" note is stale: the apex serves all 169 tools
+          itself, front-door mirror included, per CLAUDE.md's corrected
+          front-door section.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
@@ -2325,6 +2406,11 @@ products:
   - slug: walk-in-tub-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a "This calculator vs. Housecall Pro" comparison page for organic distribution. Live today at https://marisstella.dev/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html via the apex front-door mirror.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
@@ -2763,6 +2849,11 @@ products:
   - slug: spray-foam-bid-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a "This calculator vs. Jobber" comparison page for organic distribution. Also reachable today at https://marisstella.dev/tools/spray-foam-bid-calculator/vs-jobber.html via the apex front-door mirror, not owner-gated as the earlier reading below said.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -3049,6 +3140,20 @@ products:
           calculator onto current main. Public URL remains owner-gated;
           the local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded workload,
+          callback, and margin inputs), following the same pattern already
+          used by 83 other ventures, so a contractor can hand an editable
+          maintenance-plan quote to a partner or the office instead of
+          only static summary text. Also reachable today at
+          https://marisstella.dev/tools/hvac-maintenance-contract-calculator/
+          via the apex front-door mirror -- the "Public URL remains
+          owner-gated" note above predates that mirror and is stale for
+          this venture, as it was for others corrected earlier this month.
 
   - slug: subcontractor-cashflow-planner
     surface: static-page-in-repo
@@ -3322,6 +3427,30 @@ products:
           Repair-and-merge of unique #1204 construction daily log evidence
           pack onto current main. Public URL remains owner-gated; local
           counting is opt-in and honors DNT/GPC.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          entry_saved: 0
+          combined_pack_downloaded: 0
+        note: >-
+          Closed a real workflow gap: the tool called itself a "log" but every
+          submission was a single one-off record with nothing tying days
+          together — the page's own FAQ said outright that closing the tab
+          before downloading lost the entry, and there was no way to see, let
+          alone export, more than one day at a time. Each entry a contractor
+          submits is now saved in this browser (record.mjs `buildEvidencePack`
+          / `packSummary`), listed in a new project log history section
+          (filterable by project name), and exportable as one combined,
+          date-sorted JSON pack spanning the whole job with per-day review
+          notes carried through, plus per-entry delete and clear-all. Privacy
+          copy, the on-page FAQ, and its FAQPage JSON-LD were rewritten to
+          match the new (still browser-only, still nothing uploaded)
+          persistence honestly. 12 tests (7 new: pack building/sorting/empty
+          case, plus a page-integrity test asserting every id app.js queries
+          exists in the markup and the FAQ stays in sync with its JSON-LD),
+          `node platform/webcheck/check_pages.mjs` (619 pages, all sound), and
+          `node platform/pages/clauses.mjs construction-evidence-log` (no-
+          warranty clause present) all pass. Public URL remains owner-gated.
 
   - slug: saas-seat-true-up
     surface: static-page-in-repo
@@ -3378,6 +3507,22 @@ products:
           onto current main. Labor is hours times hourly rate (words/hour is
           productivity only). Public URL remains owner-gated; local counting
           honors DNT/GPC and a visible opt-out.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          page_viewed: 0
+          quote_summary_copied: 0
+          proposal_printed: 0
+        note: >-
+          Adopted platform/proposal, so the tool now produces the document the
+          client receives rather than stopping at a number: language pair,
+          project scope, deposit split, price-held date, signature line. First
+          venture outside the 102 bid calculators to adopt it. `proposal_printed`
+          is the new signal and the one that matters — a print is a translator
+          about to send a real quote, which is closer to an outcome than a page
+          view. Served publicly at https://marisstella.dev/tools/translator-project-quote/
+          via the front-door mirror; the canonical host still waits on the
+          `portfolio-site-repo` seal.
 
   - slug: wheelchair-ramp-bid-calculator
     surface: static-page-in-repo
@@ -3455,6 +3600,20 @@ products:
         note: >-
           Shipped a local deck staining / sealing bid calculator with a
           copyable proposal summary; public URL remains owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded job inputs,
+          decoded and applied on load ahead of the built-in defaults),
+          following the same pattern already used by 84 other ventures, so a
+          crew can hand an editable bid to a partner or the office instead of
+          only static summary text. Also reachable today at
+          https://marisstella.dev/tools/deck-staining-bid-calculator/ via the
+          apex front-door mirror -- the "public URL remains owner-gated" note
+          above predates that mirror and is stale for this venture, as it was
+          for others corrected earlier this month.
 
   - slug: concrete-lifting-bid-calculator
     surface: static-page-in-repo
@@ -4106,6 +4265,21 @@ products:
           Shipped a local gutter-cleaning bid calculator (stories, guards,
           downspouts, minimum stop, seasonal contract); public URL remains
           owner-gated.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded runs and
+          cost inputs; share link outranks the default three-run starting
+          example on load), following the same pattern already used by 82
+          other ventures, so a crew lead can hand an editable bid to a
+          partner or the office instead of only static summary text. Also
+          reachable today at
+          https://marisstella.dev/tools/gutter-cleaning-bid-calculator/ via
+          the apex front-door mirror -- the "public URL remains owner-gated"
+          note above predates that mirror and is stale for this venture, as
+          it was for others corrected earlier this month.
 
   - slug: snow-removal-bid-calculator
     surface: static-page-in-repo
@@ -4119,6 +4293,21 @@ products:
           ice events, break-even storm count, copyable proposal summary).
           Public URL remains owner-gated; the browser counter is local and
           opt-out. Baseline row.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          share_link_copies: 0
+        note: >-
+          Added a "Copy share link" button (URL-fragment-encoded stops,
+          rates, and winter assumptions; share link outranks the default
+          eight-driveway starting example on load), following the same
+          pattern already used by 79 other ventures, so a crew lead can
+          hand an editable winter bid to a partner or the office instead
+          of only static summary text. Also reachable today at
+          https://marisstella.dev/tools/snow-removal-bid-calculator/ via
+          the apex front-door mirror -- the "public URL remains
+          owner-gated" note above predates that mirror and is stale for
+          this venture, as it was for others corrected earlier this month.
 
   - slug: tree-service-bid-calculator
     surface: static-page-in-repo
@@ -4229,6 +4418,11 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped private browser deadline queue and CSV export; public publishing is owner-gated, so this is the initial baseline.
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Added a per-row Remove button (grant_removed event) so a single mistyped or completed award can be dropped without clearing the whole queue. No live traffic to observe; also reachable today at https://marisstella.dev/tools/grant-reporting-tracker/ via the apex front-door mirror, not owner-gated as the earlier reading said.
   - slug: vendor-watch
     surface: process-host-in-repo
     readings:

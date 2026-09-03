@@ -83,7 +83,25 @@ export function reviewGrant(grant, today = localToday()) {
 }
 
 export function reviewAll(grants, today) {
-  return grants.map((grant) => reviewGrant(grant, today)).sort((a, b) => (a.daysUntilReport ?? Infinity) - (b.daysUntilReport ?? Infinity));
+  return grants
+    .map((grant, sourceIndex) => ({ ...reviewGrant(grant, today), sourceIndex }))
+    .sort((a, b) => (a.daysUntilReport ?? Infinity) - (b.daysUntilReport ?? Infinity) || a.sourceIndex - b.sourceIndex);
+}
+
+// The review queue is sorted, so a row's position in `rows` is not its
+// position in the saved `grants` array -- removing "row 2 on screen" by
+// that index would delete whatever award happens to occupy slot 2 in
+// storage, not the one the user is looking at. `reviewAll` attaches
+// `sourceIndex` before sorting so the page can pass it straight back here.
+// Before this existed the only way to correct one mistyped award, or drop
+// a grant whose reporting obligation ended, was "Clear all saved awards" --
+// destroying every other tracked award along with it.
+export function removeGrant(grants, index) {
+  if (!Array.isArray(grants)) return [];
+  if (!Number.isInteger(index) || index < 0 || index >= grants.length) {
+    return grants.slice();
+  }
+  return grants.filter((_, i) => i !== index);
 }
 
 // Every field the queue reads, not just the ones the table renders. A CSV

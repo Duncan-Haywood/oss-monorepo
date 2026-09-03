@@ -3158,6 +3158,84 @@
     },
     "disclaimerTail": "Flange, subfloor or drain damage is only visible once the existing fixture is lifted; that repair is quoted separately."
   },
+  "translator-project-quote": {
+    "priceField": "recommended_price",
+    "depositPercent": 30,
+    "jobTitle": "Translation project — {weighted_words~0} weighted words",
+    "labels": {
+      "heading": "Send the client a quote",
+      "intro": "The price above is for you. This is the page you print or save as a PDF and send the client — your details, theirs, what the project covers, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the client's details are never saved.",
+      "companyLicense": "VAT / tax ID or certification (optional)",
+      "clientName": "Client name",
+      "clientAddress": "Client company and address",
+      "validDays": "Hold this quote for (days)",
+      "scope": "What the project covers — one line each, edit freely",
+      "printButton": "Print quote / Save as PDF"
+    },
+    "fields": {
+      "sourceLang": {
+        "input": "source_lang"
+      },
+      "targetLang": {
+        "input": "target_lang"
+      },
+      "newWords": {
+        "number": "new_words"
+      },
+      "fuzzyWords": {
+        "number": "fuzzy_words"
+      },
+      "fuzzyRate": {
+        "number": "fuzzy_rate"
+      },
+      "qaHours": {
+        "number": "qa_hours"
+      },
+      "dtpCost": {
+        "number": "dtp_cost"
+      },
+      "rushFee": {
+        "number": "rush_fee"
+      }
+    },
+    "scope": [
+      {
+        "line": "Translation from {sourceLang} into {targetLang}",
+        "when": "sourceLang"
+      },
+      "Translation of {newWords~0} new word{newWords+s} of source text",
+      {
+        "line": "{fuzzyWords~0} fuzzy-match word{fuzzyWords+s} reviewed and adapted at {fuzzyRate~0}% of the full word rate",
+        "when": "fuzzyWords"
+      },
+      "Weighted volume of {weighted_words~0} words, about {translation_hours~1} hours of translation",
+      {
+        "line": "{qaHours~2} hour{qaHours+s} of revision and quality assurance on the finished text",
+        "when": "qaHours"
+      },
+      {
+        "line": "Desktop publishing and file handling, delivered in the agreed format",
+        "when": "dtpCost"
+      },
+      {
+        "line": "Rush or weekend delivery, ahead of the standard turnaround",
+        "when": "rushFee"
+      },
+      "Source formatting preserved, and one round of corrections after delivery"
+    ],
+    "placeholders": {
+      "companyName": "Ines Delacroix Translations",
+      "companyLicense": "ATA cert. / VAT DE123456789",
+      "clientName": "Brunner Medizintechnik GmbH",
+      "clientAddress": "Marketing dept., Sonnenstrasse 14, Munich",
+      "scope": "Translation of 1,800 new words from English into German",
+      "exclusions": "Certification or sworn translation\nTypesetting beyond the supplied file format",
+      "paymentTerms": "30% on acceptance, balance within 30 days of delivery.",
+      "notes": "Glossary and translation memory supplied by the client are used where available."
+    },
+    "disclaimerTail": "It is not a certified or sworn translation, and it does not itself transfer copyright in the translated text.",
+    "currencyFrom": "currency"
+  },
   "tree-service-bid-calculator": {
     "jobTitle": "Tree work — {totalDbh~0} in of combined trunk diameter",
     "priceField": "recommendedPrice",

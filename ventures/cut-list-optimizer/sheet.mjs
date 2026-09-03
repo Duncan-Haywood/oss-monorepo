@@ -217,11 +217,21 @@ export function optimizeSheets({ sheetWidth, sheetHeight, kerf = 0, trim = 0, pa
       }
     }
     if (!best) {
+      // The pre-check above only asked "does this fit *some* blank" using each
+      // on-hand piece's original size, not what is still free on it — so a
+      // piece that fit only a large on-hand offcut can reach here after that
+      // offcut's free space is already spoken for by an earlier placement. A
+      // fresh purchased sheet is the only blank left to try; if it does not
+      // fit that either, the piece needs an on-hand offcut this plan no
+      // longer has room on, and it belongs in oversize, not a crash.
+      const freshOption = options.find((o) => o.width <= usableWidth + EPS && o.height <= usableHeight + EPS);
+      if (!freshOption) {
+        oversize.push({ label: panel.label, width: panel.width, height: panel.height, grainLocked: panel.grainLocked });
+        continue;
+      }
       const sheet = { placements: [], free: [newFreeRect()], source: 'purchase', width: sheetWidth, height: sheetHeight };
       sheets.push(sheet);
-      const rect = sheet.free[0];
-      const option = options.find((o) => o.width <= rect.width + EPS && o.height <= rect.height + EPS);
-      best = { sheet, rect, option, slack: 0 };
+      best = { sheet, rect: sheet.free[0], option: freshOption, slack: 0 };
     }
 
     const { sheet, rect, option } = best;

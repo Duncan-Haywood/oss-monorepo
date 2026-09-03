@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 169,
-  "collection_total": 169,
+  "served_here": 172,
+  "collection_total": 172,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 14
+      "tool_count": 17
     },
     {
       "id": "marketplace",
@@ -95,7 +95,7 @@
       "name": "Construction Daily Log and Change Order Evidence Pack",
       "url": "https://marisstella.dev/tools/construction-evidence-log/",
       "category": "Trade & contractor bids",
-      "description": "Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser.",
+      "description": "Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.",
       "pages": 2
     },
     {
@@ -120,7 +120,7 @@
       "url": "https://marisstella.dev/tools/seller-net-sheet/",
       "category": "Back-office money & contracts",
       "description": "Free seller net sheet: see cash at closing after listing commission, optional buyer-broker compensation, concessions, title, and payoff. Compare two offers — the higher price is not always more cash.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "subscription-price-impact",
@@ -512,7 +512,7 @@
       "url": "https://marisstella.dev/tools/artificial-turf-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an artificial turf install from landscape, pet, or putting-green turf: lawn square footage, 15-foot-roll waste, crushed-rock base, sod demo, infill, seams, and tree wells — not a published $8-a-square-foot special. See the turf you have to buy and the walk-away number.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "asphalt-driveway-pave-bid-calculator",
@@ -544,7 +544,7 @@
       "url": "https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power, loops, and access — not a published $4,500 kit special. See the operators and the walk-away number.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "basement-finishing-bid-calculator",
@@ -625,6 +625,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a quartz or granite countertop job from slabs, sink and cooktop cutouts, edge profile, backsplash, and waterfalls — not a published price per finished square foot. See the walk-away number before you match a cheaper kitchen quote.",
       "pages": 3
+    },
+    {
+      "slug": "cra-evidence-desk",
+      "name": "CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors",
+      "url": "https://marisstella.dev/tools/cra-evidence-desk/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.",
+      "pages": 1
     },
     {
       "slug": "crawl-space-encapsulation-bid-calculator",
@@ -896,7 +904,7 @@
       "url": "https://marisstella.dev/tools/hot-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "interior-door-bid-calculator",
@@ -1080,7 +1088,7 @@
       "url": "https://marisstella.dev/tools/pole-barn-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away price a $45-a-foot ag special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "pool-plaster-bid-calculator",
@@ -1107,6 +1115,14 @@
       "pages": 3
     },
     {
+      "slug": "print-atelier",
+      "name": "Print File Preflight — free DPI and print-size checker for artists",
+      "url": "https://marisstella.dev/tools/print-atelier/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.",
+      "pages": 1
+    },
+    {
       "slug": "quote-margin-check",
       "name": "Quote Margin Check — free effective hourly rate calculator for freelancers",
       "url": "https://marisstella.dev/tools/quote-margin-check/",
@@ -1121,6 +1137,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.",
       "pages": 3
+    },
+    {
+      "slug": "real-estate-agent-photo-app",
+      "name": "MLS Listing Photo Preflight — free listing photo checker for real estate agents",
+      "url": "https://marisstella.dev/tools/real-estate-agent-photo-app/",
+      "category": "Compliance checks & evidence records",
+      "description": "Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.",
+      "pages": 1
     },
     {
       "slug": "retainage-cashflow-calculator",
@@ -1192,7 +1216,7 @@
       "url": "https://marisstella.dev/tools/shop-rate-calculator/",
       "category": "Trade & contractor bids",
       "description": "Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at — from your own payroll, vehicles, office and materials. Free, private, and it fills in the burden and overhead fields on every bid calculator here.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "shopify-fee-calculator",
@@ -1248,7 +1272,7 @@
       "url": "https://marisstella.dev/tools/soffit-fascia-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price soffit and fascia from eave lineal feet, aluminum wrap versus vinyl replace versus wood replace, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $12 / LF wrap special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "solar-pv-bid-calculator",
@@ -1264,7 +1288,7 @@
       "url": "https://marisstella.dev/tools/spray-foam-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price residential spray foam from the board feet an attic-square-foot special cannot see, the rim, the cell, and the ignition coating — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "stair-lift-bid-calculator",
@@ -1360,7 +1384,7 @@
       "url": "https://marisstella.dev/tools/walk-in-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "water-heater-bid-calculator",
@@ -1376,7 +1400,7 @@
       "url": "https://marisstella.dev/tools/water-softener-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a water-softener install from extra pipe past the included run, copper versus PEX, an iron filter or under-sink RO, the brine drain, haul-away of the old unit, and a brine receptacle — not a published $799 installed special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "well-pump-bid-calculator",
