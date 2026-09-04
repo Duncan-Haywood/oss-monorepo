@@ -10413,6 +10413,50 @@ entries:
         676 pages, no dead links. Could not verify against a live URL:
         the public surface is still down (see the decision queue).
     mrr_end: null
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first vs-competitor marketing/SEO page:
+        vs-sellerboard.html, contrasting this free, local, no-account
+        pre-listing comparison (one item ranked across eBay, Etsy,
+        Amazon, Walmart, TikTok Shop and an own store) against
+        Sellerboard's paid, account-connected, after-the-fact profit
+        analytics. Chose Sellerboard because the shape difference is
+        real and checkable rather than invented: it reports settled
+        orders that already happened, from a connected seller account,
+        while this page answers a listing decision not yet made on
+        channels the seller may have no account with -- a question no
+        order history can answer. Followed the portfolio's established
+        vs-<competitor> pattern (canonical tag, FAQPage JSON-LD whose
+        questions and answers both appear verbatim as visible copy,
+        no-warranty and best-effort-hosting disclaimers, explicit
+        non-affiliation statement, sponsors link). No Sellerboard
+        pricing or plan terms are stated, since they could not be
+        verified from this session; the page carries no currency amount
+        at all, which a test asserts, so "no invented pricing" is
+        checkable rather than promised. Added a "What this tool cannot
+        tell you" section stating plainly that the fee rates are
+        editable defaults rather than a live schedule, that the page
+        cannot see refunds, returns, ad spend or negotiated rates, and
+        that the own-store row tops the table on arithmetic precisely
+        because it sends no buyers -- so a reader cannot leave thinking
+        a static calculator substitutes for reconciled order data.
+        Linked from index.html, listed in sitemap.xml, regenerated the
+        front-door mirror (front-door-tools.mjs --write) and the
+        front-door site (front-door.mjs --write). Verified: `node
+        --test` in the venture 78/78 (was 66); `node --test
+        platform/marketing/*.test.mjs` 208/208; `node --test
+        platform/pages/faq-visible.test.mjs` 4/4; `node
+        platform/pages/clauses.mjs marketplace-fee-compare` finds the
+        no-warranty clause on all 3 published pages; canonical
+        `platform/pages/build.mjs` plus `check.mjs` reports 174
+        products, 677 pages (was 676), no dead links. Could not verify
+        against a live URL: the public surface is still down and both
+        restore routes are owner-blocked (re-measured this session,
+        runs 33920796410 and 33920798095).
+    mrr_end: null
   - venture: fireplace-insert-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -10474,4 +10518,14 @@ entries:
         run `gitops/tests` directly; relied on the mirror generator's own
         committed-output test, which is what CI runs. Not manually
         verified in a browser (no display in this session).
+      - >-
+        Shipped #3210 (follow-up on the same branch/theme as #3209): the
+        same `share.mjs`/`proposal-terms.mjs` pattern ported into
+        `garage-door-bid-calculator` (18 numeric fields plus the
+        `jobType` enum). Also fixed that venture's own FAQ answer, which
+        explicitly and now-incorrectly claimed "has no shareable bid
+        link". Verified: venture's own suite 100/100 (was 73);
+        `platform/proposal/*.test.mjs` 97/97; `term-ids.test.mjs` 4/4;
+        full `platform/pages` suite 880/880; `front-door-tools.test.mjs`
+        101/101 after regenerating the mirror.
     mrr_end: null
