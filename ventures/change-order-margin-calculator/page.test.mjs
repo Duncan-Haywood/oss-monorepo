@@ -100,3 +100,17 @@ test('the schedule cost is not also counted under "materials + subcontractor"', 
   // label that does not describe them.
   assert.match(page, /money\(r\.directCost-r\.loadedLabor-r\.delayCost\)/);
 });
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders the target price, the dl breakdown, and
+  // the verdict banner in place on every keystroke, with no page reload.
+  // The verdict div already carries its own aria-live, but the section as a
+  // whole (including the target price and dl figures) did not, so a
+  // screen-reader user changing an input heard the verdict sentence but not
+  // the price it was based on.
+  assert.match(
+    page,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
