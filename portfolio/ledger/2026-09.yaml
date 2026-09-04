@@ -10281,3 +10281,44 @@ entries:
         merge, once the standing cluster outage this file records
         elsewhere is resolved.
     mrr_end: null
+  - venture: consent-change-record
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real correctness bug in the published trace comparator
+        (`calc.mjs`, the JSON-paste tool `index.html` imports and runs --
+        the sibling `tool/har-diff.mjs` HAR diff was unaffected and already
+        used correct, deliberate dedup logic). `diff()` matched requests
+        and storage entries by presence only (`Array.some`), so a request
+        that fired fewer times after consent -- three identical GETs to a
+        tracking pixel before, one after, the realistic case for a script-
+        captured trace -- read as fully "unchanged": every "before" copy
+        found *a* match somewhere in "after" and was never counted
+        removed, so the evidence record silently said nothing changed
+        when two of three firings actually stopped. The reverse (a
+        tracker starting to fire more often) was equally invisible. For a
+        tool whose whole purpose is a compliance evidence record of
+        request/storage changes around a consent choice, that is the
+        specific case worth getting right. Rewrote `diff()` to count
+        occurrences per key: the shared count is unchanged, any surplus on
+        either side is added or removed. Also grouped `reportAsText`'s
+        line list by key with a "(×N)" suffix so a duplicate-count change
+        reads as one clear line instead of N identical ones. Added three
+        regression tests (fewer firings after, more firings after, and the
+        report's ×N grouping) plus verified the fix by hand: pasting the
+        3-before/1-after example through `compareTraces`/`reportAsText`
+        now correctly prints "GET https://ads.example.com/pixel (×2)"
+        under REQUESTS REMOVED, where it previously printed nothing.
+        Regenerated the front-door mirror (`front-door-tools.mjs
+        --write`; `calc.mjs` ships to the mirror verbatim, same
+        requirement the cut-list-optimizer fix in #3197 established).
+        Verified: `node --test` in
+        `ventures/consent-change-record` 40/40 (was 37/40 -- the 3 new
+        tests -- all passing); `node --test platform/marketing/*.test.mjs`
+        208/208; `node platform/pages/clauses.mjs consent-change-record`
+        still finds the no-warranty clause on all 3 published pages. Could
+        not verify against a live URL -- the Hetzner cluster is fully down
+        (see CLAUDE.md) -- so this was verified by running the venture's
+        own test suite and the calculator logic directly in Node instead.
+    mrr_end: null
