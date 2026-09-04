@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Why Was My Listing Photo Rejected?</title>
+<meta name="description" content="The reasons an MLS photo upload gets kicked back that you can check from the file itself — resolution, format, file size, crop shape, branding and virtual staging — and how to catch them before you deliver." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="./why-was-my-listing-photo-rejected.html" />
+<meta property="og:title" content="Why Was My Listing Photo Rejected?" />
+<meta property="og:description" content="Most rejections come down to something readable from the file before anyone looks at the picture. Here is the checkable list." />
+<meta property="og:type" content="article" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why was my listing photo rejected?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most rejections come from something readable in the file rather than from the picture itself: the image is too small on its long edge, the file is in a format the system does not take, it is too large to upload, the crop is not a standard listing shape, or the filename or the image carries brokerage branding, a watermark or a headshot. Virtual staging that is not disclosed is the other common one. Every item on that list can be checked before delivery, which is what the free preflight on this site does."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the minimum size for an MLS listing photo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Boards set their own numbers, so the only correct answer for you is the one in your own board's current photo standards. The floor this tool checks is 1024 pixels on the long edge, which is deliberately conservative: an image under it is too small for essentially any board and for the syndication portals a listing feeds into. Clearing that floor is not the same as meeting your board's requirement, which may well be higher."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I put my logo or my brokerage name on a listing photo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually not on the photos themselves. Rules vary by board, but the common position is that listing images show the property and not the agent, because the same images syndicate out to portals that display their own branding. This checker flags a filename containing logo, watermark, branded, brokerage or headshot as a warning, since those names are the usual sign that a branded asset has been dropped into a delivery folder by mistake. It reads names and headers only, so it cannot see a watermark burned into the pixels."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I have to label a virtually staged photo?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Assume yes and check your board's wording. Disclosure of digitally altered or virtually staged images is a widespread requirement, and the usual practice is both a label on the image and an unaltered version of the same room available alongside it. This tool looks for staged, virtually-staged or virtual-staged in filenames and checks that a staged photo is paired rather than delivered on its own; it cannot tell you what your board's disclosure text has to say."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a photo get flagged for its aspect ratio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because an unusual crop is nearly always accidental, and a listing system that fits every image into one frame will crop it again to fit. The checker accepts the standard listing shapes in either orientation, 4:3, 3:2, 16:9, 5:4 and square, within a small tolerance. Something outside those is typically a screenshot, a phone panorama, or a photo trimmed by hand, and it is worth looking at before it becomes the shot the portal decides to cut in half."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace my MLS board's photo rules?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, and it is not trying to. It is a dated floor spec covering what can be decided from a file header and a filename, so it catches the mechanical rejections early and says plainly what it cannot see: a watermark burned into the image, contact details inside the picture, and every board-specific rule. Read it as a preflight that saves you a round trip, not as a compliance sign-off."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030; --warn: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+  .lede { color: var(--muted); margin: 0 0 1.25rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; margin-top: 1.5rem; }
+  a { color: var(--accent); }
+  .cta {
+    display: inline-block; margin-top: 0.5rem; padding: 0.55rem 0.95rem; border-radius: 6px;
+    background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+  }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  code { background: var(--panel); padding: 0.05rem 0.3rem; border-radius: 3px; }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; margin-top: 1.25rem; }
+</style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; MLS listing photo preflight &mdash; free checker</a></p>
+  <h1>Why was my listing photo rejected?</h1>
+  <p class="lede">A photo bounced back the afternoon a listing was supposed to go live is an expensive kind of small problem: the shoot is over, the seller is waiting, and the message usually says what failed without saying which file. Most of the reasons are mechanical &mdash; readable from the file before anyone looks at the picture &mdash; which means they are also catchable before you deliver.</p>
+  <p><a class="cta" href="./">Check a delivery folder &mdash; free, nothing is uploaded</a></p>
+
+  <h2>The reasons you can check from the file</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>What bounced</th><th>What it usually is</th><th>The fix</th></tr></thead>
+      <tbody>
+        <tr><td>Too small</td><td>A phone export, a screenshot, or an image pulled from a website rather than the delivery folder</td><td>Re-export from the original. This tool's floor is 1024 px on the long edge; your board may ask for more</td></tr>
+        <tr><td>Wrong format</td><td>HEIC straight off an iPhone, or a PDF or TIFF that came from a floor-plan vendor</td><td>Convert to JPEG or PNG before delivery</td></tr>
+        <tr><td>File too large</td><td>An unresized raw conversion, often a single 40&nbsp;MB frame in an otherwise fine set</td><td>Re-export at a sensible quality; the floor here is 20&nbsp;MB per file</td></tr>
+        <tr><td>Odd crop</td><td>A panorama, a hand-trimmed shot, or a screenshot of a photo</td><td>Recrop to a standard listing shape: 4:3, 3:2, 16:9, 5:4 or square</td></tr>
+        <tr><td>Branding</td><td>A logo, watermark, headshot or brokerage card that got copied into the folder</td><td>Remove it from the set. Listing images show the property, not the agent</td></tr>
+        <tr><td>Undisclosed staging</td><td>A virtually staged room delivered without its unaltered counterpart</td><td>Label it and deliver the unstaged version of the same room alongside it</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Why these particular things</h2>
+  <p><strong>The listing does not stop at the MLS.</strong> The same images syndicate out to portals, each of which resizes and re-crops them into its own frame. A file that is just large enough for the board is often not large enough after that, and an unusual crop gets cut again by something with no opinion about which half of the kitchen matters.</p>
+  <p><strong>Branding on a photo is a policy question, not a taste one.</strong> Boards differ, but the common position is that listing images carry the property and nothing else, because the display surface belongs to whoever is showing it. A logo in the corner is the sort of thing that gets a whole set kicked back rather than one file.</p>
+  <p><strong>Staging disclosure is where the real exposure sits.</strong> A too-small photo costs an hour. A digitally altered room presented as the room can be a misrepresentation problem, which is why disclosure requirements are widespread and why a staged file delivered on its own is worth flagging even when nobody has rejected it yet.</p>
+
+  <h2>What a preflight can and cannot tell you</h2>
+  <p>The checker on this site reads file headers, pixel dimensions and filenames. From those it can decide resolution, format, byte size, crop shape, branding tokens in a name, and whether a staged photo is paired. It produces a dated record of what it checked, which is useful to keep with the delivery.</p>
+  <p>It cannot see a watermark burned into the pixels, contact details printed inside the image, or anything your board requires that is not visible in a file header &mdash; and it names those exclusions in its own output rather than leaving you to assume they were covered. <strong>It is a floor, not your board's rulebook.</strong> The rules that apply to you are the ones in your board's current photo standards; this catches the mechanical failures early so that the only thing left to review is the photography.</p>
+
+  <div class="panel">
+    <h2 style="margin-top:0">Check the folder before you send it</h2>
+    <p>Drop in the delivery folder and see every file that would bounce, and why, in one pass. It runs entirely in your browser &mdash; the photos are never uploaded, and there is no account.</p>
+    <p><a class="cta" href="./">Open the free listing photo preflight</a></p>
+  </div>
+
+  <h2>Common questions</h2>
+  <h3>Why was my listing photo rejected?</h3>
+  <p>Most rejections come from something readable in the file rather than from the picture itself: the image is too small on its long edge, the file is in a format the system does not take, it is too large to upload, the crop is not a standard listing shape, or the filename or the image carries brokerage branding, a watermark or a headshot. Virtual staging that is not disclosed is the other common one. Every item on that list can be checked before delivery, which is what the free preflight on this site does.</p>
+  <h3>What is the minimum size for an MLS listing photo?</h3>
+  <p>Boards set their own numbers, so the only correct answer for you is the one in your own board's current photo standards. The floor this tool checks is 1024 pixels on the long edge, which is deliberately conservative: an image under it is too small for essentially any board and for the syndication portals a listing feeds into. Clearing that floor is not the same as meeting your board's requirement, which may well be higher.</p>
+  <h3>Can I put my logo or my brokerage name on a listing photo?</h3>
+  <p>Usually not on the photos themselves. Rules vary by board, but the common position is that listing images show the property and not the agent, because the same images syndicate out to portals that display their own branding. This checker flags a filename containing logo, watermark, branded, brokerage or headshot as a warning, since those names are the usual sign that a branded asset has been dropped into a delivery folder by mistake. It reads names and headers only, so it cannot see a watermark burned into the pixels.</p>
+  <h3>Do I have to label a virtually staged photo?</h3>
+  <p>Assume yes and check your board's wording. Disclosure of digitally altered or virtually staged images is a widespread requirement, and the usual practice is both a label on the image and an unaltered version of the same room available alongside it. This tool looks for staged, virtually-staged or virtual-staged in filenames and checks that a staged photo is paired rather than delivered on its own; it cannot tell you what your board's disclosure text has to say.</p>
+  <h3>Why does a photo get flagged for its aspect ratio?</h3>
+  <p>Because an unusual crop is nearly always accidental, and a listing system that fits every image into one frame will crop it again to fit. The checker accepts the standard listing shapes in either orientation, 4:3, 3:2, 16:9, 5:4 and square, within a small tolerance. Something outside those is typically a screenshot, a phone panorama, or a photo trimmed by hand, and it is worth looking at before it becomes the shot the portal decides to cut in half.</p>
+  <h3>Does this replace my MLS board's photo rules?</h3>
+  <p>No, and it is not trying to. It is a dated floor spec covering what can be decided from a file header and a filename, so it catches the mechanical rejections early and says plainly what it cannot see: a watermark burned into the image, contact details inside the picture, and every board-specific rule. Read it as a preflight that saves you a round trip, not as a compliance sign-off.</p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This page and the tool it describes are
+      provided free and as-is, without warranty of any kind, express or
+      implied. Nothing here is legal, compliance, or professional advice, and
+      it does not replace your MLS board's current photo standards or a
+      qualified professional. <strong>You are responsible for reviewing and
+      verifying any output before relying on it</strong>, and for meeting any
+      obligation it helps you prepare for. To the maximum extent permitted by
+      law, the authors accept no liability for any loss or damage arising from
+      its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+    <p>
+      MIT licensed &mdash; see <a href="LICENSE">LICENSE</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a>
+      if this saved you a re-delivery &mdash; entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+</body>
+</html>
