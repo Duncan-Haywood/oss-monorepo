@@ -8468,3 +8468,48 @@ entries:
         sweet-archimedes' catalog.json, work/hardwood-faq-fix -- is already
         superseded on main.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session on the owner's standing CI/CD-and-marketing
+        direction. Checked all three areas it names before writing code:
+        0 open PRs, ~100+ stale `agent/`/`claude/` branches sampled (four
+        checked individually, all 0 unique commits vs `main`), `gitops/tests`
+        275/13, mirror headroom 62.4%, and the four `marketing-distribution`
+        queue candidates already re-verified with no gap as of 2026-09-02.
+        Codex-on-Hetzner (`gitops/agents/`) is fully built and only
+        owner-blocked on the `codex-secrets` seal (#1996) -- named again in
+        the PR body rather than re-queued, per this ledger's own rule.
+      - >-
+        Shipped #3104: `which-job-first` and `cam-reconciliation-check` each
+        reveal a result panel via script with no page reload, and neither
+        carried `aria-live`, so a screen-reader user got no announcement
+        that a ranked work order or reconciliation result had appeared.
+        Same defect already fixed in `seller-net-sheet`,
+        `ltl-freight-class-estimator`, `chargeback-evidence-packet` --
+        extended the fix to the two ventures still missing it, with a
+        regression test per venture pinning the markup.
+      - >-
+        CI caught two real staleness bugs from this change, both in the
+        committed front-door mirror (`gitops/prod/front-door-tools/`,
+        the gzip'd copy of every venture page the apex serves): first, the
+        two edited pages' own mirrored copies were stale (an automated
+        cross-review bot fixed this before I could push, tree-identical to
+        my own fix); second, merging `main` pulled in an unrelated
+        concurrent commit (#3105, hardwood-refinishing quote fix) that
+        touched a third mirrored page without regenerating the mirror
+        after -- caught by the same `validate` job, fixed by running
+        `front-door-tools.mjs --write` again. Root-caused both from CI logs
+        via `ci_starvation.py` (confirmed real runners, not the known
+        Actions-outage signature) before treating either as a regression to
+        work around.
+      - >-
+        Verified: node --test on both ventures (15/13 passing),
+        `front-door-tools.test.mjs` (101/101), full `gitops/tests`
+        (275/13), full `platform/pages` suite (867/867),
+        `check_duplicate_symbols.py` and `publish_surface.py --check`
+        clean. Merged via GitHub's squash after all 18 PR checks (CI +
+        four-bot cross-review) went green.
+    mrr_end: null
