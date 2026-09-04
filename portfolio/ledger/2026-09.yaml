@@ -8560,3 +8560,55 @@ entries:
         venture's original 2026-08-24 ledger entries -- not a new feature,
         because `main` already had the equivalent one.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave the Codex worker a persistent tool cache
+        (`gitops/agents/codex-tools.yaml`, a 2Gi PVC mounted at
+        `/var/lib/codex-tools`). Every Job re-downloaded both of its pinned
+        binaries before it could spend a token: `@openai/codex` resolves to
+        one platform package, `@openai/codex-linux-x64`, measured at 320 MB
+        unpacked, and `gh` adds an 11 MB release tarball, on a CronJob that
+        ticks every five minutes. The bandwidth is the smaller half --
+        `policy.json` sets `maxConcurrent: 1` and `worker.sh` runs under
+        `set -euo pipefail`, so a registry blip during `install_codex` kills
+        the whole tick: a governor slot spent on a download that failed, on
+        a queue item that never ran. The npm registry and github.com are now
+        a dependency of the first Job after a version bump rather than of
+        every Job.
+      - >-
+        Closed the hazard a cache over *pinned* binaries introduces, which
+        is the reason this is not a one-line mount. The cache is the one
+        place a version nobody reviewed can survive a pin bump, and it would
+        do so silently, because everything downstream only asks whether
+        `codex` is on PATH -- on the binary that holds both the Job's
+        `GH_TOKEN` and the owner's ChatGPT `auth.json`. `install_tools` now
+        checks a *cached* binary's reported version against the pin and
+        reinstalls on a mismatch, while anything resolving from outside the
+        cache is still used as-is, exactly as before the cache existed. That
+        asymmetry is the `cached` helper: this script's own output from a
+        previous Job is its to second-guess, an operator's or the image's
+        binary is not.
+      - >-
+        Fixed a test fixture that would have hidden the whole thing: the
+        stub `gh` answered `--version` with nothing at all, so once
+        `install_tools` checks versions no cached copy could ever match a
+        pin and no test could tell a working cache from a broken one. The
+        reuse assertion failed on the first attempt for exactly that reason.
+        `_release_tarball` now packages a `gh` that answers `--version`, as
+        the real binary does.
+      - >-
+        Verified: `python3 -m pytest gitops/tests -q` (281 passed, 13
+        skipped, including three new end-to-end worker tests -- cache reuse
+        across two runs counted by `curl` invocations, replacement of a
+        cached binary after a pin bump, and non-interference with a binary
+        outside the cache); `shellcheck gitops/agents/workers/worker.sh`
+        (clean); `kustomize build gitops/agents` piped to `kubeconform
+        -strict -kubernetes-version 1.31.0` (17/17 valid);
+        `check_duplicate_symbols.py` and `publish_surface.py --check` both
+        clean. Left the governor `enabled: false` and its CronJob
+        `suspend: true` -- those are owner flips with real spend behind
+        them and are already queued as `agent-runner-subscription-login`.
+    mrr_end: null
