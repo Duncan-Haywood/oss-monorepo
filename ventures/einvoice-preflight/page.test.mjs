@@ -22,6 +22,7 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /INV-044 through INV-046/);
   assert.match(page, /INV-047 through INV-049/);
   assert.match(page, /INV-050 through INV-052/);
+  assert.match(page, /INV-053 and INV-054/);
   assert.match(page, /Load a credit note without a reference/);
   assert.match(page, /Load a 0% line without a reason/);
   assert.match(page, /Load mixed rates without a breakdown/);
@@ -30,7 +31,28 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Load a SEPA transfer without an IBAN/);
   assert.match(page, /Load a PO that repeats the invoice number/);
   assert.match(page, /Load a header discount that does not match its percent/);
-  assert.match(page, /CII \(XRechnung \/ Factur-X\)/);
+  assert.match(page, /Load terms days that do not match the due date/);
+  assert.match(page, /Factur-X \.pdf/);
+  assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF unwrap/);
+  assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF with an embedded invoice/);
+  assert.match(page, /accept="[^"]*\.pdf/);
+  assert.match(page, /arrayBuffer\(\)/);
+  assert.match(page, /report\.envelope/);
+  assert.match(page, /Unwrapped factur-x\.xml \(CII\) from the PDF/);
+});
+
+test("browser page can download the grouped remediation CSV", () => {
+  assert.match(page, /id="downloadRemediationCsv"/);
+  assert.match(page, /Download remediation CSV/);
+  assert.match(page, /buildRemediationCsv/);
+  assert.match(page, /einvoice-preflight-remediation\.csv/);
+});
+
+test("copy checklist falls back when the Clipboard API is denied", () => {
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\("copy"\)/);
+  assert.match(page, /async function copyText/);
+  assert.match(page, /await copyText\(text\)/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {

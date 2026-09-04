@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shopify Fee Calculator | Payments vs PayPal, and when Grow pays</title>
+  <title>Shopify Fee Calculator — Payments vs PayPal vs Grow</title>
   <meta name="description" content="Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -71,6 +71,10 @@
     .paths label { display: flex; gap: .45rem; align-items: center; font-weight: 600; }
     .paths input { width: auto; }
     .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -88,7 +92,16 @@
     .actions button { border:0; border-radius:999px; background:#0d6b45; color:#fff; padding:10px 16px; font-weight:700; cursor:pointer; }
     .share-status { font-size:.82rem; opacity:.85; min-height:1.2em; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
 </head>
 <body>
   <header>
@@ -204,6 +217,111 @@
         <a href="basic-vs-grow.html">Should I upgrade from Shopify Basic to Grow?</a>
         walks through that search question with the same arithmetic.
       </p>
+      <hr>
+      <h2>Card vs Shop Pay Installments</h2>
+      <p class="note">
+        The dedicated
+        <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments calculator</a>
+        already has the full math. This block uses the same
+        <code>compareShopPayInstallments</code> on the order you just typed,
+        so you do not leave the page. Defaults match that page (5.99% + $0.30,
+        15% of checkouts).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>Shop Pay Installments (%)
+          <input id="installmentRate" type="number" min="0" step="0.01" value="5.99">
+        </label>
+        <label>Installments fixed fee
+          <input id="installmentFixed" type="number" min="0" step="0.01" value="0.30">
+        </label>
+        <label>Installment share of checkouts (%)
+          <input id="installmentSharePct" type="number" min="0" max="100" step="0.1" value="15">
+        </label>
+        <label>Extra monthly orders from installments
+          <input id="extraOrdersFromInstallments" type="number" min="0" step="0.1" value="0">
+        </label>
+      </div>
+      <p id="installmentHeadline" class="note"></p>
+      <table id="installmentTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Rate</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs card</th>
+          </tr>
+        </thead>
+        <tbody id="installmentCompare"></tbody>
+      </table>
+      <p id="installmentNote" class="note"></p>
+      <hr>
+      <h2>Shopify Shipping vs your own label</h2>
+      <p class="note">
+        The dedicated
+        <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs own-label calculator</a>
+        already has the full math. This block uses the same
+        <code>compareShippingLabels</code> on the order you just typed,
+        so you do not leave the page. Empty Shopify label falls back to
+        Shipping you pay; empty own label uses $4.25 (Pirate Ship / Shippo
+        default on that page).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>Shopify Shipping label
+          <input id="shopifyLabelCost" type="number" min="0" step="0.01" value="5.49">
+        </label>
+        <label>Own / third-party label
+          <input id="ownLabelCost" type="number" min="0" step="0.01" value="4.25">
+        </label>
+      </div>
+      <p id="labelHeadline" class="note"></p>
+      <table id="labelTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Label</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs Shopify label</th>
+          </tr>
+        </thead>
+        <tbody id="labelCompare"></tbody>
+      </table>
+      <p id="labelNote" class="note"></p>
+      <hr>
+      <h2>Shopify POS vs online checkout</h2>
+      <p class="note">
+        The dedicated
+        <a href="shopify-pos-vs-online-fees.html">POS vs online calculator</a>
+        already has the full math. This block uses the same
+        <code>compareOnlineVsPos</code> on the order you just typed,
+        so you do not leave the page. Defaults match that page (2.6% + $0.10
+        in person, $49 card reader).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>In-person card rate (%)
+          <input id="posPaymentsRate" type="number" min="0" step="0.01" value="2.6">
+        </label>
+        <label>In-person fixed fee
+          <input id="posPaymentsFixed" type="number" min="0" step="0.01" value="0.10">
+        </label>
+        <label>Card reader cost
+          <input id="posHardwareCost" type="number" min="0" step="0.01" value="49">
+        </label>
+      </div>
+      <p id="posHeadline" class="note"></p>
+      <table id="posTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs online</th>
+          </tr>
+        </thead>
+        <tbody id="posCompare"></tbody>
+      </table>
+      <p id="posNote" class="note"></p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -285,26 +403,38 @@
       <a href="basic-vs-grow.html">When does Shopify Grow beat Basic?</a>
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Why does PayPal cost more on Shopify?</h3>
+  <p>When a Shopify store uses a third-party processor such as PayPal or Stripe, Shopify may also charge a third-party transaction fee on the order total, on top of the processor's own percentage and fixed fee. Shopify Payments replaces that extra Shopify fee with the Shopify Payments processing rate. Enter the rates from your current statements — this page does not publish Shopify's live schedule.</p>
+  <h3>How do I calculate Shopify fees on an order?</h3>
+  <p>Add the item price and shipping charged. Apply the payment-path rates that apply to you: Shopify Payments percentage plus fixed fee, or the third-party processor rates plus any Shopify third-party transaction fee. Subtract cost of goods, shipping you pay, packaging, and a share of the monthly Shopify plan. What remains is the order's net contribution.</p>
+  <h3>When does upgrading from Shopify Basic to Grow pay for itself?</h3>
+  <p>Grow costs more each month but usually charges a lower Shopify Payments rate and a lower third-party transaction fee. The upgrade starts paying from rates alone when monthly orders times the per-order fee savings exceed the extra monthly plan cost. Enter your own rates and volume — this page does not publish Shopify's live schedule or recommend a plan.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it saved you from an underpriced order, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Selling the same product somewhere else too? <a href="../where-to-sell-calculator/">Compare what one item nets on Shopify, eBay, Etsy, Amazon and a direct sale</a> side by side.</p>
+    <p>Free and open source. If it saved you from an underpriced order, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
   </footer>
   <script type="module">
-    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
+    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, compareOnlineVsPos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
-    import { encodeShareState, decodeShareState } from "./share.mjs";
+    import {
+      encodeShareState, decodeShareState, decodeInputs,
+      FIELD_IDS, ORDER_FIELDS as ids, PROMO_FIELDS as promoIds,
+      INSTALLMENT_FIELDS as installmentIds, LABEL_FIELDS as labelIds,
+      POS_FIELDS as posIds,
+    } from "./share.mjs";
 
-    const ids = [
-      "price", "shippingCharged", "paymentsRate", "paymentsFixed", "shopifyTxnRate",
-      "processorRate", "processorFixed", "costOfGoods", "shippingCost", "packagingCost",
-      "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin", "targetProfit",
-    ];
-    const promoIds = ["percentOff", "amountOff"];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const signedMoney = (value) => {
       if (Math.abs(value) < 0.005) return "same";
       return value > 0 ? `+${money(value)}` : money(value);
@@ -324,16 +454,54 @@
       return {
         ...Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value])),
         ...Object.fromEntries(promoIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(installmentIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(labelIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(posIds.map((id) => [id, document.getElementById(id).value])),
         paymentMethod: paymentMethod(),
         planId: document.getElementById("plan").value,
       };
     }
 
+    /**
+     * Put a full share link back on the page — all of it.
+     *
+     * Every field the token carries, not the order and promo sections alone.
+     * Writing back two of five panels was how a recipient read this page's
+     * example Installments, label and POS figures while believing they were
+     * looking at the sender's scenario.
+     *
+     * The plan select is assigned rather than dispatched: firing its change
+     * event would run applyPlan() and overwrite the sender's own payment rates
+     * with that plan's presets, which is exactly the substitution this is
+     * fixing.
+     */
     function applyShare(state) {
-      ids.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
-      promoIds.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
+      FIELD_IDS.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
       const radio = document.querySelector(`input[name="paymentMethod"][value="${state.paymentMethod}"]`);
       if (radio) radio.checked = true;
+      if (state.planId != null) document.getElementById("plan").value = state.planId;
+    }
+
+    /**
+     * Apply a partial link — a handoff that knows the item and nothing else.
+     *
+     * Returns how many values it actually set, so the caller can tell an
+     * empty or unreadable link from a real one and say which it was. Untouched
+     * fields keep this page's starting figures rather than being zeroed into
+     * something that reads like an answer.
+     */
+    function applyPartial(values) {
+      let applied = 0;
+      for (const id of FIELD_IDS) {
+        if (!(id in values)) continue;
+        document.getElementById(id).value = String(values[id]);
+        applied += 1;
+      }
+      if (values.paymentMethod) {
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${values.paymentMethod}"]`);
+        if (radio) { radio.checked = true; applied += 1; }
+      }
+      return applied;
     }
 
     function update() {
@@ -401,6 +569,45 @@
           document.getElementById("planBreakEven").textContent =
             `${toLabel} starts covering its extra ${money(nextUp.extraMonthly)} / month at ${ordersLabel(nextUp.breakEvenOrders)} on this payment path (about ${money(nextUp.feeSavings)} less in fees per order).`;
         }
+
+        const installment = compareShopPayInstallments(readInput());
+        document.getElementById("installmentHeadline").textContent = installment.summary;
+        document.getElementById("installmentCompare").innerHTML = installment.rows.map((row) => {
+          const delta = row.id === "card" ? "—" : signedMoney(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${row.rate.toFixed(2)}% + ${money(row.fixed)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("installmentNote").textContent = installment.liftPays
+          ? `Typed lift of ${installment.extraOrdersFromInstallments} extra orders covers the extra fee.`
+          : Number.isFinite(installment.breakEvenExtraOrders)
+            ? `Need about ${installment.breakEvenExtraOrders.toFixed(1)} extra orders / month for the mix to match turning installments off.`
+            : "The blended mix cannot cover the extra installment fee from volume alone.";
+
+        const labels = compareShippingLabels(readInput());
+        document.getElementById("labelHeadline").textContent = labels.summary;
+        document.getElementById("labelCompare").innerHTML = labels.rows.map((row) => {
+          const delta = row.id === "shopify" ? "—" : signedMoney(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("labelNote").textContent = Number.isFinite(labels.monthlyExtraOnOwn)
+          ? `Own-label leftover vs Shopify Shipping is ${signedMoney(labels.monthlyExtraOnOwn)} / month at this volume.`
+          : "Fix the label quotes to compare Shopify Shipping with your own postage.";
+
+        const pos = compareOnlineVsPos(readInput());
+        const posRows = [pos.online, pos.inPersonSameTicket, pos.inPersonPickup];
+        document.getElementById("posHeadline").textContent = pos.extraKeptOnPickup > 1e-9
+          ? `In-person pickup keeps ${signedMoney(pos.extraKeptOnPickup)} more than online checkout on this ticket.`
+          : pos.extraKeptOnPickup < -1e-9
+            ? `Online checkout keeps ${signedMoney(-pos.extraKeptOnPickup)} more than in-person pickup on this ticket.`
+            : "Online checkout and in-person pickup leave the same profit on this ticket.";
+        document.getElementById("posCompare").innerHTML = posRows.map((row) => {
+          const delta = row === pos.online ? "—" : signedMoney(row.profit - pos.online.profit);
+          return `<tr><td>${row.label}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("posNote").textContent = pos.ordersToRecoverHardware == null
+          ? (pos.posHardwareCost > 0
+            ? "The in-person path does not recover the card reader from extra leftover on this ticket."
+            : "No card-reader cost typed, so there is nothing to recover.")
+          : `About ${Math.ceil(pos.ordersToRecoverHardware)} in-person order${Math.ceil(pos.ordersToRecoverHardware) === 1 ? "" : "s"} recover the ${money(pos.posHardwareCost)} reader.`;
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -414,6 +621,15 @@
         document.getElementById("planCompare").innerHTML = "";
         document.getElementById("planHeadline").textContent = "Fix the inputs to compare plans.";
         document.getElementById("planBreakEven").textContent = "";
+        document.getElementById("installmentCompare").innerHTML = "";
+        document.getElementById("installmentHeadline").textContent = "Fix the inputs to compare Shop Pay Installments.";
+        document.getElementById("installmentNote").textContent = "";
+        document.getElementById("labelCompare").innerHTML = "";
+        document.getElementById("labelHeadline").textContent = "Fix the inputs to compare shipping labels.";
+        document.getElementById("labelNote").textContent = "";
+        document.getElementById("posCompare").innerHTML = "";
+        document.getElementById("posHeadline").textContent = "Fix the inputs to compare POS vs online.";
+        document.getElementById("posNote").textContent = "";
       }
     }
 
@@ -431,6 +647,9 @@
     document.getElementById("plan").addEventListener("change", applyPlan);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
     promoIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    installmentIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    labelIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    posIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       const event = id === "targetMargin"
         ? "target_margin_calculated"
@@ -443,6 +662,15 @@
     }));
     promoIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "promos_compared");
+    }));
+    installmentIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shop_pay_installments_compared");
+    }));
+    labelIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shipping_labels_compared");
+    }));
+    posIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "pos_online_compared");
     }));
     document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
@@ -480,14 +708,26 @@
         status.textContent = error.message || "Could not copy a summary.";
       }
     });
-    try {
-      const hash = location.hash.replace(/^#/, "");
-      if (hash) {
+    // Two link shapes arrive here. A full share link is one base64 token and
+    // must decode completely or be refused — the recipient sees exactly what
+    // the sender saw, or is told so. A handoff from where-to-sell-calculator
+    // is ordinary query text carrying only the item, and must fill in what it
+    // knows and leave this page's plan, promo, and POS figures alone.
+    const hash = location.hash.replace(/^#/, "");
+    if (hash) {
+      try {
         applyShare(decodeShareState(hash));
         recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_opened");
+      } catch {
+        const applied = applyPartial(decodeInputs(hash));
+        if (applied > 0) {
+          recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_opened");
+          document.getElementById("shareStatus").textContent =
+            `Loaded ${applied} value${applied === 1 ? "" : "s"} from the link. Everything else is this page's own starting figure — check the plan and the payment rates against your own Shopify billing.`;
+        } else {
+          document.getElementById("shareStatus").textContent = "That share link could not be read. Showing the example numbers.";
+        }
       }
-    } catch {
-      document.getElementById("shareStatus").textContent = "That share link could not be read. Showing the example numbers.";
     }
     update();
   </script>

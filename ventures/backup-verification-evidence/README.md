@@ -64,6 +64,13 @@ flagged. That is an observation, not a determination that data was lost —
 retention pruning and a genuinely smaller dataset shrink artifacts too. See
 [Why is my backup smaller than yesterday?](./shrinking.html).
 
+If your records were made with `--verify-integrity`, the page's "Require an
+end-to-end integrity read" checkbox mirrors `check --require-integrity`: any
+night without a conclusive `intact` read shows as `inconclusive` instead of
+`verified`, even when its exit code and size were fine. Leave it off and the
+page reports exactly what it did before — verified from exit code and stat
+alone.
+
 ### Why reading the file matters
 
 Exit code, size, and mtime share one blind spot: an archive that is **big,

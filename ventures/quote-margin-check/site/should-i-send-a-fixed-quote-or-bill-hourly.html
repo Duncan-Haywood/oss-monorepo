@@ -24,7 +24,10 @@
     th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d8d8; }
     th:first-child, td:first-child { text-align: left; }
     footer { margin-top: 2rem; font-size: .85rem; color: #5a5a5a; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Quote Margin Check</a></p>
@@ -79,6 +82,14 @@
     recommend a billing model, write a proposal, or claim a quote is
     profitable.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I send a fixed-price quote or bill hourly?</h3>
+  <p>Compare the same hours and direct costs both ways. A fixed quote stays the same if the work runs long; hourly bills those hours at your target rate plus the same costs. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), hourly at planned hours would bill $3,105 — $705 more than the fixed quote.</p>
+  <h3>Does extra time change the comparison?</h3>
+  <p>Yes for hourly, no for the fixed price. At +50% hours (52.50 hours) the fixed effective rate falls to $36.57/hour while hourly would bill $4,417.50 — $2,017.50 more than the $2,400 quote. The extra hours are eaten on the fixed path and billed on the hourly path.</p>
+  <h3>Does this tell me which billing model to send?</h3>
+  <p>No. The table is arithmetic on the figures you typed. It does not recommend a billing model, write a proposal, or claim a quote is profitable. You decide what to send.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>

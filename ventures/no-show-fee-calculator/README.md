@@ -46,7 +46,9 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    together with) chasing a no-show invoice after the fact.
 5. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a comparison of
+   revenue you could collect if you enforce the policy, the modeled share of
+   lost slot value recovered, and the exposure still unrecovered (both per
+   month and as a full-year figure) — plus a comparison of
    that after-the-fact fee against keeping a deposit, a table that compares
    collecting the fee on a full book against overbooking 50%, 100%, and 150%
    of the empty chairs (and against dropping the fee and only overbooking),
@@ -56,7 +58,7 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    double-booked chair costs you; leave it blank to price overflow as one
    session.
 
-All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
+All the arithmetic is in [`calc.mjs`](calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
 guesswork — it's your numbers, run through a fixed formula you can read.
 
@@ -128,7 +130,7 @@ in `localStorage` on your own device, visible to you in the page's "Usage"
 section, and clearable or disable-able at any time (a "don't count my usage"
 checkbox is right there, and the tool also honors your browser's Do Not
 Track / Global Privacy Control signal automatically). See
-[`src/usage.mjs`](src/usage.mjs) for the full implementation and
+[`usage.mjs`](usage.mjs) for the full implementation and
 [`portfolio/usage/README.md`](../../portfolio/usage/README.md) for the
 portfolio-wide rules this follows.
 
@@ -154,6 +156,11 @@ portfolio-wide rules this follows.
   different, recurring, quantifiable pain.
 - **Shape:** pure static site, zero marginal cost, zero third-party
   dependency, no AI needed — deterministic arithmetic is the whole product.
+
+The recovery percentage is a comparison of modeled fee collections with the
+appointment value at risk. It reflects the enforcement assumption you enter;
+it is not a forecast of client behavior or a guarantee that fees can be
+collected.
 
 ## Usage tracking
 

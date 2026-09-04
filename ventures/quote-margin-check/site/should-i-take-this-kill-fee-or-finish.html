@@ -24,7 +24,10 @@
     th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d8d8; }
     th:first-child, td:first-child { text-align: left; }
     footer { margin-top: 2rem; font-size: .85rem; color: #5a5a5a; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Quote Margin Check</a></p>
@@ -90,6 +93,12 @@
     This page does not recommend taking or refusing a kill fee, write
     a cancellation clause, or claim other work will appear.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I take a kill fee or finish a cancelled freelance project?</h3>
+  <p>On a typical $2,400 quote (35 hours, $480 of costs) with 14 hours already spent, $1,200 already paid, $180 of costs already sunk, and a $360 kill fee, finishing keeps $1,920.00. The kill fee keeps $1,380.00 — $540.00 less cash. Walking with only the deposit keeps $1,020.00. Finishing the remaining 21.00 hours pays $900.00 from here ($42.86/hour). Booking those 21 hours at $75/hour would make the kill fee $1,035.00 ahead of finishing.</p>
+  <h3>When does a kill fee already keep more cash than finishing?</h3>
+  <p>When most of the price is already paid and remaining costs are still open. On the same $2,400 quote with 8 hours spent, $2,160 already paid, $180 sunk, and an $80 kill fee, finishing the last 27 hours collects only $240 more and still spends $300 of remaining costs — $60 from here. The kill fee keeps $2,060.00, $140.00 more cash than finishing.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>

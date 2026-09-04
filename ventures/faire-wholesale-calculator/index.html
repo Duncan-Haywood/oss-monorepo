@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Faire Seller Fee Calculator | First Order vs Reorder vs Faire Direct</title>
+  <title>Faire Seller Fee Calculator — First Order vs Reorder</title>
   <meta name="description" content="Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare first orders, Faire Direct, Open House, Promoted Listings after last-click organic, next-day payout after carrying cost, Pay Now leftover after Faire remittance wait, and whether a keep-it credit still beats taking a return.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -117,6 +117,10 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .span2 { grid-column: 1 / -1; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb6a6; } .positive { color: #c5edb5; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 18px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
@@ -178,7 +182,7 @@
         <label>Wholesale unit price <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
         <label>Units <input id="quantity" type="number" min="1" step="1" value="10"></label>
         <label>Unit cost of goods <input id="unitCogs" type="number" min="0" step="0.01" value="8"></label>
-        <label>Brand-funded discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" value="0"></label>
+        <label>Brand-funded discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" max="99.9" value="0"></label>
         <label>Shipping reimbursement <input id="shippingReimbursement" type="number" min="0" step="0.01" value="15"></label>
         <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="15"></label>
         <label>Commission rate (%) <input id="commissionRate" type="number" min="0" step="0.1" value="15"></label>
@@ -189,8 +193,8 @@
         <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
         <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
         <label>Expected reorders from this retailer <input id="expectedReorders" type="number" min="0" step="1" value="2"></label>
-        <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
-        <label>Open House discount (%) <input id="openHouseDiscountRate" type="number" min="0" step="0.1" value="20"></label>
+        <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
+        <label>Open House discount (%) <input id="openHouseDiscountRate" type="number" min="0" step="0.1" max="99.9" value="20"></label>
         <label>Open House commission (%) <input id="openHouseCommissionRate" type="number" min="0" step="0.1" value="0"></label>
         <label class="span2">Extra new retailers during Open House <input id="openHouseExtraRetailers" type="number" min="0" step="1" value="2"></label>
         <label>Organic first orders / window <input id="organicFirstOrders" type="number" min="1" step="1" value="4"></label>
@@ -200,9 +204,9 @@
         <label>Units they want back <input id="returnUnits" type="number" min="1" step="1" value="10"></label>
         <label>Return label you pay <input id="returnLabel" type="number" min="0" step="0.01" value="18"></label>
         <label>Restockable (%) <input id="restockablePct" type="number" min="0" max="100" step="1" value="80"></label>
-        <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" value="20"></label>
+        <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" max="99.9" value="20"></label>
         <label>They'll-drop-it if you deny (%) <input id="denyKeepPct" type="number" min="0" max="100" step="1" value="50"></label>
-        <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" value="2"></label>
+        <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" max="99.9" value="2"></label>
         <label>Pay Now take-rate (%) <input id="payNowTakePct" type="number" min="0" max="100" step="0.1" value="40"></label>
         <label>Extra first orders from Pay Now <input id="extraPayNowOrders" type="number" min="0" step="1" value="0"></label>
         <label>Net remittance wait (days) <input id="netWaitDays" type="number" min="0" step="1" value="60"></label>
@@ -369,12 +373,32 @@
       tax or financial advice. The gaps are an arithmetic comparison of the rates you entered.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>How much does Faire charge sellers?</h3>
+  <p>Faire publishes a 15% marketplace commission. North American brands also pay a one-time $10 new-customer fee on a retailer's first marketplace order. Brands outside North America pay an extra 10% on that first order instead of $10. Faire Direct orders from retailers you bring yourself are 0% commission. Payment processing is separate and depends on payout speed. Enter the rates from your payout summary — this page does not publish Faire's live schedule.</p>
+  <h3>What is the difference between a Faire first order and a reorder?</h3>
+  <p>A first marketplace order from a new retailer includes the one-time new-customer fee on top of the standard commission. Later orders from that same retailer do not. Faire Direct is a third path: 0% commission when the retailer used your Direct link. This calculator shows all three on the same order so you can see whether the first-order fee changes the wholesale price you need.</p>
+  <h3>Does Faire charge commission on brand-funded discounts?</h3>
+  <p>Faire's published payout formula takes commission on the order subtotal after brand-funded promotions. This calculator subtracts your discount percentage before applying commission and processing. Verify against the payout summary on the order.</p>
+  <h3>How does the Faire new-customer fee look after a retailer reorders?</h3>
+  <p>The new-customer fee is charged once. Enter how many reorders you expect from that retailer to see lifetime marketplace profit next to the same number of Faire Direct or off-Faire invoices, and the first-order fee divided across those orders. This is arithmetic from your count, not a forecast that they will reorder.</p>
+  <h3>Is Faire next-day payout worth the extra processing fee?</h3>
+  <p>On the calculator defaults — a $200 North America first marketplace order and a 24% annual carrying-cost assumption — next-day payout leaves $72.59 after modeled float. Waiting 60 days leaves $69.28. The $3.20 processing spread does not cover 24% money sitting 60 days. At 6%, waiting still finishes ahead. Enter your own rate. This is not a recommendation to take next-day payout.</p>
+  <h3>Should I take this Faire return?</h3>
+  <p>On a completed $20 × 10 first order that booked $75.90, a 20% keep-it credit leaves $41.90. Denying at 50% they'll-drop-it leaves $37.95. Taking all 10 units back with an $18 label and 80% restockable leaves −$49.00. Returning 2 of 10 with an $8 label flips taking the return to $46.52. This is not a recommendation to take, credit, or fight the return.</p>
+  <h3>Does Faire Open House still leave more after a deeper opening discount?</h3>
+  <p>Faire Open House typically waives marketplace commission for a short window. Retailers often expect a deeper brand-funded discount during that window. On the calculator defaults a $20 × 10 first order keeps $75.90 everyday after 15% + $10, $66.66 during Open House at 20% off (−$9.24), and $105.90 if you keep your everyday discount. The waived commission funds about 15.3% off before leftover matches everyday. Two extra new retailers flip the 20% path to $199.98 vs $75.90. This is not Faire Direct — you still did not bring the retailer — and it is not a forecast that the window will produce those extra accounts.</p>
+  <h3>Should I offer Faire Pay Now?</h3>
+  <p>On the calculator defaults — a $20 × 10 first marketplace order, a 2% Pay Now discount, 40% take-rate, and 24% money — skipping Pay Now keeps $69.16 after 60-day remittance. Offering it keeps $67.88 (−$1.28). Everyone taking it keeps $65.96. The 2% matches if Pay Now remittance falls to about 31.0 days or extra first orders rise to about 0.02. One extra first order flips the offer to $133.85. A 1-day remittance flips everyone-takes to $72.47. This is not next-day payout and not generic 2/10 Net 30.</p>
+  <h3>Are Faire Promoted Listings worth it?</h3>
+  <p>On the calculator defaults — four organic $20 × 10 first orders, one extra first order, a 15% promoted rate, and 40% last-click attribution on organic — skipping the campaign keeps $303.60 and running it keeps $301.50 (−$2.10). Ads match if the rate falls to about 14.6%, extra first orders rise to about 1.0, or last-click attribution on organic falls to about 38.3%. Two extra first orders flip the campaign to $347.40. This page does the arithmetic from the rates you enter; it does not recommend turning a campaign on.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Faire Wholesale, Inc.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it saved you from an underpriced opening order, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free and open source. If it saved you from an underpriced opening order, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
     import { REGION_PRESETS, PAYOUT_PRESETS, compareBrandScenarios, compareFairePayNow, compareFairePromoted, compareFaireReturn, compareOpenHouse, comparePayoutSpeedsAfterFloat, compareRetailerLifetime, faireReturnNote, openHouseNote, payNowNote, promotedNote, summarizePayoutFloat, wholesaleForMargin } from "./calc.mjs";
@@ -383,7 +407,11 @@
 
     const INPUTS_KEY = "faire-wholesale-brand-inputs";
     const field = (id) => document.getElementById(id);
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const currentInputs = () => ({
       ...Object.fromEntries(FIELD_IDS.map((id) => [id, field(id).value])),
       region: field("region").value,
@@ -508,6 +536,19 @@
         field("profit").textContent = error.message;
         field("profit").className = "hero-number negative";
         field("label").textContent = "fix the inputs to see a result";
+        // A rejected input (a negative number, a discount at or above 100%, an
+        // out-of-range percentage) threw before reaching any of these seven
+        // lines, so they kept showing the *last valid* order's subtotal,
+        // fees, payout, cash, margin, and ROI right next to the error message
+        // above them -- easy to misread as the answer for what is now in the
+        // form. Clear them along with every other derived section below.
+        field("subtotal").textContent = "";
+        field("commission").textContent = "";
+        field("processing").textContent = "";
+        field("payoutAmount").textContent = "";
+        field("cash").textContent = "";
+        field("margin").textContent = "";
+        field("roi").textContent = "";
         field("compare").replaceChildren();
         field("lifetime").replaceChildren();
         field("lifetimeNote").textContent = "";

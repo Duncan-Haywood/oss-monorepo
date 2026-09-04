@@ -77,7 +77,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'linear-oversize', 'plan', 'copy-plan', 'linear-print', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -96,7 +96,7 @@ test('the liability disclaimer and privacy note are real markup, not swallowed t
 test('the sheet-goods inputs and result fields are present', () => {
   for (const id of [
     'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-unit', 'sheet-cost',
-    'sheet-rotate', 'sheet-parts', 'sheet-headline', 'sheet-message', 'sheet-count',
+    'sheet-rotate', 'sheet-parts', 'sheet-onhand', 'sheet-headline', 'sheet-message', 'sheet-count',
     'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost', 'sheet-oversize',
     'sheet-compare', 'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
     'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
@@ -105,6 +105,18 @@ test('the sheet-goods inputs and result fields are present', () => {
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
+});
+
+test('the sheet-goods on-hand offcut field is parsed, drafted, and wired to a render', () => {
+  assert.match(scriptSource, /onHand:\s*parseOnHandSheets\(\$\('sheet-onhand'\)\.value\)/, 'renderSheet does not pass the on-hand offcut field into optimizeSheets');
+  assert.match(scriptSource, /DRAFT_FIELDS\s*=\s*\[[^\]]*'sheet-onhand'[^\]]*\]/s, 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft loses it');
+});
+
+// A cut too long for any stock on hand or to buy no longer throws away the
+// rest of the plan (see calc.mjs); the page must actually surface it instead
+// of silently dropping it.
+test('an oversize cut on the linear tab is rendered, not silently dropped', () => {
+  assert.match(scriptSource, /\$\('linear-oversize'\)\.innerHTML\s*=\s*result\.oversize\.length/, 'renderLinear does not read result.oversize into #linear-oversize');
 });
 
 test('every id list the script iterates names a real element', () => {
@@ -140,6 +152,17 @@ test('every module the page imports exists and exports what it names', async () 
 test('the landing page points at the 4×8 vs 5×5 comparison', () => {
   assert.match(markup, /href="compare-4x8-vs-5x5.html"/);
   assert.match(markup, /compare other sheet sizes/i);
+});
+
+test('both the sheet and linear plans can be printed', () => {
+  // The linear-stock cutting plan is a job ticket read at the saw just like
+  // the sheet layout is -- the page's own schema.org featureList advertises
+  // a "printable job ticket" for both, so both need a Print button wired to
+  // window.print(), not only the sheet-goods panel.
+  for (const id of ['sheet-print', 'linear-print']) {
+    assert.match(markup, new RegExp(`id="${id}"[^>]*>Print<`), `#${id} button is missing from index.html`);
+    assert.match(scriptSource, new RegExp(`\\$\\('${id}'\\)\\.addEventListener\\('click', \\(\\) => window\\.print\\(\\)\\)`), `#${id} is not wired to window.print()`);
+  }
 });
 
 test('the linear stock-length comparison is present and apply actions escape labels', () => {

@@ -28,7 +28,21 @@ export function reviewQuote(quote, report) {
   // Same inequality as "below the supplied target" (price < hours × rate +
   // costs), so this stays a note that names the hour figure rather than a
   // second attention flag on the same arithmetic.
-  if (hoursBudget < report.total_hours) {
+  //
+  // The budget is a signed figure: when direct costs exceed the price it goes
+  // negative, and `hours_at_target` in discountAskScenarios already treats
+  // that as "not applicable" rather than a number. Saying "the quote supports
+  // -4.00 total hours" reads as a quantity of hours, which is not what a
+  // negative there means — there is no budget to spend, because the quote is
+  // short before anyone works an hour.
+  if (report.cost_coverage <= 0) {
+    const costs = `${quote.currency} ${report.direct_costs.toFixed(2)}`;
+    const price = `${quote.currency} ${quote.price.toFixed(2)}`;
+    const relation = report.cost_coverage < 0
+      ? `direct costs of ${costs} exceed the ${price} quoted price by ${quote.currency} ${Math.abs(report.cost_coverage).toFixed(2)}`
+      : `direct costs of ${costs} use the whole ${price} quoted price`;
+    checks.push({ level: "note", title: "Target-rate hours budget", detail: `There is no time budget at the target rate: ${relation}, so the ${report.total_hours.toFixed(2)} estimated hours are unpaid at any rate.` });
+  } else if (hoursBudget < report.total_hours) {
     checks.push({ level: "note", title: "Target-rate hours budget", detail: `At the supplied target rate, the quote supports ${hoursBudget.toFixed(2)} total hours; the estimate is ${report.total_hours.toFixed(2)}.` });
   } else {
     checks.push({ level: "note", title: "Target-rate hours budget", detail: `The supplied price supports up to ${hoursBudget.toFixed(2)} total hours after direct costs at the target rate.` });

@@ -10,6 +10,7 @@ import {
   computeAnnualExposure,
   computeAnnualFeeRevenue,
   computeRecovery,
+  computeRecoveryEstimate,
   computeAll,
   compareFeeScenarios,
   compareCollectionPolicies,
@@ -29,7 +30,7 @@ import {
   saveDraft,
   readDraft,
   clearDraft,
-} from "../src/calc.mjs";
+} from "../calc.mjs";
 
 test("parseInputs accepts valid numeric input", () => {
   const result = parseInputs({
@@ -184,6 +185,17 @@ test("computeRecovery handles zero exposure and zero fee without infinity", () =
   });
 });
 
+test("computeRecoveryEstimate compares modeled collections with lost value", () => {
+  assert.deepEqual(computeRecoveryEstimate({ annualFeeRevenue: 4368, annualLostRevenue: 6240 }), {
+    recoveredPct: 70,
+    remainingAnnualExposure: 1872,
+  });
+  assert.deepEqual(computeRecoveryEstimate({ annualFeeRevenue: 10, annualLostRevenue: 0 }), {
+    recoveredPct: 0,
+    remainingAnnualExposure: 0,
+  });
+});
+
 test("computeAll composes the individual calculations consistently", () => {
   const values = {
     price: 75,
@@ -198,6 +210,8 @@ test("computeAll composes the individual calculations consistently", () => {
   const exposure = computeAnnualExposure(values);
   assert.equal(result.noShowsPerYear, exposure.noShowsPerYear);
   assert.equal(result.annualLostRevenue, exposure.annualLostRevenue);
+  assert.equal(result.recoveredPct, 70);
+  assert.equal(result.remainingAnnualExposure, 1872);
   assert.equal(
     result.annualFeeRevenue,
     computeAnnualFeeRevenue({
@@ -619,11 +633,32 @@ test("index.html's embedded JSON-LD blocks are valid JSON", () => {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
-  assert.ok(blocks.length >= 2, "expected at least a SoftwareApplication and a FAQPage block");
+  assert.ok(blocks.length >= 1, "expected at least a SoftwareApplication block");
   for (const [, json] of blocks) {
     const parsed = JSON.parse(json);
     assert.ok(parsed["@context"] === "https://schema.org");
   }
+});
+
+// The FAQ schema is *derived* from the visible questions by
+// `platform/pages/build.mjs`, not hand-authored here. This page used to carry
+// its own FAQPage block plus a second visible copy of the same five questions
+// so the two would agree; the copies drifted apart in wording and readers saw
+// the FAQ twice. Asserting the visible questions exist is the invariant that
+// matters — the builder turns exactly these into schema, so they cannot drift.
+test("index.html carries visible question headings for the derived FAQ schema", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
+  const questions = [...html.matchAll(/<h[23]\b[^>]*>([\s\S]*?)<\/h[23]>/gi)]
+    .map(([, text]) => text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim())
+    .filter((text) => text.endsWith("?"));
+  assert.ok(questions.length >= 4, `expected visible FAQ questions, found ${questions.length}`);
+  assert.equal(new Set(questions).size, questions.length, "a question is asked twice on the page");
+  assert.equal(
+    (html.match(/>Common questions</g) || []).length,
+    1,
+    "the page should carry exactly one Common questions section",
+  );
 });
 
 test("index.html contains the required disclaimer wording", () => {
@@ -711,24 +746,24 @@ function readHtml() {
 
 function readApp() {
   const here = path.dirname(fileURLToPath(import.meta.url));
-  return readFileSync(path.join(here, "..", "src", "app.mjs"), "utf8");
+  return readFileSync(path.join(here, "..", "app.mjs"), "utf8");
 }
 
 test("index.html loads the module script after the markup it queries", () => {
   const html = readHtml();
-  const scriptIndex = html.indexOf('<script type="module" src="src/app.mjs">');
-  assert.ok(scriptIndex > 0, "src/app.mjs is not loaded as a module script");
+  const scriptIndex = html.indexOf('<script type="module" src="app.mjs">');
+  assert.ok(scriptIndex > 0, "app.mjs is not loaded as a module script");
   assert.ok(html.indexOf('id="calc-form"') < scriptIndex, "the form must be parsed before the script");
 });
 
-test("every id src/app.mjs looks up exists in index.html", () => {
+test("every id app.mjs looks up exists in index.html", () => {
   const html = readHtml();
   const ids = [...readApp().matchAll(/getElementById\("([^"]+)"\)/g)].map((m) => m[1]);
   assert.ok(ids.length > 0, "expected app.mjs to query some ids");
   for (const id of new Set(ids)) {
     assert.ok(
       html.includes(`id="${id}"`),
-      `src/app.mjs queries #${id}, which does not exist in index.html`,
+      `app.mjs queries #${id}, which does not exist in index.html`,
     );
   }
 });

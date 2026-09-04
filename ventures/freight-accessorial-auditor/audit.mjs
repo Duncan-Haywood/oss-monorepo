@@ -131,16 +131,27 @@ export function auditTotals(results) {
       // cost". Such rows are already excluded from `actionable`; this keeps
       // the dollar figure consistent with that. `unpriced` reports how many
       // were held back so the omission is visible rather than silent.
+      // A row whose evidence *supports* the billed condition is not an
+      // outstanding overage either. `priorityFor` already keeps it out of
+      // `actionable`, but its variance still landed in `recoverable` here
+      // — so a detention line billed $300 against a $75 rate-card figure,
+      // with a scale ticket attached that supports the $300, still added
+      // $225.00 to the headline "Above expected" dollar total shown on the
+      // page, right next to an "actionable" count that correctly excluded
+      // it. The evidence has already reconciled that gap against the real
+      // record; counting it toward "recoverable" reintroduces the
+      // overclaim the evidence was attached to rule out.
       recoverable:
-        row.priority === "fix-inputs"
+        row.priority === "fix-inputs" || row.priority === "supported"
           ? totals.recoverable
           : cents(totals.recoverable + Math.max(0, row.variance)),
       unpriced: totals.unpriced + (row.priority === "fix-inputs" ? 1 : 0),
+      supported: totals.supported + (row.priority === "supported" ? 1 : 0),
       actionable:
         totals.actionable +
         (row.priority === "high" || row.priority === "review" ? 1 : 0),
     }),
-    { billed: 0, expected: 0, flagged: 0, recoverable: 0, unpriced: 0, actionable: 0 },
+    { billed: 0, expected: 0, flagged: 0, recoverable: 0, unpriced: 0, supported: 0, actionable: 0 },
   );
 }
 

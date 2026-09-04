@@ -25,6 +25,20 @@ spec:
           restartPolicy: Never
           nodeSelector:
             hcloud/node-role: control-plane
+          # Every other workload in this repo (portfolio-site, its refresh and
+          # usage CronJobs, the CI runner) runs allowPrivilegeEscalation: false,
+          # capabilities.drop: [ALL] and readOnlyRootFilesystem: true. governor
+          # was the one exception, despite being the single workload in `agents`
+          # that actually holds a live ServiceAccount token with RBAC to create
+          # Jobs and update a ConfigMap -- the workload most worth narrowing.
+          # runAsUser 65532 on this exact python:3.12-slim-bookworm image is
+          # already proven by prod/site-usage.yaml's aggregate CronJob.
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
           containers:
             - name: governor
               image: python:3.12-slim-bookworm
@@ -48,6 +62,21 @@ spec:
                 - name: queue
                   mountPath: /etc/governor/queue
                   readOnly: true
+                # governor.py's _save_state() always writes a local copy to
+                # GOVERNOR_STATE (default /var/run/governor/state.json) before
+                # it ever touches the ConfigMap -- the in-cluster fallback
+                # _load_state() reads back if the ConfigMap GET fails. That
+                # write is unconditional, so readOnlyRootFilesystem below needs
+                # this path to still be writable, the same way the refresh and
+                # usage CronJobs mount a writable emptyDir under a read-only
+                # root.
+                - name: state-tmp
+                  mountPath: /var/run/governor
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
               resources:
                 requests:
                   cpu: 20m
@@ -66,3 +95,6 @@ spec:
             - name: queue
               configMap:
                 name: governor-queue
+            - name: state-tmp
+              emptyDir:
+                sizeLimit: 16Mi

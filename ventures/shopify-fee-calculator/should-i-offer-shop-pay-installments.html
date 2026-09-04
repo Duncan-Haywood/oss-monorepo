@@ -60,6 +60,10 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .span2 { grid-column: 1 / -1; }
     .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -174,12 +178,18 @@
       installment mix.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>How much extra does Shop Pay Installments cost the merchant?</h3>
+  <p>Shop Pay Installments is usually a higher Shopify Payments rate than a regular card or Shop Pay card checkout. Enter the installment rate from a payout or the Shop Pay Installments line in admin — this page does not publish Affirm's or Shopify's live schedule. The extra fee is that rate gap on the order total, including shipping charged.</p>
+  <h3>When do Shop Pay Installments still pay?</h3>
+  <p>They pay when extra conversion covers the extra fee on the share of checkouts that use installments. This calculator shows the extra fee on one ticket, the blended month at your installment share, and the lift (extra orders) needed to match turning installments off at the same volume. Type extra monthly orders if you already see a lift.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it saved you from turning installments off on a sticker rate, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free and open source. If it saved you from turning installments off on a sticker rate, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
     import { applyPlanPreset, compareShopPayInstallments } from "./calc.mjs";
@@ -191,7 +201,11 @@
       "extraOrdersFromInstallments", "costOfGoods", "shippingCost",
       "packagingCost", "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
     ];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
 
     function readInput() {
       return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));

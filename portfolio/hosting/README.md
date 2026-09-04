@@ -17,6 +17,74 @@ in GitHub Actions secrets. Do not add a third cloud to host a calculator.
 Do not put public sites on the agent box. Do not put a static calculator on
 Hetzner just because the box is there.
 
+## Amended 2026-08-29: the whole static site also goes to Hetzner
+
+The row above still holds for a *single* calculator. It stopped holding for
+the **assembled portfolio site**, which now also deploys to the Hetzner
+control-plane box via `gitops/prod/portfolio-site.yaml`, on
+`tools.marisstella.dev`.
+
+The GitHub Pages route was decided when it looked like one owner flip away.
+It is not:
+
+- **Pages is not enabled**, and enabling it is the queued `deploy-settings`
+  ask — still open.
+- **The repository is private.** Pages from a private repository does not
+  serve a public site on the free tier, so the flip alone would not have
+  put these tools in front of strangers. This was not accounted for when
+  the row above was written.
+- ~~**Nothing is building the artifact.**~~ **Resolved 2026-09-01.** From
+  2026-08-26 every GitHub Actions run in this repo failed without a runner
+  (`runner_id: 0`, 3-second jobs), so `portfolio-pages.yml` produced no
+  deployable artifact for five days. Runners came back at
+  2026-09-01T00:00:53Z and `portfolio-pages.yml` would build again today.
+  The account-level ceiling looks like it cycles rather than being gone, so
+  treat this as "not currently blocking" rather than "cannot recur".
+
+The two blockers that remain are the first two, and the Hetzner path shares
+none of the three: Argo syncs the
+manifest from `main` and the site is built inside the cluster, so it needs
+neither Actions nor Pages. The box is already paid for and already runs
+ingress-nginx and cert-manager. Its own remaining step is now **one**: a
+sealed read-only clone token, listed in `gitops/README.md`.
+
+## Amended 2026-09-02: the apex serves without waiting for that seal
+
+`gitops/prod/portfolio-front.yaml` puts a generated front-door page on
+`marisstella.dev` and `www.marisstella.dev`, served by nginx from a
+kustomize ConfigMap. It clones nothing at pod start, so it needs no token;
+Argo applies it from `main`, so it needs no Actions run and no Pages flip.
+That makes it the portfolio's first surface a stranger can actually reach,
+and it went up on a merge with no owner action.
+
+This does not replace the row above, but it does reduce what the seal is still
+for. **Corrected 2026-09-03:** this paragraph used to say "the front door is one
+page describing the collection, and every category card on it links into
+`tools.marisstella.dev`. The seal is still what puts 169 tools in front of
+anyone." Neither half is true, and a session reading it mis-ranks its whole run
+— the same correction `CLAUDE.md` already carries.
+
+- The apex **serves the 173 tools itself**, at `/tools/<slug>/`, from the
+  mirror in `gitops/prod/front-door-tools/`. The seal buys no tool a stranger
+  cannot already reach.
+- The category cards link to `https://marisstella.dev/c/<id>/` — seven browse
+  pages this host renders and serves. They pointed at the dark host once; they
+  have not since the cards were fixed, and since 2026-09-03 they point at real
+  pages rather than at fragments.
+
+What the seal still buys is the canonical hostname and indexability under it.
+Worth doing, and not the difference between a dead end and a product. The DNS record
+turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
+the subdomain, verified 2026-08-29), and the ACME contact stopped being a
+step on 2026-08-30 — an ACME account contact is optional, so the issuers
+ship without one rather than with a placeholder nobody could act on.
+
+This is an addition, not a replacement. If Pages is later enabled and the
+runners come back, the same `build.mjs` output serves both; `PAGES_BASE_URL`
+is the only thing that differs, and each route stamps its own canonical
+URLs. Publish through one of them at a time so the two do not compete in
+search results for the same pages.
+
 ## What we are not adding
 
 - **Cloudflare** (Pages, Workers, Access) is not a portfolio default. Gated
@@ -69,7 +137,10 @@ the live site is whichever finished last.
 
 That happened on 2026-08-26: `pages.yml` and `portfolio-pages.yml` were written
 within the hour from the same reasoning, neither pull request could see the
-other, and both merged deploying under `GITHUB_PAGES_ENABLED`.
+other, and both merged deploying under the same owner-set variable — spelled
+`GITHUB_PAGES_ENABLED` at the time, since renamed to `PAGES_ENABLED` (see
+below): GitHub rejects any Actions configuration-variable name starting with
+`GITHUB_`, so the original spelling could never actually have been set.
 
 `.github/workflows/pages.yml` still exists and still runs
 `platform/ci/build_pages_site.py`, but **it no longer deploys**. It is kept as an
@@ -110,7 +181,18 @@ python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages
-(`GITHUB_PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
+(`PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
 second platform ask. Until that variable is set, the build still runs on
 every push and the artifact is still uploaded; only the publish step is
 skipped. Flipping it publishes everything at once.
+
+**Not `GITHUB_PAGES_ENABLED`, which this section named until it was found
+to be unsettable.** GitHub rejects any Actions configuration-variable name
+starting with `GITHUB_` (case-insensitive) at creation time — reserved for
+GitHub's own use, per
+[the naming rules](https://docs.github.com/en/actions/learn-github-actions/variables#naming-conventions-for-configuration-variables)
+— so the owner could never have set it through Settings → Variables →
+Actions, and `.github/workflows/portfolio-pages.yml`'s `deploy` job would
+have stayed permanently skipped. The variable is `PAGES_ENABLED` now; the
+workflow, `platform/ci/publish_surface.py`, and the decision queue all read
+that name.

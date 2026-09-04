@@ -50,6 +50,14 @@
           "@type": "Answer",
           "text": "To keep the same payout you had under a 3% host fee, the listed subtotal has to rise by about 14.8%, because 15.5% is taken from the new list price, not the old one. Guests used to pay a ~14% service fee on top; after you raise the list they often pay a similar all-in total with no separate service fee. Enter your own old and new rates above — the restore figure is arithmetic on those rates, not advice."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "How many direct bookings do I need to break even with Airbnb or Vrbo fees?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "More than the fee gap alone suggests. At the default stay ($225 × 2 nights, $545 subtotal, 36 marketplace bookings a year), the best available channel is Vrbo’s annual subscription at $18,158 a year — and direct booking needs about 35 stays a year, roughly 97% of those 36, to match it once card processing and the $29/month site cost are counted. A per-stay fee that looks small on paper can still make direct the losing channel if it costs you nearly as many bookings as it saves in fees. The break-even panel recomputes this from your own occupancy-kept percentage the moment you change it — it is not a fixed rule of thumb."
+        }
       }
     ]
   }
@@ -96,7 +104,7 @@
     details p.note { font-size: .84rem; color: #5c4a3d; margin: 8px 0 0; }
     .error { color: #b3241c; font-weight: 650; }
     .verdict .error { color: #ffb0a2; }
-    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4b0a0; background: #fff; cursor: pointer; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4b0a0; background: #fff; cursor: pointer; color: #241812; }
     button:hover { background: #f6eee6; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
     .status { font-size: .8rem; color: #e8c8a8; }
@@ -173,14 +181,25 @@
     </section>
   </main>
 
+  <h2>Common questions</h2>
+  <h3>How much does Airbnb take from hosts in 2026?</h3>
+  <p>Most hosts now pay a single host-only service fee of about 15.5% of the booking subtotal (nights plus cleaning and other mandatory fees). Guests no longer pay a separate Airbnb service fee at checkout. The older split-fee model — host ~3%, guest ~14% — is being retired. Replace the starting rate with the percentage on your own payout statement; this page only does the arithmetic.</p>
+  <h3>Is Vrbo cheaper for hosts than Airbnb?</h3>
+  <p>On fees alone, usually yes in 2026. Vrbo’s pay-per-booking model is typically 5% commission on the rental plus 3% payment processing on the guest payment, which includes tax and deposits. Airbnb’s host-only fee is about 15.5% of the subtotal. That gap can reverse if Airbnb’s demand keeps more nights booked, which is why this calculator also asks how many bookings you actually get and how many you would keep going direct.</p>
+  <h3>How much should I raise my Airbnb rate after the 15.5% host-only fee?</h3>
+  <p>To keep the same payout you had under a 3% host fee, the listed subtotal has to rise by about 14.8%, because 15.5% is taken from the new list price, not the old one. Guests used to pay a ~14% service fee on top; after you raise the list they often pay a similar all-in total with no separate service fee. Enter your own old and new rates above — the restore figure is arithmetic on those rates, not advice.</p>
+  <h3>How many direct bookings do I need to break even with Airbnb or Vrbo fees?</h3>
+  <p>More than the fee gap alone suggests. At the default stay ($225 × 2 nights, $545 subtotal, 36 marketplace bookings a year), the best available channel is Vrbo’s annual subscription at $18,158 a year — and direct booking needs about 35 stays a year, roughly 97% of those 36, to match it once card processing and the $29/month site cost are counted. A per-stay fee that looks small on paper can still make direct the losing channel if it costs you nearly as many bookings as it saves in fees. The break-even panel recomputes this from your own occupancy-kept percentage the moment you change it — it is not a fixed rule of thumb.</p>
+
   <footer>
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you where to list or what to charge. Platform fees change by market, host type, and date. Verify every figure against your own payout statements and a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rates, occupancy, or address.</p>
-    <p>Free and open source. If it changes a listing decision, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Free and open source. If it changes a listing decision, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
     <ul class="related">
       <li><a href="./airbnb-host-fee-2026.html">Airbnb’s 15.5% host-only fee in 2026 — what changed</a></li>
       <li><a href="./airbnb-vs-vrbo-host-fees.html">Airbnb vs Vrbo host fees, compared on the same stay</a></li>
+      <li><a href="./vs-airbnb-earnings-estimator.html">This calculator vs. Airbnb’s own Estimate Your Earnings tool</a></li>
     </ul>
   </footer>
 
@@ -200,7 +219,11 @@
       ["occupancyKeep", "Occupancy kept %"],
     ];
 
-    const money = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const pct = (value) => `${value.toLocaleString("en-US", { maximumFractionDigits: 1 })}%`;
     const el = (id) => document.getElementById(id);
 

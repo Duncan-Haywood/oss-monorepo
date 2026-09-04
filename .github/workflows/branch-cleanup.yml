@@ -69,7 +69,8 @@ jobs:
     # Runs for merged PRs only. A PR that is closed unmerged has to wait out its
     # grace period, so it is the scheduled sweep that picks it up, not this job.
     if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: write # deleting the head ref
       pull-requests: read
@@ -88,7 +89,8 @@ jobs:
     # Retires branches whose PR was closed unmerged more than the grace period
     # ago, and catches any merged PR whose on-close run was missed.
     if: github.event_name != 'pull_request_target'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: write # deleting head refs
       pull-requests: read

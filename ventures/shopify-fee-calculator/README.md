@@ -49,15 +49,22 @@ savings, and how many orders cover Grow or Advanced.
 [Shopify POS vs online fees](shopify-pos-vs-online-fees.html) answers the
 counter-vs-checkout question: whether a cheaper in-person tap still beats
 the same SKU sold online after postage markup, and how many taps recover a
-card reader.
+card reader. The main calculator runs the same
+`compareOnlineVsPos` math on the order you just typed, so you do not
+leave the page to check the tap versus checkout leftover.
 [Should I buy Shopify Shipping labels?](should-i-buy-shopify-shipping-labels.html)
 answers the postage question: whether a Pirate Ship, Shippo, or carrier-account
 quote still beats the Shopify Shipping label after card fees, and what you
 keep if checkout charges Shopify’s rate while you buy the cheaper label.
+The main calculator runs the same `compareShippingLabels` math on the
+order you just typed, so you do not leave the page to check the label
+spread after card fees.
 [Should I offer Shop Pay Installments?](should-i-offer-shop-pay-installments.html)
 answers the installment question: whether the extra Shop Pay Installments
 rate still pays after you blend the share of checkouts that use it, and how
-many extra orders cover the gap.
+many extra orders cover the gap. The main calculator runs the same
+`compareShopPayInstallments` math on the order you just typed, so you do
+not leave the page to check the extra fee and the lift that covers it.
 [Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
 answers the return question: whether issuing credit or exchanging still beats
 sending cash after the return label, restock, and expected redemption.
@@ -199,8 +206,10 @@ inputs and run it yourself.
 Everything runs in your browser. Your prices, costs, and shop data are never
 uploaded. There are no accounts, cookies, tracking pixels, or analytics
 vendors. The optional local counter records only the event name and day in your
-browser; it never records the inputs. Turn it off with the checkbox in the
-footer, or your browser's Do Not Track / Global Privacy Control setting.
+browser; it never records the inputs — including `handoff_opened`, which says
+an item arrived from the channel comparison and nothing about what it was. Turn
+it off with the checkbox in the footer, or your browser's Do Not Track / Global
+Privacy Control setting.
 
 The page can copy a private share link containing the current numeric inputs and
 payment path, or copy a text order summary for a partner or spreadsheet. The
@@ -208,6 +217,29 @@ link is encoded in the URL and is never sent to this project; do not put
 sensitive information in calculator fields because URLs may be retained by
 browser history or messaging tools. Sharing and summary-copy events are counted
 locally without recording the calculation values.
+
+## Arriving from the channel comparison
+
+[`where-to-sell-calculator`](../where-to-sell-calculator/) puts one item through
+eBay, Etsy, Amazon, an own store and a direct sale, and then offers **"keep
+going with this item"** into whichever channel's own calculator goes deeper.
+Following the own-store link fills in the price, what you paid, both postage
+figures, packaging and your monthly order count — and leaves everything else at
+this page's starting figures. **Check the plan and the payment rates against
+your own Shopify billing before trusting the result.**
+
+Monthly order count travels because the Shopify plan is a monthly fee, and
+amortising it over real order volume is the reason an own store can win on fees
+and lose on cash. Arriving without it would price the plan against this page's
+example order count rather than yours.
+
+Two link shapes therefore reach this page, and they behave differently on
+purpose. A **share link** is one token carrying the whole scenario: it decodes
+completely or it is refused, so whoever opens it sees exactly what the sender
+saw. A **handoff link** carries only what the other calculator knew, fills that
+in, and leaves the rest alone — refusing it would leave the comparison's
+own-store row with no way through, which is where it was before. A link that is
+truncated or mangled falls back to this page's example numbers and says so.
 
 ## Support
 

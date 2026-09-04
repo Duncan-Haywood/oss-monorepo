@@ -359,6 +359,29 @@ test("compareFairePromoted rejects impossible rates and fractional extra orders"
   assert.throws(() => promotedNote({}), /missing rows/);
 });
 
+test("compareFairePromoted's breakEvenCampaignRate uses the discounted subtotal, not raw merchandise", () => {
+  // With a brand-funded opening discount, the promoted-listings fee is a
+  // percent of orderSubtotal (post-discount), not of merchandise
+  // (pre-discount) -- the rate ceiling must be solved against the same base
+  // the fee is actually charged on, or it understates how much rate the
+  // campaign can tolerate before skipping wins.
+  const comparison = compareFairePromoted({ ...naReorder, openingDiscountRate: 30 });
+  assert.equal(comparison.merchandise, 200);
+  // Brute-force cross-check: the rate where campaign cash meets skip cash.
+  let lo = 0;
+  let hi = 99;
+  for (let i = 0; i < 60; i += 1) {
+    const mid = (lo + hi) / 2;
+    const at = compareFairePromoted({ ...naReorder, openingDiscountRate: 30, campaignPromotedRate: mid });
+    if (at.campaign.cash > at.skip.cash) lo = mid;
+    else hi = mid;
+  }
+  assert.ok(Math.abs(comparison.breakEvenCampaignRate - lo) < 1e-6, `${comparison.breakEvenCampaignRate} vs brute-force ${lo}`);
+  // Regression pin: the old (merchandise-based) formula reported ~5.0077%.
+  assert.ok(comparison.breakEvenCampaignRate > 7, `expected > 7, got ${comparison.breakEvenCampaignRate}`);
+  assert.ok(Math.abs(comparison.breakEvenCampaignRate - 7.153846153846152) < 1e-9);
+});
+
 test("PROMOTED_DEFAULTS match the page starting point", () => {
   assert.equal(PROMOTED_DEFAULTS.organicFirstOrders, 4);
   assert.equal(PROMOTED_DEFAULTS.extraPromotedOrders, 1);
@@ -494,4 +517,99 @@ test("rejects selling more units than the retailer bought", () => {
     () => calculateRetailerOrder({ unitWholesale: 20, quantity: 4, unitsSold: 5, unitRetail: 40 }),
     /cannot exceed/,
   );
+});
+
+// --- ceiling helpers must distinguish "no value qualifies" from a real zero ---
+// Both helpers below used to clamp an unreachable result to 0, which is also a
+// legitimate answer (the paths tie at zero and anything above loses). The note
+// text then quoted 0.0% as real headroom.
+
+test("open-house discount ceiling is null when the event trails everyday at no markdown", () => {
+  const behind = {
+    unitWholesale: 20, quantity: 10, unitCogs: 8, shippingReimbursement: 15,
+    shippingCost: 15, region: "north_america", payout: "day_60",
+    openHouseCommissionRate: 15, openHouseFirstOrderExtraRate: 25,
+  };
+  const comparison = compareOpenHouse(behind);
+  // Premise from the comparison rows themselves, not from the ceiling helper.
+  const everyday = comparison.rows.find((row) => row.id === "everyday");
+  const sameList = comparison.rows.find((row) => row.id === "open_house_same_list");
+  assert.ok(
+    sameList.profit < everyday.profit,
+    "premise: the event trails everyday even at the everyday discount",
+  );
+
+  assert.equal(comparison.discountCeiling, null);
+  const text = openHouseNote(comparison);
+  assert.doesNotMatch(text, /funds about 0\.0% off/);
+  assert.match(text, /does not fund any extra discount/);
+});
+
+test("a real open-house discount ceiling is still reported", () => {
+  const comparison = compareOpenHouse({
+    unitWholesale: 20, quantity: 10, unitCogs: 8, shippingReimbursement: 15,
+    shippingCost: 15, region: "north_america", payout: "day_60",
+  });
+  assert.notEqual(comparison.discountCeiling, null);
+  assert.ok(comparison.discountCeiling > 0, "a funded discount is a positive ceiling");
+  assert.match(openHouseNote(comparison), /funds about \d+\.\d% off/);
+});
+
+test("pay-now rate ceiling is null when offering trails skipping at a 0% rate", () => {
+  const behind = {
+    unitWholesale: 20, quantity: 10, unitCogs: 8, shippingReimbursement: 15,
+    shippingCost: 15, region: "north_america", payout: "day_60",
+    payNowWaitDays: 120, annualCarryRate: 60,
+  };
+  const comparison = compareFairePayNow(behind);
+  // Premise: at an explicit 0% rate, offering is genuinely behind skipping.
+  const atZero = compareFairePayNow({ ...behind, payNowRate: 0 });
+  assert.ok(
+    atZero.offer.cash < comparison.skip.cash - 1e-9,
+    "premise: offering at 0% already trails skipping",
+  );
+
+  assert.equal(comparison.breakEvenPayNowRate, null);
+  // The rate lever must drop out of the sentence entirely rather than be
+  // quoted as 0.0% or spliced in as a noun ("falls to about an unreachable
+  // Pay Now rate"). The other two levers still have real numbers here.
+  const text = payNowNote(comparison);
+  assert.doesNotMatch(text, /the rate falls to about/);
+  assert.doesNotMatch(text, /unreachable Pay Now rate/);
+  assert.match(text, /remittance on Pay Now falls to about/);
+});
+
+test("pay-now summary says so plainly when no lever closes the gap", () => {
+  // All three levers unreachable at once: the sentence must not end up as a
+  // dangling "The discount matches if ." with nothing in it.
+  const comparison = {
+    winner: "skip",
+    skip: { cash: 100 }, offer: { cash: 80 }, take: { cash: 70 },
+    offerVsSkip: -20, takeVsSkip: -30,
+    breakEvenPayNowRate: null,
+    breakEvenPayNowWaitDays: null,
+    breakEvenExtraOrders: Infinity,
+  };
+  const text = payNowNote(comparison);
+  assert.match(text, /Nothing on these numbers brings offering level with skipping\./);
+  assert.doesNotMatch(text, /matches if \./);
+});
+
+test("a pay-now rate ceiling of exactly zero stays 0, not null", () => {
+  // No remittance wait and no carry cost: offering at 0% ties skipping exactly,
+  // and any positive rate loses. That is a real 0% ceiling, not "unreachable".
+  const tie = {
+    unitWholesale: 20, quantity: 10, unitCogs: 8, shippingReimbursement: 15,
+    shippingCost: 15, region: "north_america", payout: "day_60",
+    payNowWaitDays: 0, annualCarryRate: 0,
+  };
+  const comparison = compareFairePayNow(tie);
+  const atZero = compareFairePayNow({ ...tie, payNowRate: 0 });
+  assert.ok(
+    Math.abs(atZero.offer.cash - comparison.skip.cash) < 1e-6,
+    "premise: offering at 0% ties skipping",
+  );
+
+  assert.notEqual(comparison.breakEvenPayNowRate, null, "a genuine 0% ceiling is not unreachable");
+  assert.equal(comparison.breakEvenPayNowRate, 0);
 });

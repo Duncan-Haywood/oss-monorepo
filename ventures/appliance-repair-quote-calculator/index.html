@@ -2,23 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Appliance Repair Quote Calculator | Repair vs Replace a Service Call</title>
+  <title>Appliance Repair Quote Calculator — Repair vs Replace</title>
   <meta name="description" content="Price an appliance repair service call, then see whether finishing the repair still beats recommending replace — customer cost per remaining year versus what you keep if they decline.">
   <link rel="canonical" href="index.html">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Appliance Repair Quote Calculator">
   <meta property="og:description" content="See the walk-away floor, the target-margin quote, and whether repair still beats replace for the customer and for your book.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Appliance Repair Quote Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"service call pricing, parts markup, callback reserve, target margin, walk-away price, repair vs replace per remaining year"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn't the walk-away floor the same as the target price?","acceptedAnswer":{"@type":"Answer","text":"The walk-away floor is your modeled cost — labor, marked-up parts, trip cost, callback reserve, and overhead — with zero profit in it. The target price divides that cost by 1 − margin, so a 30% target margin on a $444.68 cost quotes $635.25, not $444.68 plus 30%. Anything you collect below the floor loses money on this job the moment you factor in the reserve and overhead you already built into it."}},{"@type":"Question","name":"How does the callback / warranty reserve actually get priced in?","acceptedAnswer":{"@type":"Answer","text":"It's a percentage of labor, marked-up parts, and trip cost combined — not of the final price — and it lands before overhead and margin are applied, so it compounds with both rather than sitting outside them. A 5% reserve on a $385 direct job adds $19.25 to the base the overhead percentage and the margin formula then both work from, which is why a callback rate that looks small on paper still moves the quoted price by more than 5%."}},{"@type":"Question","name":"If the customer declines and I recommend replace, what do I actually keep?","acceptedAnswer":{"@type":"Answer","text":"Whatever diagnostic or trip fee you collect for the visit, plus anything you keep from selling or installing the replacement unit — separate from the profit you'd have made finishing the repair. The calculator compares that total against your repair profit directly, so you can see in dollars whether walking with the diagnostic and a referral beats finishing the job, not just whether the customer prefers one option."}},{"@type":"Question","name":"Why can the repair be the better deal for you and the worse deal for the customer at the same time?","acceptedAnswer":{"@type":"Answer","text":"Because the two sides are measured differently: your side compares total profit kept, the customer's side compares price per remaining year of service. A repair with a high margin can still cost a customer more per year than a replacement that lasts three times longer, even though it's the more profitable job for you to finish — which is exactly the tension the repair-vs-replace verdict is built to surface instead of hide."}},{"@type":"Question","name":"Why does parts markup apply before overhead and margin, not after?","acceptedAnswer":{"@type":"Answer","text":"Parts markup is added once, to the parts cost itself, before that marked-up figure joins labor and trip cost as part of direct cost. Overhead and the callback reserve then apply to that combined direct cost, and target margin applies last, to the full cost including overhead — so a change to parts markup ripples through the reserve, the overhead dollar amount, and the final target price, not just the parts line."}}]}</script>
   <style>
-    :root{font-family:system-ui,sans-serif;color:#20252b;background:#f5f1e9}body{max-width:980px;margin:auto;padding:32px 18px}h1{font-size:clamp(2.2rem,7vw,4.5rem);line-height:.95;letter-spacing:-.06em;max-width:700px;margin:0 0 14px}p{line-height:1.5}.eyebrow{color:#9a4a22;font-weight:750;letter-spacing:.08em;font-size:.8rem}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:18px;align-items:start}section{background:#fffdf8;border:1px solid #dfd6c8;border-radius:15px;padding:20px;margin-bottom:18px;box-shadow:0 8px 26px #3b29130d}h2{font-size:1.15rem;margin-top:0}.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{display:grid;gap:5px;font-size:.87rem;font-weight:650}input{box-sizing:border-box;width:100%;padding:10px;border:1px solid #b6aa9b;border-radius:7px;font:inherit;background:#fff}.result{position:sticky;top:15px;background:#263f43;color:#fffdf8;border-color:#263f43}.hero{font-size:3rem;font-weight:800;letter-spacing:-.06em;margin:8px 0}.positive{color:#b9efbd}.negative{color:#ffb3a4}dl{display:grid;grid-template-columns:1fr auto;gap:9px;margin:20px 0}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums}hr{border:0;border-top:1px solid #ffffff30}.note{font-size:.82rem;opacity:.82}table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:8px 3px;border-bottom:1px solid #ffffff25}th:first-child,td:first-child{text-align:left}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}button{font:inherit;font-weight:700;border-radius:7px;padding:10px 13px;border:1px solid #ffffff40;background:#ffffff18;color:inherit;cursor:pointer}#copy{background:#b9efbd;color:#17312b;border-color:#b9efbd}footer{font-size:.82rem;color:#534c44;margin-top:22px}.wide{background:#fffdf8;border:1px solid #dfd6c8;border-radius:15px;padding:20px;margin-bottom:18px;box-shadow:0 8px 26px #3b29130d}.wide table th,.wide table td{border-bottom:1px solid #dfd6c8}.wide tbody tr[data-best="true"]{background:#eef6e4;font-weight:650}.verdict{font-weight:700;margin:12px 0}.header-links{font-size:.92rem}.header-links a{color:#9a4a22}@media(max-width:700px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
-  </style>
+    :root{font-family:system-ui,sans-serif;color:#20252b;background:#f5f1e9}body{max-width:980px;margin:auto;padding:32px 18px}h1{font-size:clamp(2.2rem,7vw,4.5rem);line-height:.95;letter-spacing:-.06em;max-width:700px;margin:0 0 14px}p{line-height:1.5}.eyebrow{color:#9a4a22;font-weight:750;letter-spacing:.08em;font-size:.8rem}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:18px;align-items:start}section{background:#fffdf8;border:1px solid #dfd6c8;border-radius:15px;padding:20px;margin-bottom:18px;box-shadow:0 8px 26px #3b29130d}h2{font-size:1.15rem;margin-top:0}.fields{display:grid;grid-template-columns:repeat(2,1fr);gap:13px}label{display:grid;gap:5px;font-size:.87rem;font-weight:650}input{box-sizing:border-box;width:100%;padding:10px;border:1px solid #b6aa9b;border-radius:7px;font:inherit;background:#fff}.result{position:sticky;top:15px;background:#263f43;color:#fffdf8;border-color:#263f43}.result a{color:inherit;text-decoration:underline}.hero{font-size:3rem;font-weight:800;letter-spacing:-.06em;margin:8px 0}.positive{color:#b9efbd}.negative{color:#ffb3a4}dl{display:grid;grid-template-columns:1fr auto;gap:9px;margin:20px 0}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums}hr{border:0;border-top:1px solid #ffffff30}.note{font-size:.82rem;opacity:.82}table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:8px 3px;border-bottom:1px solid #ffffff25}th:first-child,td:first-child{text-align:left}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}button{font:inherit;font-weight:700;border-radius:7px;padding:10px 13px;border:1px solid #ffffff40;background:#ffffff18;color:inherit;cursor:pointer}#copy{background:#b9efbd;color:#17312b;border-color:#b9efbd}footer{font-size:.82rem;color:#534c44;margin-top:22px}.wide{background:#fffdf8;border:1px solid #dfd6c8;border-radius:15px;padding:20px;margin-bottom:18px;box-shadow:0 8px 26px #3b29130d}.wide table th,.wide table td{border-bottom:1px solid #dfd6c8}.wide tbody tr[data-best="true"]{background:#eef6e4;font-weight:650}.verdict{font-weight:700;margin:12px 0}.header-links{font-size:.92rem}.header-links a{color:#9a4a22}@media(max-width:700px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR INDEPENDENT APPLIANCE REPAIR TECHNICIANS</p>
     <h1>Price the service call, not just the part.</h1>
     <p>Build a repair quote from diagnostic time, repair time, travel, parts markup, callback reserve, and overhead. Then see whether finishing that repair still beats recommending replace — what the customer pays per remaining year, and what you keep if they decline.</p>
-    <p class="header-links"><a href="should-i-repair-or-replace-this-appliance.html">Should I repair or replace this appliance?</a></p>
+    <p class="header-links"><a href="should-i-repair-or-replace-this-appliance.html">Should I repair or replace this appliance?</a> &middot; <a href="./vs-housecall-pro.html">This calculator vs. Housecall Pro</a></p>
   </header>
   <main class="layout"><section><h2>Job assumptions</h2><div class="fields">
     <label>Diagnostic hours <input id="diagnosticHours" type="number" min="0" step="0.25" value="0.5"></label><label>Repair hours <input id="repairHours" type="number" min="0" step="0.25" value="1.5"></label><label>Travel hours (round trip) <input id="travelHours" type="number" min="0" step="0.25" value="0.5"></label><label>Loaded labor rate / hour <input id="laborRate" type="number" min="0" step="1" value="80"></label><label>Trip cost <input id="tripCost" type="number" min="0" step="1" value="35"></label><label>Parts cost <input id="partsCost" type="number" min="0" step="1" value="120"></label><label>Parts markup (%) <input id="partsMarkup" type="number" min="0" step="1" value="25"></label><label>Callback / warranty reserve (%) <input id="callbackReserve" type="number" min="0" step="1" value="5"></label><label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="1" value="10"></label><label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="30"></label>
@@ -41,6 +45,19 @@
     </table>
     <p class="note">Years and replacement prices are your planning figures, not a remaining-life appraisal. <a href="should-i-repair-or-replace-this-appliance.html">Should I repair or replace this appliance?</a></p>
   </section>
+  <section class="wide" id="faq">
+    <h2>Common questions</h2>
+    <h3>Why isn't the walk-away floor the same as the target price?</h3>
+    <p>The walk-away floor is your modeled cost — labor, marked-up parts, trip cost, callback reserve, and overhead — with zero profit in it. The target price divides that cost by <code>1 − margin</code>, so a 30% target margin on a $444.68 cost quotes $635.25, not $444.68 plus 30%. Anything you collect below the floor loses money on this job the moment you factor in the reserve and overhead you already built into it.</p>
+    <h3>How does the callback / warranty reserve actually get priced in?</h3>
+    <p>It's a percentage of labor, marked-up parts, and trip cost combined — not of the final price — and it lands before overhead and margin are applied, so it compounds with both rather than sitting outside them. A 5% reserve on a $385 direct job adds $19.25 to the base the overhead percentage and the margin formula then both work from, which is why a callback rate that looks small on paper still moves the quoted price by more than 5%.</p>
+    <h3>If the customer declines and I recommend replace, what do I actually keep?</h3>
+    <p>Whatever diagnostic or trip fee you collect for the visit, plus anything you keep from selling or installing the replacement unit — separate from the profit you'd have made finishing the repair. The calculator compares that total against your repair profit directly, so you can see in dollars whether walking with the diagnostic and a referral beats finishing the job, not just whether the customer prefers one option.</p>
+    <h3>Why can the repair be the better deal for you and the worse deal for the customer at the same time?</h3>
+    <p>Because the two sides are measured differently: your side compares total profit kept, the customer's side compares price per remaining year of service. A repair with a high margin can still cost a customer more per year than a replacement that lasts three times longer, even though it's the more profitable job for you to finish — which is exactly the tension the repair-vs-replace verdict is built to surface instead of hide.</p>
+    <h3>Why does parts markup apply before overhead and margin, not after?</h3>
+    <p>Parts markup is added once, to the parts cost itself, before that marked-up figure joins labor and trip cost as part of direct cost. Overhead and the callback reserve then apply to that combined direct cost, and target margin applies last, to the full cost including overhead — so a change to parts markup ripples through the reserve, the overhead dollar amount, and the final target price, not just the parts line.</p>
+  </section>
   <footer>
     <label><input id="optOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -53,7 +70,11 @@
     const replaceIds = ['replacementPrice','remainingRepairYears','remainingReplaceYears','diagnosticCollected','yourReplaceProfit'];
     const ids = [...quoteIds, ...replaceIds];
     const $ = (id) => document.getElementById(id);
-    const money = (n) => `$${n.toFixed(2)}`;
+    const money = (n) => {
+      const format = (n) => `$${n.toFixed(2)}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const currentQuote = () => Object.fromEntries(quoteIds.map((id) => [id, $(id).value]));
     const currentReplace = () => Object.fromEntries(replaceIds.map((id) => [id, $(id).value]));
     let timer;
@@ -98,8 +119,21 @@
         );
         if (count) recordUsage(storage(), $('optOut').checked);
       } catch (error) {
+        // A rejected input (a negative number, non-numeric text) must not
+        // leave the last valid quote on screen next to a silent failure --
+        // a visitor who misses the message could read the stale figures as
+        // the answer for the invalid inputs now in the form. Clear every
+        // derived field in both panels, not just the two headlines.
         $('target').textContent = error.message;
+        $('floor').textContent = '';
+        $('cost').textContent = '';
+        $('hours').textContent = '';
+        $('rate').textContent = '';
+        $('parts').textContent = '';
+        $('callback').textContent = '';
+        $('scenarios').replaceChildren();
         $('replaceVerdict').textContent = error.message;
+        $('replaceRows').replaceChildren();
       }
     }
     ids.forEach((id) => $(id).addEventListener('input', () => {

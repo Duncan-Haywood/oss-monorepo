@@ -197,6 +197,31 @@ schedule — those vary by category, country, plan, and account, and they change
 Replace the defaults with the numbers on your own statements; that is what
 makes the comparison yours rather than a generic estimate.
 
+## How fast it sells is part of the answer
+
+The highest net per sale is not the same as the most money per month. A channel
+that nets $6 less but sells in three days instead of ninety returns your cash
+thirty times more often, and a reseller with finite cash feels that far more
+than the six dollars.
+
+So each channel has an optional **days to sell**, and the table shows what it
+keeps *per day of waiting* alongside what it keeps per sale. Ranking can be
+switched between the two. When they disagree — the usual case once real
+turnaround numbers go in — the page says so in words above the table, because
+that disagreement is the whole reason to look.
+
+Speed is stated as a **turnover count** ("the same cash goes round 122 times a
+year") rather than an annualised percentage. Annualising a three-day flip is
+arithmetically true and reads as a promise; the count says the same thing
+without implying it compounds.
+
+Each channel ships with an **illustrative** days-to-sell figure, not a claim
+about how fast your category actually moves there — how fast a channel moves
+*your* category is an observation only you have. Replace it with how long your
+last similar listings actually took. Leave it at zero (or blank) for a channel
+you have not timed — that reads as unknown, and the channel simply sits out
+the speed ranking rather than winning on a blank.
+
 ## What it deliberately does not model
 
 Fees are the part that is easy to calculate, not the whole decision. You can
@@ -246,6 +271,13 @@ template emits cells (a mismatch silently renders every value under the wrong
 heading), that every figure named in the page's schema.org `featureList` is
 actually rendered, and that the fields which can be `null` are rendered
 defensively.
+
+The holding-period tests cover the same ground: that the shipped default
+changes no ranking until it is edited, that profit-per-day and turnover divide
+by the period, that a blank period reads as unknown rather than instant and
+sorts last on speed rather than winning, that a faster channel can outrank a
+more profitable one, and that no speed upset is claimed against a channel the
+seller never timed.
 
 ## Privacy
 

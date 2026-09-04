@@ -171,9 +171,17 @@ def render(decisions: list[dict], today: dt.date) -> str:
     oldest = max(age_days(d["opened"], today) for d in decisions)
 
     out = ["The account owner's decision queue", ""]
+    # "related", not "open". Every one of the seven pull requests this file
+    # names was closed by 2026-08-27 -- six merged, one closed unmerged -- while
+    # this line went on calling them open, so the queue's first sentence
+    # overstated it by seven items that no longer exist. The numbers are
+    # provenance: which PR raised the decision, or which one a revert is waiting
+    # on. A decision does not stop being the owner's because its PR closed
+    # (`funding-sponsors-live` is exactly that: merged, then reverted by #862,
+    # still undecided), and it does not become theirs again because one opened.
     out.append(
         f"  {len(decisions)} decisions, collapsed from {n_asks} asks and "
-        f"{n_prs} open pull requests."
+        f"{n_prs} related pull requests."
     )
     out.append(f"  Oldest has waited {oldest} days.")
     out.append(
@@ -218,24 +226,59 @@ def main() -> int:
     decisions = load()
     problems = check(decisions)
 
-    if problems:
-        for p in problems:
-            print(f"asks.yaml: {p}", file=sys.stderr)
-        return 1
+    for p in problems:
+        print(f"asks.yaml: {p}", file=sys.stderr)
+
     if args.check:
+        if problems:
+            return 1
         print(f"asks.yaml: {len(decisions)} decisions, schema OK")
         return 0
 
     today = dt.date.fromisoformat(args.today) if args.today else dt.date.today()
 
-    if args.json:
-        print(json.dumps(
-            [dict(d, age_days=age_days(d["opened"], today))
-             for d in sorted(decisions, key=sort_key)],
-            indent=2,
-        ))
-    else:
-        print(render(decisions, today))
+    # A bookkeeping mistake must not hide the queue. `--check` above stays
+    # strict because CI needs a gate, but this is the path a person runs to
+    # find out what the owner has to decide, and answering it with one
+    # stderr line and nothing else is the wrong failure. On 2026-08-29 two
+    # sessions added the same Hetzner-deploy ask hours apart; from that
+    # merge until the duplicate was removed, every run printed `PR 1999
+    # claimed by both ...` and no queue, so the deployment decisions
+    # gating every live URL in the portfolio were unreadable -- because of
+    # a duplicate row that changed none of them.
+    #
+    # So: still exit non-zero, so a script or CI job cannot mistake this
+    # for a clean read, but print the queue anyway. Rendering is best
+    # effort -- a duplicate `prs` entry is harmless to render, a missing
+    # required field is not -- so a render that raises falls back to the
+    # old behaviour rather than dumping a traceback on the owner.
+    try:
+        if args.json:
+            print(json.dumps(
+                [dict(d, age_days=age_days(d["opened"], today))
+                 for d in sorted(decisions, key=sort_key)],
+                indent=2,
+            ))
+        else:
+            print(render(decisions, today))
+    except (KeyError, TypeError, ValueError) as exc:
+        if not problems:
+            raise
+        print(
+            f"asks.yaml: cannot render the queue until the problems above "
+            f"are fixed ({type(exc).__name__}: {exc})",
+            file=sys.stderr,
+        )
+        return 1
+
+    if problems:
+        print(
+            "\nasks.yaml: the queue above is shown despite "
+            f"{len(problems)} problem(s) reported on stderr; fix them with "
+            "`python3 portfolio/ledger/decision_queue.py --check`.",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

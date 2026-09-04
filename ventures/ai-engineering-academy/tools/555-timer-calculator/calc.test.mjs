@@ -66,6 +66,29 @@ test("astable flags a discharge current above the pin's sink rating", () => {
   assert.ok(r.notes.some((n) => n.severity === "error" && /mA/.test(n.message)));
 });
 
+test("discharge current includes both R1's supply-side draw and R2's capacitor-side draw", () => {
+  // R1 = 1 kΩ sits right at the practical minimum (no separate "R1 too low"
+  // error), and R2 = 50 Ω is small enough that its own contribution alone
+  // pushes the discharge pin over its 200 mA limit: 15/1000 + (2/3*15)/50 =
+  // 0.015 + 0.2 = 0.215 A. A formula that only looked at R1 (15/1000 = 15 mA,
+  // or worse, (2/3*15)/1000 = 10 mA) would report this component pair as
+  // safe when the real current is 15 mA over the chip's absolute maximum.
+  const r = calculateAstable({ r1: 1000, r2: 50, capacitanceFarads: 1e-6, supplyVolts: 15 });
+  const overCurrent = r.notes.find((n) => n.severity === "error" && /mA/.test(n.message));
+  assert.ok(overCurrent, "expected an over-current error when R2 alone pushes past the sink limit");
+  assert.match(overCurrent.message, /215/);
+});
+
+test("discharge current is the full supply across R1, not the capacitor voltage", () => {
+  // R1 = 30 Ω, R2 = 10 kΩ (R2 negligible), 15 V supply: the discharge
+  // transistor pulls pin 7 to ~0 V, so R1 sees the *full* supply, not the
+  // capacitor's 2/3 Vcc — 15/30 = 0.5 A, plus a negligible ~1 mA from R2.
+  const r = calculateAstable({ r1: 30, r2: 10000, capacitanceFarads: 1e-6, supplyVolts: 15 });
+  const overCurrent = r.notes.find((n) => n.severity === "error" && /mA/.test(n.message));
+  assert.ok(overCurrent);
+  assert.match(overCurrent.message, /501/);
+});
+
 test("astable does not run the discharge-current check without a supply voltage", () => {
   const r = calculateAstable({ r1: MIN_R1_OHMS, r2: 10000, capacitanceFarads: 100e-9 });
   assert.equal(r.notes.filter((n) => n.severity === "error").length, 0);

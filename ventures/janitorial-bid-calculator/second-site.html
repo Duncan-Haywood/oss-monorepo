@@ -27,6 +27,8 @@
     button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -117,7 +119,7 @@
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge or whether to take a job. Verify every figure against your own payroll, insurance, fuel, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your buildings, wages, costs, or prices.</p>
-    <p>Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="./">First-building calculator</a> · <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">Source</a></p>
+    <p>Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="./">First-building calculator</a> · <a href="LICENSE" rel="noopener">Licence</a></p>
   </footer>
 
   <script type="module">
@@ -129,7 +131,11 @@
       'hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','overheadRate','targetMargin',
       'driveMinutesOneWay','tripsPerWeek','extraVehicleMonthly','offeredMonthly','existingMonthlyProfit',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     function count(event) {

@@ -27,7 +27,8 @@ defaults:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,3 +38,22 @@ jobs:
         run: python3 -m unittest discover -s . -p 'test_*.py' -v
       - name: Example SBOM produces a customer-reviewed draft
         run: PYTHONPATH=src python3 -m cra_evidence_desk examples/sbom.json examples/advisories.json --product "Demo service" --version 2026.08 --format draft
+      - name: A real CycloneDX export produces the same draft
+        run: PYTHONPATH=src python3 -m cra_evidence_desk examples/sbom.cyclonedx.json examples/advisories.osv.json --product "Demo service" --version 2026.08 --format draft
+
+  # The browser port. Its own job rather than a step on `test` so a drift
+  # between the two surfaces names which one moved -- `parity.test.mjs` fails
+  # here, and the Python rule set it is measured against fails above.
+  site-test:
+    name: site/ tests
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ventures/cra-evidence-desk/site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test

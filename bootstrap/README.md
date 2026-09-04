@@ -14,17 +14,45 @@ Laptop helpers (read-only until you decide):
 
 Order:
 
-1. OpenTofu has imported the servers and (ideally) attached `10.42.0.0/24`.
+1. OpenTofu has imported the servers and (ideally) attached `10.10.0.0/24`.
 2. `install-k3s-server.sh` on `ubuntu-24gb-hel1-1` (89.167.29.39).
 3. `install-k3s-agent.sh` on `ubuntu-4gb-hel1-1` (157.180.80.188) with
    `K3S_TOKEN` from the server's `/var/lib/rancher/k3s/server/node-token`.
 4. `install-argocd.sh` on the server. This applies `root-application.yaml`,
    the only snowflake Application.
-5. After that, stop SSHing in to change workloads. PRs only.
+5. `scripts/seal-owner-secrets.sh` — the three sealed secrets that everything
+   downstream waits on: the public site's read-only clone token, the
+   self-hosted Actions runner PAT, and the Codex worker's credential pair.
+   Needs a kubeconfig and `kubeseal`, not SSH. See below.
+6. After that, stop SSHing in to change workloads. PRs only.
+
+## The three seals
+
+```bash
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run   # preflight, asks for nothing
+./bootstrap/scripts/seal-owner-secrets.sh             # all three, in order
+./bootstrap/scripts/seal-owner-secrets.sh site        # or one at a time
+```
+
+It prompts for each token with echo off, checks against the GitHub API that
+the token can actually do the one thing its pod needs, seals it, and adds the
+result to the right `kustomization.yaml`. It writes only ciphertext: no
+plaintext token reaches the disk, and none appears in `ps`. Then commit the
+`*.sealed.yaml` files and push — Argo does the rest.
+
+It replaces the hand procedure in each `secrets/*.template.yaml` header, which
+is still there and still correct if you would rather type it. Two things the
+script gets right that are easy to get wrong by hand: it reads the
+sealed-secrets controller's Service name from the cluster rather than assuming
+kubeseal's default (which is wrong here, and fails before sealing anything),
+and it never has you put a live token in a file you then have to remember not
+to commit.
+
+`infra/OWNER_CHECKLIST.md` is what each token is for and how to scope it.
 
 If the private NIC is not up yet, rerun the server script with
 `ADVERTISE_IP=89.167.29.39` so k3s binds the public address, then move
-it to `10.42.0.10` once Tofu has attached the network.
+it to `10.10.0.10` once Tofu has attached the network.
 
 If k3s is **already** running on the cpx52 (the firewall name suggests
 it might be), do not re-run the installer. The script exits 0 when it

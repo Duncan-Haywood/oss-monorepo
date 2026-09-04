@@ -3,19 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Solar PV Install Bid Calculator | Price Per Watt With Roof and Service Extras</title>
+  <title>Solar PV Install Bid Calculator — Price Per Watt</title>
   <meta name="description" content="Price a rooftop solar install from module count, roof difficulty, panel upgrades, permits, and margin — then see dollars per watt, crew hours, and the walk-away number a cheaper per-watt quote hides.">
   <meta property="og:title" content="Solar PV Install Bid Calculator">
   <meta property="og:description" content="Bid solar the way the job actually costs — watts, roof factor, and electrical extras — before you match a cheaper dollars-per-watt quote.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Solar PV Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Module-count system size, roof-difficulty labor factor, electrical extras, battery adder, permit and interconnection, dollars per watt, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Solar PV Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Module-count system size, roof-difficulty labor factor, electrical extras, battery adder, permit and interconnection, dollars per watt, walk-away price, proposed-price margin check, copyable bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a dollars-per-watt quote go wrong?","acceptedAnswer":{"@type":"Answer","text":"Because only part of a solar job scales with watts. Modules, racking, and balance-of-system do. Roof difficulty and electrical work do not — and they are the two lines that decide whether the job made money. Two 10 kW installs priced at the same $/W can differ by thousands: one on a clean composition roof with room in a 200 A panel, the other on tile needing a 100 A → 200 A service upgrade. This tool prices watts as watts and prices the rest as its own hours and material."}},{"@type":"Question","name":"How much does the roof type actually change labor?","acceptedAnswer":{"@type":"Answer","text":"It multiplies array labor hours: composition at 4/12–6/12 is the 1.0 baseline, 7/12–9/12 is 1.18, 10/12 or steeper is 1.35, multiple arrays or hips and valleys 1.25, tile or slate 1.45 (hooks and flashings), and ground mount 1.4 (piers and trench). Metal standing seam is the one that goes down, to 0.95, because clamps beat penetrating and flashing. These are starting points for your own crew, not an industry standard — retime them from your last few jobs."}},{"@type":"Question","name":"Which electrical extras get forgotten most often?","acceptedAnswer":{"@type":"Answer","text":"The panel. A supply-side or load-side tap is about 4 h and $350; a 100 A → 200 A main-panel upgrade about 8 h and $1,800; a 200 A → 400 A service upgrade about 16 h and $4,500. A new subpanel or inverter feeder, 50+ extra feet of conduit, and a trench to a detached structure each carry their own hours and material. None of these move with system size, which is exactly why a per-watt price cannot carry them."}},{"@type":"Question","name":"Where do permits, interconnection, and design go?","acceptedAnswer":{"@type":"Answer","text":"They are their own flat lines — permit and interconnection, design and engineering, and travel/dumpster/lift — not a percentage of the system. Sizing, production estimates, shading analysis, incentive eligibility, and interconnection approval are all outside what this does: it is bid arithmetic on inputs you supply, not a PV design, a production model, or a claim about what any utility will approve."}},{"@type":"Question","name":"Does adding a battery just add its price?","acceptedAnswer":{"@type":"Answer","text":"No, and that is why battery hours and battery material are separate fields. The hardware is one cost; the mounting, the critical-loads panel, the commissioning, and the extra inspection are labor that lands on the same crew day. Entering only the equipment cost is the same mistake as the per-watt quote, one level down."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the customer's number reads and how your books read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or to profit. A $18,000 cost marked up 20% is $21,600, a 16.7% margin; a 20% target margin is $22,500. No account, no upload: every figure stays in this browser, and the optional local counter records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #f3efe6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
-    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #b45309; margin: 0 0 6px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #ac4f09; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #ddd4c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a20100d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -23,9 +24,11 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b8ad9a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b8ad9a; background: #f6f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b8ad9a; background: #f6f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2430; }
     button:hover { background: #ece4d4; }
     .result { position: sticky; top: 15px; background: #1d3a2f; color: #f4f8f4; border-color: #1d3a2f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -39,12 +42,70 @@
     .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
     .verdict.bad { background: #7d2317; }
     footer { margin-top: 25px; font-size: .82rem; color: #5a5246; }
-    footer a { color: #b45309; }
+    footer a { color: #ac4f09; }
     .support { margin-top: 14px; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     .summary-status { font-size: .8rem; color: #d7ecc8; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #c6a06a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5a5246; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #7a3908; --pr-accent: #ac4f09;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #7a39080d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
     }
   </style>
 </head>
@@ -100,6 +161,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Matching a cheaper per-watt quote after leaving it out is how a sold job becomes a loss.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Sunridge Solar LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(602) 555-0177"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="AZ-ROC-284116"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="1450 W Broadway Rd, Tempe AZ"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="M. Alvarez"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="3318 E Coronado Rd"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install 26 × 390 W modules&#10;Main-panel upgrade 100 A to 200 A"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Roof repairs or re-roofing&#10;Tree trimming for shade"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Interconnection approval before energising. Production estimates supplied separately."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -132,19 +229,74 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Roof factors and electrical extras are common ballpark starting points, not an industry standard, a benchmark, or a guarantee. Time your own crews and replace them.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does a dollars-per-watt quote go wrong?</h3>
+      <p>Because only part of a solar job scales with watts. Modules, racking, and balance-of-system do.
+        Roof difficulty and electrical work do not &mdash; and they are the two lines that decide whether
+        the job made money. Two 10&nbsp;kW installs priced at the same $/W can differ by thousands: one on
+        a clean composition roof with room in a 200&nbsp;A panel, the other on tile needing a
+        100&nbsp;A&nbsp;&rarr;&nbsp;200&nbsp;A service upgrade. This tool prices watts as watts and prices
+        the rest as its own hours and material.</p>
+
+      <h3>How much does the roof type actually change labor?</h3>
+      <p>It multiplies array labor hours: composition at 4/12&ndash;6/12 is the 1.0 baseline, 7/12&ndash;9/12
+        is 1.18, 10/12 or steeper is 1.35, multiple arrays or hips and valleys 1.25, tile or slate 1.45
+        (hooks and flashings), and ground mount 1.4 (piers and trench). Metal standing seam is the one that
+        goes <em>down</em>, to 0.95, because clamps beat penetrating and flashing. These are starting points
+        for your own crew, not an industry standard &mdash; retime them from your last few jobs.</p>
+
+      <h3>Which electrical extras get forgotten most often?</h3>
+      <p>The panel. A supply-side or load-side tap is about 4&nbsp;h and $350; a
+        100&nbsp;A&nbsp;&rarr;&nbsp;200&nbsp;A main-panel upgrade about 8&nbsp;h and $1,800; a
+        200&nbsp;A&nbsp;&rarr;&nbsp;400&nbsp;A service upgrade about 16&nbsp;h and $4,500. A new subpanel or
+        inverter feeder, 50+ extra feet of conduit, and a trench to a detached structure each carry their
+        own hours and material. None of these move with system size, which is exactly why a per-watt price
+        cannot carry them.</p>
+
+      <h3>Where do permits, interconnection, and design go?</h3>
+      <p>They are their own flat lines &mdash; permit and interconnection, design and engineering, and
+        travel/dumpster/lift &mdash; not a percentage of the system. Sizing, production estimates, shading
+        analysis, incentive eligibility, and interconnection approval are all outside what this does: it is
+        bid arithmetic on inputs you supply, not a PV design, a production model, or a claim about what any
+        utility will approve.</p>
+
+      <h3>Does adding a battery just add its price?</h3>
+      <p>No, and that is why battery hours and battery material are separate fields. The hardware is one
+        cost; the mounting, the critical-loads panel, the commissioning, and the extra inspection are labor
+        that lands on the same crew day. Entering only the equipment cost is the same mistake as the
+        per-watt quote, one level down.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the customer's number reads and how your books
+        read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or
+        to profit. A $18,000 cost marked up 20% is $21,600, a 16.7% margin; a 20% target margin is $22,500.
+        No account, no upload: every figure stays in this browser, and the optional local counter records
+        only which features were used and the day.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a structural, interconnection, or incentive determination. Verify every figure against your own payroll, invoices, AHJ and utility requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your system size, wages, costs, or prices.</p>
-    <p>See also: <a href="./how-much-to-charge-to-install-solar-panels.html">how much to charge to install solar panels</a>.</p>
-    <p class="support">Free and open source. If it keeps you from matching a losing per-watt quote, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p>See also: <a href="./how-much-to-charge-to-install-solar-panels.html">how much to charge to install solar panels</a> &middot; <a href="./vs-aurora-solar.html">this calculator vs. Aurora Solar</a>.</p>
+    <p class="support">Free and open source. If it keeps you from matching a losing per-watt quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, formatBidSummary, ROOF_PRESETS, ELECTRICAL_PRESETS, SYSTEM_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
 
     const FIELD_IDS = [
       'moduleCount','wattsPerModule','moduleCostEach','inverterCost','rackingPerModule','bosPerWatt',
@@ -152,7 +304,11 @@
       'hourlyWage','burdenRate','permitAndInterconnection','designEngineering','travelDumpsterLift',
       'overheadRate','targetMargin','proposedPrice',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     function fillSelect(select, items, getValue, getLabel) {
@@ -298,7 +454,145 @@
       }
     });
 
+
+    // ---- Customer-facing proposal -------------------------------------------
+
+    const COMPANY_KEY = 'solar-pv-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for its scope, figures, and performance. It was laid out with a free '
+      + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
+      + 'warranty. It is not an electrical, structural, building-code, utility-interconnection, or energy-production determination.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    /**
+     * Default scope lines from the job the user actually priced, so the proposal
+     * is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Written by hand for the trade rather than derived from the pasted summary:
+     * that summary lists crew-hour breakdowns, which must not reach a customer.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const roof = ROOF_PRESETS.find(item => item.id === el('roofPreset').value)?.label ?? '';
+      const electrical = ELECTRICAL_PRESETS.find(item => item.id === el('electricalPreset').value);
+      const suggested = [
+        `Supply and install a ${result.dcKw.toFixed(2)} kW DC photovoltaic array — ${result.moduleCount} modules at ${result.wattsPerModule} W`,
+        roof ? `Mounting: ${roof}` : '',
+        'Inverter, racking, and balance-of-system components supplied and installed',
+        // The "none" option is the absence of extra electrical work, not a line
+        // to print on a customer's quote.
+        electrical && electrical.id !== 'none' ? `Electrical: ${electrical.label}` : '',
+        result.batteryMaterial > 0 || result.batteryHours > 0 ? 'Battery storage supplied and commissioned' : '',
+        result.permitAndInterconnection > 0 ? 'Permit and utility interconnection application' : '',
+        'System commissioning, monitoring set-up, and site clean-up',
+      ].filter(Boolean);
+      scope.value = suggested.join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null ? result.price : result.proposed.price,
+        jobTitle: `Solar PV installation — ${result.dcKw.toFixed(2)} kW DC`,
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from the document rather than called inside `update()`: every
+     * calculator in this portfolio has its own `update()` with its own shape,
+     * and one listener that works in all of them is what makes this feature
+     * copyable. Bubble phase, so it runs after the page's own field handlers
+     * have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
     update();
+    restoreCompany();
+    refreshProposal();
   </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /Price the winter, not the driveway/);
-  assert.match(html, /<title>Snow Removal Bid Calculator \| Per-Push vs Seasonal Contract Price<\/title>/);
+  assert.match(html, /<title>Snow Removal Bid Calculator — Per-Push vs Seasonal<\/title>/);
   assert.match(html, /meta name="description"/);
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /FAQPage/);
@@ -18,7 +18,7 @@ test('disclaimer and privacy are visible, not only in the README', () => {
   assert.match(html, /not legal, tax, financial, engineering, or business advice/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /Do not keep anonymous local usage counts/);
-  assert.match(html, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(html, /href="LICENSE"/);
 });
 
 test('the shipped starting route matches the documented eight-driveway winter', () => {
@@ -49,4 +49,28 @@ test('the shipped starting route matches the documented eight-driveway winter', 
   assert.match(html, /length: 8/);
   assert.match(html, /value="10"/);
   assert.match(html, /value="6"/);
+});
+
+test('the verdict text never calls .toFixed on a break-even that can be null', () => {
+  // calculateSeason() returns proposedSeasonal.breakEvenSnowEvents === null
+  // when costPerSnowEvent is 0 (an ice-only route). The verdict paragraph
+  // used to interpolate `${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)}`
+  // directly inline in both verdict strings, which threw on that route and
+  // silently aborted the rest of update() — see calc.test.mjs's "ice-only
+  // route" test for the calculation-side half of this regression. It must
+  // now go through a null-checked local instead.
+  assert.match(html, /const survives = result\.proposedSeasonal\.breakEvenSnowEvents === null/);
+  assert.match(html, /It survives \$\{survives\} snow events/);
+  assert.match(html, /surviving \$\{survives\} snow events/);
+});
+
+test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
+  assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
+  const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');
+  assert.match(doc, /How much should I charge for snow removal/i);
+  assert.match(doc, /FAQPage/);
+  assert.match(doc, /No warranty/);
+  assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /how-much-to-charge\.html/);
 });

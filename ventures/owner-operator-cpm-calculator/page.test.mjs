@@ -9,6 +9,8 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const article = readFileSync(new URL('./deadhead-miles.html', import.meta.url), 'utf8');
 const detention = readFileSync(new URL('./does-detention-pay-cover-the-wait.html', import.meta.url), 'utf8');
+const vsAtbs = readFileSync(new URL('./vs-atbs.html', import.meta.url), 'utf8');
+const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -122,4 +124,28 @@ test('the detention explainer uses the same locked week as the calculator', () =
   assert.match(detention, /keeps \$183\.04/);
   assert.match(detention, /0\.68 hours/);
   assert.match(scriptSource, /accessorials_compared/);
+});
+
+test('index links the ATBS incumbent-comparison page and the sitemap lists it too', () => {
+  assert.match(markup, /vs-atbs\.html/);
+  assert.match(sitemap, /vs-atbs\.html/);
+});
+
+test('the ATBS incumbent-comparison page links back, names the incumbent honestly, and cites a checkable source instead of a number only ATBS could confirm', () => {
+  assert.match(vsAtbs, /<a href="\.\/">/);
+  // Names ATBS's own pricing page so a reader can check the source directly
+  // -- this page must never state a dollar figure for ATBS's service that
+  // only ATBS's own current pricing page could confirm.
+  assert.match(vsAtbs, /atbs\.com\/pricing/);
+  // Blanket, not scoped to a sentence or a month/year suffix: this page has
+  // no legitimate reason to print a dollar figure at all, so the earlier,
+  // narrower regexes here missed a plain "$20/week" (they only matched a
+  // dollar immediately followed by month/year, or one in the same sentence
+  // as the literal string "ATBS"). Same pattern cloud-egress-calculator's
+  // own comparison-page test already uses.
+  assert.doesNotMatch(vsAtbs, /\$\d/);
+  assert.match(vsAtbs, /not affiliated with, endorsed by, or sponsored by ATBS/i);
+  assert.match(vsAtbs, /No warranty/);
+  assert.match(vsAtbs, /Best-effort hosting, no SLA/);
+  assert.match(vsAtbs, /github\.com\/sponsors\/Duncan-Haywood/);
 });

@@ -11,7 +11,7 @@
   <meta property="og:description" content="See the monthly cost of storage and outbound transfer before migrating a workload.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cloud Egress Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for comparing object storage, request, and data egress costs.","featureList":"Two-provider monthly comparison, annualized savings, break-even outbound transfer, copyable decision summary, private JSON review export"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does S3 egress cost?","acceptedAnswer":{"@type":"Answer","text":"Egress is billed per gigabyte of outbound transfer at the rate on your current price sheet. On the default 500 GB stored, 2 million requests, and 100 GB outbound example, a $0.023 / $0.40 / $0.09 sheet is $21.30 per month. An alternative at $0.006 / $0.36 / $0.00 is $3.72. The $17.58 gap is $210.96 per year. Paste your quoted rates; this page does not fetch provider prices."}},{"@type":"Question","name":"Does a cheaper storage rate still win after egress?","acceptedAnswer":{"@type":"Answer","text":"Only when outbound transfer is low enough. If cheap storage has a higher egress rate, the page shows the break-even outbound volume. Above that volume the other option is cheaper. The comparison is arithmetic from the rates you enter, not a migration recommendation."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does S3 egress cost?","acceptedAnswer":{"@type":"Answer","text":"Egress is billed per gigabyte of outbound transfer at the rate on your current price sheet. On the default 500 GB stored, 2 million requests, and 100 GB outbound example, a $0.023 / $0.40 / $0.09 sheet is $21.30 per month. An alternative at $0.006 / $0.36 / $0.00 is $3.72. The $17.58 gap is $210.96 per year. Paste your quoted rates; this page does not fetch provider prices."}},{"@type":"Question","name":"Does a cheaper storage rate still win after egress?","acceptedAnswer":{"@type":"Answer","text":"Only when outbound transfer is low enough. If cheap storage has a higher egress rate, the page shows the break-even outbound volume. Above that volume the other option is cheaper. The comparison is arithmetic from the rates you enter, not a migration recommendation."}},{"@type":"Question","name":"What outbound volume is the break-even point?","acceptedAnswer":{"@type":"Answer","text":"The volume where storage-and-request savings and the egress-rate gap cancel out: below it the cheaper-storage, pricier-egress option wins; above it, the other one does. Example: 500 GB stored and 2 million requests at $0.006/GB-month storage, $0.36/million requests, and $0.09/GB egress totals $9.12/month at 60 GB outbound — cheaper than $0.023/$0.40/$0 storage's $12.30. Push outbound to 150 GB and the same cheap-egress sheet totals $17.22, more than the $12.30 alternative. The crossover on this pair is 95.33 GB/month; the page computes it for whatever rates and workload you enter."}},{"@type":"Question","name":"Does this include migration cost or contract minimums?","acceptedAnswer":{"@type":"Answer","text":"No. The monthly total is storage, request, and egress charges only — it does not add a one-time data-transfer-out fee for the move itself, a minimum monthly commitment your contract may require, or the engineering time to actually migrate. Check your price sheet and contract for those before deciding on this number alone."}}]}</script>
   <style>
     :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
     *{box-sizing:border-box}body{margin:0}main{max-width:900px;margin:auto;padding:32px 18px 56px}
@@ -40,6 +40,9 @@
     <p class="small"><a href="does-a-cdn-cut-s3-egress.html">Does a CDN still cut S3 egress?</a> — cache hits vs origin-only on the same download volume.</p>
     <p class="small"><a href="does-a-replica-beat-cross-region-pull.html">Does a replica still beat a cross-region pull?</a> — seed plus storage vs paying transfer every month.</p>
     <p class="small"><a href="does-infrequent-access-still-beat-standard.html">Does infrequent access still beat standard after restore?</a> — cheaper storage vs retrieve fees on one store.</p>
+    <p class="small"><a href="vs-aws-pricing-calculator.html">This calculator vs. the AWS Pricing Calculator</a> — two different jobs, and when to use each.</p>
+    <p class="small"><a href="vs-google-cloud-pricing-calculator.html">This calculator vs. the Google Cloud Pricing Calculator</a> — which question each tool is actually for.</p>
+    <p class="small"><a href="vs-azure-pricing-calculator.html">This calculator vs. the Azure Pricing Calculator</a> — Microsoft's schedule vs a two-provider comparison.</p>
 
   <section class="panel">
     <h2>Workload</h2>
@@ -85,6 +88,16 @@
     <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous calculation events on this device</label>
     <p>Usage is optional, stays in this browser, and counts only calculations, copied summaries, and exports. No inputs, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How much does S3 egress cost?</h3>
+  <p>Egress is billed per gigabyte of outbound transfer at the rate on your current price sheet. On the default 500 GB stored, 2 million requests, and 100 GB outbound example, a $0.023 / $0.40 / $0.09 sheet is $21.30 per month. An alternative at $0.006 / $0.36 / $0.00 is $3.72. The $17.58 gap is $210.96 per year. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>Does a cheaper storage rate still win after egress?</h3>
+  <p>Only when outbound transfer is low enough. If cheap storage has a higher egress rate, the page shows the break-even outbound volume. Above that volume the other option is cheaper. The comparison is arithmetic from the rates you enter, not a migration recommendation.</p>
+  <h3>What outbound volume is the break-even point?</h3>
+  <p>The volume where storage-and-request savings and the egress-rate gap cancel out: below it the cheaper-storage, pricier-egress option wins; above it, the other one does. Example: 500 GB stored and 2 million requests at $0.006/GB-month storage, $0.36/million requests, and $0.09/GB egress totals $9.12/month at 60 GB outbound — cheaper than $0.023/$0.40/$0 storage's $12.30. Push outbound to 150 GB and the same cheap-egress sheet totals $17.22, more than the $12.30 alternative. The crossover on this pair is 95.33 GB/month; the page computes it for whatever rates and workload you enter.</p>
+  <h3>Does this include migration cost or contract minimums?</h3>
+  <p>No. The monthly total is storage, request, and egress charges only — it does not add a one-time data-transfer-out fee for the move itself, a minimum monthly commitment your contract may require, or the engineering time to actually migrate. Check your price sheet and contract for those before deciding on this number alone.</p>
 
   <footer class="small">
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -140,6 +153,14 @@
       clearTimeout(usageTimer);
       if (track) usageTimer = setTimeout(() => countUsage("calculation"), 800);
     } catch (error) {
+      // A rejected input (a negative rate, non-numeric text) must not leave
+      // the last valid comparison on screen next to a silent failure -- a
+      // visitor who misses the message in #verdict could read the stale
+      // per-option totals and difference as the answer for the invalid
+      // inputs now in the form.
+      $("aTotal").textContent = "";
+      $("bTotal").textContent = "";
+      $("difference").textContent = "";
       $("verdict").textContent = error.message;
       $("verdict").className = "small";
       $("annualImpact").textContent = "";
@@ -152,6 +173,29 @@
   $("usage").addEventListener("change", (event) => setUsageEnabled(event.target.checked));
   calculate();
 
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
   $("copySummary").addEventListener("click", async () => {
     try {
       const load = workload();
@@ -159,7 +203,7 @@
         first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
         second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
       });
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
       $("exportStatus").textContent = "Copied";
       countUsage("summary_copied");
     } catch (error) {

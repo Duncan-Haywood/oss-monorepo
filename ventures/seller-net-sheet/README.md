@@ -71,9 +71,12 @@ Pure ES modules, no build step, no dependencies.
 node --test        # runs calc.test.mjs and usage.test.mjs
 ```
 
-`calc.mjs` holds the net-sheet, walk-away price, and offer-comparison
-arithmetic; `usage.mjs` holds the anonymous local counter; `index.html` is
-the calculator UI.
+`calc.mjs` holds the net-sheet, walk-away price, offer-comparison, and
+tax-proration-estimate arithmetic; `usage.mjs` holds the anonymous local
+counter; `index.html` is the calculator UI, including the **Estimate it**
+box under the Tax / HOA proration field, which turns the annual tax bill and
+the days charged to the seller into a proration figure with one click
+instead of asking the visitor to do the day-count division themselves.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

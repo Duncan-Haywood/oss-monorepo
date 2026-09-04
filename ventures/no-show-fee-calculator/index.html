@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>No-Show &amp; Cancellation Fee Calculator for Service Businesses</title>
+  <title>No-Show Fee Calculator for Service Businesses</title>
   <meta name="description" content="Free calculator for personal trainers, salons, tutors, and therapists: work out a defensible no-show fee, see whether overbooking the empty chairs still beats collecting it, and copy a cancellation policy." />
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/" />
 
@@ -35,54 +35,7 @@
     "url": "https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How much should I charge for a no-show or late cancellation?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "There's no single right number, but a common starting point is charging close to the full service price for a true no-show (since the slot usually can't be rebooked) and a partial fee for a late cancellation with some notice. This calculator turns your own price, notice window, and fee percentage into a specific dollar amount and a policy you can adjust."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is a cancellation or no-show fee legal?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Charging a disclosed cancellation fee is common practice across many service industries and is generally enforceable when clients agree to it in advance, but rules vary by location, payment processor, and industry (some regions treat fees for medical or dental appointments differently, for example). This tool is not legal advice -- check the requirements that apply to your business and location before publishing a policy."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How much notice should I require before a cancellation is free?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator compares 4-hour, 24-hour, and 48-hour windows using your own waitlist fill-rate assumption so you can see how much empty-slot cash a longer window actually recovers."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Should I overbook or charge a no-show fee?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "They recover different money. A fee compensates you when the chair stays empty and you actually collect. Overbooking tries to fill that chair in advance and risks a double-booked hour when everyone shows. The calculator compares a fee-only book to overbooking 50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping the fee. It is arithmetic from your numbers, not advice to overbook."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Should I take a deposit instead of charging a no-show fee?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "A deposit is collected when the client books, so a late cancel does not depend on a second collection attempt. A no-show fee is invoiced after the missed slot and only arrives at the rate you actually enforce. This calculator compares those policies on your own price, volume, no-show rate, and assumed enforcement rate. It is not legal advice."
-        }
-      }
-    ]
-  }
-  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge for a no-show or late cancellation?","acceptedAnswer":{"@type":"Answer","text":"There's no single right number, but a common starting point is charging close to the full service price for a true no-show (the slot usually can't be rebooked) and a partial fee for a late cancellation with some notice. This calculator turns your own price, notice window, and fee percentage into a specific number."}},{"@type":"Question","name":"Is a cancellation or no-show fee legal?","acceptedAnswer":{"@type":"Answer","text":"Charging a disclosed cancellation fee is common practice across many service industries and is generally enforceable when clients agree to it in advance, but rules vary by location, payment processor, and industry — some regions treat fees for medical or dental appointments differently, for example. This is not legal advice; check the requirements for your business type and location."}},{"@type":"Question","name":"How much notice should I require?","acceptedAnswer":{"@type":"Answer","text":"24 hours is the most common default — usually enough time to fill the slot from a waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours instead. The table above compares same-day, 24-hour, and 48-hour windows using your own fill-rate assumption so you can see how much empty-slot cash a longer window actually recovers."}},{"@type":"Question","name":"Should I overbook or charge a no-show fee?","acceptedAnswer":{"@type":"Answer","text":"They recover different money. A fee pays you when the chair stays empty and you collect. Overbooking tries to fill that chair in advance and risks a double-booked hour when everyone shows. The table above compares a fee-only book to overbooking 50%, 100%, and 150% of your expected no-shows, plus matching the rate and dropping the fee. It does not tell you which policy to publish."}},{"@type":"Question","name":"Should I take a deposit instead of charging a no-show fee?","acceptedAnswer":{"@type":"Answer","text":"A deposit is collected when the client books, so a late cancel does not depend on a second collection attempt. A no-show fee is invoiced after the missed slot, so it only comes in at the rate you actually enforce. Compare the two on your own numbers above — this tool does not decide which is lawful or appropriate for your business."}}]}</script>
 </head>
 <body>
   <header>
@@ -97,6 +50,12 @@
       no-show/late-cancellation fee — and hand clients a ready-to-use policy —
       <strong>which used to take</strong> guessing a number or copying a boilerplate
       template that doesn't match your prices.
+    </p>
+    <p class="tagline">
+      Already booking through scheduling software?
+      <a href="vs-acuity-scheduling.html">This calculator vs. Acuity Scheduling</a>
+      explains why the two sit next to each other: the platform carries and
+      enforces the policy, this page works out the number that goes in it.
     </p>
   </header>
 
@@ -203,7 +162,7 @@
 
       <div id="errors" role="alert" hidden></div>
 
-      <!-- Starts hidden and is revealed by src/app.mjs on load. Keeping the
+      <!-- Starts hidden and is revealed by app.mjs on load. Keeping the
            default hidden means a visitor with JavaScript disabled sees the form
            and the guidance rather than a row of $0.00 placeholders that will
            never fill in. -->
@@ -246,6 +205,10 @@
             <dt>Collected fees to cover all annual exposure</dt>
             <dd id="out-break-even-collections">0</dd>
           </div>
+          <div>
+            <dt>Modeled annual exposure still unrecovered</dt>
+            <dd id="out-remaining-exposure">$0.00</dd>
+          </div>
         </dl>
         <p class="note">
           "Revenue those slots represent" is the value of the appointments themselves —
@@ -256,6 +219,10 @@
           fee revenue with the value of the missed appointments. The break-even
           count is the number of fully collected fees needed to cover that
           annual exposure; it is not a target or a guarantee.
+          <strong>Modeled annual exposure still unrecovered</strong> is the same
+          comparison stated as a full-year dollar figure rather than a monthly
+          slice, clamped at zero. None of these figures predict client behavior
+          or guarantee collection.
         </p>
       </div>
 
@@ -277,7 +244,9 @@
           Same bookings and no-show rate as above. The deposit is treated as already
           in hand; the after-the-fact fee uses your assumed enforcement rate. This
           answers whether requiring a deposit recovers more cash from the same missed
-          slots than sending a no-show invoice later.
+          slots than sending a no-show invoice later. For the plain-English version —
+          when a deposit fits better than a fee, and when to run both — see
+          <a href="../appointment-deposit-calculator/deposit-vs-no-show-fee.html">deposit or no-show fee, which should I charge?</a>
         </p>
         <div class="table-wrap">
           <table>
@@ -295,7 +264,7 @@
         </div>
         <p id="collection-note" class="note"></p>
         <h3>Draft deposit policy</h3>
-        <textarea id="deposit-policy-text" rows="10" readonly></textarea>
+        <textarea id="deposit-policy-text" rows="10" aria-label="Draft deposit policy text" readonly></textarea>
         <button type="button" id="copy-deposit-policy">Copy deposit policy</button>
       </div>
 
@@ -359,7 +328,7 @@
 
       <div id="policy-section" hidden>
         <h2>Your draft policy</h2>
-        <textarea id="policy-text" rows="10" readonly></textarea>
+        <textarea id="policy-text" rows="10" aria-label="Draft no-show policy text" readonly></textarea>
         <button type="button" id="copy-policy">Copy policy text</button>
         <button type="button" id="download-policy">Download .txt</button>
         <button type="button" id="share-link">Copy share link</button>
@@ -419,8 +388,7 @@
         number of anonymous events (which buttons were used, nothing about who used them)
         and keeps the count only in this browser, so it can tell whether anyone is using
         it at all. Your calculator numbers are also saved locally for convenience
-        and can be removed with <strong>Reset saved numbers</strong>. See the
-        <a href="README.md">README</a> for details.
+        and can be removed with <strong>Reset saved numbers</strong>.
       </p>
       <p id="usage-summary"></p>
       <label>
@@ -453,11 +421,11 @@
   <footer>
     <p>
       Free, open source (MIT licensed), no account required.
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/no-show-fee-calculator">Source on GitHub</a>.
+      <a href="LICENSE">MIT licensed</a>.
       <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
 
-  <script type="module" src="src/app.mjs"></script>
+  <script type="module" src="app.mjs"></script>
 </body>
 </html>

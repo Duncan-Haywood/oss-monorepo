@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Garage Door Bid Calculator | Price the Spring, the Door, and the Drive</title>
+  <title>Garage Door Bid Calculator — Spring, Door, and Drive</title>
   <meta name="description" content="Price a garage door replacement or broken-spring service from parts, shop labor, and travel — not a lump-sum guess. See when a $189 spring special loses money on the drive.">
   <link rel="canonical" href="https://example.invalid/garage-door-bid-calculator/">
   <meta property="og:title" content="Garage Door Bid Calculator">
   <meta property="og:description" content="Bid the door, the springs, and the miles. See the walk-away price before you quote the $189 special.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Garage Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Spring-only vs replacement vs opener tickets, single vs double door sizing, travel labor from miles, after-hours premium, walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Garage Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Spring-only vs replacement vs opener tickets, single vs double door sizing, travel labor from miles, after-hours premium, walk-away price, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this garage door estimate include?","acceptedAnswer":{"@type":"Answer","text":"The ticket price adds up parts — door/slab, spring kit, opener unit, hardware, disposal, and permit — plus shop labor on site, travel (both the drive-time labor and vehicle cost per mile), overhead, and your target margin. Job type decides which parts lines actually apply: a spring-only ticket zeroes out the door and opener cost unless you enter one anyway."}},{"@type":"Question","name":"Why does travel get its own line instead of being folded into overhead?","acceptedAnswer":{"@type":"Answer","text":"A short shop job forty minutes each way is a different ticket from the same job around the corner, and a flat overhead percentage hides that. Travel is priced as loaded wage for the drive time plus a per-mile vehicle cost, and the tool flags “travel eats job” when travel is at least 35% of a spring-only ticket, or exceeds shop labor on any job — the exact trap a $189 special forty minutes out falls into."}},{"@type":"Question","name":"Why is a double door not just two single doors?","acceptedAnswer":{"@type":"Answer","text":"Job type sets separate suggested labor hours for single versus double openings (the split is at 10 ft of width), because a double door’s extra track, larger panel, and heavier spring kit take more shop time per opening than doubling a single-door job would suggest — suggested hours, spring cost, and door cost all key off which class the width falls into."}},{"@type":"Question","name":"Why do suggested parts and hours change when I pick a different job type or door?","acceptedAnswer":{"@type":"Answer","text":"Changing job type, door size, construction, or opener re-applies each preset's suggested figure to every field you haven't hand-edited yet — so switching from “door + new opener” to “broken-spring service” zeroes the door and opener cost automatically. Once you edit a field yourself, later preset changes leave it alone."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. This calculator does not save your ticket inputs between visits and has no shareable bid link; only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this cover wind load, permits, or spring safety?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and part costs are ballpark shop figures you can edit, not a building-code or engineering determination, a wind-load calculation, or a permit approval. High-cycle springs and wind-load hardware are cost lines you choose to add, not something the tool checks your opening needs — and spring and opener work carries real injury risk that belongs to a qualified installer, not this arithmetic."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,9 +25,11 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #3b2414; color: #f8f3ee; border-color: #3b2414; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -48,6 +51,62 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3b2414; --pr-accent: #8a4b12;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
   </style>
 </head>
 <body>
@@ -55,7 +114,7 @@
     <p class="eyebrow">FOR GARAGE DOOR TECHS AND SMALL SHOPS</p>
     <h1>Bid the spring, the door, and the drive — not a lump sum.</h1>
     <p>Price a replacement or a broken-spring service the way the ticket actually costs: parts, shop hours, and the miles to get there. A 16×7 is not two 8×7s, and a $189 spring special forty minutes each way is often a loss before the hood goes up.</p>
-    <p class="links"><a href="./how-much-to-charge-to-replace-a-garage-door.html">How much to charge to replace a garage door</a> · <a href="./how-much-to-charge-for-a-broken-spring.html">How much to charge for a broken spring</a></p>
+    <p class="links"><a href="./how-much-to-charge-to-replace-a-garage-door.html">How much to charge to replace a garage door</a> · <a href="./how-much-to-charge-for-a-broken-spring.html">How much to charge for a broken spring</a> · <a href="./vs-housecall-pro.html">vs. Housecall Pro</a></p>
   </header>
 
   <main class="layout">
@@ -110,6 +169,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">After-hours multiplies shop labor only. Travel still costs the loaded wage for the drive plus the miles — evenings do not make the van cheaper.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Brantley Door Service LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(615) 555-0148"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="TN-CN-90114"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="512 Gallatin Ave, Nashville TN"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="C. Iyer"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="1105 Woodland St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install one 16 ft × 7 ft insulated steel door&#10;New torsion springs"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Structural header repair&#10;Electrical outlet installation"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Existing door and hardware hauled away on completion."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -138,13 +233,59 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting part and hour figures are common ballpark numbers, not a manufacturer list, a code requirement, or a guarantee — replace them with your supplier invoice and a timed job.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this garage door estimate include?</h3>
+      <p>The ticket price adds up parts &mdash; door/slab, spring kit, opener unit, hardware, disposal, and
+        permit &mdash; plus shop labor on site, travel (both the drive-time labor and vehicle cost per
+        mile), overhead, and your target margin. Job type decides which parts lines actually apply: a
+        spring-only ticket zeroes out the door and opener cost unless you enter one anyway.</p>
+
+      <h3>Why does travel get its own line instead of being folded into overhead?</h3>
+      <p>A short shop job forty minutes each way is a different ticket from the same job around the corner,
+        and a flat overhead percentage hides that. Travel is priced as loaded wage for the drive time plus
+        a per-mile vehicle cost, and the tool flags &ldquo;travel eats job&rdquo; when travel is at least
+        35% of a spring-only ticket, or exceeds shop labor on any job &mdash; the exact trap a $189 special
+        forty minutes out falls into.</p>
+
+      <h3>Why is a double door not just two single doors?</h3>
+      <p>Job type sets separate suggested labor hours for single versus double openings (the split is at
+        10 ft of width), because a double door&rsquo;s extra track, larger panel, and heavier spring kit
+        take more shop time per opening than doubling a single-door job would suggest &mdash; suggested
+        hours, spring cost, and door cost all key off which class the width falls into.</p>
+
+      <h3>Why do suggested parts and hours change when I pick a different job type or door?</h3>
+      <p>Changing job type, door size, construction, or opener re-applies each preset's suggested figure
+        to every field you haven't hand-edited yet &mdash; so switching from &ldquo;door + new opener&rdquo;
+        to &ldquo;broken-spring service&rdquo; zeroes the door and opener cost automatically. Once you edit
+        a field yourself, later preset changes leave it alone.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. This
+        calculator does not save your ticket inputs between visits and has no shareable bid link; only
+        your business name and contact details for the printed proposal are kept in this browser's local
+        storage, and &ldquo;Forget my business details&rdquo; clears them.</p>
+
+      <h3>Does this cover wind load, permits, or spring safety?</h3>
+      <p>No. Hours and part costs are ballpark shop figures you can edit, not a building-code or
+        engineering determination, a wind-load calculation, or a permit approval. High-cycle springs and
+        wind-load hardware are cost lines you choose to add, not something the tool checks your opening
+        needs &mdash; and spring and opener work carries real injury risk that belongs to a qualified
+        installer, not this arithmetic.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a safety inspection, a wind-load calculation, or a permit determination. Verify every figure against your own payroll, insurance, supplier invoices, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, the door, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -159,6 +300,14 @@
       suggestedSpringCost,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
 
     const FIELD_IDS = [
       'jobType','doorSize','widthFt','heightFt','construction','opener',
@@ -166,7 +315,11 @@
       'laborHours','hourlyWage','burdenRate','roundTripMiles','costPerMile','averageMph',
       'afterHoursMultiplier','overheadRate','targetMargin','proposedPrice',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     function fillSelect(id, items, selected) {
@@ -388,7 +541,139 @@
     });
 
     applySuggestions({ force: true });
+
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'garage-door-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a building-code or engineering determination, and spring and opener work carries risks that only a qualified installer should take on.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      // `result.doorClass` is the *size* class the width falls into, not the
+      // construction the contractor picked — read the control itself.
+      const construction = CONSTRUCTION_PRESETS.find(item => item.id === el('construction').value)?.label;
+      const suggested = [
+        `${result.jobLabel}: ${result.widthFt} ft × ${result.heightFt} ft`,
+        construction ? `Door: ${construction}` : '',
+        result.springCost > 0 ? 'New springs, cables, and drums' : '',
+        result.openerCost > 0 ? 'Opener supplied and programmed' : '',
+        result.hardwareCost > 0 ? 'Track, rollers, hinges, and weather seal' : '',
+        result.disposalCost > 0 ? 'Haul away and dispose of the existing door' : '',
+        'Balance, safety-reverse test, and clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.price
+          : result.proposed.price,
+        jobTitle: 'Garage door work',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
     update();
+    restoreCompany();
+    refreshProposal();
   </script>
 </body>
 </html>

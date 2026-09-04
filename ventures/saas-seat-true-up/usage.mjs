@@ -1,7 +1,7 @@
 const KEY = 'saas-seat-true-up:usage';
 const OPT_OUT = 'saas-seat-true-up:opt-out';
 const SCENARIO_KEY = 'saas-seat-true-up:scenario';
-const SCENARIO_FIELDS = ['purchased', 'used', 'price', 'months', 'overageRate'];
+const SCENARIO_FIELDS = ['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum'];
 
 function storage() {
   try {
@@ -17,7 +17,13 @@ export function usageAllowed() {
   }
   const ls = storage();
   if (!ls) return false;
-  return ls.getItem(OPT_OUT) !== 'true';
+  // recordEvent() (and the #disable click handler) call this with no
+  // try/catch of their own -- a blocked getItem must not throw out of here.
+  try {
+    return ls.getItem(OPT_OUT) !== 'true';
+  } catch {
+    return false;
+  }
 }
 
 export function recordEvent(eventName) {
@@ -68,6 +74,10 @@ export function loadScenario(store) {
     }
     if (value.overageRate == null) value.overageRate = 0;
     if (typeof value.overageRate !== 'number' || !Number.isFinite(value.overageRate) || value.overageRate < 0) {
+      return null;
+    }
+    if (value.seatMinimum == null) value.seatMinimum = 0;
+    if (typeof value.seatMinimum !== 'number' || !Number.isFinite(value.seatMinimum) || value.seatMinimum < 0) {
       return null;
     }
     return value;

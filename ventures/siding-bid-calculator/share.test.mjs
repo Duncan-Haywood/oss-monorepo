@@ -31,6 +31,7 @@ const sample = {
   overheadRate: 18,
   targetMargin: 28,
   proposedPrice: 18400,
+  materialType: 'fiber-cement',
   secret: 'must-not-round-trip',
 };
 
@@ -80,4 +81,12 @@ test('SHARE_FIELDS includes the lines a dropped field would silently change', ()
   for (const key of ['walls', 'wastePercent', 'stories', 'tearOff', 'housewrap', 'targetMargin', 'proposedPrice', 'dumpsterCost']) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
+});
+
+test('the material the bid is for travels with it', () => {
+  // Reconstructed on arrival from the three rates it stamps until 2026-08-29,
+  // so a setter who typed their own supplier price handed the recipient
+  // "Other / custom rates" over their own fiber cement.
+  const restored = decodeShare(encodeShare(sample));
+  assert.equal(restored.materialType, 'fiber-cement');
 });

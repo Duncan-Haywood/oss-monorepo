@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DoorDash Fee Calculator for Restaurants | Delivery App Margin</title>
+  <title>DoorDash Fee Calculator for Restaurants — Delivery Margin</title>
   <meta name="description" content="Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -50,6 +50,22 @@
           "@type": "Answer",
           "text": "Take the profit you keep on the dine-in ticket, add packaging, extra labor, and any separate processing fee, then divide by one minus the commission rate. The last columns of the table do that from the rates you entered. A worked example is on the DoorDash fees page linked below."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does Uber Eats take from restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Like DoorDash, Uber Eats commission depends on the plan and market, and commonly lands in a similar rough range of the order total, sometimes with a separate marketing or processing fee depending on the tier. The Uber Eats preset above starts at 30% as an illustrative default — replace it with the rate on your own statement, then this page shows the same dine-in-matching price and monthly gap it computes for DoorDash."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much commission does Grubhub charge restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Grubhub's commission also varies by plan and market, and is often bundled with marketing or delivery fees rather than one flat number. The Grubhub preset above starts at 25% as an illustrative default. Enter your own statement's rate to see the menu price Grubhub needs to match dine-in profit on this ticket, and how that compares to DoorDash and Uber Eats side by side."
+        }
       }
     ]
   }
@@ -91,7 +107,7 @@
     details p.note { font-size: .84rem; color: #6b5344; margin: 8px 0 0; }
     .error { color: #b91c1c; font-weight: 650; }
     .verdict .error { color: #fecaca; }
-    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4a58a; background: #fff; cursor: pointer; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4a58a; background: #fff; cursor: pointer; color: #2a1f14; }
     button:hover { background: #fff4ea; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
     .faq { margin-top: 18px; }
@@ -160,6 +176,7 @@
               <th scope="col">You keep</th>
               <th scope="col">Vs dine-in</th>
               <th scope="col">Price to match dine-in</th>
+              <th scope="col">Commission to match dine-in</th>
               <th scope="col">This month vs dine-in</th>
             </tr>
           </thead>
@@ -192,9 +209,15 @@
       bagging minutes at $18/hour add another $3.65 the percentage comparison
       never shows. The decision number is the listed price that leaves you the
       same cash as dine-in — often around 45% higher on that ticket — and the
-      monthly gap if you do not raise it.
+      monthly gap if you do not raise it. Since you cannot always set that
+      price yourself, the table also solves the other side: the commission
+      rate this path would need, at its current listed price, to match
+      dine-in — the number worth having ready when a plan renewal or a
+      lower-commission tier comes up.
       <a href="doordash-fees-for-restaurants.html">DoorDash fees on one restaurant ticket</a>
-      works the default example through in full.
+      works the default example through in full, and
+      <a href="doordash-vs-ubereats-fees.html">DoorDash vs Uber Eats fees</a>
+      lines the three delivery apps up against each other on the same ticket.
     </p>
     <h3>What it deliberately leaves out</h3>
     <p>
@@ -209,13 +232,25 @@
     </p>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>How much does DoorDash take from restaurants?</h3>
+  <p>It depends on the plan and market. Marketplace commissions commonly land between about 15% and 30% of the order total, and some plans add a separate processing fee. The number that matters is not the headline percentage: packaging, extra bagging minutes, and the price you list on the app all change what you keep. Enter the rate on your own statement above — this page does the arithmetic on the numbers you give it.</p>
+  <h3>Is DoorDash worth it for a restaurant?</h3>
+  <p>On fees alone, dine-in almost always leaves more than a marketplace order at the same menu price, because the app takes a commission dine-in does not. Whether that is worth it depends on whether the app brings tickets you would not have sold otherwise, and on whether you mark the delivery menu up enough to keep the same cash. This calculator shows the dine-in-matching price and the monthly gap; it does not know your incremental demand.</p>
+  <h3>How do I price a DoorDash menu to keep dine-in profit?</h3>
+  <p>Take the profit you keep on the dine-in ticket, add packaging, extra labor, and any separate processing fee, then divide by one minus the commission rate. The last columns of the table do that from the rates you entered. A worked example is on the DoorDash fees page linked below.</p>
+  <h3>How much does Uber Eats take from restaurants?</h3>
+  <p>Like DoorDash, Uber Eats commission depends on the plan and market, and commonly lands in a similar rough range of the order total, sometimes with a separate marketing or processing fee depending on the tier. The Uber Eats preset above starts at 30% as an illustrative default — replace it with the rate on your own statement, then this page shows the same dine-in-matching price and monthly gap it computes for DoorDash.</p>
+  <h3>How much commission does Grubhub charge restaurants?</h3>
+  <p>Grubhub's commission also varies by plan and market, and is often bundled with marketing or delivery fees rather than one flat number. The Grubhub preset above starts at 25% as an illustrative default. Enter your own statement's rate to see the menu price Grubhub needs to match dine-in profit on this ticket, and how that compares to DoorDash and Uber Eats side by side.</p>
+
   <footer>
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it stopped you selling delivery at a loss, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
-    <p>Related: <a href="doordash-fees-for-restaurants.html">DoorDash fees for restaurants</a> · <a href="../no-show-fee-calculator/">No-show fee calculator</a> · <a href="../quote-margin-check/">Quote margin check</a>.</p>
+    <p>Free and open source. If it stopped you selling delivery at a loss, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Related: <a href="doordash-fees-for-restaurants.html">DoorDash fees for restaurants</a> · <a href="doordash-vs-ubereats-fees.html">DoorDash vs Uber Eats fees</a> · <a href="../no-show-fee-calculator/">No-show fee calculator</a> · <a href="../quote-margin-check/">Quote margin check</a>.</p>
   </footer>
 
   <script type="module">
@@ -236,6 +271,18 @@
     const money = (value) =>
       Number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
     const signedMoney = (value) => `${value > 0 ? "−" : ""}${money(Math.abs(value))}`;
+    // A commission rate is only a real answer between 0% (already there at no
+    // commission) and 100% (calculateChannel itself refuses that boundary).
+    // Negative means extra cash — packaging, labor, a driver — already
+    // exceeds the gap, so no commission cut, however deep, gets there;
+    // >=100% means the same thing from the other side, since profit only
+    // falls as commission rises.
+    const commissionMatchText = (pct) =>
+      pct === null
+        ? "—"
+        : pct < 0 || pct >= 100
+        ? "not reachable by rate alone"
+        : `${pct.toFixed(1)}%`;
 
     const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
     let channels = freshChannels();
@@ -380,6 +427,7 @@
             <td class="money">${money(result.profit)}</td>
             <td class="money">${result.gapVsDineIn === null || result.gapVsDineIn === 0 ? "—" : signedMoney(result.gapVsDineIn)}</td>
             <td class="money">${result.priceToMatchDineIn === null ? "—" : money(result.priceToMatchDineIn)}</td>
+            <td class="money">${commissionMatchText(result.commissionToMatchDineIn)}</td>
             <td class="money">${result.monthlyGapVsDineIn === null || result.monthlyGapVsDineIn === 0 ? "—" : signedMoney(result.monthlyGapVsDineIn)}</td>
           </tr>`).join("");
     }
@@ -407,7 +455,7 @@
         `Best path keeps ${money(lastComparison.best.profit)} on a ${money(ticketPrice)} ticket (${lastComparison.best.margin.toFixed(1)}% margin).`,
         `At ${monthlyOrders} expected orders/month, the best path contributes ${money(lastComparison.best.profit * monthlyOrders)} before fixed overhead.`,
         ...lastComparison.results.slice().sort((a, b) => a.rank - b.rank).map((result) =>
-          `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}.`),
+          `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}; commission to match dine-in ${result.commissionToMatchDineIn === null ? "not available" : commissionMatchText(result.commissionToMatchDineIn)}.`),
         "Rates are operator-entered assumptions. Verify against current statements before relying on this draft.",
       ];
       try {

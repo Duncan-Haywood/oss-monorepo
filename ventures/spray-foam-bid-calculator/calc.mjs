@@ -442,12 +442,64 @@ export function calculateBid(input) {
 }
 
 /**
+ * Same plane, rim, shop rates, and extras — three cells.
+ * A $3.50/sf coupon pretends open-cell, closed-cell, and hybrid are
+ * the same attic-square-foot job. They are not: board-foot split,
+ * waste, and spray hours change. Rim stays closed-cell on every row.
+ */
+export function compareCellBids(input) {
+  const areaSf = number(input.areaSf ?? 0, 'Area (square feet)');
+  const thickness = number(input.thicknessInches ?? 0, 'Thickness (inches)', { allowZero: false });
+  const rimBf = suggestedRimBf(input.rimLf ?? 0, input.rimHeightInches ?? 0, input.rimThicknessInches ?? 0);
+  const selected = String(input.cell ?? 'open');
+  const rows = CELL_PRESETS.map(({ id, label }) => {
+    const kit = suggestedCellKit(id);
+    const waste = suggestedWastePercent(id);
+    const openBf = suggestedOpenBf(areaSf, thickness, id);
+    const closedBf = suggestedClosedBf(areaSf, thickness, id);
+    const result = calculateBid({
+      ...input,
+      cell: id,
+      openBf,
+      closedBf,
+      rimBf,
+      wastePercent: waste,
+      orderOpenBf: suggestedOrderBf(openBf, waste),
+      orderClosedBf: suggestedOrderBf(closedBf + rimBf, waste),
+      hoursPer1000Bf: kit.hoursPer1000Bf,
+    });
+    return {
+      cell: id,
+      label,
+      selected: selected === id,
+      price: result.price,
+      totalCost: result.totalCost,
+      profit: result.profit,
+      pricePerAreaSf: result.pricePerAreaSf,
+      openBf,
+      closedBf,
+      orderBf: result.orderBf,
+      vsSelected: 0,
+    };
+  });
+  const current = rows.find((row) => row.selected) ?? rows[0];
+  for (const row of rows) {
+    row.vsSelected = row.price - current.price;
+  }
+  return rows;
+}
+
+/**
  * Format a bid as a plain-text draft the shop can paste into a
  * proposal. Costs, wages, and invoices are omitted on purpose — this is
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Spray foam insulation') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const area = AREA_PRESETS.find((item) => item.id === result.area)?.label ?? result.area;
   const cell = CELL_PRESETS.find((item) => item.id === result.cell)?.label ?? result.cell;
   const barrier = BARRIER_PRESETS.find((item) => item.id === result.barrier)?.label ?? result.barrier;

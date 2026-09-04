@@ -13,7 +13,8 @@ not a promise that a particular MLS will accept a listing.
 ## Free photo preflight
 
 The `/photo-check` browser tool checks JPEG and PNG listing files against the
-dated floor spec, then downloads a Markdown record of the observations. The
+dated floor spec, then copies a short handoff summary or downloads a Markdown
+record of the observations. The
 record names what was checked and what was not checked; it is not a portal
 submission or an MLS acceptance guarantee.
 

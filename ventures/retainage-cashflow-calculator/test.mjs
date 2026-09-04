@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, summaryText, cashFlowRecordText, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -335,6 +335,25 @@ test('the page offers a private JSON evidence snapshot', () => {
   assert.match(page, /retainage-cashflow:snapshot-downloads/);
 });
 
+test('summary export contains modeled values and safety boundary', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  const summary = summaryText({ projectName: 'Main Street remodel', result: computeAll(parsed.values) });
+  assert.match(summary, /Main Street remodel/);
+  assert.match(summary, /Retainage withheld: \$10000\.00/);
+  assert.match(summary, /Retainage still unpaid: \$10000\.00/);
+  assert.match(summary, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(summary, /Not legal, tax, financial, or engineering advice/);
+  assert.doesNotMatch(summary, /Hello /);
+});
+
+test('the page offers a compact cash-summary download', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="downloadSummary"/);
+  assert.match(page, /summaryText\(/);
+  assert.match(page, /retainage-cash-flow-summary\.txt/);
+  assert.match(page, /retainage-cashflow:summary-downloads/);
+});
+
 test('the page restores drafts through decodeDraft, not a bare JSON.parse', () => {
   // The bug this guards: restoreDraft used to apply whatever parsed out of
   // local storage, so a stale or hand-edited draft was written over the working
@@ -344,4 +363,19 @@ test('the page restores drafts through decodeDraft, not a bare JSON.parse', () =
   const restore = page.slice(page.indexOf('function restoreDraft()'), page.indexOf('$(\'form\').addEventListener'));
   assert.match(restore, /decodeDraft\(raw\)/);
   assert.doesNotMatch(restore, /JSON\.parse/);
+});
+
+test('cash-flow record creates a portable record with explicit assumptions', () => {
+  const record = cashFlowRecordText({ projectName: 'Library remodel', invoiceReference: 'Pay app 4', dueDate: '2026-08-30', generatedDate: '2026-08-25', result: { retainageWithheld: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 } });
+  assert.match(record, /Project: Library remodel/);
+  assert.match(record, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(record, /not a determination of interest/);
+});
+
+test('the page offers a downloadable cash-flow record', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="downloadRecord"/);
+  assert.match(page, /cashFlowRecordText\(/);
+  assert.match(page, /retainage-cash-flow-record\.txt/);
+  assert.match(page, /retainage-cashflow:record-downloads/);
 });

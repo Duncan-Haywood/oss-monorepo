@@ -521,7 +521,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Vinyl liner replacement') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const shape = SHAPE_PRESETS.find((item) => item.id === result.shape)?.label ?? result.shape;
   const depth = DEPTH_PRESETS.find((item) => item.id === result.depth)?.label ?? result.depth;
   const mil = MIL_PRESETS.find((item) => item.id === result.mil)?.label ?? result.mil;

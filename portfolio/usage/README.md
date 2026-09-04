@@ -66,6 +66,88 @@ An acceptable event payload, in full:
 
 Anything richer than that needs a reason written next to it in `usage.yaml`.
 
+## The published tool site counts itself
+
+Every venture's `usage.mjs` is `localStorage`-only: the count lives in the
+visitor's own browser and never transmits. That is the right default — a
+contractor's pricing must not leave their device — but taken alone it means
+publishing `tools.marisstella.dev` would *not* move any row in `usage.yaml`
+off `null`. Nothing would ever reach us.
+
+`gitops/prod/site-usage.yaml` closes that without asking the browser to send
+anything new. nginx already receives every request; the change is what it is
+allowed to write down. The access log is narrowed to four fields —
+`$time_iso8601 $status $uri $portfolio_embed_view` — so no client address,
+user agent, referrer or query string is recorded at all, and a nightly CronJob
+reduces a day of those lines to one integer per tool. Rule 1 above is enforced
+by what is never written, not by a promise to discard it afterwards. Shared
+bids travel in the URL *fragment*, which a browser never sends to a server, so
+they are not in the log by any route either.
+
+The fourth field is one bit: was this view served inside somebody else's page.
+It is **not** the query parameter it derives from — `$arg_pfEmbed` would write
+whatever a caller put in the URL into the log, so nginx maps that parameter to
+one of exactly two literals and logs the mapped variable. Nothing a visitor
+chooses can reach the file. `gitops/tests/test_site_usage.py` pins both the
+substitution and the closed set of values.
+
+The last 30 days sit in a ConfigMap. Read them with:
+
+```bash
+kubectl -n prod get configmap portfolio-site-usage -o jsonpath='{.data.usage\.json}'
+```
+
+Keys are catalogue slugs, plus `_hub` for the catalogue's front page,
+`c/<category>` for a category page, `embed/<slug>` for a view served inside
+somebody else's page through the embed widget, and `_front` for the apex
+front door at `marisstella.dev`.
+
+`_front` and `_hub` are two different pages on two different hostnames, and
+they are separate rows because they answer different questions: `_front` is
+"did anyone find the portfolio at all", `_hub` is "did anyone go on to browse
+the catalogue". Both resolve to `/index.html` in the log, so nothing
+downstream could have taken them apart if they had shared a row — the split is
+made where the line is read, by which workload served it
+(`aggregate.py`'s `APP_KEYS`).
+
+**`_front` is no longer the whole story for that pod.** It used to be a
+single row because the front door served exactly one page — every request
+resolved to `index.html` before `$uri` was logged. That stopped being true
+when the apex began mirroring the catalogue's tools and category pages, and
+again when it grew its own About page:
+
+- `_front/<slug>` — a visit to a tool the apex mirrors at `/tools/<slug>/`,
+  same slug the catalogue host uses for the tool itself.
+- `_front/c/<category>` — a visit to one of the apex's seven category browse
+  pages, e.g. `_front/c/trades`.
+- `_front/about` — a visit to the apex's own About & privacy page. Distinct
+  from `about`, the catalogue host's own About page under a different key
+  (`APP_KEYS["portfolio-site"]` is `None`, so that host's rows keep
+  `slug_for`'s bare names).
+- `_front` itself is what remains: the apex's front page, since that pod's
+  fallback `try_files` still resolves everything else to `index.html`.
+
+See `aggregate.py`'s `fold_for_app` for the split logic and
+`gitops/tests/test_site_usage.py` for what pins each row.
+
+That last split is the point of the fourth field. The embed snippet points at
+`/<slug>/?pfEmbed=1`, and `$uri` is resolved *past* the query string, so a
+framed view and a direct visit are otherwise byte-identical in the log. Folded
+into one row, a tool with 300 hits could be 300 people finding it in search or
+one popular embed on a trade forum — and those imply opposite next moves. It is
+the only distribution channel here that does not wait on search rankings, so
+whether it works is worth being able to answer.
+
+Copy what matters into `usage.yaml` as a dated reading.
+That hop is manual on purpose: writing to this repository from inside the
+cluster would need a GitHub token with write access, and `gitops/README.md`
+keeps write credentials out of `prod`.
+
+Two limits worth knowing before you read a number as gospel. It counts page
+views, not people or sessions — a contractor who opens one calculator six
+times in an afternoon is six. And it reads pod logs, so a day whose lines the
+kubelet has already rotated away is a day that undercounts.
+
 ## What to record here
 
 Update [`usage.yaml`](usage.yaml) whenever you read a number — shipping a

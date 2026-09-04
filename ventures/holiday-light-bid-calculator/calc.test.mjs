@@ -94,6 +94,37 @@ test('the cheap special is a 1-story C9 hang-only, not a take-down', () => {
   assert.ok(result.pricePerLf > 2 && result.pricePerLf < 12);
 });
 
+test('take-down is a second crew trip, not a share of the first drive', () => {
+  // The README and the scope-kit comment both say take-down is "a second
+  // crew day" / "a second trip in January" — so the round-trip drive
+  // (hoursTravel, travelInvoice) has to happen twice on any scope that
+  // has a take-down, not just once no matter the scope.
+  const hangOnly = calculateBid(special());
+  assert.equal(hangOnly.hoursTakedownTravel, 0);
+  assert.equal(hangOnly.takedownTravelInvoice, 0);
+
+  const withTakedown = calculateBid(losingJob());
+  assert.ok(withTakedown.hoursTakedownTravel > 0);
+  assert.ok(Math.abs(withTakedown.hoursTakedownTravel - withTakedown.hoursTravel) < 1e-9);
+  assert.ok(withTakedown.takedownTravelInvoice > 0);
+  assert.ok(Math.abs(withTakedown.takedownTravelInvoice - withTakedown.travelInvoice) < 1e-9);
+
+  const manualTotalHours = withTakedown.hoursTravel + withTakedown.hoursTakedownTravel
+    + withTakedown.hoursHang + withTakedown.hoursType + withTakedown.hoursAccess
+    + withTakedown.hoursAccessPremium + withTakedown.hoursPeaks + withTakedown.hoursTrees
+    + withTakedown.hoursBushes + withTakedown.hoursColumns + withTakedown.hoursSteep
+    + withTakedown.hoursTimer + withTakedown.hoursTakedown + withTakedown.siteHours;
+  assert.ok(Math.abs(withTakedown.totalHours - manualTotalHours) < 1e-9);
+
+  const fullService = calculateBid({
+    ...losingJob(),
+    scope: 'full-service',
+    ...suggestedScopeKit('full-service'),
+  });
+  assert.ok(fullService.hoursTakedownTravel > 0);
+  assert.ok(fullService.takedownTravelInvoice > 0);
+});
+
 test('a two-story hang-and-takedown is a different job than the cheap special', () => {
   const cheap = calculateBid(special());
   const heavy = calculateBid(losingJob());

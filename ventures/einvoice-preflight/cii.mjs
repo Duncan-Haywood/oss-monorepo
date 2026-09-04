@@ -153,7 +153,21 @@ function paymentFrom(settlement) {
   if (meansCode) payment.means = meansCode;
   const remittance = textOf(settlement, "PaymentReference");
   if (remittance) payment.remittance = remittance;
+  const termsDays = paymentTermsDays(settlement);
+  if (termsDays) payment.terms_days = termsDays;
   return Object.keys(payment).length ? payment : null;
+}
+
+function paymentTermsDays(settlement) {
+  const terms = firstChild(settlement, "SpecifiedTradePaymentTerms");
+  if (!terms) return "";
+  const period = firstChild(terms, "SpecifiedPeriod") || terms;
+  for (const measure of descendants(period, "DurationMeasure")) {
+    const unit = ((measure.attrs && measure.attrs.unitCode) || "").trim().toUpperCase();
+    const value = measure.text.trim();
+    if (value && (unit === "DAY" || unit === "D")) return value;
+  }
+  return "";
 }
 
 export function parseCiiInvoice(source) {

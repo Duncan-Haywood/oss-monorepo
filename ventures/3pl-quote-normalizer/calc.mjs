@@ -28,7 +28,16 @@ export function calculate(input, includeSensitivity = true, includeBreakEven = t
   const breakEven = includeBreakEven
     ? estimateBreakEven(input, inHouseRate)
     : { orders: inHouseRate ? quote.total / inHouseRate : 0, found: Boolean(inHouseRate) };
-  const result = { orders, unitsPerOrder: units, quote, inHouse, delta, perOrder, breakEvenOrders: breakEven.orders, breakEvenFound: breakEven.found, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  // Orders/month where the volume-driven line items alone (receiving, pick/pack,
+  // packaging, shipping, returns — everything that scales with orders) reach the
+  // minimum monthly commitment, holding storage and the fixed fee constant. Below
+  // this volume the minimum is what's actually setting the bill, not your order
+  // count, so it's the number to bring into a minimum-spend negotiation.
+  const minimumMonthly = n(input.minimumMonthly, 0);
+  const orderVariableCost = orders ? (quote.receiving + quote.pickPack + quote.packaging + quote.shipping + quote.returns) / orders : 0;
+  const nonOrderCost = quote.storage + quote.fixed;
+  const minimumOrders = minimumMonthly && orderVariableCost ? Math.max(0, (minimumMonthly - nonOrderCost) / orderVariableCost) : 0;
+  const result = { orders, unitsPerOrder: units, quote, inHouse, delta, perOrder, breakEvenOrders: breakEven.orders, breakEvenFound: breakEven.found, minimumOrders, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
   if (includeSensitivity) result.sensitivity = volumeSensitivity(input);
   return result;
 }
@@ -674,12 +683,12 @@ export function returnDispositionSummary(input = {}) {
       ? `Restock already beats customer-keeps. It first wins once unit cost is ${money(comparison.restockBeatsKeepAt)} at this restockable rate.`
       : `Restock beats customer-keeps once unit cost reaches ${money(comparison.restockBeatsKeepAt)} at this restockable rate.`;
   const flipLine = restockableFlip.kind === "holds"
-    ? `${restockableFlip.path === "keep" ? "Customer-keeps" : restockableFlip.path === "restock" ? "Restock" : "Destroy"} stays cheapest through ${restockableFlip.at}% restockable.`
+    ? `${restockableFlip.path === "keep" ? "Customer-keeps" : restockableFlip.path === "restock" ? "Restock" : restockableFlip.path === "tie" ? "A tie" : "Destroy"} stays cheapest through ${restockableFlip.at}% restockable.`
     : restockableFlip.kind === "flips"
       ? `Cheapest path flips from ${restockableFlip.from} to ${restockableFlip.to} at ${restockableFlip.at}% restockable.`
       : "No restockable-rate sweep.";
   const unitFlipLine = unitCostFlip.kind === "holds"
-    ? `${unitCostFlip.path === "keep" ? "Customer-keeps" : unitCostFlip.path === "restock" ? "Restock" : "Destroy"} stays cheapest through ${money(unitCostFlip.at)} unit cost.`
+    ? `${unitCostFlip.path === "keep" ? "Customer-keeps" : unitCostFlip.path === "restock" ? "Restock" : unitCostFlip.path === "tie" ? "A tie" : "Destroy"} stays cheapest through ${money(unitCostFlip.at)} unit cost.`
     : unitCostFlip.kind === "flips"
       ? `Cheapest path flips from ${unitCostFlip.from} to ${unitCostFlip.to} at ${money(unitCostFlip.at)} unit cost.`
       : "No unit-cost sweep.";
@@ -896,20 +905,21 @@ export function kittingSummary(input = {}) {
   ].join("\n");
 }
 
+const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [
     `Monthly volume: ${result.orders} orders`,
     `Largest normalized cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
-    ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
+    ...result.components.map((component) => `${componentLabels[component] || component}: ${money(result.quote[component])}`),
     `Subtotal before minimum: ${money(result.quote.subtotal)}`,
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
     `Total estimated 3PL cost: ${money(result.quote.total)}`,
     `True cost per order: ${money(result.perOrder)}`,
+    ...(result.minimumOrders > 0 ? [`Orders needed to clear the minimum on volume alone: ${Math.ceil(result.minimumOrders)} orders/month`] : []),
   ];
 }
-
-const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
 
 export function largestCostDriver(result) {
   const component = result.components.reduce((largest, current) =>
@@ -948,6 +958,7 @@ export function summary(result) {
     `True 3PL cost per order: ${money(result.perOrder)}`,
     `Largest cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
     `Break-even volume: about ${Math.ceil(result.breakEvenOrders)} orders/month`,
+    ...(result.minimumOrders > 0 ? [`Orders needed to clear the minimum on volume alone: ${Math.ceil(result.minimumOrders)} orders/month`] : []),
     "",
     "Line items",
     `Receiving: ${money(result.quote.receiving)}`,

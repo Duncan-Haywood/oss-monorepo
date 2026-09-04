@@ -15,6 +15,7 @@ on:
 permissions:
   contents: read
 
+# A second push to the same branch makes the first run irrelevant.
 concurrency:
   group: quote-margin-check-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -25,7 +26,8 @@ defaults:
 
 jobs:
   cli-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -34,13 +36,33 @@ jobs:
       - run: python3 -m compileall -q src tests
       - run: python3 -m unittest discover -s tests -v
 
+  lint:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.15.8
+      - run: ruff check .
+
   site-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ventures/quote-margin-check/site
     steps:
       - uses: actions/checkout@v4
+      # parity.test.mjs shells out to the real CLI and requires byte-identical
+      # JSON, so this job needs both runtimes -- pinned to the same version
+      # cli-test uses, so the two jobs can never disagree about what "the CLI"
+      # is. Without this the parity test would silently run against whatever
+      # python3 the runner image happens to ship.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

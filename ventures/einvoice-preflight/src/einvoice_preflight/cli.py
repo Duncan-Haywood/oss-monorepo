@@ -17,6 +17,12 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
+from .facturx import (
+    EmbeddedInvoiceError,
+    envelope_note,
+    extract_embedded_invoice,
+    looks_like_pdf,
+)
 from .formats import DocumentError, detect_syntax, parse_cii_invoice
 from .ubl import parse_ubl_invoice
 
@@ -228,6 +234,33 @@ def _positive_int(value: str) -> int:
     return parsed
 
 
+def _collect_invoice_paths(root: Path, max_depth: int | None) -> list[Path]:
+    """List JSON/XML/PDF invoices under root without following directory links.
+
+    ``--max-depth`` matches ``find -maxdepth``: 1 is files in the scan root,
+    2 includes one subdirectory, and so on. Deeper directories are not walked
+    so a nested export dump cannot expand a CI job.
+    """
+    paths: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        current = Path(dirpath)
+        try:
+            relative_dir = current.relative_to(root)
+        except ValueError:
+            dirnames.clear()
+            continue
+        depth = 0 if relative_dir == Path(".") else len(relative_dir.parts)
+        if max_depth is not None and depth + 1 >= max_depth:
+            dirnames.clear()
+        for name in filenames:
+            path = current / name
+            if path.suffix.lower() not in {".json", ".xml", ".pdf"}:
+                continue
+            if path.is_symlink() or path.is_file():
+                paths.append(path)
+    return sorted(paths)
+
+
 def _read_limited(stream: Any, limit: int | None) -> bytes:
     """Read at most one byte beyond a configured input limit."""
     raw = stream.read() if limit is None else stream.read(limit + 1)
@@ -338,6 +371,7 @@ def _jsonl_report(
 def _summary_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
+    envelopes: dict[str, str] | None = None,
 ) -> str:
     """Build a compact, privacy-safe batch summary for CI logs."""
     findings = [error for _, errors in reports for error in errors]
@@ -354,6 +388,8 @@ def _summary_report(
     ]
     if rule_counts:
         lines.append("Rules: " + ", ".join(f"{rule}={count}" for rule, count in sorted(rule_counts.items())))
+    for path, note in (envelopes or {}).items():
+        lines.append(f"{path}: {note}")
     return "\n".join(lines) + "\n"
 
 
@@ -390,6 +426,43 @@ def _remediation_report(
         "items": items,
         "read_errors": read_errors,
     }
+
+
+def _remediation_csv_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build one spreadsheet row per rule across the batch for triage queues."""
+    grouped: dict[str, dict[str, str | int]] = {}
+    for _, findings in reports:
+        for finding in findings:
+            detail = grouped.setdefault(
+                finding["rule"],
+                {
+                    "rule": finding["rule"],
+                    "occurrences": 0,
+                    "message": finding["message"],
+                    "fix": finding["fix"],
+                },
+            )
+            detail["occurrences"] = int(detail["occurrences"]) + 1
+    rows = [grouped[rule] for rule in sorted(grouped)]
+    if read_errors:
+        rows.append({
+            "rule": "INV-READ",
+            "occurrences": len(read_errors),
+            "message": "Invoice could not be read.",
+            "fix": "Resolve the read error and run the preflight again.",
+        })
+    output = io.StringIO()
+    writer = csv.DictWriter(
+        output,
+        fieldnames=("rule", "occurrences", "message", "fix"),
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    writer.writerows(rows)
+    return output.getvalue()
 
 
 def _checklist_report(
@@ -608,10 +681,10 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, or UN/CEFACT CII e-invoice before submission. No tax advice or submission.")
+    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, UN/CEFACT CII, or Factur-X PDF e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
-    parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("invoice", type=Path, help="JSON/XML/PDF file, directory of those files, or '-' for stdin")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "remediation-csv", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -624,6 +697,11 @@ def main(argv: list[str] | None = None) -> int:
         type=_positive_int,
         help="refuse an input invoice larger than this many bytes",
     )
+    parser.add_argument(
+        "--max-depth",
+        type=_positive_int,
+        help="refuse to walk more than this many path components below a directory (1 is the scan root only)",
+    )
     args = parser.parse_args(argv)
     if args.usage_file:
         # Count attempted invocations separately from successfully parsed files.
@@ -631,6 +709,7 @@ def main(argv: list[str] | None = None) -> int:
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
+    envelopes: dict[str, str] = {}
     if str(args.invoice) == "-":
         stdin = getattr(sys.stdin, "buffer", sys.stdin)
         try:
@@ -641,20 +720,17 @@ def main(argv: list[str] | None = None) -> int:
         sources = [] if source is None else [(Path("stdin.json"), source)]
     elif args.invoice.is_dir():
         # Keep a directory scan inside its selected root instead of following
-        # symlinks into an unrelated location.
-        paths = sorted(
-            path for pattern in ("*.json", "*.xml")
-            for path in args.invoice.rglob(pattern)
-            if path.is_file() or path.is_symlink()
-        )
+        # symlinks into an unrelated location, and stop descending when
+        # --max-depth is set so a nested dump cannot expand the walk.
+        paths = _collect_invoice_paths(args.invoice, args.max_depth)
         if not paths:
-            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON or XML invoices found."})
+            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON, XML, or PDF invoices found."})
             sources = []
         elif args.max_files is not None and len(paths) > args.max_files:
             read_errors.append({
                 "file": args.invoice.as_posix(),
                 "error": (
-                    f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
+                    f"Directory contains {len(paths)} JSON/XML/PDF invoices, exceeding "
                     f"--max-files {args.max_files}. Refusing to scan."
                 ),
             })
@@ -680,7 +756,14 @@ def main(argv: list[str] | None = None) -> int:
         report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
             raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
-            is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
+            if looks_like_pdf(raw):
+                raw, label = extract_embedded_invoice(raw)
+                try:
+                    syntax = detect_syntax(raw)
+                except DocumentError:
+                    syntax = "ubl"
+                envelopes[report_path.as_posix()] = envelope_note(label, syntax)
+            is_xml = report_path.suffix.lower() in {".xml", ".pdf"} or raw.lstrip().startswith(b"<")
             if is_xml:
                 try:
                     syntax = detect_syntax(raw)
@@ -689,7 +772,7 @@ def main(argv: list[str] | None = None) -> int:
                 invoice = parse_cii_invoice(raw) if syntax == "cii" else parse_ubl_invoice(raw)
             else:
                 invoice = json.loads(raw)
-        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError) as exc:
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError, EmbeddedInvoiceError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))
@@ -706,11 +789,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         report = json.dumps(_json_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "summary":
-        report = _summary_report(reports, read_errors)
+        report = _summary_report(reports, read_errors, envelopes)
     elif args.format == "jsonl":
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":
         report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "remediation-csv":
+        report = _remediation_csv_report(reports, read_errors)
     elif args.format == "checklist":
         report = _checklist_report(reports, read_errors)
     elif args.format == "markdown":

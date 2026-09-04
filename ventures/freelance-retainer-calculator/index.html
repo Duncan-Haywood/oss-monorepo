@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Freelance Retainer Pricing Calculator — Retainer vs Hourly at Real Usage</title>
+  <title>Freelance Retainer Calculator — Retainer vs Hourly</title>
   <meta name="description" content="Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your browser.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Freelance Retainer Pricing Calculator">
@@ -12,7 +12,7 @@
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="stylesheet" href="style.css">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freelance Retainer Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator that prices a freelance retainer and compares it to hourly billing at 50%, 75%, 100%, and 125% usage."}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge a monthly retainer or bill hourly?","acceptedAnswer":{"@type":"Answer","text":"A retainer usually pays you more when the client uses less than the included hours, and less when they use more than the break-even hours without billed overage. This calculator prices the retainer from your capacity, then shows both sides at 50%, 75%, 100%, and 125% of the block."}},{"@type":"Question","name":"When does a retainer drop below my hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Divide the monthly retainer by your hourly floor. That is the unpaid-overage break-even. On the default plan a $1,725 / 20-hour retainer covers a $75 floor up to 23 hours; a 25-hour month with no overage lands at $69/hr."}},{"@type":"Question","name":"Should unused retainer hours roll over?","acceptedAnswer":{"@type":"Answer","text":"Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr."}},{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float the monthly revenue target for the days until first cash. Invoicing at month-end plus Net 30 is about 60 days. If you cannot float that amount from savings or other clients, require prepaid or 50% on kickoff."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I charge a monthly retainer or bill hourly?","acceptedAnswer":{"@type":"Answer","text":"A retainer usually pays you more when the client uses less than the included hours, and less when they use more than the break-even hours without billed overage. This calculator prices the retainer from your capacity, then shows both sides at 50%, 75%, 100%, and 125% of the block."}},{"@type":"Question","name":"When does a retainer drop below my hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Divide the monthly retainer by your hourly floor. That is the unpaid-overage break-even. On the default plan a $1,725 / 20-hour retainer covers a $75 floor up to 23 hours; a 25-hour month with no overage lands at $69/hr."}},{"@type":"Question","name":"How many hours should a monthly retainer include?","acceptedAnswer":{"@type":"Answer","text":"Include only hours you can deliver inside your billable capacity, and avoid selling more than half of that capacity to one client. Compare 10, 15, 20, 25, and 30 hour packages against the same income goal so you can quote a range instead of one number."}},{"@type":"Question","name":"Should unused retainer hours roll over?","acceptedAnswer":{"@type":"Answer","text":"Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr."}},{"@type":"Question","name":"Should I accept Net 30 on a freelance retainer?","acceptedAnswer":{"@type":"Answer","text":"Only if you can float the monthly revenue target for the days until first cash. Invoicing at month-end plus Net 30 is about 60 days. If you cannot float that amount from savings or other clients, require prepaid or 50% on kickoff."}}]}</script>
 </head>
 <body>
   <main class="shell">
@@ -133,24 +133,59 @@
        <span id="copyStatus" role="status"></span>
       </section>
     </section>
+    <section id="scenarios" class="card scenarios" aria-live="polite" hidden>
+      <h2>Compare retainer sizes</h2>
+      <p class="note">Same income goal and capacity. Use a smaller package if the hours you typed will not fit this month.</p>
+      <div class="table-wrap">
+        <table class="usage-table">
+          <caption>Monthly price and leftover capacity for common retainer sizes</caption>
+          <thead>
+            <tr>
+              <th scope="col">Included hours</th>
+              <th scope="col">Monthly price</th>
+              <th scope="col">Effective rate</th>
+              <th scope="col">Capacity left</th>
+              <th scope="col">Share of capacity</th>
+              <th scope="col"><span class="visually-hidden">Choose package</span></th>
+            </tr>
+          </thead>
+          <tbody id="scenarioRows"></tbody>
+        </table>
+      </div>
+      <p id="scenarioInsight" class="note"></p>
+    </section>
     <section class="copy card">
       <h2>Why this is different from a basic hourly-rate calculator</h2>
       <p>A $75 rate means little if only 65% of your month is billable, your tools and taxes cost $1,800, and a vague retainer absorbs unplanned revisions. This calculator makes each assumption visible so you can change it before making a promise.</p>
       <h2>Common question: this clears my floor — so why am I still short?</h2>
       <p>Because the floor rate is your revenue target divided by your <em>whole</em> billable capacity: it is the rate that works if every one of those hours sells. On the default plan the $1,725 retainer clears a $75/hr floor and is still only 22% of a $7,800 target — the rest rides on 84 hours nobody has bought yet, at a fill rate of 96.4%. Enter what you already have committed and the share of the rest you honestly expect to bill, and the goal check above prices that assumption instead of hiding it. <a href="will-this-retainer-hit-my-income-goal.html">Why clearing your floor is not reaching your goal</a> works through the numbers.</p>
       <h2>Common question: how many hours should a retainer include?</h2>
-      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
+      <p>Start with a scope you can deliver inside your billable capacity, then leave the buffer intact. A retainer is a commitment of access and work, not permission for unlimited requests. Compare 10, 15, 20, 25, and 30 hour packages on this page, or read the longer answer in <a href="how-many-retainer-hours.html">how many hours a retainer should include</a>. Put included hours, response time, and out-of-scope pricing in your agreement.</p>
       <h2>Common question: should I sell a retainer or stay hourly?</h2>
       <p>Price the block first, then look at real usage. If they typically use half the hours, the retainer collects unused-hour cash — and often does not renew. If they can blow past the included hours without billed overage, your effective rate falls below the floor. <a href="retainer-vs-hourly.html">Retainer vs hourly at real usage</a> walks through the default numbers.</p>
       <h2>Common question: should unused hours roll over?</h2>
       <p>A leftover hour that rolls into next month is work you deliver without a second invoice. On the default 20-hour block, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 below the floor. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr. <a href="unused-hour-rollover.html">See expire vs cap vs unlimited rollover</a>.</p>
       <h2>Common question: should I accept Net 30?</h2>
       <p>A monthly price is not cash in the bank. Invoicing at month-end plus Net 30 means about 60 days before the first payment. If you cannot float that month of take-home and costs from savings or other clients, ask for prepaid. <a href="retainer-payment-terms.html">See how payment terms change the cash you float</a>.</p>
+      <h2>Common question: should I use this or a paid tool like Bonsai?</h2>
+      <p>Different jobs. Bonsai is a paid subscription for running a freelance business end to end — proposals, contracts, invoicing, and time tracking. This calculator answers the narrower question that comes first: what the retainer price should actually be, checked against your hourly floor. <a href="vs-bonsai.html">See this calculator vs. Bonsai</a>.</p>
     </section>
+  <h2>Common questions</h2>
+  <h3>Should I charge a monthly retainer or bill hourly?</h3>
+  <p>A retainer usually pays you more when the client uses less than the included hours, and less when they use more than the break-even hours without billed overage. This calculator prices the retainer from your capacity, then shows both sides at 50%, 75%, 100%, and 125% of the block.</p>
+  <h3>When does a retainer drop below my hourly rate?</h3>
+  <p>Divide the monthly retainer by your hourly floor. That is the unpaid-overage break-even. On the default plan a $1,725 / 20-hour retainer covers a $75 floor up to 23 hours; a 25-hour month with no overage lands at $69/hr.</p>
+  <h3>How many hours should a monthly retainer include?</h3>
+  <p>Include only hours you can deliver inside your billable capacity, and avoid selling more than half of that capacity to one client. Compare 10, 15, 20, 25, and 30 hour packages against the same income goal so you can quote a range instead of one number.</p>
+  <h3>Should unused retainer hours roll over?</h3>
+  <p>Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr.</p>
+  <h3>Should I accept Net 30 on a freelance retainer?</h3>
+  <p>Only if you can float the monthly revenue target for the days until first cash. Invoicing at month-end plus Net 30 is about 60 days. If you cannot float that amount from savings or other clients, require prepaid or 50% on kickoff.</p>
+
     <footer>
       <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
-      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. A shareable link stores only the planning fields in the URL hash on the recipient's device. We count only anonymous feature events in this browser (<code>calculate</code>, <code>retainer_usage_compared</code>, <code>unused_hour_rollover_compared</code>, <code>payment-terms-float</code>, <code>share-link</code>, copy, download); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
-      <p>Free and open source. If it stopped you from signing an underpriced block, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. A shareable link stores only the planning fields in the URL hash on the recipient's device. We count only anonymous feature events in this browser (<code>calculate</code>, <code>retainer_usage_compared</code>, <code>unused_hour_rollover_compared</code>, <code>payment-terms-float</code>, <code>scenario_table_viewed</code>, <code>apply-scenario</code>, <code>share-link</code>, copy, download); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Free and open source. If it stopped you from signing an underpriced block, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
     </footer>
   </main>
   <script type="module" src="app.js"></script>

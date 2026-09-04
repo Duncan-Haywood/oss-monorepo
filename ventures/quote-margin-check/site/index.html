@@ -11,6 +11,7 @@
 <meta property="og:title" content="Quote Margin Check — free effective hourly rate calculator" />
 <meta property="og:description" content="See your real effective hourly rate before you send a quote. Free, private, and runs entirely in your browser — no signup." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="." />
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -362,6 +363,7 @@
     <div class="actions">
       <button type="button" id="clear-draft">Reset to example</button>
       <button type="button" id="copy-summary">Copy review summary</button>
+      <button type="button" id="download-summary">Download review summary</button>
       <button type="button" id="copy-markdown">Copy review as Markdown</button>
       <button type="button" id="download-markdown">Download review</button>
       <button type="button" id="copy-csv">Copy as CSV</button>
@@ -396,9 +398,17 @@
     <p>
       It does not recommend a price, does not provide tax or financial
       advice, and does not claim a quote is profitable. The
-      <strong>gap to target price</strong> and <strong>after direct
-      costs</strong> figures are arithmetic comparisons only — you decide
-      what costs and target rate are appropriate for the job.
+      <strong>gap to target price</strong>, <strong>after direct
+      costs</strong>, and <strong>fixed vs hourly</strong> figures are
+      arithmetic comparisons only — you decide what costs, target rate,
+      and billing model are appropriate for the job.
+    </p>
+    <p>
+      The fixed-vs-hourly table answers the pre-send fork that the overrun
+      rows alone cannot: if this work slips, does the extra time come out
+      of your rate, or does the client pay it? Planned hours are included
+      so you can see whether the fixed quote is already a discount versus
+      hourly at your target, before any overrun.
     </p>
     <p>
       It also shows what happens if overhead and subcontractor costs rise
@@ -437,16 +447,30 @@
       walks the hours, direct costs, leftover rate, and target price.
     </p>
     <p>
-      Copy a plain-text review summary for an email or proposal note, or
+      Copy or download a plain-text review summary for an email or proposal note, or
       copy or download the current review as a spreadsheet-safe CSV. Currency
       labels with commas or quotes stay in one cell, and the file includes
       the time-overrun, cost-rise, discount-ask, fixed-vs-hourly, and kill-fee rows shown
       above. Prefer the command line, or need to batch several quotes?
       The same logic ships as a
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">Python CLI</a>
+      Python CLI (in this repository)
       that reads/writes JSON, Markdown, and CSV.
     </p>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How do I calculate my effective hourly rate on a fixed-price quote?</h3>
+  <p>Add up every hour the project will actually take you — delivery work, admin, and revisions — then subtract any direct costs (overhead, subcontractors) from the price, and divide what's left by the total hours. That is your effective hourly rate: what you're really being paid per hour once every task is counted, not just the billable delivery hours.</p>
+  <h3>Why does a quote that looks profitable still underpay me?</h3>
+  <p>Fixed-price quotes usually price only the visible delivery work. Admin time (calls, invoicing, project management), revision rounds, and subcontractor or tool costs quietly eat into the same fixed price, so the effective hourly rate ends up well below the rate you meant to charge.</p>
+  <h3>What if materials or a subcontractor quote go up after I send a fixed price?</h3>
+  <p>Keep the quoted price and hours fixed and raise only overhead plus subcontractor cost. The calculator shows the new effective hourly rate and the price that would still hit your target rate at +10%, +25%, and +50%. That is arithmetic on your inputs, not a forecast of supplier prices.</p>
+  <h3>What if the client asks for 10% off a fixed-price quote?</h3>
+  <p>Keep hours and direct costs fixed and lower only the quoted price. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), 10% off is $2,160 and $48.00/hour. Holding $75/hour would take cutting 12.60 hours of scope. That is arithmetic on your inputs, not a negotiation script.</p>
+  <h3>Should I send a fixed-price quote or bill hourly?</h3>
+  <p>Compare the same hours and direct costs both ways. A fixed quote stays the same if the work runs long; hourly bills those hours at your target rate plus the same costs. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), hourly at planned hours would bill $3,105 — $705 more than the fixed quote. That is arithmetic on your inputs, not a recommendation of which to send.</p>
+  <h3>Should I take a kill fee or finish the remaining hours?</h3>
+  <p>Compare cash kept if you finish, cash kept if you take the kill fee, and cash kept if you walk with only what is already paid. On the calculator example ($2,400, 35 hours, $480 of costs, 14 hours already spent, $1,200 already paid, $360 kill fee, $180 sunk), finishing keeps $1,920.00 — $540.00 more cash than the kill fee. Booking the 21 freed hours at $75/hour would make the kill fee $1,035.00 ahead. That is arithmetic on your inputs, not advice to cancel or finish.</p>
 
   <footer>
     <h2>Disclaimer</h2>
@@ -482,16 +506,14 @@
 
     <p>
       MIT licensed — see
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects/blob/main/ventures/quote-margin-check/LICENSE">LICENSE</a>.
-      Source and CLI on
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects/tree/main/ventures/quote-margin-check">GitHub</a>.
+      <a href="LICENSE">LICENSE</a>.
       <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> if this saved you from an underpriced quote — entirely optional, the tool stays free either way.
     </p>
   </footer>
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, decodePanels, QUOTE_PRESETS } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -517,6 +539,10 @@
       recordEvent(event);
       if (event !== "report_generated") return;
       recordEvent("quote_review_checked");
+      // The overrun table was the one scenario panel on this page with no
+      // signal of its own, so nothing said whether the time-overrun view was
+      // read at all — the question portfolio/usage/ exists to answer.
+      recordEvent("overrun_sensitivity_compared");
       recordEvent("cost_spike_compared");
       recordEvent("discount_ask_compared");
       recordEvent("billing_model_compared");
@@ -555,6 +581,49 @@
   const historyStatus = document.getElementById("history-status");
 
   let lastReport = null;
+
+  /**
+   * The panel inputs, by the id a link names them under.
+   *
+   * `extra-hours` and `extra-direct-costs` are kebab-case and live in their own
+   * consts above; the four kill-fee ids are snake_case and live in `el`. The
+   * link spells each exactly as the input is spelled, so nothing has to
+   * translate between the two conventions.
+   */
+  function readPanels() {
+    const panels = {};
+    const sources = {
+      "extra-hours": extraHours,
+      "extra-direct-costs": extraDirectCosts,
+      hours_done: el.hours_done,
+      already_paid: el.already_paid,
+      kill_fee: el.kill_fee,
+      sunk_costs: el.sunk_costs,
+    };
+    for (const [field, input] of Object.entries(sources)) {
+      if (!input) continue;
+      const value = Number(input.value);
+      if (input.value === "" || !Number.isFinite(value) || value < 0) continue;
+      panels[field] = value;
+    }
+    return panels;
+  }
+
+  /** Writes decoded panel values back into their inputs. Absent fields keep the page's defaults. */
+  function writePanels(panels) {
+    const targets = {
+      "extra-hours": extraHours,
+      "extra-direct-costs": extraDirectCosts,
+      hours_done: el.hours_done,
+      already_paid: el.already_paid,
+      kill_fee: el.kill_fee,
+      sunk_costs: el.sunk_costs,
+    };
+    for (const [field, input] of Object.entries(targets)) {
+      if (!input || panels[field] === undefined) continue;
+      input.value = String(panels[field]);
+    }
+  }
 
   function readInputs() {
     return {
@@ -605,7 +674,7 @@
            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
-           <dt>Hours supported at target rate</dt><dd class="${r.hours_cushion < 0 ? "warning" : ""}">${fmt(r.target_rate_hours)} hours (${fmt(Math.abs(r.hours_cushion))} ${r.hours_cushion >= 0 ? "remaining" : "over"})</dd>
+           <dt>Hours supported at target rate</dt><dd class="${r.hours_cushion < 0 ? "warning" : ""}">${r.cost_coverage <= 0 ? `none — direct costs leave nothing to pay for time` : `${fmt(r.target_rate_hours)} hours (${fmt(Math.abs(r.hours_cushion))} ${r.hours_cushion >= 0 ? "remaining" : "over"})`}</dd>
            <dt>Maximum discount before target</dt><dd>${safeCurrency} ${fmt(r.discount_room)}</dd>
            <dt>Minimum increase to reach target</dt><dd>${safeCurrency} ${fmt(r.minimum_price_adjustment)}</dd>
         </dl>
@@ -680,6 +749,7 @@
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
        decision.hidden = true;
+       sensitivity.querySelector("tbody").innerHTML = "";
        if (ladder) ladder.querySelector("tbody").innerHTML = "";
        costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
        costSpike.querySelector("tbody").innerHTML = "";
@@ -723,6 +793,10 @@
     const sharedQuote = decodeQuote(window.location.hash) ?? decodeQuote(window.location.search);
     if (sharedQuote) {
       writeInputs(sharedQuote);
+      // Read from whichever of the two the quote came out of, so a link that
+      // predates the panel fields simply restores none of them.
+      writePanels(decodePanels(
+        decodeQuote(window.location.hash) ? window.location.hash : window.location.search));
       if (preset) preset.value = "custom";
       dismissExampleNote();
     } else {
@@ -862,6 +936,29 @@
   const copyStatus = document.getElementById("copy-status");
   const discountCopyBtn = document.getElementById("copy-discounts");
   const discountCopyStatus = document.getElementById("discount-copy-status");
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
   discountCopyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       discountCopyStatus.textContent = "Fix the inputs above first.";
@@ -879,7 +976,7 @@
       ].map((value) => Number.isFinite(Number(value)) && value !== "" ? Number(value).toFixed(2) : String(value)).join(",")),
     ].join("\n");
     try {
-      await navigator.clipboard.writeText(rows + "\n");
+      await copyText(rows + "\n");
       discountCopyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("discount_ladder_copied");
     } catch {
@@ -892,14 +989,30 @@
       return;
     }
     const { quote, r } = lastReport;
-    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r));
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote), { overrunRows: overrunScenarios(quote, r) });
     try {
-      await navigator.clipboard.writeText(summary);
+      await copyText(summary);
       copyStatus.textContent = "Copied — paste into an email or proposal note.";
       recordEvent("review_summary_copied");
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+  document.getElementById("download-summary").addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote), { overrunRows: overrunScenarios(quote, r) });
+    const blob = new Blob([summary + "\n"], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.txt.";
+    recordEvent("review_summary_downloaded");
   });
   function currentMarkdown() {
     const { quote, r } = lastReport;
@@ -913,7 +1026,7 @@
       return;
     }
     try {
-      await navigator.clipboard.writeText(currentMarkdown());
+      await copyText(currentMarkdown());
       copyStatus.textContent = "Copied Markdown review.";
       recordEvent("markdown_copied");
     } catch {
@@ -943,7 +1056,10 @@
     // Keep quote figures in the fragment so browsers do not send them in a
     // referrer header when a collaborator opens the link.
     url.search = "";
-    url.hash = encodeQuote(lastReport.quote);
+    // The scope-creep and kill-fee panels ride along with the quote. Read from
+    // the inputs rather than from `lastReport`, which holds only the `Quote`
+    // model those panels are deliberately not part of. See `PANEL_FIELDS`.
+    url.hash = encodeQuote(lastReport.quote, readPanels());
     try {
       await navigator.clipboard.writeText(url.href);
       copyStatus.textContent = "Share link copied — quote figures stay in the private URL fragment.";
@@ -958,7 +1074,7 @@
       return;
     }
     try {
-      await navigator.clipboard.writeText(currentCsv());
+      await copyText(currentCsv());
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("csv_copied");
     } catch {

@@ -49,6 +49,20 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+  assert.match(scriptSource, /encodeShare/, 'share-link encoder is missing from the executable script');
+  assert.match(scriptSource, /decodeShare/, 'share-link decoder is missing from the executable script');
+});
+
+// The deposit percentage and how long the price is held are proposal terms,
+// not bid inputs -- share.mjs's SHARE_FIELDS deliberately excludes them (see
+// the "carries no customer or business details" test below). Without this
+// wiring a copied link silently reopened the venture's defaults for both, so
+// a shared bid's headline price matched to the cent while the deposit amount
+// on the printed proposal did not. See proposal-terms.mjs.
+test('the deposit and price-hold terms travel with a shared link', () => {
+  assert.match(scriptSource, /from '\.\/proposal-terms\.mjs'/, 'proposal-terms.mjs is not imported');
+  assert.match(scriptSource, /withTerms\(encodeShare\(readInput\(\)\), terms\)/, 'copyShare does not fold the terms into the link it copies');
+  assert.match(scriptSource, /applyTerms\(decodeTerms\(incoming\.terms\), el\)/, 'a link opened on load does not restore the deposit and price-hold terms');
 });
 
 test('every element the script reaches for exists in the markup', () => {
@@ -65,7 +79,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'lengthFeet', 'widthFeet', 'patternId', 'useId', 'wastePct', 'baseDepthIn',
     'haulAway', 'hourlyWage', 'targetMargin', 'proposedPrice', 'price',
-    'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'breakEven', 'copySummary', 'copyShare', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -92,4 +106,64 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /pattern waste/i);
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
+});
+
+const proposalMarkup = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const proposalIds = new Set([...proposalMarkup.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
+const proposalScript = /<script type="module">([\s\S]*)<\/script>/.exec(proposalMarkup)[1];
+
+test('the customer-facing proposal has every field and control it needs', () => {
+  for (const id of [
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'clientName', 'clientAddress', 'depositPercent', 'validDays',
+    'proposalScope', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
+    'printProposal', 'forgetCompany', 'proposalStatus', 'proposalDoc',
+  ]) {
+    assert.ok(proposalIds.has(id), `missing #${id}`);
+  }
+  assert.match(proposalScript, /buildProposal/, 'the proposal builder is missing from the executable script');
+  assert.match(proposalScript, /renderProposalHtml/);
+  assert.match(proposalScript, /window\.print\(\)/, 'nothing actually sends the proposal to the printer');
+});
+
+test('printing sends the customer sheet and hides the contractor\u2019s own numbers', () => {
+  const print = /@media print\s*\{([\s\S]*?)\n    \}/.exec(proposalMarkup);
+  assert.ok(print, 'no print stylesheet; the browser would print the whole calculator');
+  // The cost breakdown, wages, and margin all live inside <main>. If <main>
+  // printed, the customer would receive the contractor's loaded labour rate.
+  assert.match(print[1], /main[^;{]*\{?[^}]*display:\s*none/i,
+    'the calculator UI is not excluded from the printed sheet');
+  assert.match(print[1], /\.pr-shell\s*\{[^}]*display:\s*block/i,
+    'the proposal is not shown on the printed sheet');
+});
+
+test('the proposal promises the customer\u2019s details are not stored', () => {
+  assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
+    'the privacy claim the module actually enforces should be stated on the page');
+});
+
+// The two features touch the same page from opposite directions: the share
+// link deliberately carries the contractor's own rates, and the proposal
+// deliberately carries the customer's name and address. Neither may pick up
+// the other's payload -- a share link that quietly included the homeowner's
+// address would be a third party's personal data pasted into a URL and
+// whatever chat app it gets sent through.
+test('a shared bid link carries no customer or business details', () => {
+  const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
+  const spec = /export const SHARE_FIELDS = Object\.freeze\(\[[\s\S]*?\]\);/.exec(share);
+  assert.ok(spec, 'SHARE_FIELDS not found; the share wiring changed shape');
+  for (const field of [
+    'clientName', 'clientAddress',
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'proposalScope', 'proposalNotes', 'proposalExclusions', 'paymentTerms',
+    'depositPercent', 'validDays',
+  ]) {
+    assert.doesNotMatch(spec[0], new RegExp(`\\b${field}\\b`),
+      `${field} would be written into the shareable link`);
+  }
+});
+
+test('a share link is offered and the privacy claim names it', () => {
+  assert.match(html, /Copy share link/);
+  assert.match(markup, /share link encodes only the quote fields/i);
 });

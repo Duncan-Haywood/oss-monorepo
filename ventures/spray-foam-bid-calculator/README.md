@@ -58,7 +58,9 @@ per square foot of sprayed plane, price per board foot, effective hourly
 billing rate, the foam share of direct cost, and the **walk-away price** —
 total cost, below which the job makes nothing. Entering a price already on
 the table scores it against the same cost base and says plainly whether it is
-under water. **Copy bid summary** turns the result into a plain-text draft
+under water. The same attic is also priced as open-cell, closed-cell, and
+hybrid so a coupon written for attic square feet cannot hide that those
+are three different board-foot jobs. **Copy bid summary** turns the result into a plain-text draft
 with wages omitted, ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
@@ -83,7 +85,7 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
-Events counted: `bid_calculated`, `preset_applied`, `proposed_price_compared`,
+Events counted: `bid_calculated`, `preset_applied`, `proposed_price_compared`, `cell_compared`,
 `summary_copied`.
 
 ## Limitations

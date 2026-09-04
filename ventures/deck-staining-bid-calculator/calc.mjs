@@ -316,7 +316,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Deck staining') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const prep = PREP_PRESETS.find((item) => item.id === result.prep)?.label ?? result.prep;
   const finish = FINISH_PRESETS.find((item) => item.id === result.finish)?.label ?? result.finish;
   const access = ACCESS_PRESETS.find((item) => item.id === result.access)?.label ?? result.access;

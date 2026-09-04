@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Public-Record Watch — free public register change checker</title>
+  <meta name="description" content="Free, no-signup, no-upload tool that compares two dated public-register snapshots (licenses, permits, registrations) in your browser and reports what changed. Runs entirely client-side." />
+  <meta property="og:title" content="Public-Record Watch" />
+  <meta property="og:description" content="Paste a before and after export of a public register. See what changed, with a dated, source-linked review record. Never leaves your browser." />
+  <link rel="stylesheet" href="style.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Public-Record Watch","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does this fetch the register for me?","acceptedAnswer":{"@type":"Answer","text":"No. This tool never makes a network request to a register. You supply both snapshots — however you exported them — and this only compares the two. That keeps it usable for registers with no public API, a login wall, or a rate limit a general fetcher could never respect."}},{"@type":"Question","name":"What counts as a valid snapshot?","acceptedAnswer":{"@type":"Answer","text":"A JSON object with authorized: true (you attest you're authorized to hold this export), a register name, a source_url the report links back to, and a records list where every record has a unique id. All other record fields are compared as-is."}},{"@type":"Question","name":"Why doesn't a removed record mean the person lost their license?","acceptedAnswer":{"@type":"Answer","text":"A record missing from the \"after\" export could mean the license lapsed, the export was incomplete, or the register reorganized its ids. This tool reports the observation only; the reviewer opens the source URL and confirms what actually happened before relying on it."}},{"@type":"Question","name":"Is my export uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Comparison happens with JavaScript running in your own browser tab. This page makes no network request with your pasted content — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a comparison was run\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same comparison logic ships as a local Python CLI (src/public_record_watch/cli.py) in this tool's repository, for scripted use. See the README for its usage."}}]}</script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Public-Record Watch</h1>
+      <p class="tagline">
+        Did a public license, permit, or registration record change?
+        Paste a dated <code>before</code> and <code>after</code> export of
+        the register and get a source-linked review record — entirely in
+        your browser.
+      </p>
+    </header>
+
+    <div id="drop-zone" class="drop-zone">
+      <p>Paste your two register exports as JSON (<code>authorized</code>, <code>register</code>, <code>source_url</code>, <code>records</code>):</p>
+      <div class="snapshot-grid">
+        <div class="snapshot-col">
+          <label for="before-paste">Before</label>
+          <textarea id="before-paste" rows="6" placeholder='{"authorized":true,"register":"state-license-board","source_url":"https://example.test/register","captured_at":"2026-08-24T12:00:00Z","records":[...]}' spellcheck="false"></textarea>
+        </div>
+        <div class="snapshot-col">
+          <label for="after-paste">After</label>
+          <textarea id="after-paste" rows="6" placeholder='{"authorized":true,"register":"state-license-board","source_url":"https://example.test/register","captured_at":"2026-08-25T12:00:00Z","records":[...]}' spellcheck="false"></textarea>
+        </div>
+      </div>
+      <button type="button" id="compare-button">Compare snapshots</button>
+    </div>
+
+    <p class="example-line">
+      Don't have exports handy?
+      <button type="button" id="load-example" class="link-button">Load a worked example</button>
+      — a small before/after pair with an added, removed, and changed
+      record, so you can see the report shape before using your own.
+    </p>
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <div id="results" class="results" aria-live="polite"></div>
+
+    <section class="disclaimer">
+      <h2>What this is and isn't</h2>
+      <ul>
+        <li>
+          Everything runs in <em>your</em> browser. The exports you paste
+          are never uploaded — there is no server here to send them to.
+        </li>
+        <li>
+          This tool never scrapes a register itself. You (or your own
+          export process) supply both dated, customer-authorized snapshots;
+          this only compares them.
+        </li>
+        <li>
+          It does not create personal profiles, rank people, decide
+          suitability, or claim that a person is compliant, safe, or
+          eligible — it reports <code>added</code>, <code>removed</code>,
+          and <code>changed</code> records only. That judgment is yours.
+        </li>
+        <li>
+          Every record's source URL is carried into the report so a
+          reviewer can open the original public record before acting.
+        </li>
+        <li>
+          Only anonymous, aggregate usage counts (for example "a comparison
+          was run") may be recorded locally — never register names, record
+          ids, or record fields.
+        </li>
+      </ul>
+    </section>
+
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>Does this fetch the register for me?</h3>
+      <p>No. This tool never makes a network request to a register. You supply both snapshots — however you exported them — and this only compares the two. That keeps it usable for registers with no public API, a login wall, or a rate limit a general fetcher could never respect.</p>
+      <h3>What counts as a valid snapshot?</h3>
+      <p>A JSON object with <code>authorized: true</code> (you attest you're authorized to hold this export), a <code>register</code> name, a <code>source_url</code> the report links back to, and a <code>records</code> list where every record has a unique <code>id</code>. All other record fields are compared as-is.</p>
+      <h3>Why doesn't a removed record mean the person lost their license?</h3>
+      <p>A record missing from the "after" export could mean the license lapsed, the export was incomplete, or the register reorganized its ids. This tool reports the observation only; the reviewer opens the source URL and confirms what actually happened before relying on it.</p>
+      <h3>Is my export uploaded anywhere?</h3>
+      <p>No. Comparison happens with JavaScript running in your own browser tab. This page makes no network request with your pasted content — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like "a comparison was run" may be recorded locally, with an opt-out below.</p>
+      <h3>Is there a command-line version?</h3>
+      <p>Yes — the same comparison logic ships as a local Python CLI (<code>src/public_record_watch/cli.py</code>) in this tool's repository, for scripted use. See the README for its usage.</p>
+    </section>
+
+    <p class="seo-link"><a href="./how-do-i-track-changes-to-a-public-register.html">How do I track changes to a public licence register?</a></p>
+    <footer class="footer">
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a report needs to survive, keep the Markdown or JSON you download.</p>
+      <p>Comparison runs in your browser. Your exports are never uploaded — there is no server to send them to. We count only anonymous local feature events, never people or record content, with an opt-out on this page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+      <p>
+        Part of the Free small-business calculators portfolio.
+      </p>
+    </footer>
+  </main>
+
+  <script src="evidence.js"></script>
+  <script src="usage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

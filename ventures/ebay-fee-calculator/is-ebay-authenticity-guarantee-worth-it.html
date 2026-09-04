@@ -59,7 +59,7 @@
     header { max-width: 740px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
-    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #386fd6; margin: 0 0 6px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -67,6 +67,10 @@
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -78,11 +82,20 @@
     th:first-child, td:first-child { text-align: left; }
     tr.best { font-weight: 700; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
-    footer a { color: #386fd6; }
+    footer a { color: #3569cb; }
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
 </head>
 <body>
   <header>
@@ -185,12 +198,20 @@
       on the main <a href="./">eBay fee calculator</a>.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Is eBay Authenticity Guarantee worth it?</h3>
+  <p>Authenticity Guarantee adds a typed fee and often an extra label to the hub. It usually raises sell-through and lowers authenticity-claim returns. On the calculator defaults ($40 item, $6 shipping, 13.25% final value fee, $12 cost, $5 outbound, 10% returns without AG, 3% authenticity fee, $8 extra hub shipping, 55% vs 80% sell-through, 4% AG return rate) skip-AG expects $10.09 and Authenticity expects $8.92. Extra hub shipping has to fall to about $6.54 before Authenticity matches. That is arithmetic on your inputs, not advice to enroll or skip.</p>
+  <h3>When does eBay Authenticity Guarantee beat skip-AG?</h3>
+  <p>When the extra hub label is prepaid or cheap, or when skip-AG authenticity claims are high. On the same defaults a $0 hub label flips Authenticity ahead by $5.23 per listing ($15.32 vs $10.09). A 25% without-AG return rate also flips Authenticity ahead even with the $8 label.</p>
+  <h3>Does the Authenticity Guarantee fee come back on a return?</h3>
+  <p>This page treats the authenticity fee like a percentage marketplace fee that comes back on a return. The extra hub label does not. Enter the rates from your last payout; this is not eBay’s live Authenticity Guarantee schedule.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it saved you from paying an $8 hub label that the sell-through lift could not cover, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free and open source. If it saved you from paying an $8 hub label that the sell-through lift could not cover, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
     import { compareAuthenticity, authenticityNote } from "./calc.mjs";

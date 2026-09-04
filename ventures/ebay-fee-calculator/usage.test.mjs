@@ -289,3 +289,19 @@ test('counts the return-rate view without storing a rate or cost', () => {
   assert.equal(stored.return_rate_viewed, 1);
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'return_rate_viewed']);
 });
+
+test('does not break the calculator when stored usage JSON is malformed', () => {
+  const storage = {
+    getItem: () => '{not-json',
+    setItem: () => {},
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false, 'order_profit_calculated'));
+});
+
+test('does not break the calculator when browser storage is unavailable', () => {
+  const storage = {
+    getItem: () => { throw new Error('storage blocked'); },
+    setItem: () => { throw new Error('storage blocked'); },
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false, 'order_profit_calculated'));
+});

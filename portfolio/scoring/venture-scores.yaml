@@ -48,6 +48,43 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: which-job-first
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is nothing here for a model to do. The value is a comparison sort
+      driven by the user's own judgement, and a generated opinion about which
+      job to take would be worth less than the arithmetic while costing per
+      run and inviting a liability the current disclaimer does not cover.
+    basis: >-
+      Graduated on 2026-09-03 into a gap the portfolio's 172 pricing tools
+      leave open: they price a job, none helps choose between jobs. The first
+      slice is a browser-local pairwise ranker for trades and freelancers with
+      more work available than capacity, with no account, network, or paid
+      dependency, published on the apex from its first commit.
+      Defensibility is low and honestly so -- the method is a merge sort with
+      a human comparator, which anyone can copy; what is not trivially copied
+      is being adjacent to a hundred bid calculators the same audience already
+      lands on.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The ranking is an ordering of the user's own answers, not business,
+      financial, or legal advice, and the page says the result reflects only
+      what was entered and must be reviewed before acting on it. The list
+      never leaves the device, the usage counter is opt-in and off by default,
+      and the transitivity assumption the method depends on is stated to the
+      user rather than hidden, so nobody is misled about what the order means.
   - slug: music-lesson-break-even
     scores:
       ai_leverage: 1
@@ -1053,6 +1090,37 @@ ventures:
       Pass: the tool reports source-linked observations only, operates on
       customer-supplied data, and leaves contractual and security decisions to
       the customer.
+
+  - slug: vendor-change-watch
+    scores:
+      ai_leverage: 7
+      autonomous_ops: 9
+      time_to_revenue: 6
+      gross_margin: 9
+      defensibility: 4
+      distribution: 4
+    composite: 6.5
+    rater_b: null
+    floor: 4
+    floor_dimension: defensibility
+    floor_note: >-
+      A generic page monitor is reproducible and distribution is unproven until
+      a security, procurement, or privacy practitioner adopts the workflow.
+      Customer-specific watch lists and portable source-linked history are the
+      named mitigation, but neither has customer evidence yet.
+    basis: >-
+      Graduated from the vendor-change-evidence candidate on 2026-08-24. The
+      first slice is a local, deterministic CLI with customer-selected URLs,
+      section-aware diffs, explicit inconclusive fetch states, and no hosted
+      service or inference dependency. Scores preserve the candidate estimate
+      until the practitioner pilot establishes demand and retention.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: the product preserves source text and timestamps but
+      does not interpret contractual effect, provide legal advice, or warrant
+      compliance. Customers choose public pages and decide what changes mean.
 
   - slug: janitorial-bid-calculator
     scores:
@@ -5901,3 +5969,176 @@ ventures:
       yields, waste percents, and coating rates are labelled ballpark starting
       points rather than a standard, and nothing the user enters leaves the
       browser.
+  - slug: appointment-deposit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The calculator is deterministic deposit and cash arithmetic. Adding
+      inference would make a booking policy less checkable against the
+      operator's own price and notice hours.
+    basis: >-
+      Salvage of unique closed #1218 onto current main. Distinct from
+      no-show-fee-calculator (a charge after a missed slot) and from
+      invoice-payment-terms deposit pages: this one is for salons, trainers,
+      tutors, and photographers choosing an upfront booking deposit and
+      copying a policy draft. Distribution is "appointment deposit
+      calculator" and "how much deposit should I charge".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own price and
+      percent, plus a draft they review before publishing. It never
+      recommends a deposit, a cancellation rule, or a legal determination.
+      Nothing the user enters leaves the browser.
+  - slug: sponsor-ready
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The checklist is deterministic presence/absence scoring against
+      GitHub's documented public API. Adding inference would make a
+      "fix this first" list less checkable against the files a visitor
+      can already see.
+    basis: >-
+      Salvage of unique closed #922 onto current main. Distinct from
+      grant-deadline-tracker and grant-reporting-tracker. Distribution is
+      "github sponsors readiness" and "how to get github sponsors".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is a weighted checklist of public repo files and
+      metadata. It never recommends turning Sponsors on, never promises
+      income, and never stores which repo was scanned. The visitor's
+      browser calls api.github.com directly.
+
+  - slug: marketplace-fee-compare
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent from the arithmetic core. Six published
+      fee schedules compared side by side is a correctness problem, and a
+      seller checking which channel to list on needs to see the sum, not
+      a summary of it.
+    basis: >-
+      Registered 2026-08-27. Shipped without a score row, which failed
+      `score_ventures.py --check` -- and therefore Portfolio validate --
+      for every open pull request in the repository, not only its own.
+      Scored one below its where-to-sell-calculator sibling on
+      defensibility: that venture is the portfolio's own cross-channel
+      comparison on the same high-intent queries, so this one is
+      differentiating against a sibling as well as against the ad-funded
+      incumbents. Distribution matches at 8 for the same reason -- "where
+      to sell online" and "etsy vs ebay fees" are the queries both answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+  - slug: shop-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 6
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The product is deliberately AI-free. Labor burden, overhead recovery
+      and the required hourly rate are arithmetic on the contractor's own
+      payroll, vehicle and office figures, and a contractor is going to
+      stake a bid on the result -- so every step has to be one they can
+      re-derive on paper. Inference would make the number less checkable
+      without making it more correct.
+    basis: >-
+      Registered 2026-08-27 and shipped without a score row, which failed
+      `score_ventures.py --check` -- and therefore Portfolio validate --
+      repository-wide, the same way the marketplace-fee-compare row did.
+      Scored one above the trade bid calculators on defensibility (6):
+      those each model one trade, whereas this is the upstream input the
+      whole bid-calculator family reads, carrying burden, overhead, wage
+      and margin through a shared `portfolio-shop-rates` key with ceilings
+      that refuse an implausible carry. That cross-tool handoff is
+      something a single-page competitor cannot copy without the rest of
+      the site. Distribution 7 matches the bid calculators: "shop rate
+      calculator", "labor burden calculator" and "what should I charge per
+      hour" are lower-volume than marketplace-fee queries but far less
+      saturated, and the searcher has a bid on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on figures the contractor enters, and
+      is labelled a required rate to check their own pricing against --
+      never a recommended price, a prevailing wage, or a tax or
+      employment-law determination. Nothing entered leaves the browser.
+  - slug: security-camera-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 6
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is a domain model --
+      recording bitrate against purchasable drive sizes, PoE draw against a
+      switch budget, run length against the 328 ft Ethernet limit -- and all
+      three are arithmetic an installer has to be able to re-derive in front of
+      a customer. Inference would make the retention figure less checkable
+      without making it more correct.
+    basis: >-
+      Graduated 2026-08-28 into the gap the hub's own search measurement named:
+      "security camera" was one of six queries returning zero results with no
+      tool behind them. Scored one above the single-trade bid calculators on
+      defensibility (6) because two of its three outputs are engineering checks
+      rather than a price stack -- days the fitted drives actually hold, and
+      PoE load against the switch budget -- and those are what a generic
+      job-costing spreadsheet cannot restate. Distribution 7 matches the other
+      bid calculators: "how much to charge to install security cameras" and
+      "how many TB for 30 days of recording" are lower-volume than
+      marketplace-fee queries but the searcher has an install on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: outputs are arithmetic on the installer's own inputs, never a
+      recommended price, a manufacturer specification, an ONVIF profile, or a
+      code ruling. Bitrates are labelled planning figures rather than a
+      guarantee any camera hits them. The page states plainly that where
+      cameras may point, whether audio may be recorded, and how long footage
+      may be kept are legal questions it does not answer. Nothing entered
+      leaves the browser.

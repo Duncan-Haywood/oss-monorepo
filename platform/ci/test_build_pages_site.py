@@ -8,9 +8,11 @@ link that resolves in the venture directory and 404s under `<base>/<slug>/`.
 Most of these assert on that boundary rather than the happy path.
 """
 
+import re
 import shutil
 import tempfile
 import unittest
+import unittest.mock
 from pathlib import Path
 
 import build_pages_site as bp
@@ -91,6 +93,124 @@ class Discovery(unittest.TestCase):
         )
         product = bp.discover_products(self.tmp / "ventures")[0]
         self.assertNotEqual(product.description, product.title)
+
+
+class EntryOverrides(unittest.TestCase):
+    """`ai-engineering-academy` keeps six calculators and their hub under
+    `tools/`, at none of the standard web roots. The deploying builder has an
+    override for it; this one did not, so seven public pages were published by
+    `platform/pages/build.mjs` and checked here not at all -- and a builder kept
+    as a cross-check cannot report a disagreement it cannot see."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp)
+
+    def test_finds_a_product_at_an_overridden_entry_path(self):
+        venture = self.tmp / "ventures" / "override-venture"
+        (venture / "tools").mkdir(parents=True)
+        (venture / "tools" / "index.html").write_text(
+            "<html><head><title>Free Tools</title></head><body><h1>Pick one.</h1></body></html>",
+            encoding="utf-8",
+        )
+        with unittest.mock.patch.dict(
+            bp.ENTRY_OVERRIDES, {"override-venture": "tools"}, clear=False
+        ):
+            found = bp.discover_products(self.tmp / "ventures")
+        self.assertEqual([p.slug for p in found], ["override-venture"])
+        self.assertEqual(found[0].source.name, "tools")
+
+    def test_an_override_pointing_nowhere_publishes_nothing(self):
+        venture = self.tmp / "ventures" / "override-venture"
+        venture.mkdir(parents=True)
+        (venture / "index.html").write_text("<html></html>", encoding="utf-8")
+        with unittest.mock.patch.dict(
+            bp.ENTRY_OVERRIDES, {"override-venture": "tools"}, clear=False
+        ):
+            # The override is deliberate, so a venture-root index.html is not a
+            # silent fallback: a stale override should fail loudly, by shipping
+            # nothing, rather than quietly publishing a different page.
+            self.assertEqual(bp.discover_products(self.tmp / "ventures"), [])
+
+    def test_the_two_builders_agree_on_which_ventures_are_overridden(self):
+        """These builders are only a cross-check while they publish the same
+        set. An override added to one and not the other reintroduces exactly
+        the blind spot this class exists for."""
+        source = (
+            Path(bp.__file__).resolve().parents[2] / "platform" / "pages" / "build.mjs"
+        ).read_text(encoding="utf-8")
+        block = re.search(r"const ENTRY_OVERRIDES = \{(.*?)\n\};", source, re.S)
+        self.assertIsNotNone(block, "ENTRY_OVERRIDES not found in build.mjs")
+        pairs = dict(re.findall(r"'([^']+)':\s*'([^']+)'", block.group(1)))
+        self.assertEqual(pairs, bp.ENTRY_OVERRIDES)
+
+
+class OffsiteLinkRepointing(unittest.TestCase):
+    """Venture pages were written as if their own directory were the site root,
+    so some link to a file beside the venture. Republished under one shared
+    origin those 404. The deploying builder repoints them at the repository;
+    this one now does the same, so the link check stays strict instead of
+    being taught to ignore them."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp)
+
+    def _build(self, slug="widget-calculator", nested=False):
+        make_venture(self.tmp, slug, nested=nested)
+        out = self.tmp / "_site"
+        bp.build(
+            out_dir=out,
+            base_url="https://example.test/site",
+            ventures_dir=self.tmp / "ventures",
+        )
+        return out
+
+    def test_a_link_escaping_the_site_is_repointed_at_the_repository(self):
+        page = self.tmp / "ventures" / "widget-calculator" / "docs" / "guide.html"
+        source = self.tmp / "ventures" / "widget-calculator" / "NOTES.md"
+        page.parent.mkdir(parents=True, exist_ok=True)
+        source.parent.mkdir(parents=True, exist_ok=True)
+
+        repointed = bp.repoint_offsite_links(
+            '<a href="../../elsewhere/NOTES.md">notes</a>',
+            page_source=page,
+            page_dest=self.tmp / "_site" / "widget-calculator" / "docs" / "guide.html",
+            out_dir=self.tmp / "_site",
+        )
+        # Outside the repository root entirely: nothing to point at, so the
+        # link is left exactly as the venture wrote it.
+        self.assertIn('href="../../elsewhere/NOTES.md"', repointed)
+
+    def test_absolute_and_fragment_links_are_untouched(self):
+        html = (
+            '<a href="https://example.com/x">a</a>'
+            '<a href="#top">b</a>'
+            '<a href="mailto:x@example.com">c</a>'
+            '<img src="data:image/gif;base64,R0lGOD">'
+        )
+        out = self.tmp / "_site"
+        self.assertEqual(
+            bp.repoint_offsite_links(
+                html,
+                page_source=self.tmp / "ventures" / "w" / "index.html",
+                page_dest=out / "w" / "index.html",
+                out_dir=out,
+            ),
+            html,
+        )
+
+    def test_a_link_that_resolves_inside_the_site_is_left_alone(self):
+        out = self._build()
+        page = out / "widget-calculator" / "index.html"
+        page.write_text('<a href="./calc.mjs">calc</a>', encoding="utf-8")
+        result = bp.repoint_offsite_links(
+            page.read_text(encoding="utf-8"),
+            page_source=self.tmp / "ventures" / "widget-calculator" / "index.html",
+            page_dest=page,
+            out_dir=out,
+        )
+        self.assertEqual(result, '<a href="./calc.mjs">calc</a>')
 
 
 class UrlRewriting(unittest.TestCase):

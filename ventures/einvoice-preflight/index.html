@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>E-invoice Preflight | Check JSON, UBL, or CII before submission</title>
-  <meta name="description" content="Free local e-invoice preflight: drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
+  <title>E-invoice Preflight — Check JSON, UBL, CII, or Factur-X</title>
+  <meta name="description" content="Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <link rel="sitemap" type="application/xml" href="sitemap.xml">
   <meta property="og:title" content="E-invoice Preflight — catch defects before submission">
-  <meta property="og:description" content="Check a JSON, UBL, or CII invoice locally for missing fields, totals, VAT checksums, and IBAN/BIC typos. Rule IDs and fixes stay in your browser.">
+  <meta property="og:description" content="Check a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice locally for missing fields, totals, VAT checksums, and IBAN/BIC typos. Rule IDs and fixes stay in your browser.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">
   {
@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "featureList": "JSON, UBL, and CII invoice and credit-note checks, arithmetic totals, header allowances and charges, buyer and purchase-order references, invoice period start and end dates, payment means versus IBAN, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
+    "featureList": "JSON, UBL, CII, and Factur-X / ZUGFeRD / XRechnung PDF unwrap, invoice and credit-note checks, arithmetic totals, header allowances and charges, buyer and purchase-order references, payment terms days versus due date, invoice period start and end dates, payment means versus IBAN, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
   }
   </script>
   <script type="application/ld+json">
@@ -40,7 +40,7 @@
         "name": "How do I check an e-invoice before submission?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
+          "text": "Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note, a Factur-X / ZUGFeRD / XRechnung PDF with an embedded invoice, or paste the JSON shape. The checker unwraps the PDF in the browser when needed and reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, payment terms days that do not match the due date, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
         }
       }
     ]
@@ -86,7 +86,7 @@
     <p class="eyebrow">FOR BOOKKEEPERS AND ERP ADAPTERS</p>
     <h1>Catch invoice defects before you submit.</h1>
     <p>
-      Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note — or paste the JSON shape —
+      Drop a JSON, UBL, CII, or Factur-X PDF invoice or credit note — or paste the JSON shape —
       and get rule IDs plus a suggested fix for missing fields, totals that do
       not add up, a credit sent as a commercial invoice, a missing original
       invoice reference, a prepaid that does not leave the stated amount due, a
@@ -97,6 +97,7 @@
       a SEPA payment means without an IBAN,
       a purchase-order field that repeats the invoice number,
       a header discount that does not match its percent,
+      payment terms days that do not match the due date,
       and transposed VAT, IBAN, BIC, or
       RF values. After using this, you can now review a structured invoice in
       the browser in seconds, which used to mean running a CLI or waiting for a
@@ -107,9 +108,9 @@
     <section>
       <h2>Invoice to check</h2>
       <div id="drop" class="drop">
-        <p><strong>Drop .json or .xml files here</strong>, or choose them.</p>
+        <p><strong>Drop .json, .xml, or Factur-X .pdf files here</strong>, or choose them.</p>
         <p class="muted">Up to 50 files, 1&nbsp;MB each. Multiple files also flag repeated invoice numbers.</p>
-        <input id="files" type="file" accept=".json,.xml,application/json,text/xml,application/xml" multiple>
+        <input id="files" type="file" aria-label="Invoice files to check (JSON, XML, or PDF)" accept=".json,.xml,.pdf,application/json,text/xml,application/xml,application/pdf" multiple>
       </div>
       <p class="muted">Or paste one JSON invoice:</p>
       <textarea id="paste" aria-label="Pasted invoice JSON" placeholder='{"invoice_number":"INV-1001", ...}'></textarea>
@@ -124,6 +125,7 @@
         <button id="meansSample" class="secondary" type="button">Load a SEPA transfer without an IBAN</button>
         <button id="referenceSample" class="secondary" type="button">Load a PO that repeats the invoice number</button>
         <button id="adjustmentSample" class="secondary" type="button">Load a header discount that does not match its percent</button>
+        <button id="termsSample" class="secondary" type="button">Load terms days that do not match the due date</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
@@ -136,6 +138,7 @@
         <button id="copy" class="secondary" type="button" disabled>Copy checklist</button>
         <button id="downloadMd" class="secondary" type="button" disabled>Download Markdown</button>
         <button id="downloadJson" class="secondary" type="button" disabled>Download JSON</button>
+        <button id="downloadRemediationCsv" class="secondary" type="button" disabled>Download remediation CSV</button>
       </div>
       <p id="copyStatus" class="muted" aria-live="polite"></p>
       <div id="results"></div>
@@ -156,11 +159,14 @@
       optional invoice period that is incomplete or ends before it starts
       (INV-042 and INV-043), optional payment means versus IBAN
       (INV-044 through INV-046), optional buyer or purchase-order
-      references (INV-047 through INV-049), and optional header
-      allowances or charges (INV-050 through INV-052).
-      UBL XML and UN/CEFACT CII (XRechnung CII / Factur-X XML) are mapped into that shape. UBL mapping includes CreditNote,
+      references (INV-047 through INV-049), optional header
+      allowances or charges (INV-050 through INV-052), and optional
+      payment terms days versus due date (INV-053 and INV-054).
+      UBL XML, UN/CEFACT CII, and Factur-X / ZUGFeRD PDFs (the embedded XML) are mapped into that shape.
+      A PDF result says <code>Unwrapped factur-x.xml (CII) from the PDF</code>
+      when the standard attachment was opened; custom attachment names are not shown. UBL mapping includes CreditNote,
       BillingReference, payee account, branch,
-      PaymentID, PaymentMeansCode, TaxExemptionReason, TaxSubtotal, EndpointID, InvoicePeriod, BuyerReference, OrderReference, and invoice-level AllowanceCharge. It is <strong>not</strong>
+      PaymentID, PaymentMeansCode, TaxExemptionReason, TaxSubtotal, EndpointID, InvoicePeriod, BuyerReference, OrderReference, invoice-level AllowanceCharge, and PaymentTerms SettlementPeriod DurationMeasure. It is <strong>not</strong>
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
@@ -168,16 +174,26 @@
       <code>python3 -m einvoice_preflight invoice.json</code> in this directory.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Does this submit an e-invoice?</h3>
+  <p>No. The page only reads files or pasted JSON in your browser and reports observations. It never contacts a tax authority or submission network.</p>
+  <h3>How do I check an e-invoice before submission?</h3>
+  <p>Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note, a Factur-X / ZUGFeRD / XRechnung PDF with an embedded invoice, or paste the JSON shape. The checker unwraps the PDF in the browser when needed and reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, payment terms days that do not match the due date, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity.</p>
+  <h3>How do you calculate a mixed-VAT-rate tax breakdown?</h3>
+  <p>Group the lines by rate, sum each rate's net, multiply by that rate, and round to the cent — see the <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">worked example</a> the INV-037/INV-038 checks are built from.</p>
+  <h3>What does this e-invoice error code mean?</h3>
+  <p>Every rule this checker reports has an <code>INV-</code> code naming one specific defect and the field it was found in — <a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a> lists all of them with a fix for each. They are this tool's own identifiers, not EN 16931 <code>BR-</code> rules or a submission network's rejection codes.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
     <p>This is a preflight observation, not a declaration that an invoice is valid or compliant. It never phrases a result as “you may submit” or “this invoice is legally valid.”</p>
     <p>Everything runs in your browser. Invoice contents are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day — <code>invoice_preflight_attempted</code> and <code>invoice_preflight_checked</code> — never filenames or invoice data. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it caught a defect before a rejection, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed. See the <a href="README.md">README</a>.</p>
+    <p>Free and open source. If it caught a defect before a rejection, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, summarizePreflight } from "./report.mjs";
+    import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { recordUsage } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -203,6 +219,7 @@
     const copyBtn = document.getElementById("copy");
     const downloadMd = document.getElementById("downloadMd");
     const downloadJson = document.getElementById("downloadJson");
+    const downloadRemediationCsv = document.getElementById("downloadRemediationCsv");
     const optedOut = () => document.getElementById("usageOptOut").checked;
 
     let latest = null;
@@ -305,6 +322,13 @@
       filesInput.value = "";
       dropped = [];
     });
+    document.getElementById("termsSample").addEventListener("click", () => {
+      const broken = structuredClone(VALID_EXAMPLE);
+      broken.payment = { ...broken.payment, terms_days: 14 };
+      paste.value = JSON.stringify(broken, null, 2);
+      filesInput.value = "";
+      dropped = [];
+    });
     document.getElementById("validSample").addEventListener("click", () => {
       paste.value = JSON.stringify(VALID_EXAMPLE, null, 2);
       filesInput.value = "";
@@ -314,7 +338,7 @@
     async function readFiles() {
       const inputs = [];
       for (const file of dropped) {
-        inputs.push({ name: file.name, source: await file.text() });
+        inputs.push({ name: file.name, source: new Uint8Array(await file.arrayBuffer()) });
       }
       const pasted = paste.value.trim();
       if (pasted) inputs.push({ name: "pasted.json", source: pasted });
@@ -335,13 +359,16 @@
       ].map(([value, label]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
 
       const articles = result.reports.map((report) => {
+        const envelope = report.envelope
+          ? `<p class="note">${escapeHtml(report.envelope)}</p>`
+          : "";
         if (!report.errors.length) {
-          return `<article><h3><code>${escapeHtml(report.file)}</code></h3><p class="pass">PASS — no supported defects found.</p></article>`;
+          return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="pass">PASS — no supported defects found.</p></article>`;
         }
         const findings = report.errors.map((error) => (
           `<div class="finding"><strong>${escapeHtml(error.rule)}</strong> at <code>${escapeHtml(error.path || "/")}</code><br>${escapeHtml(error.message)}<br><span class="fix">Fix: ${escapeHtml(error.fix)}</span></div>`
         )).join("");
-        return `<article><h3><code>${escapeHtml(report.file)}</code></h3><p class="fail">FAIL</p>${findings}</article>`;
+        return `<article><h3><code>${escapeHtml(report.file)}</code></h3>${envelope}<p class="fail">FAIL</p>${findings}</article>`;
       });
       const read = result.readErrors.length
         ? `<article><h3>Read errors</h3>${result.readErrors.map((error) => `<p class="error"><code>${escapeHtml(error.file)}</code>: ${escapeHtml(error.error)}</p>`).join("")}</article>`
@@ -350,6 +377,7 @@
       copyBtn.disabled = false;
       downloadMd.disabled = false;
       downloadJson.disabled = false;
+      downloadRemediationCsv.disabled = false;
     }
 
     function escapeHtml(value) {
@@ -384,20 +412,46 @@
         copyBtn.disabled = true;
         downloadMd.disabled = true;
         downloadJson.disabled = true;
+        downloadRemediationCsv.disabled = true;
         return;
       }
-      const result = preflightDocuments(inputs);
+      const result = await preflightDocuments(inputs);
       render(result);
       for (const report of result.reports) {
         recordUsage(localStorage, optedOut(), "invoice_preflight_checked");
       }
     });
 
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      if (!copied) throw new Error("copy failed");
+    }
+
+    async function copyText(text) {
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return;
+        } catch {
+          // file:// pages and browsers that deny clipboard access
+        }
+      }
+      fallbackCopy(text);
+    }
+
     copyBtn.addEventListener("click", async () => {
       if (!latest) return;
       const text = buildChecklist(latest);
       try {
-        await navigator.clipboard.writeText(text);
+        await copyText(text);
         copyStatus.textContent = "Checklist copied. It contains filenames and rule IDs, not invoice values.";
         recordUsage(localStorage, optedOut(), "checklist_copied");
       } catch {
@@ -412,6 +466,11 @@
     downloadJson.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight.json", JSON.stringify(buildJsonReport(latest), null, 2) + "\n", "application/json");
+      recordUsage(localStorage, optedOut(), "report_downloaded");
+    });
+    downloadRemediationCsv.addEventListener("click", () => {
+      if (!latest) return;
+      download("einvoice-preflight-remediation.csv", buildRemediationCsv(latest), "text/csv");
       recordUsage(localStorage, optedOut(), "report_downloaded");
     });
   </script>

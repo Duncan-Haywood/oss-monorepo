@@ -149,6 +149,21 @@ function paymentReference(means) {
   return "";
 }
 
+function paymentTermsDays(root) {
+  for (const child of root.children) {
+    if (child.name !== "PaymentTerms") continue;
+    for (const period of descendants(child, "SettlementPeriod")) {
+      for (const measure of period.children) {
+        if (measure.name !== "DurationMeasure") continue;
+        const unit = ((measure.attrs && measure.attrs.unitCode) || "").trim().toUpperCase();
+        const value = measure.text.trim();
+        if (value && (unit === "DAY" || unit === "D")) return value;
+      }
+    }
+  }
+  return "";
+}
+
 function payeePayment(root) {
   for (const means of descendants(root, "PaymentMeans")) {
     const payment = {};
@@ -289,8 +304,10 @@ export function parseUblInvoice(source) {
       ...optionalMonetaryTotals(total),
     },
   };
-  const payment = payeePayment(root);
-  if (payment) invoice.payment = payment;
+  const payment = payeePayment(root) || {};
+  const termsDays = paymentTermsDays(root);
+  if (termsDays) payment.terms_days = termsDays;
+  if (Object.keys(payment).length) invoice.payment = payment;
   Object.assign(invoice, documentExemption(root));
   const breakdown = taxBreakdown(root);
   if (breakdown.length) invoice.tax_breakdown = breakdown;

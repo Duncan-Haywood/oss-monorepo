@@ -179,7 +179,11 @@ export function calculateBid(input) {
 }
 
 export function formatBidSummary(result) {
-  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const runs = result.runs
     .filter(run => run.linearFeet > 0)
     .map(run => `- ${run.name}: ${run.linearFeet} lf, ${run.storyLabel}, ${run.downspouts} downspout${run.downspouts === 1 ? '' : 's'}`)

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote, decodePanels, QUOTE_PRESETS } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -73,6 +73,13 @@ test("reports discount room above target without recommending a price", () => {
   const quote = loadQuote({ price: 4000, delivery_hours: 10, target_hourly_rate: 100 });
   assert.equal(calculate(quote).discount_room, 3000);
   assert.equal(calculate(quote).minimum_price_adjustment, 0);
+});
+
+test("reports target-rate capacity from the quoted price", () => {
+  const quote = loadQuote({ price: 1500, delivery_hours: 10, admin_hours: 2, revision_hours: 1, overhead: 100, target_hourly_rate: 100 });
+  const result = calculate(quote);
+  assert.equal(result.target_rate_hours, 14);
+  assert.equal(result.hours_cushion, 1);
 });
 
 test("currency defaults and is trimmed", () => {
@@ -451,6 +458,53 @@ test("share links round-trip validated quote inputs from query or fragment", () 
 test("share links require the core quote fields", () => {
   assert.equal(decodeQuote("currency=USD&price=100"), null);
   assert.throws(() => decodeQuote("price=100&delivery_hours=2&target_hourly_rate=50&admin_hours=not-a-number"));
+});
+
+// The regression: every one of these six sat in the form, drove a rendered
+// answer, and was left out of the link. Fails against the pre-fix encodeQuote,
+// which took no second argument and wrote none of them.
+test("share links carry the scope-creep and kill-fee panels", () => {
+  const quote = loadQuote({ currency: "USD", price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const panels = {
+    "extra-hours": 4,
+    "extra-direct-costs": 0,
+    hours_done: 14,
+    already_paid: 1200,
+    kill_fee: 360,
+    sunk_costs: 180,
+  };
+  const encoded = encodeQuote(quote, panels);
+  assert.deepEqual(decodeQuote(`#${encoded}`), quote, "the quote itself still round-trips");
+  assert.deepEqual(decodePanels(`#${encoded}`), panels);
+  assert.deepEqual(decodePanels(`?${encoded}`), panels, "query and fragment read alike");
+});
+
+// A link somebody already sent has no panel params. It must still open, and it
+// must restore nothing rather than zeroing the recipient's panels.
+test("a link without panel params restores no panels", () => {
+  const quote = loadQuote({ price: 900, delivery_hours: 6, admin_hours: 1, revision_hours: 1, overhead: 0, subcontractor_cost: 0, target_hourly_rate: 60 });
+  assert.deepEqual(decodePanels(`#${encodeQuote(quote)}`), {});
+});
+
+// A fragment is the one part of this page a stranger writes, so a bad panel
+// value is dropped on its own without taking the rest of the bid with it.
+test("panel values are validated individually, not trusted", () => {
+  const base = "price=100&delivery_hours=2&target_hourly_rate=50";
+  assert.deepEqual(
+    decodePanels(`#${base}&hours_done=not-a-number&already_paid=-5&kill_fee=360`),
+    { kill_fee: 360 },
+  );
+  assert.deepEqual(decodePanels("#" + base), {});
+  assert.deepEqual(decodePanels(undefined), {});
+});
+
+// Encoding refuses what it cannot honestly send. A NaN written as the string
+// "NaN" would arrive as an empty number input, which reads as a field the
+// sender cleared rather than one that was never carried.
+test("encodeQuote omits panel values it cannot send", () => {
+  const quote = loadQuote({ price: 900, delivery_hours: 6, admin_hours: 1, revision_hours: 1, overhead: 0, subcontractor_cost: 0, target_hourly_rate: 60 });
+  const encoded = encodeQuote(quote, { hours_done: Number.NaN, kill_fee: -1, sunk_costs: 180, already_paid: "1200" });
+  assert.deepEqual(decodePanels(`#${encoded}`), { sunk_costs: 180 });
 });
 
 test("presets are valid editable starting points", () => {

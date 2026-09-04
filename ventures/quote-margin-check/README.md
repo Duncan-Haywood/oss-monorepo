@@ -12,6 +12,10 @@ with the same math as the CLI below (see [`site/calc.mjs`](site/calc.mjs)).
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
 
+The static surface includes crawlable `robots.txt` and `sitemap.xml` files so
+the calculator can be discovered by search engines and AI assistants when it is
+published.
+
 **CLI**, for scripting or batching several quotes into a spreadsheet:
 
 ```bash
@@ -20,6 +24,8 @@ python3 src/quote_margin.py examples/website-redesign.json --format markdown
 python3 src/quote_margin.py examples/website-redesign.json --format csv > quote-review.csv
 # Compare every proposal JSON in a folder
 python3 src/quote_margin.py proposals/ --batch --format csv > quote-comparison.csv
+# Which of those quotes stop clearing the target if the work runs long?
+python3 src/quote_margin.py proposals/ --batch --format json > quote-review.json
 ```
 
 The report distinguishes the customer's inputs from derived arithmetic. It does
@@ -34,10 +40,14 @@ escaping for currency labels containing commas, quotes, or line breaks, so you
 can append results from several proposals to a spreadsheet without retyping
 calculations. The browser Copy / Download buttons emit the same columns plus
 the time-overrun, cost-rise, discount-ask, and kill-fee rows already on the
-page. The browser can also copy a share link that keeps quote figures in the URL
+page. `time_buffer_percent` and `buffered_hours` are exported alongside
+`buffered_target_price` so the buffered figures stay reproducible from the file
+itself, and the Markdown review lists the time buffer with the other supplied
+inputs. The browser can also copy a share link that keeps quote figures in the URL
 fragment (not sent as a referrer) and a plain-text review summary for an email or
 proposal note. It includes the quote's arithmetic, the supplied target
-comparison, and only attention-level review observations. Copying the summary
+comparison, the local next-step prompt (send / revise / hold remains yours),
+and only attention-level review observations. Copying the summary
 records an anonymous `review_summary_copied` event locally; quote values are
 never stored in that event or sent anywhere. The discount-ask table also has
 its own **Copy discount ladder** control for a spreadsheet-safe CSV of the
@@ -51,6 +61,34 @@ and are never uploaded. Downloading or opening a file records anonymous
 `draft_exported` / `draft_imported` events locally.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
+
+### The what-if tables in the CLI
+
+Time overrun, direct-cost rises, discount asks, the price ladder, and fixed
+vs hourly used to be browser-only: a folder of quotes checked from a script
+got a strictly smaller answer than one quote typed into the page. All five
+now appear in every CLI format, computed by the same arithmetic as
+`site/calc.mjs` (`tests/test_quote_margin.py` runs both implementations on
+one quote and compares every field, so the two surfaces cannot drift apart).
+
+- `--format markdown` adds a section per table, each stating what it holds
+  fixed.
+- `--format json` adds `overrun_scenarios`, `direct_cost_spikes`,
+  `discount_asks`, `target_rate_ladder`, and `billing_models`, plus
+  `survives_overrun_percent`. `--batch --format json` includes them per quote.
+- `--format csv` adds `measure,value,unit` rows for the overrun and cost-rise
+  breakpoints.
+
+`survives_overrun_percent` is the largest listed overrun (10, 25, or 50) at
+which the quote still reaches the supplied target. `0` means only the planned
+hours hold; an empty value means the quote is already below target at planned
+hours, where running long is not what went wrong. Batch CSV carries it and
+`gap_to_target_at_plus_25_percent_hours` as columns, so a folder of quotes can
+be sorted by which ones stop clearing the target first if the work runs long.
+
+Every one of these is arithmetic on the supplied inputs. None is a forecast of
+delivery time, of costs, or of what a client will accept, and none is a
+recommendation about what to charge.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
 amount by which the quote could be reduced before reaching that target. A zero
 value means the quote is already at or below target; it is a boundary check, not
@@ -186,7 +224,13 @@ browser also counts `history_saved`, `history_deleted`, and `history_cleared`
 when local review snapshots are stored or removed. A `report_downloaded`
 event is counted when the JSON report is saved locally. CSV copy
 and download events happen only when the user invokes those actions. Copying
-the review summary records `review_summary_copied` the same way. Restoring
+the review summary records `review_summary_copied` the same way. That
+copied note includes total working hours, the admin/revision (hidden)
+hours, and the same +10% / +25% / +50% time-overrun rows the page
+shows, so a proposal thread can see the time mix and overrun arithmetic
+without opening the calculator. Downloading
+that same plain-text note as `quote-margin-review.txt` records
+`review_summary_downloaded`. Restoring
 or resetting a local draft records `draft_restored` or `draft_reset`. The
 export contains the same arithmetic report as the page and quotes currency
 labels safely for spreadsheet import. These events contain no quote values
@@ -195,6 +239,35 @@ and are never uploaded.
 ## Input
 
 Required non-negative numbers are `price`, `delivery_hours`, and `target_hourly_rate`.
-Optional numbers are `admin_hours`, `revision_hours`, `overhead`, and
-`subcontractor_cost`. The calculator treats all monetary values as the same
-currency supplied by the user.
+Optional numbers are `admin_hours`, `revision_hours`, `overhead`,
+`subcontractor_cost`, and `time_buffer_percent`. The calculator treats all
+monetary values as the same currency supplied by the user.
+
+`time_buffer_percent` pads the planned hours for work with a history of running
+long, and reports what the quote would have to be to still hit the target rate
+at those padded hours (`buffered_hours`, `buffered_target_price`). It defaults
+to `0`, where it changes nothing: buffered hours equal planned hours and the
+buffered target price equals the target price, so a quote file written before
+this field existed scores exactly as it did.
+
+## The browser and the CLI are checked against each other
+
+The venture ships the same arithmetic twice — `src/quote_margin.py` for the CLI
+and `site/calc.mjs` for the browser page — so the two can drift. Every other
+test pins one side against numbers written into the test by hand, which is a
+check that the implementation still does what it did the day the test was
+written, not that the two implementations agree.
+
+`site/parity.test.mjs` closes that: it runs the real CLI over every committed
+example plus four awkward quotes (one that misses its target, one with no
+optional costs, one with room to discount, one whose currency label contains a
+comma and quotes) and requires the browser port to reproduce the CLI's JSON
+payload exactly — inputs, the headline result, and all five sensitivity tables.
+Doubles are compared exactly rather than with a tolerance; rounding for display
+is the formatter's job.
+
+Adding it found the drift that prompted it. The browser had offered a time
+buffer since it shipped and the CLI had never had the field at all, so anyone
+scoring a folder of quotes from a script got a strictly smaller answer than
+someone typing the same quote into the page. `time_buffer_percent` above is
+that gap closed.

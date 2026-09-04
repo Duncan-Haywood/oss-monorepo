@@ -1,0 +1,122 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+import {
+  REFLOW_CSS,
+  TABLE_SCROLL_CLASS,
+  WRAP_TABLES_JS,
+  injectReflow,
+  wrapTables,
+} from './reflow.mjs';
+
+const page = (body) => `<!doctype html><html><head><title>t</title></head><body>${body}</body></html>`;
+
+test('a table is wrapped in a scrolling box', () => {
+  const out = wrapTables('<p>before</p><table><tr><td>1</td></tr></table><p>after</p>');
+  assert.equal(
+    out,
+    `<p>before</p><div class="${TABLE_SCROLL_CLASS}"><table><tr><td>1</td></tr></table></div><p>after</p>`,
+  );
+});
+
+test('every table on the page is wrapped, attributes and all', () => {
+  const out = wrapTables('<table id="a"><tbody></tbody></table><hr><TABLE class="b"></TABLE>');
+  assert.equal(out.match(new RegExp(TABLE_SCROLL_CLASS, 'g')).length, 2);
+  assert.ok(out.includes(`<div class="${TABLE_SCROLL_CLASS}"><table id="a">`));
+  assert.ok(out.includes(`<div class="${TABLE_SCROLL_CLASS}"><TABLE class="b">`));
+});
+
+test('a nested table is left alone — it scrolls with the one around it', () => {
+  const out = wrapTables('<table><tr><td><table><tr><td>x</td></tr></table></td></tr></table>');
+  assert.equal(out.match(new RegExp(TABLE_SCROLL_CLASS, 'g')).length, 1);
+  assert.ok(out.startsWith(`<div class="${TABLE_SCROLL_CLASS}"><table>`));
+  // The inner table is still where it was, unwrapped.
+  assert.ok(out.includes('<td><table><tr><td>x</td></tr></table></td>'));
+});
+
+test('a table inside a script is not rewritten', () => {
+  // Several calculators assemble their results table as a string. Editing that
+  // string is the build reaching into a venture's JavaScript; the runtime half
+  // covers those tables instead.
+  const source = '<script>el.innerHTML = `<table><tr><td>${n}</td></tr></table>`;</script>';
+  assert.equal(wrapTables(source), source);
+});
+
+test('a table inside a comment, a style or a textarea is not rewritten', () => {
+  for (const source of [
+    '<!-- <table><tr><td>old markup</td></tr></table> -->',
+    '<style>/* <table> */ table{width:100%}</style>',
+    '<textarea><table><tr><td>pasted</td></tr></table></textarea>',
+  ]) {
+    assert.equal(wrapTables(source), source, source.slice(0, 20));
+  }
+});
+
+test('markup around the skipped region is still wrapped', () => {
+  const out = wrapTables('<script>var s="<table>";</script><table id="real"></table>');
+  assert.equal(out.match(new RegExp(TABLE_SCROLL_CLASS, 'g')).length, 1);
+  assert.ok(out.includes(`<div class="${TABLE_SCROLL_CLASS}"><table id="real">`));
+  assert.ok(out.includes('var s="<table>";'));
+});
+
+test('a page with no table is returned unchanged, by identity', () => {
+  const source = page('<p>no tables here</p>');
+  assert.equal(wrapTables(source), source);
+  assert.equal(injectReflow(source), source);
+});
+
+test('an unbalanced closing tag does not lose the rest of the document', () => {
+  const out = wrapTables('</table><table id="b"></table><p>tail</p>');
+  assert.ok(out.includes('<p>tail</p>'));
+  assert.ok(out.includes(`<div class="${TABLE_SCROLL_CLASS}"><table id="b">`));
+});
+
+test('the pass is idempotent — running it twice changes nothing', () => {
+  const once = injectReflow(page('<table><tr><td>1</td></tr></table>'));
+  assert.notEqual(once, page('<table><tr><td>1</td></tr></table>'));
+  assert.equal(injectReflow(once), once);
+});
+
+test('a fragment with no body is left alone', () => {
+  const source = '<table><tr><td>1</td></tr></table>';
+  assert.equal(injectReflow(source), source);
+});
+
+test('non-strings are returned as given', () => {
+  for (const value of [null, undefined, 7, {}]) {
+    assert.equal(injectReflow(value), value);
+    assert.equal(wrapTables(value), value);
+  }
+});
+
+test('the stylesheet makes the wrapper scroll and print whole', () => {
+  assert.match(REFLOW_CSS, new RegExp(`\\.${TABLE_SCROLL_CLASS}\\{overflow-x:auto`));
+  // A scroll container clips at the paper edge, and the customer's proposal is
+  // printed from these pages.
+  assert.match(REFLOW_CSS, /@media print\{[^}]*overflow-x:visible/);
+});
+
+test('the min-width relaxations are zero-specificity and phone-only', () => {
+  const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
+  assert.ok(narrow.includes('min-width:0'), 'the relaxation is inside the narrow-viewport query');
+  // Every selector that relaxes a minimum is wrapped in :where(), so a rule a
+  // venture wrote always wins. The 372 clipped result labels this file
+  // documents are what happens when one of them is not.
+  for (const line of narrow.split('\n')) {
+    if (!line.includes('min-width:0')) continue;
+    assert.match(line.trim(), /^:where\(/, `not zero-specificity: ${line.trim()}`);
+  }
+  // Never the leaf boxes whose own minimum is what keeps a definition list's
+  // term column open.
+  assert.ok(!/:where\([^)]*\bdt\b/.test(narrow));
+  assert.ok(!/:where\(\*\)/.test(narrow), 'the blunt rule was measured and was worse than the bug');
+});
+
+test('the runtime wrap skips a table that is already boxed', () => {
+  // It is spliced into a function body in the built chrome script, so it has to
+  // be ES5 statements and it has to test the class before wrapping — otherwise
+  // every keystroke would add another div.
+  assert.ok(WRAP_TABLES_JS.includes(TABLE_SCROLL_CLASS));
+  assert.ok(WRAP_TABLES_JS.includes("p.closest('table')"), 'nested tables are skipped');
+  assert.ok(!/\b(const|let|=>)\b/.test(WRAP_TABLES_JS), 'must stay ES5');
+});

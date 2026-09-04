@@ -60,7 +60,7 @@ test('the module script survives parsing and would actually execute', () => {
 test('every element the script reaches for exists in the markup', () => {
   const wanted = new Set([
     ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
-    ...[...scriptSource.matchAll(/\bfield\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/\bel\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
   ]);
   assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
   const missing = [...wanted].filter((id) => !declaredIds.has(id));
@@ -104,15 +104,33 @@ test('the form exposes every default the calculator reads, including whole-stop 
   for (const id of required) {
     assert.ok(declaredIds.has(id), `missing #${id} for a default the calculator reads`);
   }
-  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'copyLink', 'reset', 'usageOptOut', 'claimHint']) {
+  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'reset', 'usageOptOut', 'claimHint']) {
     assert.ok(declaredIds.has(id), `missing result or action #${id}`);
   }
 });
 
-test('share and persist read Object.keys(defaults), so a new field cannot drop off the link', () => {
+test('persist reads Object.keys(defaults), so a new field cannot drop off the saved draft', () => {
   assert.match(scriptSource, /const ids = Object\.keys\(defaults\)/, 'the page keeps its own field list instead of defaults');
-  assert.match(scriptSource, /location\.hash/, 'the bid must ride in the fragment, not the query string');
-  assert.ok(!/`\?\$\{/.test(scriptSource), 'the bid link must not be built with a query string');
+});
+
+// This page used to copy its own link *and* receive the one the build injects,
+// two buttons writing two hash formats side by side. Whichever the detailer
+// clicked decided what the customer's copy carried: the injected control reads
+// every field off the form, including the proposal deposit and terms, while the
+// inline one serialized `readInput()` and left all five behind. Worse, `persist`
+// rewrote the fragment in its own format on every keystroke, so a visitor who
+// opened a shared bid and then changed one number had the sender's link
+// replaced in their address bar by a different encoding of a different bid.
+//
+// The inline half is gone and the injected control owns the fragment.
+// `platform/pages/check.mjs` refuses to publish a page carrying both.
+test('the fragment belongs to the injected bid link, not to this page', () => {
+  assert.ok(!/location\.hash/.test(scriptSource),
+    'this page must not read or write the fragment; the injected bid link owns it');
+  assert.ok(!/id="copyLink"/.test(html),
+    'the inline copy button is redundant beside the injected one and must not come back');
+  assert.match(scriptSource, /localStorage\.setItem\('mobile-detailing-inputs'/,
+    'the draft is still kept on the visitor\'s own device between visits');
 });
 
 test('the default $180 example stays in the black when wage is skipped', () => {
@@ -138,6 +156,29 @@ test('the page handles an unreachable target instead of printing a negative pric
   assert.match(scriptSource, /unreachable/, 'no unreachable-target message found in the page script');
 });
 
+test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
+  // Before this fix, a rejected input (a negative number, non-numeric text)
+  // overwrote only the dollar hero (#contribution) with the error sentence
+  // and left every other figure -- caption, travel cost, direct costs,
+  // payment fee, break-even, effective hourly, whole-stop hours, loaded
+  // labor, effective rate, claim hint, and the target-quote line -- showing
+  // the last valid calculation. A visitor could easily miss the message and
+  // read those stale figures as the answer for what is now on screen.
+  assert.match(markup, /id="errors"[^>]*role="alert"/, 'a dedicated, announced error region is missing');
+  const catchBlock = scriptSource.match(/catch\(error\) \{([\s\S]*?)\n {4}\} \}/);
+  assert.ok(catchBlock, 'update() catch block not found');
+  const body = catchBlock[1];
+  assert.match(body, /el\('contribution'\)\.hidden\s*=\s*true/, 'the hero is not hidden on a rejected input');
+  for (const id of ['caption', 'travelCost', 'directCosts', 'paymentFee', 'breakEven', 'effectiveHourly', 'totalHours', 'loadedLaborRate', 'laborCost', 'effectiveRate', 'claimHint', 'targetQuote']) {
+    assert.match(
+      body,
+      new RegExp(`el\\('${id}'\\)\\.textContent\\s*=\\s*''`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /el\('errors'\)\.hidden\s*=\s*false/, 'the error message is never shown');
+});
+
 test('the form names the fee-plus-margin claim as the user types', () => {
   assert.match(scriptSource, /claimNote/, 'the page does not render the live claim hint');
   assert.match(scriptSource, /claim_conflict_shown/, 'the first conflict should be counted once');
@@ -148,4 +189,38 @@ test('the form names the fee-plus-margin claim as the user types', () => {
 test('the disclaimer PRODUCT_PLAYBOOK 5b requires is on the page', () => {
   assert.match(markup, /No warranty/i);
   assert.match(markup, /not .*(business|tax|financial|professional) .*advice/i);
+});
+
+// The wage input is the *base* hourly wage: `calc.mjs` multiplies it by
+// (1 + burden%) to reach `loadedLaborRate`. The label used to read "Loaded
+// wage", which invites a detailer to type a rate that already includes burden
+// and then has burden applied to it a second time — a 25% overstatement of
+// labour cost on every quote, in the direction that loses jobs. Pin the two
+// halves that have to stay consistent: what the field asks for, and the fact
+// that the page shows the loaded rate it derives.
+test('the wage field asks for the pre-burden rate the calculator expects', () => {
+  const label = /<label>([^<]*)<input id="wage"/.exec(html);
+  assert.ok(label, 'the wage input no longer has a plain preceding label');
+  assert.doesNotMatch(
+    label[1],
+    /loaded/i,
+    `the wage label calls itself "loaded" while calc.mjs still loads it: ${label[1]}`,
+  );
+  assert.match(label[1], /before burden/i);
+
+  // And the derived rate is on screen, so applying burden twice is visible.
+  assert.match(html, /id="loadedLaborRate"/);
+  const result = calculateBid({ wage: 28, burdenPercent: 25 });
+  assert.equal(result.loadedLaborRate, 35);
+});
+
+test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
+  assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
+  const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');
+  assert.match(doc, /How much should I charge for mobile detailing/i);
+  assert.match(doc, /FAQPage/);
+  assert.match(doc, /No warranty/);
+  assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /how-much-to-charge\.html/);
 });

@@ -10,7 +10,8 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ventures/medical-courier-route-margin

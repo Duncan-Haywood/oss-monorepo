@@ -22,6 +22,7 @@ export const INPUT_FIELDS = [
   'otherCost',
   'targetMargin',
   'targetRoi',
+  'targetProfit',
   'returnRatePercent',
   'returnShippingCost',
   'feeRefundOnReturnPercent',
@@ -252,11 +253,23 @@ export function calculateOrder(input) {
   const expectedProfit = (1 - returnRate) * profit + returnRate * returnProfit;
   const expectedRevenue = revenue * (1 - returnRate);
   const profitReturnGap = profit - returnProfit;
-  const breakEvenReturnRate = profit <= 0
-    ? 0
-    : profitReturnGap <= 0
-      ? Infinity
-      : Math.min(100, profit / profitReturnGap * 100);
+  // Solve (1-rate)*profit + rate*returnProfit = 0 for a return rate in
+  // [0, 100]. profit can be negative -- the completed sale can already be a
+  // loss before any returns -- and "0" is not the break-even in that case:
+  // at 0% returns the order is already below zero, not sitting at it (the
+  // same defect fixed in shopify-fee-calculator's breakEvenRefundRate).
+  // returnProfit is a sum of non-negative sunk costs and unrefunded fees,
+  // negated, so it is never positive; a convex mix of two non-positive
+  // numbers can only land on exactly zero at the r=100% boundary (when
+  // returnProfit itself is 0), so once profit is negative the honest
+  // default is "no return rate reaches break-even", not "already there".
+  let breakEvenReturnRate;
+  if (Math.abs(profitReturnGap) <= 1e-12) {
+    breakEvenReturnRate = Math.abs(profit) <= 1e-12 ? 0 : Infinity;
+  } else {
+    const rate = (profit / profitReturnGap) * 100;
+    breakEvenReturnRate = rate < -1e-9 || rate > 100 + 1e-9 ? Infinity : Math.max(0, rate);
+  }
   return {
     revenue,
     quantity,
@@ -310,7 +323,101 @@ export function calculateOrder(input) {
     // Null-equivalent Infinity means even every order coming back still pays
     // (no sunk shipping/fees). Zero means the completed sale already loses.
     breakEvenReturnRate,
+    // Inverse of leftover: the item price that holds a typed leftover
+    // after the same fee stack. Complementary to targetMarginPrice
+    // (percent of revenue) and calculateSourcingCeiling (max buy for ROI).
+    // Salvaged from #1564.
+    targetProfitPrice: priceToMatchProfit(input, input.targetProfit ?? 0),
   };
+}
+
+/**
+ * Item price that leaves `targetProfit` after the typed fee stack.
+ *
+ * Percentage fees sit on item plus shipping charged, so this is not
+ * leftover plus costs — a $1 leftover target is not a $1 price move.
+ * Salvaged from #1564 onto current main. Not eBay's live fee schedule.
+ */
+export function priceToMatchProfit(input, targetProfit) {
+  const profit = Number(targetProfit);
+  if (!Number.isFinite(profit)) throw new Error('Target profit must be a number');
+  const number = (value, name) => {
+    const result = Number(value);
+    if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
+    return result;
+  };
+  const quantity = number(input.quantity ?? 1, 'Units');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
+  const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
+  const finalValueRate = number(input.finalValueRate ?? 13.25, 'Final value fee rate');
+  const fixedFee = number(input.fixedFee ?? 0.3, 'Per-order fixed fee');
+  const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
+  const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
+  const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
+  const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
+  const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const percentRate = (finalValueRate + promotedRate + intlFeeRate) / 100;
+  if (percentRate >= 1) return Infinity;
+  const fixedPerUnit = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
+  const price = (profit / quantity + fixedPerUnit) / (1 - percentRate) - shippingCharged;
+  return Math.round(Math.max(0, price) * 100) / 100;
+}
+
+// Default promoted-listings rates a reseller actually types into eBay's
+// campaign picker, plus 0% so "do not promote" is always on the table.
+export const PROMOTED_RATE_PRESETS = [0, 2, 4, 6, 8, 10, 12];
+
+/**
+ * Highest promoted-listings rate that still meets a goal, holding every
+ * other assumption still. Each extra ad point takes 1% of order revenue,
+ * so the unpromoted margin is the remaining budget for ads.
+ *
+ * forTargetMargin: false → leftover stays non-negative (break-even).
+ * forTargetMargin: true  → net margin stays at the seller's target.
+ * A negative result means the goal is already missed with ads off.
+ * Salvaged from #1482 leftover onto current main.
+ */
+export function maxAffordablePromotedRate(input, options = {}) {
+  const forTargetMargin = options.forTargetMargin === true;
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const target = forTargetMargin ? Number(input.targetMargin ?? 0) : 0;
+  return unpromoted.margin - target;
+}
+
+/**
+ * Same order at several ad rates. The seller's typed rate is always
+ * included so the "now" row cannot drift from the headline result.
+ * profitDelta is against the unpromoted (0%) row — the cash promoting
+ * this listing actually costs, not a price-move delta.
+ * Complementary to comparePromotedStandard (skip vs one campaign).
+ */
+export function calculatePromotedTable(input, rates = PROMOTED_RATE_PRESETS) {
+  if (!Array.isArray(rates) || rates.length === 0) {
+    throw new Error('At least one promoted-listings rate is required');
+  }
+  const currentRate = Number(input.promotedRate ?? 0);
+  if (!Number.isFinite(currentRate) || currentRate < 0) {
+    throw new Error('Promoted listings rate must be a non-negative number');
+  }
+  const uniqueRates = [...new Set([...rates.map(Number), currentRate])];
+  for (const rate of uniqueRates) {
+    if (!Number.isFinite(rate) || rate < 0) {
+      throw new Error('Promoted listings rate must be a non-negative number');
+    }
+  }
+  uniqueRates.sort((a, b) => a - b);
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  return uniqueRates.map((rate) => {
+    const scenario = calculateOrder({ ...input, promotedRate: rate });
+    return {
+      ...scenario,
+      promotedRate: rate,
+      isCurrent: rate === currentRate,
+      isUnpromoted: rate === 0,
+      profitDelta: scenario.profit - unpromoted.profit,
+    };
+  });
 }
 
 export function calculateSourcingCeiling(input, targetRoi) {
@@ -408,6 +515,31 @@ function priceForExpectedProfit(input, promotedRate, targetExpectedProfit) {
   const slope = (atHundred.expectedProfit - atZero.expectedProfit) / 100;
   if (slope <= 1e-12) return Infinity;
   return Math.max(0, (targetExpectedProfit - atZero.expectedProfit) / slope);
+}
+
+// Solve rate/100 * profitAtFullRate = targetExpected for a rate in [0, 100]
+// (an accept rate, a sell-through rate, a take/redeem rate, a wait chance —
+// whatever the caller is scaling). profitAtFullRate is the profit the rate
+// scales, and it can be negative: the scaled path (accepting an offer,
+// selling at a discount, self-shipping) can lose money at every unit sold,
+// not just cost more, and the straight ratio still finds the real crossing
+// whatever its sign — a losing scaled path paired with a losing target
+// still ties at a real, positive rate (both non-positive numbers cross at
+// rate = target/profitAtFullRate, which is positive whenever they share a
+// sign). Gating on profitAtFullRate's sign alone (as every call site here
+// used to: `profitAtFullRate <= 1e-12 ? (targetExpected <= 1e-12 ? 0 :
+// Infinity) : ratio`) silently reported 0% — "already break-even" — for
+// every one of those real, reachable, nonzero crossings, understating the
+// floor every one of these comparisons exists to warn about. Same defect
+// class as etsy-profit-calculator's breakEvenSellThroughRate and
+// shopify-fee-calculator's six break-even solvers.
+function breakEvenScaledRate(targetExpected, profitAtFullRate) {
+  if (Math.abs(profitAtFullRate) <= 1e-12) {
+    return Math.abs(targetExpected) <= 1e-12 ? 0 : Infinity;
+  }
+  const rate = (targetExpected / profitAtFullRate) * 100;
+  if (rate < -1e-9 || rate > 100 + 1e-9) return Infinity;
+  return Math.max(0, rate);
 }
 
 function listingFormatRow({
@@ -516,7 +648,11 @@ export function listingFormatNote(comparison) {
   if (!comparison?.bin || !comparison?.auction) {
     throw new Error('Listing-format comparison is missing rows');
   }
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const { bin, auction } = comparison;
   const gap = Math.abs(auction.expectedProfit - bin.expectedProfit);
   const ahead = auction.expectedProfit >= bin.expectedProfit ? 'more' : 'less';
@@ -1888,9 +2024,7 @@ export function compareSellerInitiatedOffer(input) {
       ? 'wait'
       : 'tie';
 
-  const breakEvenAcceptPct = offer.soldExpectedProfit <= 1e-12
-    ? (wait.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (wait.expectedProfit / offer.soldExpectedProfit) * 100;
+  const breakEvenAcceptPct = breakEvenScaledRate(wait.expectedProfit, offer.soldExpectedProfit);
 
   const promotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
   let offerPriceCeiling = Infinity;
@@ -2743,9 +2877,7 @@ export function compareQuantityDiscount(input) {
     breakEvenDiscountPercent = needed < -1e-9 ? Infinity : needed;
   }
 
-  const breakEvenTakePct = discount.soldExpectedProfit <= 1e-12
-    ? (singles.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (singles.expectedProfit / discount.soldExpectedProfit) * 100;
+  const breakEvenTakePct = breakEvenScaledRate(singles.expectedProfit, discount.soldExpectedProfit);
 
   return {
     rows: [singles, discount],
@@ -2946,9 +3078,7 @@ export function compareSellerCoupon(input) {
   const tied = scored.filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
   const winner = tied.length > 1 ? 'tie' : tied[0].id;
 
-  const breakEvenCouponSellThroughPct = coupon.soldExpectedProfit <= 1e-12
-    ? (listed.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (listed.expectedProfit / coupon.soldExpectedProfit) * 100;
+  const breakEvenCouponSellThroughPct = breakEvenScaledRate(listed.expectedProfit, coupon.soldExpectedProfit);
 
   const packedGap = listedSold.expectedProfit - couponSold.expectedProfit;
   let breakEvenRedeemPct = Infinity;
@@ -2987,9 +3117,7 @@ export function compareSellerCoupon(input) {
     breakEvenCouponPercent = needed < -1e-9 ? Infinity : needed;
   }
 
-  const breakEvenDropSellThroughPct = drop.soldExpectedProfit <= 1e-12
-    ? (coupon.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (coupon.expectedProfit / drop.soldExpectedProfit) * 100;
+  const breakEvenDropSellThroughPct = breakEvenScaledRate(coupon.expectedProfit, drop.soldExpectedProfit);
 
   return {
     rows: [listed, coupon, drop],
@@ -3198,9 +3326,7 @@ export function compareImmediatePayment(input) {
     }
   }
 
-  const breakEvenImmediateSellThroughPct = paid.expectedProfit <= 1e-12
-    ? (later.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (later.expectedProfit / paid.expectedProfit) * 100;
+  const breakEvenImmediateSellThroughPct = breakEvenScaledRate(later.expectedProfit, paid.expectedProfit);
 
   return {
     rows: [later, immediate],
@@ -3896,9 +4022,7 @@ export function compareGlobalShipping(input) {
       : Math.max(0, Math.min(100, rate));
   }
 
-  const breakEvenSelfShipSellThroughPct = selfAfterClaims <= 1e-12
-    ? (gsp.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (gsp.expectedProfit / selfAfterClaims) * 100;
+  const breakEvenSelfShipSellThroughPct = breakEvenScaledRate(gsp.expectedProfit, selfAfterClaims);
 
   const selfAtPostage = (shippingCost) => {
     const sold = calculateOrder({
@@ -4222,9 +4346,7 @@ export function compareBestOffer(input, offerAmount, listChance) {
     : extraKeptOnAccept < -1e-9
       ? 'wait'
       : 'tie';
-  const waitChanceCeiling = listing.profit <= 1e-12
-    ? (offer.profit <= 1e-12 ? 0 : Infinity)
-    : (offer.profit / listing.profit) * 100;
+  const waitChanceCeiling = breakEvenScaledRate(offer.profit, listing.profit);
 
   const wait = {
     id: 'wait',
@@ -4459,9 +4581,7 @@ export function compareFreeShipping(input) {
       ? 'buyer_pays'
       : 'tie';
 
-  const breakEvenFreeShipSellThroughPct = freeSold.expectedProfit <= 1e-12
-    ? (buyerPays.expectedProfit <= 1e-12 ? 0 : Infinity)
-    : (buyerPays.expectedProfit / freeSold.expectedProfit) * 100;
+  const breakEvenFreeShipSellThroughPct = breakEvenScaledRate(buyerPays.expectedProfit, freeSold.expectedProfit);
 
   const targetSoldExpected = freeShipSellThroughPct <= 1e-12
     ? Infinity

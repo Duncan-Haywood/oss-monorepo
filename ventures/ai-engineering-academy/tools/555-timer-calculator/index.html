@@ -67,7 +67,7 @@
     color-scheme: light dark;
     --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
     --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
-    --warn: #b7791f; --bad: #c53030;
+    --warn: #a0691b; --bad: #c53030;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #ecc94b; --bad: #fc8181; }
@@ -291,6 +291,16 @@
     </ul>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>Why can't a 555 astable produce a 50% duty cycle?</h3>
+  <p>In the standard two-resistor astable the timing capacitor charges through R1 + R2 but discharges through R2 alone, so the output-high time is always longer than the output-low time. The duty cycle approaches 50% as R2 grows relative to R1 but never reaches it. To get 50% or below, put a diode across R2 so charging bypasses it, or use a CMOS 555 in a 50%-duty configuration.</p>
+  <h3>What is the 555 astable frequency formula?</h3>
+  <p>The period is ln(2) × (R1 + 2 × R2) × C, which is where the familiar f = 1.44 / ((R1 + 2 × R2) × C) comes from — 1.44 is 1 / ln(2). The output-high time is ln(2) × (R1 + R2) × C and the output-low time is ln(2) × R2 × C.</p>
+  <h3>How long is a 555 monostable pulse?</h3>
+  <p>ln(3) × R × C, usually quoted as the rule of thumb 1.1 × R × C. The capacitor charges from 0 V to the 2/3 Vcc threshold, and ln(3) is the time constant multiple that takes.</p>
+  <h3>How small can R1 be in a 555 astable?</h3>
+  <p>About 1 kΩ in practice. During the discharge phase R1 is the only thing limiting current into the 555's discharge pin, which sinks at most around 200 mA. A smaller R1 satisfies the timing equations but can exceed that rating.</p>
+
   <footer>
     <h2>Disclaimer</h2>
     <p>
@@ -322,8 +332,8 @@
 
     <p>
       Part of <a href="../">the free electronics tools</a> from
-      <a href="../../README.md">AI Engineering Academy</a>. MIT licensed — see
-      <a href="LICENSE">LICENSE</a>.
+      <a href="../">AI Engineering Academy</a>. MIT licensed — see
+      <a href="../LICENSE">LICENSE</a>.
     </p>
   </footer>
 </main>

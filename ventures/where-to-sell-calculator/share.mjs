@@ -8,7 +8,7 @@
 const SHARED_FIELDS = [
   "price", "shippingCharged", "shippingCost", "itemCost",
   "packagingCost", "otherCost", "monthlyOrders", "daysToSell",
-  "horizonDays", "capitalCostPct", "unsoldRecoveryPct",
+  "horizonDays", "capitalCostPct", "unsoldRecoveryPct", "targetProfit",
 ];
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
@@ -17,6 +17,8 @@ const CHANNEL_FIELDS = [
   "returnRate", "returnShippingCost", "resellableRate", "feeRefundRate",
   "sellThroughPct", "daysToSell", "listingRenewalDays",
 ];
+// Not a number, so it rides alongside the numeric fields rather than in them.
+const RANK_MODES = new Set(["profit", "profitPerDay"]);
 
 function sharedNumber(value) {
   if (typeof value !== "number" && typeof value !== "string") return null;
@@ -31,6 +33,10 @@ export function encodeComparison(shared = {}, channels = []) {
       .filter((key) => shared[key] !== undefined && shared[key] !== "")
       .map((key) => [key, shared[key]])),
     includeSubscription: shared.includeSubscription !== false,
+    // Carried so a link opens on the same ranking the sender was reading. A
+    // link that reorders the table under the recipient answers a different
+    // question from the one that was shared.
+    rankBy: RANK_MODES.has(shared.rankBy) ? shared.rankBy : "profit",
     includeReturns: shared.includeReturns !== false,
     channels: channels.map((channel) => ({
       id: channel.id,
@@ -66,9 +72,11 @@ export function decodeComparison(value) {
           return [key, number];
         }).filter(([, value]) => value !== null)),
       })) : [];
+    const rankBy = RANK_MODES.has(parsed.rankBy) ? parsed.rankBy : "profit";
     return {
       shared,
       includeSubscription: parsed.includeSubscription !== false,
+      rankBy,
       includeReturns: parsed.includeReturns !== false,
       channels,
     };

@@ -2,28 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SaaS Price Increase Churn Calculator | Subscription Price Impact</title>
+  <title>SaaS Price Increase Churn Calculator — Price Impact</title>
   <meta name="description" content="Test a SaaS price increase and see the maximum churn your recurring revenue can absorb before the change stops paying off.">
   <meta property="og:title" content="SaaS Price Increase Churn Calculator"><meta property="og:description" content="Model price changes privately in your browser without uploading customer data.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Subscription Price Impact","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"SaaS price increase scenarios, churn break-even, recurring revenue impact"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much churn can a price increase actually absorb?","acceptedAnswer":{"@type":"Answer","text":"On the default example — 100 subscribers going from $20 to $25 a month — revenue reaches the same $2,000 you make today at just 80 subscribers, so you can lose up to 20 of the current 100 (20% churn) before the increase has cost you anything. That 20% is not a prediction of how many people will actually leave; it is the ceiling this specific increase can absorb before it stops paying off. “Subscribers at revenue break-even” and the churn-scenario table show the same number two ways."}},{"@type":"Question","name":"Why does a price decrease show 0% maximum churn?","acceptedAnswer":{"@type":"Answer","text":"Because break-even is measured in revenue, and cutting the price raises the subscriber count needed to match today's revenue above the count you already have. Drop $20 to $15 on the same 100 subscribers and break-even needs about 133 — more than you have — so the calculator reports zero headroom: any churn at all, even churn that had nothing to do with the price cut, drops you below where you started. This tool does not model new customers a lower price might attract; it only tracks retention of the base you already have."}},{"@type":"Question","name":"Is “subscribers at revenue break-even” the same as break-even on profit?","acceptedAnswer":{"@type":"Answer","text":"No. That figure is revenue against revenue — it ignores costs entirely. The profit view is the contribution column in the churn-scenario table, which nets your monthly fixed costs out of revenue at each churn level. A price change can clear the revenue break-even and still fail to clear the contribution break-even if your fixed costs are large relative to the price change."}},{"@type":"Question","name":"What does “contribution” leave out?","acceptedAnswer":{"@type":"Answer","text":"Only the monthly fixed costs you type in. It does not subtract payment-processing fees, support cost per seat, hosting that scales with usage, or anything else that moves with subscriber count rather than staying flat month to month. If a meaningful share of your costs are variable, contribution overstates the profit impact of both the increase and the churn."}},{"@type":"Question","name":"Why does the churn-scenario table stop at 20%?","acceptedAnswer":{"@type":"Answer","text":"Those five columns (0, 5, 10, 15, 20%) are a representative spread for sanity-checking a scenario, not a forecast bounded at 20%. Churn above that is entirely possible and the table simply does not print it; use your own historical churn rate, not the table's range, to judge whether a given increase is likely to land above or below its break-even point."}}]}</script>
   <style>
     :root{font-family:system-ui,sans-serif;color:#20232a;background:#eef3f0}body{max-width:960px;margin:auto;padding:32px 18px}header{max-width:700px}h1{font-size:clamp(2.2rem,7vw,4.8rem);line-height:.95;letter-spacing:-.06em;margin:8px 0 16px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}section{background:#fff;border:1px solid #ccd8d1;border-radius:14px;padding:22px;box-shadow:0 8px 20px #19362a0c}h2{font-size:1.1rem}.fields{display:grid;gap:13px}label{display:grid;gap:5px;font-weight:650;font-size:.9rem}input{font:inherit;padding:10px;border:1px solid #aabbb2;border-radius:7px}#result{background:#19382d;color:#f6fff9;border-color:#19382d}.hero{font-size:3rem;font-weight:800;letter-spacing:-.05em;margin:10px 0}.good{color:#bff0c9}.warn{color:#ffd09c}dl{display:grid;grid-template-columns:1fr auto;gap:10px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums}table{width:100%;border-collapse:collapse;margin-top:14px}th,td{padding:8px 3px;border-bottom:1px solid #ffffff2b;text-align:right}th:first-child,td:first-child{text-align:left}.note{font-size:.83rem;opacity:.78;line-height:1.45}footer{margin-top:22px;font-size:.83rem}@media(max-width:700px){.layout{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header><p>FOR SMALL SAAS OPERATORS</p><h1>See how much churn a price change can absorb.</h1><p>Compare current and proposed monthly prices against subscriber count and fixed costs. The calculation runs privately in your browser. It does not predict churn or tell you to raise or lower the price.</p></header>
+  <header><p>FOR SMALL SAAS OPERATORS</p><h1>See how much churn a price change can absorb.</h1><p>Compare current and proposed monthly prices against subscriber count and fixed costs. The calculation runs privately in your browser. It does not predict churn or tell you to raise or lower the price.</p><p><a href="./how-much-can-i-raise-my-saas-price.html">How much can I raise my SaaS price?</a> &middot; <a href="./vs-baremetrics.html">This calculator vs. Baremetrics</a></p></header>
   <main class="layout"><section><h2>Your current plan</h2><div class="fields">
     <label>Active subscribers<input id="customers" type="number" min="0" step="1" value="100"></label>
     <label>Current monthly price<input id="currentPrice" type="number" min="0" step="0.01" value="20"></label>
     <label>Proposed monthly price<input id="proposedPrice" type="number" min="0" step="0.01" value="25"></label>
     <label>Monthly fixed costs<input id="monthlyCosts" type="number" min="0" step="0.01" value="500"></label>
   </div><p class="note">Use your own observed churn and costs to pressure-test the scenarios. This tool does not predict customer behavior.</p></section>
-  <section id="result"><h2>Price-change readout</h2><div id="headline" class="hero"></div><div id="subhead"></div><dl><dt>Current monthly revenue</dt><dd id="currentRevenue"></dd><dt>Proposed revenue before churn</dt><dd id="proposedRevenue"></dd><dt>Revenue change before churn</dt><dd id="revenueChange"></dd><dt>Subscribers at revenue break-even</dt><dd id="breakEvenCustomers"></dd></dl><h2>Churn scenarios</h2><table><thead><tr><th>Churn</th><th>Subscribers left</th><th>Contribution</th></tr></thead><tbody id="scenarios"></tbody></table><p id="status" class="note" role="status" aria-live="polite"></p></section></main>
+  <section id="result" aria-live="polite"><h2>Price-change readout</h2><p id="errors" class="warn" role="alert" hidden></p><div id="headline" class="hero"></div><div id="subhead"></div><dl><dt>Current monthly revenue</dt><dd id="currentRevenue"></dd><dt>Proposed revenue before churn</dt><dd id="proposedRevenue"></dd><dt>Revenue change before churn</dt><dd id="revenueChange"></dd><dt>Subscribers at revenue break-even</dt><dd id="breakEvenCustomers"></dd></dl><h2>Churn scenarios</h2><table><thead><tr><th>Churn</th><th>Subscribers left</th><th>Contribution</th></tr></thead><tbody id="scenarios"></tbody></table><p id="status" class="note" role="status" aria-live="polite"></p></section></main>
+  <section id="faq" style="max-width:960px;margin:18px auto 0">
+    <h2>Common questions</h2>
+
+    <h3>How much churn can a price increase actually absorb?</h3>
+    <p>On the default example &mdash; 100 subscribers going from $20 to $25 a month &mdash; revenue reaches
+      the same $2,000 you make today at just 80 subscribers, so you can lose up to 20 of the current 100
+      (20% churn) before the increase has cost you anything. That 20% is not a prediction of how many
+      people will actually leave; it is the ceiling this specific increase can absorb before it stops
+      paying off. &ldquo;Subscribers at revenue break-even&rdquo; and the churn-scenario table show the
+      same number two ways.</p>
+
+    <h3>Why does a price decrease show 0% maximum churn?</h3>
+    <p>Because break-even is measured in revenue, and cutting the price raises the subscriber count needed
+      to match today's revenue above the count you already have. Drop $20 to $15 on the same 100
+      subscribers and break-even needs about 133 &mdash; more than you have &mdash; so the calculator
+      reports zero headroom: any churn at all, even churn that had nothing to do with the price cut, drops
+      you below where you started. This tool does not model new customers a lower price might attract; it
+      only tracks retention of the base you already have.</p>
+
+    <h3>Is &ldquo;subscribers at revenue break-even&rdquo; the same as break-even on profit?</h3>
+    <p>No. That figure is revenue against revenue &mdash; it ignores costs entirely. The profit view is the
+      contribution column in the churn-scenario table, which nets your monthly fixed costs out of revenue
+      at each churn level. A price change can clear the revenue break-even and still fail to clear the
+      contribution break-even if your fixed costs are large relative to the price change.</p>
+
+    <h3>What does &ldquo;contribution&rdquo; leave out?</h3>
+    <p>Only the monthly fixed costs you type in. It does not subtract payment-processing fees, support
+      cost per seat, hosting that scales with usage, or anything else that moves with subscriber count
+      rather than staying flat month to month. If a meaningful share of your costs are variable, contribution
+      overstates the profit impact of both the increase and the churn.</p>
+
+    <h3>Why does the churn-scenario table stop at 20%?</h3>
+    <p>Those five columns (0, 5, 10, 15, 20%) are a representative spread for sanity-checking a
+      scenario, not a forecast bounded at 20%. Churn above that is entirely possible and the table simply
+      does not print it; use your own historical churn rate, not the table's range, to judge whether a
+      given increase is likely to land above or below its break-even point.</p>
+  </section>
   <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
   <script type="module">
     import { calculateImpact } from './calc.mjs'; import { recordUsage } from './usage.mjs';
     const ids=['customers','currentPrice','proposedPrice','monthlyCosts']; const $=id=>document.getElementById(id); const money=n=>Number.isFinite(n)?`$${n.toFixed(2)}`:'not available';
-    function render(count=true){try{const input=Object.fromEntries(ids.map(id=>[id,$(id).value]));const r=calculateImpact(input);$('headline').textContent=`${r.maxChurnRate.toFixed(1)}%`;$('headline').className=`hero ${r.revenueChange>=0?'good':'warn'}`;$('subhead').textContent=r.revenueChange>=0?'maximum churn before revenue falls':'this price change lowers revenue before churn';$('currentRevenue').textContent=money(r.currentRevenue);$('proposedRevenue').textContent=money(r.proposedRevenue);$('revenueChange').textContent=money(r.revenueChange);$('breakEvenCustomers').textContent=Number.isFinite(r.breakEvenCustomers)?r.breakEvenCustomers.toFixed(1):'0';$('scenarios').replaceChildren(...r.scenarios.map(s=>{const row=document.createElement('tr');[`${s.churn}%`,s.customers.toFixed(1),money(s.contribution)].forEach(v=>row.insertCell().textContent=v);return row;}));if(count)recordUsage('calculation',$('usageOptOut').checked);}catch(e){$('headline').textContent=e.message;}}
+    function render(count=true){const errorsEl=$('errors');const headline=$('headline');try{const input=Object.fromEntries(ids.map(id=>[id,$(id).value]));const r=calculateImpact(input);errorsEl.hidden=true;errorsEl.textContent='';headline.hidden=false;headline.textContent=`${r.maxChurnRate.toFixed(1)}%`;headline.className=`hero ${r.revenueChange>=0?'good':'warn'}`;$('subhead').textContent=r.revenueChange>=0?'maximum churn before revenue falls':'this price change lowers revenue before churn';$('currentRevenue').textContent=money(r.currentRevenue);$('proposedRevenue').textContent=money(r.proposedRevenue);$('revenueChange').textContent=money(r.revenueChange);$('breakEvenCustomers').textContent=Number.isFinite(r.breakEvenCustomers)?r.breakEvenCustomers.toFixed(1):'not achievable';$('scenarios').replaceChildren(...r.scenarios.map(s=>{const row=document.createElement('tr');[`${s.churn}%`,s.customers.toFixed(1),money(s.contribution)].forEach(v=>row.insertCell().textContent=v);return row;}));if(count)recordUsage('calculation',$('usageOptOut').checked);}catch(e){
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid readout on screen next to an easy-to-miss error --
+      // that reads as if the stale churn rate, revenue figures, and scenario
+      // table still answer the inputs now in the form. Hide the headline and
+      // clear every derived field, announcing the message in its own region
+      // instead of overwriting the percentage headline with a sentence.
+      errorsEl.textContent=e.message;errorsEl.hidden=false;headline.hidden=true;$('subhead').textContent='';$('currentRevenue').textContent='';$('proposedRevenue').textContent='';$('revenueChange').textContent='';$('breakEvenCustomers').textContent='';$('scenarios').replaceChildren();
+    }}
     ids.forEach(id=>$(id).addEventListener('input',()=>render())); $('usageOptOut').addEventListener('change',()=>render(false)); render(false);
   </script>
 </body></html>

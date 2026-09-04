@@ -19,6 +19,10 @@
     section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .alert { background: #fff4e5; color: #25221f; border-radius: 8px; padding: 10px 12px; font-size: .9rem; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
@@ -72,6 +76,14 @@
       <p class="note">Your numbers stay in this browser. This is arithmetic from your inputs, not Etsy's live fee schedule and not a recommendation to keep or cancel auto-renew.</p>
     </section>
   </main>
+  <h2>Common questions</h2>
+  <h3>Does Etsy auto-renew still pay if a listing is slow?</h3>
+  <p>On the worked example — a $30 listing, $5 shipping charged, 6.5% transaction plus 3%+$0.25 payment, $6 postage, $4 materials, $1 other cost, a $0.20 listing fee, and a 4-month renewal window — contribution before the listing fee is $20.43. Two sales leave $40.65 after the listing fee ($0.10 per sale). One sale recovers the fee. Charging $0.20 on every order overstates listing cost by $0.20 across those two sales.</p>
+  <h3>What does auto-renew cost if nothing sells?</h3>
+  <p>Zero sales still leave −$0.20 after the listing fee. Treating the listing fee as a per-order cost hides that $0.20 until an order is calculated. At a 4-month window the listing still costs $0.60 a year.</p>
+  <h3>Does the order calculator already include the listing fee?</h3>
+  <p>Yes, once per order. That is right for a listing that sells once and wrong for one that sells five times ($0.04 listing cost per sale) or zero times. This page keeps the same fee stack, then allocates the listing fee across the sales you type in. It does not turn auto-renew on or off.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -94,7 +106,11 @@
     };
     const INPUTS_KEY = 'etsy-listing-renewal-inputs';
     const field = id => document.getElementById(id);
-    const money = value => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
     const safe = fn => { try { return fn(); } catch { return undefined; } };
     let statusTimer;

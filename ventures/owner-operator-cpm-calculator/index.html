@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Owner Operator Cost Per Mile Calculator | Deadhead-Adjusted Loaded Rate</title>
+  <title>Owner Operator CPM Calculator — Deadhead-Adjusted Rate</title>
   <meta name="description" content="Free owner-operator CPM calculator: fuel, truck note, insurance, and deadhead miles in one week. See all-in cost per mile and the loaded rate that actually covers the empty ones.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -21,38 +21,6 @@
     "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, detention layover and lumper comparison, copyable load summary"
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do owner operators calculate cost per mile?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Add every mile the truck moves that week — loaded and empty. Divide fuel, per-mile reserves, and the weekly share of the truck note, insurance, and permits by those total miles. That is all-in cost per mile. Then divide the same weekly cost by loaded miles only to get the loaded rate that covers the empty ones."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How does deadhead affect a trucking rate?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What loaded rate should I accept?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load."
-        }
-      }
-    ]
-  }
-  </script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -67,9 +35,13 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input { width: 100%; box-sizing: border-box; border: 1px solid #8e9b8c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8e9b8c; background: #f3f6f1; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8e9b8c; background: #f3f6f1; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2320; }
     button:hover { background: #e6ece3; }
     .result { position: sticky; top: 15px; background: #1c2a22; color: #f3f7f2; border-color: #1c2a22; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -187,15 +159,35 @@
 
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
-    <p>Generic “cost per mile” pages often divide monthly bills by loaded miles and stop. The decision an owner-operator actually faces is whether <strong>this week’s empty miles and this settlement’s factoring</strong> still leave the posted rate above cost. <a href="deadhead-miles.html">How deadhead miles cut a loaded rate</a> walks through that in search-query words.</p>
+    <p>Generic “cost per mile” pages often divide monthly bills by loaded miles and stop. The decision an owner-operator actually faces is whether <strong>this week’s empty miles and this settlement’s factoring</strong> still leave the posted rate above cost. <a href="deadhead-miles.html">How deadhead miles cut a loaded rate</a> walks through that in search-query words. See also: <a href="vs-atbs.html">this calculator vs. ATBS</a>, for when to reach for a free instant calculator and when to hire a paid bookkeeping service.</p>
     <p>It does not tell you which load to book, what a broker should pay, or what your truck is worth. The gap between the posted rate and the break-even loaded rate is arithmetic on the numbers you typed.</p>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How do owner operators calculate cost per mile?</h3>
+  <p>Add every mile the truck moves that week — loaded and empty. Divide fuel, per-mile reserves, and the weekly share of the truck note, insurance, and permits by those total miles. That is all-in cost per mile. Then divide the same weekly cost by loaded miles only to get the loaded rate that covers the empty ones.</p>
+  <h3>How does deadhead affect a trucking rate?</h3>
+  <p>Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring.</p>
+  <h3>Does this calculator use a different fuel mileage for loaded and empty miles?</h3>
+  <p>No &mdash; it takes one &ldquo;Average MPG&rdquo; figure and divides it into every mile the truck moved that week, loaded and empty combined (fuel gallons = total miles &divide; MPG). It does not model the real gap between loaded and unladen fuel economy. At the starting figures &mdash; 2,250 total miles at 6.2 MPG, $4.20 diesel &mdash; that is $1,524.19 of fuel for the week, regardless of how the 1,800 loaded and 450 empty miles split it. If your logbook shows loaded and empty MPG separately, enter the mileage weighted for the week&rsquo;s actual mix (total gallons actually burned &divide; total miles run), not your best-case unladen number, or the fuel line will understate cost on a week with a lot of loaded miles.</p>
+  <h3>What loaded rate should I accept?</h3>
+  <p>This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load.</p>
+  <h3>How much does factoring actually cost on a load?</h3>
+  <p>Factoring takes its percent off gross revenue before the money settles, not off profit. On the starting figures &mdash; 1,800 loaded miles at a $2.00 offer, $3,600 gross &mdash; 3% factoring is a $108 fee, leaving $3,492 net from the miles. The offered rate itself doesn&rsquo;t change; the calculator&rsquo;s &ldquo;effective loaded rate&rdquo; ($1.94/mi at those figures) is what you actually settle for, and that&rsquo;s the number to compare against break-even, not the rate on the rate confirmation.</p>
+  <h3>Does an unreimbursed lumper fee change the cost per mile?</h3>
+  <p>No &mdash; it&rsquo;s added to the week&rsquo;s cost as a flat dollar amount, not spread across miles. &ldquo;Lumper you paid&rdquo; minus &ldquo;Lumper reimbursed&rdquo; becomes a straight addition to weekly cost regardless of how many miles were run that week. At the starting figures, a $75 lumper the broker never reimburses is $75 straight off the week, on top of fuel, reserves, and fixed cost.</p>
+  <h3>How much does a short week raise cost per mile?</h3>
+  <p>Fixed costs &mdash; the truck note, insurance, permits &mdash; are billed monthly and this calculator converts them to a weekly figure by dividing by 52&divide;12 weeks, then spreads that over total miles run. Fewer miles in the week means the same dollar figure divides over less distance. At the starting figures ($5,550/month fixed, about $1,281/week) run over 2,250 total miles, fixed cost alone is about $0.57/mi; the same $1,281 spread over a 1,500-mile week would be about $0.85/mi &mdash; the truck note doesn&rsquo;t get cheaper because the week was slow.</p>
+  <h3>How many loaded miles does it take to break even at an offered rate?</h3>
+  <p>&ldquo;Loaded miles to cover this week at offer&rdquo; divides the week&rsquo;s cost, minus any detention/layover that&rsquo;s already been factored in, by the settled effective rate &mdash; the offered rate after factoring. At the starting figures, a $2.00/mi offer settles to $1.94/mi after 3% factoring, and it takes roughly 1,706 loaded miles against the week&rsquo;s cost (after the $291 of factored accessorials) to break even. The starting 1,800 loaded miles clears that, leaving around $183 for the week.</p>
+  <h3>What loaded rate do I need to hit a weekly take-home goal?</h3>
+  <p>Type a dollar figure into &ldquo;Target weekly take-home&rdquo; and the calculator solves the loaded rate backwards instead of forwards: take the week&rsquo;s cost, subtract the detention/layover income already counted, add the take-home you want, divide by loaded miles, then gross that up for the cut factoring will take. At the starting figures &mdash; $3,600 weekly cost, $291 of factored accessorial income, 1,800 loaded miles, 3% factoring &mdash; an $800 take-home goal solves to about $2.35/mi loaded, before factoring. That&rsquo;s the number to compare against a broker&rsquo;s posted rate, not the $2.00 starting example; the $2.00 offer only clears about $183 for the week at these figures.</p>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not tell you what rate to accept or what a lane should pay. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Miles, fuel prices, the truck note, and offered rates stay on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your numbers. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
-    <p>Free and open source. If it kept you off a losing load, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <p>Free and open source. If it kept you off a losing load, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -210,7 +202,11 @@
       'detentionHours', 'detentionPayPerHour', 'layoverPay',
       'lumperPaid', 'lumperReimbursed',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const perMile = value => value === null ? 'n/a' : `${money(value)}/mi`;
     const el = id => document.getElementById(id);
 

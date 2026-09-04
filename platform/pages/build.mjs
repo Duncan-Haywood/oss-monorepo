@@ -6,7 +6,9 @@
 // ---------------
 // GitHub serves exactly one Pages site per repository. Before this script the
 // only workflow that could publish one built `retail-pilot-intel`'s
-// passcode-gated docs app — so the owner's single `GITHUB_PAGES_ENABLED` flip
+// passcode-gated docs app — so the owner's single Pages-enable flip
+// (`PAGES_ENABLED`; see `platform/pages/README.md` for why it is not spelled
+// `GITHUB_PAGES_ENABLED`)
 // would have put an internal docs site live and left ~30 finished, tested,
 // free calculators with no public URL at all. Deploy-first (portfolio/DIRECTION.md)
 // means the flip has to publish the products, so the site the flip publishes
@@ -24,6 +26,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
+import { decodeEntities } from './entities.mjs';
+import {
+  FEED_MAX_ENTRIES,
+  feedUpdatedAt,
+  isIsoDate,
+  loadLaunchDates,
+  orderForFeed,
+} from './launched.mjs';
+
 import {
   ICONS,
   OFFLINE_WIDGET_HTML,
@@ -35,8 +46,52 @@ import {
   renderManifest,
   renderOfflinePage,
   renderServiceWorker,
+  renderSocialCard,
 } from './offline.mjs';
-import { injectShopRates } from './rates.mjs';
+import {
+  SHOP_RATES_MODULE_FILE,
+  SHOP_RATES_STYLE_FILE,
+  injectShopRates,
+  renderShopRatesModule,
+  renderShopRatesStyle,
+} from './rates.mjs';
+import {
+  BID_FOLLOW_UP_HELPERS,
+  BID_PRICING_HELPERS,
+  BID_RECORD_HELPERS,
+  SAVED_BIDS_MODULE_FILE,
+  SAVED_BIDS_STYLE_FILE,
+  injectSavedBids,
+  pageHeadlineAmountSelector,
+  renderSavedBidsModule,
+  renderSavedBidsStyle,
+  stripForInjection,
+} from './jobs.mjs';
+import {
+  BID_LINK_MODULE_FILE,
+  injectBidLink,
+  renderBidLinkModule,
+} from './link.mjs';
+import {
+  DEFAULT_EMBED_HEIGHT,
+  EMBED_HOST_FILE,
+  EMBED_MODULE_FILE,
+  EMBED_QUERY_PARAM,
+  EMBED_STYLE_FILE,
+  injectEmbedWidget,
+  renderEmbedHostModule,
+  renderEmbedModule,
+  renderEmbedStyle,
+} from './embed.mjs';
+import {
+  INVALID_MODULE_FILE,
+  INVALID_STYLE_FILE,
+  injectInvalidField,
+  renderInvalidModule,
+  renderInvalidStyle,
+} from './invalid.mjs';
+import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
+import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -51,11 +106,25 @@ export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-proje
 const PLACEHOLDER_ORIGIN = 'https://example.invalid/';
 
 // Where a venture's public entry point may live, in preference order.
-const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
+//
+// Exported because this build is not the only thing that has to answer "is
+// this venture a static page, and where does it start?". The apex tool mirror
+// (`platform/marketing/front-door-tools.mjs`) answers the same question for
+// the front door, and every time the two have disagreed the apex has silently
+// dropped ventures this build publishes — six of them on 2026-09-03, when the
+// mirror knew only the flat `index.html`. Importing the rule is what keeps a
+// third divergence from being possible.
+export const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 
 // Ventures whose public surface is not at one of the standard paths.
-const ENTRY_OVERRIDES = {
-  // Five electronics calculators behind their own hub page.
+//
+// Exported for the same reason as ENTRY_CANDIDATES, and it is the half that
+// actually went wrong: the mirror grew the `site/` candidate but never learned
+// that overrides exist at all, so `ai-engineering-academy`'s hub and its six
+// calculators were reported as "not a static page the mirror can serve" while
+// this build was publishing all seven.
+export const ENTRY_OVERRIDES = {
+  // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
 
@@ -68,6 +137,128 @@ const EXCLUDED_SLUGS = new Set([
   // by portfolio/hosting/README.md.
   'ubuntu-agent-server',
 ]);
+
+/**
+ * Words a tool should answer to that its own copy never uses.
+ *
+ * Stemming closes the gap between "fence" and "fences". It cannot close the
+ * gap between two different words for the same job, and that gap is where the
+ * searcher usually stands: the trade writes "pressure washing" and the
+ * customer types "power washing"; the tool is a "snow removal" calculator and
+ * the search is "snow plowing". Each entry below was a query that returned
+ * zero results against the built catalogue while the listed tool sat there.
+ *
+ * Keyed by slug substring rather than by an indexed word, because a word
+ * trigger misfires: keying "air conditioning" off the token "pressure" would
+ * hang it on the well-pump calculator. A slug is explicit about which tools
+ * an alias reaches, which also makes a wrong entry easy to spot in review.
+ * The cost is that a new venture gets no aliases until someone adds a line.
+ *
+ * These widen a card's index only. Nothing is removed, so no alias can take
+ * away a result a query already found.
+ */
+export const SEARCH_ALIASES = [
+  { slug: 'pressure-washing', add: 'power washing powerwashing soft wash softwash' },
+  { slug: 'window-cleaning', add: 'window washing washer squeegee' },
+  { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
+  { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
+  // "removal" earns its place: the matcher ANDs across words, so "wildlife
+  // removal" found nothing while "wildlife" alone found this tool.
+  { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
+  { slug: 'gutter-cleaning', add: 'downspout leaves' },
+  // Both tools price cooling work; neither says "air conditioning" outright.
+  { slug: 'mini-split', add: 'air conditioning conditioner cooling ductless' },
+  { slug: 'hvac-maintenance', add: 'air conditioning conditioner cooling heating furnace' },
+  // A whole-room search is how people shop for these, and no single tool
+  // carries both words, so the matcher's AND across words found nothing.
+  { slug: 'kitchen-tile-backsplash', add: 'kitchen remodel renovation' },
+  { slug: 'countertop', add: 'kitchen remodel renovation' },
+  { slug: 'cabinet-refinishing', add: 'kitchen remodel renovation' },
+  { slug: 'walk-in-shower', add: 'bathroom remodel renovation' },
+  { slug: 'walk-in-tub', add: 'bathroom remodel renovation' },
+  { slug: 'toilet-replacement', add: 'bathroom remodel renovation' },
+  { slug: 'basement-finishing', add: 'basement remodel renovation' },
+  // The trade writes "security camera"; the customer, the search engine, and
+  // half the installers write "CCTV". `nvr`/`dvr` are the head end this tool
+  // actually prices, and "low voltage" is the trade that bids the work.
+  // Deliberately NOT here: alarm, access control, structured cabling. An alias
+  // only widens, so a word this tool does not price would put it in front of
+  // someone pricing a different job — reach bought with a wrong answer.
+  { slug: 'security-camera', add: 'cctv surveillance nvr dvr ip camera poe low voltage lowvoltage' },
+  // The roof this tool prices is the one nobody calls "a reroof" when they
+  // search for it. Its own copy says "reroof", "squares", "pitch" and
+  // "tear-off" — every word of the trade's vocabulary and none of the
+  // material's, so "shingle", the single most obvious query a homeowner or a
+  // roofer types, returned nothing at all. Not added to the flat-roof or
+  // metal-roof calculators: those price membrane and panel, and a shingle
+  // query reaching them is the wrong answer rather than a wider one.
+  { slug: 'roofing', add: 'shingle shingles asphalt architectural laminate three tab dimensional' },
+  // "Sod" is the trade word for what the customer calls grass. The lawn-care
+  // route tool is the recurring-service half of the same query.
+  { slug: 'sod-install', add: 'grass turfgrass' },
+  { slug: 'lawn-care', add: 'grass mowing mow mower cutting' },
+  // Priced by the yard and the landfill ticket, sold to the customer as a
+  // dumpster or a truckload.
+  { slug: 'junk-removal', add: 'dumpster truckload truck load' },
+  // "AC" is how this equipment is asked for everywhere except its own spec
+  // sheet. Both tools already answer "air conditioning" through the alias
+  // above; neither answered the two letters people actually type. "unit" rides
+  // along because the query is nearly always "ac unit", and the matcher ANDs
+  // across words — "ac" alone would still have found nothing.
+  { slug: 'mini-split', add: 'ac unit units' },
+  { slug: 'hvac-maintenance', add: 'ac unit units' },
+  // "Tuckpointing" and "repointing" name the same job; a homeowner or GC
+  // typing either word, or the material ("mortar", "brick", "masonry"),
+  // found nothing, because the tool's own copy only ever says
+  // "tuckpointing" and "wall".
+  { slug: 'tuckpointing', add: 'brick masonry mortar repointing brickwork' },
+  // The trade word for what this tool prices is "hardscape" or
+  // "hardscaping"; the tool's own copy says "paver" and "patio" but never
+  // the word the industry and the customer both search first.
+  { slug: 'paver-patio', add: 'hardscape hardscaping' },
+  // The regulation that drives most of this tool's demand is never named in
+  // its own copy, so a search for the term that actually motivates the
+  // purchase ("ADA ramp", "wheelchair accessibility") found nothing.
+  { slug: 'wheelchair-ramp', add: 'ada accessibility accessible' },
+  // "Sheetrock" is the genericized brand name half the trade uses instead
+  // of "drywall".
+  { slug: 'drywall', add: 'sheetrock' },
+  // The professional a homeowner searches for tree work by title.
+  { slug: 'tree-service', add: 'arborist' },
+  // The pump type most residential wells actually use, and the word a
+  // customer researching a quote is as likely to type as "well pump".
+  { slug: 'well-pump', add: 'submersible' },
+  // "Replacement" does not stem down to "replace" under the suffix list
+  // above (no `-ment` rule), so a query built around the word a customer
+  // actually uses — "pool liner replacement" — matched nothing even though
+  // the tool's own copy says "replace" throughout.
+  { slug: 'vinyl-liner', add: 'replacement replacing' },
+];
+
+/**
+ * The alias words for one venture, or '' when it has none.
+ *
+ * The key is matched against the slug's `-`-separated words as a contiguous
+ * run, not as a raw substring. A substring test reads a slug as one long
+ * string and cannot see where a word starts, so it silently attaches an alias
+ * to a tool that merely *ends* the same way: `basement-waterproofing-bid-
+ * calculator` contains the substring `roofing-bid-calculator`, so keying the
+ * shingle words above off `roofing` — or even off the full roofing slug —
+ * would have put "shingle" in front of someone pricing a French drain. That is
+ * the failure the comment above this table warns about, arriving through the
+ * matcher rather than through a badly chosen word.
+ */
+export function aliasesFor(slug) {
+  const words = String(slug).split('-');
+  const claims = (key) => {
+    const wanted = String(key).split('-');
+    return words.some((_, start) =>
+      wanted.every((word, offset) => words[start + offset] === word));
+  };
+  return SEARCH_ALIASES.filter((alias) => claims(alias.slug))
+    .map((alias) => alias.add)
+    .join(' ');
+}
 
 // Never shipped to a visitor: test payload they would download for no benefit,
 // repo bookkeeping, or a per-venture robots.txt that crawlers never read
@@ -108,25 +299,111 @@ const CATEGORY_RULES = [
     id: 'marketplace',
     title: 'Marketplace seller tools',
     blurb: 'Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.',
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell)/.test(slug),
+    // The share-card field colour for every tool in this section — see
+    // `socialCardFileFor` and `SOCIAL_CARD_ACCENTS` below for why each
+    // category gets its own tint. This one is the site's own brand teal.
+    accent: '#12594a',
+    // `tiktok-shop` and `delivery-app` sell through someone else's storefront and
+    // pay someone else's fee schedule, which is what this section is: they sat in
+    // the catch-all, where a seller looking for their marketplace never scrolled.
+    //
+    // `marketplace-fee-compare` is the cross-channel tool the rest of this
+    // section feeds into, so it belongs here for the same reason — landing in
+    // the catch-all would hide the one page that answers "which of these?" from
+    // the readers of all the pages that answer "how much on this one?".
+    // `str-host` is an Airbnb-vs-Vrbo payout calculator: a host comparing two
+    // marketplaces' fee schedules on one booking, which is this section's exact
+    // job. It sat in the catch-all because the slug does not start with a
+    // storefront's name.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host)/.test(slug),
   },
   {
     id: 'trades',
     title: 'Trade & contractor bids',
-    blurb: 'Bid a job the way the trade does: materials, crew hours, burden, overhead, and what the extras really cost.',
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer)/.test(slug),
+    accent: '#5c4412',
+    // Names the proposal because it is the half a visitor is searching for.
+    // The bid arithmetic is what the contractor needs; the printed quote is
+    // what wins them the job, and it was invisible on the one page most
+    // visitors land on.
+    blurb: 'Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.',
+    // `shop-rate` is the upstream tool for this whole section: it computes the
+    // payroll burden and overhead rate that every bid calculator below asks for.
+    // Landing in the catch-all would have hidden it from exactly the readers who
+    // meet those two fields.
+    // `cleaning-dilution`, `hvac-maintenance` and `appliance-repair` are trade
+    // work whose slugs end in something other than `bid-calculator`, so they
+    // landed in the catch-all — where a cleaning contractor reading "Cleaning,
+    // restoration & insulation" and an HVAC contractor reading "HVAC, plumbing
+    // & electrical" never saw them. The tool existed, its audience was browsing
+    // the right section, and it was not in it.
+    // `cut-list` is the one tool here that prices no job at all: it plans how a
+    // parts list falls onto sheet stock and boards. It is in this section
+    // anyway, because the section is defined by who is reading it, and the
+    // people who cut plywood for a living are the ones bidding the cabinet,
+    // countertop and molding work below. See the note in `logistics`, which is
+    // where it used to land.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list)/.test(slug),
+  },
+  {
+    id: 'services',
+    title: 'Service business pricing & quotes',
+    accent: '#1d4a5c',
+    blurb: 'Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job.',
+    // These six were the coherent half of the catch-all: one-person and small
+    // service businesses (salon, photographer, mobile notary, pool route, event
+    // rental, translator) that all do the same job — turn time, travel and
+    // materials into a price for a customer — and none of which is a trade bid,
+    // a marketplace fee, or a back-office reconciliation. Grouped by an explicit
+    // slug list rather than a keyword, because what unites them is the buyer,
+    // and no substring names that.
+    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project)/.test(slug),
   },
   {
     id: 'logistics',
     title: 'Logistics, freight & cloud cost',
+    accent: '#3d2f5c',
     blurb: 'Normalise a quote, audit a bill, or size a transfer window before you sign for it.',
-    test: (slug) => /^(3pl|freight|cut-list|cloud-egress|egress-window)/.test(slug),
+    // `ltl-`, `owner-operator-` and `medical-courier-` are freight arithmetic that
+    // was landing in the catch-all only because the slug did not start with "3pl".
+    //
+    // `cut-list` used to be in this list and is not freight. It is a plywood and
+    // board cutting planner for "woodworkers, sign shops, and makers" — its own
+    // words — and the only thing it shares with this section is the word
+    // "optimizer". The cost of the mistake was not cosmetic: the four related
+    // tools at the foot of every cut-list page were a 3PL quote normaliser, a
+    // cloud egress calculator, a medical-courier route margin and an
+    // owner-operator CPM, none of which a cabinet maker has any use for, and the
+    // tool was listed on `/c/logistics/` where a freight buyer met it instead.
+    // It now sits in `trades` / `trades-interior`, beside the countertop,
+    // cabinet-refinishing, crown-molding and flooring bids sold by the same
+    // people who cut sheet goods.
+    test: (slug) => /^(3pl|freight|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
   },
   {
     id: 'evidence',
     title: 'Compliance checks & evidence records',
+    accent: '#5c2a1f',
     blurb: 'Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.',
-    test: (slug) => /(evidence|preflight|drift|tracker)$/.test(slug) || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission)/.test(slug),
+    // `real-estate-agent-photo-app` and `print-atelier` are both preflights
+    // that export a dated record and refuse to call themselves an acceptance
+    // decision — this section's exact job, and its exact disclaimer posture.
+    // Both slugs name the venture (an iPhone photography app; an art
+    // marketplace) rather than the surface, so neither the `preflight$` suffix
+    // nor any prefix above catches them, and both landed in the catch-all
+    // where the readers of "Compliance checks & evidence records" never saw
+    // them.
+    test: (slug) =>
+      /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier)/.test(slug),
+  },
+  {
+    id: 'backoffice',
+    title: 'Back-office money & contracts',
+    accent: '#1f5c35',
+    blurb: 'Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.',
+    test: (slug) =>
+      /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit)/.test(slug),
   },
 ];
 
@@ -134,10 +411,267 @@ const FALLBACK_CATEGORY = {
   id: 'more',
   title: 'More free tools',
   blurb: 'Everything else that runs entirely in your browser.',
+  accent: '#3a4552',
 };
 
 export function categoryFor(slug) {
   return CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+}
+
+/**
+ * The share-card image a page in this category points at. One file per
+ * category (7 total, named by a stable id) rather than one per tool (164,
+ * named by a title that renames): a rebrand or a retitled tool never breaks
+ * this filename, and a share into the roofing group and a share into the
+ * marketplace-fee thread render as visibly different cards without anyone
+ * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
+ * `offline.mjs` for why a colour field is the whole difference — there is no
+ * font rasteriser in this build to draw a per-category headline with.
+ */
+export function socialCardFileFor(categoryId) {
+  return `social-card-${categoryId}.png`;
+}
+
+/**
+ * The share card for one tool, served from inside that tool's own directory.
+ *
+ * Named by slug, not by title: a slug is the URL and therefore already the
+ * thing that cannot change without a redirect, whereas titles here are edited
+ * for search wording several times a year. Under `<slug>/` rather than at the
+ * root so 164 files do not land beside `robots.txt`, and so deleting a venture
+ * takes its card with it.
+ *
+ * Categories keep their own tinted card (`socialCardFileFor`) because a
+ * category page is not a tool and has no slug of this kind.
+ */
+export function toolCardFileFor(slug) {
+  return `${slug}/share-card.png`;
+}
+
+// The two lines every tool and category card carries besides its headline.
+// Both are claims the site already makes on its manifest and its About page —
+// a card is the wrong place to introduce a new one.
+export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded';
+
+// The one card-sized substitute for a card whose tool (or whose category,
+// because it holds that tool) is a documented `externalCallExceptions` entry
+// — currently just Sponsor Ready, filed under "more". Sized to fit the same
+// footer band as `CARD_FOOTER`; see the About page and the category page's
+// own `nothing you type is uploaded, except on…` for the unabbreviated claim.
+export const CARD_FOOTER_EXCEPTION = 'Runs in your browser · one lookup checks a public API';
+
+export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
+
+/**
+ * Where a category's own landing page is served.
+ *
+ * Under `c/` rather than at the root because the root is the product
+ * namespace: a directory there is a published tool, and `check.mjs` reads it
+ * that way (it requires an `index.html`, a hub link, and a disclaimer for each
+ * one). A single reserved prefix keeps the two namespaces from colliding the
+ * first time someone ships a venture called `logistics`.
+ */
+export const CATEGORY_PATH_PREFIX = 'c';
+
+export function categoryPagePath(categoryId) {
+  return `${CATEGORY_PATH_PREFIX}/${categoryId}/`;
+}
+
+/**
+ * The one page on this site that is about the site rather than about a job to
+ * be done. Served as a directory so the URL a person types, links, or reads
+ * aloud is `/about` with no extension.
+ */
+export const ABOUT_PATH = 'about/';
+
+/**
+ * The copy each category page is published with.
+ *
+ * Separate from `CATEGORY_RULES` because these are different jobs. The rules
+ * decide which tools a section holds and are edited every time a venture
+ * lands; this is the page's search-facing copy — the phrase a visitor actually
+ * types — and changes only when the category's audience does.
+ *
+ * The hub cannot do this job itself. It is one URL carrying 164 tools across
+ * six trades, so its title and description have to stay generic enough to
+ * cover all of them, and it competes for "free contractor bid calculator"
+ * against pages that are about nothing else. A category page is about one
+ * thing, which is the whole reason it can rank for one thing.
+ *
+ * `title` deliberately omits the site name: the build appends it, and a title
+ * that carries it twice is what search engines truncate.
+ */
+const CATEGORY_PAGE_COPY = {
+  marketplace: {
+    title: 'Free marketplace seller fee calculators',
+    description:
+      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
+    intro:
+      'Every marketplace publishes a fee schedule and none of them publish what you keep. These calculators put your own cost of goods, shipping and return rate into the arithmetic, so the number you get is the one that lands in your account — not a percentage off the sale price.',
+    audience: 'people selling on marketplaces',
+  },
+  trades: {
+    title: 'Free contractor bid calculators and estimating tools',
+    description:
+      'Free bid calculators for roofing, HVAC, plumbing, electrical, concrete, painting and cleaning. Price materials, crew hours and overhead, then print a proposal.',
+    intro:
+      'A bid that only counts materials and an hourly rate loses money on burden, overhead and the extras nobody wrote down. These calculators price a job the way the trade does, then print the customer a proposal with the scope, the deposit split and a line to sign.',
+    audience: 'trade contractors',
+  },
+  logistics: {
+    title: 'Free freight, 3PL and cloud cost calculators',
+    description:
+      'Free tools to normalise a 3PL quote, audit a freight accessorial bill, class an LTL shipment, price owner-operator miles and size a cloud egress transfer.',
+    intro:
+      'Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.',
+    audience: 'logistics and infrastructure buyers',
+  },
+  evidence: {
+    title: 'Free compliance check and evidence record tools',
+    description:
+      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, permission drift, accessibility, chargeback packets.',
+    intro:
+      'The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.',
+    audience: 'small teams preparing compliance evidence',
+  },
+  backoffice: {
+    title: 'Free small-business cash flow and pricing tools',
+    description:
+      'Free calculators for cash runway, invoice payment terms, CAM reconciliation, SaaS seat true-ups and break-even on a price move — the arithmetic after the win.',
+    intro:
+      'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
+    audience: 'small-business owners and operators',
+  },
+  services: {
+    title: 'Free pricing calculators for service businesses',
+    description:
+      'Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time and materials into a price.',
+    intro:
+      'A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.',
+    audience: 'small service businesses',
+  },
+  more: {
+    title: 'More free small-business calculators',
+    description:
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, services, logistics, compliance and back-office sections.',
+    intro:
+      'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
+    audience: 'small businesses',
+  },
+};
+
+export function categoryPageCopy(category) {
+  return (
+    CATEGORY_PAGE_COPY[category.id] ?? {
+      title: category.title,
+      description: category.blurb,
+      intro: category.blurb,
+      audience: 'small businesses',
+    }
+  );
+}
+
+/**
+ * Sub-groups inside a category, so a section that has grown past a screenful is
+ * still scannable.
+ *
+ * `trades` is why this exists. It reached 105 tools — an alphabetical wall from
+ * `artificial-turf` to `window-replacement` in which a roofer looking for the
+ * metal-roof calculator has to read past sixty trades that are not theirs. The
+ * hub's search finds a tool you can already name; a directory has to also work
+ * for the visitor who is browsing, and browsing 105 undifferentiated cards is
+ * not browsing.
+ *
+ * Rules are keyword tests rather than a slug list on purpose. A bid calculator
+ * lands here most days, and a hand-maintained list would silently drop each new
+ * one into "More …" within a week — the same staleness the venture discovery in
+ * this file exists to avoid. A slug no rule claims falls to the category's own
+ * trailing group, which is a visible bucket rather than a missing tool.
+ *
+ * Ordered per category: the first matching rule wins, so a narrow rule
+ * (`window-cleaning` is cleaning work) must precede a broad one (`window-…` is
+ * an opening).
+ */
+const SUBCATEGORY_RULES = {
+  trades: [
+    {
+      id: 'trades-paid',
+      title: 'Getting paid & job margin',
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate)/.test(slug),
+    },
+    {
+      id: 'trades-cleaning',
+      title: 'Cleaning, restoration & insulation',
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
+    },
+    {
+      id: 'trades-roof',
+      title: 'Roofing, siding & gutters',
+      test: (slug) => /^(roofing|flat-roof|metal-roof|siding|soffit-fascia|gutter-|skylight|stucco|tuckpointing|exterior-painting)/.test(slug),
+    },
+    {
+      id: 'trades-openings',
+      title: 'Windows, doors & garage',
+      test: (slug) => /^(window-replacement|egress-window|entry-door|interior-door|patio-door|garage-door|plantation-shutter|automatic-driveway-gate)/.test(slug),
+    },
+    {
+      id: 'trades-mep',
+      title: 'HVAC, plumbing & electrical',
+      // `security-camera` sits here as low-voltage electrical work: the people
+      // who bid it are the electrical and structured-cabling trades, and it is
+      // closer to a panel or EV-charger job than to anything in the other groups.
+      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+    },
+    {
+      id: 'trades-interior',
+      title: 'Interior finishes & remodels',
+      // `cut-list` joins this group rather than any other: the parts it nests
+      // are cabinet doors, countertop substrate and molding stock, so the
+      // related-tool offer at the foot of its pages is work the same visitor
+      // sells.
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert|cut-list)/.test(slug),
+    },
+    {
+      id: 'trades-site',
+      title: 'Concrete, masonry & site work',
+      test: (slug) => /^(concrete|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install)/.test(slug),
+    },
+    {
+      id: 'trades-outdoor',
+      title: 'Landscape, deck & pool',
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+    },
+  ],
+};
+
+const SUBCATEGORY_FALLBACKS = {
+  trades: { id: 'trades-other', title: 'More trade bids' },
+};
+
+/**
+ * The sub-group `slug` belongs to, or `null` when its category is small enough
+ * that the hub shows one flat list.
+ */
+export function subcategoryFor(slug) {
+  const rules = SUBCATEGORY_RULES[categoryFor(slug).id];
+  if (!rules) return null;
+  return rules.find((rule) => rule.test(slug)) ?? SUBCATEGORY_FALLBACKS[categoryFor(slug).id];
+}
+
+/**
+ * Split one category's tools into its sub-groups, dropping empty ones and
+ * keeping `SUBCATEGORY_RULES` order. Returns a single unnamed group when the
+ * category has no sub-groups, so callers render one code path either way.
+ */
+export function groupBySubcategory(categoryId, items) {
+  const rules = SUBCATEGORY_RULES[categoryId];
+  if (!rules) return [{ subcategory: null, items }];
+  return [...rules, SUBCATEGORY_FALLBACKS[categoryId]]
+    .map((subcategory) => ({
+      subcategory,
+      items: items.filter((item) => subcategoryFor(item.slug)?.id === subcategory.id),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -197,13 +731,11 @@ export async function discoverSurfaces(venturesDir) {
 // Metadata
 // ---------------------------------------------------------------------------
 
-const decodeEntities = (value) =>
-  value
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'");
+// `decodeEntities` is imported at the top of this file, shared with the page
+// checks so that a `<meta>` description and the visible copy it is compared
+// against decode the same way. The local five-entity version that used to sit
+// here read `&mdash;` back out verbatim, and 1,324 of those ship in this
+// repo's HTML.
 
 /**
  * Every `<meta>` tag in `html`, as raw source.
@@ -270,6 +802,80 @@ export function truncate(text, limit = 180) {
 }
 
 /**
+ * How long a published page's own description may be.
+ *
+ * 160 is where a search result stops showing one: Google renders roughly that
+ * many characters of a snippet on a desktop result and fewer on a phone. It is
+ * also the budget that matters for the other half of this site's acquisition —
+ * a link pasted into a trade group or a Discord — where the preview card gives
+ * the description two or three lines and drops the rest.
+ */
+export const SNIPPET_MAX = 160;
+
+/**
+ * A boundary is only worth cutting at if it leaves most of the budget used —
+ * otherwise an early full stop turns a 160-character budget into a 20-character
+ * snippet, which is a worse result than the truncation being avoided.
+ */
+const snippetFloor = (limit) => Math.floor(limit * 0.6);
+
+const lastIndexMatching = (text, pattern) => {
+  let at = -1;
+  for (const match of text.matchAll(pattern)) at = match.index;
+  return at;
+};
+
+/**
+ * A page description cut to something a search result and a share card can
+ * actually show, ending where the prose does rather than mid-thought.
+ *
+ * WHY THIS EXISTS
+ *
+ * These descriptions accrete. Every session that adds a feature to a tool adds
+ * a clause to its description saying so, nothing ever trims one, and the result
+ * is copy no reader will ever see the end of: 138 of 168 published pages were
+ * over the snippet budget, 11 of them past 300 characters, and the eBay
+ * calculator had reached 1,862 — a single sentence of twenty-five "whether X
+ * still beats Y" clauses, of which a search result showed the first 160 and
+ * stopped in the middle of the word "whether".
+ *
+ * The long copy is not waste and is not deleted here: `readMeta` keeps it as
+ * `fullDescription`, which is what the hub's search indexes and what `llms.txt`
+ * hands a model. It is only wrong in the two places a human reads a fixed
+ * number of characters. So the budget is applied where it is published, not to
+ * the venture's own source, and a session can keep writing as much as the tool
+ * deserves without having to think about a limit.
+ *
+ * `truncate` is the wrong instrument for this: it cuts at a whole word, which
+ * for a description made of clauses lands on "...whether a…". Prefer a sentence
+ * end inside the budget (nothing is added and no truncation is visible), then a
+ * clause boundary with an ellipsis, and only fall back to a word.
+ */
+export function snippetize(text, limit = SNIPPET_MAX) {
+  const clean = String(text ?? '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= limit) return clean;
+
+  const floor = snippetFloor(limit);
+  const window = clean.slice(0, limit);
+
+  // A sentence that ends inside the budget is the best possible cut: the
+  // snippet is a whole thought and nothing marks it as shortened.
+  const sentence = lastIndexMatching(window, /[.!?](?=["')\]]?(?:\s|$))/g);
+  if (sentence >= floor) return clean.slice(0, sentence + 1);
+
+  // Otherwise end at the last clause. The ellipsis is honest — the sentence
+  // does go on — and it is where a reader would have stopped anyway.
+  const clause = lastIndexMatching(window, /[,;:](?=\s)|\s[—–-](?=\s)/g);
+  if (clause >= floor) return `${clean.slice(0, clause).replace(/[\s,;:—–-]+$/, '')}…`;
+
+  // `truncate` overshoots by the ellipsis on text with no space to fall back to
+  // (a single unbroken token), which is the one input that would ship a snippet
+  // over the budget this function exists to hold.
+  const word = truncate(clean, limit);
+  return word.length <= limit ? word : `${clean.slice(0, limit - 1)}…`;
+}
+
+/**
  * The card copy for one surface. Prefers the venture's own og:title, because a
  * `<title>` is written for a search result page ("Janitorial Bid Calculator |
  * Commercial Cleaning Price Per Month") and reads badly in a card grid.
@@ -318,6 +924,142 @@ export function searchTokens(parts) {
 }
 
 /**
+ * The forms of one query word that should still reach a tool.
+ *
+ * The index stores the words a tool's own copy uses -- "fence", "pool",
+ * "tree" -- and the matcher is a token-*prefix* test, so a query word can
+ * only ever reach an indexed word at least as long as itself. Half the
+ * catalogue was unreachable through that asymmetry: "fences", "pools",
+ * "trees", "patios", "sheds", "chimneys", "driveways" and "cleaners" each
+ * returned nothing while the matching calculator sat one plural away, and
+ * "electrician", "plumber" and "remodeling" missed the tools that spell
+ * themselves "electrical", "plumbing" and "remodel".
+ *
+ * Returns the word plus the shorter forms worth trying. Matching is an OR
+ * over the set and the word itself is always the first member, so this can
+ * only widen a result set, never shrink one.
+ *
+ * Deliberately not a real stemmer: Porter would pull in a dependency and a
+ * pile of rules earning nothing here, because the queries that matter are
+ * trade nouns rather than English prose.
+ */
+export function searchVariants(word) {
+  // Each suffix comes off the original word, never off an already-stripped
+  // form -- chaining would take "processing" to "proces" and then "proc".
+  const SUFFIXES = ['s', 'es', 'ing', 'ings', 'er', 'ers', 'ian', 'ians'];
+  const forms = [word];
+  for (const suffix of SUFFIXES) {
+    if (!word.endsWith(suffix)) continue;
+    const stem = word.slice(0, -suffix.length);
+    // Four characters is the floor, measured rather than guessed. At three,
+    // "trees" also yields "tre" and drags in trench, tread and treatment --
+    // ten hits where two are about trees. Four keeps every plural that has a
+    // tool behind it and drops the stems that have stopped being words.
+    if (stem.length >= 4) forms.push(stem);
+  }
+  return [...new Set(forms)];
+}
+
+/**
+ * Share of the catalogue a word has to appear in before it stops narrowing
+ * anything. Measured, not guessed: at 164 tools the words above this line are
+ * `see` (70%), `away` (59%), `charge` (54%), `much` (52%), `special` (43%) and
+ * `not` (37%) — house phrasing ("see what a 5× special costs", "what to charge",
+ * "the cost a per-square special cannot see") rather than anything a visitor is
+ * looking for. The next word down is `number` at 32%, which is the same kind of
+ * word, so the exact cut is not load-bearing.
+ */
+export const CATALOGUE_STOPWORD_SHARE = 0.35;
+
+/**
+ * Words this catalogue's own copy repeats so often they cannot narrow a search.
+ *
+ * `SEARCH_STOPWORDS` is generic English. This is the domain half, and it has to
+ * be derived rather than listed: the copy changes every time a tool ships, and
+ * a hand-written list would be describing last month's catalogue.
+ *
+ * It matters because the matcher ANDs across query words, so a word in half the
+ * indexes still costs nothing while a word in *no* index zeroes the whole
+ * query. `how much to charge to install a water heater` returned the **boiler**
+ * calculator alone: that tool happens to use all seven content words somewhere,
+ * and the water-heater calculator does not say "charge". Dropping the two words
+ * that mean nothing here leaves `install water heater`, which finds the tool the
+ * visitor asked for.
+ *
+ * **A word that appears in any tool's name is never a stopword**, however common
+ * it is. That rule is what makes this safe: `quote` is in three names (Notary
+ * Trip Quote, Translator Project Quote, 3PL Quote Normalizer) and `rate` is in
+ * one, so neither can be dropped, and searching a tool by its own name keeps
+ * working. Without it a frequency cut would quietly delete tools from the
+ * search — the worst possible outcome for the box that exists to find them.
+ *
+ * Dropped from the index and from the query alike; they have to agree, or a
+ * query containing one would match nothing at all.
+ */
+export function catalogueStopwords(cards, share = CATALOGUE_STOPWORD_SHARE) {
+  if (cards.length === 0) return new Set();
+  const named = new Set();
+  const frequency = new Map();
+  for (const card of cards) {
+    for (const word of String(card.name ?? '').split(' ')) if (word) named.add(word);
+    for (const word of new Set(String(card.index ?? '').split(' ').filter(Boolean))) {
+      frequency.set(word, (frequency.get(word) ?? 0) + 1);
+    }
+  }
+  const floor = cards.length * share;
+  return new Set(
+    [...frequency]
+      .filter(([word, count]) => count >= floor && !named.has(word))
+      .map(([word]) => word),
+  );
+}
+
+/** One card's search index with the words that cannot narrow it removed. */
+export function withoutStopwords(index, stopwords) {
+  return index
+    .split(' ')
+    .filter((word) => word && !stopwords.has(word))
+    .join(' ');
+}
+
+/**
+ * How well one card answers a query, so the hub can put the best match first.
+ *
+ * The hub used to filter without ranking: matched cards stayed in catalogue
+ * order, which is alphabetical inside a sub-group. That is fine at four hits
+ * and useless at twelve. Measured against the built site, "roof" returned
+ * twelve tools led by chimney-sweep, dryer-vent and gutter-cleaning — all of
+ * which merely mention a roof — with `roofing-bid-calculator` far enough down
+ * that a phone showed three wrong answers and no right one. "windows" led with
+ * the no-show fee calculator; "concrete" with the stair-lift calculator. The
+ * tool the visitor named by name was present every time and buried every time.
+ *
+ * A word found in the tool's *name* is worth four of the same word found in
+ * its description or aliases, which is the whole of the fix: a tool called
+ * "Roofing Bid Calculator" outranks one whose copy happens to say "roof". The
+ * weights are per query word and summed, so a two-word query that hits both
+ * words in a name beats one that hits a name and a description.
+ *
+ * The trailing fraction is a tie-break and never more than that: it is under 1
+ * by construction, so it can only order cards that scored the same on words.
+ * It prefers the shorter name, on the reading that a query matching most of a
+ * name found the tool it was looking for — "roof" wants Roofing Bid Calculator
+ * before Metal Roof Bid Calculator. Equal names fall back to catalogue order,
+ * which the sort is stable in.
+ */
+export function searchScore(nameIndex, searchIndex, forms, boundary) {
+  const hit = (index, word) =>
+    boundary ? (' ' + index).includes(' ' + word) : index.includes(word);
+  let score = 0;
+  for (const variants of forms) {
+    if (variants.some((word) => hit(nameIndex, word))) score += 4;
+    else if (variants.some((word) => hit(searchIndex, word))) score += 1;
+  }
+  const nameWords = nameIndex ? nameIndex.split(' ').filter(Boolean).length : 0;
+  return score + 1 / (2 + nameWords);
+}
+
+/**
  * The `<title>`/`<h1>` of every other page in a venture.
  *
  * These are the venture's SEO articles, and they are phrased as the question a
@@ -343,6 +1085,94 @@ export async function collectPageTitles(sourceDir, entryFile) {
 async function countPages(sourceDir) {
   const entries = await fs.readdir(sourceDir, { withFileTypes: true });
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
+}
+
+/**
+ * Hostnames a venture's own shipped JavaScript sends a `fetch()` request to,
+ * other than a same-origin path (loading an `examples/*.json` fixture, say —
+ * several ventures do that and it does not count). Empty for the great
+ * majority of tools, which make none.
+ *
+ * This feeds the site's privacy claims ("nothing you type leaves your
+ * browser"), which are true for every tool except the ones this finds — a
+ * tool whose whole job is checking a live public API (`sponsor-ready` sends
+ * the repo you paste to `api.github.com`, because that is what checking it
+ * means) would make those claims quietly false without this, the same
+ * silent-drift failure the hand-typed catalogue counts elsewhere in this file
+ * already guard against.
+ *
+ * Heuristic, not a JS parser: it recognises a `const NAME = "https://...";`
+ * style declaration and a `fetch()` call whose target is a literal URL or
+ * one of those constants — every shape this codebase currently uses. A
+ * fetch target built some other way (concatenation, a computed URL) would
+ * not be caught, which is why callers should read an empty result as "none
+ * found", not as a verified guarantee that none exist.
+ */
+export async function surfaceExternalFetchHosts(dir) {
+  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.html'));
+  const hosts = new Set();
+
+  for (const file of files) {
+    const src = await fs.readFile(file, 'utf8');
+    const urlConsts = new Map();
+    for (const m of src.matchAll(/(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*["'`](https?:\/\/[^"'`]+)["'`]/g)) {
+      urlConsts.set(m[1], m[2]);
+    }
+    const targets = [
+      ...[...src.matchAll(/fetch\(\s*[`'"](https?:\/\/[^`'"]+)[`'"]/g)].map((m) => m[1]),
+      ...[...src.matchAll(/fetch\(\s*`\$\{([A-Za-z_$][\w$]*)\}/g)]
+        .map((m) => urlConsts.get(m[1]))
+        .filter(Boolean),
+      ...[...src.matchAll(/fetch\(\s*([A-Za-z_$][\w$]*)\s*[+,)]/g)]
+        .map((m) => urlConsts.get(m[1]))
+        .filter(Boolean),
+    ];
+    // HTML-only: a browser fetches these on page load without any `fetch()`
+    // call ever appearing in a `.js` file, so the checks above miss them
+    // entirely. `rel="canonical"` / `rel="alternate"` are metadata a crawler
+    // reads, never a request a browser makes, so they are deliberately not
+    // included here — every venture's own canonical tag would otherwise show
+    // up as a false "external call" on itself.
+    if (file.endsWith('.html')) {
+      targets.push(...[...src.matchAll(/<script[^>]+\bsrc=["']?(https?:\/\/[^"'\s>]+)/gi)].map((m) => m[1]));
+      targets.push(
+        ...[...src.matchAll(/<link\b[^>]*\brel=["'][^"']*\b(?:stylesheet|preconnect|preload|modulepreload|dns-prefetch)\b[^"']*["'][^>]*>/gi)]
+          .flatMap((tag) => [...tag[0].matchAll(/\bhref=["']?(https?:\/\/[^"'\s>]+)/gi)])
+          .map((m) => m[1]),
+      );
+    }
+    for (const url of targets) {
+      try {
+        hosts.add(new URL(url).host);
+      } catch {
+        // Not a resolvable absolute URL — skip rather than guess.
+      }
+    }
+  }
+
+  return [...hosts].sort();
+}
+
+/**
+ * The surfaces flagged by `surfaceExternalFetchHosts`, as the shape the
+ * privacy copy below needs: which tool, what it is called, and where it
+ * sends what you type. Surfaces built without that field (a hand-written
+ * test fixture, say) are silently treated as having none, so this is safe to
+ * call on any surface list.
+ */
+export function externalCallExceptions(surfaces) {
+  return surfaces
+    .filter((s) => s.externalFetchHosts && s.externalFetchHosts.length)
+    .map((s) => ({ slug: s.slug, title: s.title, hosts: s.externalFetchHosts }))
+    .sort((a, b) => a.slug.localeCompare(b.slug));
+}
+
+/** "A", "A and B", or "A, B, and C" — used to read an exception list as prose. */
+export function listProse(items) {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
 }
 
 /**
@@ -530,7 +1360,33 @@ const escapeHtml = (value) =>
 const jsonLd = (value) =>
   JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
-const DISCLAIMER_HTML = `
+/**
+ * The shared "No warranty / no SLA / Privacy" footer block that ships on the
+ * hub, every category page, and the About page's own footer.
+ *
+ * The Privacy paragraph makes one absolute claim — no server ever receives
+ * what a visitor types — which `externalCallExceptions` can now disprove for
+ * a specific tool. Rather than let that make the paragraph silently false,
+ * `surfaces` (the same list every caller already has in scope) is checked on
+ * every render and an accurate exception clause is appended only when one is
+ * needed, naming the tool and where it sends what you type.
+ *
+ * The name is plain text, not a link to the tool: this block is rendered on
+ * the hub too, whose own listing already links every slug exactly once, and
+ * a second `href="<slug>/"` here would read as a second listing of the same
+ * tool. The About page's own, separate privacy panel makes the same point
+ * with a working link — this one points there instead.
+ */
+function disclaimerHtml(toRoot, surfaces = []) {
+  const exceptions = externalCallExceptions(surfaces);
+  const exceptionNote = exceptions.length
+    ? ` Except ${listProse(
+        exceptions.map((x) => escapeHtml(x.title)),
+      )} — each of which checks a live public API as its whole job, so what you paste there to look up goes to ${listProse(
+        [...new Set(exceptions.flatMap((x) => x.hosts))],
+      )} and nowhere else. <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> says exactly what.`
+    : '';
+  return `
       <h2>No warranty</h2>
       <p>
         These tools are provided free and as-is, without warranty of any kind,
@@ -553,20 +1409,581 @@ const DISCLAIMER_HTML = `
       <p>
         Everything runs in your browser. What you type is never uploaded: there
         is no account system, no tracking cookie, no analytics vendor, and no
-        server that could receive it. We count anonymous, aggregate events —
+        server that could receive it.${exceptionNote} We count anonymous, aggregate events —
         which tools get opened, never anything about who opened them — and that
         count stays in your own browser's local storage. Browsers sending
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>`;
+}
 
-export function renderHub(surfaces, baseUrl) {
-  const groups = [...CATEGORY_RULES, FALLBACK_CATEGORY]
+/**
+ * The category sections, in the order the hub shows them, with empty ones
+ * dropped. Shared so the hub, `llms.txt`, and anything else that groups the
+ * catalogue cannot drift into showing different sets of tools.
+ */
+export function groupByCategory(surfaces) {
+  return [...CATEGORY_RULES, FALLBACK_CATEGORY]
     .map((category) => ({
       category,
       items: surfaces.filter((s) => categoryFor(s.slug).id === category.id),
     }))
     .filter((group) => group.items.length > 0);
+}
+
+/**
+ * The shared look for a category page. Kept as one string rather than a file so
+ * a category page is a single request with nothing to 404: the hub already
+ * inlines its own, for the same reason.
+ *
+ * Deliberately a subset of the hub's sheet — the same tokens, the same card,
+ * none of the search-box or contents-index rules a category page has no markup
+ * for. Two sheets that share a palette drift; two sheets that share *names*
+ * drift visibly, which is the point.
+ */
+const CATEGORY_STYLE = `
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+`;
+
+/**
+ * One category's landing page.
+ *
+ * Why these exist at all: the hub is a single URL carrying 164 tools across six
+ * unrelated trades. That is the right front door for someone who already knows
+ * the site, and the wrong page for organic search, which matches a query
+ * against one page's whole subject. A contractor searching "free roofing bid
+ * calculator" is competing for the hub's attention with eleven marketplace fee
+ * tools and nine compliance checks, and the hub cannot describe itself as a
+ * roofing page without lying to the other 153.
+ *
+ * A category page is about one thing, links only that thing's tools, and says
+ * so in its title, its description, its H1 and its JSON-LD. It also gives the
+ * catalogue an internal-linking layer it did not have: every tool was one click
+ * from a page about everything, and is now one click from a page about its own
+ * trade.
+ *
+ * Not a copy of the hub with a filter applied. No search box (the hub's is
+ * better and this page is already the filtered view), and the cards carry no
+ * `data-search` payload, which is a meaningful weight saving on the 112-tool
+ * trades page.
+ */
+export function renderCategoryPage({ category, items, groups, baseUrl }) {
+  const copy = categoryPageCopy(category);
+  const url = `${baseUrl}${categoryPagePath(category.id)}`;
+  // Every asset lives at the site root and this page is served two levels down.
+  const toRoot = '../../';
+  const subgroups = groupBySubcategory(category.id, items);
+  // Computed the same way the About page proves its own privacy claim, so a
+  // category that happens to hold the one tool with a documented external
+  // call (Sponsor Ready, filed under "more") does not have this page say
+  // "nothing you type is uploaded" for all of its tools when that is false
+  // for one of them.
+  const categoryExceptions = externalCallExceptions(items);
+  const countPrivacyClaim = categoryExceptions.length
+    ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => x.title))}`
+    : 'nothing you type is uploaded';
+  const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+
+  const renderCard = (surface) => `          <li class="card">
+            <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-tool="${escapeHtml(surface.slug)}" data-pf-to="${escapeHtml(surface.slug)}">
+              <h3>${escapeHtml(surface.title)}</h3>
+            </a>
+            <p>${escapeHtml(surface.description)}</p>
+            ${
+              surface.pageCount > 1
+                ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
+                : ''
+            }
+          </li>`;
+
+  const body = flat
+    ? `      <ul class="cards">
+${items.map(renderCard).join('\n')}
+      </ul>`
+    : subgroups
+        .map(
+          ({ subcategory, items: subItems }) => `      <section class="subgroup" id="${escapeHtml(subcategory.id)}">
+        <h2>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h2>
+        <ul class="cards">
+${subItems.map(renderCard).join('\n')}
+        </ul>
+      </section>`,
+        )
+        .join('\n');
+
+  // Sibling links matter more here than they look. Without them each category
+  // page is a leaf: a crawler that lands on one from search reaches the hub and
+  // nothing else, and a visitor whose tool is one section over has to go back
+  // to a page of 164 to find it.
+  const siblings = groups
+    .filter((group) => group.category.id !== category.id)
+    .map(
+      ({ category: other, items: otherItems }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(other.id)}`)}">${escapeHtml(
+          categoryPageCopy(other).title,
+        )}</a> <span>(${otherItems.length})</span></li>`,
+    )
+    .join('\n');
+
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: copy.title,
+    url,
+    description: copy.description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: category.title, item: url },
+      ],
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((surface, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${baseUrl}${surface.slug}/`,
+        name: surface.title,
+      })),
+    },
+  };
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${copy.title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(copy.description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(copy.title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(copy.description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${socialCardFileFor(category.id)}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${copy.title} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <style>${CATEGORY_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} free tools</a> › ${escapeHtml(category.title)}</p>
+    <header>
+      <p class="eyebrow">${escapeHtml(category.title)}</p>
+      <h1>${escapeHtml(copy.title)}</h1>
+      <p class="lede">${escapeHtml(copy.intro)}</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>
+    </header>
+
+    <main>
+${body}
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+${siblings}
+      </ul>
+    </section>
+
+    <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`${CATEGORY_PATH_PREFIX}/${category.id}`)}" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * Prose rules the card-and-grid sheet has no need for. Appended to
+ * `CATEGORY_STYLE` rather than replacing it so the About page inherits the same
+ * palette, the same `.wrap`, the same footer treatment — a visitor arriving
+ * from a tool page should not feel they have left the site.
+ */
+const ABOUT_STYLE = `
+    .prose { max-width: 720px; }
+    .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
+    .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
+    .prose p { color: var(--muted); line-height: 1.62; margin: 0 0 14px; }
+    .prose ul { color: var(--muted); line-height: 1.62; padding-left: 22px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 7px; }
+    .prose a { color: var(--accent); }
+    .prose strong { color: var(--ink); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+             padding: 18px 20px; margin: 0 0 16px; }
+    .panel h3 { margin-top: 0; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
+              background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+              padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              overflow-wrap: anywhere;
+              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+`;
+
+/**
+ * The site's About page — and, in its second half, its press kit.
+ *
+ * Why a static catalogue of calculators needs one at all:
+ *
+ * 1. **Trust.** Every one of these tools asks a stranger to type their costs,
+ *    their margins, or their client's numbers into a page they found through
+ *    search. The single most common reason not to is the reasonable suspicion
+ *    that a free calculator is a lead magnet and the numbers are the product.
+ *    Here they are not, and that is checkable — no form, no account, no
+ *    beacon, no third-party script. Nowhere on the site said so in one place a
+ *    person could read before deciding.
+ *
+ * 2. **Distribution.** Organic linking is the whole acquisition plan. Somebody
+ *    writing a forum answer or a trade-association newsletter needs a sentence
+ *    to describe this, a URL to point at, and permission to do it. Making them
+ *    invent all three is why good tools go unlinked. The press-kit section
+ *    hands over exactly that, pre-written and copy-pasteable.
+ *
+ * Every claim here is one the build itself keeps true: the counts come from
+ * `surfaces`, and the privacy claims are properties of the generated output
+ * (no `fetch`, no `sendBeacon`, no third-party origin) rather than promises
+ * written by hand and left to rot.
+ */
+export function renderAboutPage({ surfaces, groups, baseUrl }) {
+  const url = `${baseUrl}${ABOUT_PATH}`;
+  // Served one level down, like a category page is served two.
+  const toRoot = '../';
+  const total = surfaces.length;
+  const categoryCount = groups.length;
+  const title = 'About these tools';
+  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+
+  // The one absolute claim below — nothing typed ever leaves the browser —
+  // is true for every tool except one this checks for: a tool whose whole
+  // job is checking a live public API. Computed from what actually shipped
+  // rather than remembered by hand, so a future tool built the same way
+  // cannot make this page quietly false the way the old, unconditional
+  // wording would have.
+  const exceptions = externalCallExceptions(surfaces);
+  const exceptionNames = listProse(
+    exceptions.map((x) => `<a href="${escapeHtml(`${toRoot}${x.slug}/`)}">${escapeHtml(x.title)}</a>`),
+  );
+  const exceptionHosts = listProse([...new Set(exceptions.flatMap((x) => x.hosts))]);
+
+  // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
+  // it cannot drift from the catalogue the way hand-written marketing copy does.
+  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
+  const deviceClaim = exceptions.length
+    ? `the numbers a user types never leave their device, except on ${listProse(exceptions.map((x) => x.title))}, where the one thing you paste — the lookup target — goes to the public API it checks (${exceptionHosts}) and nowhere else`
+    : `the numbers a user types never leave their device`;
+  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+
+  // A stand-in slug, not a real one: naming an actual tool here would go stale
+  // the day that tool is renamed, and every real snippet is already generated,
+  // correctly, on that tool's own page (`injectEmbedWidget` in embed.mjs) — this
+  // is illustrating the one shape that snippet always takes, not replacing it.
+  const embedSample = `<iframe src="${baseUrl}<tool-slug>/?${EMBED_QUERY_PARAM}=1" style="width:100%;max-width:820px;border:0;min-height:${DEFAULT_EMBED_HEIGHT}px" loading="lazy"></iframe>`;
+
+  const aboutLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: title, item: url },
+      ],
+    },
+  };
+
+  const categoryLinks = groups
+    .map(
+      ({ category, items }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a> <span>(${items.length})</span></li>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(aboutLd)}</script>
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${total} free tools</a> › About</p>
+    <header>
+      <p class="eyebrow">About</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and ${deviceClaim}.</p>
+    </header>
+
+    <main class="prose">
+      <h2>What this is</h2>
+      <p>
+        A working set of ${total} small, single-purpose web tools across
+        ${categoryCount} areas — pricing a job, checking what a marketplace sale
+        actually nets, planning cashflow, normalising freight quotes, and
+        assembling the evidence a compliance obligation asks for. Each one
+        exists because the arithmetic behind it is easy to get wrong under time
+        pressure and expensive to get wrong in front of a customer.
+      </p>
+      <p>
+        They are deliberately narrow. A tool here answers one question for one
+        kind of business, rather than being a spreadsheet template that answers
+        none of them well.
+      </p>
+
+      <h2>What happens to what you type</h2>
+      <div class="panel">
+        <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
+        <p>
+          Every tool on this site is a static page. The calculation happens in
+          your browser, in JavaScript you can read with your browser's own
+          <em>View Source</em> or developer tools — no build step, no
+          minification, nothing hidden from you. Specifically:
+        </p>
+        <ul>
+          <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
+          <li><strong>${exceptions.length ? 'Nothing you enter is transmitted, with one documented exception.' : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call ${exceptionNames} makes, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>No cookies and no cross-site identifiers.</strong></li>
+          <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
+        </ul>
+      </div>
+      <p>
+        The one thing that is counted is which tools get opened, as a plain
+        tally that is written to your own browser's local storage and is never
+        sent anywhere. It exists so the next tool built is one people actually
+        opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
+        <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
+        there is an opt-out checkbox at the foot of
+        <a href="${escapeHtml(toRoot)}" data-pf-to="hub">the tool list</a>.
+      </p>
+
+      <h2>Why it is free</h2>
+      <p>
+        Because keeping it free costs almost nothing. A static page has no
+        per-user cost, so there is no usage to meter and no reason to build a
+        paywall around arithmetic. There is no paid tier, no trial, and no
+        feature held back — the version you are using is the whole product.
+      </p>
+      <p>
+        If one of these has saved you money,
+        <a href="https://github.com/sponsors/Duncan-Haywood">sponsoring on
+        GitHub</a> is welcome and entirely optional. Declining changes nothing
+        about what any tool does, and nothing here is gated behind it.
+      </p>
+
+      <h2>What these tools are not</h2>
+      <p>
+        They are estimates and working records, not professional advice and not
+        a determination made on anyone's behalf. They do not replace a
+        quantity surveyor, an accountant, a lawyer, or an engineer, and the
+        output of any of them is a starting figure to check against your own
+        numbers before you quote it to a customer or file it anywhere. The full
+        terms are in the footer of this and every other page.
+      </p>
+
+      <h2>Linking to these tools</h2>
+      <p>
+        You do not need permission to link to anything here, quote a page, or
+        screenshot a result — for a forum answer, a trade newsletter, a course
+        handout, or a write-up. Linking straight to the individual tool is more
+        use to a reader than linking to the front page. If it helps, here is
+        the description, already written:
+      </p>
+      <h3>One line</h3>
+      <p class="boiler">${escapeHtml(shortBoiler)}</p>
+      <h3>A paragraph</h3>
+      <p class="boiler">${escapeHtml(longBoiler)}</p>
+      <h3>The facts, if you would rather write your own</h3>
+      <ul>
+        <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
+        <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${exceptionNames} ${exceptions.length === 1 ? 'is the one documented exception' : 'are the documented exceptions'} — see Privacy above.` : ' No upload.'}</li>
+        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
+        <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
+      </ul>
+      <p>
+        Please do not describe these as certified, audited, guaranteed, or as
+        professional advice — they are none of those things, and saying so
+        would mislead the person you are recommending them to.
+      </p>
+
+      <h2>Embedding a tool on your own page</h2>
+      <p>
+        Every one of the ${total} tools here can be framed on someone else's
+        page — a trade association's resource page, a supplier's blog post, a
+        forum's sidebar. Open any tool and scroll to the bottom for a
+        ready-made, copyable snippet built from that page's own address and
+        title; there is nothing to write by hand. It always takes this shape:
+      </p>
+      <p class="boiler">${escapeHtml(embedSample)}</p>
+      <ul>
+        <li><strong>Same arithmetic, same disclaimer.</strong> The framed page is the calculator's own page, not a stripped-down copy, so it keeps the tool's full working and its liability notice.</li>
+        <li><strong>Links back.</strong> A framed tool swaps its own site-wide navigation for one line linking back to the full page here, so a visitor can always reach the rest of the site.</li>
+        <li><strong>Adds nothing.</strong> No script, cookie, or request is added by embedding — the framed page runs the same client-side arithmetic described above, on the host's page instead of this one.</li>
+        <li><strong>${DEFAULT_EMBED_HEIGHT}px is a starting height</strong>, not a fit for every form; most hosts adjust it once the embed is on the page.</li>
+      </ul>
+      <p>
+        This needs no permission and no message to us first.
+      </p>
+
+      <h2>For crawlers and assistants</h2>
+      <p>
+        The catalogue is published in machine-readable form so an assistant can
+        cite the right tool rather than guess at one:
+        <a href="${escapeHtml(`${toRoot}catalog.json`)}">catalog.json</a> lists
+        every tool with its category and description,
+        <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> is the same
+        catalogue as prose, and
+        <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">sitemap.xml</a> indexes
+        every published page. Every tool page carries
+        <code>SoftwareApplication</code> structured data. To follow new tools
+        rather than re-read the catalogue, subscribe to the
+        <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Atom feed</a>.
+      </p>
+    </main>
+
+    <section class="siblings">
+      <h2>Browse by trade</h2>
+      <ul>
+${categoryLinks}
+      </ul>
+    </section>
+
+    <footer>${disclaimerHtml(toRoot, surfaces)}
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+    </footer>
+  </div>
+  <!-- The same local-only counter every other page loads. An About page that
+       nobody reaches is a different problem from one that is reached and does
+       not send anyone on to a tool, and only the cross_tool_click half of this
+       tells them apart. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="about" defer></script>
+</body>
+</html>
+`;
+}
+
+export function renderHub(surfaces, baseUrl) {
+  const groups = groupByCategory(surfaces);
+
+  // Indexes first, then the words they turn out to share, then the cards. The
+  // stopword cut is a property of the whole catalogue, so it cannot be decided
+  // one card at a time.
+  const rawIndex = new Map(
+    surfaces.map((surface) => [
+      surface.slug,
+      {
+        name: searchTokens([surface.title, surface.slug]),
+        // The words a person chose for this tool: its name, plus the aliases
+        // someone wrote down because a query was reaching nothing. Both are
+        // deliberate, which is the property the closest-match trigger needs.
+        // Kept apart from `name` so an alias never earns the name weight in
+        // the ranking itself — reach and relevance are different claims.
+        strong: searchTokens([surface.title, surface.slug, aliasesFor(surface.slug)]),
+        index:
+          surface.searchIndex ??
+          searchTokens([
+            surface.title,
+            surface.fullDescription ?? surface.description,
+            surface.slug,
+            aliasesFor(surface.slug),
+          ]),
+      },
+    ]),
+  );
+  const catalogueStops = catalogueStopwords([...rawIndex.values()]);
+  // One set for the page: the browser normalises a query with exactly the list
+  // the index was built from, generic and derived words alike.
+  const stopwords = [...new Set([...SEARCH_STOPWORDS, ...catalogueStops])].sort();
 
   const itemList = {
     '@context': 'https://schema.org',
@@ -589,21 +2006,19 @@ export function renderHub(surfaces, baseUrl) {
     },
   };
 
-  const sections = groups
-    .map(
-      ({ category, items }) => `
-      <section class="group" data-group="${category.id}">
-        <h2>${escapeHtml(category.title)}</h2>
-        <p class="group-blurb">${escapeHtml(category.blurb)}</p>
-        <ul class="cards">
-${items
-  .map(
-    (surface) => `          <li class="card" data-search="${escapeHtml(
-      surface.searchIndex ??
-        searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
-    )}">
+  // A tool card. `headingLevel` follows the section it lands in so the document
+  // outline stays legal: a card is an h3 in a flat category and an h4 under a
+  // sub-group's h3. Screen-reader heading navigation is the browse path for
+  // anyone not using the search box, so it has to describe the real nesting.
+  const renderCard = (surface, headingLevel) => `          <li class="card" data-name="${escapeHtml(
+    rawIndex.get(surface.slug).name,
+  )}" data-strong="${escapeHtml(
+    withoutStopwords(rawIndex.get(surface.slug).strong, catalogueStops),
+  )}" data-search="${escapeHtml(
+    withoutStopwords(rawIndex.get(surface.slug).index, catalogueStops),
+  )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
-              <h3>${escapeHtml(surface.title)}</h3>
+              <h${headingLevel}>${escapeHtml(surface.title)}</h${headingLevel}>
             </a>
             <p>${escapeHtml(surface.description)}</p>
             ${
@@ -611,13 +2026,72 @@ ${items
                 ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
                 : ''
             }
-          </li>`,
+          </li>`;
+
+  const sections = groups
+    .map(({ category, items }) => {
+      const subgroups = groupBySubcategory(category.id, items);
+      // One unnamed sub-group means the category is small enough to read as a
+      // flat list; rendering a lone sub-heading over it would be noise.
+      const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+      const body = flat
+        ? `        <ul class="cards">
+${items.map((surface) => renderCard(surface, 3)).join('\n')}
+        </ul>`
+        : subgroups
+            .map(
+              ({ subcategory, items: subItems }) => `        <section class="subgroup" id="${subcategory.id}" data-subgroup="${subcategory.id}">
+          <h3>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h3>
+          <ul class="cards">
+${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
+          </ul>
+        </section>`,
+            )
+            .join('\n');
+
+      // The heading links its own category page. This is the only path a
+      // crawler has to those pages from the hub, and it is also the honest
+      // affordance for a visitor who wants one trade rather than all six —
+      // without it the section heading is the one thing on this page that
+      // names a subject and cannot be opened.
+      return `
+      <section class="group" id="${category.id}" data-group="${category.id}">
+        <h2><a class="group-link" href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a></h2>
+        <p class="group-blurb">${escapeHtml(category.blurb)}</p>
+${body}
+      </section>`;
+    })
+    .join('\n');
+
+  // A contents index, because the hub is 43 screens tall on a phone and a
+  // contractor reading it is often standing on a job site. Without this, the
+  // only route to "Compliance checks" is scrolling past 28 screens of trade
+  // cards, and the only alternative is a search box that needs the visitor to
+  // already know what the tool is called.
+  //
+  // Plain in-page anchors, so it works before — and without — the script.
+  const contents = `
+    <nav class="contents" id="contents" aria-label="Jump to a section">
+${groups
+  .map(({ category, items }) => {
+    const subgroups = groupBySubcategory(category.id, items).filter((g) => g.subcategory);
+    const children = subgroups.length
+      ? `
+        <ul>
+${subgroups
+  .map(
+    ({ subcategory, items: subItems }) =>
+      `          <li><a href="#${subcategory.id}">${escapeHtml(subcategory.title)} <span>${subItems.length}</span></a></li>`,
   )
   .join('\n')}
-        </ul>
-      </section>`,
-    )
-    .join('\n');
+        </ul>`
+      : '';
+    return `      <div class="contents-group">
+        <a class="contents-top" href="#${category.id}">${escapeHtml(category.title)} <span>${items.length}</span></a>${children}
+      </div>`;
+  })
+  .join('\n')}
+    </nav>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -627,26 +2101,47 @@ ${items
   <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
-    `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
+    snippetize(
+      `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers and small teams. Everything runs in your browser, nothing uploaded.`,
+    ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="alternate icon" href="favicon.ico" sizes="16x16">
+  <!-- Feed autodiscovery. This is how a reader, and every aggregator that
+       accepts a site URL rather than a feed URL, finds the feed at all. -->
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Free small-business calculators">
   <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>
     :root {
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
       --line: #d3dce6; --accent: #12594a; --accent-ink: #f2f8f5;
+      /* One step quieter than --muted, and the quietest ink on this page.
+         It exists because the de-emphasis it provides used to be spelled as an
+         opacity, which is not a colour and therefore cannot be checked:
+         --muted at .65 renders #89919c on the white panel, 3.18:1, under the
+         4.5:1 WCAG AA needs for body-size text. The group counts are the only
+         thing that told a visitor how big a category is, so the number that
+         failed was content, not decoration. Naming the tint makes it a value
+         contrast.mjs can measure. */
+      --soft: #656e78;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319; }
+              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
+              --soft: #8d9aab; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -662,16 +2157,46 @@ ${items
                     border: 1px solid var(--line); border-radius: 9px;
                     background: var(--panel); color: var(--ink); }
     .count { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+    .closest { font-size: .85rem; color: var(--ink); margin: 6px 0 0; max-width: 520px; }
+    /* Multi-column rather than grid: one section holds eight sub-groups and the
+       rest hold none, and grid would size every cell in the row to that tallest
+       one, leaving four columns of white space beside it. Columns just flow. */
+    .contents { margin-top: 26px; padding: 16px 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px;
+                columns: 210px; column-gap: 22px; }
+    .contents[hidden] { display: none; }
+    .contents-group { break-inside: avoid; margin: 0 0 14px; }
+    .contents ul { list-style: none; margin: 6px 0 0; padding: 0; }
+    .contents li { margin-top: 2px; }
+    .contents a { color: inherit; text-decoration: none; display: block;
+                  padding: 3px 0; font-size: .88rem; line-height: 1.35; }
+    .contents a:hover, .contents a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .contents .contents-top { font-weight: 700; font-size: .93rem; }
+    .contents li a { color: var(--muted); padding-left: 10px;
+                     border-left: 1px solid var(--line); }
+    .contents span { font-weight: 600; color: var(--soft); }
+    /* Anchor targets clear the section heading of the viewport edge, so a jump
+       lands on the heading rather than on its first row of cards. */
+    .group, .subgroup { scroll-margin-top: 14px; }
     .group { margin-top: 38px; }
     .group h2 { font-size: 1.3rem; margin: 0 0 4px; letter-spacing: -.02em; }
+    .group h2 a { color: inherit; text-decoration: none; }
+    .group h2 a:hover, .group h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
     .group-blurb { color: var(--muted); margin: 0 0 16px; font-size: .95rem; line-height: 1.5; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
             padding: 17px 18px; }
-    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .subgroup { margin-top: 26px; }
+    .subgroup[hidden] { display: none; }
+    .subgroup h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .card h3, .card h4 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
-    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card a:hover h3, .card a:focus-visible h3,
+    .card a:hover h4, .card a:focus-visible h4 { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; font-size: .89rem; line-height: 1.5; color: var(--muted); }
     .card .meta { margin-top: 9px; font-size: .78rem; font-weight: 650; color: var(--accent); }
     .yours { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
@@ -685,6 +2210,64 @@ ${items
                   color: var(--ink); text-decoration: none; background: var(--bg); }
     .yours li a:hover, .yours li a:focus-visible { border-color: var(--accent); color: var(--accent); }
     .yours .times { display: block; font-size: .72rem; color: var(--muted); margin-top: 3px; padding-left: 4px; }
+    .bids { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 13px; }
+    .bids h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .bids p { color: var(--muted); margin: 0 0 12px; font-size: .87rem; line-height: 1.5; }
+    .bids ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .bids li { margin: 0; }
+    .bids li a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+                 border: 1px solid var(--line); border-radius: 11px; padding: 9px 13px;
+                 color: var(--ink); text-decoration: none; background: var(--bg); }
+    .bids li a:hover, .bids li a:focus-visible { border-color: var(--accent); }
+    .bids li a:hover .bid-name, .bids li a:focus-visible .bid-name { color: var(--accent); }
+    .bids .bid-name { font-size: .92rem; font-weight: 650; }
+    .bids .bid-amount { font-size: .86rem; font-weight: 650; white-space: nowrap;
+      font-variant-numeric: tabular-nums; }
+    .bids .bid-amount[hidden] { display: none; }
+    .bids .bid-where { font-size: .8rem; color: var(--muted); }
+    .bids .bid-when { font-size: .74rem; color: var(--muted); margin-left: auto; }
+    /* Not muted, unlike every other line of prose in this panel: it is the
+       sentence the section is worth opening for. */
+    .bids .bid-summary { color: var(--ink); font-weight: 600; margin: 0 0 12px; }
+    .bids .bid-state { font-size: .74rem; border: 1px solid var(--line); border-radius: 999px;
+                       padding: 1px 8px; color: var(--muted); }
+    /* The one row state that is asking for something. */
+    .bids .bid-state[data-state="waiting"] { color: var(--accent); border-color: var(--accent); }
+    /* A quiet quote keeps the waiting colour — it is the same state, further
+       along — and the row carries the word "Chase" beside it rather than a
+       second hue. Weight and a word do the work, so the distinction survives a
+       monochrome print and reads for a visitor who cannot separate the two
+       colours. */
+    .bids .bid-state[data-state="quiet"] { color: var(--accent); border-color: var(--accent);
+                                           font-weight: 700; }
+    .bids .bid-chase-tag { font-size: .74rem; font-weight: 700; letter-spacing: .03em;
+                           border: 1px solid var(--accent); border-radius: 999px;
+                           padding: 1px 8px; color: var(--accent); white-space: nowrap; }
+    .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                       border-left: 3px solid var(--accent); background: var(--bg);
+                       border-radius: 0 8px 8px 0; font-size: .85rem; }
+    /* All four standing readings share one rule, in the muted border rather
+       than the accent one: the chase line is asking the contractor to do
+       something today, and these are standing readings about their pricing.
+       Stacked accent bars would make none of them the thing to act on. */
+    .bids .bid-pricing,
+    .bids .bid-win-rate,
+    .bids .bid-trend,
+    .bids .bid-keep,
+    .bids .bid-mix { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                     border-left: 3px solid var(--line); background: var(--bg);
+                     border-radius: 0 8px 8px 0; font-size: .85rem; }
+    .bids li a:has(.bid-state[data-state="won"]) .bid-name,
+    .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
+    .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
+    .bids .bid-more button { font: inherit; font-size: .82rem; color: var(--accent);
+                             background: none; border: 0; padding: 0; cursor: pointer;
+                             text-decoration: underline; }
+    /* A bid name is a customer's name or their street address. It is the
+       visitor's own data on their own device, but it has no place on a sheet
+       they hand to somebody else. */
+    @media print { .bids { display: none; } }
     .empty { display: none; color: var(--muted); font-style: italic; margin-top: 30px; }
     footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 24px;
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
@@ -700,6 +2283,21 @@ ${items
     .offline button[disabled] { opacity: .6; cursor: progress; }
     .offline #offline-status:empty { display: none; }
     .offline #offline-status { margin: 10px 0 0; font-size: .85rem; }
+    .backup p { margin: 8px 0 0; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .backup .backup-actions { display: flex; flex-wrap: wrap; align-items: center;
+                              gap: 8px 12px; margin-top: 12px; }
+    .backup .backup-actions label { font-size: .85rem; font-weight: 650; color: var(--ink); }
+    .backup button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
+                     border: 1px solid var(--accent); background: var(--accent);
+                     color: var(--accent-ink); cursor: pointer; }
+    .backup input[type=file] { font: inherit; font-size: .85rem; max-width: 100%; }
+    .backup .backup-note { font-size: .82rem; }
+    .backup #backup-status:empty { display: none; }
+    .backup #backup-status { margin: 10px 0 0; font-size: .85rem; color: var(--ink); }
+    /* Same reason the saved-bid list is hidden in print: the counts here are
+       about a customer list, and the sheet a homeowner receives is not where
+       that belongs. */
+    @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
@@ -724,7 +2322,92 @@ ${items
       <input id="q" type="search" placeholder="eBay fees, tile backsplash, freight, VAT…"
              autocomplete="off" spellcheck="false">
       <p class="count" id="count"></p>
+      <p class="closest" id="closest" hidden></p>
     </div>
+
+${contents}
+
+    <!-- Filled in by script from the saved bids on this device. Above "pick up
+         where you left off" deliberately: a contractor whose customer just rang
+         back wants the job, not the tool that priced it. -->
+    <section class="bids" id="bids" hidden>
+      <h2>Your saved bids</h2>
+      <p>
+        Bids you saved in any tool on this site, newest first. Opening one takes
+        you to the tool that priced it with your saved bids showing, ready to
+        restore. These are kept in this browser only — never uploaded, and
+        clearing your browser data clears them, so download a backup below if
+        they matter. Mark one won or lost in the tool that priced it and it
+        stops counting as waiting here — and once a few have been decided, this
+        page says how often your quotes are landing, whether that is the same
+        across the tools you use or one trade pulling it down, and once a trade
+        has a longer history, whether it has been landing differently lately
+        than it used to. Add what a won job came to once it was delivered and
+        it also says which of your trades keeps the most of what it charges —
+        and whether that is the same trade your quotes actually land on, which
+        is the one thing no single tool here can tell you.
+      </p>
+      <!-- The reason to open the hub rather than the tool: how many quotes are
+           still out, and how long the oldest has been. Drawn only when there is
+           something to say — see followUpSentence. -->
+      <p class="bid-summary" id="bidsSummary" hidden></p>
+      <!-- How long this contractor's customers actually take to answer, and how
+           many quotes have outlived that. Read across every tool, which is the
+           only place it can usually be read at all: the window needs three
+           answered bids, and a contractor working six calculators reaches three
+           in none of them while having twelve in total. A reply time is a fact
+           about their customers rather than about a trade, so a gutter bid and
+           a deck bid belong in the same sample. -->
+      <p class="bid-chase" id="bidsChase" hidden></p>
+      <!-- How their pricing is landing, pooled the same way and for the same
+           reason. The money readings stay on the tool pages, where one tool
+           means one trade and one currency; what comes here is percentages
+           only, because a percentage over the winning price is unit-free and so
+           pools across trades and currencies alike without a conversion this
+           site does not have. See pricingSentence. -->
+      <p class="bid-pricing" id="bidsPricing" hidden></p>
+      <!-- How often the quotes land at all, counted the same way. This is the
+           one reading here that needs no figure and no currency — only that a
+           bid was marked won or lost — so it draws for a book where every money
+           reading in the portfolio draws nothing, and it is the only place a
+           contractor working six calculators can see that five of them are fine
+           and the sixth is not. See winRateSentence. -->
+      <p class="bid-win-rate" id="bidsWinRate" hidden></p>
+      <!-- Whether what they changed is working. Directly under the rate it is
+           the second derivative of, and the only reading here that asks when a
+           bid was priced rather than only what became of it: every line above
+           pools the whole book, so a shop that re-costed a trade in June reads
+           a rate that averages before and after and cannot see its own change.
+           Inside one tool, never pooled across trades. See trendSentence. -->
+      <p class="bid-trend" id="bidsTrend" hidden></p>
+      <!-- Which of their trades the finished work is actually worth doing, and
+           the only reading here about money already earned rather than money
+           still being chased. The tool pages each say what one trade kept; this
+           is the only place the three a crew works can be put beside each
+           other, which is the comparison that decides what they go and sell.
+           Percentages only, for the reason the pricing line above is: a share
+           of a bid's own price is unit-free, so trades and currencies compare
+           without a conversion. See keepSentence. -->
+      <p class="bid-keep" id="bidsKeep" hidden></p>
+      <!-- The two lines above, crossed. Last because it is the only reading
+           here that is a decision rather than a measurement: the rate says
+           which quotes land, the kept share says which finished jobs paid, and
+           a shop whose best-landing trade is its worst-keeping one is being
+           told by both of the lines above to do the wrong thing. Drawn only
+           when the two rankings clearly oppose or clearly agree — a hedge
+           would be a line on the busiest page in the site that changes
+           nothing. See mixSentence. -->
+      <p class="bid-mix" id="bidsMix" hidden></p>
+      <ul id="bidsList"></ul>
+      <p class="bid-more" id="bidsMore" hidden></p>
+    </section>
+
+    <!-- Directly under the list it backs up, and deliberately still drawn when
+         that list is empty: the browser with no saved bids is exactly the one
+         where "restore from a backup" is the only thing that helps, and a
+         control tucked inside the hidden section above would be unreachable
+         there. The script re-words it for the two cases. -->
+${BACKUP_WIDGET_HTML}
 
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
@@ -752,15 +2435,18 @@ ${OFFLINE_WIDGET_HTML}
     </div>
 
     <footer>
-${DISCLAIMER_HTML}
+${disclaimerHtml('', surfaces)}
       <p class="optout">
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
       <p>
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
+        <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
-        <a href="sitemap.xml">Sitemap</a>
+        <a href="llms.txt">llms.txt</a> ·
+        <a href="sitemap.xml">Sitemap</a> ·
+        <a href="${FEED_FILE}" type="application/atom+xml">New tools feed</a>
       </p>
     </footer>
   </div>
@@ -771,47 +2457,225 @@ ${DISCLAIMER_HTML}
     const q = document.getElementById('q');
     const count = document.getElementById('count');
     const empty = document.getElementById('empty');
+    const closest = document.getElementById('closest');
+    const contents = document.getElementById('contents');
+    // How many near-misses to offer when nothing matches every word. Enough to
+    // be a real second chance on a phone, short enough that the list is still
+    // a suggestion rather than the catalogue back again.
+    const CLOSEST_LIMIT = 8;
     const cards = [...document.querySelectorAll('.card')];
-    const groups = [...document.querySelectorAll('.group')];
+    // Sub-groups and their parent sections both empty out on a query. Each is
+    // decided from its own descendant cards, so one flat list covers both and
+    // the order within it does not matter.
+    const groups = [...document.querySelectorAll('.subgroup, .group')];
     const total = cards.length;
+
+    // The catalogue order, kept so clearing the box puts the directory back
+    // exactly as it was rendered. Ranking reorders siblings in place — cards
+    // inside their list, sub-groups inside their section, sections inside the
+    // page — so a card never leaves the heading that describes it and the
+    // document outline a screen reader walks stays the one the markup built.
+    const sections = [...document.querySelectorAll('.group')];
+    const subgroups = [...document.querySelectorAll('.subgroup')];
+    // Sections are not the last children of their parent (the empty-state
+    // paragraph, the offline widget and the footer follow them), so they are
+    // re-inserted before a fixed anchor rather than appended.
+    const sectionAnchor = sections.length ? sections[sections.length - 1].nextSibling : null;
+    const sectionHome = sections.length ? sections[0].parentNode : null;
+    let ranked = false;
+
+    // Injected from build.mjs rather than written twice: a stemmer that
+    // disagreed with its tests would be a search bug nothing could catch.
+    ${searchVariants.toString()}
+
+    // Likewise injected rather than reimplemented: the weights below decide
+    // what a visitor sees first, and a copy that drifted from the tested one
+    // would be a ranking bug with a green suite.
+    ${searchScore.toString()}
 
     // Every query word must hit, so "ebay return" narrows to the eBay tool
     // instead of finding nothing because those two words are never adjacent.
     // A word matches at a token boundary, which is what makes a half-typed
     // "backspl" still find the backsplash calculator.
-    const matches = (index, words, boundary) =>
-      words.every((word) => (boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+    //
+    // "forms" is one entry per query word, each the output of searchVariants,
+    // so a word hits when any of its forms does. Built once per keystroke in
+    // normalise() instead of per card -- 163 cards would recompute it 163
+    // times for an answer that cannot differ between them.
+    const matches = (index, forms, boundary) =>
+      forms.every((variants) =>
+        variants.some((word) =>
+          boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
 
     // The query is normalised exactly as the index was. It has to be: a word
     // the index never stores can never match, so keeping it would force every
     // query containing it down to zero hits — typing "2/10 net 30" would find
     // nothing because "2" was dropped at build time but not from the query.
-    const STOPWORDS = new Set(${JSON.stringify([...SEARCH_STOPWORDS])});
+    // Generic English plus the words this catalogue's own copy repeats so often
+    // they cannot narrow anything — derived at build time from the indexes
+    // above, never from a hand-written list that would describe last month's
+    // catalogue. A word in any tool's *name* is never in here.
+    const STOPWORDS = new Set(${JSON.stringify(stopwords)});
     const normalise = (text) =>
       text
         .toLowerCase()
         .split(/[^a-z0-9]+/)
-        .filter((word) => word.length >= 2 && !STOPWORDS.has(word));
+        .filter((word) => word.length >= 2 && !STOPWORDS.has(word))
+        .map(searchVariants);
+
+    // Highest-scoring visible card inside a container, or -1 when it has none.
+    // Hidden cards are excluded on purpose: a sub-group whose only match is
+    // filtered out has nothing to offer this query and should not lead on the
+    // strength of a card the visitor cannot see.
+    const best = (node, score) => {
+      let top = -1;
+      for (const card of node.querySelectorAll('.card')) {
+        if (!card.hidden) top = Math.max(top, score(card));
+      }
+      return top;
+    };
+
+    // Re-insert each node among its own siblings, highest score first. Sort is
+    // stable, so equal scores keep catalogue order — which is what makes a
+    // one-word query that matches nothing in particular leave the page looking
+    // exactly as it did.
+    const reorder = (nodes, valueOf, anchor) => {
+      const byParent = new Map();
+      for (const node of nodes) {
+        if (!byParent.has(node.parentNode)) byParent.set(node.parentNode, []);
+        byParent.get(node.parentNode).push(node);
+      }
+      for (const [parent, siblings] of byParent) {
+        const ordered = siblings
+          .map((node, index) => ({ node, index, value: valueOf(node) }))
+          .sort((a, b) => b.value - a.value || a.index - b.index);
+        for (const { node } of ordered) parent.insertBefore(node, anchor ?? null);
+      }
+    };
+
+    // Put the catalogue back in the order the build wrote it.
+    const restore = () => {
+      for (const card of cards) card.parentNode.appendChild(card);
+      for (const subgroup of subgroups) subgroup.parentNode.appendChild(subgroup);
+      for (const section of sections) sectionHome.insertBefore(section, sectionAnchor);
+    };
 
     function filter() {
-      const words = normalise(q.value.trim());
+      const forms = normalise(q.value.trim());
       // Token-prefix first; fall back to a loose substring pass so a query that
       // would have matched before this became token-aware still matches.
       let boundary = true;
-      if (words.length && !cards.some((c) => matches(c.dataset.search, words, true))) {
+      if (forms.length && !cards.some((c) => matches(c.dataset.search, forms, true))) {
         boundary = false;
       }
       let shown = 0;
+      const score = new Map();
       for (const card of cards) {
-        const hit = !words.length || matches(card.dataset.search, words, boundary);
+        const hit = !forms.length || matches(card.dataset.search, forms, boundary);
         card.hidden = !hit;
         if (hit) shown += 1;
+        score.set(
+          card,
+          hit && forms.length
+            ? searchScore(card.dataset.name || '', card.dataset.search, forms, boundary)
+            : 0,
+        );
+      }
+      // Every word has to hit, which is what keeps a two-word query precise —
+      // and what turns a typed sentence into nothing at all. "new roof
+      // estimate", "tree removal quote" and "freight class calculator" each
+      // returned zero against the built site while the tool sat there, because
+      // one word of the sentence ("estimate", "quote", "class") is not in any
+      // index. People type sentences; requiring the visitor to guess the
+      // keyword is the hub's job, not theirs.
+      //
+      // So when nothing matches every word, keep the strict pass as the answer
+      // it is — none — and offer the best partial matches instead of a dead
+      // end. Ranked by the same function, capped, and labelled as approximate:
+      // showing sixty loosely-related tools under the visitor's exact words
+      // would be its own kind of wrong answer.
+      //
+      // The other half of the same failure is a sentence that matches exactly
+      // one tool by accident. "install water heater" returns the *boiler*
+      // calculator alone: it happens to use all three words somewhere in its
+      // copy, and the water-heater calculator does not say "install". One
+      // confident wrong answer is worse than none. So the shortlist also runs
+      // when nothing that matched carries a query word in data-strong — the
+      // tool's name plus its aliases, the words a person deliberately gave it.
+      // A tool nobody named and nobody aliased is a coincidence, not an answer.
+      //
+      // Aliases have to count. An earlier version tested the name alone, and
+      // since an alias exists precisely because the word is *not* in the name,
+      // it demoted "air conditioning" and "asphalt shingles" — both answered
+      // exactly, both by alias — behind loose matches.
+      //
+      // Scored at a token boundary even where the loose pass is in force. That
+      // pass exists so a half-typed word still matches; reused for ranking it
+      // scores "air" inside "stair", "chair" and "repair", which is how a
+      // suggestion list fills up with the wrong trade.
+      const strongly = (card) =>
+        forms.some((variants) =>
+          variants.some((word) => (' ' + (card.dataset.strong || '')).includes(' ' + word)));
+      let closestFor = 0;
+      if (forms.length && (shown === 0 || !cards.some((c) => !c.hidden && strongly(c)))) {
+        const partial = cards
+          .map((card) => ({
+            card,
+            value: searchScore(card.dataset.name || '', card.dataset.search, forms, true),
+          }))
+          // A whole word has to land somewhere. Below that the score is only
+          // the name-length tie-break, which every card has and which means
+          // nothing on its own.
+          .filter(({ value }) => value >= 1)
+          .sort((a, b) => b.value - a.value)
+          .slice(0, CLOSEST_LIMIT);
+        // Only when it actually offers something the strict pass did not. For a
+        // one-word query the two sets are the same by construction, and
+        // labelling an exact answer as approximate would be the page lying
+        // about its own result.
+        if (partial.some(({ card }) => card.hidden)) {
+          for (const card of cards) card.hidden = true;
+          for (const { card, value } of partial) {
+            card.hidden = false;
+            score.set(card, value);
+          }
+          closestFor = partial.length;
+        }
       }
       for (const group of groups) {
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
       }
-      empty.style.display = shown === 0 ? 'block' : 'none';
-      count.textContent = words.length ? shown + ' of ' + total + ' tools' : total + ' tools';
+      // Best answer first, and only while there is a query to be best for. A
+      // container's score is its best card's, so the section holding the top
+      // tool leads the page and the visitor never scrolls past a heading of
+      // near-misses to reach the tool they named.
+      if (forms.length) {
+        const valueOf = (card) => score.get(card) ?? 0;
+        reorder(cards, valueOf);
+        reorder(subgroups, (node) => best(node, valueOf));
+        reorder(sections, (node) => best(node, valueOf), sectionAnchor);
+        ranked = true;
+      } else if (ranked) {
+        restore();
+        ranked = false;
+      }
+      // The dead end stays a dead end only when even the partial pass found
+      // nothing — "wifi" and "locksmith" match no tool here, and saying so is
+      // the honest answer.
+      empty.style.display = shown === 0 && closestFor === 0 ? 'block' : 'none';
+      closest.hidden = closestFor === 0;
+      closest.textContent = closestFor === 0
+        ? ''
+        : (shown === 0
+          ? 'No tool matches every word. Closest ' + closestFor + ':'
+          : 'No tool is named for that. Closest ' + closestFor + ':');
+      count.textContent = !forms.length
+        ? total + ' tools'
+        : (closestFor || shown) + ' of ' + total + ' tools';
+      // The contents index answers "where is my section"; a query has already
+      // answered it. Leaving it up would also lie, since its counts are of the
+      // whole catalogue and the page below is filtered.
+      if (contents) contents.hidden = forms.length > 0;
     }
     q.addEventListener('input', filter);
     filter();
@@ -919,6 +2783,381 @@ ${DISCLAIMER_HTML}
     // Turning counting off should take the shortcut away with it, in the same
     // click rather than on the next visit.
     optout.addEventListener('change', showYourTools);
+
+    // The saved-bid index.
+    //
+    // Saved bids are stored per tool and restored per tool — a bid never
+    // crosses tools, because the form it was priced on is the only form it
+    // fits. What was left unanswered is "which tool was it?": the store is a
+    // single key on this one origin, so the hub has held every visitor's whole
+    // bid list all along and showed none of it. On Friday, when the customer
+    // rings back, that is the difference between one click and remembering
+    // which of 162 calculators priced the job on Tuesday.
+    //
+    // Deliberately not gated on the opt-out, unlike "pick up where you left
+    // off" above. That list is derived from counts, so opting out of counting
+    // genuinely empties it. These are the visitor's own saved documents; the
+    // tool pages show them to someone who has opted out, and the hub hiding
+    // them would look like data loss. Only the counting below is gated.
+    const BIDS_KEY = 'portfolio-saved-bids';
+
+    // The same function bodies the calculator band runs and the tests here
+    // exercise, embedded rather than re-written — so the hub and the tool can
+    // never disagree about how old a waiting bid is, or about whether what a
+    // tool put on screen reads as a figure at all. See BID_FOLLOW_UP_HELPERS.
+    //
+    // Declared here rather than relied on from the backup block further down:
+    // that block also carries this function, but it is assigned after
+    // showSavedBids() has already run once on load.
+${BID_FOLLOW_UP_HELPERS}
+    // The record shape itself, for the reason it exists -- see
+    // BID_RECORD_HELPERS and savedBids() below. It carries
+    // normalizeHeadlineAmount, so it stands in for the BID_AMOUNT_HELPER this
+    // block used to emit here.
+${BID_RECORD_HELPERS}
+    // The cross-tool pricing reading. After BID_RECORD_HELPERS because
+    // bidAmountValue calls normalizeHeadlineAmount.
+${BID_PRICING_HELPERS}
+
+    // How many rows are shown before the list is cut. A contractor keeps up to
+    // 25 bids per tool, so a busy one crosses this easily — hence the count
+    // below rather than a silent truncation.
+    const BIDS_SHOWN = 8;
+
+    function savedBids() {
+      let parsed;
+      try { parsed = JSON.parse(localStorage.getItem(BIDS_KEY) || '{}'); } catch { return []; }
+      const bids = parsed && typeof parsed === 'object' ? parsed.bids : null;
+      if (!bids || typeof bids !== 'object') return [];
+
+      const rows = [];
+      for (const [slug, list] of Object.entries(bids)) {
+        // Any page on this origin can write this key, so a slug is used only in
+        // the shape the build produces and the link is built from that — never
+        // from the stored string as given. Same rule as yourTools() above.
+        if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
+        if (!Array.isArray(list)) continue;
+        for (const entry of list) {
+          // normalizeBid itself, not a paraphrase of it. This loop used to be
+          // a hand copy, and the copy went stale three times in a row: a field
+          // added in jobs.mjs and not here was silently dropped on the way to
+          // every hub reading that needed it, and the reading then returned ''
+          // forever with nothing failing anywhere. decidedAt did it to
+          // chaseSentence, lostTo to pricingSentence, cost to keepSentence.
+          //
+          // The rule the backup panel already follows (see BID_RECORD_HELPERS)
+          // now covers the hub too: the browser gets the tested definition
+          // through Function.prototype.toString, so anything added to a bid
+          // from here on arrives here without a second edit — and cannot be
+          // validated differently on the way.
+          const bid = normalizeBid(entry);
+          if (!bid) continue;
+          // The fields are the job itself — thirty to forty form values, kept
+          // so the band can put the whole bid back. Nothing on this page reads
+          // them, and they are the only part of the record that is large, so
+          // they are the one key dropped. Everything else rides across by
+          // spread, which is what stops this going stale again.
+          const { fields, ...row } = bid;
+          // outcome is absent rather than null on a bid still waiting, which
+          // is what lets a bid saved before outcomes existed read as waiting
+          // without migrating. The readings test it for truthiness, so the
+          // absent key and the old explicit null behave alike.
+          rows.push({ slug, ...row });
+        }
+      }
+
+      // Newest first, with slug and name breaking ties so two bids saved in the
+      // same second cannot swap places between renders.
+      rows.sort((a, b) =>
+        b.at.localeCompare(a.at) || a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name));
+      // Every row, uncut. The caller decides how many to draw, and says so.
+      return rows;
+    }
+
+    let bidsExpanded = false;
+    let chaseShown = '';
+    let pricingShown = '';
+    let winRateShown = '';
+    let trendShown = '';
+    let keepShown = '';
+    let mixShown = '';
+
+    function showSavedBids() {
+      const section = document.getElementById('bids');
+      const list = document.getElementById('bidsList');
+      const more = document.getElementById('bidsMore');
+      list.replaceChildren();
+      more.replaceChildren();
+
+      // Only offer a tool the hub is actually showing: a bid left behind by a
+      // tool since renamed or withdrawn would link to a 404. The bid stays on
+      // disk — jobs.mjs keeps unknown slugs for exactly this reason — it is
+      // just not offered a link that goes nowhere.
+      //
+      // Filtered before the cut, not after, so the count below is a count of
+      // rows the visitor could actually open.
+      const rows = [];
+      for (const row of savedBids()) {
+        const card = document.querySelector('[data-tool="' + row.slug + '"]');
+        // The tool's own heading, taken off the card the row was matched to
+        // rather than off the bid: the slug is what storage carries, and
+        // "deck-bid-calculator" is not what a contractor calls the thing. Read
+        // here, once per row, so winRateSentence stays a pure function of its
+        // rows and can be tested without a document.
+        if (card) {
+          rows.push({
+            ...row,
+            card,
+            label: card.querySelector('h3, h4')?.textContent.trim() || row.slug,
+          });
+        }
+      }
+
+      const now = Date.now();
+
+      // Counted over every row, not the eight drawn: "3 bids are waiting" must
+      // mean three on this device, or the number contradicts the "Show all"
+      // button directly beneath it.
+      const summary = document.getElementById('bidsSummary');
+      const sentence = followUpSentence(rows, now);
+      summary.textContent = sentence;
+      summary.hidden = sentence === '';
+
+      // Same rule, and the same reason: the window is read off every bid on the
+      // device, not off the eight this page happens to draw.
+      const chase = document.getElementById('bidsChase');
+      const chasing = chaseSentence(rows, now);
+      chase.textContent = chasing;
+      chase.hidden = chasing === '';
+      // Counted when the reading changes rather than on every render, so
+      // pressing "Show all" is not a second reading. record() is already silent
+      // under DNT/GPC and the opt-out, and carries no name and no slug.
+      if (chasing !== '' && chasing !== chaseShown) {
+        chaseShown = chasing;
+        record('saved_bid_chase_shown');
+      }
+
+      // How the pricing is landing, pooled across every tool. Read off every
+      // row for the same reason the two lines above are: this is a statement
+      // about the contractor's whole book, and computing it from the eight rows
+      // the page happens to draw would make it change when they press "Show
+      // all".
+      const pricing = document.getElementById('bidsPricing');
+      const priced = pricingSentence(rows);
+      pricing.textContent = priced;
+      pricing.hidden = priced === '';
+      // Counted on change rather than on every render, as the chase line is.
+      // record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, and no figure.
+      if (priced !== '' && priced !== pricingShown) {
+        pricingShown = priced;
+        record('saved_bid_pricing_shown');
+      }
+
+      // How often the quotes land, over the same whole book and for the same
+      // reason: computing it from the eight rows drawn would make the rate
+      // change when the visitor pressed "Show all", which is the one thing a
+      // rate must not do.
+      const winRate = document.getElementById('bidsWinRate');
+      const rated = winRateSentence(rows);
+      winRate.textContent = rated;
+      winRate.hidden = rated === '';
+      // Counted on change rather than on every render, as the two lines above
+      // are. record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, no tool and no figure — only that a reading
+      // was drawn, which is what says whether the feature is worth its bytes.
+      if (rated !== '' && rated !== winRateShown) {
+        winRateShown = rated;
+        record('saved_bid_win_rate_shown');
+      }
+
+      // Whether what this contractor changed is working, read off the same
+      // whole book — and here the "every row, not the eight drawn" rule is
+      // load-bearing in a way it is not above: this reading splits a tool's
+      // bids into an older and a newer half, and the eight rows the page draws
+      // are the newest, so computing it from them would compare the recent
+      // half against itself.
+      const trend = document.getElementById('bidsTrend');
+      const trending = trendSentence(rows, now);
+      trend.textContent = trending;
+      trend.hidden = trending === '';
+      // Counted on change, as every line above is. record() is already silent
+      // under DNT/GPC and the opt-out, and this carries no name, no slug, no
+      // trade, no figure and no direction — only that the reading drew, which
+      // is what says whether a book here is long enough to have a history.
+      if (trending !== '' && trending !== trendShown) {
+        trendShown = trending;
+        record('saved_bid_trend_shown');
+      }
+
+      // Which trades the finished work is worth doing, over the same whole
+      // book and for the same reason as every line above: a share that moved
+      // when the visitor pressed "Show all" would be a different claim about
+      // their business each time they looked at it.
+      const keep = document.getElementById('bidsKeep');
+      const keeping = keepSentence(rows);
+      keep.textContent = keeping;
+      keep.hidden = keeping === '';
+      // Counted on change rather than on every render, as the three lines
+      // above are. record() is already silent under DNT/GPC and the opt-out,
+      // and this carries no name, no slug, no trade and no figure — only that
+      // the reading was drawn at all, which is the signal that says whether
+      // contractors are costing their finished jobs.
+      if (keeping !== '' && keeping !== keepShown) {
+        keepShown = keeping;
+        record('saved_bid_keep_shown');
+      }
+
+      // Whether the work that lands is the work that pays — the two readings
+      // directly above, crossed. Off the same whole book for the same reason
+      // they are: a mix that changed when the visitor pressed "Show all" would
+      // be telling them to raise a different price each time they looked.
+      const mix = document.getElementById('bidsMix');
+      const mixed = mixSentence(rows);
+      mix.textContent = mixed;
+      mix.hidden = mixed === '';
+      // Counted on change rather than on every render, as every line above is.
+      // record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, no trade, no figure and not even which of
+      // the two branches drew — only that a book here was long enough on both
+      // halves at once to cross them, which is the one thing the reading's
+      // sample bars make worth knowing.
+      if (mixed !== '' && mixed !== mixShown) {
+        mixShown = mixed;
+        record('saved_bid_mix_shown');
+      }
+
+      const seen = responseWindow(rows);
+
+      // Which rows to draw: the newest BIDS_SHOWN, plus every quote that has
+      // gone quiet wherever it falls in the list.
+      //
+      // A quiet bid is an old bid by definition, so the plain cut hid precisely
+      // the rows the chase line directly above had just asked the contractor to
+      // act on — the page said "2 have been out longer than that" and then
+      // showed eight rows, none of them the two.
+      //
+      // Order is left alone. A surfaced row keeps its place in the newest-first
+      // list rather than being promoted to the top: this section is the index
+      // the copy says it is, used to find the job whose customer just rang, and
+      // resorting it around a second purpose would cost that one.
+      const drawn = bidsExpanded
+        ? rows
+        : rows.filter((row, i) => i < BIDS_SHOWN || isQuietBid(row, seen, now));
+
+      for (const row of drawn) {
+        const { slug, name, at, amount, outcome, card } = row;
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        // The anchor jobs.mjs answers: the band opens and scrolls into view, so
+        // the visitor arrives at their bid list rather than at the top of a
+        // calculator. The bid's name is never put in the URL — it is a
+        // customer's name, and a fragment lands in browser history and in
+        // anything the visitor shares.
+        link.href = slug + '/#pf-jobs';
+
+        const label = document.createElement('span');
+        label.className = 'bid-name';
+        // textContent, never innerHTML: the name is typed by the visitor and
+        // read back out of storage any page on this origin can write.
+        label.textContent = name;
+
+        // What the tool came to. The index has always been able to say where a
+        // bid lives and how long it has been out; without this it could not say
+        // the one thing the contractor is actually being asked on the phone.
+        // The row names its tool two spans along, which is what fixes the
+        // meaning: a quote on the trade calculators, profit per unit on the
+        // seller-fee ones. Absent where the tool has no headline figure — see
+        // pageHeadlineAmountSelector — so the row is built around it missing.
+        const figure = document.createElement('span');
+        figure.className = 'bid-amount';
+        figure.textContent = amount || '';
+        figure.hidden = !amount;
+
+        const where = document.createElement('span');
+        where.className = 'bid-where';
+        where.textContent = card.querySelector('h3, h4')?.textContent.trim() || slug;
+
+        const when = document.createElement('span');
+        when.className = 'bid-when';
+        when.textContent = at.slice(0, 10);
+
+        // Every row says which of the three states it is in, including the
+        // waiting ones with no age yet. A badge only on the old bids would
+        // leave the rest looking untracked, and the visitor could not tell a
+        // bid saved this morning from one this feature had failed to read.
+        const state = document.createElement('span');
+        state.className = 'bid-state';
+        // A quote that has outlived every answer this contractor has ever had
+        // is a fourth state, and it is the one worth a word rather than a date:
+        // "Waiting 19 days" reads as tracked, "Chase" reads as owed. The tool
+        // pages mark the same rows off the same window; this page is where the
+        // window usually exists at all, since three answered bids is a
+        // threshold a contractor working six calculators clears in none of them
+        // and easily across all of them.
+        const quiet = isQuietBid(row, seen, now);
+        state.dataset.state = outcome || (quiet ? 'quiet' : 'waiting');
+        state.textContent = outcome
+          ? outcome === 'won' ? 'Won' : 'Lost'
+          : bidWaitingPhrase(bidWaitingDays(at, now)) || 'Waiting';
+
+        // Before the date, which bid-when's auto margin pushes to the far right:
+        // the tag qualifies the state beside it rather than ending the row.
+        const tag = [];
+        if (quiet) {
+          const chaseTag = document.createElement('span');
+          chaseTag.className = 'bid-chase-tag';
+          // Says what to do rather than what happened, like the band's own tag.
+          chaseTag.textContent = 'Chase';
+          tag.push(chaseTag);
+        }
+        link.append(label, figure, where, state, ...tag, when);
+        // The event carries no name and no slug — how often the index is used,
+        // never for what. record() is already silent under DNT/GPC and the
+        // opt-out.
+        link.addEventListener('click', () => record('saved_bid_followed'));
+
+        item.append(link);
+        list.append(item);
+      }
+
+      // Never a silent cut. The section says "bids you saved in any tool", so a
+      // list that quietly stopped at eight would be stating something the page
+      // contradicts — and the contractor looking for the job they saved three
+      // weeks ago would conclude the tool had forgotten it.
+      const hidden = rows.length - drawn.length;
+      more.hidden = hidden === 0;
+      if (hidden > 0) {
+        // The newest ones, counted separately from the quiet ones pulled up
+        // past them: "showing the 10 most recent" would be false the moment a
+        // row older than the tenth is on screen, and this section's whole
+        // contract is that it never states a number the page contradicts.
+        const recent = Math.min(rows.length, BIDS_SHOWN);
+        const surfaced = drawn.length - recent;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Show all ' + rows.length;
+        button.addEventListener('click', () => {
+          bidsExpanded = true;
+          record('saved_bid_index_expanded');
+          showSavedBids();
+        });
+        more.append(
+          document.createTextNode(
+            'Showing the ' + recent + ' most recent of ' + rows.length + ' saved bids' +
+            (surfaced > 0
+              ? ', plus ' + surfaced + ' that ' + (surfaced === 1 ? 'has' : 'have') + ' gone quiet. '
+              : '. ')),
+          button,
+        );
+      }
+
+      section.hidden = list.childElementCount === 0;
+      if (!section.hidden && !bidsExpanded) record('saved_bid_index_shown');
+    }
+
+    showSavedBids();
+${BACKUP_WIDGET_SCRIPT}
 ${OFFLINE_WIDGET_SCRIPT}
   </script>
 </body>
@@ -943,6 +3182,12 @@ ${OFFLINE_WIDGET_SCRIPT}
 // other sessions, so a nav bar committed into 150 product files would conflict
 // with nearly every open branch.
 const CHROME_MARKER = 'pf-chrome';
+
+/**
+ * The one thing the shared chrome script cannot know until it is on a page:
+ * which tool it is counting a view of. See `CHROME_SCRIPT`.
+ */
+const CHROME_SLUG_ATTR = 'data-pf-slug';
 
 /**
  * How a page says it carries no availability promise, in any of the wordings
@@ -1006,7 +3251,11 @@ const NO_SLA_CLAUSE =
 // (`favicon.ico` is the deliberate exception elsewhere in this file: the
 // browser draws it onto its own furniture, so there is no host page for it to
 // inherit from.)
-const CHROME_STYLE = `<style id="pf-chrome-style">
+//
+// Raw CSS rather than a `<style>` element: it is written once to
+// `pf-chrome.css` at the site root and linked from all 442 published pages.
+// See `CHROME_STYLE_FILE`.
+const CHROME_CSS = `
 .pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
   color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
 .pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
@@ -1016,23 +3265,81 @@ const CHROME_STYLE = `<style id="pf-chrome-style">
 .pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
 .pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
 .pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
-.pf-chrome-foot p{margin:0 0 12px;opacity:.78}
+/* No opacity here, and it is the same reasoning as the color:inherit above run
+ * the other way. The chrome does not know its host's palette, so it cannot know
+ * what an opacity of .78 will produce: the declaration multiplies down a colour
+ * chosen by a venture, and a host whose body text already sits near the 4.5:1
+ * AA floor lands under it. There is no safe value — a host exactly at 4.5:1
+ * fails at any opacity below 1 — which is why this is a deletion rather than a
+ * larger number. Measured on the built site, freight-accessorial-auditor
+ * rendered this footer at 3.22:1 and cloud-egress-calculator at 3.32:1.
+ * What the tint was dimming is also the wrong thing to dim: the no-warranty and
+ * no-SLA clauses PRODUCT_PLAYBOOK.md 5b requires, the link to the rest of the
+ * portfolio, and the sponsors line. The footer is quieter than the venture's
+ * own content already, by its border, fill and position. */
+.pf-chrome-foot p{margin:0 0 12px}
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
-</style>`;
+
+/* Site chrome is not part of anything a visitor prints.
+ *
+ * Nine bid calculators produce a customer proposal (platform/proposal), whose
+ * own print stylesheet hides header, main and footer so the homeowner's copy
+ * carries the price and not the contractor's wages. That allow-list was written
+ * against the venture's own markup — it cannot know about the nav and aside
+ * this build injects as siblings of main, so on the published site the
+ * customer's quote came out with the site navigation and the "more tools"
+ * footer stapled to it. The rule belongs here, with the markup it hides, rather
+ * than in each venture: a calculator that adopts the proposal next week is
+ * covered without touching it. */
+@media print{.pf-chrome{display:none !important}}
+`;
+
+/**
+ * The chrome's stylesheet as one file, for the whole site.
+ *
+ * It was written into every published page — 2.75 KB × 442 pages, **1.19 MiB
+ * of the built site**, all of it the same bytes. Nothing in it was ever
+ * per-page: the block is deliberately palette-free (see above), which is
+ * exactly what makes it shareable.
+ *
+ * The `id` the element carried did one job: it let a test find the chrome's own
+ * rules among a venture's. The filename does that now, and better — the tests
+ * that used to fish the block out of a built page and `continue` when they
+ * could not find one would have gone silently green the moment it moved.
+ */
+export const CHROME_STYLE_FILE = 'pf-chrome.css';
+
+/**
+ * The contents of that file. Written once by the build, at the site root.
+ *
+ * The reflow rules ride along rather than taking a stylesheet of their own:
+ * this file is already linked by every page they apply to and already in the
+ * offline bundle, so folding them in costs no second request on a phone with
+ * one bar — the visitor those rules exist for. See `reflow.mjs`.
+ */
+export function renderChromeStyle() {
+  return `${CHROME_CSS.trimStart()}${REFLOW_CSS}`;
+}
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
 // opened, never who opened them, never leaving the device, and silent for a
 // browser asking not to be counted. Until this shipped the only page that
 // counted anything was the hub, so a visitor arriving from search at a deep SEO
 // page was invisible — which is most of the traffic these pages are written for.
-const CHROME_SCRIPT = (slug) => `<script>
+//
+// The slug is the only per-page value, and it rides on the `<script>` tag as
+// `data-pf-slug` now that this is one shared file. See `CHROME_MODULE_FILE`.
+const CHROME_SCRIPT = () => `
 (function(){
   try{
     if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     if(localStorage.getItem('portfolio-hub-optout')==='1')return;
+    var tag=document.querySelector('script[${CHROME_SLUG_ATTR}]');
+    var slug=tag?tag.getAttribute('${CHROME_SLUG_ATTR}')||'':'';
+    if(!slug)return;
     var k='portfolio-hub-usage';
     var bump=function(event){
       try{
@@ -1042,14 +3349,126 @@ const CHROME_SCRIPT = (slug) => `<script>
         localStorage.setItem(k,JSON.stringify(c));
       }catch(e){}
     };
-    bump('tool_viewed:${slug}');
+    bump('tool_viewed:'+slug);
     document.addEventListener('click',function(e){
       var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
     });
   }catch(e){}
 })();
-</script>`;
+`;
+
+/**
+ * Gives a horizontally scrolling box the keyboard access it silently lost.
+ *
+ * A `overflow-x:auto` box scrolls with a mouse wheel, a trackpad and a
+ * touchscreen, and not with a keyboard: arrow keys scroll the focused element,
+ * and a box holding only text holds nothing focusable, so there is nothing to
+ * focus. The content past the right edge is then reachable by every visitor
+ * except the one navigating by keyboard. Axe calls this
+ * `scrollable-region-focusable`, and it is WCAG 2.1.1 (Keyboard).
+ *
+ * The wide comparison tables in the calculators' result panels are exactly this
+ * shape: several columns of figures inside a narrow sticky card.
+ *
+ * Done here rather than as a `tabindex="0"` in each venture's markup because
+ * whether a box scrolls is not a property of the markup — it depends on the
+ * viewport, the font, and how long the numbers rendered. A static attribute
+ * would put a tab stop on every table on every page, most of which fit and
+ * would strand a keyboard user on a box that does not move; and it would still
+ * miss the table that overflows only at 900px. Measuring `scrollWidth` gets
+ * both cases right, and re-measures on resize.
+ *
+ * `role` is deliberately not set: `region` on a `<table>` replaces its table
+ * semantics, so a screen reader would stop announcing rows and columns. The
+ * accessible name comes from the caption or heading the venture already wrote.
+ *
+ * It also *creates* the box, for a table that has none. `reflow.mjs` wraps
+ * every table in the markup at build time; the ones this half has to catch are
+ * the tables a calculator writes into its result panel from a string, which no
+ * build pass can see. Both halves are here because they are one behaviour —
+ * make the table scroll rather than the page, then make what scrolls reachable.
+ */
+const SCROLL_A11Y_SCRIPT = `
+(function(){
+  // Which elements can scroll sideways is decided by CSS, so the candidate set
+  // only changes when the cascade does — on load and on resize, where a media
+  // query may swap overflow. Whether a candidate *is* scrolling changes far
+  // more often, every recalculation, so the two are measured separately: the
+  // expensive getComputedStyle sweep is rare, the cheap width comparison is not.
+  // Selecting by class name was the first attempt and missed .table-wrap; the
+  // wrappers are named differently in every venture, so the property is asked
+  // for directly.
+  var candidates=[];
+  var tables=0;
+  var collect=function(){
+    // Before the sweep, not after: a table a calculator just wrote into its
+    // result panel has no scrolling box around it yet, so collecting first
+    // would find nothing to give a tab stop to. See reflow.mjs.
+    ${WRAP_TABLES_JS}
+    candidates=[];
+    var all=document.body?document.body.getElementsByTagName('*'):[];
+    for(var i=0;i<all.length;i++){
+      var o=getComputedStyle(all[i]).overflowX;
+      if(o==='auto'||o==='scroll')candidates.push(all[i]);
+    }
+    tables=document.getElementsByTagName('table').length;
+  };
+  var measure=function(){
+    for(var i=0;i<candidates.length;i++){
+      var el=candidates[i];
+      if(el.scrollWidth>el.clientWidth+1){
+        if(!el.hasAttribute('tabindex')){
+          el.setAttribute('tabindex','0');
+          el.setAttribute('data-pf-scrollable','');
+        }
+      }else if(el.hasAttribute('data-pf-scrollable')){
+        // It fits now — drop the tab stop rather than stranding a keyboard user
+        // on a box that no longer moves.
+        el.removeAttribute('tabindex');
+        el.removeAttribute('data-pf-scrollable');
+      }
+    }
+  };
+  var full=function(){try{collect();measure();}catch(e){}};
+  // A recalculation that replaced the result panel can have added or removed a
+  // table, and a table that arrived after the last sweep is not a candidate yet
+  // — so the cheap path re-sweeps exactly when the table count moved, and stays
+  // cheap on every other keystroke.
+  var quick=function(){
+    try{
+      if(document.getElementsByTagName('table').length!==tables){collect();}
+      measure();
+    }catch(e){}
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',full);
+  else full();
+  addEventListener('resize',full);
+  addEventListener('input',quick);
+  addEventListener('change',quick);
+  addEventListener('click',quick);
+})();
+`;
+
+/**
+ * The chrome's two browser halves as one file, for the whole site.
+ *
+ * Both ran on all 442 published pages and neither was ever per-page except for
+ * the slug the counter names — 663 B and 994 B written out 442 times each, or
+ * **715 KiB of the built site**. They ship together because they ship to the
+ * same set of pages: two files would be two requests to say what one says.
+ *
+ * A classic script, as both were inline. It sits at the end of the body, after
+ * the markup it reads, and neither half needs to run before the venture's own
+ * module: the counter records a page view and the scroll pass waits for
+ * `DOMContentLoaded` or measures immediately, whichever comes first.
+ */
+export const CHROME_MODULE_FILE = 'pf-site.js';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderChromeModule() {
+  return `${stripForInjection(CHROME_SCRIPT())}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
+}
 
 // ---------------------------------------------------------------------------
 // Number inputs
@@ -1118,17 +3537,29 @@ export function upToRoot(relativePath) {
 
 /**
  * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
- * category first, then the rest of the site. Rotating the list by the tool's
- * own position means neighbouring tools do not all advertise the same four,
- * while keeping the choice deterministic — the build has to be reproducible.
+ * sub-group first, then the rest of the category, then the rest of the site.
+ * Rotating each list by the tool's own position means neighbouring tools do not
+ * all advertise the same four, while keeping the choice deterministic — the
+ * build has to be reproducible.
+ *
+ * The sub-group tier matters most in `trades`, where "same category" is 110
+ * tools: without it a metal-roof page offers whichever four the rotation lands
+ * on, and a roofer is shown a music-lesson break-even. Same sub-group means the
+ * offer is another roofing, siding, or gutter bid — work the same visitor sells.
  */
 export function relatedTools(surfaces, slug, limit = 4) {
   const others = surfaces.filter((surface) => surface.slug !== slug);
   if (others.length === 0) return [];
 
   const category = categoryFor(slug).id;
-  const sameCategory = others.filter((surface) => categoryFor(surface.slug).id === category);
-  const rest = others.filter((surface) => categoryFor(surface.slug).id !== category);
+  const subcategory = subcategoryFor(slug)?.id ?? null;
+  const inCategory = (surface) => categoryFor(surface.slug).id === category;
+  const inSubcategory = (surface) =>
+    subcategory !== null && inCategory(surface) && subcategoryFor(surface.slug)?.id === subcategory;
+
+  const sameSubcategory = others.filter(inSubcategory);
+  const sameCategory = others.filter((surface) => inCategory(surface) && !inSubcategory(surface));
+  const rest = others.filter((surface) => !inCategory(surface));
 
   const rotate = (list) => {
     if (list.length === 0) return list;
@@ -1136,7 +3567,7 @@ export function relatedTools(surfaces, slug, limit = 4) {
     return [...list.slice(offset), ...list.slice(0, offset)];
   };
 
-  return [...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+  return [...rotate(sameSubcategory), ...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
 }
 
 /**
@@ -1144,7 +3575,302 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
+// The one file every share card points at. A single site-wide image rather
+// than one per tool: 164 rasterised cards would be 164 files to keep in step
+// with 164 titles, and a scraper that finds no image at all falls back to
+// whatever it scrapes off the page — usually nothing, since these pages carry
+// no content images either.
+export const SOCIAL_CARD_FILE = 'social-card.png';
+
+/** The Atom feed's path. See `renderFeed`. */
+export const FEED_FILE = 'feed.xml';
+export const SITE_NAME = 'Free small-business calculators';
+
+/**
+ * Make one published page's discovery tags true.
+ *
+ * `injectChrome` inserts a canonical where a venture has none. This is the
+ * other half, and it is the half that was missing: a venture that *does* carry
+ * its own canonical keeps it, however wrong it has become. Fifteen tools were
+ * written as standalone sites and say `href="./index.html"`, which resolves to
+ * `/<slug>/index.html` — while the hub, every sitemap, and every internal link
+ * use `/<slug>/`. Those are two URLs for one page, and the canonical named the
+ * one nothing links to, so the address the whole site advertises was the one
+ * being consolidated away. A relative canonical is legal HTML and self-
+ * resolving, which is why neither `check.mjs` nor a validator ever flagged it.
+ *
+ * Then the social half. Organic sharing into trade groups and forums is a
+ * named acquisition channel here, and a link pasted into one renders from
+ * `og:` tags:
+ *
+ *   * `og:url` — 7 of 442 pages had one. Without it a scraper keys the card to
+ *     the pasted URL, so `?bid=...` share links (157 pages emit them) each
+ *     preview as a separate page instead of consolidating onto the tool.
+ *   * `og:image` — no page had one, so every share rendered as a bare text
+ *     card. This is the single largest determinant of whether anyone clicks.
+ *   * `og:title` / `og:description` — 21 pages carried neither, and fall back
+ *     here to the `<title>` and meta description they do have.
+ *
+ * Everything is added only where the page does not already say it: a venture's
+ * own card copy is written for its audience and beats anything derived here.
+ *
+ * The one exception is a description longer than a search result or a share
+ * card will show — see `snippetize`. That copy is still the venture's own, so
+ * it is cut rather than replaced, and a description already inside the budget
+ * is never touched.
+ */
+export function injectDiscoveryTags(html, { canonical, baseUrl, title, description, cardFile } = {}) {
+  if (!canonical) return html;
+  if (!/<\/head>/i.test(html)) return html;
+
+  let next = html;
+
+  // Repair rather than insert: `injectChrome` has already guaranteed exactly
+  // one canonical, and a page may reach here with a stale relative one.
+  next = next.replace(
+    /<link\b[^>]*\brel=["']canonical["'][^>]*>/i,
+    () => `<link rel="canonical" href="${escapeHtml(canonical)}">`,
+  );
+
+  // Whole-tag matcher rather than `[^>]*`: a hand-written description may
+  // contain a bare `>` ("net > 0"), and stopping at it would silently leave the
+  // longest descriptions — the ones this pass exists to cut — unmatched.
+  const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
+  const tagFor = (attr, value) =>
+    metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
+  const contentOf = (tag) => decodeEntities(/\bcontent=(["'])([\s\S]*?)\1/i.exec(tag)?.[2] ?? '');
+
+  /** Rewrite one existing meta tag's content in place; a no-op if it has none. */
+  const rewrite = (match, content) => {
+    const replaced = match[0].replace(
+      /\bcontent=(["'])([\s\S]*?)\1/i,
+      () => `content="${escapeHtml(content)}"`,
+    );
+    if (replaced === match[0]) return;
+    next = next.slice(0, match.index) + replaced + next.slice(match.index + match[0].length);
+  };
+
+  // The page's own description is the truest source for its snippet — a deep
+  // SEO page inside a tool describes itself, not the tool — and `description`
+  // is the caller's fallback for the pages that carry none.
+  const descriptionTag = tagFor('name', 'description');
+  const ownDescription = descriptionTag ? contentOf(descriptionTag[0]) : '';
+  const snippet = snippetize(ownDescription || description || '');
+  if (descriptionTag && ownDescription.length > SNIPPET_MAX && snippet) {
+    rewrite(descriptionTag, snippet);
+  }
+
+  // The same budget on the social side, where the page may carry its own
+  // `og:description` copied from the over-long meta description it shipped with.
+  const ogTag = tagFor('property', 'og:description');
+  if (ogTag && contentOf(ogTag[0]).length > SNIPPET_MAX) {
+    rewrite(ogTag, snippetize(contentOf(ogTag[0])));
+  }
+  const twitterTag = tagFor('name', 'twitter:description');
+  if (twitterTag && contentOf(twitterTag[0]).length > SNIPPET_MAX) {
+    rewrite(twitterTag, snippetize(contentOf(twitterTag[0])));
+  }
+
+  const has = (attr, value) =>
+    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/:/g, ':')}["']`, 'i').test(next);
+  const tags = [];
+  const add = (attr, value, content) => {
+    if (!content || has(attr, value)) return;
+    tags.push(`<meta ${attr}="${value}" content="${escapeHtml(content)}">`);
+  };
+
+  add('property', 'og:url', canonical);
+  add('property', 'og:type', 'website');
+  add('property', 'og:site_name', SITE_NAME);
+  add('property', 'og:title', title);
+  // `snippet`, not `description`: the caller's copy is trimmed to a hub card
+  // (180) rather than to a share card, so adding it raw would ship the very
+  // over-long description this pass just cut out of the page beside it.
+  add('property', 'og:description', snippet);
+  if (baseUrl) {
+    // `cardFile` lets a page point at the card drawn for its own tool — see
+    // `toolCardFileFor`. Falls back to the site-wide default for callers (the
+    // hub, the About page) that are not a tool.
+    const image = `${baseUrl}${cardFile || SOCIAL_CARD_FILE}`;
+    add('property', 'og:image', image);
+    add('property', 'og:image:width', '1200');
+    add('property', 'og:image:height', '630');
+    // The alt text describes the card that was actually drawn, which now
+    // carries the tool's name. A screen reader announcing the site name on a
+    // card that says "Deck bid calculator" is describing a different picture.
+    add(
+      'property',
+      'og:image:alt',
+      cardFile && title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — free, private, in your browser`,
+    );
+    // Without a card type X renders a link as plain text. `summary_large_image`
+    // is the wide form, which is what a 1200×630 card is drawn for.
+    add('name', 'twitter:card', 'summary_large_image');
+  }
+
+  if (!tags.length) return next;
+  return next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
+}
+
+// `decodeEntities` covers the five that matter for markup safety. Prose needs
+// the typographic ones too: an answer written with `&ldquo;` reaches JSON-LD as
+// the literal characters `&ldquo;`, and a search engine renders exactly that
+// inside the answer it shows. Numeric forms are decoded generically; the named
+// map is the punctuation these pages actually use.
+const TEXT_ENTITIES = {
+  nbsp: ' ', ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’', mdash: '—', ndash: '–',
+  hellip: '…', times: '×', minus: '−', deg: '°', plusmn: '±', frac12: '½', frac14: '¼',
+  euro: '€', pound: '£', cent: '¢', trade: '™', reg: '®', copy: '©', apos: "'",
+};
+
+const decodeTextEntities = (value) =>
+  decodeEntities(value)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&([a-z][a-z0-9]*);/gi, (whole, name) => TEXT_ENTITIES[name.toLowerCase()] ?? whole);
+
+/** Visible text of an HTML fragment, with script/style content dropped. */
+const stripTags = (fragment) =>
+  decodeTextEntities(
+    fragment
+      .replace(/<(script|style|template)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' '),
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * The prose of a fragment: its paragraphs, or all its text if it has none.
+ *
+ * Paragraphs first because the slice after a question heading is usually a
+ * short answer followed by the widget that answers it — inputs, buttons, a
+ * results table. Taking every text node would put "Calculate Reset $0.00" in
+ * an answer a search engine may quote verbatim.
+ */
+const answerProse = (fragment) => {
+  const paragraphs = [...fragment.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map(([, inner]) => stripTags(inner))
+    .filter(Boolean);
+  return paragraphs.length ? paragraphs.slice(0, 2).join(' ') : stripTags(fragment);
+};
+
+// A heading that labels its question ("Common question: should I accept Net
+// 30?") reads as a label plus a question. The label is page furniture, not
+// part of what anyone asks, so it is dropped from the structured copy.
+const FAQ_LABEL = /^(?:common questions?|faq|q)\s*[:.–—-]\s*/i;
+
+/**
+ * A function name appearing in prose, which marks the paragraph as a note about
+ * how the page works rather than an answer to the question above it.
+ *
+ * `3pl-quote-normalizer` answers four of its questions with "This block uses
+ * the same compareInboundMethods on the quote you just typed" — true, useful to
+ * a maintainer, and no kind of answer to quote back to someone who searched
+ * "should I pay the 3PL to kit". The rule is narrow on purpose: a
+ * lowercase-initial camelCase run of ten or more characters is an identifier,
+ * while the brand names that share that shape are all far shorter (`eBay`,
+ * `iPhone`, `iOS`) and every other brand here starts with a capital
+ * (`PayPal`, `DoorDash`, `TikTok`), so none of them trip it.
+ */
+const CODE_IDENTIFIER = /\b[a-z][a-z0-9]*[A-Z][a-zA-Z0-9]*\b/g;
+
+const readsAsCode = (text) =>
+  [...text.matchAll(CODE_IDENTIFIER)].some(([token]) => token.length >= 10);
+
+/**
+ * The end of the block an answer lives in.
+ *
+ * The last question on a page has no heading after it, so its answer would
+ * otherwise run to the end of the document — straight through `</main>` and
+ * into the footer, where every tool here carries the same "No warranty. This
+ * free tool is not tax, financial, or business advice" paragraph. That would
+ * be picked up as the answer's second paragraph and quoted, on every page, as
+ * part of the answer to whatever its last question happened to be.
+ */
+const toBlockEnd = (fragment) => {
+  const boundary = fragment.search(/<\/(?:section|main|article|aside)\b|<footer\b|<hr\b/i);
+  return boundary === -1 ? fragment : fragment.slice(0, boundary);
+};
+
+const FAQ_MAX_ENTRIES = 8;
+const FAQ_MIN_ANSWER = 40;
+const FAQ_MAX_QUESTION = 200;
+const FAQ_MAX_ANSWER = 600;
+
+/**
+ * Question/answer pairs a page already shows a visitor, as data.
+ *
+ * These pages answer real questions in prose — "Should unused hours roll
+ * over?", "Does leftover long-term storage flip the quote?" — and an answer
+ * engine cannot tell that prose apart from the rest of the page. `FAQPage`
+ * JSON-LD is how that is said in machine-readable form, and 129 of the 164
+ * tools ship none.
+ *
+ * It is *derived* rather than authored for a reason. Google's structured-data
+ * policy requires the question and answer to be visible on the page, and an
+ * authored block maintained beside the copy drifts from it — the schema then
+ * describes a page that no longer exists, which is worse than having none.
+ * Reading the rendered copy makes the two the same text by construction.
+ *
+ * Nothing is invented: a page with no visible Q&A gets no schema.
+ */
+export function faqEntries(html) {
+  const headings = [...html.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)].map((match) => ({
+    level: Number(match[1]),
+    text: stripTags(match[2]),
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+
+  const found = [];
+
+  headings.forEach((heading, index) => {
+    if (heading.level !== 2 && heading.level !== 3) return;
+    if (!heading.text.endsWith('?')) return;
+    // The answer runs to the next heading of any level: a sibling question, or
+    // the section that follows. Anything past it belongs to another topic.
+    const next = headings[index + 1];
+    found.push({
+      at: heading.start,
+      question: heading.text,
+      answer: answerProse(
+        toBlockEnd(html.slice(heading.end, next ? next.start : html.length)),
+      ),
+    });
+  });
+
+  for (const match of html.matchAll(/<details\b[^>]*>([\s\S]*?)<\/details>/gi)) {
+    const summary = match[1].match(/<summary\b[^>]*>([\s\S]*?)<\/summary>/i);
+    if (!summary) continue;
+    const question = stripTags(summary[1]);
+    if (!question.endsWith('?')) continue;
+    found.push({
+      at: match.index,
+      question,
+      answer: answerProse(match[1].slice(summary.index + summary[0].length)),
+    });
+  }
+
+  const seen = new Set();
+  return found
+    .sort((a, b) => a.at - b.at)
+    .map(({ question, answer }) => ({ question: question.replace(FAQ_LABEL, '').trim(), answer }))
+    .filter(({ question, answer }) => {
+      // A one-line answer is usually a caption, not an answer. Requiring real
+      // prose keeps thin pairs out rather than padding the page with them.
+      if (question.length < 2 || question.length > FAQ_MAX_QUESTION) return false;
+      if (answer.length < FAQ_MIN_ANSWER) return false;
+      if (readsAsCode(answer)) return false;
+      const key = question.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, FAQ_MAX_ENTRIES)
+    .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
+}
+
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title, externalCallHosts = [] }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
@@ -1181,6 +3907,27 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       ],
     })}</script>`;
   }
+  if (isEntry && !html.replace(/<!--[\s\S]*?-->/g, '').includes('FAQPage')) {
+    // Only where the venture wrote none of its own: two FAQPage blocks on one
+    // page describe the same page twice, and a crawler is free to believe
+    // whichever it reads first. 37 ventures author their own — those are left
+    // exactly as they are. Comments are stripped before the check: a page
+    // whose only mention of "FAQPage" is a comment *documenting* that the
+    // schema is derived (not authoring one) was reading as already-covered
+    // and silently shipping none (grant-deadline-tracker, 2026-08-31).
+    const faq = faqEntries(html);
+    if (faq.length) {
+      headExtras += `\n<script type="application/ld+json">${jsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map(({ question, answer }) => ({
+          '@type': 'Question',
+          name: question,
+          acceptedAnswer: { '@type': 'Answer', text: answer },
+        })),
+      })}</script>`;
+    }
+  }
   if (headExtras) {
     html = /<\/head>/i.test(html)
       ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
@@ -1207,24 +3954,76 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
     <h2>More free tools</h2>
-    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+    <p>${externalCallHosts.length
+      ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
+      : 'Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.'
+    }</p>
 ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
       is optional and changes nothing about what these tools do.
     </p>
   </div>
 </aside>
-${CHROME_SCRIPT(slug)}`;
+<script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(slug)}"></script>`;
 
-  const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
+  // A link now, not a `<style>` body: one file at the site root, fetched once
+  // and served from cache for every other tool on the site. See
+  // `CHROME_STYLE_FILE`.
+  const styleLink =
+    `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
+  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === html ? `${CHROME_STYLE}\n` : '';
+  const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
   return withStyle
     .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
     .replace(/<\/body>/i, `${footer}\n</body>`);
+}
+
+/** A copy-link button a venture wrote itself, in any of its four spellings. */
+const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink)"/;
+
+/**
+ * Does this page already carry a share control of its own?
+ *
+ * `pageHasOwnShareLink` reads the markup, which is enough for the 58 pages that
+ * import `share.mjs` inline. `freelance-retainer-calculator` does not: its whole
+ * script lives in `app.js`, so the import, the button id (`share`) and the label
+ * ("Copy shareable link") were all outside the html the gate could see, and the
+ * page shipped with its own button *and* the injected one — two controls writing
+ * two hash formats, which is precisely what that gate exists to prevent.
+ *
+ * Both halves are required, and each rules out a page the other would get wrong:
+ *
+ *   * **The script.** Without it, `mobile-detailing-bid-calculator` counts —
+ *     it has a `#copyLink` button and no share module at all, just an inline
+ *     one-liner that serialized `readInput()` and dropped the proposal terms.
+ *     That page wants the injected control, not protection from it.
+ *   * **The button.** Without it, the venture's deep "should I…" pages count,
+ *     because they load the same `app.js`. They carry a form and no share
+ *     control, and treating the script as the answer took the bid link off
+ *     sixty pages that had nothing to conflict with.
+ *
+ * Only same-directory scripts are read: a `../` or absolute src is the site
+ * chrome, which is this build's own and never a venture's share control.
+ */
+export async function pageHasOwnShareControl(dir, html, cache) {
+  if (typeof html !== 'string') return false;
+  if (!OWN_COPY_BUTTON.test(html)) return false;
+  const SRC_RE = /<script[^>]*\bsrc="([^"]+)"/g;
+  for (const [, src] of html.matchAll(SRC_RE)) {
+    if (/^[a-z]+:|^\/\/|^\/|\.\./i.test(src)) continue;
+    if (!/\.m?js$/.test(src)) continue;
+    if (!cache.has(src)) {
+      cache.set(src, await fs.readFile(path.join(dir, src), 'utf8').catch(() => ''));
+    }
+    if (/share\.mjs/.test(cache.get(src))) return true;
+  }
+  return false;
 }
 
 /**
@@ -1236,17 +4035,28 @@ ${CHROME_SCRIPT(slug)}`;
 export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_URL }) {
   const wrapped = [];
   const rated = [];
+  const saved = [];
+  const shared = [];
+  const described = [];
+  const highlighted = [];
+  const narrowed = [];
+  const embedded = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) continue;
     const related = relatedTools(surfaces, surface.slug);
+    // Read once per venture; several pages in a directory load the same script.
+    const scriptCache = new Map();
 
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const toRoot = upToRoot(relative);
+      // `/tool/index.html` and `/tool/` are the same page; the directory form
+      // is the one to declare.
+      const canonical = `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`;
       // The attribute pass runs on the venture's own markup, before the chrome
       // adds any input of its own, and is a no-op on a page with no numbers.
       const chromed = injectFavicon(annotateNumberInputs(injectChrome(html, {
@@ -1255,27 +4065,174 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         total: surfaces.length,
         related,
         title: surface.title,
-        // `/tool/index.html` and `/tool/` are the same page; the directory form
-        // is the one to declare.
-        canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
+        canonical,
         isEntry: url === `${surface.slug}/index.html`,
+        externalCallHosts: surface.externalFetchHosts,
       })), toRoot);
+      // After the chrome, which guarantees the canonical this repairs, and read
+      // from the venture's *own* markup: a deep SEO page inside a tool has its
+      // own title and description, and `surface` carries the tool's.
+      const pageMeta = readMeta(html, surface.slug);
+      const withCard = injectDiscoveryTags(chromed, {
+        canonical,
+        baseUrl,
+        title: pageMeta.title,
+        description: pageMeta.description,
+        // Every page inside a tool points at that tool's card, deep SEO pages
+        // included: they are shared as "the deck bid calculator's page about
+        // labour rates", so the tool's name is the right thing on the picture.
+        cardFile: toolCardFileFor(surface.slug),
+      });
+      if (withCard !== chromed) described.push(relative);
+      // The embed offer rides in the footer chrome `injectChrome` already
+      // wrote, so it needs to run after that and can run independently of
+      // the bars below — it touches neither's markup and neither touches its.
+      const withEmbed = injectEmbedWidget(withCard, {
+        slug: surface.slug,
+        toRoot,
+        canonical,
+        title: surface.title,
+        isEntry: url === `${surface.slug}/index.html`,
+      });
+      if (withEmbed !== withCard) embedded.push(relative);
       // Last: the bar anchors under the site nav, so the chrome has to be there
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
-      const next = injectShopRates(chromed);
-      if (next !== chromed) rated.push(relative);
-      if (next === html) continue;
-      await fs.writeFile(file, next);
+      const withRates = injectShopRates(withEmbed, surface.slug, toRoot);
+      if (withRates !== withCard) rated.push(relative);
+      // After the rates bar, which it anchors beneath, and after the attribute
+      // pass, which must see the venture's own inputs and not the name box this
+      // one adds.
+      const next = injectSavedBids(withRates, surface.slug, toRoot);
+      if (next !== withRates) saved.push(relative);
+      // Last of all, and after the saved-bids band it hangs its button on.
+      //
+      // Both the gate and the headline selector are read from `withRates` — the
+      // same markup `injectSavedBids` was handed — while the edit is made to
+      // `next`, which is the only copy that has the band to hang the button on.
+      // The two are passed apart so this decides from the venture's own form
+      // rather than from a document another pass has already written into.
+      const linked = injectBidLink(next, {
+        slug: surface.slug,
+        toRoot,
+        source: withRates,
+        hasShareModule: await pageHasOwnShareControl(dir, html, scriptCache),
+        amountSelector: pageHeadlineAmountSelector(withRates, surface.slug),
+      });
+      if (linked !== next) shared.push(relative);
+      // Last, and gated on the page's own promise rather than on anything the
+      // passes above added: it explains a message the venture's calculator
+      // writes, so a page that never prints that message must not receive it.
+      const marked = injectInvalidField(linked, toRoot);
+      if (marked !== linked) highlighted.push(relative);
+      // After every pass that adds markup of its own — the saved-bids band and
+      // the share row both carry tables of their own on some pages, and they
+      // are as capable of pushing the document sideways as a venture's.
+      const reflowed = injectReflow(marked);
+      if (reflowed !== marked) narrowed.push(relative);
+      if (reflowed === html) continue;
+      await fs.writeFile(file, reflowed);
       wrapped.push(relative);
     }
   }
 
-  return { wrapped, rated };
+  return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
 }
 
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
+}
+
+/**
+ * `/feed.xml` — an Atom feed of tools as they are published, newest first.
+ *
+ * ## Why a feed, on a site with no news
+ *
+ * Every other machine surface here answers "what exists" — `sitemap.xml` for
+ * crawlers, `catalog.json` and `llms.txt` for models. None of them answers
+ * "what changed", and that is the question every organic distribution channel
+ * this portfolio is allowed to use actually asks. `portfolio/DIRECTION.md`
+ * rules out ad spend and `mandate.md` rules out posting into communities
+ * ourselves, which leaves channels people opt into: readers, aggregators that
+ * poll for new entries, and the IFTTT/Zapier-shaped glue a niche community's
+ * own moderators run. A feed is the one asset that lets someone else do the
+ * distributing, and it costs one static file.
+ *
+ * It is also the only surface that gives a *returning* visitor a reason to
+ * come back. The tools themselves are single-use by design: a contractor who
+ * has priced their job is done with us until the next job.
+ *
+ * ## Atom rather than RSS 2.0
+ *
+ * Atom requires a stable `<id>` per entry that is distinct from the link, and
+ * requires dates be RFC 3339. Both matter here: the link for a tool is its
+ * directory URL, which would change if the site ever moved off
+ * `tools.marisstella.dev`, and a reader keyed on the link would then re-notify
+ * every subscriber about all 169 tools. `tag:` URIs keyed on the slug survive
+ * that move. RSS 2.0's `<guid isPermaLink="false">` can do the same thing but
+ * nothing in the format makes it the default, and its `pubDate` is RFC 822,
+ * which is where hand-rolled feeds usually break.
+ *
+ * ## What the dates mean, and what they do not
+ *
+ * `<published>` and `<updated>` are both the day the tool first appeared in
+ * `ventures/` — see `launched.mjs` for where that comes from and why it is a
+ * committed file. They are equal on purpose. These pages are edited constantly
+ * (copy, FAQ entries, a new worked example), and republishing an entry on
+ * every edit would make the feed a changelog of our own commits rather than a
+ * list of tools, which is not what anyone subscribed for.
+ *
+ * Entries are capped at `FEED_MAX_ENTRIES`. A tool that scrolls off is still
+ * in `sitemap.xml`, `catalog.json` and `llms.txt`; the feed is the "new" list,
+ * not another catalogue.
+ */
+export function renderFeed(surfaces, baseUrl, launched = {}) {
+  const ordered = orderForFeed(surfaces, launched).filter((surface) => isIsoDate(launched[surface.slug]));
+  const entries = ordered.slice(0, FEED_MAX_ENTRIES);
+
+  // No dated surface at all means the feed would claim the site is empty.
+  // Fall back to the build's own instant so the document stays valid Atom;
+  // `check.mjs` is what refuses to publish a site in that state.
+  const updated = feedUpdatedAt(ordered, launched) ?? new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+
+  // Domain-based tag URI (RFC 4151). The authority is fixed rather than taken
+  // from `baseUrl` so that serving the same build from GitHub Pages and from
+  // the Hetzner ingress — which `portfolio/hosting/README.md` says may both
+  // happen — does not mint two different ids for one tool and double every
+  // subscriber's feed.
+  const tagId = (slug) => `tag:marisstella.dev,2026:tool/${slug}`;
+
+  const entryXml = (surface) => {
+    const url = `${baseUrl}${surface.slug}/`;
+    const date = `${launched[surface.slug]}T00:00:00Z`;
+    return `  <entry>
+    <title>${escapeHtml(surface.title)}</title>
+    <link rel="alternate" type="text/html" href="${escapeHtml(url)}"/>
+    <id>${escapeHtml(tagId(surface.slug))}</id>
+    <published>${date}</published>
+    <updated>${date}</updated>
+    <category term="${escapeHtml(categoryFor(surface.slug).title)}"/>
+    <summary type="text">${escapeHtml(oneLineText(surface.fullDescription || surface.description))}</summary>
+  </entry>`;
+  };
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeHtml(SITE_NAME)}</title>
+  <subtitle>New free, browser-only calculators and checks for people who run a small business. No account, no upload: every number stays on the visitor's own device.</subtitle>
+  <link rel="self" type="application/atom+xml" href="${escapeHtml(`${baseUrl}${FEED_FILE}`)}"/>
+  <link rel="alternate" type="text/html" href="${escapeHtml(baseUrl)}"/>
+  <id>${escapeHtml(`tag:marisstella.dev,2026:${SITE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)}</id>
+  <updated>${updated}</updated>
+  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+${entries.map(entryXml).join('\n')}
+</feed>
+`;
+}
+
+/** Collapse to a single line: a newline inside an Atom `<summary>` is legal but reads badly in every reader. */
+function oneLineText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
 }
 
 
@@ -1302,10 +4259,23 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(baseUrl) {
+/**
+ * The site's own pages, as opposed to the ventures': the hub, and one entry per
+ * category landing page. Both belong here rather than in a sitemap of their
+ * own — they are the same kind of page (this build's, not a venture's) and a
+ * crawler following `robots.txt` reaches them through the same index.
+ */
+export function renderHubSitemap(baseUrl, categoryIds = []) {
+  const urls = [`  <url><loc>${baseUrl}</loc></url>`]
+    .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
+    // The About page is a hub-level surface, not a venture's, so it is listed
+    // here or in no sitemap at all — and an unlisted page is one a crawler
+    // reaches only by following a footer link on a page it happened to find.
+    .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`]);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${baseUrl}</loc></url>
+${urls.join('\n')}
 </urlset>
 `;
 }
@@ -1362,7 +4332,7 @@ ${urls.join('\n')}
  * in the decision queue), and a machine-readable file is the wrong place to
  * pre-answer it.
  */
-export function renderCatalog(surfaces, baseUrl) {
+export function renderCatalog(surfaces, baseUrl, launched = {}) {
   return `${JSON.stringify(
     {
       name: 'Free calculators for sellers, contractors, and small back offices',
@@ -1370,20 +4340,126 @@ export function renderCatalog(surfaces, baseUrl) {
       license: 'MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
-      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
+      // The feed carries the newest FEED_MAX_ENTRIES tools; this file carries
+      // every tool with the same dates, which is what lets `check.mjs` prove
+      // no tool is undated using only the artifact. It is also the answer to
+      // "what did they add recently" for a client that would otherwise have to
+      // poll the feed and remember what it saw.
+      feed: `${baseUrl}${FEED_FILE}`,
+      // The catalogue's own index. `tools[].category` names a category but
+      // gives no way to reach one, so a client that wanted "everything in this
+      // category" had to scan all 164 rows and rebuild the grouping itself.
+      categories: groupByCategory(surfaces).map(({ category, items }) => ({
+        id: category.id,
+        name: category.title,
+        url: `${baseUrl}${categoryPagePath(category.id)}`,
+        description: categoryPageCopy(category).description,
+        tool_count: items.length,
+      })),
       tools: surfaces.map((surface) => ({
         slug: surface.slug,
         name: surface.title,
         url: `${baseUrl}${surface.slug}/`,
         category: categoryFor(surface.slug).title,
+        // Present only where the category is sub-grouped. An assistant asked for
+        // "a gutter bid calculator" can filter on this instead of reading 110
+        // trade descriptions to work out which ones are roof work.
+        ...(subcategoryFor(surface.slug) ? { subcategory: subcategoryFor(surface.slug).title } : {}),
         description: surface.description,
         pages: surface.pageCount,
+        // Omitted rather than null when unknown, so a consumer that reads the
+        // key at all can trust it. `check.mjs` refuses to publish an artifact
+        // where any tool is missing it.
+        ...(launched[surface.slug] ? { launched: launched[surface.slug] } : {}),
       })),
     },
     null,
     2,
   )}\n`;
+}
+
+/**
+ * `/llms.txt` — the same catalogue as `catalog.json`, at the path an assistant
+ * actually looks for.
+ *
+ * `catalog.json` is richer, but nothing points at it: a model answering "is
+ * there a free tool that prices a fence install" has no reason to guess that
+ * filename, and `robots.txt` has no directive that would name it. `llms.txt`
+ * (llmstxt.org) is a well-known path, so it gets fetched without being
+ * discovered first — which is the whole difference for a portfolio whose
+ * growth plan is organic search and AI discovery rather than ad spend
+ * (`portfolio/DIRECTION.md`, "What we are doing").
+ *
+ * Markdown, not JSON, and deliberately so: the format is read by a model, not
+ * parsed by a client, and a link list under a heading survives being chunked
+ * into a context window in a way a nested object does not.
+ *
+ * Carries `fullDescription`, not the trimmed `description` the hub cards show.
+ * A card has a fixed height and `readMeta` trims to it; this file has no
+ * layout, and the trimmed copy drops most of what 24 of these tools say about
+ * themselves — which is the half a model matches a query against. The hub's
+ * own search indexes the full text for exactly that reason.
+ *
+ * Descriptions are flattened to one line each. A stray newline inside a bullet
+ * silently ends the list item, so a tool whose meta description wrapped would
+ * publish its second half as body prose.
+ */
+export function renderLlmsTxt(surfaces, baseUrl) {
+  const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+  // Same fact the About page states in full; see `disclaimerHtml` for why it
+  // is derived rather than hand-typed.
+  const exceptions = externalCallExceptions(surfaces);
+
+  const bullet = (surface) =>
+    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
+
+  const sections = groupByCategory(surfaces).map(({ category, items }) => {
+    const subgroups = groupBySubcategory(category.id, items);
+    // Sub-headings for a sub-grouped category, so a model reading this file can
+    // answer "which of these is a roofing tool" from the structure rather than
+    // by matching prose across 110 sibling bullets.
+    const body =
+      subgroups.length === 1 && subgroups[0].subcategory === null
+        ? items.map(bullet).join('\n')
+        : subgroups
+            .map(
+              ({ subcategory, items: subItems }) =>
+                `### ${subcategory.title}\n\n${subItems.map(bullet).join('\n')}`,
+            )
+            .join('\n\n');
+    // The category's own page, named on the line under its heading. An
+    // assistant that has been asked for "a roofing bid calculator" can cite a
+    // page that is about roofing bid calculators rather than the hub, which is
+    // about 164 unrelated things and reads that way in a citation.
+    const landing = `Category page: ${baseUrl}${categoryPagePath(category.id)}`;
+    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${landing}\n\n${body}\n`;
+  });
+
+  // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
+  // short of context. The tools themselves never belong here; these are the
+  // machine surfaces that describe them.
+  const optional = [
+    '## Optional',
+    '',
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
+    `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
+    `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
+    '',
+  ].join('\n');
+
+  return `# Free calculators and checks for people who run a small business
+
+> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment: every calculation runs in the visitor's own browser${exceptions.length ? `, and the numbers they type never leave their device — except on ${listProse(exceptions.map((x) => x.title))}, where the one thing you paste is sent to the public API it checks; the About page explains exactly what` : ' and the numbers they type never leave their device'}.
+
+Each tool is a static page that works offline once opened, and is free with no
+gated features. They are estimates and records to act on, not professional
+advice or a determination made on anyone's behalf; each page carries its own
+limitations.
+
+${sections.join('\n')}
+${optional}`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -1393,6 +4469,11 @@ export function renderNotFound(baseUrl) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="./favicon.ico" sizes="16x16">
+  <!-- GitHub Pages serves this body under every mistyped path, each of which is
+       a distinct URL a crawler may have followed from a stale link. Without
+       this they index as hundreds of duplicate "That page isn't here" pages
+       under the site's own name. offline.html already carries the same tag. -->
+  <meta name="robots" content="noindex">
   <title>Not found</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
@@ -1423,7 +4504,21 @@ export function renderNotFound(baseUrl) {
 const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 
 export async function collectOfflineBundle(outDir, surfaces) {
-  const assets = new Set(['./', 'index.html', 'offline.html', 'manifest.webmanifest']);
+  // The shared scripts and stylesheets are loaded by every tool page in this
+  // bundle, so a tool cached for offline use without them opens with no band at
+  // all — or, for the stylesheets, with an unstyled one bolted to the page.
+  // That is the cost of extracting them: what used to be inline and therefore
+  // cached with the page is now a separate request the cache has to know about.
+  const assets = new Set([
+    './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
+    BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
+    CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
+    INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
+    // Not loaded by any page on this site — it runs on the embedder's — but
+    // precached all the same so the snippet's second line is served from the
+    // same revision as the first.
+    EMBED_HOST_FILE,
+  ]);
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -1478,7 +4573,10 @@ export async function addOfflineSupport({
   const cacheName = `portfolio-${hash.digest('hex').slice(0, 12)}`;
 
   await fs.writeFile(path.join(outDir, 'offline.html'), renderOfflinePage(base));
-  await fs.writeFile(path.join(outDir, 'manifest.webmanifest'), renderManifest(base, surfaces.length));
+  await fs.writeFile(
+    path.join(outDir, 'manifest.webmanifest'),
+    renderManifest(base, surfaces.length, externalCallExceptions(surfaces).length > 0),
+  );
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
@@ -1530,15 +4628,71 @@ export async function buildSite({
   await fs.mkdir(outDir, { recursive: true });
 
   const discovered = await discoverSurfaces(venturesDir);
+  const launched = await loadLaunchDates();
   const surfaces = [];
   const repairs = [];
 
+  // Pass 1: copy every venture's tree, and nothing else.
+  //
+  // This used to be one loop that copied a surface and immediately repaired its
+  // links, which made `repairLinks` order-dependent in a way it cannot see. It
+  // judges a link "inside the site" by whether the target exists on disk, so a
+  // link to a sibling venture that sorts later alphabetically was tested before
+  // that sibling had been copied, came back missing, and was repointed at
+  // GitHub — a 404 for every visitor, because this repository is private.
+  //
+  // It is the same hazard `addSiteChrome` documents for its own `../` hub link;
+  // that one was solved by running after the hub is written. Cross-venture links
+  // need every venture written, so the copy is split out ahead of everything
+  // that reads the finished tree.
+  //
+  // Ten links across the built site were being rewritten this way, and all seven
+  // distinct targets were live published pages (`no-show-fee-calculator`,
+  // `where-to-sell-calculator`, `walmart-marketplace-calculator`,
+  // `tiktok-shop-fee-calculator`, `shopify-fee-calculator`, `quote-margin-check`,
+  // and one `invoice-payment-terms-calculator` page). `check.mjs` reported no
+  // dead links throughout, because by then the link was absolute and it does not
+  // follow those.
+  for (const surface of discovered) {
+    await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
+  }
+
+  // A handful of ventures (currently: ai-engineering-academy, tender-radar,
+  // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
+  // equipment-rental-break-even) publish from a `site/` subdirectory, so their
+  // own root LICENSE sits one level above `sourceDir` and never gets copied
+  // above. Every one of those tools still links to its own LICENSE (an
+  // `<a href="LICENSE">` footer), and until now that link "escaped the site"
+  // and `repairLinks`, below, correctly-by-its-own-logic repointed it at this
+  // private GitHub repository -- a 404 for every visitor, same defect #2720
+  // fixed for cross-venture links. Publishing the file here, ahead of
+  // `repairLinks`, means the link resolves locally and `repairLinks` leaves it
+  // alone: this fixes it without touching that function's matching logic.
+  //
+  // README.md is deliberately NOT part of this: `EXCLUDED_FILES` and
+  // `NON_WEB_EXTENSIONS` keep every venture's README.md out of the published
+  // tree on purpose (`check.mjs` fails a build that publishes one, as "repo
+  // bookkeeping"), so copying it here for six ventures while `copyTree` drops
+  // it for the other 163 would both contradict that policy and make this
+  // build fail its own check.
+  for (const surface of discovered) {
+    const from = path.join(venturesDir, surface.slug, 'LICENSE');
+    const to = path.join(outDir, surface.slug, 'LICENSE');
+    if (existsSync(to) || !(await exists(from))) continue;
+    await fs.copyFile(from, to);
+  }
+
+  // Pass 2: everything that has to read a complete site.
+  //
+  // `repairLinks` stays ahead of `surfaceExternalFetchHosts` within this loop,
+  // and that order is load-bearing: a repair can rewrite a `<script src>` or a
+  // stylesheet `<link href>` to a github.com URL, which is a genuine external
+  // request the privacy copy has to report.
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
-    await copyTree(surface.sourceDir, destination, base);
     repairs.push(
       ...(await repairLinks({
         publishedDir: destination,
@@ -1565,37 +4719,148 @@ export async function buildSite({
         title,
         fullDescription,
         surface.slug,
+        aliasesFor(surface.slug),
         ...(await collectPageTitles(surface.sourceDir, surface.entryFile)),
       ]),
       pageCount: await countPages(surface.sourceDir),
       publishedPageCount: pages.length,
+      externalFetchHosts: await surfaceExternalFetchHosts(destination),
     });
     log(`  ${surface.slug}`);
   }
 
   await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
+  // The saved-bids script, once for the whole site. Every page that carries the
+  // band loads it from here; it used to be written into each of them.
+  await fs.writeFile(path.join(outDir, SAVED_BIDS_MODULE_FILE), renderSavedBidsModule());
+  await fs.writeFile(path.join(outDir, BID_LINK_MODULE_FILE), renderBidLinkModule());
+  // The shop-rates script and the chrome's own, on the same terms, plus the
+  // three stylesheets this build used to write into every page it touched.
+  await fs.writeFile(path.join(outDir, SHOP_RATES_MODULE_FILE), renderShopRatesModule());
+  await fs.writeFile(path.join(outDir, CHROME_MODULE_FILE), renderChromeModule());
+  await fs.writeFile(path.join(outDir, CHROME_STYLE_FILE), renderChromeStyle());
+  await fs.writeFile(path.join(outDir, SHOP_RATES_STYLE_FILE), renderShopRatesStyle());
+  // The invalid-field runtime and its mark, on the same terms as the three
+  // above: one file each at the root, loaded by every page that promises a
+  // highlight.
+  await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
+  await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
+  await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
+  // The embed-widget runtime and its stylesheet, on the same terms. The
+  // resizer joins them because the snippet every entry page offers names it
+  // absolutely: a build that wrote the snippet without the file would hand
+  // embedders a `<script src>` that 404s.
+  await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
+  await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
+  await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
+  // One landing page per category, under the reserved `c/` prefix. Written
+  // before the sitemaps because `renderHubSitemap` has to list exactly the
+  // pages this loop produced — a category page in no sitemap is the quiet
+  // failure `check.mjs` exists to catch.
+  const categoryGroups = groupByCategory(surfaces);
+  for (const { category, items } of categoryGroups) {
+    const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'index.html'),
+      renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base }),
+    );
+  }
+
+  // After the categories because the About page links every one of them, and
+  // before the sitemaps for the same reason they are.
+  const aboutDir = path.join(outDir, ABOUT_PATH);
+  await fs.mkdir(aboutDir, { recursive: true });
+  await fs.writeFile(
+    path.join(aboutDir, 'index.html'),
+    renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
+  );
+
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
-  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
+  await fs.writeFile(
+    path.join(outDir, 'sitemap-hub.xml'),
+    renderHubSitemap(base, categoryGroups.map(({ category }) => category.id)),
+  );
+  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
+  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base));
+  // Read from the committed file, not from `git log`: the in-cluster build
+  // clones `--depth 1` and has no history. See `launched.mjs`.
+  await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
+  // The site-wide card: what the hub and the About page point at, since
+  // neither belongs to one category.
+  await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // One card per category, tinted and headlined with the section's own name.
+  // A category holding a documented `externalCallExceptions` entry (today:
+  // "more", because Sponsor Ready lives there) gets the exception footer —
+  // otherwise this card would tell every social preview "nothing you type is
+  // uploaded" for a category where that is false for one of its tools.
+  const categoriesWithExceptions = new Set(
+    categoryGroups
+      .filter(({ items }) => externalCallExceptions(items).length)
+      .map(({ category }) => category.id),
+  );
+  await Promise.all(
+    ALL_CATEGORIES.map((category) =>
+      fs.writeFile(
+        path.join(outDir, socialCardFileFor(category.id)),
+        renderSocialCard({
+          color: category.accent,
+          headline: category.title,
+          kicker: SITE_NAME,
+          footer: categoriesWithExceptions.has(category.id) ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+        }),
+      )),
+  );
+  // And one per tool, headlined with the tool's own name on its category's
+  // tint. This is the difference between 164 shares of the same anonymous
+  // picture and 164 shares that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. `cardtext.mjs` is what makes it possible without a font
+  // dependency; before it existed there was nothing to draw a headline with.
+  //
+  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
+  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
+  // buys no wall-clock and peaks memory at 164 frame buffers.
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    await fs.writeFile(
+      path.join(outDir, toolCardFileFor(surface.slug)),
+      renderSocialCard({
+        color: categoryFor(surface.slug).accent,
+        headline: surface.title,
+        kicker: SITE_NAME,
+        // Sponsor Ready's own card gets the exception footer — its whole job
+        // is a live lookup, so "nothing you type is uploaded" is the one
+        // claim this card must not make. See `CARD_FOOTER_EXCEPTION`.
+        footer: surface.externalFetchHosts?.length ? CARD_FOOTER_EXCEPTION : CARD_FOOTER,
+      }),
+    );
+  }
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const { wrapped, rated } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+  const {
+    wrapped, rated, saved, shared, described, highlighted, narrowed, embedded,
+  } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
   const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, offline };
+  return {
+    outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
+    highlighted, narrowed, embedded, offline,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -1748,4 +5013,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   }
   console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
   console.log(`Carried saved shop rates into ${result.rated.length} bid calculator page(s).`);
+  console.log(`Added saved bids to ${result.saved.length} page(s) with a form.`);
+  console.log(`Added a shareable bid link to ${result.shared.length} page(s).`);
+  console.log(`Corrected canonical and share-card tags on ${result.described.length} page(s).`);
+  console.log(`Highlighted the rejected input on ${result.highlighted.length} page(s).`);
+  console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
+  console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
 }

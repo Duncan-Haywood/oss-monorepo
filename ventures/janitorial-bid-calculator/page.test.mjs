@@ -77,11 +77,24 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('the area-row template and the reader agree on class names', () => {
-  for (const cls of ['a-type', 'a-sqft', 'a-rate', 'a-freq', 'remove']) {
+  for (const cls of ['a-type', 'a-name', 'a-sqft', 'a-rate', 'a-freq', 'remove']) {
     const inTemplate = new RegExp(`class="${cls}[ "]`).test(scriptSource);
     assert.ok(inTemplate, `the row template no longer emits .${cls}`);
     assert.ok(scriptSource.includes(`.${cls}`), `nothing reads .${cls} back`);
   }
+});
+
+test('other spaces have an editable name and the split escapes it before rendering', () => {
+  assert.match(scriptSource, /class="a-name"/);
+  assert.match(scriptSource, /maxlength="80"/);
+  assert.match(scriptSource, /nameForRow\(preset\?\.label, row\.querySelector\('\.a-name'\)\.value, index\)/);
+  assert.match(scriptSource, /escapeHtml\(item\.name\)/);
+});
+
+test('custom name is only shown for an Other space row', () => {
+  assert.match(html, /\.select-other \.custom-name \{ display: grid; \}/);
+  assert.match(scriptSource, /row\.classList\.toggle\('select-other', isOther\)/);
+  assert.match(scriptSource, /Name this space/);
 });
 
 // A structural guard that cannot fail proves nothing, and this one was

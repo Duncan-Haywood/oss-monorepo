@@ -15,6 +15,34 @@ test("normalizes the full monthly quote and minimum", () => {
   assert.deepEqual(result.components, ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"]);
 });
 
+test("minimum orders estimates the volume where line items alone clear the minimum", () => {
+  const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
+  assert.ok(result.minimumOrders > 0);
+  const atThatVolume = Math.ceil(result.minimumOrders);
+  const atMinimumOrders = calculate({
+    orders: atThatVolume,
+    unitsPerOrder: 1.5,
+    pallets: 1,
+    minimumMonthly: 2000,
+    inboundUnits: atThatVolume * 1.5,
+  });
+  assert.ok(atMinimumOrders.quote.subtotal >= 2000 - 1);
+});
+
+test("minimum orders is zero when no minimum monthly spend is set", () => {
+  const result = calculate({ orders: 100, minimumMonthly: 0 });
+  assert.equal(result.minimumOrders, 0);
+});
+
+test("negotiation lines and summary name the minimum-clearing volume only when a minimum applies", () => {
+  const withMinimum = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
+  assert.ok(negotiationLines(withMinimum).some((line) => line.includes("clear the minimum")));
+  assert.ok(summary(withMinimum).includes("clear the minimum"));
+  const noMinimum = calculate({ orders: 100, minimumMonthly: 0 });
+  assert.ok(!negotiationLines(noMinimum).some((line) => line.includes("clear the minimum")));
+  assert.ok(!summary(noMinimum).includes("clear the minimum"));
+});
+
 test("break-even reflects the in-house comparison", () => {
   const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 0 });
   const atBreakEven = calculate({ orders: result.breakEvenOrders, inHousePerOrder: 20, minimumMonthly: 0 });
@@ -62,8 +90,14 @@ test("compares two normalized quotes and creates a negotiation report", () => {
   const comparison = compareQuotes(first, second);
   assert.equal(comparison.cheaper, "first");
   assert.equal(comparison.totalDelta, second.quote.total - first.quote.total);
-  assert.match(negotiationLines(first).join("\n"), /shipping: \$800\.00/);
+  assert.match(negotiationLines(first).join("\n"), /Shipping: \$800\.00/);
   assert.match(negotiationLines(first).join("\n"), /Subtotal before minimum/);
+});
+
+test("negotiation report uses buyer-facing line item labels", () => {
+  const lines = negotiationLines(calculate({ orders: 100, shipping: 8 }));
+  assert.match(lines.join("\n"), /Shipping: \$800\.00/);
+  assert.doesNotMatch(lines.join("\n"), /shipping:/);
 });
 
 test("does not pick a winner when normalized quote totals tie", () => {
@@ -437,6 +471,38 @@ test("zero restockable never recovers inventory so customer-keeps wins", () => {
   assert.equal(comparison.keep.perReturn, 45);
   assert.equal(comparison.cheapestPath, "keep");
   assert.match(returnDispositionSummary({ ...dispositionPage, restockableRate: 0 }), /At 0% restockable/);
+});
+
+test("a genuine three-way tie is reported as a tie, not mislabeled as destroy", () => {
+  // Zeroing unitCost, destroyFee, restockFee and storageUntilResale collapses
+  // all three paths' net cost to the same constant (returnLabelCost +
+  // returnFee) at every restockable rate and unit cost, so the sweep never
+  // resolves to a single cheapest path. returnDispositionFlip's "holds"
+  // result then carries path "tie", which the flip-line ternary used to have
+  // no branch for -- it fell through to the literal string "Destroy",
+  // falsely claiming destroy was cheapest when nothing was.
+  const tiedInput = {
+    returnLabelCost: 8,
+    returnFee: 3.5,
+    restockFee: 0,
+    destroyFee: 0,
+    storageUntilResale: 0,
+    restockableRate: 0,
+    unitCost: 0,
+    keepOffer: 11.5,
+  };
+  const comparison = compareReturnDisposition(tiedInput);
+  assert.equal(comparison.cheapestPath, "tie");
+  const restockableFlip = returnDispositionFlip(returnDispositionRestockableSweep(tiedInput), "restockableRate");
+  const unitCostFlip = returnDispositionFlip(returnDispositionUnitCostSweep(tiedInput), "unitCost");
+  assert.equal(restockableFlip.kind, "holds");
+  assert.equal(restockableFlip.path, "tie");
+  assert.equal(unitCostFlip.kind, "holds");
+  assert.equal(unitCostFlip.path, "tie");
+  const text = returnDispositionSummary(tiedInput);
+  assert.match(text, /A tie stays cheapest through 100% restockable/);
+  assert.match(text, /A tie stays cheapest through \$60\.00 unit cost/);
+  assert.doesNotMatch(text, /Destroy stays cheapest/);
 });
 
 test("a keep-the-item thank-you still beats bringing a cheap SKU back", () => {

@@ -27,7 +27,8 @@ defaults:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,4 +37,17 @@ jobs:
       - name: Run FIFO checker tests
         run: python3 -m unittest -v
       - name: Example CSV produces a report
-        run: python3 fifo_pick_evidence.py examples/picks.csv --format json
+        # fifo_pick_evidence.py exits 1 by design when it finds an
+        # observation -- the bundled example deliberately contains one FIFO
+        # exception, so a plain `run:` here failed on every green run. Only
+        # an exit above 1 (a crash, or argparse rejecting bad input) is a
+        # real CI failure.
+        run: |
+          set +e
+          python3 fifo_pick_evidence.py examples/picks.csv --format json
+          status=$?
+          set -e
+          if [ "$status" -gt 1 ]; then
+            echo "unexpected exit code $status" >&2
+            exit 1
+          fi

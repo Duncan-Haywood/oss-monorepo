@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   calculateBid,
+  compareCellBids,
   formatBidSummary,
   suggestedAreaSf,
   suggestedAreaBf,
@@ -206,6 +207,24 @@ test('job presets cover the coupon, the rim, the cathedral, and the crawl', () =
   const kit = suggestedCellKit('open');
   assert.equal(kit.hoursPer1000Bf, 1.4);
   assert.equal(kit.foamPerBfOpen, 0.55);
+});
+
+test('same attic, three cells: closed-cell is not the open-cell coupon', () => {
+  const rows = compareCellBids(coupon());
+  assert.equal(rows.length, 3);
+  assert.equal(rows[0].cell, 'open');
+  assert.equal(rows[0].selected, true);
+  assert.equal(rows[0].vsSelected, 0);
+  const closed = rows.find((row) => row.cell === 'closed');
+  const hybrid = rows.find((row) => row.cell === 'hybrid');
+  assert.ok(closed.price > rows[0].price, '8" closed-cell costs more than 8" open-cell');
+  assert.ok(hybrid.price > rows[0].price, 'hybrid (1" closed + open fill) is not the open-cell coupon');
+  assert.ok(closed.openBf === 0 && closed.closedBf === 9600);
+  assert.equal(hybrid.openBf, 8400);
+  assert.equal(hybrid.closedBf, 1200);
+  const closedSelected = compareCellBids({ ...coupon(), cell: 'closed' });
+  assert.equal(closedSelected.find((row) => row.cell === 'closed').selected, true);
+  assert.ok(closedSelected.find((row) => row.cell === 'open').vsSelected < 0);
 });
 
 test('tight crawl access adds hours the attic-floor coupon never had', () => {

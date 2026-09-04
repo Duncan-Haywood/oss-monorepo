@@ -25,7 +25,8 @@ defaults:
 
 jobs:
   cli-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     env:
       PYTHONPATH: src
     steps:
@@ -48,7 +49,8 @@ jobs:
     # divergence was invisible from both sides. examples.test.mjs now runs the
     # shipped examples through the browser reader, which is the check that
     # would have caught it.
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,7 +62,8 @@ jobs:
     # The shipped examples are the tool's documentation. If a clean one starts
     # failing preflight, or the defective one stops being caught, the README
     # is lying to whoever tries the first command in it.
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     env:
       PYTHONPATH: src
     steps:

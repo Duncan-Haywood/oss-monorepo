@@ -6,6 +6,7 @@
   "weeklyBudgetFraction": 0.85,
   "windowSeconds": 18000,
   "cooldownOnLimitSeconds": 3600,
+  "cooldownOnAuthFailureSeconds": 21600,
   "models": {
     "chore": "gpt-5-mini",
     "deep": "gpt-5"

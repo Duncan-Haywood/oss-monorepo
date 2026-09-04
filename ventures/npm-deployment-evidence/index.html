@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>npm Deployment Evidence — Free Lockfile Surface Report</title>
+  <meta name="description" content="Free, no-signup, no-upload tool that reads a package-lock.json in your browser and shows which npm dependencies reach your deployed app versus which are build- or test-only. Runs entirely client-side." />
+  <meta property="og:title" content="npm Deployment Evidence" />
+  <meta property="og:description" content="Drop in a package-lock.json. See which packages reach production versus which are build-only, with the lockfile evidence for each. Never leaves your browser." />
+  <link rel="stylesheet" href="style.css" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"npm Deployment Evidence","applicationCategory":"DeveloperApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does \"build-only\" mean this package is safe to ignore?","acceptedAnswer":{"@type":"Answer","text":"No. Build-only means the lockfile shows every install location for that package as dev-only — absent from your deployed application artifact. It can still be exposed on the machine that runs your build, and a scanner flagging it there is doing its job. Use this report to prioritize review, not to dismiss a finding."}},{"@type":"Question","name":"Why does a package I didn't install show up?","acceptedAnswer":{"@type":"Answer","text":"Most entries are transitive: a dependency your direct dependencies pulled in. The Evidence column says why each row was classified the way it was — \"declared by the application\" for packages in your own package.json, or \"at least one install location is on a production path\" for a transitive dependency that a production package needs."}},{"@type":"Question","name":"Does this replace my vulnerability scanner?","acceptedAnswer":{"@type":"Answer","text":"No. This tool never checks packages against any advisory database — it only reads what your lockfile already states about where each package installs. Pair it with your existing scanner's findings to see which flagged packages are actually reachable in production."}},{"@type":"Question","name":"Is my lockfile uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Parsing happens with JavaScript running in your own browser tab. This page makes no network request with your file's contents — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like \"a report was generated\" may be recorded locally, with an opt-out below."}},{"@type":"Question","name":"Is there a command-line version?","acceptedAnswer":{"@type":"Answer","text":"Yes — the same classification logic ships as a local Python CLI (npm_deployment_evidence.py) in this tool's repository, for CI pipelines or scripted use. See the README for its usage."}},{"@type":"Question","name":"Does this work with yarn.lock or pnpm-lock.yaml?","acceptedAnswer":{"@type":"Answer","text":"No. This reads package-lock.json v2 or v3 only — the format npm 7 and later writes. Drop or paste a yarn.lock or pnpm-lock.yaml and you'll get an error asking for package-lock.json instead, because the two formats don't share a structure this tool can read. If your project uses npm but the lockfile predates v2, delete it and run npm install again to regenerate a version this report can parse."}}]}</script>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <h1>Not every installed package ships to production. See which ones do.</h1>
+      <p class="tagline">
+        A vulnerability scanner lists packages your deployed app never loads.
+        Drop in a <code>package-lock.json</code> and see the lockfile evidence
+        for which dependencies actually reach production versus which are
+        build- or test-only — entirely in your browser.
+      </p>
+    </header>
+
+    <div id="drop-zone" class="drop-zone">
+      <p>Drag a <code>package-lock.json</code> here, or</p>
+      <label class="file-label">
+        Choose file
+        <input id="lockfile-input" type="file" accept=".json,application/json" />
+      </label>
+      <p class="or-line">— or paste its contents below —</p>
+      <textarea id="lockfile-paste" rows="6" placeholder="Paste package-lock.json here" spellcheck="false" aria-label="Paste package-lock.json contents"></textarea>
+      <button type="button" id="parse-pasted">Check pasted lockfile</button>
+    </div>
+
+    <p class="example-line">
+      Don't have one handy?
+      <button type="button" id="load-example" class="link-button">Load a worked example</button>
+      — a small lockfile with production, transitive-production, and build-only
+      packages, so you can see the report shape before using your own.
+    </p>
+
+    <p id="error" class="error" role="alert" hidden></p>
+    <div id="results" class="results" aria-live="polite"></div>
+
+    <section class="disclaimer">
+      <h2>What this is and isn't</h2>
+      <ul>
+        <li>
+          Everything runs in <em>your</em> browser. The lockfile you drop or
+          paste is never uploaded — there is no server here to send it to.
+        </li>
+        <li>
+          "Build-only" is a lockfile classification, not a security verdict. A
+          build-only package can still run on the machine that builds your
+          app, and dynamic imports or other runtime behavior need human
+          review — this cannot prove absence, only report what the lockfile
+          states.
+        </li>
+        <li>
+          This reads <code>package-lock.json</code> v2/v3 (npm 7+) only. It
+          does not inspect yarn or pnpm lockfiles.
+        </li>
+        <li>
+          Only anonymous, aggregate usage counts (for example "a report was
+          generated") may be recorded locally — never the lockfile contents
+          or package names.
+        </li>
+      </ul>
+    </section>
+
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>Does "build-only" mean this package is safe to ignore?</h3>
+      <p>No. Build-only means the lockfile shows every install location for that package as dev-only — absent from your deployed application artifact. It can still be exposed on the machine that runs your build, and a scanner flagging it there is doing its job. Use this report to prioritize review, not to dismiss a finding.</p>
+      <h3>Why does a package I didn't install show up?</h3>
+      <p>Most entries are transitive: a dependency your direct dependencies pulled in. The Evidence column says why each row was classified the way it was — "declared by the application" for packages in your own package.json, or "at least one install location is on a production path" for a transitive dependency that a production package needs.</p>
+      <h3>Does this replace my vulnerability scanner?</h3>
+      <p>No. This tool never checks packages against any advisory database — it only reads what your lockfile already states about where each package installs. Pair it with your existing scanner's findings to see which flagged packages are actually reachable in production.</p>
+      <h3>Is my lockfile uploaded anywhere?</h3>
+      <p>No. Parsing happens with JavaScript running in your own browser tab. This page makes no network request with your file's contents — there is nothing to intercept because nothing is sent. Only anonymous, aggregate usage counts like "a report was generated" may be recorded locally, with an opt-out below.</p>
+      <h3>Is there a command-line version?</h3>
+      <p>Yes — the same classification logic ships as a local Python CLI (<code>npm_deployment_evidence.py</code>) in this tool's repository, for CI pipelines or scripted use. See the README for its usage.</p>
+      <h3>Does this work with yarn.lock or pnpm-lock.yaml?</h3>
+      <p>No. This reads <code>package-lock.json</code> v2 or v3 only — the format npm 7 and later writes. Drop or paste a <code>yarn.lock</code> or <code>pnpm-lock.yaml</code> and you'll get an error asking for <code>package-lock.json</code> instead, because the two formats don't share a structure this tool can read. If your project uses npm but the lockfile predates v2, delete it and run <code>npm install</code> again to regenerate a version this report can parse.</p>
+    </section>
+
+    <p class="seo-link"><a href="./which-npm-vulnerabilities-actually-reach-production.html">Which npm vulnerabilities actually reach production?</a> &middot; <a href="./vs-npm-audit.html">This tool vs. <code>npm audit</code></a></p>
+    <footer class="footer">
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, medical, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+      <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a report needs to survive, keep the Markdown or JSON you download.</p>
+      <p>Parsing runs in your browser. Your lockfile is never uploaded — there is no server to send it to. We count only anonymous local feature events, never people or lockfile contents, with an opt-out on this page. Counting also honors Do Not Track and Global Privacy Control.</p>
+      <label class="privacy"><input id="optout" type="checkbox"> Do not count my usage</label>
+      <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+      <p>
+        Part of the Free small-business calculators portfolio.
+      </p>
+    </footer>
+  </main>
+
+  <script src="evidence.js"></script>
+  <script src="usage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

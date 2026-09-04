@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parsePanels,
+  parseOnHandSheets,
   optimizeSheets,
   formatSheetPlan,
   compareSheetSizes,
@@ -18,11 +19,16 @@ const EPS = 1e-6;
 // destroys a sheet of plywood, so every packing test asserts them.
 function assertCuttable(result) {
   for (const [index, sheet] of result.sheets.entries()) {
+    // Trim is a factory-edge allowance for a fresh sheet only — an on-hand
+    // offcut's edges are already square, so its own bounds apply with no trim.
+    const trim = sheet.source === 'on-hand' ? 0 : result.trim;
+    const width = sheet.width ?? result.sheetWidth;
+    const height = sheet.height ?? result.sheetHeight;
     for (const p of sheet.placements) {
-      assert.ok(p.x >= result.trim - EPS, `sheet ${index}: ${p.label} starts left of the trim line`);
-      assert.ok(p.y >= result.trim - EPS, `sheet ${index}: ${p.label} starts above the trim line`);
-      assert.ok(p.x + p.width <= result.sheetWidth - result.trim + EPS, `sheet ${index}: ${p.label} runs off the right edge`);
-      assert.ok(p.y + p.height <= result.sheetHeight - result.trim + EPS, `sheet ${index}: ${p.label} runs off the bottom edge`);
+      assert.ok(p.x >= trim - EPS, `sheet ${index}: ${p.label} starts left of the trim line`);
+      assert.ok(p.y >= trim - EPS, `sheet ${index}: ${p.label} starts above the trim line`);
+      assert.ok(p.x + p.width <= width - trim + EPS, `sheet ${index}: ${p.label} runs off the right edge`);
+      assert.ok(p.y + p.height <= height - trim + EPS, `sheet ${index}: ${p.label} runs off the bottom edge`);
     }
     for (let i = 0; i < sheet.placements.length; i += 1) {
       for (let j = i + 1; j < sheet.placements.length; j += 1) {
@@ -270,6 +276,172 @@ test('the plan names the pieces that did not fit', () => {
     panels: parsePanels('Countertop: 120 x 60\nShelf: 24 x 12'),
   });
   assert.match(formatSheetPlan(result, { unit: 'in' }), /Does not fit on a sheet[\s\S]*Countertop: 120\.00 × 60\.00 in/);
+});
+
+// --- On-hand offcuts ---
+//
+// The linear stock planner already drew cuts from a rack of offcuts before
+// buying new stock. Sheet goods had no equivalent — a shop with a half-sheet
+// of ply already leaning against the wall got no credit for it. These cover
+// the same behavior for panels.
+
+test('parses on-hand offcuts by size, with an optional quantity, and no label needed', () => {
+  assert.deepEqual(parseOnHandSheets('24 x 12\n30 x 20 x 2'), [
+    { width: 24, height: 12 },
+    { width: 30, height: 20 },
+    { width: 30, height: 20 },
+  ]);
+});
+
+test('an empty on-hand list is the normal case, not an error', () => {
+  assert.deepEqual(parseOnHandSheets(''), []);
+  assert.deepEqual(parseOnHandSheets(undefined), []);
+  assert.deepEqual(parseOnHandSheets('   \n\n'), []);
+});
+
+test('rejects a malformed on-hand line by number', () => {
+  assert.throws(() => parseOnHandSheets('24 x 12\ntwo by four'), /On-hand line 2/);
+});
+
+test('rejects a non-positive or fractional on-hand size or quantity', () => {
+  assert.throws(() => parseOnHandSheets('0 x 12'), /greater than zero/);
+  assert.throws(() => parseOnHandSheets('24 x 12 x 1.5'), /On-hand line 1/);
+});
+
+test('a piece that fits an on-hand offcut is placed there instead of opening a new sheet', () => {
+  const result = optimizeSheets({
+    sheetWidth: 96,
+    sheetHeight: 48,
+    kerf: 0,
+    panels: parsePanels('24 x 12'),
+    onHand: [{ width: 30, height: 15 }],
+  });
+  assert.equal(result.sheets.length, 1);
+  assert.equal(result.sheets[0].source, 'on-hand');
+  assert.equal(result.sheetsPurchased, 0);
+  assert.equal(result.onHandUsed, 1);
+  assertCuttable(result);
+});
+
+test('only the pieces that do not fit an offcut cost a new sheet', () => {
+  const result = optimizeSheets({
+    sheetWidth: 96,
+    sheetHeight: 48,
+    kerf: 0,
+    panels: parsePanels('Small: 24 x 12\nBig: 90 x 46'),
+    onHand: [{ width: 30, height: 15 }],
+  });
+  assert.equal(result.onHandUsed, 1);
+  assert.equal(result.sheetsPurchased, 1);
+  assert.equal(result.sheets.length, 2);
+  const sources = result.sheets.map((s) => s.source).sort();
+  assert.deepEqual(sources, ['on-hand', 'purchase']);
+  assertCuttable(result);
+});
+
+test('an on-hand offcut nothing was cut from never appears in the plan', () => {
+  const result = optimizeSheets({
+    sheetWidth: 96,
+    sheetHeight: 48,
+    kerf: 0,
+    panels: parsePanels('90 x 46'),
+    onHand: [{ width: 10, height: 10 }],
+  });
+  assert.equal(result.onHandUsed, 0);
+  assert.equal(result.sheets.length, 1);
+  assert.equal(result.sheets[0].source, 'purchase');
+});
+
+test('an on-hand piece bigger than the configured sheet size is not marked oversize', () => {
+  const result = optimizeSheets({
+    sheetWidth: 48,
+    sheetHeight: 48,
+    kerf: 0,
+    panels: parsePanels('70 x 40'),
+    onHand: [{ width: 96, height: 48 }],
+  });
+  assert.equal(result.oversize.length, 0);
+  assert.equal(result.sheets.length, 1);
+  assert.equal(result.sheets[0].source, 'on-hand');
+  assertCuttable(result);
+});
+
+test('a second piece that only fits an already-consumed on-hand offcut is reported oversize, not a crash', () => {
+  // Both required pieces fit the 100x100 on-hand offcut but neither fits a
+  // fresh purchased sheet on its own. Whichever one the packer places first
+  // consumes the offcut's free space, so the second reaches the "no existing
+  // free rect fits" branch with nothing left that can hold it -- regression
+  // for a bug where that branch always assumed a fresh sheet would fit and
+  // threw reading `.width` off an undefined orientation option instead.
+  const result = optimizeSheets({
+    sheetWidth: 48,
+    sheetHeight: 96,
+    trim: 1,
+    kerf: 0.125,
+    onHand: [{ width: 100, height: 100 }],
+    panels: parsePanels('A: 90 x 90\nB: 95 x 95'),
+  });
+  assert.equal(result.oversize.length, 1);
+  assert.equal(result.sheets.length, 1);
+  assert.equal(result.sheets[0].source, 'on-hand');
+  assertCuttable(result);
+});
+
+test('rejects an on-hand list that is not an array, or a non-positive piece in it', () => {
+  const panels = parsePanels('10 x 10');
+  assert.throws(() => optimizeSheets({ sheetWidth: 96, sheetHeight: 48, panels, onHand: 'nope' }), /must be a list/);
+  assert.throws(
+    () => optimizeSheets({ sheetWidth: 96, sheetHeight: 48, panels, onHand: [{ width: 0, height: 10 }] }),
+    /greater than zero/,
+  );
+});
+
+test('material cost and offcut cost are billed against sheets bought, not sheets on the rack', () => {
+  const result = optimizeSheets({
+    sheetWidth: 96,
+    sheetHeight: 48,
+    kerf: 0.125,
+    panels: parsePanels('Small: 24 x 12\nBig: 90 x 46'),
+    onHand: [{ width: 30, height: 15 }],
+  });
+  const text = formatSheetPlan(result, { unit: 'in', sheetCost: 62 });
+  assert.match(text, /From your on-hand offcuts: 1/);
+  assert.match(text, /New sheets to buy: 1/);
+  assert.match(text, /Material cost: 62\.00 at 62\.00 per sheet/);
+  assert.match(text, /On-hand offcuts avoided buying 1 sheet \(62\.00\)/);
+  assert.match(text, /Sheet 1 \(your on-hand offcut\)/);
+});
+
+test('purchasesAvoided counts sheets the plan needed without the rack, minus what it needs with it', () => {
+  // A sheet sized to fit exactly one 24×12 panel: three panels need three new
+  // sheets on their own, and a single matching offcut takes one of them off
+  // the shopping list.
+  const withOffcut = optimizeSheets({
+    sheetWidth: 24,
+    sheetHeight: 12,
+    kerf: 0,
+    panels: parsePanels('24 x 12 x 3'),
+    onHand: [{ width: 24, height: 12 }],
+  });
+  assert.equal(withOffcut.onHandUsed, 1);
+  assert.equal(withOffcut.sheetsPurchased, 2);
+  assert.equal(withOffcut.purchasesAvoided, 1);
+});
+
+test('compareSheetSizes ranks by sheets still needing to be bought when offcuts are on hand', () => {
+  const comparison = compareSheetSizes({
+    panels: parsePanels('24 x 12 x 2'),
+    kerf: 0,
+    onHand: [{ width: 24, height: 12 }],
+    candidates: [
+      { width: 96, height: 48, costPerSheet: 62 },
+      { width: 48, height: 48, costPerSheet: 22 },
+    ],
+  });
+  // The offcut exactly matches one panel and has no room left for the
+  // second, so every candidate size still needs one new sheet for it.
+  assert.ok(comparison.rows.every((row) => row.onHandUsed === 1));
+  assert.ok(comparison.rows.every((row) => row.sheetCount === 1));
 });
 
 // --- Sheet size comparison ---

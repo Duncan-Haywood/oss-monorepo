@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Asphalt Sealcoating Bid Calculator | Driveway &amp; Parking Lot Price</title>
+  <title>Asphalt Sealcoating Bid Calculator — Driveway &amp; Lot Price</title>
   <meta name="description" content="Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.">
   <meta property="og:title" content="Asphalt Sealcoating Bid Calculator">
   <meta property="og:description" content="Bid the coats, the cracks, and the miles — not the driveway special. Free, private, runs in your browser.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asphalt Sealcoating Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-surface gallons by coat and pavement condition, oil-spot primer, crack fill, striping, travel and minimum hours, loaded wage, overhead and margin, price per square foot, walk-away price, proposed-price check, shareable quote link"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Asphalt Sealcoating Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-surface gallons by coat and pavement condition, oil-spot primer, crack fill, striping, travel and minimum hours, loaded wage, overhead and margin, price per square foot, walk-away price, proposed-price check, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this sealcoating estimate include?","acceptedAnswer":{"@type":"Answer","text":"The price adds up sealer gallons for each surface by coats and coverage, oil-spot priming, crack fill by the foot, striping by the stall, an optional sand additive, a chosen add-on kit, setup and travel time, a trip fee, overhead, and your target margin — all from the surfaces, condition, and rates you enter, not a flat price list."}},{"@type":"Question","name":"Why does pavement condition change the price so much?","acceptedAnswer":{"@type":"Answer","text":"Oxidized and failing pavement drinks the first coat — the calculator applies a coverage multiplier to the first-coat gallons for “good,” “oxidized,” and “failing” condition, so the same square footage on a badly oxidized lot uses more sealer and costs more than a recently sealed one. The second coat is not adjusted, since the first coat already did the drinking."}},{"@type":"Question","name":"Does it matter whether I squeegee or spray the job?","acceptedAnswer":{"@type":"Answer","text":"Yes. Squeegee and spray application are each their own square-feet-per-crew-hour rate, so switching methods changes the apply hours for every surface without touching gallons, oil spots, crack fill, or striping, which price the same either way."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Usage counts are anonymous tallies of which features were used, stored locally, and a share link encodes only the quote fields in the page’s URL hash rather than sending anything to a server."}},{"@type":"Question","name":"What’s the difference between the job price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The job price already includes your target margin on top of labor, materials, the trip fee, and overhead. The walk-away price is the total cost underneath it — sealer, primer, crack filler, sand, striping paint, labor, and the trip — the point below which the job stops being profitable at all."}},{"@type":"Question","name":"Does this check whether a lot is ready to coat?","acceptedAnswer":{"@type":"Answer","text":"No. This is not a pavement-condition assessment, a specification, or a finding that any lot is sound enough to seal. Oil spots, cracks, and stalls are quantities you count and enter yourself; whether the pavement underneath is fit to coat is a judgment call on site, not something this arithmetic can see."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #ece7df; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -27,10 +28,12 @@
     .surface-row select, .surface-row input { padding: 10px 7px; }
     .surface-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b6254; }
     .surface-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b5aa96; background: #f4efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b5aa96; background: #f4efe6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2430; }
     button:hover { background: #ebe3d4; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .result { position: sticky; top: 15px; background: #1c2430; color: #f4efe6; border-color: #1c2430; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -59,14 +62,71 @@
       .surface-row label:first-child { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5a5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1c2430; --pr-accent: #9a4d12;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR SEALCOATING CONTRACTORS</p>
     <h1>Bid the coats and the cracks, not the driveway special.</h1>
     <p>Price a sealcoating job the way the lot actually costs: each surface times coats and coverage, then oil-spot primer, crack fill, striping, the round trip, and the margin you intend to keep. You get the job price, what it works out to per square foot and per gallon, and the number below which the job loses money.</p>
-    <p class="seo"><a href="./how-much-to-charge.html">How much should I charge for sealcoating?</a></p>
+    <p class="seo"><a href="./how-much-to-charge.html">How much should I charge for sealcoating?</a> &middot; <a href="./vs-bitumio.html">This calculator vs. Bitumio</a></p>
   </header>
 
   <main class="layout">
@@ -164,19 +224,118 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting coverage figures are common ballpark numbers, not a manufacturer yield, a pavement-condition rating, or a guarantee. Time your own crew and replace them. Confirm sealer type and local VOC rules yourself — this is not a product recommendation.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Blackline Sealcoating LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Sealcoat 6,000 sq ft, two passes&#10;Crack-fill before coating"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Line striping&#10;Patching or pothole repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Keep off for 24 hours; 48 in cool weather."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this sealcoating estimate include?</h3>
+      <p>The price adds up sealer gallons for each surface by coats and coverage, oil-spot priming,
+        crack fill by the foot, striping by the stall, an optional sand additive, a chosen add-on kit,
+        setup and travel time, a trip fee, overhead, and your target margin &mdash; all from the
+        surfaces, condition, and rates you enter, not a flat price list.</p>
+
+      <h3>Why does pavement condition change the price so much?</h3>
+      <p>Oxidized and failing pavement drinks the first coat &mdash; the calculator applies a coverage
+        multiplier to the first-coat gallons for &ldquo;good,&rdquo; &ldquo;oxidized,&rdquo; and
+        &ldquo;failing&rdquo; condition, so the same square footage on a badly oxidized lot uses more
+        sealer and costs more than a recently sealed one. The second coat is not adjusted, since the
+        first coat already did the drinking.</p>
+
+      <h3>How many square feet does a gallon of sealcoat cover?</h3>
+      <p>It depends on the surface preset the calculator uses to figure gallons: 90&nbsp;sq&nbsp;ft/gal on
+        the first coat and 120&nbsp;sq&nbsp;ft/gal on the second for a residential driveway, 80/110 for a
+        commercial parking lot, 85/115 for a basketball or play court, and 95/125 for a walkway or apron
+        &mdash; a parking lot drinks more sealer per gallon than a driveway before condition even enters
+        it. Condition then multiplies the first-coat number: on the default 800 sq ft, two-coat driveway
+        at $4.25/gallon, &ldquo;good&rdquo; pavement uses 14.07 gallons ($59.81 in sealer) for a $362.27
+        job, &ldquo;oxidized&rdquo; uses 15.56 gallons ($66.11) for $371.93, and &ldquo;badly
+        oxidized/failing&rdquo; uses 18.52 gallons ($78.70) for $391.23 &mdash; nearly 4.5 more gallons
+        and about $29 more job price from condition alone, on the identical 800 square feet.</p>
+
+      <h3>Does it matter whether I squeegee or spray the job?</h3>
+      <p>Yes. Squeegee and spray application are each their own square-feet-per-crew-hour rate, so
+        switching methods changes the apply hours for every surface without touching gallons, oil
+        spots, crack fill, or striping, which price the same either way.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser.
+        Usage counts are anonymous tallies of which features were used, stored locally, and a share
+        link encodes only the quote fields in the page&rsquo;s URL hash rather than sending anything to
+        a server.</p>
+
+      <h3>What&rsquo;s the difference between the job price and the walk-away price?</h3>
+      <p>The job price already includes your target margin on top of labor, materials, the trip fee,
+        and overhead. The walk-away price is the total cost underneath it &mdash; sealer, primer, crack
+        filler, sand, striping paint, labor, and the trip &mdash; the point below which the job stops
+        being profitable at all.</p>
+
+      <h3>Does this check whether a lot is ready to coat?</h3>
+      <p>No. This is not a pavement-condition assessment, a specification, or a finding that any lot
+        is sound enough to seal. Oil spots, cracks, and stalls are quantities you count and enter
+        yourself; whether the pavement underneath is fit to coat is a judgment call on site, not
+        something this arithmetic can see.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. It is not a pavement-condition assessment, a specification, or a finding that any lot is ready to coat. Verify every figure against your own payroll, insurance, sealer yield, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, SURFACE_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
     import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const COST_IDS = [
       'condition','method','oilSpots','crackFeet','stalls','sand',
@@ -184,7 +343,11 @@
       'tripFee','sealerPerGallon','primerPerGallon','crackFillerPerFoot','sandPerBag',
       'paintPerStall','otherCost','overheadRate','targetMargin','proposedPrice',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const STARTING_SURFACES = [
@@ -420,11 +583,15 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
       const url = `${location.href.split('#')[0]}#${hash}`;
       await writeClipboard(url);
       count('share_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -454,10 +621,165 @@
       }
     });
 
-    const shared = decodeShare(location.hash);
+    const incoming = splitTerms(location.hash);
+    const shared = decodeShare(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
     if (shared) applyShare(shared);
     else STARTING_SURFACES.forEach(addSurfaceRow);
     update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'asphalt-sealcoat-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Sealer protects the surface; it is not a structural repair and does not extend a failing base.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Sealcoat {totalSquareFeet~0} sq ft — {coatPasses} coat pass{coatPasses+es}, applied by {methodLabel}",
+        "Surface condition allowed for: {conditionLabel}",
+        "Blow, sweep and clean the surface before application",
+        {
+          "line": "Fill and seal cracks before coating",
+          "when": "crackCost"
+        },
+        {
+          "line": "Sand added to the mix for traction ({sandBags~0} bags)",
+          "when": "sandBags"
+        },
+        {
+          "line": "Prime {primerGallons~2} gal of oil-spotted areas",
+          "when": "primerGallons"
+        },
+        "Barricade the surface and leave it to cure"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "conditionLabel": el('condition')?.selectedOptions?.[0]?.textContent?.trim(),
+        "methodLabel": el('method')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Asphalt sealcoating — {totalSquareFeet~0} sq ft'], proposalFields(result))[0] || 'Asphalt sealcoating — sq ft',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

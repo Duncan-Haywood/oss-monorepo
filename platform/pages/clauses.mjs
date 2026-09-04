@@ -22,9 +22,25 @@
 //
 // Reading the *sources* rather than a built site is the point. The build takes
 // seconds and needs the whole tree; this walks the venture directories
-// directly, so it is cheap enough to run from a venture's own CI -- the only
-// place a PR that adds a venture reliably gets checked, since PRs opened with
-// GITHUB_TOKEN do not trigger the portfolio-wide workflows.
+// directly, so it is cheap enough to run from a venture's own CI, scoped to
+// just that slug (`node platform/pages/clauses.mjs <slug>`, wired into every
+// venture-ci.yml) -- a second, redundant check next to `portfolio-validate.yml`
+// running the same command unscoped over every venture on any PR touching
+// `ventures/**/*.html`.
+//
+// That redundancy is deliberate, not leftover: this comment used to justify
+// the venture-scoped run as "the only place a PR that adds a venture reliably
+// gets checked, since PRs opened with GITHUB_TOKEN do not trigger the
+// portfolio-wide workflows." Neither half held. `portfolio-validate.yml`'s own
+// `pull_request.paths` already covers `ventures/**/*.html`, and an agent PR
+// here authenticates with a fine-grained PAT (`GH_TOKEN`), not the in-workflow
+// `secrets.GITHUB_TOKEN` GitHub's no-recursion rule applies to, so it triggers
+// `pull_request` workflows the same as a human's PR (see CLAUDE.md's "Absent
+// CI is not failed CI"). The venture-scoped run stays worth keeping anyway:
+// it is the faster, narrower signal on the PR that actually adds the venture,
+// and it still catches the omission if `portfolio-validate.yml`'s own path
+// list ever falls behind a new publishable extension the way it once did for
+// `.css`/`.js` (see that workflow's own trigger comment).
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
@@ -77,12 +93,56 @@ export async function collectPages({ venturesDir = path.join(REPO_ROOT, 'venture
     }
   }
 
-  return { pages, surfaces };
+  // Whether `slug` names a venture at all, which is a different question from
+  // whether it has a browser surface. Both produce zero surfaces, and the
+  // callers must not treat them alike: one is a CLI venture behaving
+  // normally, the other is a typo silently reporting nothing to do.
+  const known = slug === undefined ? true : await isVenture(venturesDir, slug);
+
+  return { pages, surfaces, known };
+}
+
+/**
+ * The exit for a slug that names no venture, shared by the three tools that
+ * take one.
+ *
+ * These tools all report rather than gate -- a venture with nothing to measure
+ * is a normal, passing result, and their CI passes a slug unconditionally, so
+ * a coverage number must never fail a run. But that made a mistyped slug
+ * indistinguishable from a real venture with no browser surface: both printed
+ * "nothing to measure" and exited 0. `faq-coverage.mjs amazon-fba-calculater`
+ * reported success for a venture that does not exist.
+ *
+ * A slug that names nothing is a usage error, not a measurement, so it is the
+ * one case that exits non-zero. That leaves "never a gate" intact: what fails
+ * here is the question, not the answer.
+ */
+export function unknownVenture(slug, { log = console.error } = {}) {
+  log(
+    `${slug}: no such venture.\n` +
+      'Nothing was measured. Check the spelling against `ls ventures/`; a\n' +
+      'venture that exists but ships no browser surface reports zero and exits 0.',
+  );
+  return 1;
+}
+
+/** Does `slug` name a directory under `venturesDir`? */
+async function isVenture(venturesDir, slug) {
+  // Guard against a slug that is a path rather than a name -- `foo/../bar`, or
+  // an absolute path -- which would otherwise stat something outside the tree.
+  if (slug !== path.basename(slug)) return false;
+  try {
+    return (await fs.stat(path.join(venturesDir, slug))).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 export async function main(argv = process.argv.slice(2)) {
   const slug = argv.find((arg) => !arg.startsWith('-'));
-  const { pages, surfaces } = await collectPages({ slug });
+  const { pages, surfaces, known } = await collectPages({ slug });
+
+  if (slug && !known) return unknownVenture(slug);
 
   if (slug && surfaces.length === 0) {
     // Not a failure: plenty of ventures are CLIs or libraries with no browser

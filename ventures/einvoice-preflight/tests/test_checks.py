@@ -276,6 +276,32 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["status"], "pass")
             self.assertFalse(list(report_path.parent.glob(".preflight.json.*")))
 
+    def test_cli_remediation_csv_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            first["totals"]["gross"] = 200
+            second = json.loads(json.dumps(VALID))
+            second["invoice_number"] = "INV-2"
+            second["totals"]["gross"] = 201
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation-csv"]), 1)
+            lines = output.getvalue().splitlines()
+            self.assertEqual(lines[0], "rule,occurrences,message,fix")
+            self.assertIn("INV-017,2,Gross total does not equal net plus tax.", lines[1])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_csv_surfaces_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation-csv"]), 2)
+            self.assertIn("INV-READ,1,Invoice could not be read.", output.getvalue())
+
     def test_cli_reports_output_write_failure_without_partial_file(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
@@ -526,6 +552,50 @@ class ChecksTest(unittest.TestCase):
             main([".", "--max-files", "0"])
         self.assertEqual(result.exception.code, 2)
 
+    def test_cli_max_depth_skips_nested_invoices_without_reading_them(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            nested = root / "archive" / "2024"
+            nested.mkdir(parents=True)
+            (root / "invoice.json").write_text(json.dumps(VALID))
+            buried = json.loads(json.dumps(VALID))
+            buried["invoice_number"] = "INV-BURIED"
+            buried["totals"]["gross"] = 200
+            (nested / "buried.json").write_text(json.dumps(buried))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--max-depth", "1", "--format", "json"]), 0)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 1)
+            self.assertEqual(report["status"], "pass")
+            self.assertEqual(report["read_errors"], [])
+
+    def test_cli_max_depth_two_includes_one_subdirectory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            child = root / "batch"
+            deeper = child / "archive"
+            deeper.mkdir(parents=True)
+            (root / "invoice.json").write_text(json.dumps(VALID))
+            child_invoice = json.loads(json.dumps(VALID))
+            child_invoice["invoice_number"] = "INV-CHILD"
+            (child / "child.json").write_text(json.dumps(child_invoice))
+            buried = json.loads(json.dumps(VALID))
+            buried["invoice_number"] = "INV-BURIED"
+            buried["totals"]["gross"] = 200
+            (deeper / "buried.json").write_text(json.dumps(buried))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--max-depth", "2", "--format", "json"]), 0)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["files_checked"], 2)
+            self.assertEqual(report["status"], "pass")
+
+    def test_cli_rejects_non_positive_max_depth(self):
+        with self.assertRaises(SystemExit) as result:
+            main([".", "--max-depth", "0"])
+        self.assertEqual(result.exception.code, 2)
+
     def test_cli_max_bytes_rejects_oversized_file_before_parsing(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "large.json"
@@ -642,7 +712,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["schema_version"], 1)
             self.assertEqual(report["exit_code"], 2)
             self.assertEqual(report["files_checked"], 0)
-            self.assertEqual(report["read_errors"][0]["error"], "No JSON or XML invoices found.")
+            self.assertEqual(report["read_errors"][0]["error"], "No JSON, XML, or PDF invoices found.")
 
     def test_cli_json_max_files_refusal_keeps_machine_readable_contract(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -747,6 +817,20 @@ class ChecksTest(unittest.TestCase):
                 "invoice_preflight_checked": 1,
                 "invoice_preflight_github_report": 1,
             }})
+
+    # The failing-JUnit case lives further down as
+    # test_cli_emits_junit_for_findings_without_invoice_contents, which also
+    # covers XML-escaping the filename. A second copy here would silently
+    # shadow it rather than add coverage, so only the clean case is new.
+    def test_cli_emits_passing_junit_for_clean_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "junit"]), 0)
+            self.assertIn('tests="1" failures="0"', output.getvalue())
+            self.assertNotIn("<failure", output.getvalue())
 
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
@@ -996,6 +1080,25 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("PASS", report)
             self.assertIn("Read errors", report)
             self.assertIn("broken.json", report)
+
+    def test_cli_writes_report_artifact_without_stdout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            output_path = Path(directory) / "reports" / "review.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json", "--output", str(output_path)]), 0)
+            self.assertEqual(output.getvalue(), "")
+            report = json.loads(output_path.read_text())
+            self.assertEqual(report["status"], "pass")
+
+    def test_cli_output_write_failure_is_an_input_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(main([str(invoice_path), "--format", "html", "--output", directory]), 2)
 
 
 if __name__ == "__main__":

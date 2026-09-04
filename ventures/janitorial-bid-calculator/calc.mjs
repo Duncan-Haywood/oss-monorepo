@@ -341,7 +341,9 @@ export function calculateBid(input) {
 }
 
 function money(value) {
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(value));
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 /**
@@ -490,6 +492,12 @@ export function compareFrequencyReduction(input, options = {}) {
     laborHoursDropped: baseline.monthlyHours - reduced.monthlyHours,
     laborCostDropped: baseline.monthlyLaborCost - reduced.monthlyLaborCost,
     unscaledMonthly: baseline.monthlySupplies + baseline.equipmentMonthly + baseline.otherMonthly,
+    // A day porter is scheduled against the building's own week, not against
+    // the cleaning cadence, so their wages are the largest thing that does
+    // *not* fall when visits are cut — often several times the supplies and
+    // equipment combined. Reported separately so the page can say so rather
+    // than leaving it inside a labour figure the reader takes for scaling.
+    unscaledShiftLabor: baseline.shiftMonthlyLaborCost,
     suppliesUnchanged: Math.abs(reduced.monthlySupplies - baseline.monthlySupplies) < 1e-9,
     equipmentUnchanged: Math.abs(reduced.equipmentMonthly - baseline.equipmentMonthly) < 1e-9,
     clientOffer: reduced.proposed,
@@ -501,7 +509,11 @@ export function compareFrequencyReduction(input, options = {}) {
  * it does not tell them to accept or refuse.
  */
 export function frequencyReductionNote(comparison, { targetMargin } = {}) {
-  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const pct = comparison.reductionFactor * 100;
   const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
   const direction = comparison.proposedWeekly < comparison.currentWeekly ? 'cut' : 'change';
@@ -510,7 +522,7 @@ export function frequencyReductionNote(comparison, { targetMargin } = {}) {
     : `A linear ${pct.toFixed(0)}% of the ${comparison.currentWeekly}× price is ${money(comparison.naiveLinearPrice)}, which leaves a ${comparison.naiveMargin.toFixed(1)}% margin at ${comparison.proposedWeekly}× — ${money(Math.abs(comparison.leftOnTable))} a month ${comparison.leftOnTable > 0 ? 'below' : 'above'} the price that holds a ${marginPct}% target.`;
   return [
     `At ${comparison.proposedWeekly}×/week the monthly price that still holds a ${marginPct}% margin is ${money(comparison.priceToHoldTargetMargin)}, not a linear ${direction} of the ${comparison.currentWeekly}× price (${money(comparison.baseline.monthlyPrice)}).`,
-    `Labor drops with the visits (${comparison.baseline.monthlyHours.toFixed(1)} h → ${comparison.reduced.monthlyHours.toFixed(1)} h). Supplies, equipment, and travel stay on the job (${money(comparison.unscaledMonthly)}/month in this bid).`,
+    `Labor drops with the visits (${comparison.baseline.monthlyHours.toFixed(1)} h → ${comparison.reduced.monthlyHours.toFixed(1)} h). Supplies, equipment, and travel stay on the job (${money(comparison.unscaledMonthly)}/month in this bid).${comparison.unscaledShiftLabor > 0 ? ` Scheduled shift labor stays too — ${money(comparison.unscaledShiftLabor)}/month of day-porter wages are not part of that drop.` : ''}`,
     naiveLine,
   ].join(' ');
 }
@@ -619,7 +631,11 @@ export function compareSupplyResponsibility(input, options = {}) {
  * Arithmetic only — it does not tell them to accept or refuse.
  */
 export function supplyResponsibilityNote(comparison, { targetMargin } = {}) {
-  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
   const restroomLine = `Restroom paper, soap, and liners are ${comparison.restroomSharePercent.toFixed(0)}% of this supplies line (${money(comparison.restroomSuppliesMonthly)}); chemicals, finish, and glass stay yours (${money(comparison.chemicalSuppliesMonthly)}).`;
   const honestLine = `If they take only the restroom stock, the monthly price that still holds a ${marginPct}% margin is ${money(comparison.theyBuyRestroom.monthlyPrice)}, not today's ${money(comparison.youSupply.monthlyPrice)} minus the whole supplies line (${money(comparison.naiveDropPrice)}).`;
@@ -770,7 +786,11 @@ export function compareInitialClean(input, options = {}) {
  * reply. Arithmetic only — it does not tell them to accept or refuse.
  */
 export function initialCleanNote(comparison, { targetMargin } = {}) {
-  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const marginPct = Number.isFinite(targetMargin) ? targetMargin : 20;
   const oneTime = `A ${comparison.visitMultiplier.toFixed(1)}× takeover clean (${comparison.initialHours.toFixed(1)} h plus ${money(comparison.extraSupplies)} of extra supplies) is a ${money(comparison.initialPrice)} one-time line if it still holds a ${marginPct}% margin — not a free extra on the ${money(comparison.monthly.monthlyPrice)} monthly.`;
   const thrown = comparison.thrownInBelowBreakEven

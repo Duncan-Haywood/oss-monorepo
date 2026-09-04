@@ -1,9 +1,10 @@
 # Derived by platform/ci/publish_surface.py --write. Do not hand-edit.
 #
-# What a merge to `main` can publish, per workflow. `publish_surface.py
-# --check` re-derives this from .github/workflows/ and fails if it has
-# moved, so the claim that a venture "deploys nothing" cannot go stale
-# without a check turning red.
+# What a merge to `main` can publish, per workflow and per Argo
+# Application. `publish_surface.py --check` re-derives this from
+# .github/workflows/ and gitops/ and fails if it has moved, so the claim
+# that a venture "deploys nothing" cannot go stale without a check
+# turning red.
 #
 # classification: live | gated | dispatch | none  (see the module docstring)
 workflows:
@@ -40,7 +41,13 @@ workflows:
 - workflow: a11y-theme-resolution-ci.yml
   classification: none
   publishes: []
+- workflow: agent-cross-review.yml
+  classification: none
+  publishes: []
 - workflow: agent-permission-harness-ci.yml
+  classification: none
+  publishes: []
+- workflow: agent-pr-auto-merge.yml
   classification: none
   publishes: []
 - workflow: ai-engineering-academy-ci.yml
@@ -59,6 +66,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: appliance-repair-quote-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: appointment-deposit-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
@@ -88,7 +98,13 @@ workflows:
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: booth-rent-vs-commission-ci.yml
+  classification: none
+  publishes: []
 - workflow: branch-cleanup.yml
+  classification: none
+  publishes: []
+- workflow: browser-checks-ci.yml
   classification: none
   publishes: []
 - workflow: cabinet-refinishing-bid-calculator-ci.yml
@@ -170,6 +186,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: demand-signal-reachability-ci.yml
+  classification: none
+  publishes: []
+- workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
 - workflow: dryer-vent-bid-calculator-ci.yml
@@ -265,6 +284,9 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: grant-reporting-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -328,10 +350,16 @@ workflows:
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: link-contrast-ci.yml
+  classification: none
+  publishes: []
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []
 - workflow: ltl-freight-class-estimator-ci.yml
+  classification: none
+  publishes: []
+- workflow: marketplace-fee-compare-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-drift-watch-ci.yml
@@ -365,6 +393,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: notary-trip-quote-ci.yml
+  classification: none
+  publishes: []
+- workflow: npm-deployment-evidence-ci.yml
   classification: none
   publishes: []
 - workflow: npm-reachability-triage-ci.yml
@@ -436,7 +467,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED
       == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
@@ -510,6 +541,9 @@ workflows:
 - workflow: screened-porch-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: security-camera-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
@@ -523,6 +557,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shop-rate-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
@@ -553,6 +590,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
+  classification: none
+  publishes: []
+- workflow: sponsor-ready-ci.yml
   classification: none
   publishes: []
 - workflow: spray-foam-bid-calculator-ci.yml
@@ -612,6 +652,12 @@ workflows:
 - workflow: vendor-change-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: vendor-change-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: vendor-rate-break-even-ci.yml
+  classification: none
+  publishes: []
 - workflow: vendor-watch-ci.yml
   classification: none
   publishes: []
@@ -651,3 +697,51 @@ workflows:
 - workflow: world-clock-widget-ci.yml
   classification: none
   publishes: []
+gitops:
+- application: agents
+  path: gitops/agents
+  classification: none
+  hosts: []
+  unmet_secrets: []
+  redirects: {}
+- application: ci
+  path: gitops/ci
+  classification: none
+  hosts: []
+  unmet_secrets: []
+  redirects: {}
+- application: platform
+  path: gitops/platform
+  classification: none
+  hosts: []
+  unmet_secrets: []
+  redirects: {}
+- application: prod
+  path: gitops/prod
+  classification: live
+  hosts:
+  - host: marisstella.dev
+    serves: workload
+    unmet_secrets: &id001 []
+  - host: tools.marisstella.dev
+    serves: workload
+    unmet_secrets:
+    - portfolio-site-repo
+  - host: www.marisstella.dev
+    serves: workload
+    unmet_secrets: *id001
+  unmet_secrets:
+  - portfolio-site-repo
+  redirects: {}
+- application: root
+  path: gitops/apps
+  classification: none
+  hosts: []
+  unmet_secrets: []
+  redirects: {}
+- application: staging
+  path: gitops/staging
+  classification: none
+  hosts: []
+  unmet_secrets: []
+  redirects: {}

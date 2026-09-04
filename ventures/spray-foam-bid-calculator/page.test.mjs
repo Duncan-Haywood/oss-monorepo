@@ -49,6 +49,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+  assert.match(scriptSource, /compareCellBids/, 'cell comparison is missing from the executable script');
 });
 
 test('every element the script reaches for exists in the markup', () => {
@@ -65,7 +66,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'area', 'cell', 'pitch', 'barrier', 'lengthFeet', 'widthFeet', 'thicknessInches',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets', 'cellCompare',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -93,4 +94,19 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /board feet/i);
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
+});
+
+test('the rim fields are guarded before they reach a function that throws', () => {
+  // `suggestedRimBf` rejects a negative with a throw, `applyGeometryKits` runs
+  // before `update()` in every handler that calls it, and a throw there means
+  // `update()` never runs. Measured in Chromium: a typed minus sign in the rim
+  // height left an uncaught error in the console and froze every derived
+  // board-foot figure on the form. The plane fields have always returned early
+  // instead; these do now too.
+  const kits = scriptSource.slice(scriptSource.indexOf('function applyGeometryKits'));
+  const body = kits.slice(0, kits.indexOf('function readInput'));
+  const guard = body.indexOf('[rimLf, rimHeight, rimThickness].every(Number.isFinite)');
+  assert.ok(guard > -1, 'the rim inputs are read straight into suggestedRimBf');
+  assert.ok(guard < body.indexOf('suggestedRimBf('), 'the guard must come before the call');
+  assert.match(body, /rimLf < 0 \|\| rimHeight < 0 \|\| rimThickness < 0/);
 });

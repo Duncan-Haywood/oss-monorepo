@@ -333,7 +333,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Gutter install') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const perFoot = result.pricePerGutterFoot === null
     ? 'n/a'
     : `${money(result.pricePerGutterFoot)} / ft of gutter`;

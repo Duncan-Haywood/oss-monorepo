@@ -39,6 +39,21 @@ test('studio-only lever appears when the week already includes travel', () => {
   assert.equal(rows.find((row) => row.id === 'no_travel').netDelta, 0);
 });
 
+test('raise-to-target lever is hidden once the current price already clears target', () => {
+  const rows = comparePolicyLevers(defaults);
+  assert.ok(!rows.some((row) => row.id === 'raise_to_target'));
+});
+
+test('raise-to-target lever appears and rounds up to the nearest $5 when price is below target', () => {
+  const rows = comparePolicyLevers({ ...defaults, lessonPrice: 40 });
+  const row = rows.find((r) => r.id === 'raise_to_target');
+  assert.ok(row, 'expected a raise_to_target row when price is below target');
+  assert.match(row.label, /\$50\.00/);
+  assert.equal(row.result.lessonPrice, 50);
+  assert.equal(row.netDelta, 8640);
+  assert.equal(row.targetDelta, 0);
+});
+
 test('lever summary names the cash winner and the travel caveat', () => {
   const text = leverSummary(comparePolicyLevers(defaults));
   assert.match(text, /Two more weekly lessons/);

@@ -20,6 +20,12 @@ works without an account, network request, or API key. It is arithmetic, not
 an estimate of the fees Walmart will charge: enter the rates from your
 current Seller Center fee preview, and verify them there.
 
+**Copy shareable link** puts the whole scenario — every field above — in the
+URL, so you can bookmark one SKU, send it to a partner or VA, or come back to
+it tomorrow without re-typing referral rate, dimensions, take rates, return
+mix, and ad spend. Nothing is uploaded; the values ride in the URL fragment,
+which browsers never send to a server.
+
 **After using this, you can now see whether WFS or shipping it yourself
 leaves more on a real SKU, the most you can pay a supplier, whether a
 price-match still works, whether buying a 2-day label yourself still
@@ -69,6 +75,12 @@ dimensions and weight, and shows **both paths on the same listing**.
 
 [WFS vs seller fulfilled: which path leaves more?](wfs-vs-seller-fulfilled.html)
 answers the completed-sale question.
+[This calculator vs. Walmart's own WFS Cost Estimator](vs-wfs-cost-estimator.html)
+says which of the two to open for which question — Walmart's own tool,
+inside Seller Center, is the authoritative live fee lookup for one WFS
+item; this one is the WFS-vs-seller-fulfilled decision, the price match,
+and the follow-on scenarios built from your own numbers. Not affiliated
+with Walmart.
 [Should I offer 2-day shipping on Walmart?](should-i-offer-two-day-shipping-on-walmart.html)
 mixes take rate with the faster label.
 [Should I stay on WFS after Walmart returns?](should-i-use-wfs-with-walmart-returns.html)
@@ -79,6 +91,11 @@ mixes aged storage on leftover units with a removal you sell yourself.
 mixes extra ad units with last-click ACOS on organic sales.
 [Should I match the lower Walmart offer?](should-i-match-the-walmart-buy-box.html)
 mixes take rate with a permanent match and a time-boxed promo.
+[Does a smaller box cut my WFS fee?](does-a-smaller-box-cut-wfs-fees.html)
+is the one decision here that leaves the price alone: it compares the
+carton as shipped against a repack, names which measurement is over the
+Standard ceiling and by how much, and nets the repack labour off the fee
+step it saves.
 
 It is not an Amazon FBA calculator, not a Faire wholesale fee tool, and
 not a cross-channel “where to sell” ranker. Those already exist in this

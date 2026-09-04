@@ -68,7 +68,7 @@
     <label>Units they want back <input id="returnUnits" type="number" min="1" step="1" value="10"></label>
     <label>Return label you pay <input id="returnLabel" type="number" min="0" step="0.01" value="18"></label>
     <label>Restockable (%) <input id="restockablePct" type="number" min="0" max="100" step="1" value="80"></label>
-    <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" value="20"></label>
+    <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" max="99.9" value="20"></label>
     <label>They'll-drop-it if you deny (%) <input id="denyKeepPct" type="number" min="0" max="100" step="1" value="50"></label>
   </form>
   <p id="summary" class="note"></p>
@@ -95,6 +95,14 @@
     <a href="./#returnUnits">Faire seller fee calculator</a>
     to change the wholesale price.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I take this Faire return?</h3>
+  <p>On the calculator defaults — a completed $20 × 10 first marketplace order that booked $75.90, a 20% keep-it credit, 50% they'll-drop-it if you deny, an $18 return label, and 80% restockable — the keep-it credit leaves $41.90. Denying leaves $37.95. Taking the full return leaves −$49.00 because outbound shipping and the $10 new-customer fee are already sunk. This is not a recommendation to take, credit, or fight the return.</p>
+  <h3>When does taking a Faire return still beat a keep-it credit?</h3>
+  <p>When only some units come back. Returning 2 of 10 with an $8 label leaves $46.52 and flips ahead of the $41.90 keep-it credit. A full return at these costs does not. Denying at 70% they'll-drop-it leaves $53.13 and flips ahead of the credit.</p>
+  <h3>Is a Faire return the same as Open House or Faire Direct?</h3>
+  <p>No. Open House is whether to list during a 0% commission window. Faire Direct is 0% commission when you bring the retailer. This page starts after a completed first order, when the retailer wants goods back.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It does not tell you to take a return, offer a credit, or deny it, and it does not publish Faire's live return policy. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Faire Wholesale, Inc.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

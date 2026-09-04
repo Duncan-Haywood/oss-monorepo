@@ -30,8 +30,31 @@ export const SIZE_TIER_LABELS = {
 };
 
 const FULFILLMENT_METHODS = new Set(["wfs", "seller"]);
+export const FULFILLMENT_VALUES = [...FULFILLMENT_METHODS];
 
 export const DEFAULT_REFERRAL_MINIMUM = 0.3;
+
+// The numeric fields index.html's own `ids` array reads and writes, in the
+// same order. share.mjs imports this list rather than keeping its own, so a
+// new input field is shareable the day it ships instead of being silently
+// dropped from a link — the failure ebay-fee-calculator's share module hit
+// twice and where-to-sell-calculator's hit once, both by hand-maintaining a
+// second copy of this list.
+export const INPUT_FIELDS = [
+  "salePrice", "matchPrice", "referralRate", "referralMinimum", "length",
+  "width", "height", "weightLb", "monthsInStorage", "storageRate",
+  "fulfillmentFee", "costOfGoods", "inboundPerUnit", "sellerShippingCost",
+  "packagingCost", "adsPerUnit", "otherCost", "monthlySellerFee",
+  "monthlyUnits", "targetMargin", "twoDayShippingCost", "twoDayMinutes",
+  "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct",
+  "returnRatePct", "wfsReturnFee", "sellerReturnLabel", "restockMinutes",
+  "restockHourlyWage", "unsellableReturnPct", "leftoverUnits",
+  "monthlySellThroughPct", "horizonMonths", "agedStorageRate",
+  "removalFee", "disposalFee", "acosPct", "extraAdUnits",
+  "attributedOrganicPct", "highAcosPct", "highExtraAdUnits",
+  "highAttributedOrganicPct", "holdTakePct", "matchTakePct",
+  "promoTakePct", "promoDays", "monthDays",
+];
 
 function number(value, name, fallback = 0) {
   if (value === undefined || value === null || value === "") {
@@ -220,7 +243,17 @@ function listingAtPrice(input, salePrice) {
   const targetMarginRate = targetMargin / 100;
 
   function finish(path, cogsInCash) {
-    path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
+    // The raw ceiling can be negative: fees and non-COGS cash costs alone
+    // already exceed the sale price, so no sourcing cost -- not even $0 --
+    // reaches break-even. Clamping that to 0 for display would read as "pay
+    // at most $0.00" -- a real, if tight, break-even point -- when the truth
+    // is that this listing loses money before a unit is even bought.
+    // `breakEvenBuyCostRaw` keeps the signed figure so callers can tell the
+    // two apart instead of reading a bare $0.00 as a genuine break-even.
+    // Same bug class already fixed for amazon-fba-calculator's maxBuyCost.
+    const rawBreakEvenBuyCost = salePrice - path.feeTotal - (path.cashInvested - cogsInCash);
+    path.breakEvenBuyCostRaw = rawBreakEvenBuyCost;
+    path.breakEvenBuyCost = Math.max(0, rawBreakEvenBuyCost);
     return path;
   }
 
@@ -305,6 +338,41 @@ function twoDayPath({
   };
 }
 
+/**
+ * Where a take-rate path ties a rival whose expected profit is fixed, and
+ * which side of that rate the path is the better one on.
+ *
+ * Expected profit on a take path is `take% × completed profit`, so the tie is
+ * one division. The part worth spelling out is the direction, because it flips
+ * and the old code did not: when a completed sale *loses* money, a higher take
+ * rate books more of that loss, so the path is better BELOW the crossing
+ * instead of above it.
+ *
+ * That is not a corner case here. WFS fees on a heavy item, or a seller label
+ * plus pack time on a thin-margin one, routinely put both paths under water at
+ * once — and two loss-making paths still cross at a real rate, the same way
+ * two profitable ones do. The previous guard (`completed > 1e-12`) returned
+ * `Infinity` for every one of them, so the page told a seller the rate was
+ * "unreachable" when it was, say, 95.5% and directly actionable.
+ *
+ * `betterBelow` is what lets the sentence say "until take rises to" rather
+ * than "if take rises to". Reporting the number without the direction would
+ * hand the seller the right figure attached to the wrong advice.
+ */
+function takeRateCrossing(rivalExpected, completedProfit) {
+  if (!Number.isFinite(completedProfit) || Math.abs(completedProfit) <= 1e-12) {
+    return { rate: Infinity, betterBelow: false };
+  }
+  const betterBelow = completedProfit < 0;
+  const rate = (rivalExpected / completedProfit) * 100;
+  // A rate outside 0..100 is genuinely unreachable: take is a share of
+  // sessions and cannot exceed all of them or fall below none.
+  if (!Number.isFinite(rate) || rate < -1e-9 || rate > 100 + 1e-9) {
+    return { rate: Infinity, betterBelow };
+  }
+  return { rate: Math.max(0, Math.min(100, rate)), betterBelow };
+}
+
 function twoDaySummary({
   winner,
   wfs,
@@ -317,6 +385,8 @@ function twoDaySummary({
   breakEvenTwoDayShipping,
   breakEvenTwoDayTakePct,
   breakEvenStandardTakePct,
+  twoDayTakeIsCeiling,
+  standardTakeIsCeiling,
 }) {
   const wfsKeep = moneyLabel(wfs.expectedProfit);
   const twoDayKeep = moneyLabel(twoDay.expectedProfit);
@@ -343,18 +413,27 @@ function twoDaySummary({
     );
   }
   if (winner === "standard") {
+    // When standard's completed sale loses money, a higher take rate books
+    // more of that loss — so the crossing is the point standard stops being
+    // ahead, not the point it starts.
+    const standardLine = standardTakeIsCeiling
+      ? `Standard stays ahead of WFS until take rises to about ${standardFloor}.`
+      : `Standard still needs about ${standardFloor} take to match WFS.`;
     return (
       `Seller-fulfilled standard shipping keeps ${standardGap} more per session than WFS ` +
       `(${standardKeep} vs ${wfsKeep}). 2-day is ${twoDayKeep}. ` +
-      `Standard still needs about ${standardFloor} take to match WFS.`
+      standardLine
     );
   }
   if (winner === "wfs") {
+    const twoDayLine = twoDayTakeIsCeiling
+      ? `or take falls to about ${twoDayFloor}`
+      : `or take rises to about ${twoDayFloor}`;
     return (
       `WFS keeps ${twoDayGap} more per session than seller-fulfilled 2-day ` +
       `(${wfsKeep} vs ${twoDayKeep}), ${monthGap} on ${volume}. ` +
       `2-day matches if the label falls to about ${shipCeil} ` +
-      `or take rises to about ${twoDayFloor}. Standard is ${standardKeep}.`
+      `${twoDayLine}. Standard is ${standardKeep}.`
     );
   }
   return "WFS, seller-fulfilled 2-day, and standard shipping leave the same expected leftover on these rates.";
@@ -489,25 +568,10 @@ export function compareTwoDay(input = {}) {
     if (!Number.isFinite(breakEvenTwoDayShipping)) breakEvenTwoDayShipping = Infinity;
   }
 
-  let breakEvenTwoDayTakePct = Infinity;
-  if (twoDayCompleted > 1e-12) {
-    breakEvenTwoDayTakePct = (wfsExpected / twoDayCompleted) * 100;
-    if (breakEvenTwoDayTakePct < -1e-9 || breakEvenTwoDayTakePct > 100 + 1e-9) {
-      breakEvenTwoDayTakePct = Infinity;
-    } else {
-      breakEvenTwoDayTakePct = Math.max(0, Math.min(100, breakEvenTwoDayTakePct));
-    }
-  }
-
-  let breakEvenStandardTakePct = Infinity;
-  if (standardCompleted > 1e-12) {
-    breakEvenStandardTakePct = (wfsExpected / standardCompleted) * 100;
-    if (breakEvenStandardTakePct < -1e-9 || breakEvenStandardTakePct > 100 + 1e-9) {
-      breakEvenStandardTakePct = Infinity;
-    } else {
-      breakEvenStandardTakePct = Math.max(0, Math.min(100, breakEvenStandardTakePct));
-    }
-  }
+  const twoDayCrossing = takeRateCrossing(wfsExpected, twoDayCompleted);
+  const standardCrossing = takeRateCrossing(wfsExpected, standardCompleted);
+  const breakEvenTwoDayTakePct = twoDayCrossing.rate;
+  const breakEvenStandardTakePct = standardCrossing.rate;
 
   return {
     rows,
@@ -535,6 +599,10 @@ export function compareTwoDay(input = {}) {
     breakEvenTwoDayShipping,
     breakEvenTwoDayTakePct,
     breakEvenStandardTakePct,
+    // True when the path's completed sale loses money, so the rate above is a
+    // ceiling the path stays ahead below, not a floor it has to climb to.
+    twoDayTakeIsCeiling: twoDayCrossing.betterBelow,
+    standardTakeIsCeiling: standardCrossing.betterBelow,
     summary: twoDaySummary({
       winner,
       wfs: rows[0],
@@ -547,6 +615,8 @@ export function compareTwoDay(input = {}) {
       breakEvenTwoDayShipping,
       breakEvenTwoDayTakePct,
       breakEvenStandardTakePct,
+      twoDayTakeIsCeiling: twoDayCrossing.betterBelow,
+      standardTakeIsCeiling: standardCrossing.betterBelow,
     }),
   };
 }
@@ -1044,6 +1114,7 @@ export function compareAgedWfs(input = {}) {
 
   const keepArgs = {
     units: leftoverUnits,
+    sellThroughPct: monthlySellThroughPct,
     horizonMonths,
     storagePerUnitMonth,
     contribution: keepContribution,
@@ -1373,14 +1444,23 @@ export function compareWalmartAds(input = {}) {
   if (organicUnits > 1e-12 && adSpendPerUnit > 1e-12) {
     breakEvenAttributedOrganicPct =
       (extraAdUnits * extraMargin * 100) / (organicUnits * adSpendPerUnit);
-    if (breakEvenAttributedOrganicPct < -1e-9) {
+    // Attribution is a share of organic units, so a crossing above 100% is as
+    // unreachable as one below 0%. Clamping the high side to exactly 100 used
+    // to report a tie at full attribution when ads in fact still win there.
+    if (
+      breakEvenAttributedOrganicPct < -1e-9 ||
+      breakEvenAttributedOrganicPct > 100 + 1e-9
+    ) {
       breakEvenAttributedOrganicPct = Infinity;
     } else {
       breakEvenAttributedOrganicPct = Math.max(0, Math.min(100, breakEvenAttributedOrganicPct));
     }
-  } else if (adSpendPerUnit <= 1e-12) {
-    breakEvenAttributedOrganicPct = 100;
   }
+  // Free clicks (0% ACOS) have no attribution rate that ties skipping: with no
+  // ad spend the gap is `extra units × organic leftover` whatever share of
+  // organic the ads claim, so the two paths never cross. This used to report
+  // exactly 100%, which reads as a real, reachable answer — the worst of the
+  // three possible outputs, since "unreachable" at least tells the truth.
 
   return {
     rows,
@@ -1459,6 +1539,7 @@ function matchTakeSummary({
   breakEvenMatchTakePct,
   breakEvenPromoDays,
   breakEvenMatchPrice,
+  matchTakeIsCeiling,
 }) {
   const holdKeep = moneyLabel(hold.monthlyProfit);
   const matchKeep = moneyLabel(match.monthlyProfit);
@@ -1476,6 +1557,10 @@ function matchTakeSummary({
   const priceFloor = Number.isFinite(breakEvenMatchPrice)
     ? moneyLabel(breakEvenMatchPrice)
     : "an unreachable match price";
+  // A matched sale that loses money gets worse as take rises, so the crossing
+  // is the rate matching stops winning at rather than the one it starts at.
+  const matchTakeMoves = matchTakeIsCeiling ? "rises" : "falls";
+  const holdTakeMoves = matchTakeIsCeiling ? "falls" : "rises";
 
   if (winner === "match") {
     return (
@@ -1483,7 +1568,7 @@ function matchTakeSummary({
       `(${matchKeep} vs ${holdKeep}) on ${volume}. ` +
       `A time-boxed promo is ${promoKeep}, ${vsPromo} behind the match. ` +
       `The promo matches a permanent drop at about ${dayFloor}. ` +
-      `Holding matches if match take falls to about ${takeFloor}.`
+      `Holding matches if match take ${matchTakeMoves} to about ${takeFloor}.`
     );
   }
   if (winner === "promo") {
@@ -1492,7 +1577,7 @@ function matchTakeSummary({
       `(${promoKeep} vs ${holdKeep}) on ${volume}. ` +
       `A permanent match is ${matchKeep}. ` +
       `The promo still beats a permanent drop down to about ${dayFloor}. ` +
-      `Holding matches if match take falls to about ${takeFloor}.`
+      `Holding matches if match take ${matchTakeMoves} to about ${takeFloor}.`
     );
   }
   if (winner === "hold") {
@@ -1500,7 +1585,7 @@ function matchTakeSummary({
       `Holding the list price keeps ${matchGap} more than permanently matching ` +
       `(${holdKeep} vs ${matchKeep}) on ${volume}. ` +
       `A time-boxed promo is ${promoKeep}. ` +
-      `Matching wins if take rises to about ${takeFloor} ` +
+      `Matching wins if take ${holdTakeMoves} to about ${takeFloor} ` +
       `or the match price stays above about ${priceFloor}.`
     );
   }
@@ -1633,15 +1718,8 @@ export function compareMatchTake(input = {}) {
   ].filter((row) => Math.abs(row.value - bestMonthly) <= 1e-9);
   const winner = leaders.length === 1 ? leaders[0].id : "tie";
 
-  let breakEvenMatchTakePct = Infinity;
-  if (matchCompleted > 1e-12) {
-    breakEvenMatchTakePct = (holdExpected / matchCompleted) * 100;
-    if (breakEvenMatchTakePct < -1e-9 || breakEvenMatchTakePct > 100 + 1e-9) {
-      breakEvenMatchTakePct = Infinity;
-    } else {
-      breakEvenMatchTakePct = Math.max(0, Math.min(100, breakEvenMatchTakePct));
-    }
-  }
+  const matchCrossing = takeRateCrossing(holdExpected, matchCompleted);
+  const breakEvenMatchTakePct = matchCrossing.rate;
 
   let breakEvenPromoDays = Infinity;
   const promoLift = promoPeriodExpected - holdExpected;
@@ -1693,6 +1771,9 @@ export function compareMatchTake(input = {}) {
     extraPromoVsHold,
     extraMatchVsPromo,
     breakEvenMatchTakePct,
+    // True when the matched sale loses money, so the rate above is a ceiling
+    // matching stays ahead below, not a floor it has to climb to.
+    matchTakeIsCeiling: matchCrossing.betterBelow,
     breakEvenPromoDays,
     breakEvenMatchPrice,
     summary: matchTakeSummary({
@@ -1705,6 +1786,7 @@ export function compareMatchTake(input = {}) {
       extraMatchVsPromo,
       monthlyUnits,
       breakEvenMatchTakePct,
+      matchTakeIsCeiling: matchCrossing.betterBelow,
       breakEvenPromoDays,
       breakEvenMatchPrice,
     }),
@@ -1738,4 +1820,233 @@ export function calculateListing(input) {
     matchDelta,
     matchStillProfitable: matched.selected.profit >= 0,
   };
+}
+
+// A repack is the one WFS lever that does not touch the price.
+//
+// Every other decision page here trades leftover against take rate: match the
+// Buy Box, run ads, offer 2-day. This one leaves the listing alone. The WFS
+// fulfillment fee is a step function of the shipped box — its longest, median
+// and shortest sides and its billable weight — so a carton that is half an inch
+// over on one side pays a whole tier more on every unit, forever, and nothing on
+// the listing says so. `classifySizeTier` and `defaultFulfillmentFee` already
+// encoded those steps and were being used only to price the box a seller
+// already had.
+//
+// What the seller cannot see from Seller Center is *which* measurement is the
+// one costing them. A carton at 19 × 13 × 7 and 3 lb is Oversize, and the fee
+// preview shows one number; it does not say "the 19-inch side is the only thing
+// keeping you out of Standard, and it is one inch." That single sentence is the
+// product here, and it is why `sizeTierGaps` reports each side separately
+// rather than a boolean.
+export const WFS_BOX_DEFAULTS = {
+  length: 19,
+  width: 13,
+  height: 7,
+  weightLb: 3,
+  newLength: 17.5,
+  newWidth: 13,
+  newHeight: 7,
+  newWeightLb: 2.9,
+  repackCostPerUnit: 0.35,
+  monthlyUnits: 120,
+};
+
+/** The Standard-tier ceilings `classifySizeTier` enforces, named so a page can quote them. */
+export const STANDARD_TIER_LIMITS = {
+  longestIn: 18,
+  medianIn: 14,
+  shortestIn: 8,
+  weightLb: 20,
+};
+
+/**
+ * Why each box misses Standard, measurement by measurement.
+ *
+ * Returns one row per constraint with how much it is over (0 when it clears),
+ * so a page can say "the longest side is 1 in over" instead of "not Standard".
+ * A box already in Standard returns all-zero overages and `clears: true`, which
+ * is the honest answer to "what should I shave?" — nothing.
+ */
+export function sizeTierGaps({ length, width, height, weightLb }) {
+  const l = number(length, "Length");
+  const w = number(width, "Width");
+  const h = number(height, "Height");
+  const weight = number(weightLb, "Weight");
+  const [longest, median, shortest] = [l, w, h].sort((a, b) => b - a);
+
+  const rows = [
+    { id: "longest", label: "Longest side", value: longest, limit: STANDARD_TIER_LIMITS.longestIn, unit: "in" },
+    { id: "median", label: "Median side", value: median, limit: STANDARD_TIER_LIMITS.medianIn, unit: "in" },
+    { id: "shortest", label: "Shortest side", value: shortest, limit: STANDARD_TIER_LIMITS.shortestIn, unit: "in" },
+    { id: "weight", label: "Weight", value: weight, limit: STANDARD_TIER_LIMITS.weightLb, unit: "lb" },
+  ].map((row) => ({ ...row, over: Math.max(0, row.value - row.limit) }));
+
+  const blocking = rows.filter((row) => row.over > 1e-9);
+  return { rows, blocking, clears: blocking.length === 0 };
+}
+
+/**
+ * The shipped box against a proposed repack, at the same price.
+ *
+ * Deliberately *not* a call to `calculateListing`: the listing's referral fee,
+ * cost of goods and inbound cost are identical on both sides, so folding them in
+ * would bury a $4 fulfillment step inside a $20 ticket and invite the reader to
+ * compare two profits that differ by exactly the thing this page is about.
+ * The comparison is the fulfillment fee and the repack cost, and nothing else.
+ */
+export function compareWfsBox(input = {}) {
+  const current = {
+    length: number(input.length, "Length", WFS_BOX_DEFAULTS.length),
+    width: number(input.width, "Width", WFS_BOX_DEFAULTS.width),
+    height: number(input.height, "Height", WFS_BOX_DEFAULTS.height),
+    weightLb: number(input.weightLb, "Weight", WFS_BOX_DEFAULTS.weightLb),
+  };
+  const proposed = {
+    length: number(input.newLength, "New length", WFS_BOX_DEFAULTS.newLength),
+    width: number(input.newWidth, "New width", WFS_BOX_DEFAULTS.newWidth),
+    height: number(input.newHeight, "New height", WFS_BOX_DEFAULTS.newHeight),
+    weightLb: number(input.newWeightLb, "New weight", WFS_BOX_DEFAULTS.newWeightLb),
+  };
+  const repackCostPerUnit = number(
+    input.repackCostPerUnit,
+    "Repack cost per unit",
+    WFS_BOX_DEFAULTS.repackCostPerUnit,
+  );
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", WFS_BOX_DEFAULTS.monthlyUnits);
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+
+  const box = (dims, id, label) => {
+    const tier = classifySizeTier(dims);
+    return {
+      id,
+      label,
+      ...dims,
+      tier,
+      tierLabel: SIZE_TIER_LABELS[tier],
+      cubicFeet: cubicFeet(dims),
+      fulfillmentFee: defaultFulfillmentFee(tier, dims.weightLb),
+      gaps: sizeTierGaps(dims),
+    };
+  };
+
+  const shipped = box(current, "current", "Box today");
+  const repacked = box(proposed, "repacked", "Repacked box");
+
+  const feeSaving = shipped.fulfillmentFee - repacked.fulfillmentFee;
+  const netPerUnit = feeSaving - repackCostPerUnit;
+  const monthlySaving = netPerUnit * monthlyUnits;
+  const tierChanged = shipped.tier !== repacked.tier;
+
+  // The repack cost the saving can absorb before the two are level. Negative
+  // when the repack raises the fee — there is no cost that rescues that, and
+  // reporting a negative break-even is more honest than clamping it to zero.
+  const breakEvenRepackCost = feeSaving;
+
+  // Volume is only meaningful when a per-unit gain exists to multiply.
+  const breakEvenUnits = netPerUnit > 1e-9 ? 0 : Infinity;
+
+  const winner = Math.abs(netPerUnit) <= 1e-9 ? "tie" : netPerUnit > 0 ? "repacked" : "current";
+
+  return {
+    rows: [shipped, repacked],
+    current: shipped,
+    repacked,
+    winner,
+    tierChanged,
+    feeSaving,
+    repackCostPerUnit,
+    netPerUnit,
+    monthlySaving,
+    monthlyUnits,
+    breakEvenRepackCost,
+    breakEvenUnits,
+    summary: wfsBoxSummary({
+      winner,
+      shipped,
+      repacked,
+      tierChanged,
+      feeSaving,
+      repackCostPerUnit,
+      netPerUnit,
+      monthlySaving,
+      monthlyUnits,
+      breakEvenRepackCost,
+    }),
+  };
+}
+
+function gapSentence(gaps) {
+  if (gaps.clears) return "";
+  const parts = gaps.blocking.map(
+    (row) => `${row.label.toLowerCase()} is ${row.over.toFixed(2)} ${row.unit} over the ${row.limit} ${row.unit} Standard ceiling`,
+  );
+  if (parts.length === 1) return ` The only thing outside Standard is that its ${parts[0]}.`;
+  return ` Outside Standard because its ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}.`;
+}
+
+function wfsBoxSummary({
+  winner,
+  shipped,
+  repacked,
+  tierChanged,
+  feeSaving,
+  repackCostPerUnit,
+  netPerUnit,
+  monthlySaving,
+  monthlyUnits,
+  breakEvenRepackCost,
+}) {
+  const units = `${monthlyUnits} unit${monthlyUnits === 1 ? "" : "s"} a month`;
+  const tierBit = tierChanged
+    ? `The repack moves the box from ${shipped.tierLabel} to ${repacked.tierLabel}.`
+    : `Both boxes bill as ${shipped.tierLabel}.`;
+  const gapBit = gapSentence(repacked.gaps);
+
+  // A repack that changes nothing is the most common real answer and the one a
+  // tool is most tempted to dress up. Say it plainly, and say what would have
+  // to change instead of implying the shaving was worth doing.
+  if (Math.abs(feeSaving) <= 1e-9) {
+    return (
+      `${tierBit} The fulfillment fee is ${moneyLabel(shipped.fulfillmentFee)} either way, so the ` +
+      `repack saves nothing and the ${moneyLabel(repackCostPerUnit)} of labour and materials is a ` +
+      `straight loss of ${moneyLabel(Math.abs(monthlySaving))} across ${units}.${gapBit}`
+    );
+  }
+
+  if (feeSaving < 0) {
+    return (
+      `${tierBit} The repacked box costs ${moneyLabel(Math.abs(feeSaving))} more per unit to fulfil, ` +
+      `not less — before the ${moneyLabel(repackCostPerUnit)} repack. Across ${units} that is ` +
+      `${moneyLabel(Math.abs(monthlySaving))} worse than shipping the box as it is.${gapBit}`
+    );
+  }
+
+  const feeBit =
+    `${tierBit} The fulfillment fee falls ${moneyLabel(feeSaving)} per unit, from ` +
+    `${moneyLabel(shipped.fulfillmentFee)} to ${moneyLabel(repacked.fulfillmentFee)}.`;
+  const floorBit =
+    ` The repack pays for itself up to ${moneyLabel(breakEvenRepackCost)} a unit in labour and materials.`;
+
+  if (winner === "repacked") {
+    return (
+      `${feeBit} After ${moneyLabel(repackCostPerUnit)} to repack, that is ${moneyLabel(netPerUnit)} ` +
+      `a unit, or ${moneyLabel(monthlySaving)} across ${units}.${floorBit}${gapBit}`
+    );
+  }
+  if (winner === "tie") {
+    return `${feeBit} The ${moneyLabel(repackCostPerUnit)} repack costs exactly what it saves, so the two are level.${gapBit}`;
+  }
+  return (
+    `${feeBit} But repacking costs ${moneyLabel(repackCostPerUnit)} a unit, which is more than the ` +
+    `fee it saves — ${moneyLabel(Math.abs(netPerUnit))} a unit worse, or ` +
+    `${moneyLabel(Math.abs(monthlySaving))} across ${units}.${floorBit}${gapBit}`
+  );
+}
+
+export function wfsBoxNote(comparison) {
+  if (!comparison?.current || !comparison?.repacked) {
+    throw new Error("WFS box comparison is missing rows");
+  }
+  return comparison.summary;
 }

@@ -60,7 +60,10 @@
     .note { font-size: .9rem; color: #445064; }
     footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
     @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
@@ -124,6 +127,12 @@
     and it does not claim a shipment is cheaper after Amazon reprices
     freight or placement.
   </p>
+  <h2>Common questions</h2>
+  <h3>What is the Amazon inbound placement service fee?</h3>
+  <p>It is a per-unit fee Amazon charges when a shipment is sent to fewer fulfillment centers than the Amazon-optimized split. Sending to one warehouse usually costs the highest placement fee. Following Amazon's split usually costs $0 placement and more freight.</p>
+  <h3>Is it cheaper to pay inbound placement or split the shipment?</h3>
+  <p>Compare three totals at the same unit count: freight to one warehouse plus the minimal placement fee; freight for a partial split plus the partial placement fee; and freight for the Amazon-optimized split plus its placement fee (often $0). The cheaper total inbound is the one to send. On the 200-unit large-standard example — $85 to one warehouse, $140 for a partial split, $210 to follow Amazon's split, and illustrative placement of $0.43 / $0.27 / $0 — one warehouse totals $171.00, the partial split $194.00, and the optimized split $210.00. Paying placement is $23.00 cheaper than the next option. The optimized split can absorb $86.00 more freight before one warehouse wins. Flip the freight quotes to $90 / $105 / $120 and a $0.55 minimal placement fee, and the optimized split wins by $80.00. Paste the fees from your inbound preview — this page does not publish Amazon's live schedule.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
@@ -137,7 +146,11 @@
       "units", "freightMinimal", "freightPartial", "freightOptimized",
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
     ];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
 
     function update() {
       try {

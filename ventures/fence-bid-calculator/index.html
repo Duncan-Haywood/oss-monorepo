@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fence Bid Calculator | Price Posts, Gates, and Tear-Out — Not Just Linear Feet</title>
+  <title>Fence Bid Calculator — Posts, Gates, and Tear-Out</title>
   <meta name="description" content="Price a fence installation from posts, terminals, gates, tear-out, and digging conditions. See installed price per foot, effective hourly rate, and the walk-away number before you send the bid.">
   <meta property="og:title" content="Fence Bid Calculator">
   <meta property="og:description" content="Bid fence work the way the job actually costs — posts, gates, and tear-out — and see the margin before you send the price.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fence Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Post and terminal counts from spacing, gate openings subtracted from infill, wood vinyl chain-link and aluminum presets, clay and rocky dig multipliers, slope labor, tear-out, payroll burden, overhead and margin, price per linear foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fence Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Post and terminal counts from spacing, gate openings subtracted from infill, wood vinyl chain-link and aluminum presets, clay and rocky dig multipliers, slope labor, tear-out, payroll burden, overhead and margin, price per linear foot, effective hourly rate, break-even walk-away price, proposed-price margin check, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this fence estimate include?","acceptedAnswer":{"@type":"Answer","text":"Each run’s material and posts by length and post spacing, with extra terminal posts at corners and gates, gate material and labor, concrete per post, tear-out of an existing fence, harder digging or a sloped yard, and overhead and margin on top."}},{"@type":"Question","name":"How does difficult digging or a sloped yard change the price?","acceptedAnswer":{"@type":"Answer","text":"Rocky or clay soil and a mild or steep slope multiply the labor hours on posts and tear-out. Concrete and panels cost the same regardless of ground condition, so only the crew-time estimate changes, not the material pricing."}},{"@type":"Question","name":"Why do gates change the post count, not just add a gate price?","acceptedAnswer":{"@type":"Answer","text":"A line post next to a gate has to become a heavier terminal post to carry the hinge or latch, and a short run mostly taken up by a gate may need an extra terminal altogether. The calculator upgrades and adds posts automatically so the total reflects that instead of undercounting them."}},{"@type":"Question","name":"Does the tool know local frost depth, property lines, or permit requirements?","acceptedAnswer":{"@type":"Answer","text":"No. Post spacing, concrete per post, and any permit-adjacent cost are numbers you supply yourself, and there is no frost-depth table, property-line check, or permit lookup built in. Confirm those with your local building department and a survey before you dig."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — everything runs in your browser. The only thing saved between visits is your business and contact details for the printed proposal, and you can clear those with “Forget my business details.”"}},{"@type":"Question","name":"What’s the difference between the total cost and the price shown?","acceptedAnswer":{"@type":"Answer","text":"Total cost is materials, posts, gates, tear-out, and labor plus overhead — the walk-away number. The price shown applies your target margin on top, so it is what you’d charge to hit that margin rather than just cover your costs."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #f3eee4; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -16,6 +17,7 @@
     h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5a22; margin: 0 0 6px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #d9cbb6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a2a120d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -26,11 +28,13 @@
     .run { border: 1px solid #eadfcf; border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #fbf7f0; }
     .run-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .run-grid label:first-child { grid-column: 1 / -1; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b8a78d; background: #f6f0e6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b8a78d; background: #f6f0e6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a241c; }
     button:hover { background: #eee4d4; }
     .remove { padding: 8px 12px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; margin-top: 10px; }
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
     .result { position: sticky; top: 15px; background: #3a2a16; color: #f7f1e6; border-color: #3a2a16; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #c6e6a9; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -53,6 +57,64 @@
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .run-grid { grid-template-columns: 1fr 1fr; }
     }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #c0a077; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5c5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #5c3c14; --pr-accent: #8a5a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #5c3c140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
   </style>
 </head>
 <body>
@@ -60,6 +122,7 @@
     <p class="eyebrow">FOR FENCE CONTRACTORS</p>
     <h1>Bid the posts and the gates, not the linear feet.</h1>
     <p>Price a fence install the way the job actually costs: posts from your spacing, heavier terminals at ends, corners, and gates, tear-out, and the extra hours clay or rock will eat. You get the job price, what it works out to per foot and per labor hour, and the number below which the job loses money.</p>
+    <p class="seo-link"><a href="./how-to-bid-a-fence-job.html">How to bid a fence job from posts and gates</a> &middot; <a href="./vs-fence-cloud.html">this calculator vs. Fence Cloud</a>.</p>
   </header>
 
   <main class="layout">
@@ -106,6 +169,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it — or bidding rocky dirt at a flat per-foot number — is the usual reason a fence job that looked profitable was not.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Cedarline Fence Co."></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(919) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="NC-GC-77214"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="605 Method Rd, Raleigh NC"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install 180 ft of 6 ft wood privacy fence&#10;One 4 ft walk gate"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Property survey&#10;Permit and HOA application fees"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Posts set in concrete and left to cure before panels hang. Locates called before digging."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -128,6 +227,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -136,22 +236,74 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting material and hour figures are common ballpark numbers, not a price book, a benchmark, or a guarantee &mdash; replace them with your invoices and your timed crews.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this fence estimate include?</h3>
+      <p>Each run&rsquo;s material and posts by length and post spacing, with extra terminal posts at
+        corners and gates, gate material and labor, concrete per post, tear-out of an existing fence,
+        harder digging or a sloped yard, and overhead and margin on top.</p>
+
+      <h3>How does difficult digging or a sloped yard change the price?</h3>
+      <p>Rocky or clay soil and a mild or steep slope multiply the labor hours on posts and tear-out.
+        Concrete and panels cost the same regardless of ground condition, so only the crew-time
+        estimate changes, not the material pricing.</p>
+
+      <h3>Why do gates change the post count, not just add a gate price?</h3>
+      <p>A line post next to a gate has to become a heavier terminal post to carry the hinge or latch,
+        and a short run mostly taken up by a gate may need an extra terminal altogether. The calculator
+        upgrades and adds posts automatically so the total reflects that instead of undercounting them.</p>
+
+      <h3>Does the tool know local frost depth, property lines, or permit requirements?</h3>
+      <p>No. Post spacing, concrete per post, and any permit-adjacent cost are numbers you supply
+        yourself, and there is no frost-depth table, property-line check, or permit lookup built in.
+        Confirm those with your local building department and a survey before you dig.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; everything runs in your browser. The only thing
+        saved between visits is your business and contact details for the printed proposal, and you can
+        clear those with &ldquo;Forget my business details.&rdquo;</p>
+
+      <h3>What&rsquo;s the difference between the total cost and the price shown?</h3>
+      <p>Total cost is materials, posts, gates, tear-out, and labor plus overhead &mdash; the walk-away
+        number. The price shown applies your target margin on top, so it is what you&rsquo;d charge to
+        hit that margin rather than just cover your costs.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and site conditions, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your yard, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your yard, wages, costs, or prices. A share link encodes only the quote fields in the page&rsquo;s URL hash rather than sending anything to a server.</p>
     <p>Read <a href="./how-to-bid-a-fence-job.html">how to bid a fence job from posts and gates</a> if a homeowner is pushing a flat per-foot number.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { calculateBid, MATERIAL_PRESETS } from './calc.mjs';
+    import { calculateBid, MATERIAL_PRESETS ,
+      DIG_PRESETS,
+      SLOPE_PRESETS,
+    } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
 
     const COST_IDS = ['tearOutFeet','hoursPerTearOutLf','tearOutPerFoot','dig','slope','hourlyWage','burdenRate','otherCost','overheadRate','targetMargin','proposedPrice'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const TYPE_OPTIONS = MATERIAL_PRESETS
@@ -160,6 +312,17 @@
 
     const runsHost = el('runs');
     let rowSeq = 0;
+
+    // The cost and labor figures a run carries independently of which preset
+    // it started from — the tail of `RUN_KEYS` in share.mjs, after the shape
+    // fields (linearFeet, corners, walkGates, driveGates) that addRunRow
+    // already copies straight from `run` above.
+    const RUN_COST_KEYS = [
+      'materialPerLf', 'linePostCost', 'terminalPostCost', 'walkGateCost',
+      'driveGateCost', 'concretePerPost', 'hoursPerLf', 'hoursPerPost',
+      'hoursPerWalkGate', 'hoursPerDriveGate',
+    ];
+    const HOURS_KEYS = ['hoursPerLf', 'hoursPerPost', 'hoursPerWalkGate', 'hoursPerDriveGate'];
 
     function applyPreset(row, preset, overwriteHours) {
       if (!preset) return;
@@ -209,8 +372,33 @@
       row.querySelector('.r-corners').value = run.corners;
       row.querySelector('.r-walk').value = run.walkGates;
       row.querySelector('.r-drive').value = run.driveGates;
-      applyPreset(row, MATERIAL_PRESETS[presetIndex] ?? run, true);
+      const preset = MATERIAL_PRESETS[presetIndex];
+      // A run's material name matches a preset every time it was created
+      // through the type dropdown — including after a setter edits its cost
+      // or labor figures away from that preset's defaults. Reconstructing
+      // the row (a share link, `payload.runs.forEach(addRunRow)`) must keep
+      // those edits: applying the *preset's* numbers here silently reverted
+      // a hand-tuned material or labor cost back to the venture's default
+      // every time the row was rebuilt, which is exactly what
+      // `platform/pages/roundtrip.mjs` caught — a shared link's headline
+      // price came back different from the one the sender saw.
+      const ownCosts = {};
+      for (const key of RUN_COST_KEYS) {
+        if (run[key] !== undefined && run[key] !== '') ownCosts[key] = run[key];
+      }
+      applyPreset(row, preset ? { ...preset, ...ownCosts } : run, true);
       if (run.postSpacingFt) row.querySelector('.r-space').value = run.postSpacingFt;
+      // A restored run's hours are a labor estimate tied to the site, not
+      // the material — the same reason a hand-typed hours figure survives a
+      // material swap (the listener below). Without this flag, a
+      // recipient who opens a share link and then merely tries a different
+      // material in the dropdown would see the sender's customized hours
+      // silently replaced by the newly-selected preset's stock hours,
+      // through the same `!row.dataset.hoursEdited` guard that call relies
+      // on.
+      if (HOURS_KEYS.some(key => run[key] !== undefined && run[key] !== '')) {
+        row.dataset.hoursEdited = '1';
+      }
 
       typeField.addEventListener('change', () => {
         const preset = MATERIAL_PRESETS[Number(typeField.value)];
@@ -272,6 +460,25 @@
       el('verdict').hidden = true;
     }
 
+    /**
+     * The one place the calculator's input is assembled.
+     *
+     * `update()` and `copySummary()` each built this literal separately, and the
+     * proposal would have made a third copy. Three copies is how the figure on
+     * screen, the pasted summary, and the customer's printed sheet come to be
+     * priced from different fields.
+     *
+     * Takes the runs it was given where the caller has already read them, so a
+     * single `update()` does not walk the DOM for them twice.
+     */
+    function readInput(runs = readRuns()) {
+      return {
+        runs,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
     function update() {
       const runs = readRuns();
       runsHost.querySelectorAll('.remove').forEach(button => {
@@ -284,11 +491,7 @@
       }
       let result;
       try {
-        result = calculateBid({
-          runs,
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-          proposedPrice: el('proposedPrice').value,
-        });
+        result = calculateBid(readInput(runs));
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -356,13 +559,7 @@
       ].join('\n');
     }
 
-    async function copySummary() {
-      const result = calculateBid({
-        runs: readRuns(),
-        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        proposedPrice: el('proposedPrice').value,
-      });
-      const text = summaryText(result);
+    async function writeClipboard(text) {
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -376,9 +573,57 @@
         document.execCommand('copy');
         fallback.remove();
       }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
       count('summary_copied');
       el('summaryStatus').textContent = 'Copied to clipboard';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * A shared link must reconstruct the same quote the sender saw. Runs go
+     * through `addRunRow` unchanged from `readRuns()`'s own shape — the same
+     * path a preset selection uses — so a decoded run prices identically
+     * whether it matched a material preset by name or arrived as a custom
+     * one.
+     */
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      // `hoursPerTearOutLf` is a page-level field, but `applyPreset` treats it
+      // as run-owned: adding a run whose material matched a preset re-copies
+      // that preset's own tear-out-hours figure over it, and adding a
+      // *custom* run (no matching preset, so `applyPreset` falls back to the
+      // run object itself, which has no `hoursPerTearOutLf`) blanks it to
+      // `undefined` outright -- silently zeroing tear-out labor in the price.
+      // The existing `dataset.edited` flag is exactly the guard `applyPreset`
+      // already honors for "the user set this on purpose, do not overwrite
+      // it"; a value that arrived on a share link is exactly that, so mark it
+      // before the runs are added rather than after the damage is done.
+      if (payload.hoursPerTearOutLf !== undefined) el('hoursPerTearOutLf').dataset.edited = '1';
+      if (Array.isArray(payload.runs) && payload.runs.length) {
+        runsHost.innerHTML = '';
+        payload.runs.forEach(addRunRow);
+      }
     }
 
     el('addRun').addEventListener('click', () => {
@@ -400,15 +645,166 @@
         el('summaryStatus').textContent = error.message;
       }
     });
-
-    addRunRow({
-      presetId: 'wood-privacy-6',
-      linearFeet: 140,
-      corners: 2,
-      walkGates: 1,
-      driveGates: 1,
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the link from the address bar.'; });
     });
+
+    const incomingHash = splitTerms(location.hash);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    applyShare(decodeShare(incomingHash.payload));
+    if (runsHost.children.length === 0) {
+      addRunRow({
+        presetId: 'wood-privacy-6',
+        linearFeet: 140,
+        corners: 2,
+        walkGates: 1,
+        driveGates: 1,
+      });
+    }
+
+    // ---- Customer-facing proposal -------------------------------------------
+
+    const COMPANY_KEY = 'fence-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for its scope, figures, and performance. It was laid out with a free '
+      + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
+      + 'warranty. It is not a property-line, survey, easement, building-code, or HOA determination.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    /**
+     * Default scope lines from the job the user actually priced, so the proposal
+     * is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Written by hand for the trade rather than derived from the pasted summary:
+     * that summary lists crew-hour breakdowns, which must not reach a customer.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const dig = DIG_PRESETS.find(item => item.id === el('dig').value)?.label ?? '';
+      const slope = SLOPE_PRESETS.find(item => item.id === el('slope').value)?.label ?? '';
+      // `run.name` is already the material preset's label, resolved when the row
+      // was read; there is no `material` id on the row to look up, and no
+      // `feet`. Reaching for either yields `undefined` rather than throwing, so
+      // the customer's scope silently read "undefined ft of undefined".
+      const runs = result.runs.map((run) => {
+        const gates = run.walkGates + run.driveGates;
+        const gateText = gates > 0 ? `, ${gates} gate${gates === 1 ? '' : 's'}` : '';
+        return `${run.linearFeet} ft of ${run.name}${gateText}`;
+      });
+      const suggested = [
+        ...runs,
+        result.tearOutFeet > 0 ? `Remove and dispose of ${result.tearOutFeet} ft of existing fence` : '',
+        dig && dig !== 'Normal soil' ? `Ground conditions: ${dig.toLowerCase()}` : '',
+        slope && slope !== 'Flat / racked panels' ? `Terrain: ${slope.toLowerCase()}` : '',
+        'Posts set in concrete, line and grade checked, site left clean',
+      ].filter(Boolean);
+      scope.value = suggested.join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null ? result.price : result.proposed.price,
+        jobTitle: `Fence installation — ${result.totalLinearFeet} ft`,
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from the document rather than called inside `update()`: every
+     * calculator in this portfolio has its own `update()` with its own shape,
+     * and one listener that works in all of them is what makes this feature
+     * copyable. Bubble phase, so it runs after the page's own field handlers
+     * have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
     update();
+    restoreCompany();
+    refreshProposal();
   </script>
 </body>
 </html>

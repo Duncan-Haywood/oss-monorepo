@@ -259,16 +259,22 @@ function normalizeCode(value) {
 // appear on rate confirmations and in carrier exports; the key is what the
 // tool calls the unit back to the user.
 //
-// `minute` exists only so a quantity column reporting dock time in minutes can
-// be priced against a per-hour detention rate — the single conversion carriers
-// and TMS exports disagree about often enough to be worth handling. Every
-// other unit is compared by name and never converted, because guessing that
-// "3 pallets" satisfies a per-hundredweight rate would invent a number.
+// `minute` and `pound` exist only so a quantity column reporting dock time in
+// minutes, or shipment weight in pounds, can be priced against a per-hour
+// detention rate or a per-hundredweight reweigh rate — the two conversions
+// carriers and TMS exports disagree about often enough to be worth handling
+// (see `UNIT_CONVERSIONS`). A carrier's weight column is pounds far more often
+// than it is hundredweight, so without this a REWEIGH rule rated `/cwt` — the
+// way reweigh and reclass lines are actually written on a rate confirmation —
+// could never be priced from an imported invoice at all. Every other unit is
+// compared by name and never converted, because guessing that "3 pallets"
+// satisfies a per-hundredweight rate would invent a number.
 const UNIT_SPELLINGS = {
   hour: ["hour", "hours", "hr", "hrs", "h"],
   minute: ["minute", "minutes", "min", "mins", "m"],
   day: ["day", "days"],
   cwt: ["cwt", "hundredweight"],
+  pound: ["pound", "pounds", "lb", "lbs"],
   pallet: ["pallet", "pallets", "plt", "plts", "skid", "skids"],
   piece: ["piece", "pieces", "pc", "pcs", "carton", "cartons", "case", "cases"],
   mile: ["mile", "miles", "mi"],
@@ -281,6 +287,17 @@ const UNIT_BY_SPELLING = new Map(
     spellings.map((spelling) => [spelling, unit]),
   ),
 );
+
+// The only two unit pairs this tool will convert on the caller's behalf, both
+// unambiguous (100 lb is a cwt by definition, 60 min is an hour) and both
+// documented above. Keyed source-unit -> target-unit -> converter, so a lookup
+// is one property access rather than a chain of special cases at each call
+// site — the earlier shape, with the minute/hour pair hard-coded twice, is
+// exactly how a second pair would have been missed.
+const UNIT_CONVERSIONS = {
+  minute: { hour: (value) => value / 60 },
+  pound: { cwt: (value) => value / 100 },
+};
 
 /** Canonical unit name for a spelling as written, or null. */
 export function normalizeUnit(value) {
@@ -394,12 +411,14 @@ function parseRateLine(trimmed) {
     if (!code) return { reason: "no code found" };
     if (!amount.ok || amount.value < 0) return { reason: "rate is not a non-negative amount" };
     if (!per) return { reason: `unknown unit "${rated[3]}" — try hour, day, cwt, pallet, piece, mile, stop, or unit` };
-    if (freeUnit && freeUnit !== per && !(freeUnit === "minute" && per === "hour")) {
+    const freeConvert = freeUnit ? UNIT_CONVERSIONS[freeUnit]?.[per] : null;
+    if (freeUnit && freeUnit !== per && !freeConvert) {
       return { reason: `free allowance is in ${freeUnit}s but the rate is per ${per}` };
     }
-    // "after 30 min" against a per-hour rate is the same conversion the
-    // quantity column gets, and for the same reason.
-    const freeInRateUnits = freeUnit === "minute" && per === "hour" ? free / 60 : free;
+    // "after 30 min" against a per-hour rate, or "after 500 lb" against a
+    // per-cwt rate, is the same conversion the quantity column gets, and for
+    // the same reason.
+    const freeInRateUnits = freeConvert ? freeConvert(free) : free;
     return { rule: { code, amount: amount.value, per, free: freeInRateUnits, min, max, source: trimmed } };
   }
 
@@ -478,8 +497,9 @@ export function parseQuantity(value, per) {
   const unit = normalizeUnit(match[2]);
   if (!unit) return { ok: false, reason: "unreadable" };
   if (per && unit !== per) {
-    if (unit === "minute" && per === "hour") {
-      return { ok: true, value: amount.value / 60, unit: "hour", converted: "minutes" };
+    const convert = UNIT_CONVERSIONS[unit]?.[per];
+    if (convert) {
+      return { ok: true, value: convert(amount.value), unit: per, converted: `${unit}s` };
     }
     return { ok: false, reason: "wrong-unit", unit };
   }

@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Basement Finishing Bid Calculator | How Much to Charge to Finish a Basement</title>
+  <title>Basement Finishing Bid Calculator — Price to Finish It</title>
   <meta name="description" content="Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling versus drywall, carpet versus LVP, bath, egress, and extras — plus the walk-away price a $30 / SF special cannot see.">
   <meta property="og:title" content="Basement Finishing Bid Calculator">
   <meta property="og:description" content="Bid a basement finish the way the trade does — finished SF, scope, and extras, not a published per-SF dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Basement Finishing Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Finished square feet, rec-room vs framed-finish vs legal-living comparison, drop ceiling vs drywall, carpet vs LVP, bath egress HVAC extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Basement Finishing Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Finished square feet, rec-room vs framed-finish vs legal-living comparison, drop ceiling vs drywall, carpet vs LVP, bath egress HVAC extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this basement-finish estimate include?","acceptedAnswer":{"@type":"Answer","text":"The price adds up shell labor and material (framing, insulation, drywall, or paint depending on scope), a ceiling plane, a floor with waste, a bathroom kit when you add one, egress windows, bedroom extras, a stair rebuild, wet bar, HVAC extend, and permit coordination when checked, plus travel, overhead, and your target margin — all from the finished square footage, scope, and rates you enter, not a flat per-square-foot price list."}},{"@type":"Question","name":"Why does a legal-living suite cost so much more than a rec room the same size?","acceptedAnswer":{"@type":"Answer","text":"Rec-room, framed-finish, and legal-living each start from their own shell hours and material rates — legal-living adds framing, insulation, and drywall hours per square foot that a rec-room paint-and-carpet job skips, plus egress-window and bedroom hours and material that do not apply to a rec room at all. The “Same basement, three scopes” comparison prices your same finished square footage under each scope’s starting kit so you can see where a cheap rec-room rate would lose money on a bedroom suite."}},{"@type":"Question","name":"Why is the floor I buy bigger than the basement I measured?","acceptedAnswer":{"@type":"Answer","text":"Flooring waste — cuts, transitions, and pattern loss — is applied to the finished square footage to get the floor material you actually buy, which is why the floor line in the breakdown uses a larger number than the finished square feet everywhere else."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage between visits, and a bid link you copy carries those same numbers in the page’s URL hash rather than sending anything to a server. Your business details for the printed proposal are saved separately on this device; the customer’s details are never saved."}},{"@type":"Question","name":"What’s the difference between the bid price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The bid price already includes your target margin on top of labor, materials, and overhead. The walk-away price is the total cost underneath it — shell, ceiling, floor, bath, egress, and every other line item — the point below which the finish stops being profitable at all."}},{"@type":"Question","name":"Does this check building code, egress, or habitable-space requirements?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and material rates are ballpark shop figures you can edit, not a building-code determination, an egress design, or a habitable-space certificate. It also does not price basement waterproofing, a walk-in shower remodel, a drywall-only job, or a standalone flooring install — those are separate jobs with their own calculators. Whether a specific basement meets code for bedrooms and egress is still a judgment call for the inspector."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #243044; background: #e8eaee; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,9 +26,13 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8a97a8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8a97a8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #243044; }
     button:hover { background: #dde6f0; }
     .result { position: sticky; top: 15px; background: #1b2838; color: #eef3f8; border-color: #1b2838; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #d8e6a9; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -53,6 +58,62 @@
     .cheap { color: #d8e6a9; font-weight: 700; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #a8b4c2; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5b6574; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1b2838; --pr-accent: #3d5a80;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
     }
   </style>
 </head>
@@ -140,6 +201,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $30 / SF basement that looked profitable was not.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the homeowner &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Novak Interiors LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(651) 555-0134"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="MN-BC-661204"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="1465 Grand Ave, St Paul MN"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="R. Lindgren"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="918 Fairmount Ave"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Frame, insulate, and finish 780 sq ft&#10;Drop ceiling throughout"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Foundation waterproofing&#10;Radon mitigation"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Rough-in inspection scheduled before insulation is closed in."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -183,15 +280,63 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this basement-finish estimate include?</h3>
+      <p>The price adds up shell labor and material (framing, insulation, drywall, or paint depending on
+        scope), a ceiling plane, a floor with waste, a bathroom kit when you add one, egress windows,
+        bedroom extras, a stair rebuild, wet bar, HVAC extend, and permit coordination when checked, plus
+        travel, overhead, and your target margin &mdash; all from the finished square footage, scope, and
+        rates you enter, not a flat per-square-foot price list.</p>
+
+      <h3>Why does a legal-living suite cost so much more than a rec room the same size?</h3>
+      <p>Rec-room, framed-finish, and legal-living each start from their own shell hours and material
+        rates &mdash; legal-living adds framing, insulation, and drywall hours per square foot that a
+        rec-room paint-and-carpet job skips, plus egress-window and bedroom hours and material that do
+        not apply to a rec room at all. The &ldquo;Same basement, three scopes&rdquo; comparison prices
+        your same finished square footage under each scope&rsquo;s starting kit so you can see where a
+        cheap rec-room rate would lose money on a bedroom suite.</p>
+
+      <h3>Why is the floor I buy bigger than the basement I measured?</h3>
+      <p>Flooring waste &mdash; cuts, transitions, and pattern loss &mdash; is applied to the finished
+        square footage to get the floor material you actually buy, which is why the floor line in the
+        breakdown uses a larger number than the finished square feet everywhere else.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your
+        bid is saved in this browser&rsquo;s local storage between visits, and a bid link you copy
+        carries those same numbers in the page&rsquo;s URL hash rather than sending anything to a
+        server. Your business details for the printed proposal are saved separately on this device; the
+        customer&rsquo;s details are never saved.</p>
+
+      <h3>What&rsquo;s the difference between the bid price and the walk-away price?</h3>
+      <p>The bid price already includes your target margin on top of labor, materials, and overhead.
+        The walk-away price is the total cost underneath it &mdash; shell, ceiling, floor, bath, egress,
+        and every other line item &mdash; the point below which the finish stops being profitable at
+        all.</p>
+
+      <h3>Does this check building code, egress, or habitable-space requirements?</h3>
+      <p>No. Hours and material rates are ballpark shop figures you can edit, not a building-code
+        determination, an egress design, or a habitable-space certificate. It also does not price
+        basement waterproofing, a walk-in shower remodel, a drywall-only job, or a standalone flooring
+        install &mdash; those are separate jobs with their own calculators. Whether a specific basement
+        meets code for bedrooms and egress is still a judgment call for the inspector.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, waterproofing, habitable-space, egress, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your finished SF, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-finish-a-basement.html">how much to charge to finish a basement</a>? The article walks the rec-room-versus-legal-living math this calculator uses.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p>Looking up <a href="how-much-to-charge-to-finish-a-basement.html">how much to charge to finish a basement</a>? The article walks the rec-room-versus-legal-living math this calculator uses. Also see <a href="./vs-buildxact.html">this calculator vs. Buildxact</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -211,7 +356,16 @@
       JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const JOB_IDS = [
       'scope', 'ceiling', 'floor', 'bath', 'finishedSf', 'ceilingHeightFt',
@@ -246,7 +400,11 @@
       'egressEach', 'bedroomEach', 'stairsInvoice', 'wetBarInvoice',
       'hvacInvoice', 'permitInvoice', 'travelPerMile',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     function fillSelect(id, presets) {
@@ -382,7 +540,11 @@
 
     async function copySummary() {
       const result = calculateBid(readInput());
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       const text = formatBidSummary(result, preset ? preset.label : 'Basement finish');
       try {
         await navigator.clipboard.writeText(text);
@@ -510,7 +672,7 @@
 
     function persist() {
       try {
-        saveBid(localStorage, BID_SPEC, readInput());
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
       } catch {
         // A browser with site data blocked throws on access. Losing the save
         // is survivable; losing the calculator mid-bid is not.
@@ -518,7 +680,8 @@
     }
 
     async function copyLink() {
-      const query = encodeBid(BID_SPEC, readInput());
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
       const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
@@ -534,11 +697,15 @@
         fallback.remove();
       }
       count('link_copied');
-      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
-      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
-    const restored = restoreBid(BID_SPEC, {
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
       search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
@@ -568,7 +735,153 @@
     document.addEventListener('input', persist);
     document.addEventListener('change', persist);
 
+
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'basement-finishing-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a structural, egress, building-code, or engineering determination, and it does not warrant that any basement may be finished, occupied, or used as sleeping space as described.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      // The preset labels are written for the contractor choosing between them,
+      // and carry shorthand that must not reach a homeowner: "Rec room — paint,
+      // drop ceiling, carpet (the cheap special)" on a quote reads as an insult
+      // to the person being quoted. Take the name before the em dash and drop
+      // any parenthetical aside; the contractor can edit the draft freely.
+      const label = (list, id) => {
+        const found = list.find(item => item.id === id)?.label ?? id;
+        return String(found).split('—')[0].replace(/\([^)]*\)/g, '').trim();
+      };
+      const suggested = [
+        `Frame, insulate, and finish ${Math.round(result.finishedSf).toLocaleString('en-US')} sq ft `
+          + `(${label(SCOPE_PRESETS, result.scope)})`,
+        `Ceiling: ${label(CEILING_PRESETS, result.ceiling)}`,
+        `Flooring: ${label(FLOOR_PRESETS, result.floor)}`,
+        result.bath && result.bath !== 'none' ? `Bathroom: ${label(BATH_PRESETS, result.bath)}` : '',
+        result.bedrooms > 0
+          ? `${result.bedrooms} bedroom${result.bedrooms === 1 ? '' : 's'}`
+          : '',
+        result.egressWindows > 0
+          ? `${result.egressWindows} egress window${result.egressWindows === 1 ? '' : 's'}`
+          : '',
+        result.includeStairsRebuild ? 'Rebuild the basement stair' : '',
+        result.includeWetBar ? 'Wet bar rough-in and finish' : '',
+        result.includeHvacExtend ? 'Extend HVAC supply and return to the finished space' : '',
+        'Site protection and clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.price
+          : result.proposed.price,
+        jobTitle: 'Basement finishing',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
     update();
+    restoreCompany();
+    refreshProposal();
     persist();
   </script>
 </body>

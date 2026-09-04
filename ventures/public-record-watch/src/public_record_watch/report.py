@@ -36,6 +36,8 @@ def _record_value(record: dict) -> dict:
 def build_report(before: dict, after: dict) -> dict:
     if before["register"] != after["register"]:
         raise ValueError("snapshots must describe the same register")
+    if before["source_url"] != after["source_url"]:
+        raise ValueError("snapshots must use the same source_url")
     old = {item["id"]: item for item in before["records"]}
     new = {item["id"]: item for item in after["records"]}
     findings = []

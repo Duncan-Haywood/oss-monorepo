@@ -3,22 +3,44 @@
 // RFC 4180-style quoting: commas, quotes, and line breaks stay in one cell.
 
 import { targetHoursBudget } from "./calc.mjs";
+import { formatDecimal } from "./format.mjs";
+
+/**
+ * Neutralise a cell a spreadsheet would evaluate as a formula.
+ *
+ * Excel, LibreOffice, and Sheets treat a cell opening with = + - or @ as a
+ * formula, so a currency label typed as `=1+1` becomes live arithmetic in
+ * whoever opens the file — and the point of this export is to hand it to a
+ * client. A leading apostrophe is the standard inert prefix: spreadsheets
+ * consume it and show the literal text.
+ *
+ * Only applied to free-text cells. Every numeric cell here is formatted by
+ * money()/hours(), and a negative gap legitimately starts with "-" — quoting
+ * those would turn a number the recipient needs to sum into text.
+ */
+function safeText(value) {
+  const text = String(value);
+  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+}
 
 /**
  * Quote one CSV cell when it contains syntax-significant characters.
  * Ordinary labels (USD, hours) stay unquoted so the file stays readable.
+ *
+ * Pass `{ text: true }` for anything the visitor typed, so it also gets the
+ * formula guard above.
  */
-export function csvCell(value) {
-  const text = String(value);
-  return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+export function csvCell(value, { text = false } = {}) {
+  const content = text ? safeText(value) : String(value);
+  return /[",\n\r]/.test(content) ? `"${content.replaceAll('"', '""')}"` : content;
 }
 
 function money(n) {
-  return n.toFixed(2);
+  return formatDecimal(n);
 }
 
 function hours(n) {
-  return n.toFixed(2);
+  return formatDecimal(n);
 }
 
 /**
@@ -31,8 +53,12 @@ function hours(n) {
  * just saw. Null extras keep the same shape as the CLI.
  */
 export function quoteCsv(quote, report, extras = {}) {
-  const currency = quote.currency;
-  const perHour = `${currency}/hour`;
+  // The currency label is the one free-text field the visitor types, and it is
+  // reused as a unit on most rows, so guard it once here rather than at each
+  // of the ~40 call sites below. The final csvCell pass is idempotent over an
+  // already-prefixed value.
+  const currency = safeText(quote.currency);
+  const perHour = safeText(`${quote.currency}/hour`);
   const rows = [
     ["measure", "value", "unit"],
     ["quoted_price", money(quote.price), currency],
@@ -44,6 +70,12 @@ export function quoteCsv(quote, report, extras = {}) {
     ["break_even_price", money(report.break_even_price), currency],
     ["effective_hourly_rate", money(report.effective_hourly_rate), perHour],
     ["target_price", money(report.target_price), currency],
+    // The buffered target price is meaningless to whoever opens the file
+    // without the buffer that produced it, so the input and the buffered hours
+    // travel with it. Every other row's inputs are already recoverable from
+    // the rows above.
+    ["time_buffer_percent", money(quote.time_buffer_percent), "percent"],
+    ["buffered_hours", hours(report.buffered_hours), "hours"],
     ["buffered_target_price", money(report.buffered_target_price), currency],
     ["gap_to_target", money(report.gap_to_target), currency],
     ["cost_coverage", money(report.cost_coverage), currency],

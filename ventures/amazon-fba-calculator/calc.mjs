@@ -50,6 +50,45 @@ const PLACEMENT_PATHS = /** @type {const} */ (["minimal", "partial", "optimized"
 
 const FULFILLMENT_METHODS = new Set(["fba", "fbm"]);
 
+/**
+ * Every numeric input on the page, in the order the page asks for them.
+ *
+ * This lives here rather than in `index.html` so `share.mjs` and the page read
+ * the same list. The alternative — an allowlist maintained beside the encoder —
+ * is how a shared link silently loses a field: `where-to-sell-calculator`
+ * shipped exactly that, dropping `quantity` and `targetMargin`, so the
+ * recipient computed a different profit than the sender saw and nothing went
+ * red. `share.test.mjs` also checks this list against the `id` attributes in
+ * `index.html`, so a new input is shareable the day it ships.
+ */
+export const INPUT_FIELDS = [
+  "salePrice", "referralRate", "length", "width", "height", "weightLb",
+  "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
+  "inboundPerUnit", "fbmShippingCost", "fbmHandlingCost", "packagingCost", "adsPerUnit",
+  "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
+  "returnRate", "returnHandlingFee", "unsellableReturnRate",
+  "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
+  "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
+  "snsPercent", "snsEnrollPct",
+  "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
+  "smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage",
+  "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
+  "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
+  "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+  "repackCostPerUnit", "peakMonths",
+  "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
+  "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
+  "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
+  "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
+  "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct", "sfpTakePct", "fbmTakePct",
+];
+
+/** The page's checkbox inputs, carried as `1`/`0` so a link can turn one off. */
+export const TOGGLE_FIELDS = ["lowPriceEligible", "groceryExempt", "newFnskuExempt"];
+
+/** Values the `fulfillmentMethod` radio accepts. */
+export const FULFILLMENT_VALUES = [...FULFILLMENT_METHODS];
+
 function number(value, name, fallback = 0) {
   if (value === undefined || value === null || value === "") {
     const result = Number(fallback);
@@ -413,12 +452,43 @@ export function calculateListing(input) {
   const percentRate = referralRate / 100;
 
   function finish(path, cogsInCash) {
-    path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
-    path.targetMarginBuyCost = Math.max(
-      0,
-      salePrice - path.feeTotal - (path.cashInvested - cogsInCash) - salePrice * targetMarginRate,
-    );
+    // The raw ceiling can be negative: fees and non-COGS cash costs alone
+    // already exceed the sale price, so no sourcing cost -- not even $0 --
+    // reaches break-even. Clamping that to 0 for display would read as "pay
+    // at most $0.00" -- a real, if tight, break-even point -- when the truth
+    // is that this listing loses money before a unit is even bought.
+    // `breakEvenBuyCostRaw` keeps the signed figure so `buyCostCheck` can
+    // tell the two apart instead of reporting "at the zero-profit ceiling"
+    // for a listing that is already under it.
+    const rawBreakEvenBuyCost = salePrice - path.feeTotal - (path.cashInvested - cogsInCash);
+    path.breakEvenBuyCostRaw = rawBreakEvenBuyCost;
+    path.breakEvenBuyCost = Math.max(0, rawBreakEvenBuyCost);
+    path.targetMarginBuyCost = Math.max(0, rawBreakEvenBuyCost - salePrice * targetMarginRate);
     return path;
+  }
+
+  // Ads sit in cashInvested, so profit already includes the current PPC spend.
+  // Add the spend back to see how much advertising the unit can still carry
+  // before it loses money, or before it misses the seller's target margin.
+  // ACOS is that spend as a percent of the sale price — the number PPC
+  // campaigns are actually managed against.
+  function attachAdLimits(path) {
+    const profitBeforeAds = path.profit + adsPerUnit;
+    const breakEvenAds = Math.max(0, profitBeforeAds);
+    const targetProfit = salePrice * targetMarginRate;
+    const targetMarginAds = Math.max(0, profitBeforeAds - targetProfit);
+    const acos = (ads) => (salePrice <= 0 ? null : (ads / salePrice) * 100);
+    return {
+      ...path,
+      profitBeforeAds,
+      breakEvenAds,
+      breakEvenAcos: acos(breakEvenAds),
+      currentAcos: acos(adsPerUnit),
+      targetMarginAds,
+      targetMarginAcos: acos(targetMarginAds),
+      adsStillPay: path.profit >= -1e-9,
+      targetMarginReachableWithAds: profitBeforeAds + 1e-9 >= targetProfit,
+    };
   }
 
   const fbaCash = sharedCash + inboundPerUnit + storagePerUnit;
@@ -462,14 +532,14 @@ export function calculateListing(input) {
     returnHandlingFee,
     unsellableRate,
   };
-  const fbaAfterReturns = withExpectedReturns(fba, {
+  const fbaAfterReturns = attachAdLimits(withExpectedReturns(fba, {
     ...returnAssumptions,
     fulfillmentFee,
-  });
-  const fbmAfterReturns = withExpectedReturns(fbm, {
+  }));
+  const fbmAfterReturns = attachAdLimits(withExpectedReturns(fbm, {
     ...returnAssumptions,
     fulfillmentFee: 0,
-  });
+  }));
 
   const selected = fulfillmentMethod === "fba" ? fbaAfterReturns : fbmAfterReturns;
   const fbaAdvantage = fbaAfterReturns.profit - fbmAfterReturns.profit;
@@ -500,7 +570,13 @@ export function calculateListing(input) {
 export function buyCostCheck(result, costOfGoods) {
   const cost = number(costOfGoods, "Cost of goods");
   const maxBuy = result.selected.breakEvenBuyCost;
-  const headroom = maxBuy - cost;
+  // The comparison itself runs on the unclamped ceiling, not the display
+  // value. At a $0.00 clamped ceiling, "maxBuy - cost" reads as "at the
+  // ceiling" for a typed cost of $0 -- indistinguishable from a listing that
+  // genuinely breaks even on a free unit. The raw figure is negative there
+  // instead, so a $0 (or any) cost correctly lands above it.
+  const raw = result.selected.breakEvenBuyCostRaw ?? maxBuy;
+  const headroom = raw - cost;
   return {
     cost,
     maxBuy,
@@ -865,17 +941,20 @@ export function compareCoupons(input) {
   const typedRow = withDeltas.find((row) => row.isCurrent) ?? withDeltas[withDeltas.length - 1];
 
   // Units at the couponed per-unit profit that match this month's list-price
-  // profit. Null when list profit is not positive. Infinity when the coupon
-  // unit itself does not pay — extra volume cannot recover the month.
-  let breakEvenUnits = null;
-  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
-  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+  // profit. Infinity when the coupon unit itself does not pay: every extra
+  // couponed sale then contributes zero or negative profit, so it can never
+  // recover the month, whatever the list row's own sign. Gating that on
+  // noneRow.profit > 0 (as this used to) silently reported "not defined"
+  // whenever the list price was itself unprofitable, even though the coupon
+  // was just as unrecoverable — see compareSubscribeSave's offsetUnits,
+  // fixed for the identical reasoning error.
+  const breakEvenUnits = typedRow.profit <= 0
+    ? Infinity
+    : (noneRow.profit * monthlyUnits) / typedRow.profit;
 
-  const extraUnitsNeeded = breakEvenUnits === null
-    ? 0
-    : breakEvenUnits === Infinity
-      ? Infinity
-      : Math.max(0, breakEvenUnits - monthlyUnits);
+  const extraUnitsNeeded = breakEvenUnits === Infinity
+    ? Infinity
+    : Math.max(0, breakEvenUnits - monthlyUnits);
   const liftPctNeeded = monthlyUnits === 0 || extraUnitsNeeded === Infinity
     ? extraUnitsNeeded
     : (extraUnitsNeeded / monthlyUnits) * 100;
@@ -902,7 +981,11 @@ export function compareCoupons(input) {
 }
 
 export function couponSummary(comparison) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const typed = comparison.typed;
   if (typed.discount === 0 && typed.couponFee === 0) {
     return "No coupon is entered, so every row but the list-price line is a what-if against this listing.";
@@ -911,9 +994,6 @@ export function couponSummary(comparison) {
   const perUnit = `${offer} drops the buyer price from ${money(typed.listPrice)} to ${money(typed.buyerPays)} and leaves ${money(typed.profit)} after the ${money(typed.couponFee)} redemption fee — ${money(Math.abs(typed.profitDelta))} ${typed.profitDelta < 0 ? "less" : "more"} than list.`;
   if (comparison.breakEvenUnits === Infinity) {
     return `${perUnit} Extra volume cannot recover the list-price month: the couponed unit itself does not pay.`;
-  }
-  if (comparison.breakEvenUnits === null) {
-    return `${perUnit} The list-price unit is not profitable on these inputs, so a break-even volume is not defined.`;
   }
   const units = comparison.breakEvenUnits;
   const lift = comparison.liftPctNeeded;
@@ -1009,19 +1089,29 @@ export function compareSubscribeSave(input) {
   const mixedDelta = mixedMonthlyProfit - listMonthlyProfit;
 
   // New S&S-only units that restore the all-list month after enrolled
-  // buyers convert. Infinity when the S&S unit itself does not pay.
+  // buyers convert. Infinity when the S&S unit itself does not pay — every
+  // extra S&S sale then contributes zero or negative profit, so it can
+  // never close a positive conversion loss, whatever the list row's own
+  // sign. Gating that on noneRow.profit > 0 (as this used to) silently
+  // reported "no offset needed" whenever the list price was itself
+  // unprofitable, even though the real gap (enrolled buyers converting to
+  // an even-less-profitable S&S price) was just as unrecoverable.
   let offsetUnits = 0;
   if (snsPercent === 0 || enrolledUnits === 0 || typedRow.profit >= noneRow.profit) {
     offsetUnits = 0;
   } else if (typedRow.profit <= 0) {
-    offsetUnits = noneRow.profit > 0 ? Infinity : 0;
+    offsetUnits = Infinity;
   } else {
     offsetUnits = (enrolledUnits * (noneRow.profit - typedRow.profit)) / typedRow.profit;
   }
 
-  let breakEvenUnits = null;
-  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
-  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+  // Same reasoning as offsetUnits just above: Infinity whenever the S&S unit
+  // itself does not pay, regardless of the list row's own sign, rather than
+  // gating on noneRow.profit > 0 and silently falling through to "not
+  // defined" whenever the list price was itself unprofitable.
+  const breakEvenUnits = typedRow.profit <= 0
+    ? Infinity
+    : (noneRow.profit * monthlyUnits) / typedRow.profit;
 
   return {
     rows: withDeltas,
@@ -1041,7 +1131,11 @@ export function compareSubscribeSave(input) {
 }
 
 export function subscribeSaveSummary(comparison) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const typed = comparison.typed;
   if (typed.snsPercent === 0) {
     return "No Subscribe & Save discount is entered, so every row but the list-price line is a what-if against this listing.";
@@ -2693,8 +2787,14 @@ export function nextCheaperWeightLb(tier, weightLb) {
   const bands = STANDARD_WEIGHT_BAND_OZ[tier];
   if (bands) {
     const oz = weight * 16;
-    const current = bands.find((band) => oz <= band) ?? bands[bands.length - 1];
-    const index = bands.indexOf(current);
+    const index = bands.findIndex((band) => oz <= band);
+    // Heavier than every listed band: those weights price by the pound past
+    // this point (see defaultFulfillmentFee's extraBands math), so the next
+    // cheaper stop is the top of the heaviest listed band, not one band
+    // further down — treating it as already sitting in that band (as a
+    // `?? bands[bands.length - 1]` fallback used to) skipped straight past
+    // the real next-cheaper weight to the band below it.
+    if (index === -1) return bands[bands.length - 1] / 16;
     if (index <= 0) return null;
     return bands[index - 1] / 16;
   }

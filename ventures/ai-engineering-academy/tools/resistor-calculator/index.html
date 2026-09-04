@@ -22,6 +22,38 @@
   "description": "Free resistor color code calculator (4-band and 5-band) and an Ohm's law / power solver. Runs entirely client-side."
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What resistor does yellow-violet-red-gold decode to?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This calculator's own default bands — yellow (4), violet (7), red (×100), gold (±5%) — decode to 4.7 kΩ ±5%, one of the most common values in a beginner's kit. The first two bands give the significant digits (47), the third multiplies by 100, and the fourth is the tolerance band."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the LED resistor calculator ask for exactly three values?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because a series resistor's job is to burn off whatever voltage is left after the LED, at a set current — three knowns (supply voltage, LED forward voltage, target current) solve for the one unknown (resistance). Using the page's own placeholders — 5 V supply, a 2 V forward-voltage LED, 20 mA target — the required resistor is 150 Ω, dissipating 60 mW, for which this calculator recommends a 0.25 W part (it doubles the dissipation before picking a standard wattage, so the resistor runs at roughly half its rated power)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the Ohm's law solver want exactly two fields, not four?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voltage, current, resistance, and power are tied together by V = IR and P = VI, so any two of the four fix the other two — a third value would either be redundant or contradict the first two, which is why the solver rejects anything but exactly two filled fields. Enter, say, 5 V and 220 Ω and it solves the rest: 22.727 mA and 113.636 mW."
+      }
+    }
+  ]
+}
+</script>
 <style>
   :root {
     color-scheme: light dark;
@@ -172,6 +204,14 @@
     <div class="result" id="ohm-result" role="status" aria-live="polite">Enter any two values above.</div>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>What resistor does yellow-violet-red-gold decode to?</h3>
+  <p>This calculator's own default bands — yellow (4), violet (7), red (×100), gold (±5%) — decode to 4.7 kΩ ±5%, one of the most common values in a beginner's kit. The first two bands give the significant digits (47), the third multiplies by 100, and the fourth is the tolerance band.</p>
+  <h3>Why does the LED resistor calculator ask for exactly three values?</h3>
+  <p>Because a series resistor's job is to burn off whatever voltage is left after the LED, at a set current — three knowns (supply voltage, LED forward voltage, target current) solve for the one unknown (resistance). Using the page's own placeholders — 5 V supply, a 2 V forward-voltage LED, 20 mA target — the required resistor is 150 Ω, dissipating 60 mW, for which this calculator recommends a 0.25 W part (it doubles the dissipation before picking a standard wattage, so the resistor runs at roughly half its rated power).</p>
+  <h3>Why does the Ohm's law solver want exactly two fields, not four?</h3>
+  <p>Voltage, current, resistance, and power are tied together by V = IR and P = VI, so any two of the four fix the other two — a third value would either be redundant or contradict the first two, which is why the solver rejects anything but exactly two filled fields. Enter, say, 5 V and 220 Ω and it solves the rest: 22.727 mA and 113.636 mW.</p>
+
   <footer>
     <h2>Disclaimer</h2>
     <p>
@@ -202,8 +242,8 @@
 
     <p>
       Part of <a href="../">the free electronics tools</a> from
-      <a href="../../README.md">AI Engineering Academy</a>. MIT
-      licensed — see <a href="LICENSE">LICENSE</a>.
+      <a href="../">AI Engineering Academy</a>. MIT
+      licensed — see <a href="../LICENSE">LICENSE</a>.
     </p>
   </footer>
 </main>

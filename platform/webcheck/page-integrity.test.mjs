@@ -162,3 +162,76 @@ test('catches the real defect at the revisions where it actually shipped', () =>
   }
   assert.deepEqual(checkPageIntegrity(read(repaired)), [], `${repaired} repaired the page and must pass`);
 });
+
+// --- inline script syntax -------------------------------------------------
+//
+// The second dead product in this portfolio was not a markup defect at all.
+// `3pl-quote-normalizer/index.html` shipped an inline module that did not parse,
+// so the browser ran none of it while every structural check above passed. These
+// tests pin that gate in both directions, the same way the cut-list ones do.
+
+test('a script that does not parse is reported as a dead page', () => {
+  const findings = checkPageIntegrity(page({ script: "const el = document.getElementById('price')foo();" }));
+  assert.equal(findings.length, 1);
+  assert.match(findings[0], /does not parse, so the browser runs none of it/);
+  assert.match(findings[0], /SyntaxError/);
+});
+
+test('a parse failure suppresses the id findings it would otherwise cause', () => {
+  // A script that never runs looks up no ids. Reporting them as missing buries
+  // the one finding that explains the dead page.
+  const findings = checkPageIntegrity(page({ script: "document.getElementById('nosuchid')bar();" }));
+  assert.equal(findings.length, 1);
+  assert.doesNotMatch(findings[0], /ids that no element declares/);
+});
+
+test('module syntax is accepted in a module script and rejected in a classic one', () => {
+  const source = "import { calculate } from './calc.mjs';\ncalculate();";
+  assert.deepEqual(checkPageIntegrity(page({ script: source })), []);
+
+  const classic = `<!doctype html><html lang="en"><head><title>T</title></head><body>
+    <script>${source}</script></body></html>`;
+  const findings = checkPageIntegrity(classic);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0], /does not parse/);
+});
+
+test('non-JavaScript script blocks are left to their own parsers', () => {
+  // A template block is data the JS parser has no business reading.
+  const template = `<!doctype html><html lang="en"><head><title>T</title></head><body>
+    <script type="text/template"><p>{{ not js }}</p></script></body></html>`;
+  assert.deepEqual(checkPageIntegrity(template), []);
+});
+
+test('malformed JSON-LD is caught, valid JSON-LD passes', () => {
+  const withLd = (json) => `<!doctype html><html lang="en"><head><title>T</title>
+    <script type="application/ld+json">${json}</script></head><body></body></html>`;
+  assert.deepEqual(checkPageIntegrity(withLd('{"@type":"WebApplication"}')), []);
+  const findings = checkPageIntegrity(withLd('{"@type":"WebApplication",}'));
+  assert.equal(findings.length, 1);
+  assert.match(findings[0], /JSON-LD block 1 is not valid JSON/);
+});
+
+test('a src-only script has no body to parse and passes', () => {
+  const shell = `<!doctype html><html lang="en"><head><title>T</title></head><body>
+    <script type="module" src="./app.mjs"></script></body></html>`;
+  assert.deepEqual(checkPageIntegrity(shell), []);
+});
+
+test('catches the 3PL syntax defect at the revision where it actually shipped', () => {
+  // Again the real blobs, not a reconstruction: the commit that repaired the
+  // calculator and its parent, where the page was live and completely dead.
+  const read = (rev) =>
+    execFileSync('git', ['show', `${rev}:ventures/3pl-quote-normalizer/index.html`], {
+      cwd: REPO,
+      maxBuffer: 1 << 26,
+    }).toString();
+
+  const findings = checkPageIntegrity(read('6ccd73c^'));
+  assert.ok(findings.length > 0, 'the shipped page did not parse and must be caught');
+  assert.match(findings[0], /does not parse, so the browser runs none of it/);
+  // The token ASI could not recover at, named so the reader knows where to look.
+  assert.match(findings[0], /document/);
+
+  assert.deepEqual(checkPageIntegrity(read('6ccd73c')), [], 'the repaired page must pass');
+});

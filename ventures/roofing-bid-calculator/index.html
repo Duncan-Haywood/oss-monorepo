@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Roofing Bid Calculator | Price a Reroof by the Square, Not the House</title>
+  <title>Roofing Bid Calculator — Price a Reroof by the Square</title>
   <meta name="description" content="Price a residential reroof from roof squares, pitch, waste, and tear-off layers — labor, material, dump, overhead, and the walk-away number. Free, runs in your browser.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="./">
   <meta property="og:title" content="Roofing Bid Calculator">
   <meta property="og:description" content="Bid the roof, not the floor plan. Convert footprint and pitch into squares, add waste and tear-off, and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Roofing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Pitch-adjusted roof squares, waste factor, tear-off layers, steepness labor multiplier, material presets, dump and permit, overhead and margin, price per square, walk-away price, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Roofing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Pitch-adjusted roof squares, waste factor, tear-off layers, steepness labor multiplier, material presets, dump and permit, overhead and margin, price per square, walk-away price, proposed-price margin check, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn a house's square footage into roofing squares?","acceptedAnswer":{"@type":"Answer","text":"You cannot, directly — that is the mistake this tool exists to stop. Enter each section's footprint (the area it covers on the ground) and its pitch, and the calculator multiplies the footprint by √(1 + (rise ÷ 12)²) to get actual roof surface, then divides by 100 to get squares. A 1,800 sq ft footprint at 6/12 is about 20 squares of roof, not 18. At 12/12 it is over 25. Bidding the footprint number buys you roughly one square of material short for every eight you ordered."}},{"@type":"Question","name":"Why does pitch change the price twice?","acceptedAnswer":{"@type":"Answer","text":"Because it changes two different things. Steeper pitch means more surface for the same footprint, which is a material and a labor quantity. It also means slower, harder work on that surface, which is a labor rate. The second effect is the steepness multiplier: 1.0 up to 6/12, 1.25 through 9/12, 1.5 through 12/12, and 2.0 above that, applied to install and tear-off hours. Those steps are common shop starting points, not OSHA categories or a safety determination — a 12/12 walk-and- stage decision is yours, not the calculator's."}},{"@type":"Question","name":"Does waste apply to the tear-off as well as the new roof?","acceptedAnswer":{"@type":"Answer","text":"No, and that is deliberate. Waste covers cuts, starter, ridge, and valleys on the new covering, so it is added only to the material squares that underlayment and covering are priced from. Tear-off follows the existing surface multiplied by how many layers are actually coming off, and dump cost follows those tear-off squares. A two-layer strip on a section is twice the tear-off and twice the landfill, but it does not double the shingles."}},{"@type":"Question","name":"Why price the garage and the porch as separate sections?","acceptedAnswer":{"@type":"Answer","text":"Because they are usually a different pitch and a different number of existing layers, and a blended rate cannot see that. A steep detached garage or a porch cover carrying three layers is priced at its own pitch factor, its own steepness multiplier, and its own tear-off squares. One averaged \"roof\" row quietly moves cost from the hard section onto the easy one and leaves the bid short by whatever the hard section actually is."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price, which is how the customer's number is quoted and how your P&L reads it: price = job cost ÷ (1 − margin). Overhead, separately, is a markup on the direct cost of the job — office, sales, and the insurance that is not already in payroll burden — and it is applied before margin, never to itself or to the profit. Marking a $10,000 cost up by 20% gives $12,000 and a 16.7% margin. Targeting a 20% margin gives $12,500. That gap is the whole job's profit on a small reroof."}},{"@type":"Question","name":"How much more does a metal roof cost than asphalt shingles?","acceptedAnswer":{"@type":"Answer","text":"More than the material line alone shows. The covering presets here start 3-tab asphalt at $95 a square and architectural asphalt (this calculator's default) at $140, but standing-seam metal starts at $480 a square — a bit over three times the architectural material cost, and stone-coated steel and concrete tile sit in between at $360 and $420. Install labor climbs with it: 1.5 hours a square for 3-tab, 1.8 for architectural, up to 3.5 for standing-seam metal, because seaming and flashing panel roofing takes longer per square than nailing a shingle course. Picking a covering in the calculator fills material, underlayment, and install hours together, so the price gap you see includes both the pricier material and the slower crew day, not material cost by itself."}},{"@type":"Question","name":"Is my bid data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. There is no account and no network request — every figure stays in this browser, including the business details saved for the printed proposal, which \"Forget my business details\" clears. \"Copy share link\" encodes the sections, rates, and deposit terms into the page's own URL hash so a partner or office can open the same bid; nothing is sent to a server. The optional local usage counter records only which features were used and the day, never your roof measurements, wages, costs, or prices, and the checkbox in the footer turns it off."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c16; background: #f3eee6; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -28,11 +29,13 @@
     .section-row select, .section-row input { padding: 10px 7px; }
     .section-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6a5b4b; }
     .section-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b7a792; background: #f7f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a792; background: #f7f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #241c16; }
     button:hover { background: #efe6d8; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
     .result { position: sticky; top: 15px; background: #3a2416; color: #f8f1e8; border-color: #3a2416; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #c8e6a9; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -60,13 +63,69 @@
       .section-row label:first-child { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #b8a78d; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5c5146; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3a2416; --pr-accent: #8a3d14;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
   </style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR RESIDENTIAL ROOFING CONTRACTORS</p>
     <h1>Bid the roof, not the floor plan.</h1>
-    <p>Price a reroof the way the trade actually does: each section&rsquo;s footprint converted to roof squares by its pitch, plus waste, tear-off layers, dump, loaded labor, and the margin you intend to keep. You get the job price, what it works out to per square, and the number below which the job loses money. <a href="how-to-price-a-roof-by-the-square.html">Why house square footage is the wrong unit</a>.</p>
+    <p>Price a reroof the way the trade actually does: each section&rsquo;s footprint converted to roof squares by its pitch, plus waste, tear-off layers, dump, loaded labor, and the margin you intend to keep. You get the job price, what it works out to per square, and the number below which the job loses money. <a href="how-to-price-a-roof-by-the-square.html">Why house square footage is the wrong unit</a> &middot; <a href="vs-acculynx.html">This calculator vs. AccuLynx</a>.</p>
   </header>
 
   <main class="layout">
@@ -110,6 +169,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Steepness is applied automatically: 7/12&ndash;9/12 adds 25% labor, 10/12&ndash;12/12 adds 50%, steeper than 12/12 doubles it. Those steps are starting points, not a safety rating.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the homeowner &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Vasquez Roofing LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(602) 555-0119"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="AZ-ROC-284117"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="3390 W Camelback Rd, Phoenix AZ"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="M. Delgado"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="1408 E Turney Ave"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Tear off 24.5 squares to deck&#10;Install architectural asphalt"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Deck replacement beyond 2 sheets&#10;Gutter replacement"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Any rotten decking found is billed at the sheet rate agreed below."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -136,6 +231,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -144,18 +240,93 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting material and labor rates are common ballpark figures, not a supplier quote, a benchmark, or a guarantee &mdash; replace them with your invoice and your crew.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How do I turn a house's square footage into roofing squares?</h3>
+      <p>You cannot, directly &mdash; that is the mistake this tool exists to stop. Enter each section's
+        <em>footprint</em> (the area it covers on the ground) and its pitch, and the calculator multiplies
+        the footprint by &radic;(1&nbsp;+&nbsp;(rise&nbsp;&divide;&nbsp;12)&sup2;) to get actual roof surface,
+        then divides by 100 to get squares. A 1,800&nbsp;sq&nbsp;ft footprint at 6/12 is about 20 squares of
+        roof, not 18. At 12/12 it is over 25. Bidding the footprint number buys you roughly one square
+        of material short for every eight you ordered.</p>
+
+      <h3>Why does pitch change the price twice?</h3>
+      <p>Because it changes two different things. Steeper pitch means more surface for the same footprint,
+        which is a material and a labor quantity. It also means slower, harder work on that surface, which is
+        a labor <em>rate</em>. The second effect is the steepness multiplier: 1.0 up to 6/12, 1.25 through
+        9/12, 1.5 through 12/12, and 2.0 above that, applied to install and tear-off hours. Those steps are
+        common shop starting points, not OSHA categories or a safety determination &mdash; a 12/12 walk-and-
+        stage decision is yours, not the calculator's.</p>
+
+      <h3>Does waste apply to the tear-off as well as the new roof?</h3>
+      <p>No, and that is deliberate. Waste covers cuts, starter, ridge, and valleys on the <em>new</em>
+        covering, so it is added only to the material squares that underlayment and covering are priced from.
+        Tear-off follows the existing surface multiplied by how many layers are actually coming off, and
+        dump cost follows those tear-off squares. A two-layer strip on a section is twice the tear-off and
+        twice the landfill, but it does not double the shingles.</p>
+
+      <h3>Why price the garage and the porch as separate sections?</h3>
+      <p>Because they are usually a different pitch and a different number of existing layers, and a blended
+        rate cannot see that. A steep detached garage or a porch cover carrying three layers is priced at its
+        own pitch factor, its own steepness multiplier, and its own tear-off squares. One averaged "roof" row
+        quietly moves cost from the hard section onto the easy one and leaves the bid short by whatever the
+        hard section actually is.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price, which is how the customer's number is quoted and how your
+        P&amp;L reads it: price = job cost &divide; (1&nbsp;&minus;&nbsp;margin). Overhead, separately, is a
+        markup on the direct cost of the job &mdash; office, sales, and the insurance that is not already in
+        payroll burden &mdash; and it is applied before margin, never to itself or to the profit. Marking a
+        $10,000 cost up by 20% gives $12,000 and a 16.7% margin. Targeting a 20% margin gives $12,500. That
+        gap is the whole job's profit on a small reroof.</p>
+
+      <h3>How much more does a metal roof cost than asphalt shingles?</h3>
+      <p>More than the material line alone shows. The covering presets here start 3-tab asphalt at
+        $95 a square and architectural asphalt (this calculator's default) at $140, but standing-seam
+        metal starts at $480 a square &mdash; a bit over three times the architectural material cost, and
+        stone-coated steel and concrete tile sit in between at $360 and $420. Install labor climbs with
+        it: 1.5 hours a square for 3-tab, 1.8 for architectural, up to 3.5 for standing-seam metal, because
+        seaming and flashing panel roofing takes longer per square than nailing a shingle course. Picking a
+        covering in the calculator fills material, underlayment, and install hours together, so the price gap
+        you see includes both the pricier material and the slower crew day, not material cost by itself.</p>
+
+      <h3>Is my bid data uploaded anywhere?</h3>
+      <p>No. There is no account and no network request &mdash; every figure stays in this browser, including
+        the business details saved for the printed proposal, which "Forget my business details" clears.
+        "Copy share link" encodes the sections, rates, and deposit terms into the page's own URL hash so a
+        partner or office can open the same bid; nothing is sent to a server. The
+        optional local usage counter records only which features were used and the day, never your roof
+        measurements, wages, costs, or prices, and the checkbox in the footer turns it off.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a structural, code, or safety determination. Verify every figure against your own payroll, insurance, supplier invoices, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your roof, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your roof, wages, costs, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, MATERIAL_PRESETS, SECTION_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const COST_IDS = [
       'wastePercent','materialPerSquare','underlaymentPerSquare','accessoriesFlat',
@@ -163,7 +334,11 @@
       'dumpPerSquare','dumpsterFee','permitFee','otherCost','overheadRate',
       'targetMargin','proposedPrice',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const STARTING_SECTIONS = [
@@ -247,20 +422,43 @@
       el('verdict').hidden = true;
     }
 
+    /**
+     * The one place the calculator's inputs are assembled. Previously this
+     * object literal was built at each call site; the proposal is a third, and
+     * three copies of it is how the summary and the printed sheet come to be
+     * priced from different fields.
+     */
+    function readInput() {
+      return {
+        sections: readSections(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+        materialPreset: presetSelect.value,
+      };
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (payload.materialPreset !== undefined) presetSelect.value = payload.materialPreset;
+      if (Array.isArray(payload.sections) && payload.sections.length) {
+        sectionsHost.innerHTML = '';
+        payload.sections.forEach(addSectionRow);
+      }
+    }
+
     function update() {
-      const sections = readSections();
-      if (sections.length === 0) {
+      const input = readInput();
+      if (input.sections.length === 0) {
         clearOutputs('Add a section to price', false);
         el('split').innerHTML = '<li class="empty">Add at least one roof section above and the labor split appears here.</li>';
         return;
       }
       let result;
       try {
-        result = calculateBid({
-          sections,
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-          proposedPrice: el('proposedPrice').value,
-        });
+        result = calculateBid(input);
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -329,14 +527,7 @@
       ].join('\n');
     }
 
-    async function copySummary() {
-      const sections = readSections();
-      const result = calculateBid({
-        sections,
-        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        proposedPrice: el('proposedPrice').value,
-      });
-      const text = summaryText(result);
+    async function writeClipboard(text) {
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -350,8 +541,27 @@
         document.execCommand('copy');
         fallback.remove();
       }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
       count('summary_copied');
       el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -389,9 +599,146 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(error => { el('summaryStatus').textContent = error.message; });
+    });
 
-    STARTING_SECTIONS.forEach(addSectionRow);
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'roofing-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a structural, building-code, or engineering determination, and it does not warrant the condition of any deck, rafter, or structure found beneath the existing covering.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const roofs = result.sections
+        .filter(row => row.squares > 0)
+        .map(row => `${row.name}: ${row.squares.toFixed(1)} squares at ${row.pitchRise}/12 pitch`);
+      const suggested = [
+        ...roofs,
+        result.totalTearOffSquares > 0
+          ? `Tear off and dispose of ${result.totalTearOffSquares.toFixed(1)} squares of existing roofing`
+          : '',
+        `Install underlayment and new covering across ${result.totalSquares.toFixed(1)} squares`,
+        'Flashing, valley, ridge, and penetration details as required',
+        'Site protection, magnet sweep, and clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.jobPrice
+          : result.proposed.price,
+        jobTitle: 'Roof replacement',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
+    const incoming = splitTerms(location.hash);
+    applyShare(decodeShare(incoming.payload));
+    applyTerms(decodeTerms(incoming.terms), el);
+    if (sectionsHost.children.length === 0) STARTING_SECTIONS.forEach(addSectionRow);
     update();
+    restoreCompany();
+    refreshProposal();
   </script>
 </body>
 </html>

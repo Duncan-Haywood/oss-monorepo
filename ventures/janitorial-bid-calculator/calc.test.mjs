@@ -181,6 +181,14 @@ test('a nameless area still reports under a stable label', () => {
   assert.equal(result.areas[1].name, 'Area 2');
 });
 
+test('custom area names are preserved for proposal-ready scope', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [{ name: 'Second-floor restrooms', squareFeet: 500, productionRate: 1200, cleaningsPerWeek: 5 }],
+  });
+  assert.equal(result.areas[0].name, 'Second-floor restrooms');
+});
+
 test('a building with no cleanable area reports no per-unit ratios instead of dividing by zero', () => {
   const result = calculateBid({
     ...office(),
@@ -950,4 +958,56 @@ test('a day porter and strip-and-wax stay on separate invoices', () => {
   assert.match(summary, /ONE-TIME PROJECT WORK/);
   assert.match(summary, /Day porter \/ lobby attendant/);
   assert.match(summary, /Strip & wax/);
+});
+
+// The three scenario panels each rebuilt their input object inline and left
+// `shifts` and `projects` out of it, so a contract with a day porter was
+// compared against a cost base that did not include that porter's wages. The
+// page now prices every panel from the same `readInput()` the headline uses;
+// these tests pin the consequence, which is what made the defect worth finding:
+// the numbers move by multiples, not by rounding.
+test('a day porter belongs in the frequency comparison cost base', () => {
+  const without = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
+  const withPorter = compareFrequencyReduction(
+    { ...office(), shifts: [weekdayPorter()] },
+    { currentWeekly: 5, proposedWeekly: 3 },
+  );
+
+  // The porter is scheduled against the building's week, not the cleaning
+  // cadence, so the hours that drop are the same either way...
+  assert.ok(Math.abs(withPorter.laborHoursDropped - without.laborHoursDropped) < 1e-9);
+  // ...but their wages stay in the base, so every price the panel quotes moves.
+  assert.ok(withPorter.priceToHoldTargetMargin > without.priceToHoldTargetMargin * 2);
+  assert.ok(withPorter.walkAwayAtReduced > without.walkAwayAtReduced * 2);
+  assert.ok(withPorter.unscaledShiftLabor > 0);
+  assert.equal(without.unscaledShiftLabor, 0);
+});
+
+test('the pasteable note names the shift labor that does not drop with the visits', () => {
+  const withPorter = compareFrequencyReduction(
+    { ...office(), shifts: [weekdayPorter()] },
+    { currentWeekly: 5, proposedWeekly: 3 },
+  );
+  const note = frequencyReductionNote(withPorter, { targetMargin: 20 });
+  assert.match(note, /day-porter wages are not part of that drop/);
+
+  // A bid with no shift must not grow a sentence about a porter it does not have.
+  const plain = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
+  assert.doesNotMatch(frequencyReductionNote(plain, { targetMargin: 20 }), /day-porter wages/);
+});
+
+test('a day porter belongs in the supply and initial-clean comparisons too', () => {
+  const supplyWithout = compareSupplyResponsibility(office(), { restroomSharePercent: 40 });
+  const supplyWith = compareSupplyResponsibility(
+    { ...office(), shifts: [weekdayPorter()] },
+    { restroomSharePercent: 40 },
+  );
+  assert.ok(supplyWith.youSupply.monthlyCost > supplyWithout.youSupply.monthlyCost);
+
+  const initialWithout = compareInitialClean(office(), { visitMultiplier: 3 });
+  const initialWith = compareInitialClean(
+    { ...office(), shifts: [weekdayPorter()] },
+    { visitMultiplier: 3 },
+  );
+  assert.ok(initialWith.monthly.monthlyCost > initialWithout.monthly.monthlyCost);
 });

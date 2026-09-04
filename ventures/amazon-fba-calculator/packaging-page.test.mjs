@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareSizeTierPackaging, sizeTierPackagingNote } from "./calc.mjs";
+import { INPUT_FIELDS, compareSizeTierPackaging, sizeTierPackagingNote } from "./calc.mjs";
 
 const html = readFileSync(new URL("./does-smaller-box-cut-amazon-fba-fees.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -104,4 +104,41 @@ test("worked example on the page matches the locked comparison", () => {
 test("sitemap and index point at the packaging page", () => {
   assert.match(sitemap, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(index, /does-smaller-box-cut-amazon-fba-fees\.html/);
+});
+
+// The calculator page now renders this comparison itself rather than only
+// linking out to the page above. These guard the wiring: renderPack writes
+// into ids that must exist, reads an input that must be in the ids list the
+// page collects, and emits one cell per column header.
+test("the calculator page carries the size-tier section renderPack writes into", () => {
+  const { markup, scripts } = parse(index);
+  const script = scripts.join("\n");
+  assert.match(markup, /id="size-tier-pack"/);
+  for (const id of ["packVerdict", "packRows", "packNote", "repackCostPerUnit"]) {
+    assert.ok(markup.includes(`id="${id}"`), `index.html is missing #${id}`);
+  }
+  assert.match(script, /compareSizeTierPackaging/, "renderPack must import the comparison");
+  assert.match(script, /sizeTierPackagingNote/, "the note must come from calc.mjs, not be retyped");
+  // The list the page collects now lives in calc.mjs, so share.mjs and the
+  // page cannot disagree about which inputs exist. Assert membership there
+  // rather than grepping the inline script for a string that has moved.
+  assert.ok(INPUT_FIELDS.includes("repackCostPerUnit"), "repackCostPerUnit must be in the collected ids");
+});
+
+test("the calculator's size-tier table renders one cell per column", () => {
+  const { markup, scripts } = parse(index);
+  const table = markup.match(/<table id="packTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the pack table");
+  const columns = table[0].match(/<th\b/g).length;
+  const body = scripts.join("\n").match(/function renderPack\([\s\S]*?\n    \}\n/);
+  assert.ok(body, "renderPack not found on the calculator page");
+  const cells = body[0].match(/packCell\(tr,/g).length;
+  assert.equal(cells, columns, "renderPack emits a different cell count than the header row");
+});
+
+test("a carton the tier tables cannot classify does not blank the profit result", () => {
+  const script = parse(index).scripts.join("\n");
+  // renderPack sits in its own try/catch so a packaging error is reported in
+  // the packaging section instead of dropping the page to the outer handler.
+  assert.match(script, /try \{\s*renderPack\(readInput\(\)\);\s*\} catch \(packError\) \{/);
 });

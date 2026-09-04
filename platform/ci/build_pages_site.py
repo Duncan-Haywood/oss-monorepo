@@ -7,7 +7,9 @@ As of 2026-08-26 the repo carries ~30 finished browser calculators and not one
 of them has a public URL. `platform/ci/publish_surface.py` reports that no
 workflow publishes anything on a push to `main`; the single Pages workflow in
 the repo ships one venture's docs. So the owner flip everyone is waiting on
-(`GITHUB_PAGES_ENABLED`) would, on its own, publish none of the products.
+(`PAGES_ENABLED`, originally spelled `GITHUB_PAGES_ENABLED` -- see
+`portfolio/hosting/README.md` for why that name never actually worked) would,
+on its own, publish none of the products.
 
 This builder is the missing half. It lays out
 
@@ -81,7 +83,18 @@ EXTRA_ASSET_NAMES = frozenset({"LICENSE", "LICENSE.md", "LICENSE.txt", "README.m
 # Test modules sit next to the product code in this repo (`calc.test.mjs` beside
 # `calc.mjs`). They must not ship: they are dead weight over the wire and they
 # leak fixture values into a public surface.
-EXCLUDED_NAME_PATTERNS = (".test.mjs", ".test.js", ".spec.mjs", ".spec.js")
+#
+# `foo.test.mjs` is the house convention, not a rule -- `retainage-cashflow-calculator`
+# ships its suite as bare `test.mjs`, which this pattern list did not match, so it
+# was shipping to the public site undetected. `platform/pages/build.mjs` (the
+# build this repo actually deploys with) hit the same gap and fixed it by widening
+# the match rather than renaming the venture; mirror that here instead of adding a
+# second acceptable spelling for the next venture to miss.
+_TEST_MODULE_RE = re.compile(r"(^|\.)test\.(mjs|js|py)$|^test_|_test\.(mjs|js|py)$")
+
+
+def _is_test_module(name: str) -> bool:
+    return bool(_TEST_MODULE_RE.search(name)) or name.endswith((".spec.mjs", ".spec.js"))
 
 EXCLUDED_DIRS = frozenset(
     {"node_modules", ".git", "dist", "build", "coverage", "__pycache__", ".pytest_cache"}
@@ -211,9 +224,31 @@ def _first_sentence(text: str, limit: int = 240) -> str:
 # those ventures).
 WEB_ROOT_CANDIDATES = (".", "site", "public")
 
+# Ventures whose entry point is at none of the paths above, mirroring
+# `ENTRY_OVERRIDES` in `platform/pages/build.mjs`.
+#
+# This map is the reason the override exists rather than being inferred. These
+# two builders are kept as independent implementations precisely so that a
+# disagreement about what `ventures/` contains surfaces a bug in one of them
+# (see `portfolio/hosting/README.md`) -- but a venture only *this* builder
+# cannot see produces no disagreement to read. It produces silence.
+# `ai-engineering-academy` sat in exactly that blind spot: six free electronics
+# calculators behind their own hub, published by the deploying builder, checked
+# by this one not at all.
+#
+# Keep the two maps in step. `test_build_pages_site` asserts they match.
+ENTRY_OVERRIDES = {
+    # Six electronics calculators behind their own hub page.
+    "ai-engineering-academy": "tools",
+}
+
 
 def find_web_root(venture: Path) -> Path | None:
     """The directory holding a venture's `index.html`, or None if it has none."""
+    override = ENTRY_OVERRIDES.get(venture.name)
+    if override is not None:
+        root = venture / override
+        return root if (root / "index.html").is_file() else None
     for candidate in WEB_ROOT_CANDIDATES:
         root = venture if candidate == "." else venture / candidate
         if (root / "index.html").is_file():
@@ -265,7 +300,7 @@ def discover_products(ventures_dir: Path | None = None) -> list[Product]:
 
 
 def _is_web_asset(path: Path) -> bool:
-    if any(path.name.endswith(pattern) for pattern in EXCLUDED_NAME_PATTERNS):
+    if _is_test_module(path.name):
         return False
     if path.name in EXTRA_ASSET_NAMES:
         return True
@@ -280,6 +315,55 @@ def _iter_web_assets(root: Path):
             continue
         if _is_web_asset(path):
             yield path
+
+
+# Where a link that escapes the published site still resolves. Mirrors
+# `SOURCE_URL_PREFIX` in `platform/pages/build.mjs`.
+SOURCE_URL_PREFIX = "https://github.com/Duncan-Haywood/monorepo-projects/blob/main/"
+
+_LOCAL_REF_RE = re.compile(r'((?:href|src)=")([^"]+)(")')
+_ABSOLUTE_REF_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//|#)")
+
+
+def repoint_offsite_links(text: str, page_source: Path, page_dest: Path, out_dir: Path) -> str:
+    """Rewrite links that leave the published site to point at the repository.
+
+    Every venture page was written as if its own directory were the site root,
+    so some link to a file beside the venture (`../README.md`) rather than
+    inside it. Republished under one shared origin those are 404s, and the
+    answer is not to edit another venture's product copy: the file still exists
+    in the public repository, still renders there, and still answers the
+    question the link was there to answer.
+
+    Links that resolve inside the built site are left exactly as written. This
+    mirrors `repairLinks()` in `platform/pages/build.mjs`; the two builders are
+    only a useful cross-check while they agree about what ships.
+    """
+
+    # Callers may pass a relative --out; every containment test below compares
+    # resolved paths, so resolve the root once rather than per-link.
+    site_root = out_dir.resolve()
+
+    def replace(match: re.Match[str]) -> str:
+        whole, opener, ref, closer = match.group(0), *match.groups()
+        if not ref or _ABSOLUTE_REF_RE.match(ref):
+            return whole
+        path_part = re.split(r"[#?]", ref, maxsplit=1)[0]
+        if not path_part:
+            return whole
+
+        resolved = (page_dest.resolve().parent / path_part).resolve()
+        target = resolved / "index.html" if path_part.endswith("/") else resolved
+        inside = target == site_root or site_root in target.parents
+        if inside and target.exists():
+            return whole
+
+        in_repo = (page_source.resolve().parent / path_part).resolve()
+        if REPO_ROOT not in in_repo.parents or not in_repo.exists():
+            return whole
+        return f"{opener}{SOURCE_URL_PREFIX}{in_repo.relative_to(REPO_ROOT).as_posix()}{closer}"
+
+    return _LOCAL_REF_RE.sub(replace, text)
 
 
 def rewrite_base_urls(text: str, base_url: str, slug: str) -> str:
@@ -636,6 +720,16 @@ def build(
     for product in products:
         files += _copy_product(product, out_dir, base_url)
 
+    # After every product is in place, and not before: whether a link resolves
+    # inside the site can only be answered once the whole site exists.
+    for product in products:
+        for dest in sorted((out_dir / product.slug).rglob("*.html")):
+            source = product.source / dest.relative_to(out_dir / product.slug)
+            text = dest.read_text(encoding="utf-8", errors="replace")
+            repointed = repoint_offsite_links(text, source, dest, out_dir)
+            if repointed != text:
+                dest.write_text(repointed, encoding="utf-8")
+
     (out_dir / "index.html").write_text(render_hub(products, base_url), encoding="utf-8")
     (out_dir / "sitemap.xml").write_text(
         render_sitemap_index(products, base_url), encoding="utf-8"
@@ -672,7 +766,7 @@ def check() -> int:
         assets = list(_iter_web_assets(product.source))
         if not any(a.name == "index.html" for a in assets):
             problems.append(f"{product.slug}: index.html is not a shippable web asset")
-        leaked = [a.name for a in assets if a.name.endswith(EXCLUDED_NAME_PATTERNS)]
+        leaked = [a.name for a in assets if _is_test_module(a.name)]
         if leaked:
             problems.append(f"{product.slug}: test modules would ship: {leaked}")
 

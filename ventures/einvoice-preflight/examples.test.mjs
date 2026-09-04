@@ -139,7 +139,7 @@ test("a legal name in PartyLegalEntity is a name, not a read error", () => {
   assert.equal(invoice.supplier.id, "HRB 1234");
 });
 
-test("the CII example is readable by the browser tool", () => {
+test("the CII example is readable by the browser tool", async () => {
   // The CLI already read examples/cii-invoice.xml. The page next to that
   // file used to throw "UBL document root must be Invoice, CreditNote, or
   // DebitNote". parseInvoiceSource now routes CrossIndustryInvoice through
@@ -149,5 +149,5 @@ test("the CII example is readable by the browser tool", () => {
   const invoice = parseCiiInvoice(xml);
   assert.equal(invoice.invoice_number, "INV-2026-0043");
   assert.deepEqual(checkInvoice(invoice), []);
-  assert.deepEqual(checkInvoice(parseInvoiceSource("cii-invoice.xml", xml)), []);
+  assert.deepEqual(checkInvoice(await parseInvoiceSource("cii-invoice.xml", xml)), []);
 });

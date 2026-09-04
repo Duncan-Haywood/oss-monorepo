@@ -68,8 +68,47 @@ function number(value, name, { min = 0, max = Infinity } = {}) {
   return result;
 }
 
-function money(value) {
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+/**
+ * A figure for the customer's copy.
+ *
+ * `currency` defaults to `'$'`, which is what every trade in this portfolio
+ * quotes in and what all 102 adopters rendered before it was a parameter — so
+ * an unchanged caller gets a byte-identical document.
+ *
+ * It exists because the document is not only a US construction bid. A
+ * freelancer quoting a translation names their own currency on the page, and
+ * printing `$1,200.00` on a quote the client will pay in euros is not a display
+ * nicety: it misstates the price on the one sheet that is meant to settle it.
+ * The venture passes whatever its own currency field says.
+ *
+ * A label is spaced from the figure and a symbol is not — `USD 1,200.00` but
+ * `$1,200.00` and `€1,200.00` — decided by whether the currency ends in a
+ * letter, which is the only difference a reader would notice between the two.
+ *
+ * That space is a non-breaking one, written as an escape so it cannot be
+ * mistaken for an ordinary space by anyone reading this file or matching
+ * against its output. A quote is a printed document with a narrow price
+ * column, and "USD" left stranded at the end of a line with its figure on the
+ * next is the one place this layout can break in a way the customer sees.
+ */
+export function money(value, currency = '$') {
+  // Sign goes outside the currency symbol: "-$9.24", not "$-9.24". The old
+  // spelling put it inside, which is what interpolating a negative straight
+  // after a "$" gets you, and it reads as a typo on a document a contractor
+  // hands a customer.
+  //
+  // Round to cents *before* choosing the sign. A delta of two equal figures
+  // lands on -0, and a residual like -0.004 rounds to zero at cent precision;
+  // both used to print "$-0.00" — a line that is exactly break-even claiming
+  // to be down money.
+  const cents = Math.round(Math.abs(value) * 100);
+  const sign = cents === 0 ? '' : value < 0 ? '-' : '';
+  const amount = (cents / 100).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  const unit = text(currency) || '$';
+  return `${sign}${unit}${/[A-Za-z]$/.test(unit) ? '\u00a0' : ''}${amount}`;
 }
 
 /**
@@ -81,6 +120,122 @@ export function lines(value) {
     .split('\n')
     .map((line) => line.trim())
     .filter(Boolean);
+}
+
+/**
+ * Fill scope templates from a calculator's result, dropping any line whose
+ * figures are not there.
+ *
+ * Every adoption batch so far has lost a line to the same defect: each
+ * calculator names its result differently, `result.doorClass` or `run.material`
+ * resolves to `undefined` rather than throwing, and the customer's scope reads
+ * "undefined ft of undefined" while every suite stays green. Guessing is the
+ * problem; this makes guessing wrong *visible* instead of silent.
+ *
+ * A template is `'Install {totalLinearFeet} ft of {fenceName}'`, or an object
+ * `{ line, when }` where `when` names a field that must be truthy for the line
+ * to appear at all.
+ *
+ * `{ each, line, when }` renders one line **per element** of the array at
+ * `each`, with `{field}` reading that element rather than the result root.
+ * Half the calculators here price an itemised job — rooms of flooring, gutter
+ * runs, trees, kitchen exhaust components — and a homeowner collecting three
+ * bids compares the line items, not a total. Without this the only scope such
+ * a trade could draft is "Perform the work described above", which the README
+ * is explicit is worth less than no proposal at all. `when` is read against
+ * the element too, so a row the contractor left at zero stays off the quote:
+ *
+ * ```json
+ * { "each": "rooms", "when": "hours", "line": "{name} — {squareFeet~0} sq ft" }
+ * ```
+ *
+ * Elements are not truncated. Every row the contractor entered is a row they
+ * intend to be paid for, and "…and 4 more" on a document someone signs is a
+ * dispute waiting to happen.
+ *
+ * `{field+s}` is that field's plural suffix — `'s'` unless the value is exactly
+ * one — so `'{gates} gate{gates+s}'` reads "1 gate" and "3 gates". Without it
+ * the obvious thing to write is `'{gates} gate{gates}'`, which prints
+ * "3 gate3" on a customer's quote.
+ *
+ * `{field~2}` rounds to that many decimals and groups thousands, so a derived
+ * figure reads "48.89 yd²" and "1,600 sq ft" rather than "48.888888888888886"
+ * and "1600". Anything computed — a yardage, a tonnage, a square count — needs
+ * it: a quote carrying fifteen decimal places tells the customer the number was
+ * produced by a machine that was not being watched.
+ *
+ * A placeholder that resolves to `undefined`, `null`, `''`,
+ * `NaN`, or `Infinity` drops its whole line — a scope with one line missing is
+ * a scope the contractor edits, whereas a scope reading `undefined` is one they
+ * hand to a customer without noticing.
+ *
+ * Dropping is not the safety property on its own: an empty scope is also wrong,
+ * and `platform/proposal/verify.mjs` fails a page whose default scope comes out
+ * empty. Between them, a mis-named field cannot reach a customer quietly.
+ *
+ * @param {Array<string|{line: string, when?: string, each?: string}>} templates
+ * @param {object} values The calculator's result (and anything else to read).
+ * @returns {string[]}
+ */
+export function scopeLines(templates, values) {
+  const missing = (value) => value === undefined || value === null || value === ''
+    || (typeof value === 'number' && !Number.isFinite(value));
+
+  const readFrom = (scope, path) => String(path).split('.')
+    .reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), scope);
+
+  /**
+   * One template line against one scope, or `null` if any placeholder in it is
+   * missing. Shared by plain lines and `each` rows on purpose: a row must drop
+   * on a missing figure by exactly the same rule as a top-level line, or the
+   * word "undefined" reaches the customer through whichever path was written
+   * second.
+   */
+  const render = (line, scope) => {
+    let complete = true;
+    const rendered = line.replace(
+      /\{([A-Za-z0-9_.]+?)(?:\+([A-Za-z]+)|~(\d))?\}/g,
+      (_match, path, plural, decimals) => {
+        const value = readFrom(scope, path);
+        if (missing(value)) { complete = false; return ''; }
+        if (plural !== undefined) return Number(value) === 1 ? '' : plural;
+        if (decimals !== undefined) {
+          const number = Number(value);
+          if (!Number.isFinite(number)) { complete = false; return ''; }
+          return number.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: Number(decimals),
+          });
+        }
+        return String(value);
+      },
+    );
+    return complete && rendered.trim() ? rendered.trim() : null;
+  };
+
+  const filled = [];
+  for (const template of templates ?? []) {
+    const line = typeof template === 'string' ? template : template?.line;
+    if (typeof line !== 'string') continue;
+    const each = typeof template === 'object' ? template.each : undefined;
+
+    if (each !== undefined) {
+      const rows = readFrom(values, each);
+      if (!Array.isArray(rows)) continue;
+      for (const row of rows) {
+        if (row === null || typeof row !== 'object') continue;
+        if (template.when !== undefined && !readFrom(row, template.when)) continue;
+        const rendered = render(line, row);
+        if (rendered !== null) filled.push(rendered);
+      }
+      continue;
+    }
+
+    if (typeof template === 'object' && template.when !== undefined && !readFrom(values, template.when)) continue;
+    const rendered = render(line, values);
+    if (rendered !== null) filled.push(rendered);
+  }
+  return filled;
 }
 
 /**
@@ -208,9 +363,12 @@ function paragraphs(value) {
  * @param {object} [options]
  * @param {string} [options.disclaimer] Sentence to print in the footer. The
  *   caller supplies it so each trade can name its own regulator and scope.
+ * @param {string} [options.currency] Prefix for every figure on the sheet.
+ *   Defaults to `'$'`; see `money`.
  */
-export function renderProposalHtml(proposal, { disclaimer = '' } = {}) {
+export function renderProposalHtml(proposal, { disclaimer = '', currency = '$' } = {}) {
   const { company, client, job, pricing } = proposal;
+  const amount = (value) => money(value, currency);
 
   const contact = [company.phone, company.email, company.address]
     .filter(Boolean)
@@ -222,8 +380,8 @@ export function renderProposalHtml(proposal, { disclaimer = '' } = {}) {
     : '';
 
   const depositRow = pricing.depositPercent > 0
-    ? `<tr><td>Deposit due on acceptance (${pricing.depositPercent}%)</td><td>${money(pricing.depositAmount)}</td></tr>
-       <tr><td>Balance due on completion</td><td>${money(pricing.balanceAmount)}</td></tr>`
+    ? `<tr><td>Deposit due on acceptance (${pricing.depositPercent}%)</td><td>${amount(pricing.depositAmount)}</td></tr>
+       <tr><td>Balance due on completion</td><td>${amount(pricing.balanceAmount)}</td></tr>`
     : '';
 
   return `
@@ -257,7 +415,7 @@ export function renderProposalHtml(proposal, { disclaimer = '' } = {}) {
 
       <table class="pr-price">
         <tbody>
-          <tr class="pr-total"><td>Total price</td><td>${money(pricing.price)}</td></tr>
+          <tr class="pr-total"><td>Total price</td><td>${amount(pricing.price)}</td></tr>
           ${depositRow}
         </tbody>
       </table>

@@ -1,0 +1,39 @@
+name: dns-configuration-evidence CI
+
+# Standard-library Python CLI (no publishable page). Keep the DNS
+# snapshot/report logic covered independently of the portfolio-wide
+# validation workflow, which only checks published pages.
+on:
+  pull_request:
+    paths:
+      - "ventures/dns-configuration-evidence/**"
+      - ".github/workflows/dns-configuration-evidence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/dns-configuration-evidence/**"
+      - ".github/workflows/dns-configuration-evidence-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dns-configuration-evidence-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/dns-configuration-evidence
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run DNS evidence tests
+        run: python3 -m unittest discover -s tests -v

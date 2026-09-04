@@ -131,7 +131,15 @@ export function calculateWeek(input) {
     } else if (factoringMultiplier === 0) {
       rateForTarget = null;
     } else {
-      rateForTarget = (weeklyCost - accessorialNet + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
+      // A big accessorial week (long detention, a real layover) can net
+      // accessorialNet above weeklyCost + targetWeeklyTakeHome on its own,
+      // same as the loadedMilesToBreakEven case below. Left unclamped, the
+      // numerator goes negative and this divides through to a negative
+      // $/mile — "rate for target take-home: -$0.30/mi" printed as though
+      // it were a quote to post, not the "you already cleared the target
+      // without a single loaded mile" result it actually is. Floor at 0:
+      // any non-negative rate already meets the target in that case.
+      rateForTarget = Math.max(0, weeklyCost - accessorialNet + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
     }
   }
 
@@ -172,8 +180,10 @@ export function calculateWeek(input) {
     weeklyOperatingCost,
     // Miles the truck must run loaded, at the offered rate after factoring,
     // to cover the week's cost. Null when there is no offer or the net rate
-    // is zero. Accessorial net is already inside offered.weeklyProfit, so
-    // the miles figure still uses the settled loaded rate against weeklyCost.
+    // is zero; floored at 0 when accessorial income alone already covers
+    // the week (see offerMilesToCover). Accessorial net is already inside
+    // offered.weeklyProfit, so the miles figure still uses the settled
+    // loaded rate against weeklyCost.
     loadedMilesToBreakEven: offerMilesToCover(offered, weeklyCost - accessorialNet),
   };
 }
@@ -250,7 +260,15 @@ function scoreOffer({
   };
 }
 
-function offerMilesToCover(offered, weeklyCost) {
+function offerMilesToCover(offered, netWeeklyCost) {
   if (!offered || offered.effectiveLoadedRate <= 0) return null;
-  return weeklyCost / offered.effectiveLoadedRate;
+  // Detention, layover, and unreimbursed lumper are netted out of cost before
+  // this runs. A big accessorial week (long detention, a real layover) can
+  // net that figure below zero on its own — the load's revenue isn't even
+  // needed to cover the week. Floor at 0 miles rather than reporting a
+  // negative "miles needed", which read as a broken result on an otherwise
+  // profitable week (accessorial income can offset cost even when the
+  // week's overall weeklyProfit is positive, since profit and this figure
+  // net accessorials against different bases).
+  return Math.max(0, netWeeklyCost) / offered.effectiveLoadedRate;
 }

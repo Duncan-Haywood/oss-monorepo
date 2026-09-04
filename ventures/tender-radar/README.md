@@ -14,8 +14,29 @@ site. The expected CSV columns are `title, buyer, deadline, category, value,
 url`. Dates use `YYYY-MM-DD`; value is a plain number in the currency shown by
 the source portal.
 
+The trade/category filter accepts a comma-separated list of terms
+(`roofing, roof repair, reroof`) so a portal that spells the same trade three
+different ways across rows only needs one pass — a row matches if any term
+appears in its category or its title. It is still a plain substring match, not
+a synonym dictionary, so a spelling you did not list is still missed.
+
 The worked example (roofing, minimum 20,000) keeps the school roof and the
 clinic reroof and drops the $12,000 painting hall.
+
+Tenders whose deadline has already passed are hidden from the shortlist by
+default — a portal export usually still contains last week's notices, and a
+closed tender is not something anyone can act on. Uncheck "Hide tenders that
+already closed" to see them anyway; a shown-but-closed row is still marked
+Closed so it isn't mistaken for a live one.
+
+Each row shows a "Days left" column alongside the deadline date, so the rows
+that need action this week don't require doing the date arithmetic yourself.
+
+Your pasted CSV and filter settings are saved to this browser's local storage
+after you create a shortlist, and restored the next time you open the page —
+this is meant to be a workflow you return to, not a one-off form. Nothing is
+saved anywhere but your own browser; use "Clear saved data" to remove it and
+go back to the worked example.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, or procurement
@@ -40,7 +61,7 @@ does not change what the tool does.
 
 ```bash
 cd ventures/tender-radar/site
-node --test calc.test.mjs
+node --test calc.test.mjs draft.test.mjs
 node ../../../platform/pages/clauses.mjs tender-radar
 ```
 

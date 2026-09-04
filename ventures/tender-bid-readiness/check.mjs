@@ -3,6 +3,7 @@ const rules = [
   ['bond', /(?:bid|tender|performance|payment) bond[^\n]{0,100}/i, 'Confirm bond type and amount with the tender'],
   ['insurance', /(?:insurance|certificate of insurance|liability coverage)[^\n]{0,100}/i, 'Confirm required insurance limits and certificate wording'],
   ['certification', /(?:certif(?:ication|ied)|license|accreditation|registration)[^\n]{0,100}/i, 'Confirm every required license or certification'],
+  ['site-visit', /(?:mandatory\s+(?:pre-?bid|site visit|attendance)|pre-?bid (?:meeting|conference)|site visit)[^\n]{0,100}/i, 'Confirm whether a pre-bid meeting or site visit is mandatory — a missed mandatory one usually cannot be made up'],
   ['submission', /(?:submit|submission|portal|envelope|email)[^\n]{0,100}/i, 'Confirm the exact submission channel and format'],
   ['questions', /(?:question|clarification|inquir|addend(?:um|a))[^\n]{0,100}/i, 'Record the question deadline and check addenda'],
 ];

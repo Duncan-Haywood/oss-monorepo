@@ -4,7 +4,8 @@ Free equipment-rental pricing calculator for independent tool, party, and
 construction-equipment rental operators. Enter a proposed booking and see the
 minimum price, contribution after variable costs, and monthly utilization you
 need to recover ownership costs. Download a plain-text quote snapshot for your
-records.
+records, or copy a share link that hands a live, editable copy of the same
+scenario to a partner or customer.
 
 After using this, you can now price a rental booking with delivery, cleaning,
 damage reserve, and idle-time costs included, which used to take a spreadsheet

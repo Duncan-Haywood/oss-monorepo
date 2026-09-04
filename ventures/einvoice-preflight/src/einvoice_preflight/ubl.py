@@ -164,6 +164,11 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         },
     }
     payment = _payee_payment(root)
+    terms_days = _payment_terms_days(root)
+    if terms_days:
+        if not payment:
+            payment = {}
+        payment["terms_days"] = terms_days
     if payment:
         invoice["payment"] = payment
     exemption = _document_exemption(root)
@@ -325,6 +330,22 @@ def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | flo
     if payable:
         extras["due"] = _number(payable)
     return extras
+
+
+def _payment_terms_days(root: ElementTree.Element) -> str:
+    """Map invoice-level PaymentTerms/SettlementPeriod/DurationMeasure in days."""
+    for child in list(root):
+        if child.tag.rsplit("}", 1)[-1] != "PaymentTerms":
+            continue
+        for period in _children(child, "SettlementPeriod"):
+            for measure in list(period):
+                if measure.tag.rsplit("}", 1)[-1] != "DurationMeasure":
+                    continue
+                unit = (measure.get("unitCode") or "").strip().upper()
+                value = (measure.text or "").strip()
+                if value and unit in {"DAY", "D"}:
+                    return value
+    return ""
 
 
 def _payee_payment(root: ElementTree.Element) -> dict[str, str]:

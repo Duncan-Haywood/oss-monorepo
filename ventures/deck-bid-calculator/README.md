@@ -23,7 +23,9 @@ npx --yes serve ventures/deck-bid-calculator -l 8080
 cd ventures/deck-bid-calculator && node --test
 ```
 
-Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
+Search page: [`how-much-to-charge.html`](how-much-to-charge.html). See
+[this calculator vs. QuoteIQ](vs-quoteiq.html) for which job fits a one-off
+bid check versus an ongoing, paid quoting and job-costing app.
 
 ## The problem it solves
 

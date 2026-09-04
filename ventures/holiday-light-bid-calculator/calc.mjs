@@ -290,8 +290,14 @@ export function calculateBid(input) {
   const hangWorkHours = hoursHang + hoursType + hoursAccess + hoursAccessPremium
     + hoursPeaks + hoursTrees + hoursBushes + hoursColumns + hoursSteepApplied;
   const hoursTakedown = hangWorkHours * takedownRatio;
+  // Take-down is not a fraction of the same visit — the scope kit says so
+  // ("a second crew day in January") and the README promises it. A ratio
+  // on hangWorkHours prices the *work* of the second day; it does not put
+  // the truck back on the road. Whenever there is a take-down at all, the
+  // crew drives the same round trip a second time.
+  const hoursTakedownTravel = takedownRatio > 0 ? hoursTravel : 0;
   const totalHours = hoursTravel + hangWorkHours + hoursTimerApplied
-    + hoursTakedown + siteHours;
+    + hoursTakedown + hoursTakedownTravel + siteHours;
 
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
   const laborCost = totalHours * loadedWage;
@@ -306,9 +312,13 @@ export function calculateBid(input) {
   const columnMaterial = columns * columnEach;
   const timerMaterial = includeTimer ? timerInvoice : 0;
   const travelInvoice = travelMiles * travelPerMile;
+  // Same reasoning as hoursTakedownTravel: the mileage invoice for that
+  // second drive, not a share of the first one.
+  const takedownTravelInvoice = takedownRatio > 0 ? travelInvoice : 0;
   const finishMaterial = productMaterial + typeMaterial;
   const extraHardware = liftMaterial + storageMaterial + peakMaterial
-    + treeMaterial + bushMaterial + columnMaterial + timerMaterial + travelInvoice;
+    + treeMaterial + bushMaterial + columnMaterial + timerMaterial
+    + travelInvoice + takedownTravelInvoice;
   const materialCost = finishMaterial + extraHardware;
 
   const softCost = travelAndEquipment + otherCost;
@@ -334,6 +344,7 @@ export function calculateBid(input) {
     + hoursTimerApplied * loadedWage
     + hoursSteepApplied * loadedWage
     + hoursTakedown * loadedWage
+    + hoursTakedownTravel * loadedWage
     + hoursTravel * loadedWage;
 
   return {
@@ -361,6 +372,7 @@ export function calculateBid(input) {
     hoursTimer: hoursTimerApplied,
     hoursSteep: hoursSteepApplied,
     hoursTakedown,
+    hoursTakedownTravel,
     siteHours,
     totalHours,
     laborCost,
@@ -374,6 +386,7 @@ export function calculateBid(input) {
     columnMaterial,
     timerMaterial,
     travelInvoice,
+    takedownTravelInvoice,
     extraHardware,
     extraCost,
     finishMaterial,
@@ -407,6 +420,7 @@ export function calculateBid(input) {
       timer: hourShare(hoursTimerApplied),
       steep: hourShare(hoursSteepApplied),
       takedown: hourShare(hoursTakedown),
+      takedownTravel: hourShare(hoursTakedownTravel),
       site: hourShare(siteHours),
     },
     proposed: proposedPrice === null ? null : {
@@ -469,7 +483,9 @@ export function compareScope(input) {
 }
 
 function money(value) {
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(value));
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 /**
@@ -508,7 +524,7 @@ export function formatBidSummary(result, jobLabel = 'Holiday lights') {
     `- ${result.eaveLf} LF of roofline`,
     `- ${scope}; ${stories}; ${lightType}`,
     `- ${extras}`,
-    `- Travel: ${result.hoursTravel.toFixed(1)} h; hang: ${result.hoursHang.toFixed(1)} h; take-down: ${result.hoursTakedown.toFixed(1)} h; extras: ${(result.hoursPeaks + result.hoursTrees + result.hoursBushes + result.hoursColumns + result.hoursTimer + result.hoursSteep).toFixed(1)} h`,
+    `- Travel: ${(result.hoursTravel + result.hoursTakedownTravel).toFixed(1)} h${result.hoursTakedownTravel > 0 ? ' (hang trip + January take-down trip)' : ''}; hang: ${result.hoursHang.toFixed(1)} h; take-down: ${result.hoursTakedown.toFixed(1)} h; extras: ${(result.hoursPeaks + result.hoursTrees + result.hoursBushes + result.hoursColumns + result.hoursTimer + result.hoursSteep).toFixed(1)} h`,
     '',
     'This is a draft for review. Confirm eave length, scope, stories, light type, extras, and all pricing before sending. It is not an electrical design, a load calculation, a permit determination, a landscape-lighting design, or a product warranty.',
   ].join('\n');

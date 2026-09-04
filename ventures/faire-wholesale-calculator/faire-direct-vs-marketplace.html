@@ -52,7 +52,10 @@
     th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #eee4d6; }
     th:first-child, td:first-child { text-align: left; }
     footer { margin-top: 28px; font-size: .82rem; color: #5c554d; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p class="eyebrow">FAIRE DIRECT VS MARKETPLACE</p>
@@ -118,10 +121,18 @@
     retailer discount use
     <a href="should-i-list-during-faire-open-house.html">Open House vs everyday first order</a>.
   </p>
+  <h2>Common questions</h2>
+  <h3>What is Faire Direct?</h3>
+  <p>Faire Direct is Faire's published 0% commission path for retailers you bring to the marketplace with your personalized link. Payment processing still applies. Marketplace orders from retailers who found you on Faire pay the standard commission, and a first marketplace order also includes the one-time new-customer fee.</p>
+  <h3>Is Faire Direct cheaper than the marketplace?</h3>
+  <p>On the same invoice, Direct has no commission, so net payout is higher before you count the work of finding the retailer yourself. Use the calculator with your own cost and payout speed. This page does not tell you which path to use.</p>
+  <h3>Does the Faire first-order fee matter if a retailer reorders?</h3>
+  <p>The new-customer fee is one-time. The brand calculator amortizes it across the opening order plus the reorders you expect from that retailer, and compares that lifetime to sending every order through Faire Direct or your own invoice. Enter the reorder count you actually see — this page does not forecast repeat purchase.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This page is free and as-is. It is not tax, financial, or business advice. Verify every fee against Faire’s current help articles and your own payout summary. Not affiliated with Faire Wholesale, Inc.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Free and open source. The <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Free and open source. The <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     <p><a href="./">Back to the brand calculator</a></p>
   </footer>
 </body>

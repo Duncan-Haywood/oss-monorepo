@@ -9,7 +9,11 @@
   <meta property="og:title" content="Grant Deadline Tracker for Small Nonprofits">
   <meta property="og:description" content="Replace a fragile grant spreadsheet with a private browser-local deadline and reporting tracker.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Grant Deadline Tracker","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local grant deadline, reporting, and award balance tracker for small nonprofits."}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When is my next grant report due?","acceptedAnswer":{"@type":"Answer","text":"If the award started 1 January 2025 and the funder wants a report every 6 months, the current period as of 26 August 2026 is 1 July 2026 — overdue — not the first interval after the award. Type the next date yourself when the award letter names a different day."}},{"@type":"Question","name":"Does this file a grant report?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is a planning record. It does not file a report, certify allowability, or determine a funder's deadline."}},{"@type":"Question","name":"Should I hire a grant writer to file this report on time?","acceptedAnswer":{"@type":"Answer","text":"On a typical $24,000 food-program award with $15,500 still unspent and a $6,000 next installment, $21,500 is at risk if the report is late. Filing it yourself at 14 hours and $42/hr costs $588 and keeps $20,912. A contract writer at 8 hours and $85/hr costs $680 and still keeps $20,820. Missing the report keeps $0 of that cash."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When is my next grant report due?","acceptedAnswer":{"@type":"Answer","text":"If the award started 1 January 2025 and the funder wants a report every 6 months, the current period as of 26 August 2026 is 1 July 2026 — overdue — not the first interval after the award. Type the next date yourself when the award letter names a different day."}},{"@type":"Question","name":"Does this file a grant report?","acceptedAnswer":{"@type":"Answer","text":"No. The tracker is a planning record. It does not file a report, certify allowability, or determine a funder's deadline."}},{"@type":"Question","name":"Should I hire a grant writer to file this report on time?","acceptedAnswer":{"@type":"Answer","text":"On a typical $24,000 food-program award with $15,500 still unspent and a $6,000 next installment, $21,500 is at risk if the report is late. Filing it yourself at 14 hours and $42/hr costs $588 and keeps $20,912. A contract writer at 8 hours and $85/hr costs $680 and still keeps $20,820. Missing the report keeps $0 of that cash."}},{"@type":"Question","name":"Does a renewal or clawback change how much is at risk?","acceptedAnswer":{"@type":"Answer","text":"Yes — add whichever lines your own award letter actually threatens. On that same $24,000 award, unspent funds plus the $6,000 installment is $21,500, but a funder that also claws back 25% of the $8,500 already spent adds $2,125, taking the total at risk to $23,625. Only check the boxes your letter names; the tracker does not invent a renewal or clawback that was never on the table."}},{"@type":"Question","name":"Can hiring a grant writer ever cost more than just missing the report?","acceptedAnswer":{"@type":"Answer","text":"Yes, on a small award. With $500 left at risk and no other obligation, a 20-hour writer at $85/hr costs $1,700 — paying $1,700 to protect $500 leaves you $1,200 worse off than simply missing the report's $500 hole. The tracker flags this case rather than defaulting to \"hire a writer\"; it does not mean the report doesn't matter, only that this particular fix costs more than the funds it protects."}},{"@type":"Question","name":"What do \"overdue,\" \"soon,\" and \"upcoming\" mean on the obligations list?","acceptedAnswer":{"@type":"Answer","text":"Overdue is any due date already in the past. Soon is due within the next 30 days. Upcoming is everything past that. The list sorts on this so the nearest and most overdue obligations sit at the top — it is how the tracker orders rows, not a funder's own grace period, which you should always confirm against the award letter."}}]}</script>
+  <!-- FAQPage schema is derived by platform/pages/build.mjs from the visible
+       question headings and paragraphs below at build time, not authored
+       here -- a hand-written block beside the copy drifts from it as the
+       copy changes. -->
   <style>
     :root{font-family:system-ui,sans-serif;color:#18221d;background:#f3f5ef;--ink:#18221d;--muted:#5d685f;--line:#cbd4c8;--card:#fff;--accent:#176b53;--warn:#9a5b00;--danger:#a52d2d}
     *{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:2rem 1rem 4rem}
@@ -38,7 +42,7 @@
     <p>PRIVATE GRANT WORKSPACE</p>
     <h1>Stop missing grant reports.</h1>
     <p class="lede">Track applications and funder reporting deadlines, see how much of each award remains, and take a clean CSV into your next finance meeting.</p>
-    <p class="fine"><a href="when-is-my-next-grant-report-due.html">When is my next grant report due?</a> · <a href="should-i-hire-a-grant-writer-to-file-this-report.html">Should I hire a grant writer to file this report?</a></p>
+    <p class="fine"><a href="when-is-my-next-grant-report-due.html">When is my next grant report due?</a> · <a href="should-i-hire-a-grant-writer-to-file-this-report.html">Should I hire a grant writer to file this report?</a> · <a href="vs-instrumentl.html">vs. Instrumentl</a></p>
   </header>
   <div class="grid">
     <section class="card">
@@ -205,6 +209,20 @@
     </div>
     <p class="hint" id="riskNote"></p>
   </section>
+  <h2>Common questions</h2>
+  <h3>When is my next grant report due?</h3>
+  <p>If the award started 1 January 2025 and the funder wants a report every 6 months, the current period as of 26 August 2026 is 1 July 2026 — overdue — not the first interval after the award. Type the next date yourself when the award letter names a different day.</p>
+  <h3>Does this file a grant report?</h3>
+  <p>No. The tracker is a planning record. It does not file a report, certify allowability, or determine a funder's deadline.</p>
+  <h3>Should I hire a grant writer to file this report on time?</h3>
+  <p>On a typical $24,000 food-program award with $15,500 still unspent and a $6,000 next installment, $21,500 is at risk if the report is late. Filing it yourself at 14 hours and $42/hr costs $588 and keeps $20,912. A contract writer at 8 hours and $85/hr costs $680 and still keeps $20,820. Missing the report keeps $0 of that cash.</p>
+  <h3>Does a renewal or clawback change how much is at risk?</h3>
+  <p>Yes — add whichever lines your own award letter actually threatens. On that same $24,000 award, unspent funds plus the $6,000 installment is $21,500, but a funder that also claws back 25% of the $8,500 already spent adds $2,125, taking the total at risk to $23,625. Only check the boxes your letter names; the tracker does not invent a renewal or clawback that was never on the table.</p>
+  <h3>Can hiring a grant writer ever cost more than just missing the report?</h3>
+  <p>Yes, on a small award. With $500 left at risk and no other obligation, a 20-hour writer at $85/hr costs $1,700 — paying $1,700 to protect $500 leaves you $1,200 worse off than simply missing the report's $500 hole. The tracker flags this case rather than defaulting to "hire a writer"; it does not mean the report doesn't matter, only that this particular fix costs more than the funds it protects.</p>
+  <h3>What do "overdue," "soon," and "upcoming" mean on the obligations list?</h3>
+  <p>Overdue is any due date already in the past. Soon is due within the next 30 days. Upcoming is everything past that. The list sorts on this so the nearest and most overdue obligations sit at the top — it is how the tracker orders rows, not a funder's own grace period, which you should always confirm against the award letter.</p>
+
   <footer>
     <p><strong>Use it safely.</strong> This is a planning record, not a grant compliance determination or filing service. Review dates and amounts against the funder's award documents.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -369,7 +387,18 @@
       $("lateReport").dataset.note = lateReportNote(comparison);
       if (count) countUsage("late_report_compared");
     } catch (error) {
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid comparison on screen next to a small error line -- that
+      // reads as if the stale cash-at-risk figures and path table still answer
+      // the inputs now in the form. Clear every derived field and show the
+      // message only in its own region.
       $("riskMessage").textContent = error.message;
+      $("riskAtRisk").textContent = "";
+      $("riskWriterCost").textContent = "";
+      $("riskKept").textContent = "";
+      $("riskRows").innerHTML = '<tr><td colspan="4" class="empty">Compare the three paths to see whether a writer still pays.</td></tr>';
+      $("riskNote").textContent = "";
+      $("lateReport").dataset.note = "";
     }
   }
 

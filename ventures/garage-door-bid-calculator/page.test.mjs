@@ -23,7 +23,7 @@ test('landing page names the niche problem and is crawlable', () => {
   assert.match(index, /not legal, tax, financial, engineering/);
   assert.match(index, /usageOptOut/);
   assert.match(index, /Copy bid summary/);
-  assert.match(index, /github.com\/Duncan-Haywood\/monorepo-projects/);
+  assert.match(index, /href="LICENSE"/);
 });
 
 test('niche how-to pages answer the search query in the first screen', () => {
@@ -41,4 +41,38 @@ test('robots and sitemap expose the calculator and the how-to pages', () => {
   assert.match(sitemap, /garage-door-bid-calculator\/<\/loc>/);
   assert.match(sitemap, /how-much-to-charge-to-replace-a-garage-door.html/);
   assert.match(sitemap, /how-much-to-charge-for-a-broken-spring.html/);
+});
+
+const proposalMarkup = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const proposalIds = new Set([...proposalMarkup.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
+const proposalScript = /<script type="module">([\s\S]*)<\/script>/.exec(proposalMarkup)[1];
+
+test('the customer-facing proposal has every field and control it needs', () => {
+  for (const id of [
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'clientName', 'clientAddress', 'depositPercent', 'validDays',
+    'proposalScope', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
+    'printProposal', 'forgetCompany', 'proposalStatus', 'proposalDoc',
+  ]) {
+    assert.ok(proposalIds.has(id), `missing #${id}`);
+  }
+  assert.match(proposalScript, /buildProposal/, 'the proposal builder is missing from the executable script');
+  assert.match(proposalScript, /renderProposalHtml/);
+  assert.match(proposalScript, /window\.print\(\)/, 'nothing actually sends the proposal to the printer');
+});
+
+test('printing sends the customer sheet and hides the contractor\u2019s own numbers', () => {
+  const print = /@media print\s*\{([\s\S]*?)\n    \}/.exec(proposalMarkup);
+  assert.ok(print, 'no print stylesheet; the browser would print the whole calculator');
+  // The cost breakdown, wages, and margin all live inside <main>. If <main>
+  // printed, the customer would receive the contractor's loaded labour rate.
+  assert.match(print[1], /main[^;{]*\{?[^}]*display:\s*none/i,
+    'the calculator UI is not excluded from the printed sheet');
+  assert.match(print[1], /\.pr-shell\s*\{[^}]*display:\s*block/i,
+    'the proposal is not shown on the printed sheet');
+});
+
+test('the proposal promises the customer\u2019s details are not stored', () => {
+  assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
+    'the privacy claim the module actually enforces should be stated on the page');
 });

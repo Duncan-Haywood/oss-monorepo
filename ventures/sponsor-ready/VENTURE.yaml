@@ -1,0 +1,49 @@
+name: sponsor-ready
+description: >-
+  Sponsor Ready — a free, client-side checklist that scores a public GitHub
+  repo against the signals that correlate with attracting GitHub Sponsors
+  (funding config, community health, activity, discoverability) and returns
+  a ranked "fix this first" list. No account, no server, no stored data.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: >-
+      Open-source maintainers who want more GitHub Sponsors will run a free,
+      no-signup readiness check on their own repo and return to re-check
+      after making a fix.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      scoreRepo() correctly separates "present and valid" from "missing" for
+      each checklist signal (FUNDING.yml, community-profile files, activity
+      recency, discoverability) against GitHub's documented API shapes, so
+      the score a visitor sees matches what a human reading the same repo
+      would conclude.
+    status: supported
+    checked: 2026-08-24
+    evidence: in-repo
+    note: >-
+      scoring.test.js exercises a fully-configured repo, a repo with nothing
+      configured, and edge cases (missing community/profile response, absent
+      FUNDING.yml, no README) against scoreRepo() directly — all pass under
+      `node --test`.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - >-
+    30 days after a public URL exists, usage shows single-digit scans
+    with no organic referrer and no repeat visits.
+  - >-
+    The free tool never earns a public deploy within 90 days (the owner-gated
+    step DIRECTION.md reserves for publishing under the portfolio's public
+    name).
+links:
+  production: null
+  analytics: null

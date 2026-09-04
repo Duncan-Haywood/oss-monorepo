@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cut List Optimizer | Compare 4×8 vs 5×5 Sheets and 8 ft vs 12 ft Boards</title>
+  <title>Cut List Optimizer — Compare Sheet Sizes and Board Lengths</title>
   <meta name="description" content="Free cut list optimizer for woodworkers and sign shops. Lay out plywood, MDF, or acrylic, compare 4×8 vs 5×5 sheets, and rank 8 ft vs 10 ft vs 12 ft boards before you buy. Nothing is uploaded.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Cut List Optimizer — compare sheet sizes and board lengths before you buy">
@@ -20,11 +20,12 @@
     "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet and board sizes by the material you would actually buy. Runs entirely on the visitor's device."
   }
   </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does the sheet layout decide where each piece goes?","acceptedAnswer":{"@type":"Answer","text":"Largest pieces are placed first, into the first spot on the sheet they fit, with your saw kerf and edge trim already subtracted from the usable area. It is a fast, practical heuristic, not a proven-optimal packing — always confirm the diagram against your own stock and saw before cutting."}},{"@type":"Question","name":"What does adding grain to the end of a line do?","acceptedAnswer":{"@type":"Answer","text":"It locks that one piece to its listed orientation even when \"Pieces may be rotated 90°\" is checked for everything else. Use it for a veneer face, a printed panel, or anything where the direction has to run one way — leaving rotation on for the rest of the list still lets the layout use less material on parts that don't care which way they're cut."}},{"@type":"Question","name":"What's the difference between \"material used\" and \"offcut area\"?","acceptedAnswer":{"@type":"Answer","text":"Material used is the actual area of the parts you listed; offcut area is everything left over on the sheets you buy, including the strips lost to kerf and edge trim. Utilization is used area divided by total sheet area bought — on the default three-part list it lands well under 100%, because a sheet you buy is a fixed size whether or not the parts fill it."}},{"@type":"Question","name":"When should I use the sheet-size or board-length comparison instead of just my usual size?","acceptedAnswer":{"@type":"Answer","text":"Whenever more than one size is actually stocked at the yard. The comparison re-runs the same cut list against each candidate size — for example a 4×8 against a 5×5 or a half-sheet — and ranks them by sheets needed, or by total cost once you enter a price for each. A size that looks cheaper per sheet can still lose if it takes more sheets to fit the same parts."}},{"@type":"Question","name":"Does the planner use my on-hand offcuts before buying new stock?","acceptedAnswer":{"@type":"Answer","text":"Yes, on both tabs. Cuts and panels are placed into your listed offcuts first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the sheet-goods tab an offcut is sized as width x height and can be larger than the sheet you'd otherwise buy — a leftover full sheet, say. On both tabs an untouched offcut stays off the plan entirely, since it's still on the rack, not consumed. On the default examples, the on-hand list already covers part of the required list, which is why \"Sheets to buy\" or \"New pieces to buy\" can come in lower than the raw part count would suggest."}},{"@type":"Question","name":"Is my cut list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below."}}]}</script>
   <style>
     :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #20241d; background: #f1eee6; }
     body { max-width: 1120px; margin: auto; padding: 34px 18px; }
     header { max-width: 780px; }
-    .eyebrow { color: #b44f2a; font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; }
+    .eyebrow { color: #af4d29; font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; }
     h1 { font: 800 clamp(2.2rem, 6.4vw, 4.4rem)/.96 Georgia, serif; letter-spacing: -.05em; margin: 8px 0 16px; }
     p { line-height: 1.55; }
     .tabs { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; }
@@ -34,7 +35,7 @@
     }
     .tabs button[aria-selected="true"] { background: #24392b; border-color: #24392b; color: #f8f5eb; }
     .tabs button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .actions button:focus-visible {
-      outline: 3px solid #b44f2a; outline-offset: 2px;
+      outline: 3px solid #af4d29; outline-offset: 2px;
     }
     .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; align-items: start; }
     section { background: #fffdf8; border: 1px solid #d6d0c3; border-radius: 16px; padding: 22px; box-shadow: 0 10px 30px #3328170d; }
@@ -194,6 +195,10 @@
 Shelf: 30 x 11.25 x 4
 Top: 31.5 x 11.25 x 2</textarea>
           </label>
+          <label class="wide">Offcuts you already have
+            <span class="muted">Optional &mdash; sized <code>width x height</code>, used before anything is bought</span>
+            <textarea id="sheet-onhand" spellcheck="false">31.5 x 11.25</textarea>
+          </label>
         </div>
       </section>
 
@@ -277,9 +282,11 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
         </dl>
+        <div class="warn" id="linear-oversize"></div>
         <div id="plan"></div>
         <div class="actions">
           <button type="button" id="copy-plan" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="linear-print">Print</button>
           <span class="muted" id="copy-status" role="status" aria-live="polite"></span>
         </div>
       </section>
@@ -298,6 +305,23 @@ Top: 31.5 x 11.25 x 2</textarea>
       </div>
     </section>
   </div>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+    <h3>How does the sheet layout decide where each piece goes?</h3>
+    <p>Largest pieces are placed first, into the first spot on the sheet they fit, with your saw kerf and edge trim already subtracted from the usable area. It is a fast, practical heuristic, not a proven-optimal packing — always confirm the diagram against your own stock and saw before cutting.</p>
+    <h3>What does adding <code>grain</code> to the end of a line do?</h3>
+    <p>It locks that one piece to its listed orientation even when "Pieces may be rotated 90°" is checked for everything else. Use it for a veneer face, a printed panel, or anything where the direction has to run one way — leaving rotation on for the rest of the list still lets the layout use less material on parts that don't care which way they're cut.</p>
+    <h3>What's the difference between "material used" and "offcut area"?</h3>
+    <p>Material used is the actual area of the parts you listed; offcut area is everything left over on the sheets you buy, including the strips lost to kerf and edge trim. Utilization is used area divided by total sheet area bought — on the default three-part list it lands well under 100%, because a sheet you buy is a fixed size whether or not the parts fill it.</p>
+    <h3>When should I use the sheet-size or board-length comparison instead of just my usual size?</h3>
+    <p>Whenever more than one size is actually stocked at the yard. The comparison re-runs the same cut list against each candidate size — for example a 4×8 against a 5×5 or a half-sheet — and ranks them by sheets needed, or by total cost once you enter a price for each. A size that looks cheaper per sheet can still lose if it takes more sheets to fit the same parts.</p>
+    <h3>Does the planner use my on-hand offcuts before buying new stock?</h3>
+    <p>Yes, on both tabs. Cuts and panels are placed into your listed offcuts first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the sheet-goods tab an offcut is sized as <code>width x height</code> and can be larger than the sheet you'd otherwise buy — a leftover full sheet, say. On both tabs an untouched offcut stays off the plan entirely, since it's still on the rack, not consumed. On the default examples, the on-hand list already covers part of the required list, which is why "Sheets to buy" or "New pieces to buy" can come in lower than the raw part count would suggest.</p>
+    <h3>Is my cut list uploaded anywhere?</h3>
+    <p>No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below.</p>
+    <p>Weighing this against a hosted optimizer? See <a href="vs-opticutter-and-cutlist-optimizer.html">this cut list optimizer vs. optiCutter and CutList Optimizer</a>.</p>
+  </section>
 
   <footer>
     <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
@@ -320,14 +344,14 @@ Top: 31.5 x 11.25 x 2</textarea>
     </p>
     <p>
       Free and open source. If it saved you a sheet or a stick of stock, the
-      <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> —
+      <a href="LICENSE">code is under an MIT licence</a> —
       <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
     </p>
   </footer>
 
   <script type="module">
     import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison } from './calc.mjs';
-    import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
+    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
     import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
 
@@ -382,7 +406,11 @@ Top: 31.5 x 11.25 x 2</textarea>
     const SHEET_STATS = ['sheet-count', 'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost'];
 
     function renderSheetSvg(result, sheet, index, unit) {
-      const { sheetWidth: w, sheetHeight: h, trim } = result;
+      // An on-hand offcut is its own size, not the configured sheet size, and
+      // carries no factory-edge trim to draw — its edges were already square.
+      const w = sheet.width;
+      const h = sheet.height;
+      const trim = sheet.source === 'on-hand' ? 0 : result.trim;
       const stroke = Math.max(w, h) / 900;
       const fontSize = Math.max(w, h) / 42;
       const pieces = sheet.placements.map((p) => {
@@ -399,10 +427,11 @@ Top: 31.5 x 11.25 x 2</textarea>
           </g>`;
       }).join('');
       const trimLine = trim > 0
-        ? `<rect x="${trim}" y="${trim}" width="${w - 2 * trim}" height="${h - 2 * trim}" fill="none" stroke="#b44f2a" stroke-width="${stroke}" stroke-dasharray="${Math.max(w, h) / 90}"/>`
+        ? `<rect x="${trim}" y="${trim}" width="${w - 2 * trim}" height="${h - 2 * trim}" fill="none" stroke="#af4d29" stroke-width="${stroke}" stroke-dasharray="${Math.max(w, h) / 90}"/>`
         : '';
+      const sheetKind = sheet.source === 'on-hand' ? 'on-hand offcut' : 'sheet';
       return `<svg viewBox="0 0 ${w} ${h}" role="img" preserveAspectRatio="xMidYMid meet">
-          <title>Sheet ${index + 1} layout: ${sheet.placements.length} pieces on a ${w} by ${h} ${escapeHtml(unit)} sheet</title>
+          <title>Sheet ${index + 1} layout: ${sheet.placements.length} pieces on a ${w} by ${h} ${escapeHtml(unit)} ${sheetKind}</title>
           <rect x="0" y="0" width="${w}" height="${h}" fill="#efeadf" stroke="#aaa394" stroke-width="${stroke}"/>
           ${trimLine}${pieces}
         </svg>`;
@@ -420,8 +449,9 @@ Top: 31.5 x 11.25 x 2</textarea>
         )).join('');
         const keepers = sheet.offcuts.slice(0, 3)
           .map((o) => `${o.width.toFixed(2)} × ${o.height.toFixed(2)}`).join(', ');
+        const tag = sheet.source === 'on-hand' ? ' — on-hand offcut' : '';
         return `<div class="sheet-card">
-            <h3>Sheet ${index + 1} — ${sheet.placements.length} piece${sheet.placements.length === 1 ? '' : 's'}</h3>
+            <h3>Sheet ${index + 1}${tag} — ${sheet.placements.length} piece${sheet.placements.length === 1 ? '' : 's'}</h3>
             ${renderSheetSvg(result, sheet, index, unit)}
             <ol class="piece-list">${pieces}</ol>
             ${keepers ? `<p class="muted">Offcuts worth keeping: ${keepers} ${escapeHtml(unit)}</p>` : ''}
@@ -441,17 +471,24 @@ Top: 31.5 x 11.25 x 2</textarea>
           trim: Number($('sheet-trim').value),
           allowRotation: $('sheet-rotate').checked,
           panels: parsePanels($('sheet-parts').value),
+          onHand: parseOnHandSheets($('sheet-onhand').value),
         });
         const count = result.sheets.length;
-        $('sheet-headline').textContent = `${count} sheet${count === 1 ? '' : 's'}`;
+        $('sheet-headline').textContent = !count
+          ? 'No sheets needed'
+          : result.sheetsPurchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.sheetsPurchased} sheet${result.sheetsPurchased === 1 ? '' : 's'}`;
         $('sheet-message').textContent = count
           ? 'Largest pieces are placed first. Confirm every dimension against your own stock and saw.'
           : 'No piece on this list fits a sheet that size.';
-        $('sheet-count').textContent = count;
+        $('sheet-count').textContent = result.onHandUsed
+          ? `${result.sheetsPurchased} (+ ${result.onHandUsed} on-hand offcut${result.onHandUsed === 1 ? '' : 's'} used)`
+          : result.sheetsPurchased;
         $('sheet-utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
         $('sheet-used').textContent = `${result.panelArea.toFixed(2)} sq ${unit}`;
         $('sheet-waste').textContent = `${result.wasteArea.toFixed(2)} sq ${unit}`;
-        $('sheet-total-cost').textContent = sheetCost ? (count * sheetCost).toFixed(2) : 'add a sheet price';
+        $('sheet-total-cost').textContent = sheetCost ? (result.sheetsPurchased * sheetCost).toFixed(2) : 'add a sheet price';
         $('sheet-oversize').innerHTML = result.oversize.length
           ? `<strong>${result.oversize.length} piece${result.oversize.length === 1 ? ' does' : 's do'} not fit on a sheet this size:</strong> `
             + result.oversize.map((p) => `${escapeHtml(p.label)} (${p.width} × ${p.height})`).join(', ')
@@ -609,16 +646,25 @@ Top: 31.5 x 11.25 x 2</textarea>
           onHand: parseStock($('onhand').value),
           stockCost,
         });
-        $('headline').textContent = result.purchased === 0
-          ? 'Nothing to buy'
-          : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
-        $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.';
+        $('headline').textContent = !result.bars.length
+          ? 'No cut fits this stock size'
+          : result.purchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+        $('message').textContent = result.bars.length
+          ? 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.'
+          : 'No cut on this list fits your stock length or on-hand offcuts.';
         $('bars').textContent = result.bars.length;
         $('purchased').textContent = result.purchased;
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
         $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
+        $('linear-oversize').innerHTML = result.oversize.length
+          ? `<strong>${result.oversize.length} cut${result.oversize.length === 1 ? ' does' : 's do'} not fit any stock length on hand or to buy:</strong> `
+            + result.oversize.map((cut) => format(cut)).join(', ')
+            + '. Check the length, or use a longer stock size.'
+          : '';
 
         const saved = $('saved');
         if (result.purchasesAvoided > 0) {
@@ -659,6 +705,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('message').textContent = error.message;
         $('saved').hidden = true;
         LINEAR_STATS.forEach((id) => { $(id).textContent = '—'; });
+        $('linear-oversize').innerHTML = '';
         $('plan').textContent = '';
         $('copy-plan').disabled = true;
         $('copy-plan').dataset.plan = '';
@@ -674,7 +721,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     /* ---------------- Wiring ---------------- */
 
     const DRAFT_FIELDS = [
-      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate',
+      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand', 'sheet-unit', 'sheet-rotate',
       'stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency',
     ];
 
@@ -741,7 +788,7 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     wireInputs(
       [
-        'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts',
+        'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand',
         'sheet-unit', 'sheet-rotate',
         'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
         'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
@@ -757,6 +804,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     wireCopy('copy-plan', 'copy-status', 'copies');
     wireCopy('linear-compare-copy', 'linear-compare-status', 'compares');
     $('sheet-print').addEventListener('click', () => window.print());
+    $('linear-print').addEventListener('click', () => window.print());
 
     function closestFromEvent(event, selector) {
       const start = event.target instanceof Element ? event.target : event.target.parentElement;

@@ -3,6 +3,8 @@
 
 import argparse
 import json
+import os
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
@@ -91,11 +93,36 @@ def usage_event(path: Path, finding_count: int) -> None:
 
 
 def write_report(path: Path, report: dict) -> None:
-    """Persist a portable JSON evidence report without adding customer data."""
+    """Persist a portable JSON evidence report without adding customer data.
+
+    The file is written to a sibling temporary name and replaced atomically so
+    a ticket or CI consumer never sees a truncated artifact.
+    """
+    target = Path(path)
+    temporary: str | None = None
     try:
-        path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=target.parent,
+            prefix=f".{target.name}.",
+            delete=False,
+        ) as handle:
+            temporary = handle.name
+            handle.write(json.dumps(report, indent=2, sort_keys=True) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, target)
+        temporary = None
     except OSError as exc:
         raise ValueError(f"cannot write report: {exc}") from exc
+    finally:
+        if temporary:
+            try:
+                os.unlink(temporary)
+            except OSError:
+                pass
 
 
 def render_markdown(report: dict) -> str:

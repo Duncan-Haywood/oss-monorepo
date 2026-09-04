@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Walk-In Shower Bid Calculator | Price the Drain, the Slope, and Saturday Overtime</title>
+  <title>Walk-In Shower Bid Calculator — Drain, Slope, Overtime</title>
   <meta name="description" content="Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.">
   <meta property="og:title" content="Walk-In Shower Bid Calculator">
   <meta property="og:description" content="A 5x3 alcove tub-to-shower with the existing valve is not the same job as a 5x5 curbless walk-in with a linear drain and frameless glass. Saturday is not the weekday bid.">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Walk-In Shower Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Wall and floor tile hours, tile waste, waterproofing, tub tear-out, valve relocate, linear drain, curbless slope, niches, masonry or floating bench, framed or frameless glass, steam unit, alcove vs curbless vs steam scope comparison, match-the-brochure per-SF walk-away, contractor-supplied vs customer-supplied tile comparison, $45/SF labor-only walk-away, weekday vs only-bath-in-use vs Saturday/after-hours comparison, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Walk-In Shower Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Wall and floor tile hours, tile waste, waterproofing, tub tear-out, valve relocate, linear drain, curbless slope, niches, masonry or floating bench, framed or frameless glass, steam unit, alcove vs curbless vs steam scope comparison, match-the-brochure per-SF walk-away, contractor-supplied vs customer-supplied tile comparison, $45/SF labor-only walk-away, weekday vs only-bath-in-use vs Saturday/after-hours comparison, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a curbless shower cost so much more than a standard framed one?","acceptedAnswer":{"@type":"Answer","text":"Curbless floors need the subfloor recessed or built up to create a barrier-free slope to the drain, which is a different framing and waterproofing detail than a standard curbed pan — that extra work, plus a linear drain if selected, adds hours a curbed shower never needs. Toggle curbless off to see how much of your bid that detail actually accounts for."}},{"@type":"Question","name":"The customer already bought the tile — does that mean labor is cheap?","acceptedAnswer":{"@type":"Answer","text":"No. Zeroing the tile invoice is not a free set: unpacking, sorting, and setting owner-supplied tile still takes the same hours, and a short order or dye-lot mismatch becomes your second trip and a retail fill-in the customer expects you to cover, not a cost you caused. Price the labor the same way regardless of who bought the material."}},{"@type":"Question","name":"Does relocating the valve or adding a bench get priced automatically from the square footage?","acceptedAnswer":{"@type":"Answer","text":"No, they're separate toggles because they don't scale with tile area — a valve relocate is plumbing work behind the wall, and a masonry bench is its own framed and waterproofed structure, both add fixed hours on top of whatever the wall and floor tile square footage already costs."}},{"@type":"Question","name":"Does this verify my waterproofing method meets code?","acceptedAnswer":{"@type":"Answer","text":"No. It prices the scope you describe from your own hour and material rates; it is not an industry standard, a waterproofing warranty, or a building-code determination. Confirm your waterproofing assembly and any inspection requirements with your local building department."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2a33; background: #e4eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,9 +25,13 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #9bb0ba; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #9bb0ba; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9bb0ba; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2a33; }
     button:hover { background: #dceaf0; }
     .result { position: sticky; top: 15px; background: #16323d; color: #eef6f8; border-color: #16323d; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -52,7 +57,7 @@
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
     textarea { width: 100%; box-sizing: border-box; border: 1px solid #b6a08c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
-    .proposal-status { font-size: .8rem; color: #8a3d1c; }
+    .proposal-status { font-size: .8rem; color: #4a5c66; }
 
     /* The proposal document. Screen preview and printed sheet share this one
        block of rules, so what the contractor checks is what the customer gets.
@@ -284,6 +289,8 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a waterproofing warranty, or a building-code determination &mdash; replace them with your own takeoff.</p>
     </section>
+
+    <section><h2>Common questions</h2><h3>Why does a curbless shower cost so much more than a standard framed one?</h3><p>Curbless floors need the subfloor recessed or built up to create a barrier-free slope to the drain, which is a different framing and waterproofing detail than a standard curbed pan &mdash; that extra work, plus a linear drain if selected, adds hours a curbed shower never needs. Toggle curbless off to see how much of your bid that detail actually accounts for.</p><h3>The customer already bought the tile &mdash; does that mean labor is cheap?</h3><p>No. Zeroing the tile invoice is not a free set: unpacking, sorting, and setting owner-supplied tile still takes the same hours, and a short order or dye-lot mismatch becomes your second trip and a retail fill-in the customer expects you to cover, not a cost you caused. Price the labor the same way regardless of who bought the material.</p><h3>Does relocating the valve or adding a bench get priced automatically from the square footage?</h3><p>No, they're separate toggles because they don't scale with tile area &mdash; a valve relocate is plumbing work behind the wall, and a masonry bench is its own framed and waterproofed structure, both add fixed hours on top of whatever the wall and floor tile square footage already costs.</p><h3>Does this verify my waterproofing method meets code?</h3><p>No. It prices the scope you describe from your own hour and material rates; it is not an industry standard, a waterproofing warranty, or a building-code determination. Confirm your waterproofing assembly and any inspection requirements with your local building department.</p></section>
   </main>
 
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
@@ -295,8 +302,8 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, waterproofing, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your tile, wages, costs, or prices.</p>
-    <p>Related: <a href="how-much-to-charge-to-install-a-walk-in-shower.html">How much to charge to install a walk-in shower</a>. Matching a brochure number? See <a href="should-i-match-an-alcove-price-on-a-curbless-walk-in.html">should I match an alcove price on a curbless walk-in</a>. Customer bought the tile? See <a href="should-i-install-customer-supplied-tile.html">should I install customer-supplied tile</a>. They want Saturday? See <a href="should-i-tile-a-walk-in-shower-after-hours.html">should I tile a walk-in shower after hours</a>.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p>Related: <a href="how-much-to-charge-to-install-a-walk-in-shower.html">How much to charge to install a walk-in shower</a>. Matching a brochure number? See <a href="should-i-match-an-alcove-price-on-a-curbless-walk-in.html">should I match an alcove price on a curbless walk-in</a>. Customer bought the tile? See <a href="should-i-install-customer-supplied-tile.html">should I install customer-supplied tile</a>. They want Saturday? See <a href="should-i-tile-a-walk-in-shower-after-hours.html">should I tile a walk-in shower after hours</a>. Wondering how this compares to a field-service platform? <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -322,7 +329,8 @@
       forgetCompany,
       renderProposalHtml,
     } from './proposal.mjs';
-    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const FIELD_IDS = [
       'wallTileSf','floorTileSf','niches','wastePercent','hoursPer100Tile','hoursWaterproofPer100',
@@ -333,7 +341,11 @@
       'travelAndEquipment','overheadRate','targetMargin','proposedPrice',
     ];
     const FLAG_IDS = ['tearOutTub','relocateValve','linearDrain','curbless','steamUnit'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');
@@ -512,7 +524,11 @@
     }
 
     async function copySummary() {
-      const job = JOB_PRESETS[Number(presets.value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       const text = formatBidSummary(calculateBid(readInput()), job?.label);
       try {
         await navigator.clipboard.writeText(text);
@@ -533,7 +549,7 @@
     }
 
     presets.addEventListener('change', () => {
-      const job = JOB_PRESETS[Number(presets.value)];
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
       applyJob(job);
       count('preset_applied');
@@ -623,7 +639,7 @@
       const values = Object.fromEntries(
         [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
       );
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       return {
         ...values,
         // The customer is quoted the price the contractor is considering when
@@ -735,7 +751,7 @@
 
     function persist() {
       try {
-        saveBid(localStorage, BID_SPEC, readInput());
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
       } catch {
         // A browser with site data blocked throws on access. Losing the save
         // is survivable; losing the calculator mid-bid is not.
@@ -743,7 +759,8 @@
     }
 
     async function copyLink() {
-      const query = encodeBid(BID_SPEC, readInput());
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
       const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
@@ -759,11 +776,15 @@
         fallback.remove();
       }
       count('link_copied');
-      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
-      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
-    const restored = restoreBid(BID_SPEC, {
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
       search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });

@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gutter Cleaning Bid Calculator | Price Stories, Guards, and Downspouts</title>
+  <title>Gutter Cleaning Bid Calculator — Stories, Guards, Spouts</title>
   <meta name="description" content="Price a gutter cleaning visit from linear feet, stories, roof pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, a minimum stop charge, and an optional spring-and-fall contract.">
   <meta property="og:title" content="Gutter Cleaning Bid Calculator">
   <meta property="og:description" content="Bid gutter cleaning the way the job actually takes time — stories, guards, and downspouts, not a flat price per linear foot.">
   <link rel="canonical" href="https://example.invalid/gutter-cleaning-bid-calculator/">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-run labor from linear feet, story, pitch, gutter-guard, and debris multipliers; downspout flush time; travel and setup; minimum stop charge; seasonal contract; walk-away visit price; implied price per linear foot"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-run labor from linear feet, story, pitch, gutter-guard, and debris multipliers; downspout flush time; travel and setup; minimum stop charge; seasonal contract; walk-away visit price; implied price per linear foot; shareable quote link; printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this gutter cleaning estimate include?","acceptedAnswer":{"@type":"Answer","text":"The visit price adds up loaded labor for every run you enter — linear feet, downspout flushing, and travel/setup — plus disposal, equipment, overhead, and your target margin, then applies a minimum stop charge if the raw price comes in under it. Nothing is a flat per-linear-foot rate."}},{"@type":"Question","name":"Why do story, pitch, guards, and debris all multiply together?","acceptedAnswer":{"@type":"Answer","text":"Each run's difficulty factor is story × pitch × guards × debris, all against a one-story, low-pitch, open-gutter, leaf-only baseline. A two-story steep-pitch run behind micro-mesh screens clogged with needles can take several times longer per foot than that baseline — a flat per-foot quote cannot see that difference, which is exactly how it loses money."}},{"@type":"Question","name":"Why do downspouts only inherit the story factor, not pitch, guards, or debris?","acceptedAnswer":{"@type":"Answer","text":"Flushing and testing a downspout is a separate task from clearing the trough. Pitch, guards, and debris change how hard the trough itself is to clear, so they don't apply to the downspout line — but a second-story leader still takes longer to reach and test, so the story factor does."}},{"@type":"Question","name":"What's the difference between a one-time visit and a seasonal contract?","acceptedAnswer":{"@type":"Answer","text":"Visits per year controls this: 1 prices a single clean, and 2 or more multiplies that same visit price by the number of cleanings — typically a spring-and-fall contract — for the annual total shown at the bottom of the bid. Each visit is priced identically; the tool doesn't discount repeat visits on its own."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. “Copy share link” encodes your runs and cost inputs into this page's own URL hash so a partner or the office can open the same bid; nothing is sent to a server. Only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this check gutter damage, roof condition, or drainage?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and difficulty factors are ballpark shop figures you can edit, not a roof or drainage inspection. Cleaning clears debris; it says nothing about sagging fascia, failing seams, undersized downspouts, or whether the runoff actually drains once it leaves them — that's a judgment call for the site visit, and the printed proposal says so too."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -27,10 +28,12 @@
     .run-row select, .run-row input { padding: 10px 6px; }
     .run-head { font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     .run-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .result { position: sticky; top: 15px; background: #14303b; color: #f2f7f8; border-color: #14303b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -58,14 +61,71 @@
       .run-row label:first-child { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #14303b; --pr-accent: #1c5f7a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR GUTTER CLEANING CONTRACTORS</p>
     <h1>Bid the stories and the downspouts, not the linear feet.</h1>
     <p>Price a gutter cleaning the way the job actually takes time: each run of trough, the story it sits on, the pitch, whether guards are in the way, what is in it, and every downspout you have to flush. You get the visit price, what that works out to per linear foot, the walk-away number, and an optional spring-and-fall contract.</p>
-    <p class="hint" style="margin:0">New to two-story pricing? <a href="./two-story-gutter-cleaning-cost.html">Why a second story is not twice the footage</a>.</p>
+    <p class="hint" style="margin:0">New to two-story pricing? <a href="./two-story-gutter-cleaning-cost.html">Why a second story is not twice the footage</a>. Already run field service software? <a href="./vs-jobber.html">How this calculator differs from Jobber</a>.</p>
   </header>
 
   <main class="layout">
@@ -77,7 +137,7 @@
           <span>Run</span><span>Linear ft</span><span>Stories</span><span>Pitch</span><span>Guards</span><span>Debris</span><span>Downspouts</span><span></span>
         </div>
         <div id="runs"></div>
-        <button type="button" id="addRun">+ Add a run</button>
+        <button type="button" id="addRun" data-pf-repeat="r">+ Add a run</button>
       </section>
 
       <section>
@@ -119,6 +179,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -127,21 +188,109 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting minutes and difficulty factors are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Eaveline Exterior Care LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="0"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Clear all gutters and downspouts&#10;Flush and check for flow"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Gutter repair, resealing, or re-hanging&#10;Roof or fascia repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Someone does not need to be home. We will leave a note when the work is done."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this gutter cleaning estimate include?</h3>
+      <p>The visit price adds up loaded labor for every run you enter &mdash; linear feet, downspout flushing,
+        and travel/setup &mdash; plus disposal, equipment, overhead, and your target margin, then applies a
+        minimum stop charge if the raw price comes in under it. Nothing is a flat per-linear-foot rate.</p>
+
+      <h3>Why do story, pitch, guards, and debris all multiply together?</h3>
+      <p>Each run's difficulty factor is story &times; pitch &times; guards &times; debris, all against a
+        one-story, low-pitch, open-gutter, leaf-only baseline. A two-story steep-pitch run behind
+        micro-mesh screens clogged with needles can take several times longer per foot than that baseline
+        &mdash; a flat per-foot quote cannot see that difference, which is exactly how it loses money.</p>
+
+      <h3>Why do downspouts only inherit the story factor, not pitch, guards, or debris?</h3>
+      <p>Flushing and testing a downspout is a separate task from clearing the trough. Pitch, guards, and
+        debris change how hard the trough itself is to clear, so they don't apply to the downspout line
+        &mdash; but a second-story leader still takes longer to reach and test, so the story factor does.</p>
+
+      <h3>What's the difference between a one-time visit and a seasonal contract?</h3>
+      <p>Visits per year controls this: 1 prices a single clean, and 2 or more multiplies that same visit
+        price by the number of cleanings &mdash; typically a spring-and-fall contract &mdash; for the
+        annual total shown at the bottom of the bid. Each visit is priced identically; the tool doesn't
+        discount repeat visits on its own.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser.
+        &ldquo;Copy share link&rdquo; encodes your runs and cost inputs into this page's own URL hash
+        so a partner or the office can open the same bid; nothing is sent to a server. Only your business
+        name and contact details for the printed proposal are kept in this browser's local storage, and
+        &ldquo;Forget my business details&rdquo; clears them.</p>
+
+      <h3>Does this check gutter damage, roof condition, or drainage?</h3>
+      <p>No. Hours and difficulty factors are ballpark shop figures you can edit, not a roof or drainage
+        inspection. Cleaning clears debris; it says nothing about sagging fascia, failing seams, undersized
+        downspouts, or whether the runoff actually drains once it leaves them &mdash; that's a judgment call
+        for the site visit, and the printed proposal says so too.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and job times, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your house, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, formatBidSummary, STORY_PRESETS, PITCH_PRESETS, GUARD_PRESETS, DEBRIS_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-
+    import { encodeShare, decodeShare } from './share.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
     const COST_IDS = ['hourlyWage','burdenRate','minutesPer10ft','minutesPerDownspout','travelMinutes','disposalPerVisit','equipmentPerVisit','overheadRate','targetMargin','visitsPerYear','minimumCharge','proposedPrice'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
     const options = presets => presets.map(preset => `<option value="${preset.id}">${preset.label}</option>`).join('');
 
@@ -217,6 +366,21 @@
       el('verdict').hidden = true;
     }
 
+    /**
+     * The one place the job on screen is turned into a calculator input.
+     * `update`, the copied summary and the customer proposal all price the
+     * same object; separate literals at each call site is how they come to be
+     * priced from different fields. The default parameter lets `update` pass
+     * rows it has already read rather than reading them twice.
+     */
+    function readInput(runs = readRuns()) {
+      return {
+        runs,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
     function update() {
       const runs = readRuns();
       if (runs.length === 0) {
@@ -226,11 +390,7 @@
       }
       let result;
       try {
-        result = calculateBid({
-          runs,
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-          proposedPrice: el('proposedPrice').value,
-        });
+        result = calculateBid(readInput(runs));
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -278,11 +438,7 @@
     }
 
     async function copySummary() {
-      const result = calculateBid({
-        runs: readRuns(),
-        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        proposedPrice: el('proposedPrice').value,
-      });
+      const result = calculateBid(readInput());
       const text = formatBidSummary(result);
       try {
         await navigator.clipboard.writeText(text);
@@ -299,6 +455,32 @@
       }
       count('summary_copied');
       el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied.';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -320,9 +502,156 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
-    STARTING_RUNS.forEach(addRunRow);
+    // A share link takes priority over the built-in starting runs: opening a
+    // link someone sent means seeing the job they sent, not the default
+    // three-run example.
+    const shared = decodeShare(location.hash);
+    (shared?.runs?.length > 0 ? shared.runs : STARTING_RUNS).forEach(addRunRow);
+    if (shared) {
+      COST_IDS.forEach(id => { if (shared[id] !== undefined) el(id).value = shared[id]; });
+    }
     update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'gutter-cleaning-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Cleaning clears debris; it is not a roof, gutter, fascia, or drainage inspection, and it is not a warranty against future clogs or overflow.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Hand-clear the gutters and flush the downspouts on the runs listed below",
+        {
+          "each": "runs",
+          "when": "linearFeet",
+          "line": "{name} — {linearFeet~0} ft, {storyLabel}"
+        },
+        {
+          "line": "Clear and flush {totalDownspouts~0} downspout{totalDownspouts+s}",
+          "when": "totalDownspouts"
+        },
+        "Bag the debris and remove it from the property",
+        "Leave the downspouts running clear at the outlets"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.visitPrice : result.proposed.price,
+        jobTitle: scopeLines(['Gutter cleaning — {totalLinearFeet~0} linear ft'], result)[0] || 'Gutter cleaning — linear ft',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

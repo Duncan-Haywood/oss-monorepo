@@ -19,6 +19,10 @@
     section { background: #fffdf9; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; } h2 { margin-top: 0; font-size: 1.15rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .alert { background: #fff4e5; color: #25221f; border-radius: 8px; padding: 10px 12px; font-size: .9rem; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
@@ -70,6 +74,14 @@
       <p class="note">Your numbers stay in this browser. This is arithmetic from your inputs, not Etsy's live Offsite Ads schedule and not a recommendation to opt in or out. Open the <a href="./#offsite-ads">order calculator</a> to keep these fees next to Plus, Ads, and free shipping.</p>
     </section>
   </main>
+  <h2>Common questions</h2>
+  <h3>What is the Etsy Offsite Ads fee?</h3>
+  <p>Etsy Offsite Ads typically charge 15% of the order total for shops under $10,000 in trailing 12-month sales, or 12% for shops over that threshold. The fee applies on top of listing, transaction, and payment-processing fees when Etsy attributes the sale to an offsite ad. Those percentages are starting points you replace with the rate on your statement.</p>
+  <h3>Can Offsite Ads make an Etsy order unprofitable?</h3>
+  <p>Yes. On a $14 handmade print with $3 shipping charged, $5.50 shipping cost, and $7 in materials, the order still clears $2.44 organically and $0.39 at 12%, but loses $0.12 at 15%. Cash invested is $12.50. The order stays at or above $0.00 leftover until Offsite Ads reach about 14.3%.</p>
+  <h3>Are Offsite Ads the same as Etsy Ads?</h3>
+  <p>No. On-site Etsy Ads is a click you buy; ACOS is spend divided by attributed sales. Offsite Ads is a percentage Etsy takes when it sends the buyer from Google or social. They stack. On the calculator's default $30 listing, 15% Offsite Ads still leave $15.98 versus $21.23 organic — the $14 print is the case that flips to a loss.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -125,7 +137,11 @@
         document.getElementById('at12').textContent = at12 ? money(at12.profit) : '—';
         document.getElementById('at15').textContent = at15 ? money(at15.profit) : '—';
         document.getElementById('cash').textContent = money(organic.cashInvested);
-        document.getElementById('cap').textContent = `${cap.toFixed(1)}%`;
+        // null: the order is already below break-even at 0% ads, so there is
+        // no ceiling. "0.0%" would read as a real, if tight, headroom figure.
+        document.getElementById('cap').textContent = cap === null
+          ? 'none — already below at 0%'
+          : Number.isFinite(cap) ? `${cap.toFixed(1)}%` : 'any rate';
         document.getElementById('offsiteNote').textContent = offsiteAdsNote(rows, cap);
         if (at15 && !at15.stillProfitable && organic.stillProfitable) {
           insight.hidden = false;

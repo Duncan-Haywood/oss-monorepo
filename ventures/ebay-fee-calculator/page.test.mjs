@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { INPUT_FIELDS } from './calc.mjs';
 
 const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const vsSeo = readFileSync(new URL('./vs-ebay-fee-calculator.html', import.meta.url), 'utf8');
 const article = readFileSync(new URL('./do-ebay-returns-wipe-the-profit.html', import.meta.url), 'utf8');
 const formatArticle = readFileSync(new URL('./should-i-list-ebay-auction-or-buy-it-now.html', import.meta.url), 'utf8');
 
@@ -11,6 +12,13 @@ test('the form exposes every calculator field so a saved or shared link can rest
   for (const field of INPUT_FIELDS) {
     assert.match(page, new RegExp(`id="${field}"`), field);
   }
+});
+
+test('the result panel shows the item price that holds a typed leftover', () => {
+  assert.match(page, /id="targetProfit"/);
+  assert.match(page, /id="targetProfitPrice"/);
+  assert.match(page, /targetProfitPrice/);
+  assert.match(page, /target_profit_calculated/);
 });
 
 test('the result panel shows a sourcing ceiling for the typed target ROI', () => {
@@ -253,7 +261,7 @@ test('the Promoted Listings Standard table has one cell per column and a counted
   assert.match(page, /are-ebay-promoted-listings-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Standard vs skip/);
   const standardStart = page.indexOf('id="promotedStandardTable"');
-  const standardEnd = page.indexOf('id="promotedAdvanced"', standardStart);
+  const standardEnd = page.indexOf('id="promotedRateTable"', standardStart);
   const headerBlock = page.slice(standardStart, standardEnd === -1 ? undefined : standardEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -265,6 +273,18 @@ test('the Promoted Listings Standard table has one cell per column and a counted
     'Expected after ads',
     'vs skip',
   ]);
+});
+
+test('the Promoted Listings Standard section also shows a rate ladder and an ad-rate cap', () => {
+  assert.match(page, /calculatePromotedTable/);
+  assert.match(page, /maxAffordablePromotedRate/);
+  assert.match(page, /id="promotedRateTable"/);
+  assert.match(page, /id="promotedRateCap"/);
+  const ladderStart = page.indexOf('id="promotedRateTable"');
+  const ladderEnd = page.indexOf('id="promotedAdvanced"', ladderStart);
+  const headerBlock = page.slice(ladderStart, ladderEnd === -1 ? undefined : ladderEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, ['Ad rate', 'Leftover', 'After returns', 'vs 0%']);
 });
 
 test('the Promoted Listings Advanced table has one cell per column and a counted event', () => {
@@ -548,4 +568,31 @@ test('Download repricing CSV is wired to the calculated table', () => {
   assert.match(page, /repricingCsv/);
   assert.match(page, /repricing_csv_downloaded/);
   assert.match(page, /from '\.\/csv\.mjs'/);
+});
+
+test('the incumbent-comparison page links back, names eBay\'s own tools honestly, and gives no unverifiable eBay dollar figures', () => {
+  assert.match(page, /vs-ebay-fee-calculator\.html/);
+  assert.match(vsSeo, /<a href="\.\/">/);
+  // Names eBay's own tools and links to eBay's own domain so a reader can
+  // check the source directly -- this page must never claim a dollar or
+  // percentage figure for eBay's own Fee Calculator or Fee Illustrator that
+  // only eBay's live schedule could confirm.
+  assert.match(vsSeo, /ebay\.com\/sellercenter/);
+  assert.match(vsSeo, /Fee Illustrator/);
+  assert.doesNotMatch(vsSeo, /eBay('s)? (charges|fee is|costs?) \$/i);
+  assert.doesNotMatch(vsSeo, /eBay('s)? (own )?Fee Calculator[^.]*\d+(\.\d+)?%/i);
+  assert.match(vsSeo, /not affiliated with, endorsed by, or sponsored by eBay/i);
+  assert.match(vsSeo, /trademarks of eBay Inc\./i);
+  // Both cross-links this page makes into the main page must resolve to
+  // ids that actually exist there, or a reader following them lands nowhere.
+  assert.match(vsSeo, /#returns"/);
+  assert.match(page, /id="returns"/);
+  assert.match(vsSeo, /#storeTiers"/);
+  assert.match(page, /id="storeTiers"/);
+});
+
+test('the incumbent-comparison page carries the standard disclaimer and sponsor link', () => {
+  assert.match(vsSeo, /No warranty/);
+  assert.match(vsSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

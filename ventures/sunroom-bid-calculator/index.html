@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sunroom Bid Calculator | How Much to Charge to Build a Sunroom</title>
+  <title>Sunroom Bid Calculator — Price to Build a Sunroom</title>
   <meta name="description" content="Price a residential sunroom or three-season room from the glazed-wall square feet a floor-square-foot special cannot see, the thermal floor, the insulated roof, and HVAC — plus walk-away price and proposed-price margin check.">
   <meta property="og:title" content="Sunroom Bid Calculator">
   <meta property="og:description" content="Bid the glass, the floor, and the roof — not the floor-square-foot coupon. See the margin before you send the price.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sunroom Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Glazed-wall geometry, three-season vinyl vs four-season insulated glass, existing-deck/slab/new-slab floor, existing or insulated roof, 8/10 ft walls, HVAC and electrical extras, walk-away price, proposed-price margin check, copyable customer-facing summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sunroom Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Glazed-wall geometry, three-season vinyl vs four-season insulated glass, existing-deck/slab/new-slab floor, existing or insulated roof, 8/10 ft walls, HVAC and electrical extras, walk-away price, proposed-price margin check, copyable customer-facing summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the effective hourly rate read $639?","acceptedAnswer":{"@type":"Answer","text":"Because it is a check figure, not a labor rate. The default room prices at $15,193.99 over 23.788 hours, but $8,269 of that is the kit, glazing, and finishes — against $1,175.13 of labor. Dividing the whole price by crew hours flatters the number on any material-heavy job. It is useful for spotting a job that has quietly become all-material-no-margin, not for setting a shop rate."}},{"@type":"Question","name":"Does $126.62 per square foot scale to a bigger room?","acceptedAnswer":{"@type":"Answer","text":"Not reliably. It is $15,193.99 over the default 120 sq ft, and several of the biggest inputs — the mobilization, the tie-in to the existing structure, the permit, the site day — do not grow with floor area. A 240 sq ft room costs more than a 120 sq ft one but well short of double. Per-square-foot figures are for comparing two quotes on the same size room."}},{"@type":"Question","name":"What is not in this number?","acceptedAnswer":{"@type":"Answer","text":"The things that most often turn a sunroom quote into a construction project: foundation or slab work, structural modification where the room ties into the house, HVAC extension, electrical circuits, and any engineering or drawings your jurisdiction requires for a permanent addition. A three-season room on an existing deck and a conditioned year-round addition price very differently, and only the first is close to the defaults here."}},{"@type":"Question","name":"Why is the margin a division rather than a markup?","acceptedAnswer":{"@type":"Answer","text":"Because a 25% margin means profit is 25% of the price. The default room costs $11,395.50, so the price is $11,395.50 ÷ 0.75 = $15,193.99. Adding 25% to cost would give $14,244.37 and leave you at exactly a 20% margin — a $950 difference on one room, which is most of a week’s profit on a job this size."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,9 +26,11 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
     .check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #16343c; color: #eef6f4; border-color: #16343c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -48,6 +51,62 @@
     .summary-status { font-size: .8rem; color: #c5e8e2; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #16343c; --pr-accent: #1c5a6a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
     }
   </style>
 </head>
@@ -152,6 +211,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. A square-foot special written on the floor never sees it — or the glass.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the homeowner &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Delaurentis Sunrooms LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(717) 555-0193"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="PA-HIC-118240"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="980 Eisenhower Blvd, Harrisburg PA"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="E. Kovac"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="233 N 2nd St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Build 14 ft × 16 ft four-season sunroom&#10;New insulated slab"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Interior finishes beyond those listed&#10;Permit fees"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Glass and frame colour selected from samples before the order is placed."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -190,13 +285,47 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting spans, window widths, hours, and material rates are common ballpark figures, not a building-code opinion, a permit, a warranty, or an engineering stamp. Time your own crews and replace them.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Why does the effective hourly rate read $639?</h3>
+      <p>Because it is a check figure, not a labor rate. The default room prices at $15,193.99 over
+        23.788 hours, but $8,269 of that is the kit, glazing, and finishes &mdash; against $1,175.13 of
+        labor. Dividing the whole price by crew hours flatters the number on any material-heavy job. It
+        is useful for spotting a job that has quietly become all-material-no-margin, not for setting a
+        shop rate.</p>
+
+      <h3>Does $126.62 per square foot scale to a bigger room?</h3>
+      <p>Not reliably. It is $15,193.99 over the default 120 sq ft, and several of the biggest inputs
+        &mdash; the mobilization, the tie-in to the existing structure, the permit, the site day &mdash;
+        do not grow with floor area. A 240 sq ft room costs more than a 120 sq ft one but well short of
+        double. Per-square-foot figures are for comparing two quotes on the same size room.</p>
+
+      <h3>What is not in this number?</h3>
+      <p>The things that most often turn a sunroom quote into a construction project: foundation or
+        slab work, structural modification where the room ties into the house, HVAC extension,
+        electrical circuits, and any engineering or drawings your jurisdiction requires for a permanent
+        addition. A three-season room on an existing deck and a conditioned year-round addition price
+        very differently, and only the first is close to the defaults here.</p>
+
+      <h3>Why is the margin a division rather than a markup?</h3>
+      <p>Because a 25% margin means profit is 25% of the price. The default room costs $11,395.50, so
+        the price is $11,395.50 &divide; 0.75 = $15,193.99. Adding 25% to cost would give $14,244.37 and
+        leave you at exactly a 20% margin &mdash; a $950 difference on one room, which is most of a
+        week&rsquo;s profit on a job this size.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use. Hosted URLs, when they exist, may be taken offline without notice; there is no availability SLA.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your spans, wages, costs, or prices.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p>Related: <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -221,7 +350,16 @@
       suggestedHeightKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const FIELD_IDS = [
       'attachment','enclosure','foundation','roof','height','widthFeet','depthFeet','kneeWallInches','windowWidthInches','sliderCount',
@@ -237,7 +375,11 @@
       'hoursPer100SfGlass','glassPerSf','hoursPer100SfFloor','floorPerSf','hoursPer100SfRoof','roofPerSf',
       'extraHoursPerWindow',
     ]);
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     function fillSelect(id, items) {
@@ -383,7 +525,11 @@
 
     async function copySummary() {
       const result = calculateBid(readInput());
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       const text = formatBidSummary(result, preset ? preset.label : 'Sunroom / three-season room');
       try {
         await navigator.clipboard.writeText(text);
@@ -451,7 +597,7 @@
       });
     });
     el('jobPresets').addEventListener('change', () => {
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       if (!preset) return;
       el('attachment').value = preset.attachment;
       el('enclosure').value = preset.enclosure;
@@ -518,7 +664,7 @@
 
     function persist() {
       try {
-        saveBid(localStorage, BID_SPEC, readInput());
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
       } catch {
         // A browser with site data blocked throws on access. Losing the save
         // is survivable; losing the calculator mid-bid is not.
@@ -526,7 +672,8 @@
     }
 
     async function copyLink() {
-      const query = encodeBid(BID_SPEC, readInput());
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
       const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
@@ -542,11 +689,15 @@
         fallback.remove();
       }
       count('link_copied');
-      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
-      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
-    const restored = restoreBid(BID_SPEC, {
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
       search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
@@ -576,7 +727,144 @@
     document.addEventListener('input', persist);
     document.addEventListener('change', persist);
 
+
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'sunroom-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a structural, energy-code, building-code, or engineering determination, and it does not warrant that any sunroom may be built, permitted, or conditioned as described.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const label = (list, id) => list.find(item => item.id === id)?.label ?? '';
+      const suggested = [
+        `Build a ${result.widthFeet} ft × ${result.depthFeet} ft sunroom `
+          + `(${Math.round(result.footprintSf).toLocaleString('en-US')} sq ft)`,
+        `Enclosure: ${label(ENCLOSURE_PRESETS, result.enclosure)}`,
+        `Foundation: ${label(FOUNDATION_PRESETS, result.foundation)}`,
+        `Roof: ${label(ROOF_PRESETS, result.roof)}`,
+        result.windowCount > 0
+          ? `${result.windowCount} window unit${result.windowCount === 1 ? '' : 's'}`
+            + (result.sliderCount > 0
+              ? ` and ${result.sliderCount} slider${result.sliderCount === 1 ? '' : 's'}`
+              : '')
+          : '',
+        result.includeElectrical ? 'Electrical rough-in, outlets, and lighting' : '',
+        result.includeHvac ? 'Heating and cooling to the new space' : '',
+        'Site protection and clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.price
+          : result.proposed.price,
+        jobTitle: 'Sunroom construction',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
     update();
+    restoreCompany();
+    refreshProposal();
     persist();
   </script>
 </body>

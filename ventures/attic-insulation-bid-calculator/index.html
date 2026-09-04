@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Attic Insulation Bid Calculator | Price the Bags, Not the Attic</title>
+  <title>Attic Insulation Bid Calculator — Price the Bags, Not Attic</title>
   <meta name="description" content="Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.">
   <meta property="og:title" content="Attic Insulation Bid Calculator">
   <meta property="og:description" content="Bid blown-in attic insulation the way the trade does — bags come from the R-value delta. Air sealing and baffles decide whether the job pays.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Attic Insulation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-area attic takeoff, R-value delta bag count, cellulose/fiberglass/mineral wool yields, air-sealing penetrations, baffles, vaulted-ceiling exclusion, existing-fill removal, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Attic Insulation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-area attic takeoff, R-value delta bag count, cellulose/fiberglass/mineral wool yields, air-sealing penetrations, baffles, vaulted-ceiling exclusion, existing-fill removal, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this insulation estimate include?","acceptedAnswer":{"@type":"Answer","text":"The price adds up blown-in bags from the R-value you need to add across each attic area, baffles, air-sealing parts for each penetration, an optional removal-and-haul line for existing insulation, a chosen add-on kit, a dumpster when removal is selected, setup and travel time, a trip fee, overhead, and your target margin — all from the areas, product, and rates you enter, not a flat price list."}},{"@type":"Question","name":"Why does bag count come from the R-value gap instead of the floor area?","acceptedAnswer":{"@type":"Answer","text":"Bags are driven by how many inches need to go in, which is the target R-value minus what is already there, converted through the product’s R-value per inch. An attic already at a high R-value going up a little is a smaller truckload than the same square footage starting low and going to the same target, even though a flat per-square-foot price would charge them the same."}},{"@type":"Question","name":"Does it handle vaulted ceilings and areas already at or above target?","acceptedAnswer":{"@type":"Answer","text":"Yes. A vaulted area is counted in the total attic area shown but is excluded from bags and blow hours, since it is not being topped up. An area already at or above its target R-value adds zero bags and zero blow hours for that area as well — both still appear in the takeoff so you can see they were considered."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Usage counts are anonymous tallies of which features were used, stored locally, and a share link encodes only the quote fields in the page’s URL hash rather than sending anything to a server."}},{"@type":"Question","name":"What’s the difference between the quote price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The quote price already includes your target margin on top of labor, materials, the trip fee, and overhead. The walk-away price is the total cost underneath it — bags, baffles, air sealing, removal, labor, and the trip — the point below which the job stops being profitable at all."}},{"@type":"Question","name":"Does this check energy codes, manufacturer coverage charts, or rebate eligibility?","acceptedAnswer":{"@type":"Answer","text":"No. This is not a manufacturer, energy-code, rebate, or insurance inspection. R-value per inch, bag yield, and blow hours are ballpark shop figures you can replace with your own product’s coverage chart; whether a job qualifies for a utility rebate or meets a local energy code is a separate question this tool does not answer."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f3ece0; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -36,6 +37,8 @@
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
     .result { position: sticky; top: 15px; background: #3a2a18; color: #f8f1e6; border-color: #3a2a18; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -63,6 +66,13 @@
       .result { break-inside: avoid; }
       .result h2, .result strong { color: #111; }
       .muted, .warning { color: #333; }
+    
+      /* The internal sheet is the contractor's own copy; a previewed proposal
+         never rides along with it. Scoped by `:not(.printing-proposal)` rather
+         than left to specificity — a bare `#proposalDoc` is an id selector and
+         outranks `body.printing-proposal .pr-shell`, which printed the
+         customer's copy blank. Mutually exclusive selectors cannot race. */
+      body:not(.printing-proposal) #proposalDoc { display: none !important; }
     }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
@@ -72,6 +82,71 @@
       .area-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
       .area-row label:first-child { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #c6a06a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5c5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #6d3d04; --pr-accent: #a15c07;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #6d3d040d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This page prints two different sheets. It printed the contractor's own
+       bid — cost, overhead, profit — before the proposal existed, and that is
+       still a feature, so the two are separated by a body class rather than by
+       replacing the older rules: `printProposal` sets it, `afterprint` clears
+       it, and a plain Ctrl+P still yields the internal sheet.
+
+       The safety property is unchanged: whenever the customer's sheet is the
+       one printing, `main` is hidden outright rather than by an allow-list, so
+       a cost field added later cannot leak onto a customer's copy by omission.
+       If the class fails to apply the contractor gets their own sheet instead
+       of the proposal — visibly wrong, rather than silently over-sharing. */
+    @media print {
+      body.printing-proposal { max-width: none; padding: 0; background: #fff; }
+      body.printing-proposal header,
+      body.printing-proposal main,
+      body.printing-proposal footer,
+      body.printing-proposal .pr-shell > .pr-print-hint { display: none !important; }
+      body.printing-proposal .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      body.printing-proposal .pr-shell[hidden] { display: none !important; }
+      body.printing-proposal .pr-doc { max-width: none; font-size: 11pt; }
+      body.printing-proposal .pr-block, body.printing-proposal .pr-sign, body.printing-proposal .pr-price { break-inside: avoid; }
+      body.printing-proposal .pr-sign { margin-top: 26pt; }
+      body.printing-proposal a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
     }
   </style>
 </head>
@@ -141,6 +216,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, respiratory workers&rsquo; compensation, liability insurance, and paid time off. A blower paid $32 often costs more than $41 in the attic. Underestimating that is how a $1.50-a-foot special loses money.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Summit Attic & Insulation"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(317) 555-0143"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="IN-HI-55219"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="3410 Shadeland Ave, Indianapolis IN"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="R. Delgado"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="7712 Fall Creek Rd"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Blow cellulose over 1,120 sq ft from R-13 to R-49&#10;Install 12 rafter baffles"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Roof or soffit vent alterations&#10;Knob-and-tube remediation"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Depth markers set every 300 sq ft. Hatch cover fitted before we leave."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -181,19 +292,77 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting R-per-inch, bag yields, and hours are common ballpark numbers, not a manufacturer coverage chart, an energy-code table, or a guarantee &mdash; time your own crews and replace them. This is not a finding that any attic is airtight, permitted, or rebate-eligible.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this insulation estimate include?</h3>
+      <p>The price adds up blown-in bags from the R-value you need to add across each attic area,
+        baffles, air-sealing parts for each penetration, an optional removal-and-haul line for existing
+        insulation, a chosen add-on kit, a dumpster when removal is selected, setup and travel time, a
+        trip fee, overhead, and your target margin &mdash; all from the areas, product, and rates you
+        enter, not a flat price list.</p>
+
+      <h3>Why does bag count come from the R-value gap instead of the floor area?</h3>
+      <p>Bags are driven by how many inches need to go in, which is the target R-value minus what is
+        already there, converted through the product&rsquo;s R-value per inch. An attic already at a
+        high R-value going up a little is a smaller truckload than the same square footage starting low
+        and going to the same target, even though a flat per-square-foot price would charge them the
+        same.</p>
+
+      <h3>Does it handle vaulted ceilings and areas already at or above target?</h3>
+      <p>Yes. A vaulted area is counted in the total attic area shown but is excluded from bags and blow
+        hours, since it is not being topped up. An area already at or above its target R-value adds
+        zero bags and zero blow hours for that area as well &mdash; both still appear in the takeoff so
+        you can see they were considered.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser.
+        Usage counts are anonymous tallies of which features were used, stored locally, and a share
+        link encodes only the quote fields in the page&rsquo;s URL hash rather than sending anything to
+        a server.</p>
+
+      <h3>What&rsquo;s the difference between the quote price and the walk-away price?</h3>
+      <p>The quote price already includes your target margin on top of labor, materials, the trip fee,
+        and overhead. The walk-away price is the total cost underneath it &mdash; bags, baffles, air
+        sealing, removal, labor, and the trip &mdash; the point below which the job stops being
+        profitable at all.</p>
+
+      <h3>Does this check energy codes, manufacturer coverage charts, or rebate eligibility?</h3>
+      <p>No. This is not a manufacturer, energy-code, rebate, or insurance inspection. R-value per inch,
+        bag yield, and blow hours are ballpark shop figures you can replace with your own
+        product&rsquo;s coverage chart; whether a job qualifies for a utility rebate or meets a local
+        energy code is a separate question this tool does not answer.</p>
+
+      <h3>How is this different from a paid platform like FieldCamp?</h3>
+      <p>FieldCamp is a paid job-management platform for scheduling crews and running job costing across
+        every job an insulation business does. This calculator connects to nothing: you price one attic
+        in your browser, with no account to make, cancel, or pay for. See
+        <a href="vs-fieldcamp.html">this calculator vs. FieldCamp</a> for which job fits which
+        situation.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the customer's sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether an attic may be blown. It is not a manufacturer, energy-code, rebate, or insurance inspection. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, attic sizes, R-values, wages, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, PRODUCT_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const COST_IDS = [
       'rPerInch','cuFtPerBag','pricePerBag','blowHoursPer1000','baffleCount','bafflePrice',
@@ -202,7 +371,11 @@
       'targetMargin','proposedPrice',
     ];
     const PRODUCT_RATE_IDS = ['rPerInch', 'cuFtPerBag', 'pricePerBag', 'blowHoursPer1000'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const STARTING_AREAS = [
@@ -302,6 +475,30 @@
       el('verdict').hidden = true;
     }
 
+    /**
+     * A preset id off a stranger's URL, put back on its select.
+     *
+     * Two rules, both learned from shipped defects. It is checked against the
+     * options this page actually offers, because a fragment is the one part of
+     * these pages a stranger writes and the value ends up on a document the
+     * contractor prints. And it is assigned *without* dispatching `change`:
+     * that handler re-stamps the preset's own rates over whatever is in the
+     * form, which on arrival would replace the sender's typed bag price with
+     * the preset's — the failure `amazon-fba-calculator` shipped when it
+     * carried its placement presets by dispatching.
+     *
+     * Returns false when the link carried nothing usable, so the caller can
+     * fall back to reconstructing the choice from the rates that did travel.
+     */
+    function applySharedChoice(id, value) {
+      if (typeof value !== 'string' || value === '') return false;
+      const select = el(id);
+      if (!select) return false;
+      if (![...select.options].some(option => option.value === value)) return false;
+      select.value = value;
+      return true;
+    }
+
     function applyShare(payload) {
       if (!payload) return;
       COST_IDS.forEach(id => {
@@ -318,13 +515,15 @@
         areasHost.innerHTML = '';
         payload.areas.forEach(addAreaRow);
       }
-      const product = PRODUCT_PRESETS.find(preset =>
-        Number(preset.rPerInch) === Number(payload.rPerInch) &&
-        Number(preset.cuFtPerBag) === Number(payload.cuFtPerBag) &&
-        Number(preset.pricePerBag) === Number(payload.pricePerBag) &&
-        Number(preset.blowHoursPer1000) === Number(payload.blowHoursPer1000)
-      );
-      el('productType').value = product ? product.id : 'other';
+      if (!applySharedChoice('productType', payload.productType)) {
+        const product = PRODUCT_PRESETS.find(preset =>
+          Number(preset.rPerInch) === Number(payload.rPerInch) &&
+          Number(preset.cuFtPerBag) === Number(payload.cuFtPerBag) &&
+          Number(preset.pricePerBag) === Number(payload.pricePerBag) &&
+          Number(preset.blowHoursPer1000) === Number(payload.blowHoursPer1000)
+        );
+        el('productType').value = product ? product.id : 'other';
+      }
       PRODUCT_RATE_IDS.forEach(id => {
         if (payload[id] !== undefined) el(id).dataset.edited = '1';
       });
@@ -352,7 +551,7 @@
       el('inches').textContent = `${result.weightedInches.toFixed(1)} in`;
       el('rAdded').textContent = `R-${result.weightedRAdded.toFixed(0)}`;
       el('blowHours').textContent = `${result.blowHours.toFixed(2)} h`;
-      el('airSealHours').textContent = `${result.airSealHours.toFixed(2)} h${result.airSealShareOfLabor === null ? '' : ` (${result.airSealShareOfLabor.toFixed(0)}% of blow+seal+baffle+removal)`}`;
+      el('airSealHours').textContent = `${result.airSealHours.toFixed(2)} h${result.airSealShareOfLabor === null ? '' : ` (${result.airSealShareOfLabor.toFixed(0)}% of blow + seal + baffle + removal)`}`;
       el('extraHours').textContent = `${(result.baffleHours + result.removalHours).toFixed(2)} h`;
       el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
       el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
@@ -451,13 +650,26 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    /**
+     * What the link carries: the priced job, plus the product choice that
+     * describes it. Kept out of `readInput` so `calculateBid` is still handed
+     * only the figures it computes with.
+     */
+    function readShareInput() {
+      return { ...readInput(), productType: el('productType').value };
+    }
+
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readShareInput()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);
       count('share_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -501,11 +713,161 @@
       }
     });
 
-    const shared = decodeShare(location.hash);
+    const incoming = splitTerms(location.hash);
+    const shared = decodeShare(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
     if (shared) applyShare(shared);
     if (!areasHost.querySelector('.area-row')) STARTING_AREAS.forEach(addAreaRow);
     if (!shared) applyProductPreset(false);
+
+    // ---- Customer-facing proposal -------------------------------------------
+
+    const COMPANY_KEY = 'attic-insulation-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. Typographic apostrophes only:
+    // a straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for its scope, figures, and performance. It was laid out with a free '
+      + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
+      + 'warranty. It is not a building-code, energy-rating, ventilation, or moisture determination.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    /**
+     * Default scope lines from the job the user actually priced, so the proposal
+     * is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Written by hand for the trade rather than derived from the pasted summary:
+     * that summary lists crew-hour breakdowns, which must not reach a customer.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const product = PRODUCT_PRESETS.find(item => item.id === el('productType').value)?.label ?? 'insulation';
+      const areas = result.areas.filter(area => !area.alreadyAtTarget).map((area) => {
+        // Whole inches. `inchesAdded` is a derived decimal — printing
+        // "9.72972972972973 inches" of insulation on a customer's quote is the
+        // same false precision paver-patio shipped as `Excavate to 9.375"`.
+        const depth = Math.round(area.inchesAdded);
+        return `${area.name}: blow ${product.toLowerCase()} over ${area.floorSqFt.toLocaleString('en-US')} sq ft `
+          + `from R-${area.existingR} to R-${area.targetR} (about ${depth} in added)`;
+      });
+      const suggested = [
+        ...areas,
+        result.removeExisting ? 'Remove and dispose of the existing insulation' : '',
+        result.baffleMaterial > 0 ? 'Install rafter baffles to keep the soffit vents clear' : '',
+        result.airSealHours > 0 ? 'Air-seal top-plate and ceiling penetrations before insulating' : '',
+        ...result.addOns.map(addOn => addOn.label),
+        // The bag count belongs on the customer's copy: depth markers plus bags
+        // installed is how a homeowner checks they got the R-value they paid
+        // for, and under-blowing is the classic complaint in this trade.
+        `Depth markers set, and ${result.bags} bag${result.bags === 1 ? '' : 's'} of material installed`,
+        'Site protection and clean-up on completion',
+      ].filter(Boolean);
+      scope.value = suggested.join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null ? result.price : result.proposed.price,
+        jobTitle: `Attic insulation — ${result.atticSqFt.toLocaleString('en-US')} sq ft`,
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Delegated from the document
+     * rather than called inside `update()`: every calculator has its own
+     * `update()` with its own shape, and one bubble-phase listener works in all
+     * of them, which is what makes this feature copyable.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // This page prints two sheets, so the stylesheet is told which one is
+      // going out. Cleared on `afterprint` below.
+      document.body.classList.add('printing-proposal');
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove('printing-proposal');
+    });
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
     update();
+    restoreCompany();
+    refreshProposal();
   </script>
 </body>
 </html>

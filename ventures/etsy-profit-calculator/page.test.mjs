@@ -15,6 +15,7 @@ const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', impo
 const saleSeo = readFileSync(new URL('./should-i-put-my-etsy-shop-on-sale.html', import.meta.url), 'utf8');
 const freeShipSeo = readFileSync(new URL('./should-i-offer-free-shipping-on-etsy.html', import.meta.url), 'utf8');
 const labelsSeo = readFileSync(new URL('./should-i-buy-etsy-shipping-labels.html', import.meta.url), 'utf8');
+const vsEtsySeo = readFileSync(new URL('./vs-etsys-listing-form-calculator.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -67,6 +68,8 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /free shipping vs charged shipping comparison/i);
   assert.match(featureList[1], /listing auto-renew allocation/i);
   assert.match(markup, /listing-renewal\.html/);
+  assert.match(markup, /what-price-keeps-this-etsy-profit\.html/);
+  assert.match(markup, /id="target-profit"/);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
@@ -485,4 +488,30 @@ test('Copy order summary is wired to the calculated result', () => {
   assert.match(html, /id="copySummary"/);
   assert.match(scriptSource, /formatOrderSummary/);
   assert.match(scriptSource, /summary_copied/);
+});
+
+test('the incumbent-comparison page links back, names Etsy\'s own tool honestly, and gives no unverifiable Etsy dollar figures', () => {
+  assert.match(html, /vs-etsys-listing-form-calculator\.html/);
+  assert.match(vsEtsySeo, /<a href="\.\/">/);
+  // Names Etsy's own tool and links to Etsy's own domain so a reader can
+  // check the source directly -- this page must never claim a dollar or
+  // percentage figure for Etsy's own calculator that only Etsy's live
+  // schedule could confirm.
+  assert.match(vsEtsySeo, /etsy\.com\/seller-handbook/);
+  // This page must never claim a dollar or percentage figure as something
+  // Etsy's own calculator charges or shows -- only structural facts about
+  // where it lives and what it estimates. The 12%/15% mentioned on the page
+  // describe this calculator's own Offsite Ads comparison (already on
+  // index.html), not a number attributed to Etsy's tool, so those stay
+  // narrowly scoped rather than banned outright.
+  assert.doesNotMatch(vsEtsySeo, /Etsy('s)? (charges|fee is|costs?) \$/i);
+  assert.doesNotMatch(vsEtsySeo, /Etsy('s)? (own )?(Profit )?Calculator[^.]*\d+(\.\d+)?%/i);
+  assert.match(vsEtsySeo, /not affiliated with, endorsed by, or sponsored by Etsy/i);
+  assert.match(vsEtsySeo, /trademarks of Etsy, Inc\./i);
+});
+
+test('the incumbent-comparison page carries the standard disclaimer and sponsor link', () => {
+  assert.match(vsEtsySeo, /No warranty/);
+  assert.match(vsEtsySeo, /Best-effort hosting, no SLA/);
+  assert.match(vsEtsySeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

@@ -19,7 +19,7 @@
 // `node --test`, matching cut-list-optimizer/page.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { CHANNEL_PRESETS, calculateChannel, compareChannels } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -214,8 +214,10 @@ test('every shared input the calculator reads is on the page and in the share li
   const calc = readFileSync(new URL('./calc.mjs', import.meta.url), 'utf8');
   const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
   const readByCalc = new Set([...calc.matchAll(/\bshared\.([A-Za-z][A-Za-z0-9]*)/g)].map((m) => m[1]));
-  // Toggles, not numeric inputs: they ride the link as their own booleans.
-  for (const flag of ['includeSubscription', 'includeReturns']) readByCalc.delete(flag);
+  // Toggles/modes, not numeric inputs: they ride the link as their own
+  // boolean or string field rather than through the numeric SHARED_FIELDS
+  // list, and are covered by their own dedicated round-trip tests instead.
+  for (const flag of ['includeSubscription', 'includeReturns', 'rankBy']) readByCalc.delete(flag);
 
   for (const key of readByCalc) {
     assert.match(
@@ -346,4 +348,27 @@ test('a saved channel that says nothing about `enabled` is not switched on', () 
     'an absent `enabled` must be distinguished from an explicit one');
   assert.match(merge, /channel\.enabled !== false/,
     'and must fall back to the preset default');
+});
+
+// A page missing og:* renders as a bare link with no preview when shared —
+// PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
+// does-it-actually-sell-there.html, etsy-vs-ebay-fees.html, and
+// returns-change-the-ranking.html were all indexed, linked from index.html,
+// and shipped without any og:* tags at all.
+test('every published, indexable page carries Open Graph tags', () => {
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  assert.ok(pages.length >= 4, 'expected at least the 4 known pages in this venture');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+  }
+});
+
+test('share-link copy falls back when the Clipboard API is unavailable', () => {
+  assert.match(html, /function fallbackCopy/);
+  assert.match(html, /execCommand\("copy"\)/);
+  assert.match(html, /share_link_copied/);
+  assert.doesNotMatch(html, /window\.prompt\("Copy this share link:/);
 });

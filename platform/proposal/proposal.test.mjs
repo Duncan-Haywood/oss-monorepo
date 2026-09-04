@@ -10,9 +10,11 @@ import {
   formatDate,
   lines,
   loadCompany,
+  money,
   referenceFor,
   renderProposalHtml,
   saveCompany,
+  scopeLines,
 } from './proposal.mjs';
 
 /** Minimal in-memory stand-in for `localStorage`. */
@@ -214,4 +216,238 @@ test('forgetting the business block removes it', () => {
   forgetCompany(storage, 'k');
   assert.equal(storage.getItem('k'), null);
   assert.equal(loadCompany(storage, 'k').companyName, '');
+});
+
+// ---- scopeLines -----------------------------------------------------------
+//
+// These guard the defect that has cost every adoption batch a line: a field
+// name guessed from the input rather than read off the result, resolving to
+// `undefined` and printing that word on a customer's quote.
+
+test('scope templates fill from the result', () => {
+  assert.deepEqual(
+    scopeLines(['Install {feet} ft of {name}', 'Haul away debris'], { feet: 180, name: '6 ft cedar privacy' }),
+    ['Install 180 ft of 6 ft cedar privacy', 'Haul away debris'],
+  );
+});
+
+test('a line whose field is missing is dropped, never printed as undefined', () => {
+  const result = { totalFeet: 90 };
+  const filled = scopeLines(
+    ['{totalFeet} ft of fence', '{linearFeet} ft of {material}', 'Site left clean'],
+    result,
+  );
+  assert.deepEqual(filled, ['90 ft of fence', 'Site left clean']);
+  assert.ok(!filled.join('\n').includes('undefined'));
+});
+
+test('null, empty string, NaN and Infinity drop their line too', () => {
+  const values = { a: null, b: '', c: Number.NaN, d: Number.POSITIVE_INFINITY, e: 0 };
+  assert.deepEqual(
+    scopeLines(['x {a}', 'x {b}', 'x {c}', 'x {d}', 'x {e}'], values),
+    // Zero is a real figure — "0 gates" is a fact, not a hole.
+    ['x 0'],
+  );
+});
+
+test('dotted paths read into nested result objects', () => {
+  assert.deepEqual(
+    scopeLines(['{job.rooms} rooms', '{job.missing} rooms'], { job: { rooms: 4 } }),
+    ['4 rooms'],
+  );
+});
+
+test('a `when` guard keeps optional work off the sheet when it is not happening', () => {
+  const templates = [
+    { line: 'Remove {tearOutFeet} ft of existing fence', when: 'tearOutFeet' },
+    'Set posts in concrete',
+  ];
+  assert.deepEqual(scopeLines(templates, { tearOutFeet: 0 }), ['Set posts in concrete']);
+  assert.deepEqual(scopeLines(templates, { tearOutFeet: 40 }),
+    ['Remove 40 ft of existing fence', 'Set posts in concrete']);
+});
+
+test('a `when` guard on a missing field is false rather than an error', () => {
+  assert.deepEqual(scopeLines([{ line: 'x', when: 'nope.deeper' }], {}), []);
+});
+
+test('empty and malformed templates yield no lines rather than throwing', () => {
+  assert.deepEqual(scopeLines([], {}), []);
+  assert.deepEqual(scopeLines(undefined, {}), []);
+  assert.deepEqual(scopeLines([null, 42, { noLine: true }, '   '], {}), []);
+});
+
+// ---- `each`: the itemised job ---------------------------------------------
+// Half the calculators here price a job made of rows — rooms, gutter runs,
+// trees, exhaust components — and the homeowner comparing three bids compares
+// the line items. Without `each` the best scope such a trade could draft is
+// the generic sentence the README says is worth less than no proposal.
+
+test('`each` prints one line per row, reading the row rather than the root', () => {
+  assert.deepEqual(
+    scopeLines([{ each: 'rooms', line: '{name} — {squareFeet} sq ft' }], {
+      name: 'THE WHOLE JOB',
+      rooms: [
+        { name: 'Living room', squareFeet: 280 },
+        { name: 'Kitchen', squareFeet: 180 },
+      ],
+    }),
+    ['Living room — 280 sq ft', 'Kitchen — 180 sq ft'],
+  );
+});
+
+test('`each` drops the row the contractor left at zero, not the whole line', () => {
+  const templates = [{ each: 'runs', when: 'linearFeet', line: 'Clear {linearFeet} ft of {name}' }];
+  assert.deepEqual(
+    scopeLines(templates, {
+      runs: [
+        { name: 'front gutter', linearFeet: 80 },
+        { name: 'garage gutter', linearFeet: 0 },
+        { name: 'rear gutter', linearFeet: 40 },
+      ],
+    }),
+    ['Clear 80 ft of front gutter', 'Clear 40 ft of rear gutter'],
+  );
+});
+
+test('a row missing a figure drops by the same rule as a top-level line', () => {
+  // The defect this exists to stop: `run.material` is really `run.name`, the
+  // lookup yields undefined rather than throwing, and the customer's quote
+  // reads "undefined ft of undefined" while every suite stays green.
+  assert.deepEqual(
+    scopeLines([{ each: 'trees', line: 'Remove the {species} — {dbhInches}" DBH' }], {
+      trees: [
+        { species: 'oak', dbhInches: 24 },
+        { species: 'pine' },
+      ],
+    }),
+    ['Remove the oak — 24" DBH'],
+  );
+});
+
+test('`each` carries the plural and rounding suffixes into each row', () => {
+  assert.deepEqual(
+    scopeLines([{ each: 'piles', line: '{quantity} {name} ({tons~2} ton{tons+s})' }], {
+      piles: [
+        { quantity: 6, name: 'mixed household junk', tons: 0.6 },
+        { quantity: 1, name: 'mattress', tons: 1 },
+      ],
+    }),
+    ['6 mixed household junk (0.6 tons)', '1 mattress (1 ton)'],
+  );
+});
+
+test('`each` on a missing, empty or non-array path yields nothing rather than throwing', () => {
+  const line = { each: 'rows', line: '{name}' };
+  assert.deepEqual(scopeLines([line], {}), []);
+  assert.deepEqual(scopeLines([line], { rows: [] }), []);
+  assert.deepEqual(scopeLines([line], { rows: 'not an array' }), []);
+  assert.deepEqual(scopeLines([line], { rows: [null, 7, { name: 'kept' }] }), ['kept']);
+});
+
+test('`each` reaches a nested array and does not truncate the rows', () => {
+  const rows = Array.from({ length: 30 }, (_, i) => ({ n: i + 1 }));
+  assert.equal(scopeLines([{ each: 'job.rows', line: 'Item {n}' }], { job: { rows } }).length, 30);
+});
+
+test('a plural suffix agrees with its count', () => {
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 1 }), ['1 gate']);
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 3 }), ['3 gates']);
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 0 }), ['0 gates']);
+  assert.deepEqual(scopeLines(['{n} box{n+es}'], { n: 2 }), ['2 boxes']);
+});
+
+test('a plural suffix on a missing field drops its line like any other', () => {
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], {}), []);
+});
+
+test('a rounded placeholder groups thousands and drops machine decimals', () => {
+  // The defect this exists for: `{billYards}` printed "48.888888888888886 yd²"
+  // on a customer's quote.
+  assert.deepEqual(scopeLines(['{yards~2} yd²'], { yards: 48.888888888888886 }), ['48.89 yd²']);
+  assert.deepEqual(scopeLines(['{sf~0} sq ft'], { sf: 1600 }), ['1,600 sq ft']);
+  assert.deepEqual(scopeLines(['{sf~0} sq ft'], { sf: 1599.6 }), ['1,600 sq ft']);
+  // A round number should not grow a trailing ".00".
+  assert.deepEqual(scopeLines(['{n~2} tons'], { n: 12 }), ['12 tons']);
+});
+
+test('rounding a non-numeric value drops the line rather than printing NaN', () => {
+  assert.deepEqual(scopeLines(['{x~2} ft'], { x: 'wide' }), []);
+});
+
+// money() — the sign belongs outside the currency symbol, and zero has no sign.
+//
+// Both of these shipped wrong in every vendored copy for as long as the copies
+// have existed, and they are visible on any tool that prints a difference: a
+// "vs keep-it" column, a plan comparison, the "in-house minus 3PL" line of an
+// exported quote.
+
+test('a negative amount puts the minus outside the currency symbol', () => {
+  assert.equal(money(-9.24), '-$9.24');
+  assert.equal(money(-21500), '-$21,500.00');
+});
+
+test('a positive amount is unchanged, separators and all', () => {
+  assert.equal(money(9.24), '$9.24');
+  assert.equal(money(1234.5), '$1,234.50');
+  assert.equal(money(0), '$0.00');
+});
+
+test('an amount that is zero at cent precision has no sign', () => {
+  // -0 is what subtracting two equal figures gives, and a residual below half a
+  // cent rounds to the same place. Printing "-$0.00" tells someone a line is
+  // down money when it is exactly break-even.
+  assert.equal(money(-0), '$0.00');
+  assert.equal(money(-0.004), '$0.00');
+  assert.equal(money(0.004), '$0.00');
+});
+
+test('a figure carries the currency the venture quotes in, not always a dollar', () => {
+  // The default is what all 102 bid calculators render and must not move.
+  assert.equal(money(1234.5), '$1,234.50');
+  // A label is spaced off the figure; a symbol is not. This is the whole
+  // difference a reader sees, and it is why the separator is derived rather
+  // than left to each caller to remember.
+  assert.equal(money(1234.5, 'USD'), 'USD\u00a01,234.50');
+  assert.equal(money(1234.5, 'EUR'), 'EUR\u00a01,234.50');
+  assert.equal(money(1234.5, '€'), '€1,234.50');
+  assert.equal(money(1234.5, '£'), '£1,234.50');
+  // Sign stays outside the currency, whichever form it takes.
+  assert.equal(money(-9.24, 'USD'), '-USD\u00a09.24');
+  assert.equal(money(-9.24, '€'), '-€9.24');
+  // A cleared currency box must not produce a bare number on a document
+  // someone pays against.
+  assert.equal(money(9.24, ''), '$9.24');
+  assert.equal(money(9.24, '   '), '$9.24');
+  assert.equal(money(9.24, undefined), '$9.24');
+});
+
+test('the rendered sheet prices in the currency it was given', () => {
+  const proposal = buildProposal({
+    companyName: 'Ines Delacroix Translations',
+    clientName: 'Brunner Medizintechnik GmbH',
+    price: 580,
+    depositPercent: 30,
+    issuedOn: '2026-09-03',
+  });
+  const html = renderProposalHtml(proposal, { currency: 'EUR' });
+  // Every figure on the sheet, not just the total: a deposit line still
+  // reading "$174.00" beside a "EUR 580.00" total is the same misstatement.
+  assert.match(html, /EUR\u00a0580\.00/);
+  assert.match(html, /EUR\u00a0174\.00/);
+  assert.match(html, /EUR\u00a0406\.00/);
+  assert.equal(html.includes('$'), false, 'no dollar figure survives on a euro quote');
+
+  // And the default is unchanged for every caller that passes nothing.
+  const dollars = renderProposalHtml(proposal);
+  assert.match(dollars, /\$580\.00/);
+  assert.match(dollars, /\$174\.00/);
+});
+
+test('rounding is symmetric about zero', () => {
+  // Half a cent rounds away from zero on both sides; a magnitude-then-sign
+  // implementation gets this right only if it rounds the magnitude.
+  assert.equal(money(0.005), '$0.01');
+  assert.equal(money(-0.005), '-$0.01');
+  assert.equal(money(-1.235), '-$1.24');
 });

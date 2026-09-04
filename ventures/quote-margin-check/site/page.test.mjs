@@ -152,6 +152,14 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   assert.match(robots, /Sitemap: sitemap\.xml/);
 });
 
+test("calculator page declares a canonical URL in both link and Open Graph form", async () => {
+  // A share card built only from og:title/og:description has no URL of its
+  // own, so the two must agree rather than only the <link> carrying it.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /<link rel="canonical" href="\." \/>/);
+  assert.match(page, /<meta property="og:url" content="\." \/>/);
+});
+
 test("effective-rate guide matches calculator defaults and carries disclaimers", async () => {
   const page = await readFile(new URL("./effective-hourly-rate.html", import.meta.url), "utf8");
   const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
@@ -196,6 +204,15 @@ test("calculator page can export and import a portable draft file", async () => 
   assert.match(page, /draft_imported/);
   assert.match(page, /draftFileName/);
   assert.match(page, /Download draft/);
+});
+
+test("calculator page can download a private plain-text review summary", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="download-summary"/);
+  assert.match(page, /Download review summary/);
+  assert.match(page, /quote-margin-review\.txt/);
+  assert.match(page, /review_summary_downloaded/);
+  assert.match(page, /formatReviewSummary/);
 });
 
 test("calculator page can download a local JSON report", async () => {
@@ -258,8 +275,11 @@ test("calculator page copies a proposal-ready review summary", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="copy-summary"/);
   assert.match(page, /formatReviewSummary/);
+  assert.match(page, /overrunRows: overrunScenarios/);
   assert.match(page, /review_summary_copied/);
   assert.match(page, /Copy review summary/);
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\("copy"\)/);
 });
 
 test("calculator page renders the fixed-vs-hourly comparison and records the event", async () => {
@@ -317,4 +337,45 @@ test("calculator page shows the target-rate hours budget without recommending a 
   assert.match(page, /Hours supported at target rate/);
   assert.match(page, /hours_budget_shown/);
   assert.doesNotMatch(page, /should cut hours|must reduce scope/i);
+});
+
+test("the hours-budget field says none rather than a negative hour count", async () => {
+  // The dl renders r.target_rate_hours, which is signed and goes negative once
+  // direct costs pass the price. Guard the branch that catches that here: the
+  // dl is built by a template literal, so calc.test.mjs stays green whatever
+  // this field renders.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /r\.cost_coverage <= 0 \? `none — direct costs leave nothing to pay for time`/);
+});
+
+test("a rejected quote clears the stale overrun-sensitivity table along with its sibling panels", async () => {
+  // The main catch block clears result/review/decision/ladder/costSpike/
+  // discountAsk/billing/killFee/targetBreakdown on a rejected input, but
+  // left the "If the work takes longer" (#sensitivity) overrun table
+  // showing the last valid scenario rows -- the one panel in that list with
+  // no corresponding clear. A visitor who missed the error message could
+  // read those stale overrun figures as the answer for the invalid quote
+  // now on screen.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const catchMatch = page.match(/\} catch \(err\) \{([\s\S]*?)\n {4}\}\n {2}\}/);
+  assert.ok(catchMatch, "the main calculate() catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /result\.textContent = err\.message/, "the error message is never shown");
+  assert.match(body, /sensitivity\.querySelector\("tbody"\)\.innerHTML = ""/, "#sensitivity keeps its stale overrun rows instead of being cleared");
+});
+
+test("every scenario panel on the page reports a usage signal of its own", async () => {
+  // The overrun table shipped without one, so nothing recorded whether the
+  // time-overrun view was ever read while every panel beside it was counted.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  for (const event of [
+    "overrun_sensitivity_compared",
+    "cost_spike_compared",
+    "discount_ask_compared",
+    "billing_model_compared",
+    "rate_ladder_compared",
+    "hours_budget_shown",
+  ]) {
+    assert.match(page, new RegExp(`recordEvent\\("${event}"\\)`), `${event} is not recorded`);
+  }
 });

@@ -52,7 +52,11 @@ jobs:
   # `check`. Two rows both reading "check" defeats the reason this has its own
   # workflow -- that a red result should name its own cause without opening it.
   duplicate-symbols:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Checkout, Python setup, and a grep-shaped scan over tracked .py files --
+    # normally under 15s. See hetzner-gitops-ci.yml's timeout-minutes addition
+    # for why an unbounded job is worth capping on a metered-minutes account.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
 

@@ -19,7 +19,8 @@ is uploaded. **Copy decision summary** writes leftover profit, margin, max buy,
 and FBA vs FBM into the clipboard.
 
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, the most you can pay a supplier for that unit, whether staying under
+SKU, the most you can pay a supplier for that unit, the highest ACOS each
+path can still carry, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
 coupon still hits your target after the redemption fee, whether
 Subscribe & Save still pays when only some units enroll, whether a
@@ -59,6 +60,11 @@ units, compares that plan to Individual’s per-item selling fee, and shows
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[This calculator vs. Amazon's own Revenue Calculator](vs-amazon-revenue-calculator.html)
+says which of the two to open for which question — Amazon's own tool is the
+authoritative live fee lookup for one listing; this one is the FBA-vs-FBM
+decision, max buy cost, and the dozen follow-on scenarios built from your own
+numbers. Not affiliated with Amazon.
 [Should I stay under Low-Price FBA?](should-i-price-over-amazons-low-price-fba.html)
 answers the $9.99-versus-$12 pricing question: a one-cent raise usually
 loses, and the raise that matches the cheaper pick fee is
@@ -108,7 +114,9 @@ A Vine invite is a launch decision on the same SKU: gift leftover
 units, gift units that would have sold, or skip.
 [Is Amazon Vine worth it?](is-amazon-vine-worth-it.html)
 shows enrollment cost after the pick fee, leftover over the typed
-months, and the conversion lift that still ties.
+months, and the conversion lift that still ties. The main calculator
+runs the same `compareVine` math on the listing you just typed, so you
+do not leave the page to check leftover enrollment versus skip.
 
 Units that already sit are a leftover-pile decision on the same SKU:
 keep paying storage and the aged-inventory surcharge, pay to send
@@ -138,7 +146,9 @@ that already sit) and to Q4 peak storage (when the cube sits).
 on-hand units at 1 sale/day still lose $26.70 / month to the
 surcharge, and that restocking 18 units avoids $25.83 / month after
 $0.87 extra storage** — which used to mean staying thin because
-28 days looked like extra warehouse cost.
+28 days looked like extra warehouse cost. The same comparison now
+also runs on the [main calculator](index.html) from the listing you
+already typed.
 
 Inbound placement is a create-shipment decision on the same SKU: pay
 Amazon to accept one warehouse, or pay extra freight to follow the
@@ -169,7 +179,9 @@ leaving the pile because removal looked like giving up.
 keeps $68.86 more than an 8% FBA Liquidations recovery ($236.80 vs
 $167.94), and that elsewhere leftover can fall to about $3.14
 before liquidations match** — which used to mean disposing the pile
-because Amazon’s recovery percent looked like the only exit.
+because Amazon’s recovery percent looked like the only exit. The
+same comparison now also runs on the [main calculator](index.html)
+from the listing you already typed.
 
 **After using the Vine page, you can now see whether leftover units
 still beat skipping after a $419.95 gift, and why a hero SKU that
@@ -214,6 +226,9 @@ buy a 2-day label yourself, or drop to merchant fulfilled.
 [Should I use Seller Fulfilled Prime?](should-i-use-seller-fulfilled-prime.html)
 mixes take rate with the 2-day label and pack time so a
 completed-sale leftover does not hide a Prime-filter gap.
+The main calculator runs the same `compareSfp` math on the listing
+you just typed, so you do not leave the page to check the 2-day
+label and take-rate gap.
 Complementary to [FBA vs FBM](fba-vs-fbm.html) (no Prime take) and
 to [MCF for website orders](should-i-use-amazon-mcf-for-website-orders.html)
 (a non-Amazon checkout from FBA stock).
@@ -277,13 +292,46 @@ promise uptime, backups of anything you type, or that a URL will keep
 working. Do not use this as a system of record. If a tool needs to
 survive, export your inputs and run it yourself.
 
+## Keeping a scenario, and arriving from the channel comparison
+
+**Copy link to these numbers** puts every input in the URL, after the `#`. That
+link reopens this page with the same scenario, so you can bookmark a SKU, come
+back to it after the supplier quote lands, or send it to whoever else has to
+agree the restock still pays.
+
+Browsers never send the part of a URL after the `#` to a server, so the numbers
+travel only inside the browser of whoever opens the link. Nothing is uploaded,
+and no copy of the scenario exists anywhere but in that link.
+
+The same mechanism carries an item in from
+[`where-to-sell-calculator`](../where-to-sell-calculator/), which compares one
+item across eBay, Etsy, Amazon, an own store and a direct sale, and then offers
+**"keep going with this item"** into whichever channel's own calculator goes
+deeper. Arriving that way fills in the sale price, what you paid, your own
+postage cost, and packaging — the four figures that page knows — and leaves
+everything else at this page's starting figures. **Check the referral rate and
+the size tier against your own Amazon fee preview before trusting the result**;
+they are illustrative defaults, not your account's numbers.
+
+Postage charged to the buyer is deliberately *not* carried across. Amazon
+charges its referral fee on the order total, but this page takes the item price
+and derives fulfilment from the size tier rather than from what the buyer paid
+for postage — so folding postage into the sale price would inflate the referral
+fee and print a worse number than you will actually see.
+
+A link that has been truncated or mangled is ignored field by field: anything
+unreadable falls back to this page's own starting figure rather than arriving
+as a zero that looks like an answer.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your prices, costs, and inventory data are
 never uploaded. There are no accounts, cookies, tracking pixels, or analytics
 vendors. The optional local counter records only the event name and day in your
-browser; it never records the inputs. Turn it off with the checkbox in the
-footer, or your browser's Do Not Track / Global Privacy Control setting.
+browser; it never records the inputs — including `share_link_copied` and
+`shared_link_opened`, which say that a link was made or followed and nothing
+about what was in it. Turn it off with the checkbox in the footer, or your
+browser's Do Not Track / Global Privacy Control setting.
 
 ## Support
 
@@ -297,7 +345,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, remote-fulfillment-page.test.mjs, and liquidation-page.test.mjs
+node --test        # runs calc.test.mjs, share.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, remote-fulfillment-page.test.mjs, and liquidation-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -315,8 +363,11 @@ restock vs low-inventory-level fee,
 Amazon AWD vs send-all-to-FBA vs you-hold,
 Remote Fulfillment vs skip Canada vs a Canada FBA pile,
 and FBA Liquidations vs dispose vs sell-elsewhere;
-`usage.mjs` holds the anonymous
-local counter; `index.html` is the calculator UI.
+`share.mjs` encodes and decodes the scenario link, over the field list
+`calc.mjs` exports so the two cannot drift; `usage.mjs` holds the anonymous
+local counter (`sourcing_check_used` when the cost-of-goods field changes);
+`index.html` is the calculator UI. The buy-cost check is arithmetic against
+the zero-profit max-buy ceiling, not a recommendation to buy or pass.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

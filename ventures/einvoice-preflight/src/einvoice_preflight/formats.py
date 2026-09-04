@@ -28,6 +28,8 @@ from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree
 
+from .facturx import EmbeddedInvoiceError, extract_embedded_invoice_xml, looks_like_pdf
+
 __all__ = [
     "DocumentError",
     "detect_syntax",
@@ -102,7 +104,7 @@ def detect_syntax(data: bytes) -> str:
         raise DocumentError(
             "This is XML, but not a UBL Invoice/CreditNote or a UN/CEFACT "
             "CrossIndustryInvoice. Check that the file is the e-invoice XML "
-            "itself and not a wrapper, a PDF, or a transport envelope."
+            "itself and not a wrapper or a transport envelope."
         )
     raise DocumentError("The file is neither JSON nor recognised e-invoice XML.")
 
@@ -131,6 +133,11 @@ def parse_bytes(data: bytes) -> tuple[dict[str, Any], str]:
         raise DocumentError(
             f"The input is {len(data)} bytes, above this tool's {MAX_BYTES}-byte limit."
         )
+    if looks_like_pdf(data):
+        try:
+            data = extract_embedded_invoice_xml(data)
+        except EmbeddedInvoiceError as exc:
+            raise DocumentError(str(exc)) from exc
     syntax = detect_syntax(data)
     if syntax == "json":
         try:
@@ -519,9 +526,26 @@ def _parse_cii_totals(settlement: Any) -> dict[str, Any]:
     }
 
 
+def _cii_terms_days(settlement: Any) -> str | None:
+    """Map SpecifiedTradePaymentTerms duration in days when unitCode is DAY."""
+    if settlement is None:
+        return None
+    terms = settlement.find(f"{{{RAM}}}SpecifiedTradePaymentTerms")
+    if terms is None:
+        return None
+    period = terms.find(f"{{{RAM}}}SpecifiedPeriod")
+    search = period if period is not None else terms
+    for measure in search.findall(f"{{{RAM}}}DurationMeasure"):
+        unit = (measure.get("unitCode") or "").strip().upper()
+        value = (measure.text or "").strip()
+        if value and unit in {"DAY", "D"}:
+            return value
+    return None
+
+
 def _parse_cii_payment(settlement: Any) -> dict[str, Any]:
     means = None if settlement is None else settlement.find(f"{{{RAM}}}SpecifiedTradeSettlementPaymentMeans")
-    return {
+    payment = {
         "means_code": _text(means, f"{{{RAM}}}TypeCode"),
         "account": _first(
             _text(means, f"{{{RAM}}}PayeePartyCreditorFinancialAccount", f"{{{RAM}}}IBANID"),
@@ -530,6 +554,10 @@ def _parse_cii_payment(settlement: Any) -> dict[str, Any]:
         "remittance": _text(settlement, f"{{{RAM}}}PaymentReference"),
         "terms": _text(settlement, f"{{{RAM}}}SpecifiedTradePaymentTerms", f"{{{RAM}}}Description"),
     }
+    terms_days = _cii_terms_days(settlement)
+    if terms_days:
+        payment["terms_days"] = terms_days
+    return payment
 
 
 def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
@@ -627,6 +655,8 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         payment["means_code"] = payment_src["means_code"]
     if payment_src.get("remittance"):
         payment["remittance"] = payment_src["remittance"]
+    if payment_src.get("terms_days"):
+        payment["terms_days"] = payment_src["terms_days"]
     if payment:
         invoice["payment"] = payment
     return invoice

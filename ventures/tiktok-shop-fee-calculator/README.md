@@ -38,6 +38,12 @@ facilitation fee on affiliate-sourced orders.
 [Affiliate commission on returns](affiliate-commission-on-returns.html)
 works one $19.99 SKU through both paths, fee by fee.
 
+[Should I offer free shipping?](should-i-offer-free-shipping-on-tiktok-shop.html)
+compares charging postage, eating the label, and moving it into the item
+price. Referral is a tie at the same customer total; creator commission
+on item price only is not. The same comparison now also runs on the
+[main calculator](index.html) from the SKU you already typed.
+
 ## How it works
 
 1. **Fee base.** `(item price + shipping charged + platform discount − tax) × quantity`,
@@ -70,8 +76,9 @@ creator rates. It is opt-out from the footer, and it is skipped automatically
 when the browser sends Do Not Track or Global Privacy Control. See
 [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
-Events counted: `order_calculated`, `affiliate_compared`, `schedule_compared`.
-The first paint from the prefilled example is not counted.
+Events counted: `order_calculated`, `affiliate_compared`, `schedule_compared`,
+`free_shipping_compared`. The first paint from the prefilled example is not
+counted.
 
 ## Limitations
 

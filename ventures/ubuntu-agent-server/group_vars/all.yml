@@ -76,6 +76,27 @@ agent_runner_schedule: "*:0/10"
 # false once you've reviewed config/repos.yml and are ready for it to run.
 agent_runner_start_disabled: true
 
+# --- codex model routing (optional) ---
+#
+# Left empty on purpose. With both blank, `codex exec` runs without --model
+# and gets whatever model your signed-in ChatGPT plan serves — correct by
+# construction, and the path that spends the plan's included quota rather
+# than metered API credit.
+#
+# The previous hardcoded guesses ("gpt-5-mini"/"gpt-5") were never checked
+# against a live account, and a wrong --model value fails the run outright,
+# every poll cycle. So: only fill these in with IDs you have confirmed on
+# the box with `codex exec --model <id> "hi"`, and fill in BOTH or neither
+# (one alone would route a single tier and leave the other unrouted).
+codex_model_low: ""
+codex_model_high: ""
+
+# Opt in to metered OpenAI API billing instead of the plan quota. Leave
+# false unless you mean it: with this false, runners/codex.sh strips
+# OPENAI_API_KEY out of the child environment so a key that happens to be
+# set elsewhere on the box can't silently redirect spend to the API.
+codex_use_api_key: false
+
 # Run each headless CLI invocation inside a Docker container instead of
 # directly on the host — real OS-level isolation uniformly across all four
 # tools, not just the ones with their own sandbox flags. This is the
