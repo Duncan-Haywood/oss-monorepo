@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 118 files, 555030 bytes
 #   portfolio-front-tools-2: 150 files, 553485 bytes
 #   portfolio-front-tools-3: 116 files, 542364 bytes
-#   portfolio-front-tools-4: 122 files, 552880 bytes
+#   portfolio-front-tools-4: 123 files, 557023 bytes
 #   portfolio-front-tools-5: 104 files, 535734 bytes
 #   portfolio-front-tools-6: 107 files, 545103 bytes
 #   portfolio-front-tools-7: 104 files, 556086 bytes
@@ -714,6 +714,7 @@ configMapGenerator:
       - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
       - fireplace-insert-bid-calculator__index.html.gz=fireplace-insert-bid-calculator__index.html.gz
       - fireplace-insert-bid-calculator__usage.mjs.gz=fireplace-insert-bid-calculator__usage.mjs.gz
+      - fireplace-insert-bid-calculator__vs-jobber.html.gz=fireplace-insert-bid-calculator__vs-jobber.html.gz
       - flat-roof-bid-calculator__calc.mjs.gz=flat-roof-bid-calculator__calc.mjs.gz
       - flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz=flat-roof-bid-calculator__how-much-to-charge-for-a-flat-roof.html.gz
       - flat-roof-bid-calculator__index.html.gz=flat-roof-bid-calculator__index.html.gz
