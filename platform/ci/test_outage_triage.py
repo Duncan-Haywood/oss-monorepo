@@ -607,6 +607,34 @@ class Rendering(unittest.TestCase):
         self.assertIn("replaces the disk", text)
         self.assertIn("no effect on what is installed", text)
 
+    def test_the_creation_burst_is_labelled_as_such_in_the_table(self):
+        # The table and the verdict must not disagree. The first live run
+        # printed "power transition — disk intact" beside the very
+        # `start_server` the verdict calls the machine's first boot.
+        text = render(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("start_server", "2026-08-24T11:15:28+00:00"),
+                    act("create_server", "2026-08-24T11:15:20+00:00"),
+                ],
+            )
+        )
+        self.assertIn("provisioning — the machine's own creation", text)
+        self.assertNotIn("power transition", text)
+
+    def test_a_real_reboot_is_still_labelled_a_power_transition(self):
+        text = render(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("reboot_server", "2026-08-30T02:00:00+00:00"),
+                    act("create_server", "2026-08-24T11:15:20+00:00"),
+                ],
+            )
+        )
+        self.assertIn("power transition", text)
+
     def test_an_unsuccessful_action_is_rendered_as_having_no_effect(self):
         text = render(
             build(

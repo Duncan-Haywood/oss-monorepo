@@ -389,6 +389,11 @@ class BootHistory:
     rescue: dict | None = None
     power: dict | None = None
     created: dict | None = None
+    # Actions belonging to the creation burst rather than to operations. Kept
+    # so the rendered table can agree with the verdict: a reader who sees
+    # `start_server` labelled "power transition" in the table and "the first
+    # boot, not a restart" in the verdict has been handed both readings.
+    provisioning: list[dict] = field(default_factory=list)
     truncated: bool = False
 
     @property
@@ -462,7 +467,10 @@ def boot_history(triage: Triage, server_id: str) -> BootHistory:
             history.rescue = action
         # The `start_server` that first boots a new machine is not a power
         # cycle, and calling it one inverts the conclusion -- see CREATION.
-        if history.power is None and command in BOOT_CYCLING and not provisioning(action):
+        if provisioning(action):
+            history.provisioning.append(action)
+            continue
+        if history.power is None and command in BOOT_CYCLING:
             history.power = action
     return history
 
@@ -786,12 +794,18 @@ def render(triage: Triage) -> str:
         out.append("| --- | --- | --- | --- | --- |")
         for node in triage.nodes:
             history = boot_history(triage, node.server_id)
+            burst = [id(a) for a in history.provisioning]
             for action in history.actions[:10]:
                 command = action.get("command", "")
                 if command in DISK_REPLACING:
                     meaning = "**replaces the disk — installed software is gone**"
                 elif command in RESCUE_BOOTING:
                     meaning = "**boots media that is not the installed system**"
+                elif id(action) in burst:
+                    # Must agree with the verdict. Labelling the first boot a
+                    # "power transition" here while the verdict calls it the
+                    # machine's birth hands the reader both readings at once.
+                    meaning = "provisioning — the machine's own creation, not an operation"
                 elif command in BOOT_CYCLING:
                     meaning = "power transition — disk intact"
                 else:
