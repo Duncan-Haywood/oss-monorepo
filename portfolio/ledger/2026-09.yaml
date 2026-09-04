@@ -8896,3 +8896,72 @@ entries:
         `--checks contrast` went from 8 violations across 2 pages to 0
         across all 643 built pages.
     mrr_end: null
+  - venture: cloud-egress-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR quota: only one open PR existed (#3129, "cloud-egress-calculator:
+        model each provider's free egress allowance"). Reviewed it in full,
+        confirmed all 10 workflows green on real runners on the head SHA
+        (`ci_starvation` signature absent; `Portfolio validate`,
+        `hetzner-gitops CI` and `Portfolio Pages` all completed success), and
+        independently re-derived its new piecewise break-even solve against a
+        brute-force cost scan over 20,000 randomized pairs before trusting it.
+        Merged as 3d40f30f3. Per "fewer than three exist, process all of
+        them", the quota phase closed with an empty queue.
+      - >-
+        Then shipped the follow-up #3129 itself named as its known
+        limitation: egress past the free allowance was still billed at one
+        flat rate, but every published schedule steps the per-GB price down
+        with volume. `scenarioCost` now takes an optional `egressTiers` band
+        list (size + rate, last band unbounded, counted from the end of the
+        free allowance the way the sheets read), returns the per-band
+        `egressBreakdown` so a total can be checked against an invoice, and
+        defaults to one unbounded band at `egressRate` — byte-for-byte the
+        old arithmetic, with all 78 prior tests passing untouched.
+        `breakEvenEgressGb` generalizes from one knee per allowance to one
+        knee per allowance and per band. `parseEgressTiers` reads a pasted
+        sheet with its units and thousands separators intact. The page gains
+        a labelled "Graduated rates (optional)" textarea per option, wired
+        into recalculation, the copied summary and the JSON export alike.
+        On a 25 TB/month workload the flat model said $2,250 where the true
+        figure is $1,650 — a $7,200/year error that can name the wrong
+        provider as cheaper.
+      - >-
+        Found and fixed a floating-point defect in the new path while
+        verifying it, not by reading: the segment walk asks each option for
+        its marginal rate at exactly the boundaries it built as
+        `free + upToGb`, and subtracting the allowance back off reintroduces
+        the rounding — `(293.23 + 3964) - 293.23` is `3963.9999999999995`,
+        which reads as the previous band, hands the segment the wrong slope,
+        and reports no break-even for a pair that plainly crosses. Marginal
+        rates now compare in absolute volume with a relative tolerance and
+        the segment range check is tolerant at both ends. A randomized
+        differential check against a brute-force scan is what surfaced it:
+        35 disagreements before, 0 after.
+      - >-
+        Verified: `node --test ventures/cloud-egress-calculator/*.test.mjs`
+        93/93 (was 78, 15 new); 8,000 graduated and 20,000 flat/free-tier
+        randomized pairs agreeing with brute force on both the crossing and
+        its absence; `platform/pages/*.test.mjs` 867/867;
+        `front-door-tools.test.mjs` green after regenerating the apex
+        mirror; `clauses.mjs` 7 pages carrying the no-warranty clause; and
+        the primary journey driven in Chromium over HTTP — $2,250.00 flat to
+        $1,650.00 graduated, correct band note and break-even, a malformed
+        sheet naming the option and line with stale totals cleared, clean
+        recovery, no page errors. PR #3135.
+      - >-
+        Deployment and marketing surface checked rather than assumed, per
+        this run's brief: the apex sitemap's 636 `/tools/` URLs all resolve
+        to a file in the committed mirror (zero unresolved, after correcting
+        a first pass that mis-modelled the mirror's `__` path flattening and
+        wrongly reported 462 gaps), and no mirrored page carries a canonical
+        or og:url pointing at the still-dark `tools.marisstella.dev`. No
+        defect to fix there. The Codex-on-Hetzner built-in-quota route
+        (`CODEX_AUTH_JSON`) is likewise complete in code and tested,
+        including the seed-fingerprint logic that preserves the CLI's own
+        credential rotation across ticks; it remains owner-blocked on the
+        seal plus the two knobs already itemised under `codex-governor-
+        enable`, so no duplicate ask was added.
+    mrr_end: null
