@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Why don't my SBOM and advisory package names match? — the spelling problem</title>
+<meta name="description" content="A CycloneDX SBOM and an OSV advisory export name the same package differently: golang vs Go, cargo vs crates.io, group:artifact vs namespace/name. Why exact matching fails, and what has to be folded onto one spelling first." />
+<meta name="robots" content="index, follow" />
+<meta property="og:title" content="Why don't my SBOM and advisory package names match?" />
+<meta property="og:description" content="The same registry is spelled two ways by the two files you are comparing. Here is where the mismatches come from, and which ones can be resolved without guessing." />
+<meta property="og:type" content="article" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why doesn't my SBOM's package name match the advisory's?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the two files use different naming conventions for the same registry, and an exact-match comparison takes them at their word. A CycloneDX or SPDX SBOM carries package URLs, whose type is the registry's purl spelling. An OSV advisory carries an ecosystem name instead, and for several registries that is a different string for the same place: golang against Go, cargo against crates.io, packagist against composer, rubygems against gem. Nothing is wrong with either file. They simply never meet until one spelling is folded onto the other."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do Maven packages fail when every other ecosystem works?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Maven is the one ecosystem where the two conventions disagree about punctuation rather than about a registry's name. A package URL splits a Maven coordinate into a namespace and a name, while OSV writes the same coordinate as group colon artifact. Every other ecosystem in this table joins with a slash, because that is what its names look like in the wild: an npm scope reads at-scope slash name, a Go module path reads github.com slash owner slash repo. So joining a Maven coordinate the same way produces a name that is correctly assembled and still matches nothing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a package URL, and why prefer it as the canonical spelling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A package URL, usually written purl, states a registry, a name and a version in one string. It is the identifier the SBOM formats themselves carry, which is why it is used as the canonical spelling wherever the two inputs disagree. Its qualifiers and subpath are dropped before matching: an architecture or a subdirectory narrows which build is being described, not which package is named, so carrying them into the comparison would only invent mismatches."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my advisory export say Alpine colon v3.19 when my SBOM just says alpine?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OSV qualifies some ecosystems with a distribution release. The qualifier narrows which advisories apply, not which package is named, so it is dropped at the colon before matching. Keeping it would mean a plain alpine in an SBOM could never match an advisory for the release that SBOM was built from, which is the opposite of what the qualifier is there to express."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "If names are normalised, is the tool guessing at matches?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, and the distinction is the whole coverage boundary. Folding two spellings of the same registry onto one is reading what both files already state. Inferring is deciding something neither file says. This tool does the first and never the second: it does not resolve aliases, affected version ranges, reachability, or exploitability. An advisory that expresses affected versions only as a range therefore contributes no match at all, and is reported as not evaluated rather than dropped, because a clean result means something very different when part of the export was never assessed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "One entry in my SBOM is malformed. Is the whole file rejected?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A package URL that cannot be parsed is skipped rather than raised, and that component's own name, ecosystem and version fields are read instead. A single bad entry among two thousand good ones should not cost you the file, and a component that states usable coordinates some other way is still matched on those."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+  main { max-width: 46rem; margin: 0 auto; padding: 2.25rem 1.25rem 3.5rem; }
+  h1 { font-size: clamp(1.6rem, 4.5vw, 2.3rem); line-height: 1.15; margin: 0 0 0.6rem; }
+  h2 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  h3 { font-size: 1.02rem; margin: 1.4rem 0 0.3rem; }
+  .intro { color: var(--muted); font-size: 1.08rem; margin: 0 0 1.4rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.15rem 1.25rem; margin-top: 1.4rem; }
+  .cta { border-left: 4px solid var(--accent); padding: 0.6rem 1rem; margin-top: 1.6rem; }
+  a { color: var(--accent); }
+  table { border-collapse: collapse; width: 100%; margin-top: 0.7rem; font-size: 0.95rem; }
+  th, td { border: 1px solid var(--border); padding: 0.4rem 0.55rem; text-align: left; }
+  th { font-weight: 600; }
+  .wrap { overflow-x: auto; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.93em; }
+  ol { padding-left: 1.2rem; } li { margin: 0.3rem 0; }
+  footer { margin-top: 2.4rem; border-top: 1px solid var(--border); padding-top: 1rem; color: var(--muted); font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Why don't my SBOM and advisory package names match?</h1>
+  <p class="intro">Short answer: both files are correct, and they are describing the same package in two different spellings. An exact-match comparison takes each at its word, so the mismatch is real until one spelling is folded onto the other.</p>
+
+  <section class="panel">
+    <h2>Where the mismatches come from</h2>
+    <p>Three places, in roughly the order they bite:</p>
+    <ol>
+      <li><strong>The registry is named differently.</strong> A package URL carries a purl type; an OSV advisory carries an ecosystem name. For several registries those are two strings for one place.</li>
+      <li><strong>Maven punctuates differently.</strong> A purl splits the coordinate into namespace and name; OSV writes <code>group:artifact</code>.</li>
+      <li><strong>OSV adds a distribution qualifier.</strong> An ecosystem can arrive as <code>Alpine:v3.19</code> where the SBOM simply says <code>alpine</code>.</li>
+    </ol>
+    <p>None of these are visible as errors in either file, which is why a hand-rolled comparison tends to report a confident, wrong zero.</p>
+  </section>
+
+  <section class="panel">
+    <h2>The registries that are spelled two ways</h2>
+    <div class="wrap">
+      <table>
+        <thead><tr><th>OSV ecosystem</th><th>purl type</th></tr></thead>
+        <tbody>
+          <tr><td>crates.io</td><td>cargo</td></tr>
+          <tr><td>Go</td><td>golang</td></tr>
+          <tr><td>Packagist</td><td>composer</td></tr>
+          <tr><td>RubyGems</td><td>gem</td></tr>
+          <tr><td>SwiftURL</td><td>swift</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Everything else in the table this tool reads — npm, PyPI, Maven, NuGet, Hex, Pub, CRAN, Hackage — already agrees between the two, once case is set aside. Where the two disagree, the purl spelling wins, because purl is the identifier the SBOM formats themselves carry.</p>
+  </section>
+
+  <!--
+    These questions and answers are duplicated verbatim in the FAQPage JSON-LD
+    in the document head, in this order. `platform/pages/faq-visible.test.mjs`
+    pins that: structured data a visitor cannot see on the page is a claim made
+    only to a search engine. Edit both halves together.
+  -->
+  <section class="panel">
+    <h2>Questions</h2>
+
+    <h3>Why doesn't my SBOM's package name match the advisory's?</h3>
+    <p>Because the two files use different naming conventions for the same registry, and an exact-match comparison takes them at their word. A CycloneDX or SPDX SBOM carries package URLs, whose type is the registry's purl spelling. An OSV advisory carries an ecosystem name instead, and for several registries that is a different string for the same place: golang against Go, cargo against crates.io, packagist against composer, rubygems against gem. Nothing is wrong with either file. They simply never meet until one spelling is folded onto the other.</p>
+
+    <h3>Why do Maven packages fail when every other ecosystem works?</h3>
+    <p>Maven is the one ecosystem where the two conventions disagree about punctuation rather than about a registry's name. A package URL splits a Maven coordinate into a namespace and a name, while OSV writes the same coordinate as group colon artifact. Every other ecosystem in this table joins with a slash, because that is what its names look like in the wild: an npm scope reads at-scope slash name, a Go module path reads github.com slash owner slash repo. So joining a Maven coordinate the same way produces a name that is correctly assembled and still matches nothing.</p>
+
+    <h3>What is a package URL, and why prefer it as the canonical spelling?</h3>
+    <p>A package URL, usually written purl, states a registry, a name and a version in one string. It is the identifier the SBOM formats themselves carry, which is why it is used as the canonical spelling wherever the two inputs disagree. Its qualifiers and subpath are dropped before matching: an architecture or a subdirectory narrows which build is being described, not which package is named, so carrying them into the comparison would only invent mismatches.</p>
+
+    <h3>Why does my advisory export say Alpine colon v3.19 when my SBOM just says alpine?</h3>
+    <p>OSV qualifies some ecosystems with a distribution release. The qualifier narrows which advisories apply, not which package is named, so it is dropped at the colon before matching. Keeping it would mean a plain alpine in an SBOM could never match an advisory for the release that SBOM was built from, which is the opposite of what the qualifier is there to express.</p>
+
+    <h3>If names are normalised, is the tool guessing at matches?</h3>
+    <p>No, and the distinction is the whole coverage boundary. Folding two spellings of the same registry onto one is reading what both files already state. Inferring is deciding something neither file says. This tool does the first and never the second: it does not resolve aliases, affected version ranges, reachability, or exploitability. An advisory that expresses affected versions only as a range therefore contributes no match at all, and is reported as not evaluated rather than dropped, because a clean result means something very different when part of the export was never assessed.</p>
+
+    <h3>One entry in my SBOM is malformed. Is the whole file rejected?</h3>
+    <p>No. A package URL that cannot be parsed is skipped rather than raised, and that component's own name, ecosystem and version fields are read instead. A single bad entry among two thousand good ones should not cost you the file, and a component that states usable coordinates some other way is still matched on those.</p>
+  </section>
+
+  <p class="cta"><strong>Want the comparison done for you?</strong> <a href="index.html">CRA Evidence Desk</a> folds both spellings onto one, matches your SBOM against your advisory export on exact name, ecosystem and version, and names the advisories it could not evaluate. It runs entirely in your browser, your SBOM is never uploaded, and it is free.</p>
+
+  <footer>
+    <p>
+      <strong>No warranty.</strong> This page is free and as-is, without
+      warranty of any kind, express or implied. It is general technical
+      explanation of how two file formats name packages — not legal,
+      regulatory, or compliance advice, and not a determination that any
+      obligation does or does not apply to you. Naming conventions change, and
+      an export from a tool not described here may differ. You are responsible
+      for verifying any match against the authoritative advisory source before
+      relying on it. To the maximum extent permitted by law, the authors accept
+      no liability for any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These pages are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+    <p>MIT licensed — see <a href="LICENSE">LICENSE</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a>.</p>
+  </footer>
+</main>
+</body>
+</html>

@@ -9533,3 +9533,73 @@ entries:
         only in the Pages artifact: new shard key present, listed in
         `kustomization.yaml` and in the front door's `sitemap.xml`.
     mrr_end: null
+  - venture: cra-evidence-desk
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: not applicable — `list_pull_requests` returned zero
+        open PRs. Checked the four closed unmerged the previous 45 minutes
+        (#3164, #3169, #3170, #3171) for discarded work rather than trusting
+        the closes: each cited a `supersede_check.py` proof, and the one that
+        would have mattered most (#3170, "unresolved conflict markers left on
+        main") was verified directly — a repo-wide scan for `<<<<<<<`,
+        `=======`, `>>>>>>>` across html/mjs/js/yaml/yml/md/py found none on
+        `main`. The queue is genuinely drained, not abandoned.
+      - >-
+        Closed the portfolio's last guide-coverage gap.
+        `guide-coverage.mjs` reported 173 of 174 published surfaces carrying
+        a secondary page, naming `cra-evidence-desk` as the only one left —
+        the venture #3168's session deliberately skipped, because a Cyber
+        Resilience Act explainer written to obligation dates would need
+        primary legislation this environment cannot reach (outbound HTTPS to
+        arbitrary hosts is refused by the egress proxy). That reasoning still
+        holds and is not worked around here: this page makes no claim about
+        deadlines, thresholds, or whether any obligation applies.
+      - >-
+        Shipped `sbom-and-advisory-package-names-dont-match.html` on a
+        different axis instead — the mechanical question a vendor hits before
+        they know a tool exists ("why don't my SBOM and advisory package
+        names match?"), answerable entirely from
+        `src/cra_evidence_desk/normalize.py` and therefore verifiable without
+        leaving the repo. Covers the five registries the two formats spell
+        differently (crates.io/cargo, Go/golang, Packagist/composer,
+        RubyGems/gem, SwiftURL/swift), Maven's `group:artifact` against a
+        purl's namespace + name split, OSV's `Alpine:v3.19` distribution
+        qualifier being dropped at the colon, purl qualifiers and subpath
+        being scoping rather than identity, and a malformed purl falling back
+        to the component's own fields rather than failing the file. Every
+        claim was read out of the source before writing, including the exact
+        alias table — the five that differ and the eight that are identity
+        entries.
+      - >-
+        Held the coverage boundary rather than overselling normalisation: the
+        page states plainly that folding two spellings of one registry is
+        reading what both files say, while ranges, aliases, reachability and
+        exploitability are inferences the tool does not make, and that a
+        range-only advisory contributes no match and is reported as not
+        evaluated. Upstream-of-the-tool framing so it does not cannibalise
+        the entry page's own queries; visible Q&A with matching FAQPage
+        JSON-LD, no-warranty clause, no form controls (it is a prose page),
+        no third-party script, font, or network call. Linked from
+        `index.html` and back.
+      - >-
+        Verified: `guide-coverage.mjs` 173/174 -> 174/174; `faq-coverage.mjs`
+        174/174; `clauses.mjs` 654 pages across 174 surfaces; `link.mjs` and
+        `invalid.mjs` silent; `platform/pages/*.test.mjs` 880/880;
+        `platform/marketing/*.test.mjs` 208/208; venture `node --test` 49/49;
+        venture `python3 -m unittest` 24/24; `pytest gitops/tests -q` 300
+        passed, 16 skipped; `publish_surface.py --check` matches snapshot;
+        router/usage/workflow/form-default/input-bound validators all pass.
+      - >-
+        Deployed rather than only built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`) so the
+        page is served from the Hetzner front door, not just the Pages
+        artifact. Confirmed the new shard key is present and listed in
+        `kustomization.yaml`, the gzipped copy decodes to the page with its
+        canonical rewritten to
+        `https://marisstella.dev/tools/cra-evidence-desk/sbom-and-advisory-package-names-dont-match.html`
+        and `robots: index,follow`, and that URL is in the front door's
+        `sitemap.xml`. Mirror still at 64.3% of ceiling, 10 shards, all
+        already mounted by `portfolio-front.yaml`.
+    mrr_end: null
