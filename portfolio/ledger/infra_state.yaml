@@ -1,0 +1,70 @@
+# Measured state of shared infrastructure that restore routes run on.
+#
+# This file exists because of a specific error the queue made on 2026-09-04.
+# `decision_queue.py`'s outage banner told the owner that the two OUTAGE rows
+# were "not downstream of each other", that "granting any one of them alone
+# puts the catalogue in front of a stranger", and to "do the cheapest first".
+# The first clause is true and the other two were not, because both routes run
+# on infrastructure the banner never looked at:
+#
+#   - `deploy-settings` (GitHub Pages) is built and published by
+#     `.github/workflows/portfolio-pages.yml`. That needs an Actions runner.
+#   - the self-hosted runner stack that exists as insurance for exactly that
+#     (`gitops/ci/`) runs as pods on the k3s cluster.
+#   - the cluster is what `hetzner-ssh-key-is-a-public-key` reaches.
+#
+# So a route can be independent of the other route and still be un-grantable,
+# and the queue had no way to say so. An owner reading "do the cheapest first"
+# on 2026-09-04 would have flipped Pages on and got nothing, because no runner
+# would have picked the deploy job up.
+#
+# The rule this file follows is the one the repo learned the hard way about
+# the public surface: **a reading, never a claim**. Every entry carries the
+# run id it was measured from and the command that reads it, so the next
+# session can re-measure rather than inherit. A reading older than
+# `STALE_AFTER_DAYS` is treated as *unknown*, never as "up" — an absent
+# measurement must not read as a healthy one, which is the direction the
+# whole 2026-08-30..09-04 "nothing is served" episode failed in.
+#
+# To re-measure, run the command in each entry's `how:` and update `verdict`,
+# `measured` and `run`. Do not edit a verdict without one.
+
+readings:
+
+  github-actions-runners:
+    verdict: down
+    measured: "2026-09-04"
+    run: 33926434774
+    how: >-
+      Dispatch any workflow that needs no secret (`Public surface check` is
+      the cheapest) and classify it:
+      `python3 platform/ci/ci_starvation.py --run <run_id>`.
+      Exit 0 means runners are being assigned; exit 1 means starvation.
+    note: >-
+      Starvation recurred mid-session on 2026-09-04, exactly as
+      `gitops/ci/README.md` predicted it would when the metered allowance is
+      spent again. The cliff is pinned to a nine-minute window: run
+      33925827289 (`Portfolio validate`, 22:30:52Z) took real runner
+      1000054728 and passed in 196s, and by 22:39:33Z runs 33926434774 and
+      33926436491 both came back `runner_id: 0` with no steps. Confirmed a
+      third time on a re-dispatch, so it is not a momentary queue.
+      The 2026-08-26 window recovered on its own at 00:00:53Z on the first of
+      the month, which is what a metered allowance resetting looks like, so
+      the reasonable expectation is that this one lifts on 2026-10-01 unless
+      the owner raises the ceiling sooner.
+
+  k3s-cluster:
+    verdict: down
+    measured: "2026-09-04"
+    run: 33889983086
+    how: >-
+      Dispatch `Outage triage` (`.github/workflows/outage-triage.yml`); it
+      needs no secret and reports per-port reachability from a runner.
+      Note this itself needs a runner, so it cannot be re-measured while
+      `github-actions-runners` is down.
+    note: >-
+      `:6443` refused on both boxes, so the k3s API server is not listening —
+      a dead or absent cluster rather than a crashed ingress. `:22` is open
+      on both, which is what makes the SSH route credible rather than
+      hopeful. Powered on and correctly addressed per the Hetzner read-only
+      API, so this is not power, DNS, firewall or TLS.
