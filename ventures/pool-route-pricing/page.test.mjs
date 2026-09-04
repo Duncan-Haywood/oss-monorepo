@@ -65,6 +65,17 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   assert.match(body, /el\('errors'\)\.hidden\s*=\s*false/, 'the error message is never shown');
 });
 
+test('the result panel announces recalculation to screen readers', () => {
+  // The panel re-renders in place on every keystroke (price, revenue, labor
+  // hours, chemicals, overhead, total cost) with no page navigation and no
+  // focus change. Without aria-live, a screen-reader user who edits an input
+  // gets no indication the numbers just changed -- the same gap already
+  // fixed in which-job-first, cam-reconciliation-check, seller-net-sheet,
+  // ltl-freight-class-estimator, chargeback-evidence-packet, and
+  // subscription-price-impact.
+  assert.match(html, /<section class="result" aria-live="polite">/);
+});
+
 test('every default field the page collects is one share.mjs round-trips', () => {
   for (const id of Object.keys(DEFAULTS)) {
     assert.match(html, new RegExp(`id="${id}"`), `${id} input is missing from the page`);
