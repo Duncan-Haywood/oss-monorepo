@@ -302,22 +302,24 @@ test('the return path prices three legs of freight, not one', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
   // Out at $65, back at $75, out again at $65 on the relist.
   assert.equal(comparison.freightOnReturnPath, 205);
-  assert.equal(Number(comparison.returnPosition.toFixed(3)), 35.032);
+  assert.equal(Number(comparison.returnPosition.toFixed(3)), 34.849);
   assert.equal(Number(comparison.saleStandsPosition.toFixed(3)), 284.325);
-  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), 249.29);
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), 249.48);
 });
 
 test('the fee credit on a refund covers the percentages only, never the fixed line', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
   // 5% of $800 plus 2.9% of $875 is $65.375 of the $65.675 charged; the
-  // $0.30 per-order fee is the rest and no refund returns it.
+  // $0.30 per-order fee is the rest and no refund returns it, at any
+  // feeRefundOnReturnPct — it is added back in full, never scaled by the
+  // refund rate.
   assert.equal(Number((comparison.percentFeeRate * 875).toFixed(3)), 65.375);
-  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), Number((65.675 * 0.39).toFixed(3)));
+  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), Number((65.375 * 0.39 + 0.3).toFixed(3)));
 });
 
 test('the break-even partial refund exactly ties taking the return', () => {
   const comparison = compareReturnResolution(REVERB_DEFAULTS);
-  assert.equal(Number(comparison.breakEvenPartialRefund.toFixed(2)), 261.20);
+  assert.equal(Number(comparison.breakEvenPartialRefund.toFixed(2)), 261.39);
   const atBreakEven = compareReturnResolution({
     ...REVERB_DEFAULTS,
     partialRefund: comparison.breakEvenPartialRefund,
@@ -349,7 +351,7 @@ test('a relist that fetches the original price still loses the freight and the r
   assert.equal(Number(comparison.relistHaircut.toFixed(2)), 0);
   // Nothing given up on the price, and the return still costs the two extra
   // legs of freight, the second prep, and the unrefunded processing.
-  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 65.675 * 0.39).toFixed(2)));
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 65.375 * 0.39 + 0.3).toFixed(2)));
 });
 
 test('a relist price of $0 prices the piece as coming back unsellable', () => {
@@ -359,14 +361,29 @@ test('a relist price of $0 prices the piece as coming back unsellable', () => {
   assert.equal(comparison.relist, null);
   // No second sale means no third leg of freight either.
   assert.equal(comparison.freightOnReturnPath, 140);
-  assert.equal(Number(comparison.returnPosition.toFixed(3)), Number((-(65 + 75 + 10 + 65.675 * 0.39) - 450).toFixed(3)));
+  assert.equal(Number(comparison.returnPosition.toFixed(3)), Number((-(65 + 75 + 10 + 65.375 * 0.39 + 0.3) - 450).toFixed(3)));
   assert.ok(comparison.breakEvenRefundCappedByOrder);
 });
 
-test('a full fee refund still leaves the return costing freight and the haircut', () => {
+test('a bump fee already spent is never credited back on a return, at any refund rate', () => {
+  const withoutBump = compareReturnResolution(REVERB_DEFAULTS);
+  const withBump = compareReturnResolution({ ...REVERB_DEFAULTS, bumpFee: 15 });
+  // The $15 bump adds straight to unrefundedFees — none of it is scaled
+  // down by the 61% feeRefundOnReturnPct, matching percentFeeRate's own
+  // rule that a bump already spent is not refund-linked.
+  assert.equal(
+    Number((withBump.unrefundedFees - withoutBump.unrefundedFees).toFixed(3)),
+    15,
+  );
+  assert.equal(Number(withBump.unrefundedFees.toFixed(3)), 40.796);
+});
+
+test('a full fee refund still leaves the $0.30 fixed fee unrefunded', () => {
   const comparison = compareReturnResolution({ ...REVERB_DEFAULTS, feeRefundOnReturnPct: 100 });
-  assert.equal(comparison.unrefundedFees, 0);
-  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 73.68).toFixed(2)));
+  // The 100% refund rate applies only to the percentage fees; the fixed
+  // per-order payment fee is never refund-linked, so it alone remains.
+  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), 0.3);
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 73.68 + 0.3).toFixed(2)));
   assert.ok(comparison.breakEvenPartialRefund > 0);
 });
 
@@ -387,11 +404,11 @@ test('the return comparison refuses a refund larger than the order', () => {
 
 test('returnResolutionNote names the ceiling without telling you what to do', () => {
   const note = returnResolutionNote(compareReturnResolution(REVERB_DEFAULTS));
-  assert.match(note, /Taking the return costs \$249\.29/);
+  assert.match(note, /Taking the return costs \$249\.48/);
   assert.match(note, /\$205\.00 of freight over three legs/);
-  assert.match(note, /\$25\.61 of fees no refund gives back/);
+  assert.match(note, /\$25\.80 of fees no refund gives back/);
   assert.match(note, /\$73\.68 given up on the relist/);
-  assert.match(note, /partial refund up to \$261\.20/);
+  assert.match(note, /partial refund up to \$261\.39/);
   assert.doesNotMatch(note, /you should|we recommend|must refund/i);
 });
 
