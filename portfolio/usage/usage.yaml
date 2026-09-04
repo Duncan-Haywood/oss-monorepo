@@ -3768,6 +3768,20 @@ products:
           Shipped a local booth-rent vs commission take-home calculator for
           stylists; public URL remains owner-gated and the browser counter is
           local and opt-out.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added the payroll-tax comparison: employee FICA on the commission
+          side against self-employment tax on the booth side, which the tool
+          had been omitting while presenting the two take-homes as
+          comparable. New `tax_verdict_flipped` counter measures the thing
+          worth knowing -- how often accounting for it reverses which deal
+          wins. On the shipped example book the wedge is ~$3,200/year and it
+          reverses the verdict at a $420/week chair rent. Counter is still
+          local, aggregate, and opt-out; served on the apex via the front-door
+          mirror, so this one does reach strangers today.
 
   - slug: sump-pump-bid-calculator
     surface: static-page-in-repo

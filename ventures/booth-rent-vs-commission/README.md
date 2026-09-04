@@ -54,6 +54,13 @@ tools do not model the two actual compensation structures in US salons.
    extra clients needed to match the current split, and the maximum weekly
    rent at which booth still matches commission. An optional rent offer is
    scored against the same book.
+6. **Payroll tax.** Steps 1–5 compare pre-tax dollars, which is the wrong
+   frame for "which check is bigger": commission take-home is W-2 wages
+   carrying employee FICA, while booth take-home is self-employment income
+   carrying both halves. The after-tax section recomputes take-home, the
+   break-even count, and the matching rent on that basis, and says so loudly
+   when it reverses the pre-tax verdict — which it does on ordinary chair
+   rents, not just contrived ones.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs).
@@ -68,13 +75,34 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `comparison_calculated`, `summary_copied`, `share_copied`,
-`share_opened`, `offered_rent_compared`.
+`share_opened`, `offered_rent_compared`, `tax_verdict_flipped`.
+
+`tax_verdict_flipped` is the outcome measure for the payroll-tax section: it
+counts settled books where accounting for employee FICA against
+self-employment tax reversed which deal wins. If it stays near zero on real
+use, the section is decoration and should shrink to a footnote; if it is
+common, the untaxed comparison was sending stylists the wrong way and the
+section has earned its place.
 
 ## Limitations
 
-- Single currency and no tax handling. Self-employment tax, booth insurance
-  write-offs, and household bills are yours to layer on — this is not a tax
-  tool.
+- Single currency, and **US payroll tax only**. The comparison models the one
+  tax that differs structurally between the two deals: employee FICA (7.65%)
+  on the W-2 commission side against self-employment tax (15.3% of 92.35% of
+  net) on the booth-rent side. See [`payroll.mjs`](payroll.mjs).
+- Income tax is deliberately not modelled. It falls on either deal much the
+  same for the same net income and depends on filing status, household
+  income, and deductions this tool does not ask for — including it would bury
+  the structural difference under personal detail. The one place it appears is
+  the optional marginal-bracket input, used only to value the deductible half
+  of self-employment tax; left at 0 that offset is worth nothing, which
+  understates booth rent rather than overstating it.
+- The Social Security wage base defaults to the 2025 figure and is indexed
+  every January. It is an editable input, and it is inert for any book below
+  it. Additional Medicare (0.9% over $200k) is not modelled.
+- Booth insurance write-offs beyond the business costs already entered, and
+  household bills, are still yours to layer on. This is a comparison tool, not
+  a tax tool.
 - One book, two deals. Sliding-scale commission, house fees on top of booth
   rent, and assistant tip-outs are not modelled as separate rows yet.
 - Retail does not automatically grow when you add clients. That is
