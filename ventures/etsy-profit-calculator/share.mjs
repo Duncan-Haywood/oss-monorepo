@@ -70,6 +70,7 @@ export const FIELD_IDS = [
   'thirdPartyClaimRatePercent',
   'labelUploadMinutes',
   'labelUploadWage',
+  'labelFeeRefundOnClaimPercent',
   'monthlyLabelShipments',
 ];
 
