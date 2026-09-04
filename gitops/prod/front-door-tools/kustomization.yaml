@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 130 files, 546989 bytes
+#   portfolio-front-tools-0: 131 files, 551019 bytes
 #   portfolio-front-tools-1: 117 files, 555739 bytes
 #   portfolio-front-tools-2: 149 files, 556464 bytes
 #   portfolio-front-tools-3: 118 files, 552251 bytes
@@ -84,6 +84,7 @@ configMapGenerator:
       - construction-evidence-log__index.html.gz=construction-evidence-log__index.html.gz
       - construction-evidence-log__record.mjs.gz=construction-evidence-log__record.mjs.gz
       - construction-evidence-log__style.css.gz=construction-evidence-log__style.css.gz
+      - construction-evidence-log__vs-procore.html.gz=construction-evidence-log__vs-procore.html.gz
       - tender-bid-readiness__check.mjs.gz=tender-bid-readiness__check.mjs.gz
       - tender-bid-readiness__index.html.gz=tender-bid-readiness__index.html.gz
       - tender-bid-readiness__should-i-bid-on-this-tender.html.gz=tender-bid-readiness__should-i-bid-on-this-tender.html.gz
