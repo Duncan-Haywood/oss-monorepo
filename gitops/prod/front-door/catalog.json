@@ -368,7 +368,7 @@
       "url": "https://marisstella.dev/tools/shopify-a11y-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "faire-wholesale-calculator",
