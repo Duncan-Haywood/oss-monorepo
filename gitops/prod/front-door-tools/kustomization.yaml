@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 117 files, 555739 bytes
 #   portfolio-front-tools-2: 149 files, 556504 bytes
 #   portfolio-front-tools-3: 118 files, 544786 bytes
-#   portfolio-front-tools-4: 120 files, 546814 bytes
+#   portfolio-front-tools-4: 121 files, 548994 bytes
 #   portfolio-front-tools-5: 107 files, 555074 bytes
 #   portfolio-front-tools-6: 109 files, 556523 bytes
 #   portfolio-front-tools-7: 106 files, 556717 bytes
@@ -609,6 +609,7 @@ configMapGenerator:
       - crown-molding-bid-calculator__vs-jobber.html.gz=crown-molding-bid-calculator__vs-jobber.html.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
+      - cut-list-optimizer__csv.mjs.gz=cut-list-optimizer__csv.mjs.gz
       - cut-list-optimizer__draft.mjs.gz=cut-list-optimizer__draft.mjs.gz
       - cut-list-optimizer__index.html.gz=cut-list-optimizer__index.html.gz
       - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz

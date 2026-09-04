@@ -1,3 +1,5 @@
+import { csvCell, csvNumber, toCSV } from './csv.mjs';
+
 const LINE = /^(\d+(?:\.\d+)?)\s*(?:x|\*|,)?\s*(\d+)?$/i;
 
 function parseLengthList(text, label) {
@@ -172,6 +174,35 @@ export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, 
   }
 
   return lines.join('\n');
+}
+
+/**
+ * The same cutting plan as a CSV, one row per required cut: which bar it
+ * belongs to, whether that bar is a new purchase or an on-hand offcut, the
+ * bar's stock length, and the cut's own length. A shop pastes this into a
+ * spreadsheet or job-tracking sheet rather than retyping the plan by hand.
+ * A cut too long for any stock on hand or to buy still gets a row — `bar`
+ * blank, `source` "unplaced" — so the CSV never silently drops a line the
+ * on-screen warning already calls out.
+ */
+export function formatCutPlanCSV(result, { stockUnit = 'units' } = {}) {
+  const header = ['bar', 'source', 'stock_length', 'cut_length', 'unit'];
+  const rows = [];
+  result.bars.forEach((bar, index) => {
+    bar.cuts.forEach((cut) => {
+      rows.push([
+        csvNumber(index + 1),
+        csvCell(bar.source),
+        csvNumber(bar.length.toFixed(2)),
+        csvNumber(cut.toFixed(2)),
+        csvCell(stockUnit),
+      ]);
+    });
+  });
+  (result.oversize || []).forEach((cut) => {
+    rows.push(['', csvCell('unplaced'), '', csvNumber(cut.toFixed(2)), csvCell(stockUnit)]);
+  });
+  return toCSV(header, rows);
 }
 
 const LENGTH_EPS = 1e-9;

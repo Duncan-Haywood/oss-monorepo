@@ -9,6 +9,8 @@
 //
 // Pure functions, no DOM, no I/O — the page and the tests share them.
 
+import { csvCell, csvNumber, toCSV } from './csv.mjs';
+
 const EPS = 1e-9;
 
 // A single browser tab planning a job will not legitimately exceed this, and it
@@ -360,6 +362,40 @@ export function formatSheetPlan(result, { unit = 'in', sheetCost = null } = {}) 
 
   lines.push('Verify every dimension against your own stock and saw before cutting.');
   return lines.join('\n');
+}
+
+/**
+ * The same sheet plan as a CSV, one row per physical placed piece: which
+ * sheet it is on, whether that sheet is a new purchase or an on-hand offcut,
+ * its label, its size and position, and whether it was rotated. A shop
+ * pastes this into a spreadsheet, a CNC nesting import, or a cut-list app
+ * rather than retyping the plan by hand off the printed diagram or copied
+ * text. A piece that did not fit any sheet still gets a row — `sheet` and
+ * `x`/`y` blank, `source` "unplaced" — so the CSV never silently drops a
+ * line the on-screen warning already calls out.
+ */
+export function formatSheetPlanCSV(result, { unit = 'in' } = {}) {
+  const header = ['sheet', 'source', 'label', 'width', 'height', 'x', 'y', 'rotated', 'unit'];
+  const rows = [];
+  result.sheets.forEach((sheet, index) => {
+    sheet.placements.forEach((p) => {
+      rows.push([
+        csvNumber(index + 1),
+        csvCell(sheet.source),
+        csvCell(p.label),
+        csvNumber(round(p.width)),
+        csvNumber(round(p.height)),
+        csvNumber(round(p.x)),
+        csvNumber(round(p.y)),
+        csvCell(p.rotated ? 'yes' : 'no'),
+        csvCell(unit),
+      ]);
+    });
+  });
+  result.oversize.forEach((p) => {
+    rows.push(['', csvCell('unplaced'), csvCell(p.label), csvNumber(round(p.width)), csvNumber(round(p.height)), '', '', '', csvCell(unit)]);
+  });
+  return toCSV(header, rows);
 }
 
 export const MAX_SHEET_CANDIDATES = 6;
