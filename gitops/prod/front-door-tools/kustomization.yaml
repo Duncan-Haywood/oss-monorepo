@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 131 files, 551149 bytes
+#   portfolio-front-tools-0: 132 files, 555221 bytes
 #   portfolio-front-tools-1: 117 files, 555444 bytes
 #   portfolio-front-tools-2: 147 files, 548839 bytes
 #   portfolio-front-tools-3: 116 files, 555271 bytes
@@ -131,6 +131,7 @@ configMapGenerator:
       - cleaning-dilution-calculator__index.html.gz=cleaning-dilution-calculator__index.html.gz
       - cleaning-dilution-calculator__share.mjs.gz=cleaning-dilution-calculator__share.mjs.gz
       - cleaning-dilution-calculator__usage.mjs.gz=cleaning-dilution-calculator__usage.mjs.gz
+      - cleaning-dilution-calculator__vs-janitorial-manager.html.gz=cleaning-dilution-calculator__vs-janitorial-manager.html.gz
       - medical-courier-route-margin__LICENSE.gz=medical-courier-route-margin__LICENSE.gz
       - medical-courier-route-margin__calc.mjs.gz=medical-courier-route-margin__calc.mjs.gz
       - medical-courier-route-margin__index.html.gz=medical-courier-route-margin__index.html.gz
