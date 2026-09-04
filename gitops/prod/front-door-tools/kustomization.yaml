@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 131 files, 554114 bytes
 #   portfolio-front-tools-1: 117 files, 556428 bytes
 #   portfolio-front-tools-2: 147 files, 555935 bytes
-#   portfolio-front-tools-3: 116 files, 553725 bytes
+#   portfolio-front-tools-3: 117 files, 554808 bytes
 #   portfolio-front-tools-4: 128 files, 556228 bytes
 #   portfolio-front-tools-5: 109 files, 556350 bytes
 #   portfolio-front-tools-6: 107 files, 553262 bytes
@@ -500,8 +500,9 @@ configMapGenerator:
       - ai-engineering-academy__rc-filter-calculator__index.html.gz=ai-engineering-academy__rc-filter-calculator__index.html.gz
       - ai-engineering-academy__rc-filter-calculator__usage.mjs.gz=ai-engineering-academy__rc-filter-calculator__usage.mjs.gz
       - ai-engineering-academy__rc-time-calculator__calc.mjs.gz=ai-engineering-academy__rc-time-calculator__calc.mjs.gz
-      - ai-engineering-academy__rc-time-calculator__how-long-to-fully-charge-a-capacitor.html.gz=ai-engineering-academy__rc-time-calculator__how-long-to-fully-charge-a-capacitor.html.gz
+      - ai-engineering-academy__rc-time-calculator__how-long-until-a-capacitor-is-fully-charged.html.gz=ai-engineering-academy__rc-time-calculator__how-long-until-a-capacitor-is-fully-charged.html.gz
       - ai-engineering-academy__rc-time-calculator__index.html.gz=ai-engineering-academy__rc-time-calculator__index.html.gz
+      - ai-engineering-academy__rc-time-calculator__settling.mjs.gz=ai-engineering-academy__rc-time-calculator__settling.mjs.gz
       - ai-engineering-academy__rc-time-calculator__usage.mjs.gz=ai-engineering-academy__rc-time-calculator__usage.mjs.gz
       - ai-engineering-academy__resistor-calculator__calc.mjs.gz=ai-engineering-academy__resistor-calculator__calc.mjs.gz
       - ai-engineering-academy__resistor-calculator__index.html.gz=ai-engineering-academy__resistor-calculator__index.html.gz
