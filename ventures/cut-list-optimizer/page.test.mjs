@@ -154,6 +154,17 @@ test('the landing page points at the 4×8 vs 5×5 comparison', () => {
   assert.match(markup, /compare other sheet sizes/i);
 });
 
+test('both the sheet and linear plans can be downloaded as CSV', () => {
+  for (const id of ['sheet-csv', 'linear-csv']) {
+    assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
+    assert.match(markup, new RegExp(`id="${id}"[^>]*>Download CSV<`), `#${id} button is missing from index.html`);
+  }
+  assert.match(scriptSource, /formatSheetPlanCSV/, 'the page never formats the sheet plan as CSV');
+  assert.match(scriptSource, /formatCutPlanCSV/, 'the page never formats the linear plan as CSV');
+  assert.match(scriptSource, /wireCSV\('sheet-csv'/, 'sheet-csv is not wired to a download handler');
+  assert.match(scriptSource, /wireCSV\('linear-csv'/, 'linear-csv is not wired to a download handler');
+});
+
 test('both the sheet and linear plans can be printed', () => {
   // The linear-stock cutting plan is a job ticket read at the saw just like
   // the sheet layout is -- the page's own schema.org featureList advertises

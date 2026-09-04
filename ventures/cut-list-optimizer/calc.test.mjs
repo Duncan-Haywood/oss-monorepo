@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison, sameStockLength } from './calc.mjs';
+import { parseCuts, parseStock, optimizeCutList, formatCutPlan, formatCutPlanCSV, compareStockLengths, formatStockComparison, sameStockLength } from './calc.mjs';
 
 test('expands quantities and sorts cuts', () => assert.deepEqual(parseCuts('24 x 3\n30'), [30, 24, 24, 24]));
 test('rejects malformed lines', () => assert.throws(() => parseCuts('twelve'), /Line 1/));
@@ -190,6 +190,31 @@ test('includes a custom current length that is not in the catalog', () => {
   assert.equal(custom.length, 72);
   assert.equal(custom.current, true);
   assert.equal(custom.fits, true);
+});
+
+test('CSV export has one row per cut, tagged with its bar and source', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10], onHand: [15] });
+  const csv = formatCutPlanCSV(result, { stockUnit: 'in' });
+  const [header, ...rows] = csv.trim().split('\r\n');
+  assert.equal(header, 'bar,source,stock_length,cut_length,unit');
+  // 3 required cuts placed onto 2 bars (one from the rack, one bought) = 3 rows.
+  assert.equal(rows.length, 3);
+  assert.ok(rows.some((row) => row === '1,on-hand,15.00,10.00,in'));
+  assert.ok(rows.every((row) => row.endsWith(',in')));
+});
+
+test('CSV export lists an oversize cut as unplaced with no bar', () => {
+  const result = optimizeCutList({ stockLength: 10, kerf: 0, cuts: [12, 4] });
+  const csv = formatCutPlanCSV(result, { stockUnit: 'ft' });
+  assert.match(csv, /^bar,source,stock_length,cut_length,unit\r\n/);
+  assert.match(csv, /,unplaced,,12\.00,ft\r\n/);
+  assert.match(csv, /^1,purchase,10\.00,4\.00,ft\r\n/m);
+});
+
+test('a comma or quote in nothing this module writes needs quoting, but a defensive unit still round-trips', () => {
+  const result = optimizeCutList({ stockLength: 24, kerf: 0, cuts: [10] });
+  const csv = formatCutPlanCSV(result, { stockUnit: 'in, nominal' });
+  assert.match(csv, /"in, nominal"/);
 });
 
 test('formats a stock comparison for a shop note', () => {
