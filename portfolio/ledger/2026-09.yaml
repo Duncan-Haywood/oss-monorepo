@@ -9248,3 +9248,74 @@ entries:
         would render and compute nothing, which is the failure this
         venture's own history already contains.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second question-shaped page for the venture, continuing the plan
+        #3146 laid out: five remaining calculators, each with a question
+        that comes before its own inputs are known. Picked
+        rc-time-calculator, for "how long until a capacitor is basically
+        fully charged?" -- checked first that no open PR or recent commit
+        already covered any of the five (git fetch, PR search, and a scan
+        of `git log origin/main --since` at session start all came back
+        empty for this venture beyond #3146 itself).
+      - >-
+        The parent tool's own "Timing" section already answers "how long
+        until I reach this threshold voltage" -- it needs a threshold. The
+        new page answers the question that comes first: an RC charge
+        follows V(t) = Vs(1 - e^-t/RC), which never mathematically reaches
+        100%, only closer and closer. `settling.mjs` builds a settling
+        table (1tau through 10tau, exact percent and voltage reached at
+        each, from this circuit's own R and C) plus a percent-to-time
+        solver that inverts the same equation for any target below 100%.
+        Both import `voltageAtTime` and `formatTime` from the parent's own
+        `calc.mjs` rather than restating the exponential-charging formula,
+        per the rule CLAUDE.md records twice as having cost live product.
+      - >-
+        Every number is derived, not asserted: 5tau reaching 99.326% and
+        50% arriving at ln(2) time constants (the same constant a
+        radioactive half-life uses) are both consequences of the formula,
+        not facts pulled from outside it, and the page copy says so rather
+        than presenting one convention as the correct one. 13 passing unit
+        tests in settling.test.mjs, every expected figure worked from the
+        exponential-charging equation by hand rather than baselined off a
+        run.
+      - >-
+        A real FAQPage/visible-copy mismatch surfaced in review, same
+        class of bug #3146 hit: two answers said the tool sat "below" the
+        FAQ when the section is above it, and three answers used a literal
+        "^" for an exponent that the page rendered as an invisible
+        `<sup>` with no caret in the visible text. `faq-visible.test.mjs`
+        caught both; fixed by matching the wording to the page's actual
+        layout and adding the caret before the `<sup>` tag so the visible
+        text reads the same as the JSON-LD after entity decoding. Full
+        portfolio-wide faq-visible run is green afterward, not just this
+        page.
+      - >-
+        Verified: `node --test` in the venture -> 197/197 (13 new).
+        `node platform/pages/build.mjs` -> 174 tools; `node
+        platform/pages/check.mjs --dist=platform/pages/dist` -> 174
+        products, 7 category pages, 657 pages (up one), no dead links.
+        `node --test platform/pages/faq-visible.test.mjs` -> 4/4, whole
+        portfolio scanned. `node --test platform/marketing/*.test.mjs` ->
+        208/208. `python3 portfolio/router/validate.py` -> 183/183 valid.
+        `python3 platform/pages/clauses.mjs ai-engineering-academy` -> 9
+        published pages (up from 8) all carry the no-warranty clause.
+        `python3 platform/ci/browser_checks.py --only=ai-engineering-academy`
+        -> 5 of 7 checks ran and passed (sideways, presets, roundtrip,
+        sweep, journey); contrast and highlight skipped for the same
+        reasons #3146 recorded (no axe-core installed; nothing to verify
+        for this venture), not failures.
+      - >-
+        Deployed, not merely built: `front-door-tools.mjs --write` then
+        `front-door.mjs --write` regenerated the apex mirror, so the new
+        page and the `settling.mjs` module it imports both ship as
+        ConfigMap shards, `sitemap.xml` lists the new URL, and
+        `catalog.json`'s page count for this venture moved 8 -> 9. A merge
+        to `main` is the deploy on the Argo path -- no clone token,
+        Actions runner or Pages flip involved. `launched.json` needed no
+        new entry: the venture was already dated from its first tool, and
+        that file tracks per-venture launch dates, not per-page.
+    mrr_end: null
