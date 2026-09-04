@@ -9816,3 +9816,56 @@ entries:
         disclaimer needed since the export runs entirely client-side like
         the CSV one it sits beside.
     mrr_end: null
+  - venture: saas-seat-true-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed a gap the venture's own FAQ already admitted to but did
+        nothing about: the calculator compared purchased seats against used
+        seats and reported an "avoidable" renewal saving as though the
+        review could always be acted on. It cannot. Most SaaS contracts only
+        allow seat reductions at renewal, and many require written notice a
+        set number of days before that renewal or the agreement auto-renews
+        at the full purchased count regardless of usage -- a review run
+        after that deadline finds a number it cannot use. The FAQ said
+        exactly this ("many contracts allow additions any time and
+        reductions only at renewal") without the tool ever checking whether
+        the window was still open.
+      - >-
+        Added two optional fields -- renewal date and the notice period (in
+        days) the contract requires -- and a new `evaluateNoticeDeadline` /
+        `noticeMessage` pair in `calc.mjs`. Left blank, behaviour is
+        unchanged (matches the existing zero-default pattern for overage
+        premium and seat minimum). Filled in, the tool now says one of
+        three things: the deadline has already passed, so the saving above
+        is not avoidable this cycle and it is auto-renewing at the full
+        count (with an estimated next window, labelled as an annual-term
+        assumption to verify against the real agreement); the deadline is
+        within 14 days, so submit the reduction now or lose it; or the
+        deadline is further out, as a plain reminder of the date. A passed
+        deadline reframes the exact same droppable-seat figure from
+        "avoidable" to "locked in" rather than computing a second number,
+        so the two never drift apart.
+      - >-
+        The two new fields are deliberately excluded from the persisted
+        scenario (`usage.mjs`'s `SCENARIO_FIELDS`): a renewal date from last
+        quarter's review is stale next quarter, and `saveScenario`
+        Number()-converts every persisted field, which a date string is
+        not. Reset still clears them even though they are not saved. Added a
+        seventh FAQ question, matching visible copy to the hand-authored
+        FAQPage JSON-LD (a first draft used a straight apostrophe in the
+        JSON-LD against a curly one on the page and `faq-visible.test.mjs`
+        caught the divergence immediately -- fixed before it shipped).
+      - >-
+        Verified: venture `node --test` 25/25 -> 35/35 (10 new: notice-date
+        parsing/validation, the three message states, the reused-vs-persisted
+        field split); `check_form_defaults.py` and `check_input_bounds.py`
+        both clean on this venture. Regenerated the front-door mirror
+        (`front-door-tools.mjs --write` then `front-door.mjs --write`) since
+        `calc.mjs`/`index.html` changed -- new shard bytes for
+        `saas-seat-true-up__calc.mjs.gz` and
+        `saas-seat-true-up__index.html.gz`, `kustomization.yaml` updated.
+        `platform/pages/*.test.mjs` 880/880; `platform/marketing/*.test.mjs`
+        208/208.
+    mrr_end: null
