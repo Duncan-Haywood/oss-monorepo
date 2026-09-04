@@ -478,8 +478,14 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
  * `ventures/` today, which is how the wrong claim survived. See
  * `STRIPPED_LINK_RELS` for the fix.
  */
-const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
-const SERVABLE_NAMES = new Set(['LICENSE']);
+/*
+ * Exported so `workflow-coverage.test.mjs` can hold the CI path filters to
+ * these two sets rather than restating them. A venture file this mirror
+ * serves but no workflow watches is edited, merged, and never regenerated —
+ * see that file's header for the two times it happened.
+ */
+export const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
+export const SERVABLE_NAMES = new Set(['LICENSE']);
 
 /**
  * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
