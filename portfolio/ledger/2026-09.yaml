@@ -10026,3 +10026,69 @@ entries:
         `pytest gitops/tests` 300 passed / 16 skipped; `validate_workflows.py`
         all 224 valid; `router/validate.py` 183 valid.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Narrowed the outage from "we cannot know without SSH" to a named
+        cause, without SSH.** #3185 recorded that the public surface is dark
+        and stated its limit honestly -- "the prober detects the outage; it
+        cannot explain it. That asymmetry is the ask." Merged it after
+        re-dispatching `Public surface check` on `main` (run 33888990022) and
+        reproducing the reading independently, then built the thing that
+        contradicts the limit: `platform/ci/outage_triage.py` and `Outage
+        triage`, whose first run (33889983086) answers most of "why".
+      - >-
+        The reading: both servers report `running` to the Hetzner read-only
+        API; all three hostnames resolve to `89.167.29.39`, which is ours;
+        port 22 is **open** on both boxes; ports 80, 443 and 6443 are all
+        **refused** on both. That rules out power, DNS, the firewall (a drop
+        times out, an RST does not) and TLS in one run. `6443` refused is the
+        sharp end -- the k3s API server itself is not listening, so this is a
+        dead or absent cluster rather than a crashed ingress, and no pods
+        exist to serve 80 or 443.
+      - >-
+        **The reason this was worth doing before anything else: the
+        top-ranked owner ask was unverified.** `hetzner-ssh-key-is-a-public-key`
+        asks the owner to rotate `HETZNERSSHKEY` so preflight can SSH in. That
+        is the right ask only if sshd is answering, and nothing had checked. A
+        correct private key is refused exactly as a wrong one is, so had port
+        22 been dead alongside 443, the queue would have sent the owner after
+        the wrong credential -- a lost day with the surface still down, the
+        queue still reading `[OUTAGE]`, and the next session no better placed
+        to tell. Port 22 is open, so the ask is **confirmed sufficient** and
+        the row now says so with the run id rather than assuming it.
+      - >-
+        Corrected `CLAUDE.md`'s "no credential-free check can tell you why",
+        added the same day by #3185 and too strong: a session believing it
+        would skip the diagnosis entirely. The general lesson recorded there
+        is that an outage row should name the action that ends it, and that
+        naming is a claim to measure rather than to reason to.
+      - >-
+        Design note worth keeping: neither the node addresses nor the hostname
+        list is restated in the tool -- the first is parsed from
+        `infra/inventory.tf`, the second read from
+        `publish_surface.gitops_survey()`. A test pins the parse against the
+        live file, because a triage tool that silently found zero nodes would
+        print a clean, empty, confident report. Read-only throughout: the only
+        verb issued is GET, and a test asserts the source contains no mutating
+        verb.
+      - >-
+        Also measured, and worth knowing before another session trusts a local
+        probe: **the port fingerprint cannot be taken from an agent sandbox.**
+        This session's egress proxy terminates TLS itself -- a raw socket to
+        `89.167.29.39:443` completes a TLS 1.3 handshake and returns
+        `x-deny-reason: host_not_allowed` -- while an unroutable control
+        address (`192.0.2.1`) is *refused* rather than timing out. So neither
+        `open` nor `refused` carries information there. Checked before
+        trusting any local result; it is why the tool ships as a workflow.
+      - >-
+        Verified: `test_outage_triage` 27/27 new; with `test_public_surface`,
+        `test_publish_surface` and `test_validate_workflows`, 140/140;
+        `validate_workflows.py` all 225 valid; pyflakes clean on both new
+        files; conflict-marker and duplicate-symbol sweeps clean;
+        `check_ledger_only.py` exit 0. Regenerated `publish-surface.yaml` and
+        updated the `runs-on` count in `gitops/ci/README.md`, both of which
+        have tests that fail when stale.
+    mrr_end: null
