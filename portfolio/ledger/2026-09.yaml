@@ -8794,5 +8794,5 @@ entries:
         orphaned.
       - >-
         Verified: `node --test` in the venture, 79/79 passing (71
-        pre-existing + 8 new for `vs-buildxact.html`).
+        pre-existing + 8 new for `vs-buildxact.html`). PR #3132.
     mrr_end: null
