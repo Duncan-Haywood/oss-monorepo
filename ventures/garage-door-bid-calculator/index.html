@@ -9,8 +9,8 @@
   <meta property="og:title" content="Garage Door Bid Calculator">
   <meta property="og:description" content="Bid the door, the springs, and the miles. See the walk-away price before you quote the $189 special.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Garage Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Spring-only vs replacement vs opener tickets, single vs double door sizing, travel labor from miles, after-hours premium, walk-away price, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this garage door estimate include?","acceptedAnswer":{"@type":"Answer","text":"The ticket price adds up parts — door/slab, spring kit, opener unit, hardware, disposal, and permit — plus shop labor on site, travel (both the drive-time labor and vehicle cost per mile), overhead, and your target margin. Job type decides which parts lines actually apply: a spring-only ticket zeroes out the door and opener cost unless you enter one anyway."}},{"@type":"Question","name":"Why does travel get its own line instead of being folded into overhead?","acceptedAnswer":{"@type":"Answer","text":"A short shop job forty minutes each way is a different ticket from the same job around the corner, and a flat overhead percentage hides that. Travel is priced as loaded wage for the drive time plus a per-mile vehicle cost, and the tool flags “travel eats job” when travel is at least 35% of a spring-only ticket, or exceeds shop labor on any job — the exact trap a $189 special forty minutes out falls into."}},{"@type":"Question","name":"Why is a double door not just two single doors?","acceptedAnswer":{"@type":"Answer","text":"Job type sets separate suggested labor hours for single versus double openings (the split is at 10 ft of width), because a double door’s extra track, larger panel, and heavier spring kit take more shop time per opening than doubling a single-door job would suggest — suggested hours, spring cost, and door cost all key off which class the width falls into."}},{"@type":"Question","name":"Why do suggested parts and hours change when I pick a different job type or door?","acceptedAnswer":{"@type":"Answer","text":"Changing job type, door size, construction, or opener re-applies each preset's suggested figure to every field you haven't hand-edited yet — so switching from “door + new opener” to “broken-spring service” zeroes the door and opener cost automatically. Once you edit a field yourself, later preset changes leave it alone."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. This calculator does not save your ticket inputs between visits and has no shareable bid link; only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this cover wind load, permits, or spring safety?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and part costs are ballpark shop figures you can edit, not a building-code or engineering determination, a wind-load calculation, or a permit approval. High-cycle springs and wind-load hardware are cost lines you choose to add, not something the tool checks your opening needs — and spring and opener work carries real injury risk that belongs to a qualified installer, not this arithmetic."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Garage Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Spring-only vs replacement vs opener tickets, single vs double door sizing, travel labor from miles, after-hours premium, walk-away price, proposed-price margin check, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this garage door estimate include?","acceptedAnswer":{"@type":"Answer","text":"The ticket price adds up parts — door/slab, spring kit, opener unit, hardware, disposal, and permit — plus shop labor on site, travel (both the drive-time labor and vehicle cost per mile), overhead, and your target margin. Job type decides which parts lines actually apply: a spring-only ticket zeroes out the door and opener cost unless you enter one anyway."}},{"@type":"Question","name":"Why does travel get its own line instead of being folded into overhead?","acceptedAnswer":{"@type":"Answer","text":"A short shop job forty minutes each way is a different ticket from the same job around the corner, and a flat overhead percentage hides that. Travel is priced as loaded wage for the drive time plus a per-mile vehicle cost, and the tool flags “travel eats job” when travel is at least 35% of a spring-only ticket, or exceeds shop labor on any job — the exact trap a $189 special forty minutes out falls into."}},{"@type":"Question","name":"Why is a double door not just two single doors?","acceptedAnswer":{"@type":"Answer","text":"Job type sets separate suggested labor hours for single versus double openings (the split is at 10 ft of width), because a double door’s extra track, larger panel, and heavier spring kit take more shop time per opening than doubling a single-door job would suggest — suggested hours, spring cost, and door cost all key off which class the width falls into."}},{"@type":"Question","name":"Why do suggested parts and hours change when I pick a different job type or door?","acceptedAnswer":{"@type":"Answer","text":"Changing job type, door size, construction, or opener re-applies each preset's suggested figure to every field you haven't hand-edited yet — so switching from “door + new opener” to “broken-spring service” zeroes the door and opener cost automatically. Once you edit a field yourself, later preset changes leave it alone."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. This calculator does not save your ticket inputs between visits, but a share link encodes only the inputs you choose into the address bar and is never sent to us; only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this cover wind load, permits, or spring safety?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and part costs are ballpark shop figures you can edit, not a building-code or engineering determination, a wind-load calculation, or a permit approval. High-cycle springs and wind-load hardware are cost lines you choose to add, not something the tool checks your opening needs — and spring and opener work carries real injury risk that belongs to a qualified installer, not this arithmetic."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -225,6 +225,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -264,9 +265,10 @@
 
       <h3>Is my data uploaded anywhere?</h3>
       <p>No account and no network requests &mdash; the calculator runs entirely in your browser. This
-        calculator does not save your ticket inputs between visits and has no shareable bid link; only
-        your business name and contact details for the printed proposal are kept in this browser's local
-        storage, and &ldquo;Forget my business details&rdquo; clears them.</p>
+        calculator does not save your ticket inputs between visits, but a share link encodes only the
+        inputs you choose into the address bar and is never sent to us; only your business name and
+        contact details for the printed proposal are kept in this browser's local storage, and
+        &ldquo;Forget my business details&rdquo; clears them.</p>
 
       <h3>Does this cover wind load, permits, or spring safety?</h3>
       <p>No. Hours and part costs are ballpark shop figures you can edit, not a building-code or
@@ -300,6 +302,9 @@
       suggestedSpringCost,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
     import {
       COMPANY_FIELDS,
       buildProposal,
@@ -496,6 +501,52 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only NUMBER_FIELD_IDS
+     * and jobType are ever written back into the form -- see share.mjs --
+     * so a crafted fragment cannot set anything this page does not already
+     * ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied before the early return below: a link that carries only the
+      // terms is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+    }
+
     el('doorSize').addEventListener('change', () => {
       applyDoorSize();
       applySuggestions();
@@ -539,8 +590,12 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Could not copy the link; copy the address bar.'; });
+    });
 
     applySuggestions({ force: true });
+    restoreShare();
 
     // ---- Customer-facing proposal -------------------------------------------
     // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
