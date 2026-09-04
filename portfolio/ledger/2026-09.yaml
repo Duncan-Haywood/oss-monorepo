@@ -10092,3 +10092,72 @@ entries:
         updated the `runs-on` count in `gitops/ci/README.md`, both of which
         have tests that fail when stale.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met again. `list_pull_requests` and
+        `search_pull_requests` both returned zero open PRs at this run's
+        start. Spot-checked the four largest ahead-of-main branches by
+        commit count with `supersede_check.py` (`agent/deploy-cicd-ledger-2868`,
+        `claude/toilet-replacement-vs-servicetitan`,
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`,
+        `pr/where-to-sell-rank-by-profit-per-day`) -- all four SUPERSEDED,
+        consistent with the prior session's full 86-branch sweep recorded
+        above. Started a fresh full re-sweep of the (now 83, excluding
+        `tmp/ssh-key-smoke`, a 936-commit unrelated-history outlier) branches
+        ahead of `main`; it was still running past this session's own budget
+        and is not reported as complete here -- do not treat its absence as
+        a finding either way.
+      - >-
+        Independently dispatched `Public surface check` twice more (this
+        session's own two runs, after the owner's run 33887885219 that #3185
+        above already used to declare the outage and re-rank the queue) --
+        same reading both times, `[Errno 111] Connection refused` on
+        `marisstella.dev` and `www.marisstella.dev`. Notified the owner
+        directly before seeing #3185 land, since a session cannot assume a
+        concurrent one is already handling a production outage. No new
+        diagnosis beyond #3185's: `HETZNERSSHKEY` is still a public key.
+      - >-
+        Re-verified the two owner-blocked deployment seals this file has
+        tracked since 2026-09-02 are unchanged: `codex-governor/policy.json`
+        still reads `"enabled": false`, the governor CronJob still
+        `suspend: true`, and `gitops/agents/kustomization.yaml` still lists
+        no `codex-secrets` resource -- so the Codex-CLI-on-Hetzner pipeline
+        (`CODEX_AUTH_JSON`, ChatGPT-plan-quota route) is exactly as built and
+        exactly as blocked as previously recorded. No code changes needed;
+        did not re-open a PR restating it.
+    mrr_end: null
+  - venture: equipment-rental-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-booqable.html` (+ `vs-booqable.test.mjs`, 13 new tests),
+        this venture's first competitor-comparison page -- it previously had
+        zero `vs-*.html` pages despite a complete, tested break-even
+        calculator. Booqable (rental & inventory management SaaS: online
+        booking storefront, barcode/QR checkout-in/out scanning, invoicing,
+        sold as an ongoing subscription account) is named only for its
+        well-documented category; no dollar figure for it appears anywhere
+        on the page, matching the discipline in
+        `freight-accessorial-auditor/vs-trax.html`. Linked from `index.html`
+        and added to `sitemap.xml`. Verified: `node --test
+        ventures/equipment-rental-break-even/site/*.test.mjs` 41/41;
+        `platform/pages/clauses.mjs equipment-rental-break-even` reports the
+        no-warranty clause on all 3 published pages; canonical
+        `platform/pages/build.mjs` build succeeds (174 tools) and `node
+        platform/pages/check.mjs dist` reports no dead links. First push to
+        this PR incorrectly assumed the venture sat outside the front-door
+        mirror's `STARTER_SET` (confusing it with the five ventures this
+        file already documents as excluded because `build.mjs` builds only
+        their `site/`) -- CI's `validate` job caught the drift: it is
+        mirrored, and the new page reached
+        `gitops/prod/front-door-tools/equipment-rental-break-even__vs-booqable.html.gz`
+        via `front-door-tools.mjs --write`, alongside the regenerated
+        `catalog.json`/`sitemap.xml` (`front-door.mjs --write`). So this page
+        ships to `marisstella.dev/tools/equipment-rental-break-even/` on
+        merge -- once the standing outage this file records elsewhere is
+        resolved -- not only once a further seal lands.
+    mrr_end: null
