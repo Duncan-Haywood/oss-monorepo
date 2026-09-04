@@ -513,13 +513,91 @@ def test_an_unknown_category_is_a_404_rather_than_the_front_page(front_door: str
 
 
 def test_a_path_the_mirror_does_not_hold_is_a_404_rather_than_the_front_page(front_door: str) -> None:
-    # The catch-all answers every unmatched path with `index.html`, which is
-    # right for a mistyped URL and wrong under `/tools/`: a 200 carrying the
-    # front door tells a browser the tool exists and tells a crawler this
-    # domain has 156 pages of identical HTML.
+    # Under `/tools/` a 200 carrying the front door would tell a browser the
+    # tool exists and tell a crawler this domain has 173 pages of identical
+    # HTML. These blocks answer with nginx's own error page rather than the
+    # front page's body; the catch-all below serves the body instead, but both
+    # agree on the status, which is the part a crawler reads.
     for url_path in ("/tools/no-such-venture/", "/tools/no-such-venture/calc.mjs"):
         status, _, _ = _get(front_door + url_path, gzip_ok=True)
         assert status == 404, f"{url_path} returned {status} rather than 404"
+
+
+class _KeepRedirect(urllib.request.HTTPRedirectHandler):
+    """Stops urllib following a 3xx, so a redirect can be asserted on."""
+
+    def redirect_request(self, *args, **kwargs):  # noqa: D102
+        return None
+
+
+def _no_redirect(url: str):
+    """(status, Location) without following the redirect, which `_get` would."""
+    opener = urllib.request.build_opener(_KeepRedirect)
+    try:
+        response = opener.open(url, timeout=10)
+        return response.status, response.headers.get("Location")
+    except urllib.error.HTTPError as err:
+        err.read()
+        return err.code, err.headers.get("Location")
+
+
+def _get_with_error_body(url: str):
+    """Like `_get`, but keeps the body of a non-2xx response.
+
+    `_get` returns `b""` for an error because every caller before this one only
+    cared about the status. The catch-all's whole point is the body it serves
+    *with* a 404, so that case needs the bytes.
+    """
+    request = urllib.request.Request(url, headers={"Accept-Encoding": "identity"})
+    try:
+        response = urllib.request.urlopen(request, timeout=10)
+        return response.status, response.headers, response.read()
+    except urllib.error.HTTPError as err:
+        return err.code, err.headers, err.read()
+
+
+def test_an_unknown_path_serves_the_front_page_body_but_with_a_404(front_door: str) -> None:
+    # The two halves of this are separate decisions and only one of them was
+    # ever right.
+    #
+    # Serving the front page for a mistyped URL is deliberate — it is the one
+    # page here with a search box, so it beats a bare error — and it stays.
+    # Serving it with a `200` was a soft 404: this portfolio's only growth
+    # channel is organic search and AI answers, and a 200 tells a crawler that
+    # every typo, dead inbound link and `/wp-login.php` probe is a real page
+    # duplicating the front page, spending the crawl budget for 638 real URLs
+    # on an unbounded set of fake ones. It also left nothing downstream able to
+    # tell a live URL from a dead one.
+    front_page = _get_with_error_body(front_door + "/")[2]
+    for url_path in ("/some-typo", "/pricing/", "/wp-login.php", "/a/b/c"):
+        status, headers, body = _get_with_error_body(front_door + url_path)
+        assert status == 404, f"{url_path} returned {status} rather than 404"
+        assert body == front_page, f"{url_path} did not carry the front page's body"
+        # A cache holding "not found" for five minutes outlives the typo that
+        # produced it, so this one page opts out of the site-wide 300s.
+        assert "no-store" in (headers.get("Cache-Control") or ""), url_path
+
+
+def test_the_front_page_itself_is_still_a_200(front_door: str) -> None:
+    # The exact-match block exists so the catch-all above can return 404
+    # without taking the front page down with it. This is the test that would
+    # have caught that.
+    status, headers, _ = _get(front_door + "/", gzip_ok=True)
+    assert status == 200
+    assert "max-age=300" in (headers.get("Cache-Control") or "")
+
+
+def test_the_truncatable_parents_redirect_to_the_front_page(front_door: str) -> None:
+    # `/tools/` and `/c/` are what a reader gets by deleting the last segment
+    # of `/tools/<slug>/` or `/c/<id>/` in the address bar — not typos. The
+    # front page is the index of both, so a redirect is the honest answer; a
+    # 404 would be correct and useless, and a 200 would put a second copy of
+    # the front page at an address its own canonical tag does not name.
+    # `/index.html` is here for that last reason alone.
+    for url_path in ("/index.html", "/tools", "/tools/", "/c", "/c/"):
+        status, location = _no_redirect(front_door + url_path)
+        assert status == 301, f"{url_path} returned {status} rather than 301"
+        assert (location or "").endswith("/"), f"{url_path} redirected to {location}"
 
 
 def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
