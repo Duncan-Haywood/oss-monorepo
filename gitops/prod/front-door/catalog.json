@@ -1120,7 +1120,7 @@
       "url": "https://marisstella.dev/tools/print-atelier/",
       "category": "Compliance checks & evidence records",
       "description": "Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "quote-margin-check",
@@ -1144,7 +1144,7 @@
       "url": "https://marisstella.dev/tools/real-estate-agent-photo-app/",
       "category": "Compliance checks & evidence records",
       "description": "Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "retainage-cashflow-calculator",
@@ -1432,7 +1432,7 @@
       "url": "https://marisstella.dev/tools/which-job-first/",
       "category": "More free tools",
       "description": "Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "window-cleaning-bid-calculator",
