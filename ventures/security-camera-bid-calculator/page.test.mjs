@@ -188,3 +188,16 @@ test('the "how much to charge" SEO page exists, is linked from the calculator, a
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /how-much-to-charge\.html/);
 });
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders in place on every keystroke, with no page
+  // reload. Every sibling bid-calculator venture (fence, concrete, ...)
+  // already carries aria-live="polite" on this section; this one was the
+  // outlier, so a screen-reader user changing an input got no announcement
+  // that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});

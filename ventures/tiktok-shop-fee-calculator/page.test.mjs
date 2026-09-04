@@ -194,6 +194,20 @@ test("an invalid input clears the stale order economics, comparison tables, and 
 // PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
 // affiliate-commission-on-returns.html was linked from index.html and in the
 // sitemap, but shipped with no og:* tags at all.
+test('the result panel is announced to screen readers when it updates', () => {
+  // paint() rewrites the hero number, the <dl> breakdown, and the
+  // affiliate/fee-schedule tables in place on every keystroke, with no page
+  // reload. Before this fix the only aria-live element on the page was
+  // #copyStatus (a share-link message render() never touches), so a
+  // screen-reader user changing an input got no announcement that the
+  // readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
 test("every published page carries Open Graph tags", () => {
   const dir = new URL("./", import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith(".html"));

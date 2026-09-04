@@ -302,3 +302,17 @@ test("wide money tables scroll inside their own box, not the phone viewport", ()
   // column stays visible on a laptop instead of scrolling out of view.
   assert.match(lateSeo, /td \{ white-space: nowrap; \} th, td:first-child \{ white-space: normal; \}/);
 });
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders the due date, cash-flow figures, and
+  // schedule/scenario tables in place on every keystroke, with no page
+  // reload. Before this fix the only aria-live elements on the page were
+  // status notes (#draftStatus, #status, #scheduleStatus) that render()
+  // never writes the result figures into, so a screen-reader user changing
+  // an input got no announcement that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
