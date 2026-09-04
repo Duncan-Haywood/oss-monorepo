@@ -190,9 +190,23 @@ codes as exit 42 and a rejected credential as exit 43.
 
    Seal both and the subscription wins — it is the one that does not
    bill, and the worker logs which mode it used on every run. Either way,
-   seal in a follow-up PR, and only then flip
-   `gitops/agents/governor/cronjob.yaml` `suspend: false` and
-   `policy.json` `"enabled": true`.
+   seal in a follow-up PR, and only then turn the governor on:
+
+   ```
+   ./bootstrap/scripts/enable-codex-governor.sh          # flip both switches
+   ./bootstrap/scripts/enable-codex-governor.sh --check  # report, write nothing
+   ```
+
+   That is one command in place of the two hand-edits this step used to
+   ask for (`cronjob.yaml` `suspend: false` and `policy.json` `"enabled":
+   true`). Doing one and not the other is silent in both directions — the
+   CronJob alone wakes every five minutes to read a disabled policy, the
+   policy alone is never read by anything. The script also refuses to
+   enable until the Secret you sealed above is committed *and* listed in
+   `gitops/agents/kustomization.yaml`, so the "only then" in the sentence
+   above is now enforced rather than merely written down. It edits two
+   files in your checkout and nothing else; commit and push as usual, and
+   `--disable` reverses it.
 
    What that flip then runs is `gitops/agents/queue/*.yaml`, and since
    2026-09-01 those are ordered to match the rest of that same standing

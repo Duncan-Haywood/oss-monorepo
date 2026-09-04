@@ -700,8 +700,17 @@ decisions:
     Administration/Secrets/Workflows/Actions/Environments/Pages), into the
     `codex-secrets` Kubernetes Secret per
     `gitops/agents/secrets/codex-token.template.yaml`. (3) Only after that
-    seal, flip `gitops/agents/governor/cronjob.yaml` `suspend: false` and
-    `gitops/agents/governor/policy.json` `"enabled": true`.
+    seal, run `./bootstrap/scripts/enable-codex-governor.sh`, which flips
+    both switches (`gitops/agents/governor/cronjob.yaml` `suspend: false`
+    and `gitops/agents/governor/policy.json` `"enabled": true`) in one
+    command. Step 3 used to be two hand-edits in two file formats, either
+    of which is silent when done alone -- the CronJob alone wakes every
+    five minutes to read a disabled policy, the policy alone is never read
+    by anything. The script refuses to enable until the step-2 Secret is
+    committed and listed in `gitops/agents/kustomization.yaml`, so running
+    it early is safe and the ordering is enforced rather than only
+    documented; `--check` reports the state without writing and
+    `--disable` reverses it.
   unlocks:
     - >-
       A working, already-built "Codex CLI does unattended dev work on the
