@@ -10322,3 +10322,62 @@ entries:
         (see CLAUDE.md) -- so this was verified by running the venture's
         own test suite and the calculator logic directly in Node instead.
     mrr_end: null
+  - venture: retainage-cashflow-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a correctness bug in the published retainage-release model
+        that told subcontractors a customer was over-withholding money
+        when the customer was holding exactly the modeled proper amount.
+        `releaseSchedule`'s `overheld` -- shown on the page as "Still held
+        above the reduced rate" -- was derived from
+        `computeAll().retainageStillUnpaid`, i.e.
+        `min(contractValue * rate, contractValue - paidToDate)`. Both
+        terms measure the *whole* contract, including work not yet
+        performed, so on any job where the unbuilt remainder exceeds the
+        full-contract retainage (most jobs before the final draw) the min
+        pinned to the first term and the figure became a constant,
+        completely insensitive to what had actually been paid. Measured on
+        the shipped defaults ($100k contract, 10% retainage, 80% complete,
+        5% reduced rate): paid-to-date of $67,500 / $70,000 / $72,000 /
+        $75,000 all reported the same $5,000 "still held above the reduced
+        rate" -- including the $75,000 case, where the customer holds
+        $5,000 against a proper hold of exactly $5,000 and is
+        over-withholding nothing. It also contradicted
+        `shouldHaveReleased`, computed correctly from progress billing two
+        lines above it in the same function. Now measured from what the
+        worksheet actually says was billed and received:
+        `retainageHeldToDate = min(progressRetainage, billed -
+        paidToDate)`, clamped at zero -- a customer behind on ordinary
+        progress payments is not thereby holding extra retainage, and one
+        who has already released some is holding less. Surfaced that
+        figure as its own result tile ("Retainage withheld to date") and
+        in the text report, so the corrected number is legible rather
+        than mysterious. Also corrected the shipped demo values: with the
+        bug fixed, the old defaults (paid-to-date $75,000 at 75% complete
+        = $75,000 billed) honestly showed $0 retainage withheld, leaving
+        the whole release section inert for a first-time visitor. Changed
+        the form default to $67,500 -- a customer withholding exactly the
+        stated 10% on 75%-complete work -- so the page now demonstrates
+        $7,500 withheld, $5,000 proper hold, $2,500 releasable, $2,500
+        held above the reduced rate. Added three regression tests (genuine
+        over-withholding, partial release, and an explicit assertion that
+        the figure moves as payment arrives, which is what it previously
+        failed to do) and corrected the one existing assertion that had
+        encoded the bug. Verified: `node --test` in
+        `ventures/retainage-cashflow-calculator` 66/66 (was 63, all
+        passing); `node --test platform/marketing/*.test.mjs` 208/208
+        after regenerating the front-door mirror with
+        `front-door-tools.mjs --write` (calc.mjs and index.html ship to
+        the mirror verbatim); `node platform/pages/clauses.mjs
+        retainage-cashflow-calculator` still finds the no-warranty clause
+        on all 3 published pages; canonical `platform/pages/build.mjs`
+        plus `check.mjs` reports 174 products, 675 pages, no dead links.
+        Manually ran the primary journey through
+        `parseInputs`/`releaseSchedule` on the shipped default form values
+        -- the four tiles the page renders are now internally consistent,
+        where previously two of them disagreed by 2x. Could not verify
+        against a live URL: the public surface is still down and both
+        restore routes are owner-blocked (see the decision queue).
+    mrr_end: null
