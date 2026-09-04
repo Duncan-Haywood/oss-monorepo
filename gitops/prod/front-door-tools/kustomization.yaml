@@ -34,9 +34,9 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 545570 bytes
-#   portfolio-front-tools-1: 118 files, 556342 bytes
-#   portfolio-front-tools-2: 150 files, 554407 bytes
-#   portfolio-front-tools-3: 116 files, 542350 bytes
+#   portfolio-front-tools-1: 117 files, 555583 bytes
+#   portfolio-front-tools-2: 149 files, 556365 bytes
+#   portfolio-front-tools-3: 118 files, 544786 bytes
 #   portfolio-front-tools-4: 120 files, 546484 bytes
 #   portfolio-front-tools-5: 109 files, 557007 bytes
 #   portfolio-front-tools-6: 108 files, 556242 bytes
@@ -317,12 +317,12 @@ configMapGenerator:
       - cloud-egress-calculator__index.html.gz=cloud-egress-calculator__index.html.gz
       - cloud-egress-calculator__usage.mjs.gz=cloud-egress-calculator__usage.mjs.gz
       - cloud-egress-calculator__vs-aws-pricing-calculator.html.gz=cloud-egress-calculator__vs-aws-pricing-calculator.html.gz
-      - cloud-egress-calculator__vs-azure-pricing-calculator.html.gz=cloud-egress-calculator__vs-azure-pricing-calculator.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cloud-egress-calculator__vs-azure-pricing-calculator.html.gz=cloud-egress-calculator__vs-azure-pricing-calculator.html.gz
       - cloud-egress-calculator__vs-google-cloud-pricing-calculator.html.gz=cloud-egress-calculator__vs-google-cloud-pricing-calculator.html.gz
       - vendor-change-evidence__app.js.gz=vendor-change-evidence__app.js.gz
       - vendor-change-evidence__evidence.js.gz=vendor-change-evidence__evidence.js.gz
@@ -471,13 +471,13 @@ configMapGenerator:
       - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
       - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
       - ai-engineering-academy__555-timer-calculator__index.html.gz=ai-engineering-academy__555-timer-calculator__index.html.gz
-      - ai-engineering-academy__555-timer-calculator__usage.mjs.gz=ai-engineering-academy__555-timer-calculator__usage.mjs.gz
-      - ai-engineering-academy__LICENSE.gz=ai-engineering-academy__LICENSE.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ai-engineering-academy__555-timer-calculator__usage.mjs.gz=ai-engineering-academy__555-timer-calculator__usage.mjs.gz
+      - ai-engineering-academy__LICENSE.gz=ai-engineering-academy__LICENSE.gz
       - ai-engineering-academy__index.html.gz=ai-engineering-academy__index.html.gz
       - ai-engineering-academy__led-resistor-calculator__calc.mjs.gz=ai-engineering-academy__led-resistor-calculator__calc.mjs.gz
       - ai-engineering-academy__led-resistor-calculator__index.html.gz=ai-engineering-academy__led-resistor-calculator__index.html.gz
