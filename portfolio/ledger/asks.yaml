@@ -393,6 +393,19 @@ decisions:
   gates: deployment
   exposure: credential
   opened: "2026-08-19"
+  # Measured, current loss of a public surface, per the OUTAGE convention in
+  # decision_queue.py: `Public surface check` run 33912053750 (2026-09-04,
+  # no credential, every request one a stranger could make) got 404 from
+  # `https://duncan-haywood.github.io/monorepo-projects/` — the origin ~670
+  # generated pages name in their own `<link rel="canonical">`.
+  #
+  # This row sat at position 9 for 16 days while the queue's outage banner
+  # told the owner that "every other row here is downstream of a host
+  # answering at all". That sentence was true of one surface and this is the
+  # other one: GitHub Pages needs no k3s, no SSH key and no sealed clone
+  # token, so it is not downstream of the cluster and never was. The ranking
+  # encoded the pre-#3199 belief that the portfolio had a single origin.
+  outage: true
   action: >-
     Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
     Actions", and set repository variable `PAGES_ENABLED=true`. (Not
@@ -406,8 +419,11 @@ decisions:
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
     secrets as the way the portfolio goes live.
   unlocks:
-    - "**161 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Was recorded as 33 until 2026-08-27; the portfolio grew ~5x since and the figure had not kept up, understating the payoff of this one flip.)"
-    - "Verified publishable on 2026-08-27, not merely assumed: `node platform/pages/build.mjs` produces 161 tools / 434 pages, and `node platform/pages/check.mjs dist` returns \"looks publishable: 161 products, 437 pages, no dead links\" (exit 0). Every inline script on every page parses, and all 446 pages pass the integrity sweep. There is no unfinished build work between this flip and a stranger using one of these tools."
+    - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
+    - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
+    - "**This is the cheaper of the two routes to a public surface, and the only one that asks the owner for nothing they have to find.** `hetzner-ssh-key-is-a-public-key` needs the private half of a keypair installed on two boxes in August -- if that file is gone, the row cannot be completed at all and the recovery is a Hetzner console visit or a rebuild. This row is two clicks and a variable, in settings the owner already controls: Settings → Pages → Source \"GitHub Actions\", then `PAGES_ENABLED=true`. Neither route is a prerequisite for the other."
+    - "The artifact is **already built and validated on every merge to `main`** -- `portfolio-pages.yml`'s `build` job runs the builder, the integrity check and `upload-pages-artifact`, and succeeds; only the `deploy` job is gated on `vars.PAGES_ENABLED == 'true'` and it is skipped every time (measured: run 33910587055, `deploy` conclusion `skipped`, `build` conclusion `success` on the same run). So the flip publishes something that has already passed its checks, rather than starting a build that might not."
+    - "The flip is self-verifying: `portfolio-pages.yml`'s deploy job ends by fetching `/`, both sitemaps, `robots.txt`, `catalog.json`, `llms.txt`, `feed.xml` and one real product page through the live public URL, and fails if any returns non-200. `Public surface check` (no credential) then re-measures the same origin on demand, so \"it worked\" is a reading rather than an inference."
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
   blocked_by: []
