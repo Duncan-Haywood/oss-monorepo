@@ -767,6 +767,13 @@ decisions:
 - id: codex-governor-enable
   asks: []
   prs: [1996]
+  # Downstream of the outage (measured 2026-09-04, run 33889983086): the
+  # governor and its workers schedule onto the k3s cluster, whose API server
+  # is not listening -- :6443 refused on both boxes. Sealing the credential is
+  # durable preparation and does not expire, so it is not wasted, but nothing
+  # will run until `hetzner-ssh-key-is-a-public-key` leads to k3s coming back.
+  # Not marked `blocked_by`: the seal is a git commit Argo picks up whenever
+  # it next syncs, so it is genuinely doable today -- just not observable.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
@@ -862,6 +869,12 @@ decisions:
 - id: portfolio-site-hetzner-deploy
   asks: []
   prs: [1999]
+  # Downstream of the outage, exactly as `codex-governor-enable` above: this
+  # seals a clone token for an in-cluster workload, and the cluster's API
+  # server is not listening (run 33889983086, :6443 refused on both boxes).
+  # The seal is durable and worth doing, but it publishes nothing while k3s
+  # is down -- so do not read a completed seal as a live `tools.` hostname
+  # until `Public surface check` says a host answers.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
