@@ -38,7 +38,7 @@ from a Host-header request to 127.0.0.1, and both are things that can break.
 
 What it checks
 --------------
-Not a hand-written list of URLs. Two sources, both generated:
+Not a hand-written list of URLs. Three sources, all generated:
 
   * **Which hostnames, and what each should do**, from `gitops_survey()` in
     `publish_surface.py` -- the same per-host classification the snapshot test
@@ -47,6 +47,15 @@ Not a hand-written list of URLs. Two sources, both generated:
     this reports a *disagreement between what we ship and what we serve*,
     which is the only finding worth waking someone for, and it keeps working
     when a seal lands without anyone editing this file.
+
+  * **The GitHub Pages origin**, from `DEFAULT_BASE_URL` in
+    `platform/pages/build.mjs` -- the address the canonical tag of every
+    generated page and every venture `sitemap.xml` in the tree names -- paired
+    with `portfolio-pages.yml`'s own classification from
+    `publish_surface.survey()`. This is a *second, independent* origin: it
+    needs no k3s, no SSH key and no sealed clone token, so it can be serving
+    while the cluster is down or dark while the cluster is fine, and until
+    2026-09-04 nothing in the repository ever asked it anything.
 
   * **Which paths to probe on the apex**, from
     `gitops/prod/front-door/sitemap.xml` -- the sitemap the deployment itself
@@ -81,6 +90,22 @@ import publish_surface
 
 REPO = Path(__file__).resolve().parents[2]
 APEX_SITEMAP = REPO / "gitops" / "prod" / "front-door" / "sitemap.xml"
+
+# The canonical site build. `DEFAULT_BASE_URL` in this file is the origin every
+# page it generates names in its own `<link rel="canonical">` and in every
+# venture `sitemap.xml` committed to the tree -- so it is the address the whole
+# catalogue tells search engines it lives at, second only to the apex.
+#
+# It is *read*, never restated. `CLAUDE.md` records the same mistake twice:
+# copying a constant out of `build.mjs` froze half a rule in place and left
+# seven finished pages public nowhere. `test_public_surface.py` asserts the
+# value parsed here still matches the module's own export.
+BUILD_MJS = REPO / "platform" / "pages" / "build.mjs"
+
+# The workflow that would publish that origin. `publish_surface.survey()`
+# already classifies it; this names which row to read, so the gate itself is
+# never duplicated here either.
+PAGES_WORKFLOW = "portfolio-pages.yml"
 
 # Long enough that a cold pod or a slow TLS handshake is not read as an
 # outage, short enough that a black-holed port cannot ride the runner to its
@@ -236,6 +261,72 @@ def host_probes(rows=None) -> list[Probe]:
     return [probes[name] for name in sorted(probes)]
 
 
+def pages_base_url(path: Path | None = None) -> str | None:
+    """The origin `platform/pages/build.mjs` publishes to, read from build.mjs.
+
+    Returns `None` if the export cannot be found, which is a reason to probe
+    nothing rather than to guess an address: a wrong origin here would report a
+    404 against a URL the portfolio does not claim, and that reads as an outage.
+    """
+    path = path or BUILD_MJS
+    if not path.is_file():
+        return None
+    match = re.search(
+        r"^export\s+const\s+DEFAULT_BASE_URL\s*=\s*['\"]([^'\"]+)['\"]",
+        path.read_text(encoding="utf-8"),
+        re.MULTILINE,
+    )
+    return match.group(1) if match else None
+
+
+def pages_probes(rows=None, base_url=None) -> list[Probe]:
+    """One probe for the GitHub Pages origin, with the workflow's prediction.
+
+    Why this is here at all
+    -----------------------
+    `host_probes` reads the Argo manifests, so it sees the three
+    `marisstella.dev` names and nothing else. But the portfolio ships to *two*
+    independent origins, and the second one is the one every page points at:
+    `build.mjs` writes `duncan-haywood.github.io/...` into the canonical tag of
+    all ~670 generated pages and into every venture `sitemap.xml` in the tree.
+
+    Nothing measured that origin. So the repo could not tell the difference
+    between "Pages is dark" and "Pages is serving a stale or broken copy", and
+    on the day the owner flips `PAGES_ENABLED` nothing would confirm the flip
+    worked. That is the same shape of blind spot `CLAUDE.md` records the apex
+    having for five days -- a claim derived from what we ship, never checked
+    against what a stranger receives -- and it is worth closing *before* the
+    flip rather than after, because a check that only exists after the fact
+    cannot tell you the flip is what changed anything.
+
+    It matters more than a second copy of the apex check, too: the two origins
+    fail independently. GitHub Pages needs no k3s, no SSH key and no sealed
+    clone token, so it can be serving while the cluster is down, or dark while
+    the cluster is fine. One probe cannot stand in for the other.
+
+    `rows` is `publish_surface.survey()`'s first element; passed in by the
+    tests, read from the workflows otherwise.
+    """
+    base_url = pages_base_url() if base_url is None else base_url
+    if not base_url:
+        return []
+    if rows is None:
+        rows, _ = publish_surface.survey()
+    row = next((r for r in rows if r["workflow"] == PAGES_WORKFLOW), None)
+    if row is None:
+        # The workflow was renamed or removed. Saying nothing is honest; the
+        # alternative is predicting a deploy from a file that no longer exists.
+        return []
+    if row["classification"] == "live":
+        expect, why = "serves", f"{PAGES_WORKFLOW} deploys it on a push to main, ungated"
+    else:
+        gates = [g for step in row["publishes"] for g in step["gates"]]
+        detail = f"gated by {'; '.join(gates)}" if gates else row["classification"]
+        why = f"{PAGES_WORKFLOW} deploy is {detail}"
+        expect = "gated"
+    return [Probe(url=base_url, expect=expect, why=why)]
+
+
 def sitemap_urls(path: Path | None = None) -> list[str]:
     """Every `<loc>` in the apex sitemap the deployment publishes."""
     path = path or APEX_SITEMAP
@@ -383,7 +474,11 @@ def main(argv=None) -> int:
     )
     args = parser.parse_args(argv)
 
-    hosts = run_probes(host_probes())
+    # Both origins in one list: they share a report, an exit code and a
+    # verdict, because "is the portfolio reachable?" is one question with two
+    # independent answers and reading only one of them is how the apex went
+    # five days unchallenged.
+    hosts = run_probes(host_probes() + pages_probes())
     pages: list[Result] = []
     if not args.hosts_only:
         limit = 0 if args.all else args.sample
