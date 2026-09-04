@@ -88,9 +88,38 @@ Hold the PAT until the cluster can seal it. Do not put it in the `agents`
 namespace as plaintext, and do not mount it into a workflow that does not
 need it.
 
-**SSH — `HETZNERSSHKEY` is already in Actions.** Dispatch
-`hetzner-gitops CI` with `preflight: true`. Read-only: it never
-installs k3s or runs tofu.
+**SSH — `HETZNERSSHKEY` is set but holds the wrong half of the keypair.**
+This paragraph used to say the secret "is already in Actions", and it is —
+that was never the question. Measured 2026-09-04 by dispatching
+`hetzner-gitops CI` with `preflight: true` (run 33884253173, job
+101060068559): the job exits in under a second on
+
+```
+HETZNERSSHKEY holds a public key, not a private key.
+```
+
+which is the workflow's own format classifier, not an SSH error. So the
+preflight has **never produced a reading**, and every "SSH to the boxes and
+see" instruction in this repository — here, in `bootstrap/README.md`, in
+`infra/README.md` — has been unfollowable since it was written. That is why
+`bootstrap/preflight.sh`'s "what the apex actually serves" section, the one
+check no agent session can run for itself, has never once been run.
+
+**The fix is yours and takes a minute:** put the *private* key matching the
+public key already on `root@89.167.29.39` and `root@157.180.80.188` into
+Settings → Secrets and variables → Actions → `HETZNERSSHKEY` (the whole file,
+`-----BEGIN OPENSSH PRIVATE KEY-----` through `-----END …-----`). Then
+dispatch `hetzner-gitops CI` with `preflight: true` again; it is read-only and
+never installs k3s or runs tofu. The workflow already normalises the two ways
+a pasted key usually breaks (literal `\n` escapes and CRLF), so a plain paste
+is fine.
+
+**Nothing else waits on this.** `Public surface check`
+(`.github/workflows/public-surface-check.yml`) answers the question the
+preflight was wanted for — what each hostname actually serves — from a
+runner's ordinary internet, with no credential at all. Rotate the key for
+cluster-level diagnosis (pod state, k3s health, disk); the public surface is
+already observable without it.
 
 **Hetzner Read token — `HETZNERREADAPIKEY` is already in Actions.** CI
 probes `POST /servers` with an empty body (cannot create a server).

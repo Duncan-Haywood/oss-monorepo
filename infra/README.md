@@ -52,8 +52,10 @@ tofu plan                        # import + in-place attach only
 
 GitHub Actions may run `tofu validate` / `tofu fmt`, and probes
 `HETZNERREADAPIKEY` as Read-only (mapped to env `HCLOUD_TOKEN`). It
-must not apply. Dispatch preflight uses `HETZNERSSHKEY`. Names live in
-`OWNER_CHECKLIST.md`.
+must not apply. Dispatch preflight uses `HETZNERSSHKEY` — which currently
+holds a public key and so cannot open a session; see `OWNER_CHECKLIST.md`.
+Names live there too. `Public surface check` needs no secret and answers
+what the hostnames serve regardless.
 
 Hetzner has no hard euro spend cap (usage alerts are email-only). A
 Write token in CI is unbounded create/resize. Do not add one. See

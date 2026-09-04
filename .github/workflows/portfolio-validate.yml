@@ -393,6 +393,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
 
+      # The other half of that pair. `publish_surface.py` reads what a merge
+      # *ships*; `public_surface.py` reads what the hostnames actually
+      # *serve*, and only the second can contradict a stale claim. These tests
+      # open no socket -- the probe itself runs in `public-surface-check.yml`,
+      # which needs a runner's unrestricted egress and no credential at all.
+      - name: Public-surface prober unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_public_surface
+
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci
         run: python3 -m unittest test_branch_cleanup

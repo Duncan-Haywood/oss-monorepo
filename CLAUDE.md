@@ -189,6 +189,24 @@ with `CONNECT tunnel failed, response 403`, so no session running under it
 can verify the public surface directly. That limit is why this line went
 stale unchallenged for as long as it did.)
 
+**Corrected 2026-09-04: you cannot fetch it, but you can have it fetched.**
+The sentence above is true of a *session sandbox* and the repo had been
+reading it as true of the *portfolio* — which is how "nothing is live" stood
+for five days with nothing able to contradict it. A GitHub Actions runner is
+not behind that proxy. Dispatch `Public surface check`
+(`.github/workflows/public-surface-check.yml`) and read its step summary:
+`platform/ci/public_surface.py` asks every hostname in the manifests what it
+serves, over real DNS and real TLS, and compares the answer to what
+`publish_surface.py` says we shipped. It uses **no secret** — every request is
+one a stranger could make — and it samples the published sitemap too, so a
+`<loc>` that 404s shows up as the SEO defect it is.
+
+Prefer that reading to anything this file asserts. And do not reach for
+`bootstrap/preflight.sh` instead: it needs `HETZNERSSHKEY`, which holds a
+public key and so has never once opened a session (measured 2026-09-04, run
+33884253173). Rotating it is queued as an owner ask; it gates cluster-level
+diagnosis, not the public surface.
+
 Neither half is a reason to build a twelfth calculator.
 
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a

@@ -1,0 +1,97 @@
+name: Public surface check
+
+# Ask marisstella.dev what it actually serves, from outside the cluster.
+#
+# The portfolio has never had this reading. Every statement in `CLAUDE.md`,
+# `portfolio/DIRECTION.md` and the ledger about what the apex returns is
+# derived from the manifests by `platform/ci/publish_surface.py`, and one of
+# them ("nothing is live") stood stale for five days because nothing in the
+# repository could contradict it.
+#
+# `bootstrap/preflight.sh` was meant to be the contradiction -- it curls the
+# ingress on the box and prints a status code per hostname. It has never once
+# run: it needs SSH, SSH needs the Actions secret `HETZNERSSHKEY`, and that
+# secret holds a *public* key. Measured 2026-09-04 on run 33884253173, job
+# 101060068559: the preflight job exits in under a second on "HETZNERSSHKEY
+# holds a public key, not a private key". Rotating it is an owner action and
+# is queued; this workflow does not wait for it, because it does not need it.
+#
+# What makes that possible is a distinction the repo had been eliding. An
+# agent session cannot reach the site -- its egress proxy answers `CONNECT
+# tunnel failed, response 403` for any host not on the allowlist -- and that
+# was being read as "nobody can check". A GitHub runner is not in that
+# sandbox. It reaches the site the way a visitor does, through real DNS, real
+# TLS and the real ingress, which is *stronger* evidence than preflight's
+# loopback curl rather than a substitute for it.
+#
+# Uses no secret, no token and no credential of any kind. Every request it
+# makes is one a stranger could make. It writes nothing and deploys nothing,
+# so it is not the unattended-automation kind of workflow `CLAUDE.md` gates.
+
+on:
+  workflow_dispatch:
+    inputs:
+      all:
+        description: Probe every URL in the published sitemap, not a sample of 24
+        type: boolean
+        default: false
+  # Actions minutes on this account are metered and have been exhausted once
+  # already (the 2026-08-26 starvation window). So the schedule is opt-in: it
+  # is skipped before a runner is assigned unless the owner sets the
+  # repository variable, which is the same cheap pattern
+  # `claude-routine-trigger.yml` uses for `ROUTINE_TRIGGER_ENABLED`. A run is
+  # ~30 seconds, so a daily check costs on the order of 15 billed minutes a
+  # month once it is turned on.
+  schedule:
+    - cron: "17 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    # `workflow_dispatch` always runs. The schedule runs only once the owner
+    # opts in, and is skipped without occupying a runner until then.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      vars.PUBLIC_SURFACE_CHECK_ENABLED == 'true'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A black-holed port has no timeout of its own beyond the per-request one
+    # in `public_surface.py`; this is the ceiling on the whole sweep, which
+    # with `--all` is ~660 requests eight at a time.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # `public_surface.py` imports `publish_surface`, which parses the
+      # manifests to decide what each hostname is supposed to do.
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Probe the public hostnames and the published sitemap
+        id: probe
+        working-directory: platform/ci
+        run: |
+          set -o pipefail
+          python3 public_surface.py ${{ inputs.all && '--all' || '' }} \
+            | tee "${GITHUB_STEP_SUMMARY}"
+
+      # The machine-readable copy, kept whatever the verdict: comparing two
+      # runs is how a slow regression (a tool page that started 404ing) shows
+      # up at all, and a report that only survives on failure cannot be
+      # compared to anything.
+      - name: Record the reading as an artifact
+        if: always()
+        working-directory: platform/ci
+        run: python3 public_surface.py --json > "${RUNNER_TEMP}/public-surface.json" || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-surface-reading
+          path: ${{ runner.temp }}/public-surface.json
+          retention-days: 30

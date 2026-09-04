@@ -8,7 +8,14 @@ Laptop helpers (read-only until you decide):
 
 - `preflight.sh` — SSH to both public IPs and say whether k3s is already there.
   Same script runs from Actions if you dispatch `hetzner-gitops CI` with
-  `preflight: true` (uses Actions secret `HETZNERSSHKEY`).
+  `preflight: true` (uses Actions secret `HETZNERSSHKEY`). **That dispatch
+  cannot work today:** `HETZNERSSHKEY` holds a public key, so the job exits on
+  its format check before any SSH is attempted — measured 2026-09-04, run
+  33884253173. See `infra/OWNER_CHECKLIST.md` for the one-minute fix. From a
+  laptop with the real private key the script is unaffected.
+  For "what do the public hostnames serve", you do not need this or the key at
+  all — dispatch `Public surface check`, which asks them over the open
+  internet with no credential.
 - `label-existing.sh` — if the cpx52 already has k3s, add the labels GitOps
   expects instead of re-installing.
 
