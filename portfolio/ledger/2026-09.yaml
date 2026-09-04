@@ -8764,3 +8764,35 @@ entries:
         clean after); `publish_surface.py --check` and
         `check_duplicate_symbols.py` both clean. PR #3122.
     mrr_end: null
+  - venture: pool-plaster-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a vs-Buildxact comparison page. Of 79 `*-bid-calculator`
+        ventures, 22 already carry a `vs-jobber.html` or similar
+        competitor-comparison page (jobber, servicetitan, aspire,
+        jobnimbus, quoteiq, buildxact, housecall-pro, acculynx and others);
+        checked every `*-bid-calculator` venture for *any* `vs-*.html`, not
+        just `vs-jobber.html` specifically (several already carry a
+        differently-named comparison, e.g. `toilet-replacement-bid-
+        calculator`'s `vs-servicetitan.html`), and only 8 had none at all.
+        `pool-plaster-bid-calculator` was one; picked Buildxact (multi-
+        trade construction estimating/PM software) as the competitor
+        rather than Skimmer (pool-route/service software, already used by
+        `pool-route-pricing`), since plaster/resurfacing is a project-based
+        remodel job, matching the pattern already used for
+        basement-finishing, drywall, pergola, and screened-porch rather
+        than a route-based service tool.
+      - >-
+        New page follows the established vs-* template: FAQPage JSON-LD
+        with a matching visible FAQ, non-affiliation disclaimer, no
+        unverifiable competitor pricing (Buildxact's pricing page isn't
+        reachable from this session's proxied egress), the venture's own
+        no-warranty/nothing-leaves-your-browser footer text, and links
+        wired into both `index.html` and `sitemap.xml` so the page isn't
+        orphaned.
+      - >-
+        Verified: `node --test` in the venture, 79/79 passing (71
+        pre-existing + 8 new for `vs-buildxact.html`).
+    mrr_end: null
