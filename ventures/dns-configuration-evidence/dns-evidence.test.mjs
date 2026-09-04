@@ -268,13 +268,15 @@ test('utcNow is the ISO-8601 shape the Python capture writes', () => {
 
 // --- Parity with the canonical Python implementation ------------------------
 
-test('the Markdown matches `python3 -m dns_evidence compare` byte for byte', async () => {
+test('the Markdown matches `python3 -m dns_evidence compare` byte for byte', async (t) => {
   // The product's claim is that a snapshot captured in the browser is the same
   // evidence artefact as one captured by the CLI. That is only true while both
   // renderers agree, and the two are separate codebases that drift silently --
   // the limitations strings had already diverged once when this was written.
   // Skips rather than fails where python3 is unavailable, so the suite stays
-  // runnable in a bare Node environment.
+  // runnable in a bare Node environment. `dns-configuration-evidence-ci.yml`
+  // deliberately runs this in the same job as the Python step so that the skip
+  // path is unreachable in CI.
   const { execFileSync } = await import('node:child_process');
   const fs = await import('node:fs');
   const os = await import('node:os');
@@ -285,7 +287,12 @@ test('the Markdown matches `python3 -m dns_evidence compare` byte for byte', asy
   try {
     execFileSync('python3', ['--version'], { stdio: 'ignore' });
   } catch {
-    return; // no interpreter here; the parity claim is checked wherever there is one
+    // `t.skip` rather than a bare `return`: a return reports this as a *pass*,
+    // so a CI job that lost its interpreter would show green while checking
+    // nothing -- an unobserved result presented as a good one, which is the
+    // exact failure this whole venture exists to prevent. Skipped shows up as
+    // skipped in the summary and in `node --test`'s exit output.
+    return t.skip('python3 is not available here; the parity claim is unchecked in this run');
   }
 
   const before = snapshot([
