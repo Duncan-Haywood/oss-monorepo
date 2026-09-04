@@ -363,6 +363,14 @@ products:
           owner-gated, so there is no traffic signal to read yet; the
           page's counter reports only to the visitor's own browser.
           Baseline row for the browser surface.
+
+          Events counted locally: report_generated (once per visit -- it
+          was called from the input handler, so typing "4200" logged four
+          reports and the count measured keystrokes rather than use),
+          csv_copied, report_copied, link_copied, quote_restored_from_link.
+          The last four are the ones worth reading: a bare visit is not
+          evidence of value, but exporting a report or reopening a saved
+          quote is.
       - as_of: 2026-08-27
         signals:
           report_generated_events: 0
