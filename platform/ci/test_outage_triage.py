@@ -26,6 +26,8 @@ from outage_triage import (
     Node,
     PortResult,
     Triage,
+    boot_history,
+    hetzner_actions,
     hetzner_servers,
     probe_port,
     read_nodes,
@@ -40,7 +42,23 @@ CONTROL = Node(
 AGENT = Node(role="agent", name="ubuntu-4gb-hel1-1", server_id="163580094", ipv4="157.180.80.188")
 
 
-def build(ports: dict[int, str], dns_ip: str = "89.167.29.39", servers=None) -> Triage:
+def act(command: str, finished: str, status: str = "success") -> dict:
+    """One row shaped like the Hetzner action log returns it."""
+    return {
+        "command": command,
+        "status": status,
+        "started": finished,
+        "finished": finished,
+    }
+
+
+def build(
+    ports: dict[int, str],
+    dns_ip: str = "89.167.29.39",
+    servers=None,
+    actions=None,
+    actions_note: str | None = None,
+) -> Triage:
     """A Triage whose control plane shows `ports`, everything else plausible."""
     return Triage(
         nodes=[CONTROL, AGENT],
@@ -50,7 +68,13 @@ def build(ports: dict[int, str], dns_ip: str = "89.167.29.39", servers=None) -> 
         ],
         servers=servers if servers is not None else [],
         api_note="" if servers else "skipped",
+        actions={CONTROL.server_id: list(actions)} if actions else {},
+        actions_note=actions_note or "",
     )
+
+
+# The port picture the live outage shows: the node is up, nothing serves.
+LIVE_OUTAGE = {22: OPEN, 80: REFUSED, 443: REFUSED, 6443: REFUSED}
 
 
 class InventoryParse(unittest.TestCase):
@@ -209,6 +233,185 @@ class VerdictInvalidatesOrConfirmsTheAsk(unittest.TestCase):
         self.assertIn("Public surface check", " ".join(reasons))
 
 
+class ActionLogSplitsTheCause(unittest.TestCase):
+    """The layer that answers *why* nothing is bound to 443.
+
+    Before it existed the verdict deferred both remaining hypotheses to
+    `bootstrap/preflight.sh`, which needs an SSH key the repository does not
+    have — so the cause of a live outage stayed unknown for as long as the
+    owner ask stayed unactioned. These cases pin that each branch names a
+    *different* fix, because that is the whole value: a replaced disk needs
+    re-bootstrapping and a stopped service needs the unit looked at, and doing
+    the wrong one costs a cycle.
+    """
+
+    def test_a_rebuild_means_re_bootstrap_not_a_pod_investigation(self):
+        _, reasons = verdict(
+            build(LIVE_OUTAGE, actions=[act("rebuild_server", "2026-09-01T04:00:00+00:00")])
+        )
+        body = " ".join(reasons)
+        self.assertIn("rebuild_server", body)
+        self.assertIn("re-bootstrap", body.lower())
+        self.assertIn("install-k3s-server.sh", body)
+
+    def test_a_power_cycle_points_at_the_unit_rather_than_the_disk(self):
+        _, reasons = verdict(
+            build(LIVE_OUTAGE, actions=[act("reboot_server", "2026-08-30T02:00:00+00:00")])
+        )
+        body = " ".join(reasons)
+        self.assertIn("reboot_server", body)
+        self.assertIn("systemctl is-enabled k3s", body)
+        # The opposite instruction must not also appear, or the reader is back
+        # to guessing which of the two to do.
+        self.assertNotIn("re-bootstrap", body.lower())
+
+    def test_a_rebuild_outranks_an_older_power_cycle(self):
+        # Newest first, as the API returns them. A reboot after a rebuild does
+        # not undo the rebuild: the disk is still the new one.
+        _, reasons = verdict(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("reboot_server", "2026-09-02T00:00:00+00:00"),
+                    act("rebuild_server", "2026-09-01T04:00:00+00:00"),
+                ],
+            )
+        )
+        self.assertIn("re-bootstrap", " ".join(reasons).lower())
+
+    def test_a_rescue_boot_is_reported_as_intact_disk_wrong_system(self):
+        _, reasons = verdict(
+            build(LIVE_OUTAGE, actions=[act("enable_rescue", "2026-09-03T10:00:00+00:00")])
+        )
+        body = " ".join(reasons)
+        self.assertIn("enable_rescue", body)
+        self.assertIn("disk is intact", body.lower())
+
+    def test_a_quiet_log_rules_out_a_wipe_and_says_so(self):
+        # The reading the live outage most likely produces, and the one that
+        # is genuinely new information: nothing external touched the box, so
+        # the "k3s was never installed / was wiped" branch is eliminated
+        # without anyone logging in.
+        _, reasons = verdict(
+            build(LIVE_OUTAGE, actions=[act("create_image", "2026-08-01T00:00:00+00:00")])
+        )
+        body = " ".join(reasons)
+        self.assertIn("No rebuild, rescue boot or power cycle", body)
+        self.assertIn("rules out", body)
+        self.assertIn("df -h", body)
+
+    def test_a_failed_rebuild_is_not_treated_as_a_rebuild(self):
+        # An `error` row is a change that did not happen. Reading it as one
+        # would send the owner to re-bootstrap a disk that was never replaced.
+        _, reasons = verdict(
+            build(
+                LIVE_OUTAGE,
+                actions=[act("rebuild_server", "2026-09-01T04:00:00+00:00", status="error")],
+            )
+        )
+        body = " ".join(reasons)
+        self.assertNotIn("re-bootstrap", body.lower())
+        self.assertIn("No rebuild, rescue boot or power cycle", body)
+
+    def test_an_unreadable_log_says_the_cause_is_still_open(self):
+        _, reasons = verdict(build(LIVE_OUTAGE, actions_note="HTTP 403 from the Hetzner API"))
+        body = " ".join(reasons)
+        self.assertIn("403", body)
+        self.assertIn("still open", body)
+
+    def test_a_full_page_is_flagged_as_possibly_truncated(self):
+        many = [act("create_image", "2026-08-01T00:00:00+00:00")] * triage_mod.ACTIONS_PER_PAGE
+        history = boot_history(build(LIVE_OUTAGE, actions=many), CONTROL.server_id)
+        self.assertTrue(history.truncated)
+        _, reasons = verdict(build(LIVE_OUTAGE, actions=many))
+        self.assertIn("older event may exist", " ".join(reasons))
+
+    def test_a_short_page_is_not_flagged(self):
+        history = boot_history(
+            build(LIVE_OUTAGE, actions=[act("create_server", "2026-01-01T00:00:00+00:00")]),
+            CONTROL.server_id,
+        )
+        self.assertFalse(history.truncated)
+
+    def test_the_verdict_headline_is_unchanged_by_the_new_layer(self):
+        # The action log refines *why*; it must not move the tool off the
+        # port-derived finding, which is what decides the owner ask.
+        headline, reasons = verdict(
+            build(LIVE_OUTAGE, actions=[act("rebuild_server", "2026-09-01T04:00:00+00:00")])
+        )
+        self.assertIn("cluster or the ingress", headline)
+        self.assertIn("HETZNERSSHKEY", " ".join(reasons))
+
+    def test_the_action_log_is_only_consulted_for_this_outage_shape(self):
+        # DNS astray outranks everything; a rebuild in the log must not
+        # displace the finding that visitors never reach our machines.
+        headline, reasons = verdict(
+            build(
+                {22: OPEN, 443: OPEN},
+                dns_ip="203.0.113.7",
+                actions=[act("rebuild_server", "2026-09-01T04:00:00+00:00")],
+            )
+        )
+        self.assertIn("DNS points away", headline)
+        self.assertNotIn("re-bootstrap", " ".join(reasons).lower())
+
+
+class ActionLogFetchIsReadOnly(unittest.TestCase):
+    def test_no_token_skips_rather_than_fails(self):
+        actions, note = hetzner_actions(None, "163417666")
+        self.assertEqual(actions, [])
+        self.assertIn("skipped", note)
+
+    def test_no_token_issues_no_request_at_all(self):
+        def explode(*args, **kwargs):
+            raise AssertionError("a request was made without a token")
+
+        hetzner_actions("", "163417666", opener=type("O", (), {"open": staticmethod(explode)})())
+
+    def test_only_get_is_ever_issued_and_it_targets_the_right_server(self):
+        captured = {}
+
+        class Opener:
+            @staticmethod
+            def open(request, timeout=None):
+                captured["method"] = request.get_method()
+                captured["url"] = request.full_url
+
+                class R:
+                    def __enter__(self_inner):
+                        return self_inner
+
+                    def __exit__(self_inner, *a):
+                        return False
+
+                    @staticmethod
+                    def read():
+                        return json.dumps(
+                            {"actions": [{"command": "reboot_server", "status": "success"}]}
+                        ).encode()
+
+                return R()
+
+        actions, note = hetzner_actions("token", "163417666", opener=Opener())
+        self.assertEqual(captured["method"], "GET")
+        self.assertIn("/servers/163417666/actions", captured["url"])
+        # Sorting on `finished` puts a still-running action (null `finished`)
+        # in an undefined place; `id` is monotonic and always set.
+        self.assertIn("sort=id:desc", captured["url"])
+        self.assertEqual(note, "")
+        self.assertEqual(actions[0]["command"], "reboot_server")
+
+    def test_a_rejected_token_is_a_note_not_a_crash(self):
+        class Opener:
+            @staticmethod
+            def open(request, timeout=None):
+                raise urllib.error.HTTPError(request.full_url, 403, "Forbidden", {}, None)
+
+        actions, note = hetzner_actions("bad", "163417666", opener=Opener())
+        self.assertEqual(actions, [])
+        self.assertIn("403", note)
+
+
 class HetznerApiIsReadOnly(unittest.TestCase):
     def test_no_token_skips_rather_than_fails(self):
         servers, note = hetzner_servers(None)
@@ -297,6 +500,34 @@ class Rendering(unittest.TestCase):
         text = render(build({port: REFUSED for port in PORTS}))
         for port in PORTS:
             self.assertIn(f"| {port} |", text)
+
+    def test_the_action_log_renders_with_what_each_command_means(self):
+        text = render(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("rebuild_server", "2026-09-01T04:00:00+00:00"),
+                    act("create_image", "2026-08-01T00:00:00+00:00"),
+                ],
+            )
+        )
+        self.assertIn("### Recent server actions", text)
+        self.assertIn("replaces the disk", text)
+        self.assertIn("no effect on what is installed", text)
+
+    def test_an_unsuccessful_action_is_rendered_as_having_no_effect(self):
+        text = render(
+            build(
+                LIVE_OUTAGE,
+                actions=[act("rebuild_server", "2026-09-01T04:00:00+00:00", status="error")],
+            )
+        )
+        self.assertIn("did not succeed", text)
+
+    def test_a_skipped_action_layer_says_so_rather_than_showing_an_empty_table(self):
+        text = render(build(LIVE_OUTAGE, actions_note="skipped — no HETZNERREADAPIKEY"))
+        self.assertIn("### Recent server actions", text)
+        self.assertIn("skipped", text)
 
 
 if __name__ == "__main__":

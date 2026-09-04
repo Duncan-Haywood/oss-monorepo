@@ -99,6 +99,35 @@ REFUSED = "refused"
 NO_ANSWER = "no answer"
 UNREACHABLE = "unreachable"
 
+# How many actions to pull per server. Hetzner pages this endpoint; a full
+# page means there may be older actions we did not see, which `boot_history`
+# reports rather than papering over.
+ACTIONS_PER_PAGE = 50
+
+# The action-log commands that change what is on the disk, and therefore
+# whether anything installed before them still exists. `rebuild_server`
+# replaces the root volume from an image: k3s installed before it is gone, not
+# crashed, and no amount of looking at pod state will say so.
+DISK_REPLACING = {"rebuild_server"}
+
+# Boots something other than the installed system. The disk survives, but the
+# running kernel is not ours, so nothing we installed is serving.
+RESCUE_BOOTING = {"enable_rescue", "attach_iso"}
+
+# Power transitions. These do not touch the disk, so anything installed is
+# still there -- but a service that is not enabled at boot does not come back
+# from one, which is a different fix from a workload that was evicted.
+BOOT_CYCLING = {
+    "reboot_server",
+    "reset_server",
+    "start_server",
+    "poweron_server",
+    "stop_server",
+    "shutdown_server",
+    "poweroff_server",
+    "change_type",
+}
+
 
 @dataclass(frozen=True)
 class Node:
@@ -135,6 +164,10 @@ class Triage:
     ports: list[PortResult] = field(default_factory=list)
     servers: list[dict] = field(default_factory=list)
     api_note: str = ""
+    # server_id -> most recent actions, newest first. Read-only history of
+    # every console/API event that touched the machine.
+    actions: dict[str, list[dict]] = field(default_factory=dict)
+    actions_note: str = ""
 
 
 def read_nodes(path: Path = INVENTORY) -> list[Node]:
@@ -254,11 +287,202 @@ def hetzner_servers(token: str | None, opener=None) -> tuple[list[dict], str]:
         return [], f"{type(exc).__name__}: {exc}"
 
 
+def hetzner_actions(
+    token: str | None, server_id: str, opener=None
+) -> tuple[list[dict], str]:
+    """GET /servers/<id>/actions with the same Read token. Newest first.
+
+    This is the layer that answers the question the port scan cannot: *why*
+    nothing is bound to 443. The verdict for a healthy node with a dead
+    cluster used to defer both of its remaining hypotheses to SSH -- "k3s was
+    never installed" versus "something evicted the pods" -- and SSH has been
+    unavailable for as long as the outage has existed, because `HETZNERSSHKEY`
+    holds a public key.
+
+    The action log splits them from outside. A `rebuild_server` replaces the
+    root disk, so anything installed before it is gone rather than broken; a
+    power cycle leaves the disk intact, so a service that did not come back is
+    one that is not enabled at boot. Neither reading needs a shell.
+
+    Read-only by construction, exactly as `hetzner_servers` is: the only verb
+    issued is GET, and `infra/scripts/assert_hcloud_read_only.sh` already
+    proves this token cannot write.
+    """
+    if not token:
+        return [], (
+            "skipped — no HETZNERREADAPIKEY in the environment. "
+            "The action log is the only credential-free way to tell a rebuilt "
+            "disk from a crashed service."
+        )
+    request = urllib.request.Request(
+        # `id:desc` rather than `finished:desc`: an action still running has a
+        # null `finished`, and sorting on it puts the most interesting row in
+        # an undefined place.
+        f"{HCLOUD_API}/servers/{server_id}/actions"
+        f"?sort=id:desc&per_page={ACTIONS_PER_PAGE}",
+        headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+        method="GET",
+    )
+    try:
+        opener = opener or urllib.request.build_opener()
+        with opener.open(request, timeout=HTTP_TIMEOUT) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+        return payload.get("actions", []), ""
+    except urllib.error.HTTPError as exc:
+        return [], f"HTTP {exc.code} from the Hetzner API — token rejected or out of scope."
+    except Exception as exc:  # noqa: BLE001
+        return [], f"{type(exc).__name__}: {exc}"
+
+
+def _when(action: dict) -> str:
+    """Best available timestamp for an action, for display only."""
+    return action.get("finished") or action.get("started") or "(no timestamp)"
+
+
+@dataclass
+class BootHistory:
+    """What the action log says happened to one server, already classified.
+
+    Deliberately not a verdict. `verdict()` turns this into an instruction;
+    keeping the classification separate is what lets the tests pin "a rebuild
+    was seen" apart from "and therefore the owner should do X".
+    """
+
+    server_id: str
+    actions: list[dict] = field(default_factory=list)
+    rebuild: dict | None = None
+    rescue: dict | None = None
+    power: dict | None = None
+    truncated: bool = False
+
+    @property
+    def quiet(self) -> bool:
+        """No event in the window touched the disk, the boot media or the power."""
+        return not (self.rebuild or self.rescue or self.power)
+
+    @property
+    def window(self) -> str:
+        if not self.actions:
+            return "(empty)"
+        return f"{_when(self.actions[-1])} → {_when(self.actions[0])}"
+
+
+def boot_history(triage: Triage, server_id: str) -> BootHistory:
+    """Classify one server's action log into the events that explain an outage.
+
+    Only successful actions count. An `error` row is a change that did *not*
+    happen, and treating it as one would send the owner to re-bootstrap a disk
+    that was never replaced.
+    """
+    actions = triage.actions.get(server_id, [])
+    history = BootHistory(
+        server_id=server_id,
+        actions=actions,
+        # A full page means Hetzner had at least this many rows to give. There
+        # may be an older rebuild we never saw, so `quiet` is only ever "quiet
+        # within the window" -- which `render` and `verdict` both say out loud.
+        truncated=len(actions) >= ACTIONS_PER_PAGE,
+    )
+    for action in actions:  # newest first, so the first match is the latest
+        if action.get("status") != "success":
+            continue
+        command = action.get("command")
+        if history.rebuild is None and command in DISK_REPLACING:
+            history.rebuild = action
+        if history.rescue is None and command in RESCUE_BOOTING:
+            history.rescue = action
+        if history.power is None and command in BOOT_CYCLING:
+            history.power = action
+    return history
+
+
 def _state(triage: Triage, ip: str, port: int) -> str | None:
     for result in triage.ports:
         if result.node.ipv4 == ip and result.port == port:
             return result.state
     return None
+
+
+def _cause_from_actions(triage: Triage, control: Node) -> list[str]:
+    """Narrow "the cluster is not running" to *why*, from the action log alone.
+
+    Before this existed the verdict handed both remaining hypotheses to
+    `bootstrap/preflight.sh` — which has never run, because the SSH secret
+    holds a public key. So the outage's cause stayed unknown for as long as
+    the owner ask stayed unactioned, and the two hypotheses call for opposite
+    work: a replaced disk needs re-bootstrapping, an evicted workload needs
+    the pods looked at.
+
+    The action log decides between them from outside. Each branch below names
+    the command that ends the outage, so the reader is not left to reason
+    from a symptom to a fix.
+    """
+    if triage.actions_note:
+        return [
+            f"_The action log could not be read ({triage.actions_note}), so the "
+            "cause is still open between a replaced disk and a stopped service._"
+        ]
+
+    history = boot_history(triage, control.server_id)
+    if not history.actions:
+        return [
+            "The Hetzner action log for this server is empty, so nothing about "
+            "the cause can be read from it."
+        ]
+
+    caveat = (
+        " (the log page was full, so an older event may exist beyond it)"
+        if history.truncated
+        else ""
+    )
+    seen = f"Action log read over {history.window}{caveat}."
+
+    if history.rebuild:
+        return [
+            seen,
+            f"**`rebuild_server` succeeded at {_when(history.rebuild)}.** The root "
+            "disk was replaced from an image, so k3s is not crashed — it is "
+            "*gone*, along with everything `bootstrap/` ever installed.",
+            "That settles the hypothesis the preflight was going to split, and it "
+            "changes the work: this is a **re-bootstrap**, not a pod "
+            "investigation. Run `bootstrap/install-k3s-server.sh` and "
+            "`bootstrap/install-argocd.sh`, then let Argo re-sync `gitops/prod`.",
+        ]
+
+    if history.rescue:
+        return [
+            seen,
+            f"**`{history.rescue.get('command')}` succeeded at "
+            f"{_when(history.rescue)}.** The machine was pointed at boot media "
+            "that is not the installed system, which is why sshd answers and "
+            "nothing else does.",
+            "The disk is intact. Disable rescue / detach the ISO and reboot into "
+            "the installed system before diagnosing anything inside it.",
+        ]
+
+    if history.power:
+        return [
+            seen,
+            f"**`{history.power.get('command')}` succeeded at "
+            f"{_when(history.power)}** and no disk-replacing action follows it. "
+            "The disk is intact and k3s was installed; it simply did not come "
+            "back from that power transition.",
+            "So check the unit before the pods: `systemctl is-enabled k3s` and "
+            "`journalctl -u k3s -b` say whether it is disabled at boot or "
+            "crash-looping. A workload eviction would not have survived a "
+            "reboot as a *total* absence of listeners on 80, 443 and 6443.",
+        ]
+
+    return [
+        seen,
+        "**No rebuild, rescue boot or power cycle appears in that window.** "
+        "Nothing external touched this machine, so the disk still holds "
+        "whatever was installed and no console action stopped it.",
+        "That rules out the 'k3s was never installed / was wiped' hypothesis "
+        "and leaves an in-place failure: k3s died where it stood. Look for the "
+        "ordinary causes in that order — `df -h` (a full disk stops etcd "
+        "first), then `journalctl -u k3s -b` for an OOM kill or a crash loop.",
+    ]
 
 
 def verdict(triage: Triage) -> tuple[str, list[str]]:
@@ -373,10 +597,8 @@ def verdict(triage: Triage) -> tuple[str, list[str]]:
                     "**This is the case the queued ask was written for, and it holds.** "
                     "Rotating `HETZNERSSHKEY` to the matching private key is the right "
                     "next step: it is what lets `bootstrap/preflight.sh` read pod state.",
-                    "Its output then splits the two remaining hypotheses in one run — "
-                    "no `/etc/rancher/k3s/k3s.yaml` means k3s was never installed; a "
-                    "running k3s with no `prod` pods means something evicted them.",
-                ],
+                ]
+                + _cause_from_actions(triage, control),
             )
 
         if https == OPEN:
@@ -452,6 +674,46 @@ def render(triage: Triage) -> str:
             out.append(f"| {server.get('name')} | `{ip}`{mark} | {server.get('status')} |")
     out.append("")
 
+    out.append("### Recent server actions (Hetzner API, read-only)")
+    out.append("")
+    out.append(
+        "Every console or API event that touched these machines, newest first. "
+        "This is what tells a *replaced disk* (k3s gone) apart from a *stopped "
+        "service* (k3s installed but down) without a shell on the box."
+    )
+    out.append("")
+    if triage.actions_note:
+        out.append(f"_{triage.actions_note}_")
+    elif not any(triage.actions.values()):
+        out.append("_The action log is empty for every server in the inventory._")
+    else:
+        out.append("| Node | Command | Status | Finished | Significance |")
+        out.append("| --- | --- | --- | --- | --- |")
+        for node in triage.nodes:
+            history = boot_history(triage, node.server_id)
+            for action in history.actions[:10]:
+                command = action.get("command", "")
+                if command in DISK_REPLACING:
+                    meaning = "**replaces the disk — installed software is gone**"
+                elif command in RESCUE_BOOTING:
+                    meaning = "**boots media that is not the installed system**"
+                elif command in BOOT_CYCLING:
+                    meaning = "power transition — disk intact"
+                else:
+                    meaning = "no effect on what is installed or running"
+                if action.get("status") != "success":
+                    meaning = f"_did not succeed; no effect_ ({meaning})"
+                out.append(
+                    f"| {node.role} | `{command}` | {action.get('status')} | "
+                    f"{_when(action)} | {meaning} |"
+                )
+            if history.truncated:
+                out.append(
+                    f"| {node.role} | _…_ | | | _page full at "
+                    f"{ACTIONS_PER_PAGE}; older events may exist_ |"
+                )
+    out.append("")
+
     headline, reasons = verdict(triage)
     out.append("### Verdict")
     out.append("")
@@ -476,6 +738,20 @@ def collect(token: str | None = None, resolver=None, connect=None, opener=None) 
         for port in PORTS
     ]
     triage.servers, triage.api_note = hetzner_servers(token, opener=opener)
+
+    # One request per node we own. The inventory is two machines, so this is
+    # two GETs; it is not worth paginating or parallelising.
+    notes: list[str] = []
+    for node in triage.nodes:
+        if not node.server_id:
+            continue
+        actions, note = hetzner_actions(token, node.server_id, opener=opener)
+        if note:
+            notes.append(note)
+        triage.actions[node.server_id] = actions
+    # Every node reports the same note when the cause is the token, so collapse
+    # it rather than printing "skipped — no HETZNERREADAPIKEY" twice.
+    triage.actions_note = notes[0] if notes else ""
     return triage
 
 
@@ -516,6 +792,27 @@ def main() -> int:
                         for s in triage.servers
                     ],
                     "api_note": triage.api_note,
+                    "actions": {
+                        node.server_id: {
+                            "window": boot_history(triage, node.server_id).window,
+                            "truncated": boot_history(triage, node.server_id).truncated,
+                            "rebuild": boot_history(triage, node.server_id).rebuild,
+                            "rescue": boot_history(triage, node.server_id).rescue,
+                            "power": boot_history(triage, node.server_id).power,
+                            "recent": [
+                                {
+                                    "command": a.get("command"),
+                                    "status": a.get("status"),
+                                    "finished": a.get("finished"),
+                                    "started": a.get("started"),
+                                }
+                                for a in triage.actions.get(node.server_id, [])[:10]
+                            ],
+                        }
+                        for node in triage.nodes
+                        if node.server_id
+                    },
+                    "actions_note": triage.actions_note,
                     "verdict": {"headline": headline, "reasons": reasons},
                 },
                 indent=2,
