@@ -219,6 +219,15 @@ const ids = ["currency", "new_words", "fuzzy_words", "fuzzy_rate", "words_per_ho
 // the shareable link, which carries only the eleven inputs that alter the
 // arithmetic. It is saved with the draft so a refresh does not lose it.
 const textIds = ["source_lang", "target_lang"];
+// The proposal panel's deposit, validity window and three prose terms
+// (`platform/proposal/adopt.mjs`, TERM_IDS below). Kept out of `ids` for the
+// same reason `textIds` is: `loadQuote` and `fieldValues()` build the
+// calculator's own input object, and neither belongs there. Carried in the
+// link separately -- see `termValues()` -- so a setter who priced a 50%
+// deposit held for 15 days and a recipient who opens the link under this
+// page's own 30%/30-day defaults are not looking at the same headline
+// price and different money on acceptance.
+const termIds = ["depositPercent", "validDays", "paymentTerms", "proposalNotes", "proposalExclusions"];
 function el(id) { return document.getElementById(id); }
 // `el()` and `count()` are the house spellings the shared proposal wiring in
 // platform/proposal/adopt.mjs detects and calls. `record` stays the transport;
@@ -254,8 +263,12 @@ let restored = fromLink;
 if (Object.keys(fromLink).length === 0) {
   try { restored = JSON.parse(localStorage.getItem(storageKey) || "null") || {}; } catch { restored = {}; }
 }
-for (const id of [...ids, ...textIds]) {
+for (const id of [...ids, ...textIds, ...termIds]) {
   if (Object.prototype.hasOwnProperty.call(restored, id)) el(id).value = restored[id];
+}
+/** The proposal terms as share.mjs's TERM_TEXT_FIELD_IDS/NUMBER_FIELD_IDS additions expect them. */
+function termValues() {
+  return Object.fromEntries(termIds.map((id) => [id, el(id).value]));
 }
 /** The draft: the priced inputs, plus the language pair the link cannot carry. */
 function draftValues() {
@@ -266,7 +279,7 @@ function update() {
     const r = calculate(readInput());
     el("result").innerHTML = `<strong>Recommended quote: ${money(r.recommended_price)}</strong><dl><dt>Weighted words</dt><dd>${r.weighted_words.toFixed(0)}</dd><dt>Translation time</dt><dd>${r.translation_hours.toFixed(1)} hours</dd><dt>Direct labor + add-ons</dt><dd>${money(r.direct_cost)}</dd><dt>Quote floor (minimum vs. cost)</dt><dd>${money(r.minimum_price)}</dd><dt>Target-margin price</dt><dd>${money(r.target_price)}</dd></dl><p>The recommended quote is the larger of the quote floor and the target-margin price, so a stated margin target still applies once a job is big enough that the flat minimum no longer binds. This is a modeled starting point from your inputs, not a promise of profitability — review your own assumptions before sending it.</p>`;
     try { localStorage.setItem(storageKey, JSON.stringify(draftValues())); } catch {}
-    if (location.hash) history.replaceState(null, "", `${location.pathname}#${encodeInputs(fieldValues())}`);
+    if (location.hash) history.replaceState(null, "", `${location.pathname}#${encodeInputs({ ...fieldValues(), ...termValues() })}`);
   } catch (e) {
     el("result").textContent = e.message;
   }
@@ -288,7 +301,7 @@ el("copy").onclick = async () => {
   }
 };
 el("share").onclick = async () => {
-  history.replaceState(null, "", `${location.pathname}#${encodeInputs(fieldValues())}`);
+  history.replaceState(null, "", `${location.pathname}#${encodeInputs({ ...fieldValues(), ...termValues() })}`);
   try {
     await navigator.clipboard.writeText(location.href);
     el("status").textContent = "Link copied — it reopens this page with the same numbers.";
