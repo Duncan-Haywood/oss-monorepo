@@ -313,6 +313,98 @@ class ActionLogSplitsTheCause(unittest.TestCase):
         self.assertNotIn("re-bootstrap", body.lower())
         self.assertIn("No rebuild, rescue boot or power cycle", body)
 
+    def test_the_boot_that_first_starts_a_new_server_is_not_a_power_cycle(self):
+        """The bug the first live run exposed, pinned in the direction it broke.
+
+        Run 33900825029 read the control plane's real log — `create_server` at
+        11:15:20Z with its `start_server` eight seconds later — as a power
+        cycle, and told the reader k3s "did not come back from that power
+        transition". That inverts the finding: nothing had touched the machine
+        at all, so it had never rebooted, so k3s could not have failed to
+        survive a restart. Following it would have sent the owner to
+        `systemctl is-enabled k3s` on a box where k3s was most likely never
+        installed.
+        """
+        _, reasons = verdict(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("start_server", "2026-08-24T11:15:28+00:00"),
+                    act("create_server", "2026-08-24T11:15:20+00:00"),
+                    act("enable_backup", "2026-08-24T11:15:14+00:00"),
+                ],
+            )
+        )
+        body = " ".join(reasons)
+        self.assertNotIn("systemctl is-enabled k3s", body)
+        self.assertIn("has been no reboot", body)
+        self.assertIn("never installed", body)
+        # It must name the command that settles it in one line, not a hypothesis.
+        self.assertIn("/etc/rancher/k3s/k3s.yaml", body)
+        self.assertIn("first bootstrap", body)
+
+    def test_a_real_reboot_long_after_creation_is_still_a_power_cycle(self):
+        # The other direction: the grace window must not swallow a genuine
+        # restart, or the fix above would hide the case it was written for.
+        _, reasons = verdict(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("reboot_server", "2026-08-30T02:00:00+00:00"),
+                    act("start_server", "2026-08-24T11:15:28+00:00"),
+                    act("create_server", "2026-08-24T11:15:20+00:00"),
+                ],
+            )
+        )
+        body = " ".join(reasons)
+        self.assertIn("reboot_server", body)
+        self.assertIn("systemctl is-enabled k3s", body)
+        self.assertNotIn("has been no reboot", body)
+
+    def test_the_creation_window_has_a_bound(self):
+        # A start_server hours after creation is an operational restart, not
+        # part of provisioning.
+        history = boot_history(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("start_server", "2026-08-24T15:00:00+00:00"),
+                    act("create_server", "2026-08-24T11:15:20+00:00"),
+                ],
+            ),
+            CONTROL.server_id,
+        )
+        self.assertIsNotNone(history.power)
+        self.assertFalse(history.untouched_since_creation)
+
+    def test_the_window_reads_oldest_to_newest_by_time_not_list_order(self):
+        # Action ids are allocated when an action is created and `finished`
+        # records when it ended, so a provisioning burst comes back in an
+        # order that is not chronological. The first live run printed a window
+        # running backwards because the ends of the list were read directly.
+        history = boot_history(
+            build(
+                LIVE_OUTAGE,
+                actions=[
+                    act("enable_backup", "2026-08-24T11:15:14+00:00"),
+                    act("start_server", "2026-08-24T11:15:28+00:00"),
+                    act("create_server", "2026-08-24T11:15:20+00:00"),
+                ],
+            ),
+            CONTROL.server_id,
+        )
+        start, end = history.window.split(" → ")
+        self.assertLess(start, end)
+        self.assertIn("11:15:14", start)
+        self.assertIn("11:15:28", end)
+
+    def test_an_unparseable_timestamp_does_not_crash_the_window(self):
+        history = boot_history(
+            build(LIVE_OUTAGE, actions=[{"command": "create_server", "status": "success"}]),
+            CONTROL.server_id,
+        )
+        self.assertEqual(history.window, "(empty)")
+
     def test_an_unreadable_log_says_the_cause_is_still_open(self):
         _, reasons = verdict(build(LIVE_OUTAGE, actions_note="HTTP 403 from the Hetzner API"))
         body = " ".join(reasons)

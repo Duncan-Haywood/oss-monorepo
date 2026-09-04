@@ -70,6 +70,7 @@ import sys
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 import publish_surface
@@ -127,6 +128,25 @@ BOOT_CYCLING = {
     "poweroff_server",
     "change_type",
 }
+
+# Creating a server emits its own burst: `create_server`, the `start_server`
+# that first boots it, and whatever was ordered with it (`enable_backup`,
+# network attachment). None of those is an operational event -- the machine
+# has not been *power cycled*, it has been born.
+#
+# This distinction is not cosmetic. The first live run of this layer (PR
+# #3195, run 33900825029) read the control plane's `start_server` at
+# 2026-08-24T11:15:28Z -- eight seconds after its `create_server` -- as a
+# power cycle, and told the reader k3s "did not come back from that power
+# transition", pointing them at `systemctl is-enabled k3s`. The truth was the
+# opposite and far more useful: nothing has touched that machine since it was
+# created, so it has never rebooted at all.
+CREATION = "create_server"
+
+# How long after `create_server` an action still counts as part of provisioning.
+# The observed bursts finish inside 15 seconds; ten minutes is slack for a
+# slower order without swallowing a genuine same-day reboot.
+CREATION_GRACE_SECONDS = 600
 
 
 @dataclass(frozen=True)
@@ -339,6 +359,21 @@ def _when(action: dict) -> str:
     return action.get("finished") or action.get("started") or "(no timestamp)"
 
 
+def _ts(action: dict) -> datetime | None:
+    """Parse an action's timestamp, or None if it has none we can read.
+
+    Hetzner returns RFC-3339 with a `Z` suffix, which `fromisoformat` rejects
+    before Python 3.11; the replacement keeps this working either way.
+    """
+    raw = action.get("finished") or action.get("started")
+    if not isinstance(raw, str) or not raw:
+        return None
+    try:
+        return datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 @dataclass
 class BootHistory:
     """What the action log says happened to one server, already classified.
@@ -353,6 +388,7 @@ class BootHistory:
     rebuild: dict | None = None
     rescue: dict | None = None
     power: dict | None = None
+    created: dict | None = None
     truncated: bool = False
 
     @property
@@ -361,10 +397,30 @@ class BootHistory:
         return not (self.rebuild or self.rescue or self.power)
 
     @property
+    def untouched_since_creation(self) -> bool:
+        """The log holds this server's birth and nothing operational after it.
+
+        The strongest reading this layer produces, and the one that most
+        changes what the owner should expect: the machine has never been
+        rebooted, so a service that is absent was never started rather than
+        having failed to survive a restart.
+        """
+        return bool(self.created) and self.quiet
+
+    @property
     def window(self) -> str:
-        if not self.actions:
+        """Oldest → newest by timestamp, not by list position.
+
+        The API is sorted by action id, and ids are allocated when an action
+        is *created* while `finished` records when it ended — so a burst of
+        concurrent provisioning actions comes back in an order that is not
+        chronological. Reading the ends of the list printed a window that ran
+        backwards on the first live run.
+        """
+        stamps = sorted(t for t in (_ts(a) for a in self.actions) if t)
+        if not stamps:
             return "(empty)"
-        return f"{_when(self.actions[-1])} → {_when(self.actions[0])}"
+        return f"{stamps[0].isoformat()} → {stamps[-1].isoformat()}"
 
 
 def boot_history(triage: Triage, server_id: str) -> BootHistory:
@@ -383,15 +439,30 @@ def boot_history(triage: Triage, server_id: str) -> BootHistory:
         # within the window" -- which `render` and `verdict` both say out loud.
         truncated=len(actions) >= ACTIONS_PER_PAGE,
     )
-    for action in actions:  # newest first, so the first match is the latest
-        if action.get("status") != "success":
-            continue
+    succeeded = [a for a in actions if a.get("status") == "success"]
+
+    # Find the birth first: everything else is classified relative to it.
+    history.created = next((a for a in succeeded if a.get("command") == CREATION), None)
+    born = _ts(history.created) if history.created else None
+
+    def provisioning(action: dict) -> bool:
+        """Part of the creation burst rather than an operational event."""
+        if born is None:
+            return False
+        stamp = _ts(action)
+        if stamp is None:
+            return False
+        return (stamp - born).total_seconds() <= CREATION_GRACE_SECONDS
+
+    for action in succeeded:  # newest first, so the first match is the latest
         command = action.get("command")
         if history.rebuild is None and command in DISK_REPLACING:
             history.rebuild = action
         if history.rescue is None and command in RESCUE_BOOTING:
             history.rescue = action
-        if history.power is None and command in BOOT_CYCLING:
+        # The `start_server` that first boots a new machine is not a power
+        # cycle, and calling it one inverts the conclusion -- see CREATION.
+        if history.power is None and command in BOOT_CYCLING and not provisioning(action):
             history.power = action
     return history
 
@@ -471,6 +542,30 @@ def _cause_from_actions(triage: Triage, control: Node) -> list[str]:
             "`journalctl -u k3s -b` say whether it is disabled at boot or "
             "crash-looping. A workload eviction would not have survived a "
             "reboot as a *total* absence of listeners on 80, 443 and 6443.",
+        ]
+
+    if history.untouched_since_creation:
+        return [
+            seen,
+            f"**The log holds this server's creation at {_when(history.created)} "
+            "and nothing operational since.** No rebuild, no rescue boot, and "
+            "no power cycle — the `start_server` beside `create_server` is the "
+            "first boot, not a restart.",
+            "So the machine has been up continuously since it was created, and "
+            "**the 'k3s did not survive a reboot' hypothesis is eliminated: "
+            "there has been no reboot.** A service that is absent here was "
+            "never started, or stopped in place.",
+            "Weigh that against the other measured fact — `bootstrap/` is the "
+            "only documented install path, it needs SSH, and `HETZNERSSHKEY` "
+            "has held a *public* key for as long as it has existed (run "
+            "33884253173). On this evidence the leading hypothesis is that "
+            "**k3s was never installed and the surface has never been up**, "
+            "rather than that a working cluster went down.",
+            "First command once SSH works, because it settles that in one "
+            "line: `ls -l /etc/rancher/k3s/k3s.yaml`. Absent → this is a "
+            "**first bootstrap**, not a repair, and `bootstrap/"
+            "install-k3s-server.sh` then `install-argocd.sh` is the whole "
+            "remaining path to a served catalogue.",
         ]
 
     return [
