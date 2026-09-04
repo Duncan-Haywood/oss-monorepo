@@ -10413,3 +10413,65 @@ entries:
         676 pages, no dead links. Could not verify against a live URL:
         the public surface is still down (see the decision queue).
     mrr_end: null
+  - venture: fireplace-insert-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Sampled 9 branches with unique
+        commits and no open PR (`claude/nice-brown-mzo3ne`,
+        `claude/sweet-archimedes-icmubl`, `claude/dreamy-planck-vvaum5`,
+        `pipeline/dns-evidence-monitor`, `cursor/3pl-quote-normalizer-
+        compare-20260825`, `cursor/chargeback-evidence-packet-
+        launch-20260824`, `claude/festive-mccarthy-xrn3ua`, plus the two
+        already-flagged `session/decision-queue-stale-prs-777-731` and
+        `venture/vendor-change-watch`) against current `main`: every one
+        was already fully superseded by more-developed work on `main`
+        (`nice-brown-mzo3ne`'s vs-Yardi page landed as #3166 while this
+        session was reviewing it; the two pipeline-candidate branches
+        propose screening `shopify-permission-drift` and `dns-
+        configuration-evidence`, both already graduated and built as full
+        ventures; the three venture-scaffold branches (`3pl-quote-
+        normalizer`, `chargeback-evidence-packet`, `vendor-watch`)
+        propose ventures that already exist on `main`, more developed;
+        `sweet-archimedes-icmubl`'s Pages-workflow race fix and dead-link
+        check are already in `portfolio-pages.yml`, more developed).
+        Confirms the extensive prior-session findings already in this
+        ledger. This run's brief asked to prioritize CI/CD, Hetzner
+        deployment, marketing-material deployment, and Codex CLI on the
+        Hetzner VM; re-checked against `asks.yaml` rather than
+        re-deriving -- same three owner-blocked rows a dozen-plus prior
+        sessions already logged as fully built in code
+        (`actions-runners-unavailable`, `deploy-settings` /
+        `portfolio-site-hetzner-deploy`, `codex-governor-enable`, the
+        last of which already warns by name against exactly the "log
+        into a personal plan to use up its quota" shape this run's brief
+        described). Nothing new to re-verify or add.
+      - >-
+        Shipped #3209: a portfolio-wide survey (via a research subagent)
+        found `share.mjs` -- a "copy a link that reopens this exact bid"
+        feature -- already present in 65+ of the `*-bid-calculator`
+        ventures but missing from ~37, including
+        `fireplace-insert-bid-calculator`. Ported the pattern: `share.mjs`
+        / `share.test.mjs` (pure allowlisted encode/decode of the
+        calculator's ~30 numeric fields, 6 flags, and 4 enums, enums
+        validated against `calc.mjs`'s own preset ids); vendored
+        `proposal-terms.mjs` / `proposal-terms.test.mjs` unmodified from
+        `ev-charger-bid-calculator` so the deposit, price-hold window,
+        and the three proposal-panel prose fields ride in the link
+        instead of silently reverting to page defaults on the
+        recipient's end (the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29); a
+        "Copy share link" button and on-load decode in `index.html`.
+        Regenerated the front-door-tools mirror and resolved the
+        expected sequential-shard conflict against a concurrently-merged
+        page (`shopify-a11y-evidence` #3207) with
+        `resolve-mirror-merge.sh`. Verified: venture's own suite 103/103
+        (was 76); `platform/proposal/*.test.mjs` 97/97;
+        `term-ids.test.mjs` 4/4; full `platform/pages` suite 880/880;
+        `front-door-tools.test.mjs` 101/101; `front-door.test.mjs`
+        98/98. No `kustomize`/`kubeconform` available in this session to
+        run `gitops/tests` directly; relied on the mirror generator's own
+        committed-output test, which is what CI runs. Not manually
+        verified in a browser (no display in this session).
+    mrr_end: null
