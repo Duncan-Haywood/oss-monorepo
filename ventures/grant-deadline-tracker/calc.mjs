@@ -31,7 +31,7 @@ export function parseDate(value) {
 
 export function addMonths(value, months) {
   const date = parseDate(value);
-  if (!date || !Number.isFinite(months) || months < 1) return null;
+  if (!date || !Number.isFinite(months) || !Number.isInteger(months) || months < 1) return null;
   const day = date.getUTCDate();
   date.setUTCDate(1);
   date.setUTCMonth(date.getUTCMonth() + Math.floor(months));
@@ -114,6 +114,17 @@ export function normalizeGrant(input, today) {
       : Number(input.intervalMonths),
   };
   if (!grant.name) throw new Error("Each grant needs a name.");
+  // Validated before it drives `nextDueFromInterval` below, not after: a
+  // fractional interval (1.5 months, typed or JSON-imported) used to reach
+  // `addMonths`, which floored it to 1 and saved a due date one interval
+  // early with no error at all -- the exact silent-wrong-deadline failure
+  // this tracker exists to prevent. A sub-one-month value (0.5) failed
+  // differently: `addMonths` already refused it, so `nextDate` stayed empty
+  // and the grant was rejected with "Invalid date" instead of naming the
+  // interval as the actual problem.
+  if (grant.intervalMonths != null && (!Number.isFinite(grant.intervalMonths) || !Number.isInteger(grant.intervalMonths) || grant.intervalMonths < 1)) {
+    throw new Error(`Reporting interval for ${grant.name} must be a whole number of months.`);
+  }
   if (!grant.nextDate && grant.awardDate && grant.intervalMonths) {
     grant.nextDate = nextDueFromInterval(
       grant.awardDate,
@@ -129,9 +140,6 @@ export function normalizeGrant(input, today) {
   }
   if (grant.spent > grant.award && grant.award > 0) {
     throw new Error(`Spent cannot exceed the award for ${grant.name}.`);
-  }
-  if (grant.intervalMonths != null && (!Number.isFinite(grant.intervalMonths) || grant.intervalMonths < 1)) {
-    throw new Error(`Reporting interval for ${grant.name} must be a whole number of months.`);
   }
   if (grant.awardDate && !parseDate(grant.awardDate)) {
     throw new Error(`Invalid award date for ${grant.name}.`);
