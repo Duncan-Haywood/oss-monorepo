@@ -19,7 +19,7 @@
   "applicationCategory": "EducationalApplication",
   "operatingSystem": "Any (runs in a web browser)",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-  "featureList": "Time to reach 1 through 7 time constants for your own resistor, capacitor, and supply voltage; voltage and percent-of-supply reached at each; the conventional 5-time-constant 'fully charged' point"
+  "featureList": "Time to reach 1 through 7 time constants for your own resistor, capacitor, and supply voltage; voltage and percent-of-supply reached at each; the conventional 5-time-constant 'fully charged' point; exact time to reach any target percent below 100"
 }
 </script>
 <script type="application/ld+json">
@@ -57,6 +57,14 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Because the driving voltage across the resistor is the gap that's left, not the full supply. Early on that gap is nearly the whole supply, so the charging current — and the rate the voltage climbs — is at its highest; by 5τ the gap is down to 0.67% of the supply, so the current driving further charging is down to 0.67% of where it started. This page's own defaults show it directly: the first time constant closes 63.21 percentage points of the gap, but the fifth adds only 1.16 more (from 98.17% to 99.33%)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I find the time for a target other than the 5τ convention, like 99.9%?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the target-percent tool above rather than reading the fixed table: it solves the same charging equation for any percent below 100 you pick. On this page's defaults, 99.9% takes 6.9078 time constants — 6.9078 ms — noticeably longer than the 5τ convention for one more '9' of precision, which is the general shape of an exponential tail: each added 9 costs roughly one more time constant."
       }
     }
   ]
@@ -168,6 +176,17 @@
     <div class="result" id="result" role="status" aria-live="polite"></div>
   </section>
 
+  <section aria-labelledby="target-heading">
+    <h2 id="target-heading">Time to a target percent</h2>
+    <p class="hint" style="margin-top:-0.25rem;">
+      Not one of the rows above? Pick any percent below 100 and get the exact
+      time for your own R and C.
+    </p>
+    <label for="target">Target percent of supply (0–100, exclusive)</label>
+    <input type="number" id="target" inputmode="decimal" value="99.9" min="0" max="99.9999" step="any" />
+    <div class="result" id="target-result" role="status" aria-live="polite"></div>
+  </section>
+
   <h2>Common questions</h2>
 
   <h3>How long does it take a capacitor to fully charge?</h3>
@@ -212,6 +231,16 @@
     defaults show it directly: the first time constant closes 63.21
     percentage points of the gap, but the fifth adds only 1.16 more (from
     98.17% to 99.33%).
+  </p>
+
+  <h3>How do I find the time for a target other than the 5τ convention, like 99.9%?</h3>
+  <p>
+    Use the target-percent tool above rather than reading the fixed table: it
+    solves the same charging equation for any percent below 100 you pick. On
+    this page's defaults, 99.9% takes 6.9078 time constants — 6.9078&nbsp;ms —
+    noticeably longer than the 5τ convention for one more '9' of precision,
+    which is the general shape of an exponential tail: each added 9 costs
+    roughly one more time constant.
   </p>
 
   <footer>
@@ -354,6 +383,51 @@
     el.addEventListener("change", () => update(true));
   }
   update();
+
+  const target = document.getElementById("target");
+  const targetResult = document.getElementById("target-result");
+
+  // Reuses the same timeFromComponents() import above rather than a second
+  // module: a target percent is just another threshold voltage, and the
+  // shared function already inverts the charging equation for one.
+  function updateTarget(userAction) {
+    const resistanceOhms = Number(r.value) * Number(rUnit.value);
+    const capacitanceFarads = Number(c.value) * Number(cUnit.value);
+    const supplyVolts = Number(supply.value);
+    const percent = Number(target.value);
+    try {
+      if (!Number.isFinite(percent) || percent <= 0 || percent >= 100) {
+        throw new Error(
+          "Target percent must be greater than 0 and less than 100 — an RC charge " +
+            "never mathematically reaches 100% of the supply, only closer and closer to it.",
+        );
+      }
+      const out = timeFromComponents({
+        mode: "charge",
+        resistanceOhms,
+        capacitanceFarads,
+        supplyVolts,
+        thresholdVolts: supplyVolts * (percent / 100),
+      });
+      targetResult.classList.remove("error");
+      targetResult.innerHTML = `
+        <p>
+          <strong>${formatTime(out.timeSeconds)}</strong>
+          (${(out.timeSeconds / out.timeConstantSeconds).toFixed(4)} time constants) to reach
+          ${percent}% of the supply.
+        </p>
+      `;
+      if (userAction) recordEventSettled("target_percent_solved");
+    } catch (err) {
+      targetResult.textContent = err.message;
+      targetResult.classList.add("error");
+    }
+  }
+  for (const el of [r, rUnit, c, cUnit, supply, target]) {
+    el.addEventListener("input", () => updateTarget(true));
+    el.addEventListener("change", () => updateTarget(true));
+  }
+  updateTarget();
 
   const usageToggle = document.getElementById("usage-toggle");
   const usageStatus = document.getElementById("usage-status");
