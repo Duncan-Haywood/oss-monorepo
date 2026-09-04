@@ -27,32 +27,77 @@ export function scenarioCost(input = {}) {
   const storageRate = nonNegative(input.storageRate ?? 0, "Storage rate");
   const requestRate = nonNegative(input.requestRate ?? 0, "Request rate");
   const egressRate = nonNegative(input.egressRate ?? 0, "Egress rate");
+  // Every major provider bills egress past a free monthly allowance, not from
+  // the first byte: AWS, GCP, and Azure all give some GB/month of outbound
+  // transfer away before the per-GB rate applies. A flat egressRate over the
+  // whole egressGb overstated the bill for any workload under that
+  // allowance, and could call the pricier-looking option the loser when the
+  // free tier alone made them tie. Defaults to 0, which reproduces the old
+  // all-billed arithmetic exactly for every input written before this field
+  // existed.
+  const freeEgressGb = nonNegative(input.freeEgressGb ?? 0, "Free egress");
+  const billableEgressGb = Math.max(0, egressGb - freeEgressGb);
   const storage = cents(storageGb * storageRate);
   const requests = cents(requestsMillion * requestRate);
-  const egress = cents(egressGb * egressRate);
+  const egress = cents(billableEgressGb * egressRate);
   return {
     storage,
     requests,
     egress,
     egressRate,
+    egressGb,
+    freeEgressGb,
+    billableEgressGb,
     total: cents(storage + requests + egress),
   };
 }
 
 /**
- * Outbound GB where the two options bill the same.
- * firstFixed + e * r1 = secondFixed + e * r2
- * e = (secondFixed - firstFixed) / (r1 - r2)
- * Null when rates match or the crossing is not a positive volume.
+ * Outbound GB where the two options bill the same, honoring each option's
+ * free-egress allowance.
+ *
+ * Without a free tier, cost is one straight line per option and a single
+ * `firstFixed + e*r1 = secondFixed + e*r2` solve finds the crossing. A free
+ * allowance breaks that: cost is flat at the fixed charges up to
+ * freeEgressGb, then rises at egressRate, so each option's cost is a
+ * two-piece line, not one. The two piecewise lines can only cross inside a
+ * segment bounded by 0, the two free thresholds, and infinity — so each
+ * segment is solved as its own linear equation, in order, and the first
+ * (smallest) positive crossing that actually falls inside its segment wins.
+ * With both free allowances at 0 this collapses to exactly the original
+ * single-segment solve.
+ *
+ * Null when no segment produces a positive, in-range crossing (parallel
+ * rates with no free-tier gap, or one option always cheaper).
  */
 export function breakEvenEgressGb(first, second) {
-  const rateDelta = first.egressRate - second.egressRate;
-  if (rateDelta === 0) return null;
-  const firstFixed = first.storage + first.requests;
-  const secondFixed = second.storage + second.requests;
-  const volume = (secondFixed - firstFixed) / rateDelta;
-  if (!Number.isFinite(volume) || volume <= 0) return null;
-  return volume;
+  const fixed1 = first.storage + first.requests;
+  const fixed2 = second.storage + second.requests;
+  const rate1 = first.egressRate;
+  const rate2 = second.egressRate;
+  const free1 = first.freeEgressGb ?? 0;
+  const free2 = second.freeEgressGb ?? 0;
+
+  const costAt = (e) => ({
+    a: fixed1 + Math.max(0, e - free1) * rate1,
+    b: fixed2 + Math.max(0, e - free2) * rate2,
+  });
+
+  const breakpoints = Array.from(new Set([0, free1, free2])).sort((x, y) => x - y);
+  for (let index = 0; index < breakpoints.length; index += 1) {
+    const start = breakpoints[index];
+    const end = index + 1 < breakpoints.length ? breakpoints[index + 1] : null;
+    const slope1 = start >= free1 ? rate1 : 0;
+    const slope2 = start >= free2 ? rate2 : 0;
+    const slope = slope1 - slope2;
+    if (slope === 0) continue;
+    const { a, b } = costAt(start);
+    const candidate = start - (a - b) / slope;
+    if (!Number.isFinite(candidate) || candidate <= 0) continue;
+    if (candidate < start || (end !== null && candidate > end)) continue;
+    return candidate;
+  }
+  return null;
 }
 
 export function compareScenarios(input = {}) {
@@ -114,8 +159,8 @@ export function reviewRecord(input = {}) {
     createdAt: new Date().toISOString(),
     workload,
     options: [
-      { name: input.first?.name || "Option A", storage: comparison.first.storage, requests: comparison.first.requests, egress: comparison.first.egress, total: comparison.first.total },
-      { name: input.second?.name || "Option B", storage: comparison.second.storage, requests: comparison.second.requests, egress: comparison.second.egress, total: comparison.second.total },
+      { name: input.first?.name || "Option A", storage: comparison.first.storage, requests: comparison.first.requests, egress: comparison.first.egress, freeEgressGb: comparison.first.freeEgressGb, billableEgressGb: comparison.first.billableEgressGb, total: comparison.first.total },
+      { name: input.second?.name || "Option B", storage: comparison.second.storage, requests: comparison.second.requests, egress: comparison.second.egress, freeEgressGb: comparison.second.freeEgressGb, billableEgressGb: comparison.second.billableEgressGb, total: comparison.second.total },
     ],
     cheaper: comparison.cheaper,
     savings: comparison.savings,
