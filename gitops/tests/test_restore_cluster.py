@@ -296,17 +296,27 @@ def test_argocd_is_invoked_without_opting_into_the_password_print(box):
     assert "PRINT_ADMIN_PASSWORD" not in log
 
 
-def test_install_argocd_default_does_not_print_the_password(tmp_path: Path):
-    """Exercise the real install-argocd.sh, not the pipeline that calls it."""
+@pytest.fixture()
+def argocd_env(tmp_path: Path):
+    """Run the real install-argocd.sh against a stubbed kubectl.
+
+    Separate from the `box` fixture above, which stubs `ssh` and so only ever
+    sees this script as bytes going over a pipe. These exercise it directly.
+    """
     script = SCRIPT.parent / "install-argocd.sh"
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    # Enough kubectl for the script to reach its final block; the password
-    # comes back base64 so the `base64 -d` on the print path is real.
+    # Enough kubectl for the script to reach its final block. The password comes
+    # back base64 so the `base64 -d` on the print path is real, and the
+    # repository-secret lookup answers per STUB_HAS_REPO_SECRET so the
+    # already-configured branch can be reached.
     (bin_dir / "kubectl").write_text(
         "#!/usr/bin/env bash\n"
         'case "$*" in\n'
         "  *argocd-initial-admin-secret*) printf 'c3VwZXJzZWNyZXQ=' ;;\n"  # "supersecret"
+        "  *secret-type=repository*)\n"
+        '    [[ "${STUB_HAS_REPO_SECRET:-}" == "1" ]] && echo secret/repo-gitops\n'
+        "    exit 0 ;;\n"
         "  *) exit 0 ;;\n"
         "esac\n"
     )
@@ -318,24 +328,88 @@ def test_install_argocd_default_does_not_print_the_password(tmp_path: Path):
         env = dict(os.environ)
         env["PATH"] = f"{bin_dir}:{env['PATH']}"
         env["KUBECONFIG"] = str(kubeconfig)
+        env.pop("ARGOCD_REPO_TOKEN", None)
+        env.pop("ARGOCD_REPO_TOKEN_FILE", None)
         env.update({k: str(v) for k, v in extra.items()})
         return subprocess.run(
             ["bash", str(script)], env=env, capture_output=True, text=True, timeout=60
         )
 
-    # The script guards on the real kubeconfig path before anything else, so a
-    # missing /etc/rancher/k3s/k3s.yaml short-circuits it. Skip rather than
-    # assert a false pass when the suite runs somewhere that happens to have one.
-    if not Path("/etc/rancher/k3s/k3s.yaml").exists():
-        default = run()
-        assert "run install-k3s-server.sh first" in default.stderr
-        pytest.skip("no /etc/rancher/k3s/k3s.yaml here; guard verified instead")
+    return run
 
+
+def test_install_argocd_default_does_not_print_the_password(argocd_env):
+    """Exercise the real install-argocd.sh, not the pipeline that calls it."""
+    run = argocd_env
     default = run()
+    assert default.returncode == 0, default.stderr
     assert "supersecret" not in default.stdout
     assert "not printed" in default.stdout
     opted_in = run(PRINT_ADMIN_PASSWORD=1)
     assert "supersecret" in opted_in.stdout
+
+
+def test_install_argocd_warns_loudly_with_no_repository_credential(argocd_env):
+    """A private repo with no credential is the silent-dark-site failure.
+
+    Argo installs, applies the root Application, and then fails every sync on
+    repository authentication. The operator sees a clean bootstrap. This has to
+    be loud, because nothing downstream will say why the site is empty.
+    """
+    result = argocd_env()
+    assert result.returncode == 0, result.stderr
+    assert "no Argo CD repository credential" in result.stderr
+    assert "stay dark" in result.stderr
+
+
+def test_install_argocd_creates_the_credential_from_a_token_file(argocd_env, tmp_path):
+    """restore-cluster.sh hands the token over as a mode-600 file."""
+    token_file = tmp_path / "repo-token"
+    token_file.write_text("ghp_secrettoken")
+    result = argocd_env(ARGOCD_REPO_TOKEN_FILE=str(token_file))
+    assert result.returncode == 0, result.stderr
+    assert "configuring the Argo CD repository credential" in result.stdout
+    # The URL is read out of root-application.yaml rather than restated.
+    assert "github.com/Duncan-Haywood/monorepo-projects" in result.stdout
+    assert "no Argo CD repository credential" not in result.stderr
+    # kubectl receives the Secret on stdin, so the value is never in an argv.
+    assert "ghp_secrettoken" not in result.stdout
+
+
+def test_install_argocd_leaves_an_existing_credential_alone(argocd_env):
+    result = argocd_env(STUB_HAS_REPO_SECRET="1")
+    assert result.returncode == 0, result.stderr
+    assert "already exists; leaving it alone" in result.stdout
+    assert "no Argo CD repository credential" not in result.stderr
+
+
+def test_missing_repo_token_is_called_out_not_silently_skipped(box):
+    """The failure that would waste the owner's one restore attempt.
+
+    The GitOps repository is private. With no credential Argo installs, applies
+    the root Application, and then fails every sync on repository
+    authentication — a cluster that is up, a site that serves nothing, and no
+    error anywhere except Argo's own Application status. A restore that reports
+    success in that state is worse than one that fails.
+    """
+    result = box.run()
+    assert result.returncode == 0, result.stderr
+    assert "ARGOCD_REPO_TOKEN is not set" in result.stdout
+    assert "serve nothing" in result.stdout
+    assert "repo-token" not in box.log()
+
+
+def test_repo_token_is_written_over_stdin_never_into_an_argv(box):
+    """`ARGOCD_REPO_TOKEN=… ssh …` would be readable via ps on the box."""
+    secret = "ghp_donotprint0000"
+    result = box.run(ARGOCD_REPO_TOKEN=secret)
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+    assert "umask 077" in log
+    assert "ARGOCD_REPO_TOKEN_FILE=" in log
+    assert secret not in log
+    assert secret not in result.stdout
+    assert secret not in result.stderr
 
 
 def test_serving_check_runs_all_three_hostnames(box):
