@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateTrueUp, reviewMessage } from './calc.mjs';
+import { calculateTrueUp, reviewMessage, evaluateNoticeDeadline, noticeMessage } from './calc.mjs';
 import { loadScenario, saveScenario, clearScenario } from './usage.mjs';
 import { readFileSync } from 'node:fs';
 
@@ -104,6 +104,72 @@ test('ignores malformed or incomplete saved scenarios', () => {
   assert.equal(saveScenario({ setItem() { throw new Error('quota'); } }, { purchased: 20, used: 14, price: 18, months: 4, overageRate: 0 }), false);
 });
 
+test('no renewal date means no notice deadline evaluation', () => {
+  assert.equal(evaluateNoticeDeadline({}), null);
+  assert.equal(evaluateNoticeDeadline({ renewalDate: '' }), null);
+});
+
+test('rejects an invalid renewal date string', () => {
+  assert.equal(evaluateNoticeDeadline({ renewalDate: 'not-a-date' }), null);
+});
+
+test('rejects a negative notice period', () => {
+  assert.throws(() => evaluateNoticeDeadline({ renewalDate: '2026-12-01', noticeDays: -5, today: new Date('2026-01-01') }), /non-negative/);
+});
+
+test('a future notice deadline is neither passed nor imminent', () => {
+  const notice = evaluateNoticeDeadline({ renewalDate: '2027-01-01', noticeDays: 60, today: new Date('2026-09-04') });
+  assert.equal(notice.deadlinePassed, false);
+  assert.equal(notice.deadlineSoon, false);
+  assert.equal(notice.daysUntilDeadline, 59); // deadline is Nov 2, 2026
+  assert.equal(notice.daysUntilRenewal, 119);
+});
+
+test('a notice deadline within 14 days is flagged as soon', () => {
+  const notice = evaluateNoticeDeadline({ renewalDate: '2026-09-20', noticeDays: 10, today: new Date('2026-09-04') });
+  assert.equal(notice.deadlineSoon, true);
+  assert.equal(notice.deadlinePassed, false);
+  assert.equal(notice.daysUntilDeadline, 6); // deadline is Sep 10, 2026
+});
+
+test('a notice deadline that has already passed is flagged', () => {
+  const notice = evaluateNoticeDeadline({ renewalDate: '2026-09-10', noticeDays: 60, today: new Date('2026-09-04') });
+  assert.equal(notice.deadlinePassed, true);
+  assert.equal(notice.daysUntilDeadline, -54); // deadline was Jul 12, 2026
+});
+
+test('noticeMessage is silent with no notice evaluation or nothing droppable', () => {
+  const result = calculateTrueUp({ seatsPurchased: 20, seatsUsed: 20, monthlyPrice: 18, monthsRemaining: 4 });
+  assert.equal(noticeMessage(result, null), null);
+  const notice = evaluateNoticeDeadline({ renewalDate: '2026-09-10', noticeDays: 60, today: new Date('2026-09-04') });
+  assert.equal(noticeMessage(result, notice), null); // droppableSeats is 0 here
+});
+
+test('a passed deadline reframes the saving as locked in, not avoidable', () => {
+  const result = calculateTrueUp({ seatsPurchased: 20, seatsUsed: 14, monthlyPrice: 18, monthsRemaining: 4 });
+  const notice = evaluateNoticeDeadline({ renewalDate: '2026-09-10', noticeDays: 60, today: new Date('2026-09-04') });
+  const message = noticeMessage(result, notice);
+  assert.match(message, /passed 54 days ago/);
+  assert.match(message, /auto-renews at the full 20 seats regardless of usage/);
+  assert.match(message, /6-seat saving above is not avoidable this cycle/);
+});
+
+test('an imminent deadline urges action before it closes', () => {
+  const result = calculateTrueUp({ seatsPurchased: 20, seatsUsed: 14, monthlyPrice: 18, monthsRemaining: 4 });
+  const notice = evaluateNoticeDeadline({ renewalDate: '2026-09-20', noticeDays: 10, today: new Date('2026-09-04') });
+  const message = noticeMessage(result, notice);
+  assert.match(message, /Notice deadline in 6 days/);
+  assert.match(message, /Submit the 6-seat reduction/);
+});
+
+test('a distant deadline is stated as a plain reminder', () => {
+  const result = calculateTrueUp({ seatsPurchased: 20, seatsUsed: 14, monthlyPrice: 18, monthsRemaining: 4 });
+  const notice = evaluateNoticeDeadline({ renewalDate: '2027-01-01', noticeDays: 30, today: new Date('2026-09-04') });
+  const message = noticeMessage(result, notice);
+  assert.match(message, /Notice deadline: 2026-12-02/);
+  assert.match(message, /only real if the reduction is submitted by then/);
+});
+
 test('the page wires save, reset, and the overage premium without uploading totals', () => {
   const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(html, /Save scenario/);
@@ -115,4 +181,24 @@ test('the page wires save, reset, and the overage premium without uploading tota
   assert.match(html, /id="seatMinimum"/);
   assert.match(html, /seatMinimum:read\('seatMinimum'\)/);
   assert.match(html, /Saved scenarios store only the totals entered here/);
+});
+
+test('the page wires the notice-deadline check without persisting it in the saved scenario', () => {
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(html, /id="renewalDate"/);
+  assert.match(html, /id="noticeDays"/);
+  assert.match(html, /evaluateNoticeDeadline/);
+  assert.match(html, /noticeMessage/);
+  assert.match(html, /id="notice" hidden/);
+  // renewalDate/noticeDays must stay out of `ids` (the save/restore field
+  // list) -- saveScenario Number()-converts every field in it, and a date
+  // string is not a number.
+  const idsMatch = html.match(/const ids = \[([^\]]*)\];/);
+  assert.ok(idsMatch, 'ids array not found');
+  assert.doesNotMatch(idsMatch[1], /renewalDate/);
+  assert.doesNotMatch(idsMatch[1], /noticeDays/);
+  // Reset must still clear the two new fields even though they are not part
+  // of the persisted scenario.
+  assert.match(html, /querySelector\('#renewalDate'\)\.value = ''/);
+  assert.match(html, /querySelector\('#noticeDays'\)\.value = 0/);
 });
