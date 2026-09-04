@@ -406,6 +406,14 @@ decisions:
   # token, so it is not downstream of the cluster and never was. The ranking
   # encoded the pre-#3199 belief that the portfolio had a single origin.
   outage: true
+  # The flip alone does not publish anything: `portfolio-pages.yml` has to
+  # build the artifact and run `deploy-pages`, and that needs an Actions
+  # runner. Runner assignment stopped again on 2026-09-04 (see
+  # `infra_state.yaml`), which is why this row is flagged as a route that
+  # restores a surface *and* as one that cannot be taken today. Before
+  # 2026-09-04 the queue could not express both at once and told the owner to
+  # do this one first because it was cheapest.
+  requires: [github-actions-runners]
   action: >-
     Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
     Actions", and set repository variable `PAGES_ENABLED=true`. (Not
