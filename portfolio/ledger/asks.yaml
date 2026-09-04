@@ -79,7 +79,18 @@ decisions:
     true` to confirm; it is read-only and never installs k3s or runs tofu.
     **Then dispatch it again with `restore: restore-cluster` — that is the
     whole recovery, and as of 2026-09-05 it is one dispatch rather than a
-    hands-on session.** Until then this ask was necessary but *not
+    hands-on session.** While you are in Settings → Secrets, paste a second
+    one: `ARGOCDREPOTOKEN`, a fine-grained PAT with **Contents: Read** on this
+    repository. This is not a second ask, it is the same sitting — but without
+    it the restore *succeeds and the site stays dark*, which is the worst
+    outcome available here. The GitOps repository is private and Argo CD
+    cannot clone it anonymously, so it would install, apply the root
+    Application, and then fail every sync on repository authentication with no
+    error anywhere except Argo's own Application status. It cannot be a sealed
+    secret, because sealed-secrets is itself deployed by Argo from `gitops/apps`
+    — the credential has to exist before the first sync it enables. The same
+    token works for the `portfolio-site-repo` seal, which needs exactly that
+    permission, so one PAT covers both. Until then this ask was necessary but *not
     sufficient*: rotating the key bought a read-only reading, and the restore
     it was supposed to enable still meant a human SSHing to two machines in
     order and copy-pasting a node token between them, which nobody had

@@ -270,6 +270,14 @@ jobs:
         env:
           HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
           CONFIRM: restore-cluster
+          # Optional but load-bearing: the GitOps repository is private, so
+          # without a credential Argo installs, applies the root Application
+          # and then fails every sync on repository authentication — a cluster
+          # that is up and a site that serves nothing. The script says so
+          # loudly rather than reporting success. A fine-grained PAT with
+          # Contents: Read on this repository is enough; it is the same
+          # permission the site's clone token needs, so one token can do both.
+          ARGOCD_REPO_TOKEN: ${{ secrets.ARGOCDREPOTOKEN }}
         run: |
           set -euo pipefail
           bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"

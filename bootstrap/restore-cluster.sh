@@ -231,9 +231,36 @@ else
   trap "ssh ${SSH_OPTS[*]} ${CP} 'rm -rf ${REMOTE_DIR}' >/dev/null 2>&1 || true" EXIT
   scp "${SSH_OPTS[@]}" -q \
     "${HERE}/install-argocd.sh" "${HERE}/root-application.yaml" "${CP}:${REMOTE_DIR}/"
+
+  # Without this the restore succeeds and the site stays dark: the GitOps
+  # repository is private, so Argo applies the root Application and then fails
+  # every sync on repository authentication. See install-argocd.sh.
+  if [[ -z "${ARGOCD_REPO_TOKEN:-}" ]]; then
+    echo
+    echo "NOTE: ARGOCD_REPO_TOKEN is not set. Argo CD will install and then be"
+    echo "unable to clone the private GitOps repository, so nothing will deploy."
+    echo "The cluster will be up and the site will still serve nothing."
+    echo "Set it to a token with Contents: Read and re-run — this script is"
+    echo "idempotent and will skip the k3s installs it has already done."
+    echo
+  else
+    mask "${ARGOCD_REPO_TOKEN}"
+  fi
+  # The token is written to a file over stdin rather than passed as
+  # `ARGOCD_REPO_TOKEN=… ssh …`. An assignment in the remote command string
+  # becomes the remote shell's argv, which every local user can read with `ps`
+  # for as long as the install runs; `umask 077` before the write means only
+  # root can read the file, and the trap above removes the whole directory.
+  # The scp'd script reads it via ARGOCD_REPO_TOKEN_FILE.
+  ARGOCD_ENV=""
+  if [[ -n "${ARGOCD_REPO_TOKEN:-}" ]]; then
+    printf '%s' "${ARGOCD_REPO_TOKEN}" \
+      | ssh_cp "umask 077; cat > '${REMOTE_DIR}/repo-token'"
+    ARGOCD_ENV="ARGOCD_REPO_TOKEN_FILE='${REMOTE_DIR}/repo-token'"
+  fi
   # PRINT_ADMIN_PASSWORD stays unset: see install-argocd.sh for why the default
   # changed. Retrieval is one kubectl on the box.
-  ssh_cp "bash '${REMOTE_DIR}/install-argocd.sh'"
+  ssh_cp "${ARGOCD_ENV} bash '${REMOTE_DIR}/install-argocd.sh'"
 fi
 
 # ------------------------------------------------------ step 8: does it serve?

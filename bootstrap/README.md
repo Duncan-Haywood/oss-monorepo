@@ -45,6 +45,18 @@ It refuses without the confirmation string, never overwrites a cluster that is
 already there (it labels instead), touches no Hetzner API, and is reachable
 from no push, schedule or agent Job.
 
+**Set `ARGOCDREPOTOKEN` before you dispatch it.** This repository is private,
+so Argo CD cannot clone it anonymously — without the credential the restore
+*succeeds and the site stays dark*: Argo installs, applies the root
+Application, and fails every sync on repository authentication, with no error
+anywhere except Argo's own Application status. A fine-grained PAT with
+**Contents: Read** is enough, and it is the same permission the
+`portfolio-site-repo` seal needs, so one token covers both. It cannot be a
+sealed secret: sealed-secrets is deployed *by* Argo from `gitops/apps`, so the
+credential has to exist before the first sync it enables. The script warns
+loudly rather than reporting success if it is missing, and re-running with it
+set is safe — the k3s installs are skipped.
+
 **Read this before running the manual order below.** Steps 2 and 3 as written
 do not work today. Both default to `10.10.0.10`, an address on a private
 network `infra/inventory.tf` records was **never applied** — `tofu` cannot
