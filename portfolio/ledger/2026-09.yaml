@@ -9763,3 +9763,56 @@ entries:
         `kustomization.yaml`. Mirror at 64.5% of ceiling, 10 shards, all
         already mounted by `portfolio-front.yaml`.
     mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked this venture by reading the live page rather than by usage
+        numbers -- `portfolio/usage/usage.yaml` records zero visitors across
+        every product this month, so it cannot rank one venture over
+        another. A deadline tracker whose only export was a CSV had no way
+        to get a due date into the calendar app a nonprofit actually checks
+        day to day; the README's own copy already named "a calendar
+        reminder you set yourself" as the thing this tool was supposed to
+        replace, and it didn't yet.
+      - >-
+        Added `icsCalendar(rows, now)` to `calc.mjs`: one all-day RFC 5545
+        VEVENT per obligation with a 3-day-ahead VALARM reminder, wired to
+        a new "Add reminders to calendar (.ics)" button beside the existing
+        CSV export. Implemented from the spec rather than a library --
+        RFC 5545 TEXT escaping (backslash, semicolon, comma, newline),
+        75-octet line folding on UTF-8 character boundaries (a plain
+        character-count fold can split a multi-byte funder name mid-byte),
+        and a stable per-grant UID (row position + slugified name + due
+        date) so re-exporting the same list updates existing calendar
+        entries instead of duplicating them.
+      - >-
+        Tests: 7 new cases in `calc.test.mjs` covering VEVENT/VALARM
+        structure, all-day DTSTART/DTEND (exclusive end = day after),
+        TEXT escaping of backslash/semicolon/comma, line folding past 75
+        octets without splitting a multi-byte character, UID stability
+        across two exports at different times, and an empty list producing
+        a structurally valid zero-event calendar. One `page.test.mjs` case
+        confirms the button, MIME type, filename, and usage event are
+        wired in `index.html`. Verified manually: piped `SAMPLE_GRANTS`
+        through `icsCalendar` and read the raw output -- correctly folded
+        PRODID/UID lines, escaped `$15,500` in DESCRIPTION, matching
+        BEGIN/END pairs.
+      - >-
+        Verified: venture `node --test` 26/26 -> 36/36;
+        `check_form_defaults.py` and `check_input_bounds.py` both clean on
+        this venture. Regenerated the front-door mirror
+        (`front-door-tools.mjs --write` then `front-door.mjs --write`)
+        since `calc.mjs`/`index.html` changed -- new shard bytes for
+        `grant-deadline-tracker__calc.mjs.gz` and
+        `grant-deadline-tracker__index.html.gz`, `kustomization.yaml`
+        updated. `platform/pages/*.test.mjs` 880/880;
+        `platform/marketing/*.test.mjs` 208/208.
+      - >-
+        Usage tracking: reused the venture's existing opt-out `countUsage`
+        (`usage.mjs`), adding one new event name (`ics-exported`) alongside
+        the existing `csv-exported`; no new tracking surface, no new
+        disclaimer needed since the export runs entirely client-side like
+        the CSV one it sits beside.
+    mrr_end: null
