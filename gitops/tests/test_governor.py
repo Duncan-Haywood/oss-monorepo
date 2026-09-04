@@ -239,6 +239,26 @@ def test_job_mounts_the_persistent_codex_home() -> None:
     assert mount.get("readOnly") is not True
 
 
+def test_job_mounts_the_persistent_tool_cache() -> None:
+    # gh and the Codex CLI are pinned, and without a volume they are re-fetched
+    # on every Job -- 320 MB of npm plus an 11 MB tarball, on a CronJob that
+    # ticks every five minutes. With maxConcurrent 1, a registry blip during
+    # that download costs the whole tick: a governor slot spent on a queue item
+    # that never ran. The mount path is the one worker.sh defaults
+    # CODEX_TOOLS_DIR to, so a rename on either side has to move both.
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    spec = manifest["spec"]["template"]["spec"]
+    volume = [v for v in spec["volumes"] if v["name"] == "codex-tools"][0]
+    assert volume["persistentVolumeClaim"]["claimName"] == "codex-tools"
+    mount = [
+        m for m in spec["containers"][0]["volumeMounts"] if m["name"] == "codex-tools"
+    ][0]
+    assert mount["mountPath"] == "/var/lib/codex-tools"
+    # Writable: the worker installs into it. A readOnly mount would send every
+    # Job down the mktemp fallback and quietly undo the cache.
+    assert mount.get("readOnly") is not True
+
+
 def _millicores(value: str) -> int:
     return int(value[:-1]) if value.endswith("m") else int(float(value) * 1000)
 
