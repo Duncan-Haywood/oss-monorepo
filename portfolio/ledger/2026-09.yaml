@@ -8796,6 +8796,106 @@ entries:
         Verified: `node --test` in the venture, 79/79 passing (71
         pre-existing + 8 new for `vs-buildxact.html`). PR #3132.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs and, after an exhaustive check (not a
+        catalogue), zero repairable branches. `git branch -r` listed 234
+        remotes; 89 carry commits `main` lacks. Ran `supersede_check.py`
+        against all of them (backgrounded, ~30 min) and hand-verified every
+        branch it flagged NOT SUPERSEDED plus several large, plausible-
+        looking ones it hadn't reached yet by reading the actual diff
+        against current `main` and, for several, replaying the encode/apply
+        wiring in a real browser. Every one was already superseded by more
+        complete, independently-arrived-at work already on `main` --
+        `gitops/regen-front-door-mirror`'s SHARD_BYTE_CEILING fix
+        (main moved to a different ceiling and shard count since), a
+        `no-show-fee-calculator` main already rebuilt with two more pages
+        and three more test files, a `quote-margin-check` CSV export main's
+        `export.mjs` already does more safely (formula-injection guarded,
+        this branch's version was not), and a `repository-branch-hygiene`
+        probe and an `agent-permission-harness` currency-gate fix main
+        already carries in more complete form (338-line scanner.py with
+        cli.py/record.py vs. the branch's 257 lines; the exact "pure line
+        shift" fix already landed, plus a `--write` mode the branch
+        lacked). No PR opened for any of them -- closing would have dropped
+        nothing, and none had an open PR to close in the first place.
+      - >-
+        Found and fixed two real, verified defects instead, both confirmed
+        by running the actual CI browser checks locally (Playwright 1.56.0
+        / axe-core 4.13.0, the versions `browser-checks-ci.yml` pins)
+        rather than assumed from reading code. `--checks roundtrip` failed
+        on `main` (run 33837231338, job 100912117583, a real runner):
+        `deck-staining-bid-calculator`, `gutter-cleaning-bid-calculator`,
+        `hardwood-refinishing-bid-calculator`, `snow-removal-bid-calculator`
+        and `translator-project-quote` each adopted the proposal panel
+        `platform/proposal/adopt.mjs` generates (deposit %, valid days,
+        exclusions, payment terms, notes) onto an older, hand-written
+        share-link mechanism that was never updated to carry those five
+        fields -- the same defect class 48 other tools shipped on
+        2026-08-29 (`platform/proposal/term-ids.test.mjs`'s header), on a
+        third mechanism that regression test did not cover. Fixing the
+        field lists alone was not sufficient for three of the five: their
+        own `copyShare()`/apply-share wiring reads and writes each field by
+        name, not generically, so the encode and (for two of them) the
+        decode-apply side both needed the same fix. Re-ran the actual
+        `--checks roundtrip` after each layer of the fix rather than
+        trusting the unit tests alone, which is what caught that the first
+        pass (field lists only) still failed for exactly the tools whose
+        wiring needed the second fix.
+      - >-
+        Extended `term-ids.test.mjs` with a new check for this third
+        mechanism (`flatShareVentures`) so a sixth venture cannot ship the
+        same gap silently in source review, without waiting on the
+        expensive browser-driven check to catch it. Also corrected a
+        pre-existing test on `hardwood-refinishing-bid-calculator` that
+        had bundled the five term ids into its PII-exclusion assertion
+        (`clientName`, company details, etc.) -- that test's own wrong
+        assumption is why the terms were never added there in the first
+        place; the terms describe the job's money, not the customer's
+        identity, and the PII fields are still checked.
+      - >-
+        `--checks contrast` also failed on `main`, independently: `print-
+        atelier` and `real-estate-agent-photo-app` render severity text at
+        `#b7791f` on white (3.64:1, below WCAG AA's 4.5:1 for normal text)
+        -- changed to `#9a5b00` (5.4:1), an accessible amber already used
+        elsewhere in the fleet. Both also had a file input axe's `label`
+        rule still flagged: `real-estate-agent-photo-app`'s label carried
+        the `hidden` HTML attribute, which removes an element from the
+        accessibility tree entirely rather than hiding it only visually --
+        present in markup, invisible to assistive tech too.
+        `print-atelier` had no label at all. Added a standard clip-based
+        `.visually-hidden` class to both and wired it correctly.
+      - >-
+        Owner-gated items re-confirmed unchanged, not re-litigated: the
+        Codex worker (`codex-governor-enable`) and the canonical site host
+        (`portfolio-site-repo`) both remain fully built and tested, blocked
+        only on the owner sealing a credential from their own laptop per
+        `infra/OWNER_CHECKLIST.md`. Read literally, "use up the built-in
+        quota for dev work" describes logging the Codex CLI into a personal
+        ChatGPT/Plus/Pro account -- `OWNER_CHECKLIST.md` names this
+        explicitly as the wrong route (no spend ceiling, competes with the
+        owner's own interactive use of that account) versus the already-
+        built `CODEX_AUTH_JSON` route on a *separate* account. No
+        credential was minted or sealed this session.
+      - >-
+        Verified: `node --test` in all 7 touched ventures (84 + 75 + 80 +
+        89 + 63 + 42 + 46 = 479 tests, 0 failures); the extended
+        `platform/proposal/term-ids.test.mjs` (4/4); the full
+        `platform/pages` suite (867/867); `platform/marketing/*.test.mjs`
+        including `front-door-tools.test.mjs` (101/101) after `--write`
+        regenerated the mirror; `python3 -m pytest gitops/tests` (281
+        passed, 16 skipped); `check_duplicate_symbols.py` and
+        `publish_surface.py --check` both clean; `build.mjs` + `check.mjs`
+        (173 products, 645 pages, no dead links). Most directly: the real
+        CI browser checks, both before and after each fix --
+        `--checks roundtrip` went from 2 of 7 checks failing (5 tools
+        dropping 5 fields each) to 147/147 links round-tripping, and
+        `--checks contrast` went from 8 violations across 2 pages to 0
+        across all 643 built pages.
+    mrr_end: null
   - venture: cloud-egress-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -8864,4 +8964,41 @@ entries:
         credential rotation across ticks; it remains owner-blocked on the
         seal plus the two knobs already itemised under `codex-governor-
         enable`, so no duplicate ask was added.
+    mrr_end: null
+  - venture: ebay-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped one accessibility fix across three related ventures:
+        `ebay-fee-calculator`, `shopify-fee-calculator`, and
+        `amazon-fba-calculator` each already had their main `index.html`
+        result panel fixed for `aria-live` in a prior batch (#3125-#3127),
+        but each also ships a family of secondary "should I ..." decision
+        pages -- self-contained calculators with their own inputs and their
+        own `<section class="result">` -- that were missed. All 39 of them
+        (22 ebay, 15 shopify, 2 amazon-fba) re-render a hero figure and a
+        `dl` breakdown in place on every keystroke, with no page reload, and
+        carried no `aria-live`, so a screen-reader user changing an input
+        got no announcement that the answer had changed. One of the two
+        amazon-fba pages (`should-i-remove-aged-amazon-inventory.html`) has
+        two independent result sections and needed both fixed.
+      - >-
+        Added `aria-live="polite"` to every `<section class="result">`
+        found, matching the exact pattern used in the prior fixes, plus one
+        regression test per page (two assertions for the aged-inventory
+        page) that fails against the pre-fix markup and passes with the
+        fix -- verified by reverting one file in isolation and re-running
+        its test (7/8 -> 8/8).
+      - >-
+        Verified: `node --test ventures/ebay-fee-calculator/*.test.mjs` ->
+        480/480; `node --test ventures/shopify-fee-calculator/*.test.mjs` ->
+        296/296; `node --test ventures/amazon-fba-calculator/*.test.mjs` ->
+        307/307; `node --test platform/webcheck/*.test.mjs` -> 22/22 then
+        `node platform/webcheck/check_pages.mjs` -> 649 pages checked, all
+        sound; `python3 platform/ci/check_duplicate_symbols.py` clean.
+        Scope intentionally excludes `gitops/` -- the front-door mirror
+        regen for these pages is left for the fleet's regular
+        mirror-refresh sweep (as in #3133/#3134), per this session's brief.
+        PR #3138.
     mrr_end: null

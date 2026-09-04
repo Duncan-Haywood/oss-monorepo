@@ -31,11 +31,15 @@ test('the language pair is saved with the draft but kept out of the link', () =>
   assert.match(page, /const textIds = \["source_lang", "target_lang"\]/);
   assert.match(page, /function draftValues\(\)/);
   assert.match(page, /localStorage\.setItem\(storageKey, JSON\.stringify\(draftValues\(\)\)\)/);
-  assert.match(page, /encodeInputs\(fieldValues\(\)\)/,
-    'the link carries the priced inputs only');
+  // The proposal panel's terms ride in the link alongside the priced inputs
+  // (see the `termIds`/`termValues` note above them and
+  // `platform/proposal/term-ids.test.mjs`), but the link never carries the
+  // language pair -- it stays in `draftValues()` only.
+  assert.match(page, /encodeInputs\(\{ \.\.\.fieldValues\(\), \.\.\.termValues\(\) \}\)/,
+    'the link carries the priced inputs and the proposal terms, not the language pair');
   assert.doesNotMatch(page, /encodeInputs\(draftValues\(\)\)/);
   // Restored on load, or a refresh loses what was typed.
-  assert.match(page, /for \(const id of \[\.\.\.ids, \.\.\.textIds\]\)/);
+  assert.match(page, /for \(const id of \[\.\.\.ids, \.\.\.textIds, \.\.\.termIds\]\)/);
   assert.match(page, /\[\.\.\.ids, \.\.\.textIds\]\.forEach/);
 });
 

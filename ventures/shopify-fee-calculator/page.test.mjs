@@ -112,3 +112,16 @@ test("the result panel is announced to screen readers when it updates", () => {
     "the result section is not a live region, so updates are never announced",
   );
 });
+
+test("the result panel is announced to screen readers when it updates", () => {
+  // The result section re-renders its hero figure and breakdown in place
+  // on every keystroke, with no page reload, but had no aria-live -- so a
+  // screen-reader user changing an input got no announcement that the
+  // result had changed. Same gap already fixed fleet-wide (see #3125-#3127
+  // and prior sessions' aria-live commits).
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    "the result section is not a live region, so updates are never announced",
+  );
+});
