@@ -56,7 +56,7 @@ do block (`portfolio-site-repo` and `codex-secrets`), per
 
 ## The switch
 
-256 of the 258 `runs-on` lines across 224 workflows now read this. The other
+257 of the 259 `runs-on` lines across 225 workflows now read this. The other
 two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
 `DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
 Docker daemon the self-hosted pod does not have):
