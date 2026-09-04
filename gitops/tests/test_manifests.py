@@ -1208,7 +1208,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 173 since 2026-09-03, when `which-job-first` shipped — a static surface
     # from its first commit, so it entered the mirror and the total in the same
     # change rather than closing a gap between them.
-    total = 173  # `infra/OWNER_CHECKLIST.md`'s own "N of the 173 tools" wording.
+    # 174 since 2026-09-04, when `dns-configuration-evidence` gained a browser
+    # surface. Same shape as the three ventures above: its Python CLI stays
+    # canonical and an `index.html` beside it made the venture mirrorable, so
+    # the mirror and the total moved together and parity held.
+    total = 174  # `infra/OWNER_CHECKLIST.md`'s own "N of the 174 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

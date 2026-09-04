@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 173,
-  "collection_total": 173,
+  "served_here": 174,
+  "collection_total": 174,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 17
+      "tool_count": 18
     },
     {
       "id": "marketplace",
@@ -681,6 +681,14 @@
       "category": "Marketplace seller tools",
       "description": "Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.",
       "pages": 3
+    },
+    {
+      "slug": "dns-configuration-evidence",
+      "name": "DNS Change Evidence — Free Before/After DNS Record Report",
+      "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
+      "pages": 1
     },
     {
       "slug": "dryer-vent-bid-calculator",
