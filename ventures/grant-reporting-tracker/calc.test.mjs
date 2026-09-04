@@ -7,6 +7,26 @@ test('adds months without overflowing short months', () => {
   assert.equal(addMonths('2026-01-31', 1), '2026-02-28');
 });
 
+test('refuses a fractional month interval instead of silently flooring it', () => {
+  // Before this, addMonths floored 1.5 to 1 and returned a real-looking date
+  // -- the wrong deadline a straight 1-month interval would produce, with no
+  // error at all. The Add form's step=1 blocks entering this through the UI,
+  // but a row loaded from localStorage (an older save, or one edited outside
+  // the page) has no such gate, so the calculator itself has to refuse it.
+  assert.equal(addMonths('2026-01-15', 1.5), null);
+  assert.equal(addMonths('2026-01-15', 0.5), null);
+});
+
+test('a grant with a fractional interval reports "Check inputs" rather than a wrong due date', () => {
+  const row = reviewGrant(
+    { name: 'Corrupted row', awardDate: '2026-01-15', intervalMonths: '1.5', awardAmount: 1000, spentAmount: 0 },
+    '2026-01-16',
+  );
+  assert.equal(row.nextReport, null);
+  assert.equal(row.daysUntilReport, null);
+  assert.equal(row.status, 'Check inputs');
+});
+
 test('orders grants and labels overdue and due-soon reports', () => {
   const rows = reviewAll([
     { name: 'Future', funder: 'A', awardDate: '2026-01-01', intervalMonths: 12, awardAmount: 100, spentAmount: 25 },
