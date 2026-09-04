@@ -278,6 +278,21 @@ test("an invalid input clears the stale per-option totals, not just the verdict 
   }
 });
 
+test("free-egress inputs exist for both options and are wired into every calculation path", () => {
+  assert.match(html, /id="aFree"/);
+  assert.match(html, /id="bFree"/);
+  assert.match(scriptSource, /freeEgressGb:\s*\+\$\("aFree"\)\.value/);
+  assert.match(scriptSource, /freeEgressGb:\s*\+\$\("bFree"\)\.value/);
+  // Every place the page builds a first/second scenario object must read the
+  // free-tier field, not just the on-screen recalculation -- otherwise the
+  // copied summary or the exported review would silently drop it.
+  const scenarioBuilders = scriptSource.match(/(?:first|second):\s*\{[^}]*\}/g) || [];
+  assert.ok(scenarioBuilders.length >= 6, "expected first/second scenario objects in calculate, copySummary, and export");
+  for (const builder of scenarioBuilders) {
+    assert.match(builder, /freeEgressGb/, `scenario object missing freeEgressGb: ${builder}`);
+  }
+});
+
 test("the two new FAQ questions are present in both the visible copy and the FAQPage schema", () => {
   const questions = [
     "What outbound volume is the break-even point?",
