@@ -17,7 +17,7 @@
     "name": "Booth Rent vs Commission Calculator",
     "applicationCategory": "BusinessApplication",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Commission vs booth-rent take-home, effective hourly rate including unpaid hours, break-even client count, max rent that matches current split, offered-lease comparison, copyable summary"
+    "featureList": "Commission vs booth-rent take-home, effective hourly rate including unpaid hours, employee FICA vs self-employment tax comparison, break-even client count, max rent that matches current split, offered-lease comparison, copyable summary"
   }
   </script>
   <style>
@@ -120,6 +120,16 @@
         </div>
       </section>
 
+      <section>
+        <h2>Payroll tax</h2>
+        <p class="hint">On commission you are a W-2 employee and the salon pays half your FICA. On booth rent you are self-employed and pay both halves &mdash; an effective 14.1% of net against 7.65% of wages, charged to the booth side only. Until that comes out, the two checks are not the same dollars.</p>
+        <div class="fields">
+          <label>Marginal income-tax bracket (%) <input id="marginalIncomeTaxPercent" type="number" min="0" max="100" step="1" value="0" placeholder="0 = ignore"></label>
+          <label>Social Security wage base ($) <input id="socialSecurityWageBase" type="number" min="1" step="100" value="176100"></label>
+        </div>
+        <p class="hint">The bracket is optional: half of self-employment tax is deductible against income tax, and naming your bracket credits that back. Left at 0 it is worth nothing here, which understates booth rent rather than overstating it. Social Security stops at the wage base and Medicare does not; the default is the 2025 amount, indexed every January, so check yours if your chair income is near it. Income tax itself is not modelled &mdash; it lands on either deal much the same and depends on your whole household.</p>
+      </section>
+
       <section class="faq" id="faq">
         <h2>Common questions</h2>
         <details>
@@ -145,6 +155,10 @@
         <details>
           <summary>Can adding more clients always make booth rent win?</summary>
           <p>No. Each extra client only helps booth rent if what you keep per ticket after card fees, backbar, and the salon's own commission rate is still positive. At a 92% commission split, for instance, card fees and backbar alone push that past 100% — every added client helps commission by at least as much, so no amount of volume closes the gap. When that happens the calculator reports "volume cannot close this gap"; the fix is a lower rent or lower backbar, not more chair time.</p>
+        </details>
+        <details>
+          <summary>Do I pay more tax on booth rent than on commission?</summary>
+          <p>Yes, and it is the most commonly missed number in this decision. On commission you are a W-2 employee: you pay the employee half of FICA, 7.65%, and the salon pays the matching half. On booth rent you are self-employed and pay both halves &mdash; 15.3%, charged on 92.35% of your net after rent, fees, and backbar. Nothing about the ticket changes; the same money is simply taxed about 6.5 points harder because of which deal you took (15.3% of 92.35% of net works out to an effective 14.1%, against the employee's 7.65%). On the default book that is roughly $3,200 a year, and it is why the max rent you can pay and still match your split is about $45 a week lower than the untaxed arithmetic suggests. Half of self-employment tax is deductible against income tax, which gives some of it back at your marginal rate; enter your bracket to count it.</p>
         </details>
         <details>
           <summary>Why might booth rent win on the weekly check but lose per hour?</summary>
@@ -179,6 +193,20 @@
         <dt>Max weekly rent to match split</dt><dd id="maxRent"></dd>
         <dt>Annual difference</dt><dd id="annual"></dd>
       </dl>
+
+      <h3>After payroll tax</h3>
+      <p class="hint">The same book with FICA on the commission side and self-employment tax on the booth side. This is the comparison that decides which deal actually pays more.</p>
+      <div id="taxFlip" class="verdict"></div>
+      <dl>
+        <dt>Commission, after tax / month</dt><dd id="taxCommMonthly"></dd>
+        <dt>Booth rent, after tax / month</dt><dd id="taxBoothMonthly"></dd>
+        <dt>Monthly difference after tax</dt><dd id="taxMonthlyDiff"></dd>
+        <dt>Self-employment tax / year</dt><dd id="taxBoothSe"></dd>
+        <dt>Employee FICA / year</dt><dd id="taxCommFica"></dd>
+        <dt>What the tax gap costs booth / year</dt><dd id="taxWedge"></dd>
+        <dt>Break-even clients / week, after tax</dt><dd id="taxBreakEven"></dd>
+        <dt>Max weekly rent to match, after tax</dt><dd id="taxMaxRent"></dd>
+      </dl>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy comparison</button>
         <button type="button" id="copyLink">Copy share link</button>
@@ -195,7 +223,7 @@
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, employment, or career advice, and it does not tell you which deal to take. Outputs are arithmetic on the numbers you enter. Verify every figure against your own book, lease, and a qualified professional before relying on it or changing jobs. To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your ticket, book, rent, or take-home.</p>
-    <p class="support">Free and open source. If it saves you from a bad lease, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it saves you from a bad lease, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -208,6 +236,7 @@
       'unpaidHoursCommission','boothRentAmount','boothRentCadence',
       'cardFeePercent','backbarPercent','retailCostPercent','otherWeeklyCost',
       'unpaidHoursBooth','offeredRentAmount','offeredRentCadence',
+      'marginalIncomeTaxPercent','socialSecurityWageBase',
     ];
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -215,6 +244,10 @@
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
     const el = id => document.getElementById(id);
+
+    // Whether the last render found the payroll-tax verdict disagreeing with
+    // the pre-tax one. Read by the usage counter below; never persisted.
+    let lastVerdictFlipped = false;
 
     function readInput() {
       return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
@@ -250,8 +283,12 @@
       el('hero').textContent = message;
       el('hero').className = `hero-number ${isError ? 'negative' : ''}`;
       el('heroLabel').textContent = isError ? 'check the highlighted input' : 'monthly difference, booth minus commission';
-      ['commMonthly','commHourly','boothMonthly','boothHourly','weeklyGross','chairHours','boothCosts','breakEven','extraClients','maxRent','annual']
+      ['commMonthly','commHourly','boothMonthly','boothHourly','weeklyGross','chairHours','boothCosts','breakEven','extraClients','maxRent','annual',
+       'taxCommMonthly','taxBoothMonthly','taxMonthlyDiff','taxBoothSe','taxCommFica','taxWedge','taxBreakEven','taxMaxRent']
         .forEach(id => { el(id).textContent = ''; });
+      el('taxFlip').textContent = '';
+      el('taxFlip').className = 'verdict';
+      lastVerdictFlipped = false;
       el('commPath').className = 'path';
       el('boothPath').className = 'path';
       el('verdict').textContent = '';
@@ -308,11 +345,49 @@
         verdict.innerHTML = `Booth rent <strong>takes home ${money(result.weeklyDifference)} more per week</strong> (${money(result.annualDifference)} a year at ${result.weeksWorkedPerYear} working weeks). Walk away from any weekly rent above ${money(result.maxWeeklyRentToMatch)}.`;
       }
 
+      const tax = result.afterTax;
+      el('taxCommMonthly').textContent = money(tax.commission.monthlyTakeHome);
+      el('taxBoothMonthly').textContent = money(tax.booth.monthlyTakeHome);
+      el('taxMonthlyDiff').textContent = `${tax.monthlyDifference >= 0 ? '+' : '−'}${money(Math.abs(tax.monthlyDifference))}`;
+      el('taxBoothSe').textContent = money(tax.boothDetail.total);
+      el('taxCommFica').textContent = money(tax.commissionDetail.total);
+      el('taxWedge').textContent = money(tax.wedgeWeekly * result.weeksWorkedPerYear);
+      el('taxBreakEven').textContent = tax.breakEvenClients === null
+        ? (tax.neverBeatsOnVolume ? 'volume cannot close this gap' : 'n/a')
+        : tax.breakEvenClients.toFixed(1);
+      el('taxMaxRent').textContent = tax.maxWeeklyRentToMatch === null
+        ? 'no rent matches the split'
+        : money(tax.maxWeeklyRentToMatch);
+
+      // The single most useful thing this section can say is "the untaxed
+      // comparison above would have sent you the wrong way". Both deals being
+      // taxed does not make the tax a wash: it falls almost entirely on booth
+      // rent, so a close call read pre-tax is systematically read wrong.
+      const flip = el('taxFlip');
+      lastVerdictFlipped = tax.winner !== result.dollarWinner
+        && tax.winner !== 'tie' && result.dollarWinner !== 'tie';
+      if (lastVerdictFlipped) {
+        flip.className = 'verdict bad';
+        flip.innerHTML = `<strong>Payroll tax reverses this.</strong> Before tax, ${result.dollarWinner === 'booth' ? 'booth rent' : 'commission'} looked ${money(Math.abs(result.weeklyDifference))} a week ahead. After both halves of self-employment tax, <strong>${tax.winner === 'booth' ? 'booth rent' : 'commission'} pays more</strong> &mdash; by ${money(Math.abs(tax.weeklyDifference))} a week.`;
+      } else if (tax.winner === 'booth') {
+        flip.className = 'verdict';
+        flip.innerHTML = `Booth rent still wins after tax, by ${money(Math.abs(tax.weeklyDifference))} a week. The tax gap costs it ${money(tax.wedgeWeekly * result.weeksWorkedPerYear)} a year, so the most you can pay for the chair drops to ${tax.maxWeeklyRentToMatch === null ? 'nothing that matches' : `${money(tax.maxWeeklyRentToMatch)} a week`}.`;
+      } else if (tax.winner === 'commission') {
+        flip.className = 'verdict bad';
+        flip.innerHTML = `Commission pays more after tax, by ${money(Math.abs(tax.weeklyDifference))} a week. Self-employment tax on the booth side is ${money(tax.boothDetail.total)} a year against ${money(tax.commissionDetail.total)} of employee FICA on commission.`;
+      } else {
+        flip.className = 'verdict';
+        flip.innerHTML = `The two deals land within a rounding cent of each other after tax.`;
+      }
+
       if (result.offered) {
         const offerLine = result.offered.beatsCommission
           ? `The offered rent of ${money(result.offered.weeklyRent)} / week still beats commission, leaving ${money(result.offered.weeklyTakeHome)} a week.`
           : `The offered rent of ${money(result.offered.weeklyRent)} / week <strong>falls behind commission</strong> — take-home would be ${money(result.offered.weeklyTakeHome)} a week.`;
         verdict.innerHTML += ` ${offerLine}`;
+        if (result.offered.beatsCommission !== tax.offered.beatsCommission) {
+          flip.innerHTML += ` The offered rent flips too: it ${tax.offered.beatsCommission ? 'beats' : 'does not beat'} commission once tax is counted.`;
+        }
       }
     }
 
@@ -326,6 +401,16 @@
         `Break-even clients / week: ${result.breakEvenClients === null ? 'n/a' : result.breakEvenClients.toFixed(1)}`,
         `Max weekly rent that matches the split: ${money(result.maxWeeklyRentToMatch)}`,
         '',
+        'AFTER PAYROLL TAX (employee FICA vs self-employment tax)',
+        `Commission monthly take-home: ${money(result.afterTax.commission.monthlyTakeHome)}`,
+        `Booth-rent monthly take-home: ${money(result.afterTax.booth.monthlyTakeHome)}`,
+        `Monthly difference (booth − commission): ${money(result.afterTax.monthlyDifference)}`,
+        `Self-employment tax / year: ${money(result.afterTax.boothDetail.total)}`,
+        `Employee FICA / year: ${money(result.afterTax.commissionDetail.total)}`,
+        `Break-even clients / week: ${result.afterTax.breakEvenClients === null ? 'n/a' : result.afterTax.breakEvenClients.toFixed(1)}`,
+        `Max weekly rent that matches the split: ${result.afterTax.maxWeeklyRentToMatch === null ? 'no rent matches' : money(result.afterTax.maxWeeklyRentToMatch)}`,
+        '',
+        'Income tax is not included: it falls on either deal much the same and depends on your whole household.',
         'This is a draft for review. Confirm rent, fees, taxes, and hours with your own records before signing a lease or leaving a chair.',
       ].join('\n');
     }
@@ -369,6 +454,13 @@
       });
       el(id).addEventListener('change', () => {
         count(id === 'offeredRentAmount' ? 'offered_rent_compared' : 'comparison_calculated');
+        // Counted on `change` rather than `input` so it tallies settled books,
+        // not every keystroke on the way to one. This is the outcome measure
+        // for the payroll-tax section: not "was it shown" but "did it change
+        // the answer". If it turns out to flip almost nothing on real books,
+        // that is the signal to demote it from a panel to a footnote. Still a
+        // bare count — no ticket, rent, or take-home is recorded.
+        if (lastVerdictFlipped) count('tax_verdict_flipped');
       });
     });
     el('usageOptOut').addEventListener('change', update);

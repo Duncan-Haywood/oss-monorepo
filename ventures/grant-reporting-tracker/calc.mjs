@@ -36,9 +36,18 @@ function shiftMonths(value, months) {
   return date.toISOString().slice(0, 10);
 }
 
+// A fractional interval (1.5) used to be silently floored to 1, so a grant
+// saved with one -- the "Add" form's own step=1 blocks it, but a row loaded
+// from localStorage that predates that constraint, or one edited outside the
+// page, has no such gate -- got the due date a straight 1-month interval
+// would produce: a wrong deadline with total confidence and no error, on a
+// tool whose entire job is not missing one. Refusing it here instead of
+// flooring it means `reviewGrant` gets `nextReport: null` for that row and
+// reports it as "Check inputs" rather than a plausible-looking wrong date.
+// Mirrors the same fix in grant-deadline-tracker's addMonths (#3162).
 export function addMonths(value, months) {
-  if (!Number.isFinite(months) || months < 1) return null;
-  return shiftMonths(value, Math.floor(months));
+  if (!Number.isFinite(months) || !Number.isInteger(months) || months < 1) return null;
+  return shiftMonths(value, months);
 }
 
 /**

@@ -288,7 +288,7 @@
       "url": "https://marisstella.dev/tools/freight-accessorial-auditor/",
       "category": "Logistics, freight & cloud cost",
       "description": "Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.",
-      "pages": 5
+      "pages": 6
     },
     {
       "slug": "ltl-freight-class-estimator",
@@ -632,7 +632,7 @@
       "url": "https://marisstella.dev/tools/cra-evidence-desk/",
       "category": "Compliance checks & evidence records",
       "description": "Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "crawl-space-encapsulation-bid-calculator",

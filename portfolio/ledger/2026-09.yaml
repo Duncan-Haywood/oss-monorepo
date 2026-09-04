@@ -9533,3 +9533,286 @@ entries:
         only in the Pages artifact: new shard key present, listed in
         `kustomization.yaml` and in the front door's `sitemap.xml`.
     mrr_end: null
+  - venture: freight-accessorial-auditor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-trax.html`, the venture's first competitor comparison
+        page, following the established vs-<competitor> pattern from
+        `cam-reconciliation-check/vs-yardi.html` and
+        `window-cleaning-bid-calculator/vs-servicemonster.html`. Picked
+        Trax Technologies as the competitor because it is the credible,
+        well-known named product in this exact niche -- enterprise
+        transportation spend management / freight audit and payment (FAP)
+        software that shippers with real freight volume actually run, as
+        opposed to a strawman.
+      - >-
+        Contrasts two different shapes with concrete mechanical claims, not
+        vague marketing language: Trax ingests carrier invoices (commonly
+        via EDI/TMS integration), audits at scale across a shipper's whole
+        carrier network under an ongoing enterprise account, and can
+        disburse carrier payment; this calculator imports one carrier's CSV
+        or hand-typed lines, prices them against a rate card typed once
+        (flat or per-unit with a free allowance and cap), flags duplicates
+        and overages, runs a detention-clock and fuel-surcharge check, and
+        never integrates, pays a carrier, or uploads anything -- no account,
+        free. No dollar figure is claimed for Trax since its pricing page is
+        not reachable from this session; only well-documented category facts
+        are stated.
+      - >-
+        FAQPage JSON-LD written to match the visible `<h3>`/`<p>` copy
+        exactly (verified with a bisecting divergence check in the new
+        `vs-trax.test.mjs`, mirroring `platform/pages/faq-visible.test.mjs`'s
+        own method). Linked from `index.html`'s existing extras line, added
+        to `sitemap.xml`, non-affiliation and no-warranty disclaimers
+        carried over from the venture's own footer, no third-party script,
+        font, stylesheet, or network call.
+      - >-
+        Regenerated the front-door mirror so the page actually deploys:
+        `node platform/marketing/front-door-tools.mjs --write` (new shard
+        key, `kustomization.yaml` updated) then `node
+        platform/marketing/front-door.mjs --write` (catalog.json,
+        sitemap.xml). Verified: venture's own `node --test` -> 128/128 (was
+        108, +20 new); `platform/pages/*.test.mjs` -> 880/880;
+        `platform/marketing/*.test.mjs` -> 208/208 (5 mirror-staleness
+        failures before the regen, 0 after); `node platform/pages/build.mjs`
+        -> 174 products, 665 pages; `node platform/pages/check.mjs
+        platform/pages/dist` -> "no dead links".
+    mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found the gap by parity, not by scanning: grant-deadline-tracker
+        (#3162, same day) had just fixed `addMonths` silently flooring a
+        fractional reporting interval (1.5 months) to 1, producing a
+        real-looking but wrong due date with no error. Checked the sibling
+        venture, grant-reporting-tracker, for the identical shape and found
+        the exact same bug in its own `addMonths` -- `Math.floor(months)`
+        with no `Number.isInteger` guard, despite the calculator otherwise
+        being careful about anchor dates, filed-report rollovers and
+        malformed localStorage rows.
+      - >-
+        The Add form's own `step="1" min="1"` already blocks entering a
+        fractional interval through the UI, so this is a defense-in-depth
+        fix rather than a UI-reachable one: the gap is a grant row loaded
+        from `localStorage` (an older save predating that constraint, or one
+        edited outside the page), which reaches `reviewGrant`/`addMonths`
+        with no gate at all. Verified the bug directly before fixing it:
+        `addMonths('2026-01-15', 1.5)` returned `'2026-02-15'` (the 1-month
+        answer) instead of refusing the input.
+      - >-
+        Fix: `addMonths` now refuses a non-integer month count the same way
+        it already refuses `months < 1`, returning `null`. `reviewGrant`
+        already had a `nextReport === null -> status: 'Check inputs'` path
+        (added for a different reason), so a corrupted-interval row now
+        correctly surfaces as "Check inputs" instead of a wrong Overdue/Due
+        soon/On track verdict.
+      - >-
+        Verified: added 2 tests (`addMonths` rejects 1.5 and 0.5;
+        `reviewGrant` on a 1.5-month-interval grant returns
+        `nextReport: null`, `status: 'Check inputs'`); venture's own `node
+        --test` -> 26/26 (was 24). `platform/pages/clauses.mjs
+        grant-reporting-tracker`, `check_input_bounds.py` and
+        `check_form_defaults.py` all still clean. Regenerated the front-door
+        mirror (`platform/marketing/front-door-tools.mjs --write`) since
+        `calc.mjs` changed: new shard bytes for
+        `grant-reporting-tracker__calc.mjs.gz`, `kustomization.yaml`
+        updated.
+    mrr_end: null
+  - venture: cra-evidence-desk
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: not applicable — `list_pull_requests` returned zero
+        open PRs. Checked the four closed unmerged the previous 45 minutes
+        (#3164, #3169, #3170, #3171) for discarded work rather than trusting
+        the closes: each cited a `supersede_check.py` proof, and the one that
+        would have mattered most (#3170, "unresolved conflict markers left on
+        main") was verified directly — a repo-wide scan for `<<<<<<<`,
+        `=======`, `>>>>>>>` across html/mjs/js/yaml/yml/md/py found none on
+        `main`. The queue is genuinely drained, not abandoned.
+      - >-
+        Closed the portfolio's last guide-coverage gap.
+        `guide-coverage.mjs` reported 173 of 174 published surfaces carrying
+        a secondary page, naming `cra-evidence-desk` as the only one left —
+        the venture #3168's session deliberately skipped, because a Cyber
+        Resilience Act explainer written to obligation dates would need
+        primary legislation this environment cannot reach (outbound HTTPS to
+        arbitrary hosts is refused by the egress proxy). That reasoning still
+        holds and is not worked around here: this page makes no claim about
+        deadlines, thresholds, or whether any obligation applies.
+      - >-
+        Shipped `sbom-and-advisory-package-names-dont-match.html` on a
+        different axis instead — the mechanical question a vendor hits before
+        they know a tool exists ("why don't my SBOM and advisory package
+        names match?"), answerable entirely from
+        `src/cra_evidence_desk/normalize.py` and therefore verifiable without
+        leaving the repo. Covers the five registries the two formats spell
+        differently (crates.io/cargo, Go/golang, Packagist/composer,
+        RubyGems/gem, SwiftURL/swift), Maven's `group:artifact` against a
+        purl's namespace + name split, OSV's `Alpine:v3.19` distribution
+        qualifier being dropped at the colon, purl qualifiers and subpath
+        being scoping rather than identity, and a malformed purl falling back
+        to the component's own fields rather than failing the file. Every
+        claim was read out of the source before writing, including the exact
+        alias table — the five that differ and the eight that are identity
+        entries.
+      - >-
+        Held the coverage boundary rather than overselling normalisation: the
+        page states plainly that folding two spellings of one registry is
+        reading what both files say, while ranges, aliases, reachability and
+        exploitability are inferences the tool does not make, and that a
+        range-only advisory contributes no match and is reported as not
+        evaluated. Upstream-of-the-tool framing so it does not cannibalise
+        the entry page's own queries; visible Q&A with matching FAQPage
+        JSON-LD, no-warranty clause, no form controls (it is a prose page),
+        no third-party script, font, or network call. Linked from
+        `index.html` and back.
+      - >-
+        Verified: `guide-coverage.mjs` 173/174 -> 174/174; `faq-coverage.mjs`
+        174/174; `clauses.mjs` 654 pages across 174 surfaces; `link.mjs` and
+        `invalid.mjs` silent; `platform/pages/*.test.mjs` 880/880;
+        `platform/marketing/*.test.mjs` 208/208; venture `node --test` 49/49;
+        venture `python3 -m unittest` 24/24; `pytest gitops/tests -q` 300
+        passed, 16 skipped; `publish_surface.py --check` matches snapshot;
+        router/usage/workflow/form-default/input-bound validators all pass.
+      - >-
+        Deployed rather than only built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`) so the
+        page is served from the Hetzner front door, not just the Pages
+        artifact. Confirmed the new shard key is present and listed in
+        `kustomization.yaml`, the gzipped copy decodes to the page with its
+        canonical rewritten to
+        `https://marisstella.dev/tools/cra-evidence-desk/sbom-and-advisory-package-names-dont-match.html`
+        and `robots: index,follow`, and that URL is in the front door's
+        `sitemap.xml`. Mirror still at 64.3% of ceiling, 10 shards, all
+        already mounted by `portfolio-front.yaml`.
+    mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a decision-flipping omission rather than adding a feature: the
+        calculator compared a W-2 commission check against self-employed booth
+        income as though a dollar of each were the same dollar. It is not.
+        Commission take-home carries the employee half of FICA (7.65%) because
+        the salon pays the other half; booth take-home carries both halves
+        (15.3% of 92.35% of net, an effective 14.1%). That ~6.5-point wedge
+        falls on the booth side only, and salons price chairs so the two deals
+        land within a few percent of each other -- exactly the range where the
+        omission decides the answer. The venture's own README had listed "no
+        tax handling" as a known limitation since it shipped.
+      - >-
+        Measured on the shipped example book: the wedge is $3,198/year, the
+        break-even client count rises 8.4 -> 9.4, and the most a stylist can
+        pay for a chair and still match her split falls $451.17 -> $405.67 a
+        week. At a $420/week rent -- an ordinary chair, not a contrived one --
+        the pre-tax model called it for booth rent by $31.17/week while the
+        after-tax answer is commission by $12.31/week. That case is pinned as
+        a test, so a regression shows up as a reversed verdict rather than a
+        drifted tolerance.
+      - >-
+        Scope held deliberately to payroll tax. Income tax is not modelled: it
+        lands on either deal much the same for the same net income and depends
+        on filing status and household detail the tool has no business asking
+        for. Its one appearance is an optional marginal-bracket input that
+        values the deductible half of SE tax, defaulting to 0 -- which
+        understates booth rent rather than overstating it. The Social Security
+        wage base is an editable input (2025 default, indexed annually,
+        labelled as such); Medicare is uncapped; additional Medicare is out of
+        scope and said so.
+      - >-
+        Two guards worth naming. A blank wage-base box reaches the calculator
+        as `''`, which `Number('')` turns into 0 -- silently removing the cap
+        and 12.4 points of the booth renter's tax, in the direction that
+        flatters booth rent; empty inputs now fall back to the default instead.
+        And the after-tax break-even and matching rent are solved by bisection
+        over the same function rather than by a second closed form, because the
+        92.35% base and the wage-base cap make the after-tax difference
+        piecewise-linear and a parallel derivation is what drifts.
+      - >-
+        Outcome measurement, not vanity: a new `tax_verdict_flipped` local
+        counter tallies settled books where the tax layer reversed the winner.
+        If it stays near zero on real use the section is decoration and should
+        shrink to a footnote; if it is common, the untaxed comparison was
+        sending stylists the wrong way. Bare count, no figures, opt-out and
+        DNT/GPC honoured like every other event here.
+      - >-
+        Verified: venture `node --test` 34/34 (was 23); `platform/pages/*.test.mjs`
+        21 suites, 0 failures; `platform/marketing/*.test.mjs` 4 suites, 0
+        failures; `clauses.mjs booth-rent-vs-commission` 2 pages; `build.mjs`
+        + `check.mjs` "looks publishable: 174 products, 666 pages, no dead
+        links"; `check_ledger_only.py` clean. Browser pass in Chromium over
+        HTTP (ES modules need it): defaults render, the $420 flip banner
+        fires, the copied summary carries the after-tax block, the share link
+        round-trips both new inputs, a blank wage base does not zero the cap,
+        and a bad input blanks every after-tax cell instead of leaving a stale
+        one under an error.
+      - >-
+        Deployed rather than only built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`), which
+        picked up the new `payroll.mjs` as its own shard entry -- without that
+        the served `calc.mjs` would import a module the front door does not
+        have and the live page would break. Confirmed
+        `booth-rent-vs-commission__payroll.mjs.gz` is listed in
+        `kustomization.yaml`. Mirror at 64.5% of ceiling, 10 shards, all
+        already mounted by `portfolio-front.yaml`.
+    mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked this venture by reading the live page rather than by usage
+        numbers -- `portfolio/usage/usage.yaml` records zero visitors across
+        every product this month, so it cannot rank one venture over
+        another. A deadline tracker whose only export was a CSV had no way
+        to get a due date into the calendar app a nonprofit actually checks
+        day to day; the README's own copy already named "a calendar
+        reminder you set yourself" as the thing this tool was supposed to
+        replace, and it didn't yet.
+      - >-
+        Added `icsCalendar(rows, now)` to `calc.mjs`: one all-day RFC 5545
+        VEVENT per obligation with a 3-day-ahead VALARM reminder, wired to
+        a new "Add reminders to calendar (.ics)" button beside the existing
+        CSV export. Implemented from the spec rather than a library --
+        RFC 5545 TEXT escaping (backslash, semicolon, comma, newline),
+        75-octet line folding on UTF-8 character boundaries (a plain
+        character-count fold can split a multi-byte funder name mid-byte),
+        and a stable per-grant UID (row position + slugified name + due
+        date) so re-exporting the same list updates existing calendar
+        entries instead of duplicating them.
+      - >-
+        Tests: 7 new cases in `calc.test.mjs` covering VEVENT/VALARM
+        structure, all-day DTSTART/DTEND (exclusive end = day after),
+        TEXT escaping of backslash/semicolon/comma, line folding past 75
+        octets without splitting a multi-byte character, UID stability
+        across two exports at different times, and an empty list producing
+        a structurally valid zero-event calendar. One `page.test.mjs` case
+        confirms the button, MIME type, filename, and usage event are
+        wired in `index.html`. Verified manually: piped `SAMPLE_GRANTS`
+        through `icsCalendar` and read the raw output -- correctly folded
+        PRODID/UID lines, escaped `$15,500` in DESCRIPTION, matching
+        BEGIN/END pairs.
+      - >-
+        Verified: venture `node --test` 26/26 -> 36/36;
+        `check_form_defaults.py` and `check_input_bounds.py` both clean on
+        this venture. Regenerated the front-door mirror
+        (`front-door-tools.mjs --write` then `front-door.mjs --write`)
+        since `calc.mjs`/`index.html` changed -- new shard bytes for
+        `grant-deadline-tracker__calc.mjs.gz` and
+        `grant-deadline-tracker__index.html.gz`, `kustomization.yaml`
+        updated. `platform/pages/*.test.mjs` 880/880;
+        `platform/marketing/*.test.mjs` 208/208.
+      - >-
+        Usage tracking: reused the venture's existing opt-out `countUsage`
+        (`usage.mjs`), adding one new event name (`ics-exported`) alongside
+        the existing `csv-exported`; no new tracking surface, no new
+        disclaimer needed since the export runs entirely client-side like
+        the CSV one it sits beside.
+    mrr_end: null
