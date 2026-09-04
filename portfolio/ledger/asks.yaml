@@ -95,9 +95,20 @@ decisions:
     is down, and `portfolio-site-repo` now ranks *below* it (sealing a clone
     token for a cluster that serves nothing changes nothing a stranger can
     see). Do this one first.
+    **Confirmed sufficient 2026-09-04 by `Outage triage` (run 33889983086,
+    PR #3188) — this row is no longer a hopeful ask.** A key rotation would
+    have bought nothing had sshd been down, and nothing had checked. It is up:
+    port 22 accepts connections on both boxes, so the rotated key will get in.
+    The same run ruled out every cheaper cause — both servers report `running`
+    to the Hetzner read API, and all three hostnames resolve to
+    `89.167.29.39`, which is ours — so this is not a power, DNS, firewall or
+    TLS problem, and no console visit is needed. **6443 is refused on the
+    control plane**, which sharpens the hypothesis before anyone logs in: the
+    k3s API server itself is not listening, so this is not a crashed ingress
+    but an absent or dead cluster, and no pods exist to serve 80 or 443.
   unlocks:
-    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. Diagnosing that needs shell on the box, and nothing credential-free can substitute — `Public surface check` detects the outage, only SSH explains it."
-    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them."
+    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box; only SSH can say why k3s is dead."
+    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them. The 6443 reading above already favours the first."
   blocked_by: []
   note: >-
     Found by dispatching the preflight rather than by reading anything — no
@@ -756,6 +767,13 @@ decisions:
 - id: codex-governor-enable
   asks: []
   prs: [1996]
+  # Downstream of the outage (measured 2026-09-04, run 33889983086): the
+  # governor and its workers schedule onto the k3s cluster, whose API server
+  # is not listening -- :6443 refused on both boxes. Sealing the credential is
+  # durable preparation and does not expire, so it is not wasted, but nothing
+  # will run until `hetzner-ssh-key-is-a-public-key` leads to k3s coming back.
+  # Not marked `blocked_by`: the seal is a git commit Argo picks up whenever
+  # it next syncs, so it is genuinely doable today -- just not observable.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
@@ -851,6 +869,12 @@ decisions:
 - id: portfolio-site-hetzner-deploy
   asks: []
   prs: [1999]
+  # Downstream of the outage, exactly as `codex-governor-enable` above: this
+  # seals a clone token for an in-cluster workload, and the cluster's API
+  # server is not listening (run 33889983086, :6443 refused on both boxes).
+  # The seal is durable and worth doing, but it publishes nothing while k3s
+  # is down -- so do not read a completed seal as a live `tools.` hostname
+  # until `Public surface check` says a host answers.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"

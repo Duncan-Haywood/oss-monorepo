@@ -402,6 +402,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_public_surface
 
+      # The third of the set. The prober above detects an outage; this one
+      # decides *which owner action would end it*, which is the question the
+      # decision queue ranks on. Its verdict branches are the tested surface:
+      # one of them invalidates the currently top-ranked ask, so a regression
+      # here would send the owner after the wrong credential.
+      - name: Outage-triage decision-tree tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_outage_triage
+
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci
         run: python3 -m unittest test_branch_cleanup
