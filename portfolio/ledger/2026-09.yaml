@@ -9139,3 +9139,50 @@ entries:
         blocks `cdn.playwright.dev`), so this substitutes for a live
         `browser_checks.py --only cut-list-optimizer` run.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item: re-measured all four candidates
+        per the item's own instructions rather than trusting the
+        2026-09-02 pass. Embed widget still 174/174 entry pages (fresh
+        `build.mjs` run). `find ventures -maxdepth 2 -iname "vs-*.html"`
+        is now 131 (up from 78 on 2026-09-02), confirming the comparison-
+        page convention is heavily saturated by concurrent sessions.
+      - >-
+        Found the real remaining gap inside that saturated convention
+        rather than re-picking a mechanism: of 102 `*-bid-calculator`
+        ventures, 95 already carry a household-name field-service-software
+        comparison page (Jobber, ServiceTitan, JobNimbus, AcuLynx,
+        QuoteIQ, etc.) and 7 stragglers did not --
+        `home-elevator-bid-calculator`, `interior-door-bid-calculator`,
+        `kitchen-tile-backsplash-bid-calculator`,
+        `plantation-shutter-bid-calculator`, `popcorn-ceiling-bid-calculator`,
+        `shed-install-bid-calculator`, `vinyl-liner-bid-calculator`. All 7
+        are genuine trade-bid ventures with the same shop-rate/proposal/
+        share-link shape as their 95 peers, so the same verifiable,
+        already-cited Jobber facts (founded 2011, Edmonton AB, home-service
+        field-service management software, subscription account, no price
+        quoted since Jobber's pricing page is unreachable from this
+        session) apply truthfully to each.
+      - >-
+        Shipped `vs-jobber.html` for all 7, matching the existing template
+        (FAQPage JSON-LD, no-warranty and no-live-comparison disclaimers,
+        no third-party script/font/CDN), linked from each venture's own
+        `index.html` footer and added to each `sitemap.xml`. No new
+        mechanism, no new script, no invented numbers -- every Jobber claim
+        already appears verbatim in 24 other shipped pages in this repo.
+      - >-
+        Verified: each venture's own `node --test` (141/131/140/113/111/
+        111/70 tests, 0 failures, unaffected by the new static page);
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs` (174 tools, 655 pages, canonical/OG tags
+        corrected on all of them including the 7 new pages); `node
+        platform/pages/check.mjs --dist=platform/pages/dist` -> "looks
+        publishable ... no dead links"; `node platform/pages/clauses.mjs
+        <slug>` on all 7 -> no-warranty clause present on every published
+        page. Diff is 14 files changed (7 new `vs-jobber.html`, 7
+        one-line `index.html`/`sitemap.xml` additions each) -- no
+        unrelated changes.
+    mrr_end: null

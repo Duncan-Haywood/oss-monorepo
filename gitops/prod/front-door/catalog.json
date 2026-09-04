@@ -896,7 +896,7 @@
       "url": "https://marisstella.dev/tools/home-elevator-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.",
-      "pages": 5
+      "pages": 6
     },
     {
       "slug": "hood-cleaning-bid-calculator",
@@ -920,7 +920,7 @@
       "url": "https://marisstella.dev/tools/interior-door-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday versus Saturday overtime, and extras — plus the walk-away price a $150-a-door special cannot see.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "irrigation-install-bid-calculator",
@@ -960,7 +960,7 @@
       "url": "https://marisstella.dev/tools/kitchen-tile-backsplash-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, and extras — plus the walk-away price a $35 / SF special cannot see.",
-      "pages": 5
+      "pages": 6
     },
     {
       "slug": "landscape-lighting-bid-calculator",
@@ -1088,7 +1088,7 @@
       "url": "https://marisstella.dev/tools/plantation-shutter-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential plantation-shutter install from openings, inside versus outside mount, paint-grade versus stain-grade, hang versus measure versus template-and-custom, and extras — plus the walk-away price a $250-a-window special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "pole-barn-bid-calculator",
@@ -1112,7 +1112,7 @@
       "url": "https://marisstella.dev/tools/popcorn-ceiling-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot versus vaulted versus two-story access, and extras — plus the walk-away price a $1.50 / sq ft special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "pressure-washing-bid-calculator",
@@ -1216,7 +1216,7 @@
       "url": "https://marisstella.dev/tools/shed-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a backyard shed install from pad, delivery miles, crane versus forklift, and extras — plus the walk-away price a $2,499 drop-and-set special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "shop-rate-calculator",
@@ -1376,7 +1376,7 @@
       "url": "https://marisstella.dev/tools/vinyl-liner-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the stairs, and the track — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "walk-in-shower-bid-calculator",
