@@ -33,12 +33,12 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 132 files, 555027 bytes
-#   portfolio-front-tools-1: 117 files, 555739 bytes
-#   portfolio-front-tools-2: 149 files, 556742 bytes
-#   portfolio-front-tools-3: 118 files, 552251 bytes
-#   portfolio-front-tools-4: 122 files, 548461 bytes
-#   portfolio-front-tools-5: 105 files, 544996 bytes
+#   portfolio-front-tools-0: 131 files, 553688 bytes
+#   portfolio-front-tools-1: 116 files, 549791 bytes
+#   portfolio-front-tools-2: 149 files, 556575 bytes
+#   portfolio-front-tools-3: 118 files, 545421 bytes
+#   portfolio-front-tools-4: 122 files, 555000 bytes
+#   portfolio-front-tools-5: 108 files, 556956 bytes
 #   portfolio-front-tools-6: 111 files, 553111 bytes
 #   portfolio-front-tools-7: 109 files, 542129 bytes
 #   portfolio-front-tools-8: 99 files, 550823 bytes
@@ -112,6 +112,7 @@ configMapGenerator:
       - cam-reconciliation-check__calc.mjs.gz=cam-reconciliation-check__calc.mjs.gz
       - cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz=cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz
       - cam-reconciliation-check__index.html.gz=cam-reconciliation-check__index.html.gz
+      - cam-reconciliation-check__vs-yardi.html.gz=cam-reconciliation-check__vs-yardi.html.gz
       - appliance-repair-quote-calculator__calc.mjs.gz=appliance-repair-quote-calculator__calc.mjs.gz
       - appliance-repair-quote-calculator__index.html.gz=appliance-repair-quote-calculator__index.html.gz
       - appliance-repair-quote-calculator__should-i-repair-or-replace-this-appliance.html.gz=appliance-repair-quote-calculator__should-i-repair-or-replace-this-appliance.html.gz
@@ -195,13 +196,13 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html.gz=ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html.gz
       - ebay-fee-calculator__should-i-use-ebay-global-shipping-program.html.gz=ebay-fee-calculator__should-i-use-ebay-global-shipping-program.html.gz
       - ebay-fee-calculator__usage.mjs.gz=ebay-fee-calculator__usage.mjs.gz
-      - ebay-fee-calculator__vs-ebay-fee-calculator.html.gz=ebay-fee-calculator__vs-ebay-fee-calculator.html.gz
-      - amazon-fba-calculator__break-even-acos.html.gz=amazon-fba-calculator__break-even-acos.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__vs-ebay-fee-calculator.html.gz=ebay-fee-calculator__vs-ebay-fee-calculator.html.gz
+      - amazon-fba-calculator__break-even-acos.html.gz=amazon-fba-calculator__break-even-acos.html.gz
       - amazon-fba-calculator__calc.mjs.gz=amazon-fba-calculator__calc.mjs.gz
       - amazon-fba-calculator__do-amazon-returns-wipe-the-profit.html.gz=amazon-fba-calculator__do-amazon-returns-wipe-the-profit.html.gz
       - amazon-fba-calculator__does-smaller-box-cut-amazon-fba-fees.html.gz=amazon-fba-calculator__does-smaller-box-cut-amazon-fba-fees.html.gz
@@ -316,14 +317,14 @@ configMapGenerator:
       - cloud-egress-calculator__does-a-cdn-cut-s3-egress.html.gz=cloud-egress-calculator__does-a-cdn-cut-s3-egress.html.gz
       - cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html.gz=cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html.gz
       - cloud-egress-calculator__does-infrequent-access-still-beat-standard.html.gz=cloud-egress-calculator__does-infrequent-access-still-beat-standard.html.gz
-      - cloud-egress-calculator__index.html.gz=cloud-egress-calculator__index.html.gz
-      - cloud-egress-calculator__usage.mjs.gz=cloud-egress-calculator__usage.mjs.gz
-      - cloud-egress-calculator__vs-aws-pricing-calculator.html.gz=cloud-egress-calculator__vs-aws-pricing-calculator.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cloud-egress-calculator__index.html.gz=cloud-egress-calculator__index.html.gz
+      - cloud-egress-calculator__usage.mjs.gz=cloud-egress-calculator__usage.mjs.gz
+      - cloud-egress-calculator__vs-aws-pricing-calculator.html.gz=cloud-egress-calculator__vs-aws-pricing-calculator.html.gz
       - cloud-egress-calculator__vs-azure-pricing-calculator.html.gz=cloud-egress-calculator__vs-azure-pricing-calculator.html.gz
       - cloud-egress-calculator__vs-google-cloud-pricing-calculator.html.gz=cloud-egress-calculator__vs-google-cloud-pricing-calculator.html.gz
       - vendor-change-evidence__app.js.gz=vendor-change-evidence__app.js.gz
@@ -470,14 +471,14 @@ configMapGenerator:
       - fence-bid-calculator__share.mjs.gz=fence-bid-calculator__share.mjs.gz
       - fence-bid-calculator__usage.mjs.gz=fence-bid-calculator__usage.mjs.gz
       - fence-bid-calculator__vs-fence-cloud.html.gz=fence-bid-calculator__vs-fence-cloud.html.gz
-      - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
-      - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
-      - ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz=ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
+      - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
+      - ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz=ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz
       - ai-engineering-academy__555-timer-calculator__index.html.gz=ai-engineering-academy__555-timer-calculator__index.html.gz
       - ai-engineering-academy__555-timer-calculator__usage.mjs.gz=ai-engineering-academy__555-timer-calculator__usage.mjs.gz
       - ai-engineering-academy__LICENSE.gz=ai-engineering-academy__LICENSE.gz
@@ -593,14 +594,14 @@ configMapGenerator:
       - consent-change-record__what-did-my-cookie-banner-actually-change.html.gz=consent-change-record__what-did-my-cookie-banner-actually-change.html.gz
       - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
       - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
-      - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
-      - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
-      - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
+      - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
+      - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
       - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
       - cra-evidence-desk__match.mjs.gz=cra-evidence-desk__match.mjs.gz
       - cra-evidence-desk__usage.mjs.gz=cra-evidence-desk__usage.mjs.gz
@@ -720,14 +721,14 @@ configMapGenerator:
       - exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz=exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz
       - exterior-painting-bid-calculator__index.html.gz=exterior-painting-bid-calculator__index.html.gz
       - exterior-painting-bid-calculator__usage.mjs.gz=exterior-painting-bid-calculator__usage.mjs.gz
-      - exterior-painting-bid-calculator__vs-paintscout.html.gz=exterior-painting-bid-calculator__vs-paintscout.html.gz
-      - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
-      - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - exterior-painting-bid-calculator__vs-paintscout.html.gz=exterior-painting-bid-calculator__vs-paintscout.html.gz
+      - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
+      - fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz=fireplace-insert-bid-calculator__how-much-to-charge-to-install-a-fireplace-insert.html.gz
       - fireplace-insert-bid-calculator__index.html.gz=fireplace-insert-bid-calculator__index.html.gz
       - fireplace-insert-bid-calculator__usage.mjs.gz=fireplace-insert-bid-calculator__usage.mjs.gz
       - fireplace-insert-bid-calculator__vs-jobber.html.gz=fireplace-insert-bid-calculator__vs-jobber.html.gz
