@@ -653,3 +653,17 @@ test("calculator page classifies the typed buy cost against the zero-profit ceil
   assert.match(scriptSource, /buyCostCheck/);
   assert.match(scriptSource, /sourcing_check_used/);
 });
+
+test("the result panel is announced to screen readers when it updates", () => {
+  // The result section re-renders the hero profit number and the whole dl
+  // breakdown (margin, ROI, break-even, ACOS figures) in place on every
+  // keystroke, with no page reload. Before this fix the section itself had
+  // no aria-live -- only #scenarioList (a table further down) and
+  // #shareStatus did -- so a screen-reader user changing an input got no
+  // announcement that the headline profit and its breakdown had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    "the result section is not a live region, so updates are never announced",
+  );
+});
