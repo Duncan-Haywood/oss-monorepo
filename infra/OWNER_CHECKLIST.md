@@ -460,3 +460,22 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise
   from the dashboard, not from a key the cluster holds).
+- **Cross-agent PR review + auto-merge, added 2026-09-04.** #3024
+  (2026-09-03) merged `platform/ci/agent_review/` and
+  `.github/workflows/agent-cross-review.yml` /
+  `agent-pr-auto-merge.yml` to `main` — four reviewer GitHub-App
+  identities (GH, Kilo, Cursor, Claude) that review each other's PRs and
+  squash-merge an internal (non-`ventures/*`) PR once two approve and CI
+  is green. It ships fail-closed: every review job checks its own
+  `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
+  few seconds when they are unset, so today it runs, does nothing, and
+  approves nothing. Nothing here is blocking, and nothing about the
+  scaffold needs it. If you want it live, `platform/ci/agent_review/
+  README.md`'s "One-time owner setup" is the whole procedure: create 4
+  GitHub Apps (Pull requests: Read & write; Contents: Read; Metadata:
+  Read; installed on this repo only), add the 8 `AGENT_REVIEWER_*`
+  secrets it names, and set `required_approving_review_count: 2` plus
+  required status checks on the `main` branch ruleset. The
+  `agent-cross-review-automerge` row in `portfolio/ledger/asks.yaml`
+  used to say this shape was abandoned (#870, closed 2026-08-24) and
+  never mention #3024 — corrected the same day this bullet was added.
