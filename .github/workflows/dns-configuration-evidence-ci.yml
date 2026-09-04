@@ -1,8 +1,15 @@
 name: dns-configuration-evidence CI
 
-# Standard-library Python CLI (no publishable page). Keep the DNS
-# snapshot/report logic covered independently of the portfolio-wide
-# validation workflow, which only checks published pages.
+# Keep the DNS snapshot/report logic covered independently of the
+# portfolio-wide validation workflow, which only checks published pages.
+#
+# "no publishable page" until 2026-09-04, when the venture gained a browser
+# surface beside the Python CLI. There are now two implementations of the same
+# comparison semantics, and `dns-evidence.test.mjs` is the one that pins them
+# together -- it diffs the JS Markdown against `python3 -m dns_evidence
+# compare` over the same snapshots, having caught them already drifted apart
+# once. Running only the Python half would leave that check, and the browser
+# half's 25 tests, executing nowhere.
 on:
   pull_request:
     paths:
@@ -35,5 +42,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Run DNS evidence tests
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Run DNS evidence tests (Python — the canonical implementation)
         run: python3 -m unittest discover -s tests -v
+      # Runs after the Python step and in the same job on purpose: the parity
+      # test shells out to `python3 -m dns_evidence compare` and compares its
+      # output byte for byte, so it needs the interpreter this job already has.
+      # It skips rather than fails where python3 is absent, which would make it
+      # silently vacuous in a Node-only job.
+      - name: Run DNS evidence tests (browser surface logic + Python parity)
+        run: node --test dns-evidence.test.mjs

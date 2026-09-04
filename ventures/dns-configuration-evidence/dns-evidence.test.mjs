@@ -45,6 +45,28 @@ test('an observation present on only one side is inconclusive, not dropped', () 
   assert.equal(txt.after_status, 'missing');
 });
 
+test('two answers do not compare equal to one answer containing a separator', () => {
+  // `buildReport` compares answer sets by joining them. DNS text contains
+  // spaces (any TXT record) and colons (any SPF record), so joining on one of
+  // those would make ['a b'] and ['a', 'b'] identical and report a real change
+  // as `unchanged`. This pins the separator choice, not the implementation.
+  const before = snapshot([observation({ type: 'TXT', answers: ['a b'] })]);
+  const after = snapshot([observation({ type: 'TXT', answers: ['a', 'b'] })]);
+  assert.equal(buildReport(before, after).findings[0].status, 'changed');
+});
+
+test('the source carries no raw NUL byte, which would make git treat it as binary', async () => {
+  // The separator is a real NUL at runtime and must stay one; writing it as a
+  // literal byte instead of an escape turned the whole module binary to git,
+  // costing the diff and line comments on review. Caught by CI, pinned here.
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const url = await import('node:url');
+  const source = fs.readFileSync(
+    path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'dns-evidence.mjs'));
+  assert.equal(source.includes(0x00), false, 'write NUL as the \\u0000 escape, not a literal byte');
+});
+
 test('identical answers in a different order are unchanged', () => {
   const before = snapshot([observation({ answers: ['192.0.2.1', '192.0.2.2'] })]);
   const after = snapshot([observation({ answers: ['192.0.2.2', '192.0.2.1'] })]);
