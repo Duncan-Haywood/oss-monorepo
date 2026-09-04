@@ -66,6 +66,10 @@ decisions:
   gates: deployment
   exposure: credential
   opened: "2026-09-04"
+  # Measured, current loss of the public surface: run 33887885219, all three
+  # hostnames refusing on 443. See OUTAGE in decision_queue.py for how narrow
+  # this flag is meant to be -- it is not a way to say "important".
+  outage: true
   action: >-
     Replace the Actions secret `HETZNERSSHKEY` with the **private** key
     matching the public key already installed on `root@89.167.29.39` and
@@ -80,15 +84,20 @@ decisions:
     boxes and see" instruction in this repo has been unfollowable since it was
     written. The workflow already normalises literal `\n` escapes and CRLF, so
     a plain paste is fine; the failure is the key half, not the formatting.
-    **Deliberately ranked below the two seals.** It buys diagnosis, not
-    delivery: `portfolio-site-repo` and `codex-secrets` each stand between the
-    portfolio and something a stranger can use, and this one only lets us look
-    inside a cluster that is already serving. It is also no longer the way to
-    answer "is the site up" — `Public surface check` does that from a runner
-    with no credential at all.
+    **Re-ranked to first, hours after this row was written, by the measurement
+    the same PR made possible.** It said "deliberately ranked below the two
+    seals ... this one only lets us look inside a cluster that is already
+    serving". The cluster is not already serving. `Public surface check` (run
+    33887885219) got `Connection refused` from all three hostnames and 0 of 24
+    sampled sitemap URLs — DNS resolves and the IP answers, but nothing is
+    listening on 443. So this row is no longer diagnosis-of-a-healthy-system;
+    it is the only way to find out why the portfolio's entire public surface
+    is down, and `portfolio-site-repo` now ranks *below* it (sealing a clone
+    token for a cluster that serves nothing changes nothing a stranger can
+    see). Do this one first.
   unlocks:
-    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read."
-    - "The ability to diagnose a *failure* rather than only detect one. `Public surface check` says a hostname stopped serving; only SSH says why."
+    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. Diagnosing that needs shell on the box, and nothing credential-free can substitute — `Public surface check` detects the outage, only SSH explains it."
+    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them."
   blocked_by: []
   note: >-
     Found by dispatching the preflight rather than by reading anything — no
