@@ -109,6 +109,7 @@ decisions:
   unlocks:
     - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box; only SSH can say why k3s is dead."
     - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them. The 6443 reading above already favours the first."
+    - "#3186 raised a third candidate — a healthy cluster with the fault in front of it (the ingress, a load balancer, or DNS at the node) — and was right that `Connection refused` alone does not choose between the three. #3188 measured it away rather than argued it away: DNS resolves to our own address, both servers report `running`, and :6443 is refused on the control plane itself, which no fault *in front of* a healthy cluster produces. Kept here because the reasoning is the reusable part — a bare status code never picks a cause, and the fix was to go and take a second reading."
   blocked_by: []
   note: >-
     Found by dispatching the preflight rather than by reading anything — no
@@ -119,6 +120,16 @@ decisions:
     `tmp/ssh-key-smoke` branch; that diagnostic was folded into the preflight
     job afterwards and then nobody dispatched it again, so the secret has sat
     wrong for eleven days with the repo asserting otherwise.
+
+    **Not a one-off blip, as of 2026-09-04.** The `action` above cites the
+    first `Public surface check` run (33887885219); it has since run twice
+    more (33888988972, 33888990022), independently `workflow_dispatch`ed,
+    same result each time — all three hostnames `Connection refused`. Three
+    consistent readings rule out a transient network hiccup at measurement
+    time; they don't yet distinguish which of the causes `unlocks` above
+    lists. `HETZNERSSHKEY` was still the wrong half of the keypair as of the
+    third run. Rerun `Public surface check` (`workflow_dispatch`, no inputs)
+    to see if this has since self-resolved before assuming it is still down.
 
 - id: actions-runners-unavailable
   asks: []
