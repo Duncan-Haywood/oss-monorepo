@@ -9002,3 +9002,100 @@ entries:
         mirror-refresh sweep (as in #3133/#3134), per this session's brief.
         PR #3138.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue first, per this run's mandate. Two PRs were
+        open (#3137, #3138) and both are merged; the queue is empty. #3138
+        was red on `Portfolio validate` at "Check the apex tool mirror is not
+        stale" (run 33848062728, job 100944376437, runner_id 1000051846 -- a
+        real runner, so a real result): it had deliberately left `gitops/`
+        for a later sweep, but that check runs on every PR touching a venture
+        page and fails the branch that leaves the mirror behind. Regenerating
+        it also mattered for users, not just CI -- the apex serves each tool
+        from that mirror at `/tools/<slug>/`, so without it the `aria-live`
+        fix would have been on `main` and absent from every page a stranger
+        can open. A concurrent session pushed the same regen 4 minutes
+        earlier; took theirs rather than duplicating, then merged `main` in
+        (#3137 had landed and also regenerated the mirror) and resolved the
+        shard conflict with `platform/marketing/resolve-mirror-merge.sh`.
+      - >-
+        Then shipped the delivery-path gap the owner's standing priority
+        names: `--only` for the seven browser checks. Those checks are the
+        only thing in this repo that opens a page, types into the form and
+        reads the number back out, and `browser-checks-ci.yml` runs them
+        nightly rather than as a merge gate because a run is the whole
+        catalogue at 20-30 minutes. That cost argument is sound and is not
+        challenged here; what is removed is its premise. The header said the
+        reason no smaller run was possible was that "no per-page or
+        per-venture subsetting knob exists in any of the seven" -- true end
+        to end, wrong in detail: `presets`, `roundtrip` and `highlight` had
+        each taken slugs as positional argv since they were written, but the
+        harness runs every check as `node <path>` with no arguments, so
+        nothing could reach them, and the other four had no filter at all.
+      - >-
+        `platform/pages/only-slugs.mjs` is now the one filter, read from argv
+        (unchanged for the three that took it) or `ONLY_SLUGS`, and wired
+        into all six per-venture checks. `journey` is a single narrative over
+        the whole site and ignores it, saying so when both are asked for.
+        Measured against a freshly built site, `roundtrip`: **6m15s whole
+        site, 27s scoped to one venture**; all six filterable checks scoped
+        to `ebay-fee-calculator` ran in 54s.
+      - >-
+        A filter is a way to verify less, so the two guarantees are enforced
+        rather than documented. A slug not in the built site stops the run
+        with exit 2 before a browser starts, so a typo names itself instead
+        of quietly reducing the run to nothing; and every green summary line
+        from a filtered run carries `[FILTERED: ...]`, because "all 7 browser
+        checks passed" over four pages is the most misleading true sentence
+        the harness could print. This repo has already paid three times for a
+        check reporting a clean run it did not perform (`highlight` left out
+        of `CHECKS`; a stale server answering for the build under test;
+        `supersede_check.py` exiting 1 on 65 of 66 PRs), and a requested
+        filter would have been the worst of the four.
+      - >-
+        No `pull_request` trigger was added, and that is a scope decision
+        rather than an omission: a scoped run is now cheap enough that one is
+        arguable, but the cost that has actually hurt this repo is the
+        metered account allowance whose remaining headroom is not observable
+        from a session, so the trigger is a spend decision that should be
+        argued on its own with these numbers. The capability ships and is
+        usable today via `--only` locally and the new `only` input on
+        `workflow_dispatch`.
+      - >-
+        One real bug was made and caught during the work, and it is why two
+        of the new tests exist: removing one `const only = process.argv...`
+        left a second line below it still doing `if (only.length)`.
+        `onlySlugs()` returns a Set or null, so under a filter that read as
+        falsy and silently did nothing, and with no filter it threw. The
+        filtered path passed and the ordinary path crashed -- the worst way
+        round, since the filtered path is the one a new feature gets tested
+        on. Found by re-running the unfiltered check after the change rather
+        than assuming it; the source test that pins it was mutation-checked.
+      - >-
+        Verified: `node --test platform/pages/*.test.mjs` -> 878/878 (867
+        before, plus 11 in the new `only-slugs.test.mjs`); `python3 -m unittest
+        test_browser_checks` -> 50/50 (was 42, +8 for `--only`);
+        `python3 platform/ci/validate_workflows.py` -> all 223 valid;
+        `publish_surface.py --check` clean. Real browser runs with the
+        versions CI pins (Playwright 1.56.0, axe-core 4.13.0, chromium-1194):
+        unfiltered `roundtrip` green before and after the change, filtered
+        `roundtrip` green, six checks filtered green, and a typo'd slug
+        correctly refused with exit 2 and no browser started.
+      - >-
+        Also fixed in passing, both in the exit-code contract the harness
+        keys off: `contrast` exited 1 ("a real defect") when it found no
+        pages at all, and `sweep` exited 1 when the hub advertised no tools.
+        Both are "nothing was verified" and now exit 2.
+      - >-
+        Owner-blocked and untouched, no duplicate ask added: the Codex CLI on
+        the Hetzner box is built and tested for exactly the built-in-quota
+        route the standing instruction asks for (`CODEX_AUTH_JSON`), and is
+        one `codex login` plus one seal from the owner's own laptop away --
+        `infra/OWNER_CHECKLIST.md` item 8, already queued as
+        `codex-governor-enable`. Its work queue is already ordered
+        deployment/CI-CD first, then marketing/distribution, matching the
+        same instruction.
+    mrr_end: null

@@ -35,11 +35,28 @@ prefer it over seven hand-typed commands.
     python3 platform/ci/browser_checks.py
     python3 platform/ci/browser_checks.py --dist platform/pages/dist
     python3 platform/ci/browser_checks.py --checks sweep,sideways
+    python3 platform/ci/browser_checks.py --only ebay-fee-calculator
     python3 platform/ci/browser_checks.py --base-url https://tools.marisstella.dev
 
 With no `--dist` it builds into a temporary directory, so the default run
 is always against the current tree and never against a stale `dist/` a
 previous session left behind.
+
+`--only` scopes the run to one or more venture slugs. A whole-site run is
+the reason `browser-checks-ci.yml` is nightly rather than a pull-request
+gate -- it is the whole catalogue and takes 20-30 minutes -- and a pull
+request almost always touches one venture. Three of the seven
+(`presets`, `roundtrip`, `highlight`) already took slugs as positional
+argv; this reaches all of them, because the harness runs each check as
+`node <path>` with no arguments and only the environment gets through.
+`journey` is a single narrative over the whole site and ignores it.
+
+A filter is a way to verify **less**, so two things are enforced rather
+than trusted. A slug that is not in the built site stops the run with exit
+2 before a browser starts, so a typo names itself instead of quietly
+reducing the run to nothing; and every green summary line from a filtered
+run carries `[FILTERED: ...]`, because "all 7 browser checks passed" over
+four pages is the most misleading true sentence this file could print.
 
 `--base-url` points the checks at a site someone else is serving (a
 deployment, or a server you started yourself). There is no sentinel in
@@ -429,6 +446,12 @@ def main(argv=None) -> int:
     ap.add_argument("--stamp-base-url", metavar="URL",
                     help="build with PAGES_BASE_URL=URL, to check the artifact a "
                          "deployment would actually serve")
+    ap.add_argument("--only", metavar="SLUG,SLUG",
+                    help="restrict the checks to these venture slugs, so a pull "
+                         "request that touches one venture can run them in about a "
+                         "minute instead of 25. `journey` is a whole-site narrative "
+                         "and ignores this. A filtered run is stamped FILTERED in "
+                         "the summary and never reports as a full one.")
     args = ap.parse_args(argv)
 
     names = [c.strip() for c in args.checks.split(",") if c.strip()]
@@ -441,6 +464,12 @@ def main(argv=None) -> int:
         print("--base-url runs against a site you did not build; pass it alone",
               file=sys.stderr)
         return 2
+    only = [s.strip() for s in (args.only or "").split(",") if s.strip()]
+    if only and "journey" in names and len(names) == 1:
+        # Not an error worth refusing over, but saying nothing would let
+        # `--only x --checks journey` look like it verified venture x.
+        print("Note: `journey` is a whole-site narrative and ignores --only, so "
+              "this run\nis not scoped to the slug(s) you named.", file=sys.stderr)
     # Settle every argument before probing the environment. A typo'd --dist
     # reported as "Playwright is missing" sends you to install a browser you
     # already have.
@@ -517,6 +546,27 @@ def main(argv=None) -> int:
             # until a run actually exercised the other four.
             env["DIST"] = dist
 
+            # Refuse a filter that names something the build did not produce,
+            # before any browser starts. Without this a typo is indistinguishable
+            # from a pass: every check would find nothing for that slug, and the
+            # ones that report an empty run as a skip would hand back "the checks
+            # that ran passed". A filter is a way to verify less, so the one thing
+            # it must never do is verify nothing and stay quiet -- the failure
+            # this repo has already paid for three times (see only-slugs.mjs).
+            if only:
+                built = {
+                    name for name in os.listdir(dist)
+                    if os.path.isfile(os.path.join(dist, name, "index.html"))
+                }
+                unknown_slugs = sorted(set(only) - built)
+                if unknown_slugs:
+                    print(f"--only names {len(unknown_slugs)} slug(s) that are not in "
+                          f"the built site: {', '.join(unknown_slugs)}\n"
+                          "Nothing was verified. A venture's slug is its directory "
+                          "name under `ventures/`,\nand only ventures that build to a "
+                          "static page appear here.", file=sys.stderr)
+                    return 2
+
             port = args.port or free_port()
             base = f"http://127.0.0.1:{port}"
             token = write_sentinel(dist)
@@ -537,6 +587,14 @@ def main(argv=None) -> int:
                 return 2
             print(f"Serving {dist} at {base} ({detail})")
             print(f"Running {len(names)} check(s): {', '.join(names)}\n")
+
+        # After the --base-url branch too: an origin someone else serves can
+        # still be asked about one venture, it just cannot be pre-validated
+        # against a tree this process does not own.
+        if only:
+            env["ONLY_SLUGS"] = ",".join(only)
+            print(f"FILTERED to {len(only)} venture(s): {', '.join(sorted(only))}"
+                  "  (`journey` ignores this)\n")
 
         results = []
         for name in names:
@@ -563,11 +621,16 @@ def main(argv=None) -> int:
         if failed:
             print(f"\n{len(failed)} of {len(results)} checks failed: {', '.join(failed)}")
             return 1
+        # "FILTERED" rather than nothing, on both green lines. Whoever reads a
+        # pasted summary has no other way to tell a one-venture run from a
+        # whole-site one, and "all 7 browser checks passed" over 4 pages is the
+        # most misleading true sentence this file could print.
+        scope = f" [FILTERED: {', '.join(sorted(only))}]" if only else ""
         if skipped:
             ran = len(results) - len(skipped)
-            print(f"\nthe {ran} check(s) that ran passed against {base}")
+            print(f"\nthe {ran} check(s) that ran passed against {base}{scope}")
             return 2
-        print(f"\nall {len(results)} browser checks passed against {base}")
+        print(f"\nall {len(results)} browser checks passed against {base}{scope}")
         return 0
     finally:
         if httpd is not None:

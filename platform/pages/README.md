@@ -23,7 +23,31 @@ Run all seven with one command, which builds, serves and tears down for you:
 ```
 python3 platform/ci/browser_checks.py            # all seven, fresh build
 python3 platform/ci/browser_checks.py --checks sweep,sideways --dist platform/pages/dist
+python3 platform/ci/browser_checks.py --only ebay-fee-calculator   # one venture
 ```
+
+`--only` is the one to reach for while working on a single venture. A
+whole-site run is the whole catalogue and takes 20-30 minutes, which is why
+`browser-checks-ci.yml` is nightly rather than a merge gate; scoped to one
+venture it is under a minute. Measured on 2026-09-04, `roundtrip` alone:
+**6m15s whole site, 27s scoped to `ebay-fee-calculator`** — and most of that
+27s is the site build the check shares. All six per-venture checks honour it;
+`journey.mjs` is a single narrative over the whole site and ignores it, saying
+so when you ask for both.
+
+Two things it will not do, because a filter is a way to verify *less*:
+
+- A slug that is not in the built site **stops the run with exit 2** before a
+  browser starts, rather than quietly reducing the run to nothing. A typo names
+  itself.
+- A filtered run is stamped `[FILTERED: ...]` on its summary line and never
+  prints the sentence a whole-site pass prints. "All 7 browser checks passed"
+  over four pages would be the most misleading true sentence this tool could
+  produce.
+
+`presets.mjs`, `roundtrip.mjs` and `highlight.mjs` have always taken slugs as
+positional arguments when run standalone, and still do — `--only` is how that
+reaches all six through the harness, which runs each check with no arguments.
 
 Prefer it over starting a server by hand. It removes both traps the checks
 below document: it **refuses to run** unless the origin echoes a sentinel token
@@ -1557,6 +1581,7 @@ copies open as the bid it was copied from?**
 ```bash
 node platform/pages/roundtrip.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH / DIST env vars
 node platform/pages/roundtrip.mjs shopify-fee-calculator   # or just these tools
+ONLY_SLUGS=shopify-fee-calculator node platform/pages/roundtrip.mjs   # same thing
 ```
 
 For each tool: change every select and number input, type into the proposal's

@@ -43,6 +43,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only-slugs.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -94,7 +95,12 @@ if (!fs.existsSync(DIST)) {
 
 // The 404 page is served for paths that do not exist, so it has no URL of its
 // own to ask for; everything else is reachable.
-const pages = publishedPages(DIST).filter((rel) => !rel.startsWith('404'));
+const only = onlySlugs();
+const pages = publishedPages(DIST)
+  .filter((rel) => !rel.startsWith('404'))
+  .filter((rel) => keepPagePath(rel, only));
+if (only) console.log(describeFilter(only));
+requireNonEmpty(pages, only, 'built pages');
 
 const browser = await playwright.chromium.launch(LAUNCH);
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
