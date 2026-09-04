@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 147 files, 555935 bytes
 #   portfolio-front-tools-3: 116 files, 553725 bytes
 #   portfolio-front-tools-4: 128 files, 556228 bytes
-#   portfolio-front-tools-5: 108 files, 554068 bytes
+#   portfolio-front-tools-5: 109 files, 556350 bytes
 #   portfolio-front-tools-6: 109 files, 555149 bytes
 #   portfolio-front-tools-7: 113 files, 556640 bytes
 #   portfolio-front-tools-8: 98 files, 546185 bytes
@@ -785,6 +785,7 @@ configMapGenerator:
       - garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz=garage-door-bid-calculator__how-much-to-charge-for-a-broken-spring.html.gz
       - garage-door-bid-calculator__how-much-to-charge-to-replace-a-garage-door.html.gz=garage-door-bid-calculator__how-much-to-charge-to-replace-a-garage-door.html.gz
       - garage-door-bid-calculator__index.html.gz=garage-door-bid-calculator__index.html.gz
+      - garage-door-bid-calculator__share.mjs.gz=garage-door-bid-calculator__share.mjs.gz
       - garage-door-bid-calculator__usage.mjs.gz=garage-door-bid-calculator__usage.mjs.gz
       - garage-door-bid-calculator__vs-housecall-pro.html.gz=garage-door-bid-calculator__vs-housecall-pro.html.gz
       - gravel-driveway-bid-calculator__calc.mjs.gz=gravel-driveway-bid-calculator__calc.mjs.gz
