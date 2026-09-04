@@ -128,6 +128,11 @@ test('the primary journey, disclaimer, and privacy note are rendered markup', ()
   assert.match(markup, /never uploaded/i);
 });
 
+test('the page carries the standard sponsor link', () => {
+  assert.match(markup, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(markup, /href="LICENSE"/);
+});
+
 test('a rejected worksheet hides every result section instead of leaving the last valid worksheet on screen', () => {
   // Before this fix, calculate() only wrote #errors when showErrors was true
   // (submit only, never live typing) and never touched #output,
