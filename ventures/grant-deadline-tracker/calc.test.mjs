@@ -77,6 +77,41 @@ test("adds months without overflowing short months", () => {
   assert.equal(addMonths("2026-01-31", 1), "2026-02-28");
 });
 
+test("addMonths refuses a fractional interval instead of silently flooring it", () => {
+  // Before this fix, addMonths(..., 1.5) floored to 1 whole month and
+  // returned a real-looking date -- a "6.5 month" reporting interval landed
+  // exactly where a 6-month one would, one interval early, with no signal
+  // that anything was wrong.
+  assert.equal(addMonths("2026-01-15", 1.5), null);
+  assert.equal(addMonths("2026-01-15", 0.5), null);
+});
+
+test("normalizeGrant rejects a fractional reporting interval instead of silently truncating it", () => {
+  // 1.5 used to reach addMonths, which floored it to 1 -- the grant saved
+  // with a due date one full "half interval" earlier than what was typed,
+  // and no error at all despite the validator's own message promising a
+  // whole-number check.
+  assert.throws(
+    () => normalizeGrant({ name: "Garden", awardDate: "2026-03-15", intervalMonths: 1.5 }, "2026-08-26"),
+    /Reporting interval for Garden must be a whole number of months\./,
+  );
+  // 0.5 used to fail too, but as a confusing "Invalid date" error instead of
+  // naming the interval as the actual problem.
+  assert.throws(
+    () => normalizeGrant({ name: "Garden", awardDate: "2026-03-15", intervalMonths: 0.5 }, "2026-08-26"),
+    /Reporting interval for Garden must be a whole number of months\./,
+  );
+});
+
+test("normalizeGrant still fills nextDate from a whole-number interval", () => {
+  const grant = normalizeGrant({
+    name: "Garden",
+    awardDate: "2026-03-15",
+    intervalMonths: 6,
+  }, "2026-08-26");
+  assert.equal(grant.nextDate, "2026-09-15");
+});
+
 test("nextDueFromInterval returns the current overdue period, not the first interval", () => {
   assert.equal(nextDueFromInterval("2025-01-01", 6, "2026-08-26"), "2026-07-01");
   assert.equal(nextDueFromInterval("2026-01-01", 12, "2026-08-26"), "2027-01-01");
