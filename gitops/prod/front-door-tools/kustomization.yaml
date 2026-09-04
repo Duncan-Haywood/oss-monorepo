@@ -33,11 +33,11 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 130 files, 553239 bytes
-#   portfolio-front-tools-1: 117 files, 553636 bytes
-#   portfolio-front-tools-2: 148 files, 553731 bytes
-#   portfolio-front-tools-3: 115 files, 552976 bytes
-#   portfolio-front-tools-4: 127 files, 553237 bytes
+#   portfolio-front-tools-0: 131 files, 554149 bytes
+#   portfolio-front-tools-1: 117 files, 556274 bytes
+#   portfolio-front-tools-2: 148 files, 553649 bytes
+#   portfolio-front-tools-3: 115 files, 556034 bytes
+#   portfolio-front-tools-4: 128 files, 554314 bytes
 #   portfolio-front-tools-5: 107 files, 552426 bytes
 #   portfolio-front-tools-6: 109 files, 556656 bytes
 #   portfolio-front-tools-7: 114 files, 554846 bytes
@@ -79,6 +79,7 @@ configMapGenerator:
       - contractor-bid-readiness__index.html.gz=contractor-bid-readiness__index.html.gz
       - contractor-bid-readiness__model.mjs.gz=contractor-bid-readiness__model.mjs.gz
       - contractor-bid-readiness__usage.mjs.gz=contractor-bid-readiness__usage.mjs.gz
+      - contractor-bid-readiness__vs-jobtread.html.gz=contractor-bid-readiness__vs-jobtread.html.gz
       - construction-evidence-log__app.js.gz=construction-evidence-log__app.js.gz
       - construction-evidence-log__how-do-i-document-a-change-order.html.gz=construction-evidence-log__how-do-i-document-a-change-order.html.gz
       - construction-evidence-log__index.html.gz=construction-evidence-log__index.html.gz
@@ -88,6 +89,7 @@ configMapGenerator:
       - tender-bid-readiness__check.mjs.gz=tender-bid-readiness__check.mjs.gz
       - tender-bid-readiness__index.html.gz=tender-bid-readiness__index.html.gz
       - tender-bid-readiness__should-i-bid-on-this-tender.html.gz=tender-bid-readiness__should-i-bid-on-this-tender.html.gz
+      - tender-bid-readiness__vs-govwin.html.gz=tender-bid-readiness__vs-govwin.html.gz
       - job-margin-variance__LICENSE.gz=job-margin-variance__LICENSE.gz
       - job-margin-variance__calc.mjs.gz=job-margin-variance__calc.mjs.gz
       - job-margin-variance__index.html.gz=job-margin-variance__index.html.gz
@@ -194,12 +196,12 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html.gz
       - ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html.gz
       - ebay-fee-calculator__should-i-require-immediate-payment-on-ebay.html.gz=ebay-fee-calculator__should-i-require-immediate-payment-on-ebay.html.gz
-      - ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html.gz=ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html.gz=ebay-fee-calculator__should-i-send-an-ebay-offer-to-watchers.html.gz
       - ebay-fee-calculator__should-i-use-ebay-global-shipping-program.html.gz=ebay-fee-calculator__should-i-use-ebay-global-shipping-program.html.gz
       - ebay-fee-calculator__usage.mjs.gz=ebay-fee-calculator__usage.mjs.gz
       - ebay-fee-calculator__vs-ebay-fee-calculator.html.gz=ebay-fee-calculator__vs-ebay-fee-calculator.html.gz
@@ -316,12 +318,12 @@ configMapGenerator:
       - ltl-freight-class-estimator__usage.mjs.gz=ltl-freight-class-estimator__usage.mjs.gz
       - ltl-freight-class-estimator__vs-smc3-fastclass.html.gz=ltl-freight-class-estimator__vs-smc3-fastclass.html.gz
       - cloud-egress-calculator__calc.mjs.gz=cloud-egress-calculator__calc.mjs.gz
-      - cloud-egress-calculator__does-a-cdn-cut-s3-egress.html.gz=cloud-egress-calculator__does-a-cdn-cut-s3-egress.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cloud-egress-calculator__does-a-cdn-cut-s3-egress.html.gz=cloud-egress-calculator__does-a-cdn-cut-s3-egress.html.gz
       - cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html.gz=cloud-egress-calculator__does-a-replica-beat-cross-region-pull.html.gz
       - cloud-egress-calculator__does-infrequent-access-still-beat-standard.html.gz=cloud-egress-calculator__does-infrequent-access-still-beat-standard.html.gz
       - cloud-egress-calculator__index.html.gz=cloud-egress-calculator__index.html.gz
@@ -469,12 +471,12 @@ configMapGenerator:
       - lawn-care-bid-calculator__index.html.gz=lawn-care-bid-calculator__index.html.gz
       - lawn-care-bid-calculator__share.mjs.gz=lawn-care-bid-calculator__share.mjs.gz
       - lawn-care-bid-calculator__usage.mjs.gz=lawn-care-bid-calculator__usage.mjs.gz
-      - lawn-care-bid-calculator__vs-lmn.html.gz=lawn-care-bid-calculator__vs-lmn.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - lawn-care-bid-calculator__vs-lmn.html.gz=lawn-care-bid-calculator__vs-lmn.html.gz
       - fence-bid-calculator__calc.mjs.gz=fence-bid-calculator__calc.mjs.gz
       - fence-bid-calculator__how-to-bid-a-fence-job.html.gz=fence-bid-calculator__how-to-bid-a-fence-job.html.gz
       - fence-bid-calculator__index.html.gz=fence-bid-calculator__index.html.gz
@@ -589,12 +591,12 @@ configMapGenerator:
       - concrete-lifting-bid-calculator__index.html.gz=concrete-lifting-bid-calculator__index.html.gz
       - concrete-lifting-bid-calculator__usage.mjs.gz=concrete-lifting-bid-calculator__usage.mjs.gz
       - concrete-lifting-bid-calculator__vs-quoteiq.html.gz=concrete-lifting-bid-calculator__vs-quoteiq.html.gz
-      - consent-change-record__calc.mjs.gz=consent-change-record__calc.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - consent-change-record__calc.mjs.gz=consent-change-record__calc.mjs.gz
       - consent-change-record__index.html.gz=consent-change-record__index.html.gz
       - consent-change-record__style.css.gz=consent-change-record__style.css.gz
       - consent-change-record__tool__har-diff.mjs.gz=consent-change-record__tool__har-diff.mjs.gz
