@@ -10082,10 +10082,16 @@ entries:
         `platform/pages/clauses.mjs equipment-rental-break-even` reports the
         no-warranty clause on all 3 published pages; canonical
         `platform/pages/build.mjs` build succeeds (174 tools) and `node
-        platform/pages/check.mjs dist` reports no dead links. Not in the
-        front-door mirror's `STARTER_SET` (this venture uses the `site/`
-        flat-layout, one of the five `build.mjs`-only ventures this file
-        already documents as excluded from the mirror), so it reaches users
-        only once `deploy-settings` or `portfolio-site-repo` is granted --
-        same as the other 173 tools in the canonical Pages build.
+        platform/pages/check.mjs dist` reports no dead links. First push to
+        this PR incorrectly assumed the venture sat outside the front-door
+        mirror's `STARTER_SET` (confusing it with the five ventures this
+        file already documents as excluded because `build.mjs` builds only
+        their `site/`) -- CI's `validate` job caught the drift: it is
+        mirrored, and the new page reached
+        `gitops/prod/front-door-tools/equipment-rental-break-even__vs-booqable.html.gz`
+        via `front-door-tools.mjs --write`, alongside the regenerated
+        `catalog.json`/`sitemap.xml` (`front-door.mjs --write`). So this page
+        ships to `marisstella.dev/tools/equipment-rental-break-even/` on
+        merge -- once the standing outage this file records elsewhere is
+        resolved -- not only once a further seal lands.
     mrr_end: null
