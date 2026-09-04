@@ -1312,7 +1312,7 @@
       "url": "https://marisstella.dev/tools/stucco-repair-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a stucco or EIFS repair from crack linear feet, hollow area, tear-off to the substrate, stories and scaffolding, window flashing, color match, and moisture investigation — not a published price per square foot. See the walk-away number before you match a cheaper crack-patch quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "sump-pump-bid-calculator",
@@ -1328,7 +1328,7 @@
       "url": "https://marisstella.dev/tools/sunroom-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential sunroom or three-season room from the glazed-wall square feet a floor-square-foot special cannot see, the thermal floor, the insulated roof, and HVAC — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "tender-radar",
