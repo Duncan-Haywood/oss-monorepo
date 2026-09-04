@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 123 files, 553891 bytes
 #   portfolio-front-tools-5: 106 files, 547360 bytes
 #   portfolio-front-tools-6: 111 files, 556163 bytes
-#   portfolio-front-tools-7: 110 files, 546273 bytes
+#   portfolio-front-tools-7: 111 files, 550380 bytes
 #   portfolio-front-tools-8: 98 files, 555762 bytes
 #   portfolio-front-tools-9: 86 files, 452724 bytes
 #
@@ -1012,6 +1012,7 @@ configMapGenerator:
       - quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz=quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz
       - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
       - quote-margin-check__usage.mjs.gz=quote-margin-check__usage.mjs.gz
+      - quote-margin-check__vs-bonsai.html.gz=quote-margin-check__vs-bonsai.html.gz
       - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
       - radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz=radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz
       - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
