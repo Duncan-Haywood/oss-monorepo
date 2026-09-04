@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Resistor values for a loaded voltage divider | Bleeder-current calculator</title>
+<meta name="description" content="Free calculator for sizing a voltage divider that has to drive a real load: enter the supply, target output, load resistance, and how stiff you want it, and get R1/R2 — exact and the nearest buyable E24 pair — plus the actual output voltage and power that pair produces. Runs entirely in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='13' y='2' width='6' height='11' fill='%23805ad5'/%3E%3Crect x='13' y='19' width='6' height='11' fill='%232b6cb0'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23e53e3e'/%3E%3C/svg%3E" />
+<meta property="og:title" content="How do I choose resistor values for a loaded voltage divider?" />
+<meta property="og:description" content="Size R1/R2 against a known load using the bleeder-current rule of thumb, then see the real output and power a buyable E24 pair actually delivers." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Voltage divider bleeder-current calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": "Sizes a voltage divider's R1/R2 against a known load and a chosen bleeder-current multiple, exact and nearest-standard resistor values, achieved output voltage and droop, quiescent and load power, buildability warnings"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I choose resistor values for a voltage divider with a load?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pick R1 and R2 so the current flowing through the divider itself is several times larger than the current the load draws — a common rule of thumb is 10 times. The bigger that ratio, the less the load's own current disturbs the split, so the output stays close to the unloaded value. The trade-off is power: a stiffer divider wastes more of it, all the time, whether the load is connected or not."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is bleeder current?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The current that flows through R1 and R2 themselves, independent of whatever the load draws. It exists purely to hold the output steady against loading — the name comes from older bleeder resistors placed across a supply to drain it safely, and the term stuck for any divider current kept deliberately higher than the load needs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just pick a huge bleeder multiple and forget about droop entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the quiescent power the divider burns scales directly with the bleeder current, and that current flows all the time, loaded or not — a stiffer divider is a hotter, more wasteful one, especially on a battery-powered design. It is a real trade-off, not a solved problem: pick the smallest multiple that gets the droop you can live with, and if no multiple gets there without excessive power, that load is telling you to use a proper regulator instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is a resistive divider ever the right way to power something with a load?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only for light, fairly constant loads where a percent or two of droop and some wasted power are acceptable — biasing a sensor, feeding a comparator reference, or a similar low-current job. For anything that draws meaningful or varying current, a resistive divider is a voltage reference, not a regulator, and a proper linear or switching regulator (or at least a unity-gain buffer) is the right tool."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0; --warn: #a0691b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #ecc94b; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  h3 { font-size: 1rem; margin: 1.5rem 0 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  input {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 520px) { .row3, .row { grid-template-columns: 1fr; } }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .result strong { color: var(--accent); }
+  .result dl { margin: 0; }
+  .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
+  .result dt:first-child { margin-top: 0; }
+  .result dd { margin: 0; font-size: 1.1rem; }
+  .result.error { color: #c53030; }
+  ul.notes { list-style: none; margin: 0.85rem 0 0; padding: 0; font-size: 0.88rem; }
+  ul.notes li { margin-top: 0.5rem; padding-left: 1.5rem; position: relative; color: var(--warn); }
+  ul.notes li::before { content: "▲"; position: absolute; left: 0; font-size: 0.75rem; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>How do I choose resistor values for a loaded voltage divider?</h1>
+  <p class="lede">
+    Size the divider's own current well above what the load draws, and the
+    output stays close to your target. Say how much stiffer you want it than
+    the load and this page gives you R1/R2 — plus what the buyable pair
+    actually delivers. Everything runs in this page; nothing is uploaded.
+  </p>
+  <nav class="toolbar">
+    <a href="./">← Voltage divider calculator</a> ·
+    <a href="../">All free electronics tools</a>
+  </nav>
+
+  <section aria-labelledby="calc-heading">
+    <h2 id="calc-heading">Size the divider</h2>
+    <p class="hint">
+      Enter the supply, the output you want, and the load it has to drive.
+      The bleeder multiple sets how much bigger the divider's own current is
+      than the load's — 10× is a common starting point.
+    </p>
+
+    <div class="row3">
+      <div>
+        <label for="vin">Input voltage, V<sub>in</sub> (V)</label>
+        <input type="number" id="vin" inputmode="decimal" value="12" step="any" />
+      </div>
+      <div>
+        <label for="target">Target V<sub>out</sub> (V)</label>
+        <input type="number" id="target" inputmode="decimal" value="3.3" step="any" />
+      </div>
+      <div>
+        <label for="load">Load resistance (Ω)</label>
+        <input type="number" id="load" inputmode="decimal" value="10000" step="any" />
+      </div>
+    </div>
+    <label for="multiple">Bleeder current multiple (× the load current)</label>
+    <input type="number" id="multiple" inputmode="decimal" value="10" min="1" step="any" />
+
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+  </section>
+
+  <h2>Common questions</h2>
+
+  <h3>How do I choose resistor values for a voltage divider with a load?</h3>
+  <p>
+    Pick R1 and R2 so the current flowing through the divider itself is
+    several times larger than the current the load draws — a common rule of
+    thumb is 10 times. The bigger that ratio, the less the load's own
+    current disturbs the split, so the output stays close to the unloaded
+    value. The trade-off is power: a stiffer divider wastes more of it, all
+    the time, whether the load is connected or not.
+  </p>
+
+  <h3>What is bleeder current?</h3>
+  <p>
+    The current that flows through R1 and R2 themselves, independent of
+    whatever the load draws. It exists purely to hold the output steady
+    against loading — the name comes from older bleeder resistors placed
+    across a supply to drain it safely, and the term stuck for any divider
+    current kept deliberately higher than the load needs.
+  </p>
+
+  <h3>Why not just pick a huge bleeder multiple and forget about droop entirely?</h3>
+  <p>
+    Because the quiescent power the divider burns scales directly with the
+    bleeder current, and that current flows all the time, loaded or not — a
+    stiffer divider is a hotter, more wasteful one, especially on a
+    battery-powered design. It is a real trade-off, not a solved problem:
+    pick the smallest multiple that gets the droop you can live with, and if
+    no multiple gets there without excessive power, that load is telling you
+    to use a proper regulator instead.
+  </p>
+
+  <h3>Is a resistive divider ever the right way to power something with a load?</h3>
+  <p>
+    Only for light, fairly constant loads where a percent or two of droop
+    and some wasted power are acceptable — biasing a sensor, feeding a
+    comparator reference, or a similar low-current job. For anything that
+    draws meaningful or varying current, a resistive divider is a voltage
+    reference, not a regulator, and a proper linear or switching regulator
+    (or at least a unity-gain buffer) is the right tool.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not
+      engineering advice, and it does not replace measuring the built
+      circuit. The bleeder-current rule of thumb this page uses is a
+      starting point, not a guarantee — always check the achieved output
+      and power figures below before building anything.
+      <strong>You are responsible for reviewing and verifying its output
+      before relying on it</strong>, including for anything safety-critical.
+      To the maximum extent permitted by law, the authors accept no
+      liability for any loss or damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and
+      we don't have accounts, tracking cookies, or an analytics vendor. This
+      page counts anonymous, local feature-use events (e.g. "a design was
+      computed") in your own browser's <code>localStorage</code>, only to
+      help this project's maintainers tell whether the tool is used at
+      all — nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT licensed — see
+      <a href="../LICENSE">LICENSE</a>. See also the
+      <a href="./">voltage divider calculator</a> this page extends, for the
+      plain output/loading math and the plain target-output design mode.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { designDividerForLoad, formatResistance } from "./calc.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const result = $("result");
+
+  function watts(w) {
+    if (!Number.isFinite(w)) return "—";
+    return w >= 1 ? `${w.toFixed(3)} W` : `${(w * 1000).toFixed(2)} mW`;
+  }
+
+  function renderNotes(notes) {
+    if (!notes || notes.length === 0) return "";
+    const items = notes.map((n) => `<li>${n.message}</li>`).join("");
+    return `<ul class="notes">${items}</ul>`;
+  }
+
+  function update(userAction) {
+    try {
+      const d = designDividerForLoad({
+        vin: Number($("vin").value),
+        targetVout: Number($("target").value),
+        loadOhms: Number($("load").value),
+        bleederMultiple: Number($("multiple").value),
+      });
+      result.classList.remove("error");
+      result.innerHTML = `
+        <dl>
+          <dt>Exact resistors for the target</dt>
+          <dd>R1 = ${formatResistance(d.exactR1)}, R2 = ${formatResistance(d.exactR2)}</dd>
+          <dt>Nearest standard (E24) values you can buy</dt>
+          <dd><strong>R1 = ${formatResistance(d.nearestR1)}, R2 = ${formatResistance(d.nearestR2)}</strong></dd>
+          <dt>What that pair really produces</dt>
+          <dd>${d.achieved.loadedVout.toFixed(4)} V at the load (${d.achieved.loadDropPercent >= 0 ? "−" : "+"}${Math.abs(d.achieved.loadDropPercent).toFixed(2)}% from the unloaded ${d.achieved.unloadedVout.toFixed(4)} V)</dd>
+          <dt>Power</dt>
+          <dd>${watts(d.achieved.r1PowerWatts)} in R1, ${watts(d.achieved.r2PowerWatts)} in R2, ${watts(d.achieved.loadPowerWatts)} in the load</dd>
+        </dl>
+        ${renderNotes(d.notes)}
+      `;
+      if (userAction) recordEventSettled("divider_for_load_designed");
+    } catch (err) {
+      result.textContent = err.message;
+      result.classList.add("error");
+    }
+  }
+
+  for (const id of ["vin", "target", "load", "multiple"]) {
+    $(id).addEventListener("input", () => update(true));
+    $(id).addEventListener("change", () => update(true));
+  }
+  update();
+
+  const usageToggle = $("usage-toggle");
+  const usageStatus = $("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>
