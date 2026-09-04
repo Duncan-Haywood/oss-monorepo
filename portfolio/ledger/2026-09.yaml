@@ -9099,3 +9099,43 @@ entries:
         deployment/CI-CD first, then marketing/distribution, matching the
         same instruction.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped CSV export for both plan types (sheet goods and linear
+        stock). Both tabs previously offered only "Copy cut plan" (plain
+        text for a job ticket) and Print; a shop that wanted the plan in a
+        spreadsheet, a CNC nesting import, or a cut-list app had to retype
+        it by hand. `formatSheetPlanCSV` (sheet.mjs) and `formatCutPlanCSV`
+        (calc.mjs) now emit one row per placed piece/cut -- sheet or bar
+        number, source (purchase vs. on-hand offcut), label, size,
+        position, rotation -- through a shared `csv.mjs` that quotes
+        free-text cells and neutralises a leading `=`/`+`/`-`/`@` the way
+        `payment-reconciliation-workbench/export.mjs` already does, since
+        part labels are visitor-typed text a spreadsheet could try to
+        execute as a formula. A piece or cut that fits nowhere still gets a
+        row (`unplaced`, blank position) rather than silently vanishing
+        from the export, matching the on-screen oversize warning. Two new
+        "Download CSV" buttons, two new opt-out local usage counters
+        (`csv-downloads`, `sheet-csv-downloads`), README docs, and the
+        featureList schema.org claim updated to match.
+      - >-
+        Verified: `node --test` in the venture -> 128/128 (up from 114),
+        including new `csv.test.mjs` (CSV escaping and the formula guard),
+        CSV-specific cases added to `calc.test.mjs` and `sheet.test.mjs`,
+        and a `page.test.mjs` case asserting both buttons exist and are
+        wired. `node platform/pages/build.mjs` and `node
+        platform/pages/check.mjs platform/pages/dist` both clean (174
+        products, no dead links). `node platform/pages/clauses.mjs
+        cut-list-optimizer` still finds the no-warranty clause on all 3
+        pages. Manually confirmed the exported CSV matches the existing
+        plain-text plan row-for-row on both tabs' own default example data
+        (bar/sheet grouping, sources, lengths, positions all agree), and
+        served the page over `python3 -m http.server` to confirm both
+        buttons render and `csv.mjs` loads with HTTP 200 -- Playwright's
+        browser binary could not be installed in this sandbox (proxy
+        blocks `cdn.playwright.dev`), so this substitutes for a live
+        `browser_checks.py --only cut-list-optimizer` run.
+    mrr_end: null
