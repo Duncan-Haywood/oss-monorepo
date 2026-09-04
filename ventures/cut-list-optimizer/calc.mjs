@@ -250,6 +250,17 @@ function rankStockRows(a, b) {
 function packStockCandidate(size, { cuts, kerf }) {
   try {
     const result = optimizeCutList({ stockLength: size.length, kerf, cuts });
+    // `optimizeCutList` never throws over a single cut that is too long for
+    // this stock length — it reports that cut in `oversize` and still packs
+    // everything else, so a candidate with a mid-length majority and one
+    // over-length outlier used to come back with `bars.length > 0` (the
+    // short cuts packed fine) and therefore `fits: true`, even though the
+    // long cut has nowhere to go on this stock at all. That let the ranking
+    // below pick it as the cheapest "buy this" size and the page render a
+    // working "Use this length" button for a length that cannot actually
+    // produce every piece on the list. Every cut has to be placed, not just
+    // some of them, for this size to count as fitting.
+    const fits = result.bars.length > 0 && result.oversize.length === 0;
     return {
       id: size.id,
       label: size.label,
@@ -259,7 +270,8 @@ function packStockCandidate(size, { cuts, kerf }) {
       buyLength: result.bars.length * size.length,
       waste: result.waste,
       utilization: result.utilization,
-      fits: result.bars.length > 0,
+      fits,
+      oversizeCount: result.oversize.length,
     };
   } catch (error) {
     return {
