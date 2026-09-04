@@ -515,3 +515,17 @@ test('the incumbent-comparison page carries the standard disclaimer and sponsor 
   assert.match(vsEtsySeo, /Best-effort hosting, no SLA/);
   assert.match(vsEtsySeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+test('the result panel is announced to screen readers when it updates', () => {
+  // The result section re-renders the hero profit number, the dl
+  // breakdown, and the reprice-for-a-goal scenario table in place on every
+  // keystroke, with no page reload. Before this fix the only aria-live
+  // element on the page was #status (a copy/share message render() never
+  // writes the result figures into), so a screen-reader user changing an
+  // input got no announcement that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});

@@ -225,3 +225,16 @@ test("a rejected input clears the order-summary figures, not just the compare/li
     );
   }
 });
+
+test("the result panel is announced to screen readers when it updates", () => {
+  // The result section re-renders in place on every keystroke, with no
+  // page reload. Before this fix the only aria-live element on the page
+  // was #status (a copy message the render code never writes the result
+  // figures into), so a screen-reader user changing an input got no
+  // announcement that the readout had changed.
+  assert.match(
+    brand,
+    /<section class="result" aria-live="polite">/,
+    "the result section is not a live region, so updates are never announced",
+  );
+});
