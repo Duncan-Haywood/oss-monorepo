@@ -9580,3 +9580,45 @@ entries:
         -> 174 products, 665 pages; `node platform/pages/check.mjs
         platform/pages/dist` -> "no dead links".
     mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found the gap by parity, not by scanning: grant-deadline-tracker
+        (#3162, same day) had just fixed `addMonths` silently flooring a
+        fractional reporting interval (1.5 months) to 1, producing a
+        real-looking but wrong due date with no error. Checked the sibling
+        venture, grant-reporting-tracker, for the identical shape and found
+        the exact same bug in its own `addMonths` -- `Math.floor(months)`
+        with no `Number.isInteger` guard, despite the calculator otherwise
+        being careful about anchor dates, filed-report rollovers and
+        malformed localStorage rows.
+      - >-
+        The Add form's own `step="1" min="1"` already blocks entering a
+        fractional interval through the UI, so this is a defense-in-depth
+        fix rather than a UI-reachable one: the gap is a grant row loaded
+        from `localStorage` (an older save predating that constraint, or one
+        edited outside the page), which reaches `reviewGrant`/`addMonths`
+        with no gate at all. Verified the bug directly before fixing it:
+        `addMonths('2026-01-15', 1.5)` returned `'2026-02-15'` (the 1-month
+        answer) instead of refusing the input.
+      - >-
+        Fix: `addMonths` now refuses a non-integer month count the same way
+        it already refuses `months < 1`, returning `null`. `reviewGrant`
+        already had a `nextReport === null -> status: 'Check inputs'` path
+        (added for a different reason), so a corrupted-interval row now
+        correctly surfaces as "Check inputs" instead of a wrong Overdue/Due
+        soon/On track verdict.
+      - >-
+        Verified: added 2 tests (`addMonths` rejects 1.5 and 0.5;
+        `reviewGrant` on a 1.5-month-interval grant returns
+        `nextReport: null`, `status: 'Check inputs'`); venture's own `node
+        --test` -> 26/26 (was 24). `platform/pages/clauses.mjs
+        grant-reporting-tracker`, `check_input_bounds.py` and
+        `check_form_defaults.py` all still clean. Regenerated the front-door
+        mirror (`platform/marketing/front-door-tools.mjs --write`) since
+        `calc.mjs` changed: new shard bytes for
+        `grant-reporting-tracker__calc.mjs.gz`, `kustomization.yaml`
+        updated.
+    mrr_end: null
