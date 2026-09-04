@@ -78,17 +78,24 @@ test('the module script wires up the shareable-link encoder and decoder', () => 
 
 // The proposal feature (customer name, address, business details) and the
 // share-link feature touch the same page from opposite directions: the
-// proposal fields must persist per device and the share link must not carry
-// them, or a shared link would leak a customer's name and address to
+// identity fields below must persist per device and the share link must not
+// carry them, or a shared link would leak a customer's name and address to
 // whoever it was pasted to. share.mjs's own field lists are the source of
 // truth (see share.test.mjs); this just double-checks none of the PII ids
 // ever appear there.
+//
+// The deposit, validity window and the three proposal-term textareas are
+// deliberately not in this list: they describe the job's money terms, not
+// the customer's identity, and `platform/proposal/term-ids.test.mjs` checks
+// the opposite property for those five -- that every venture with the
+// proposal panel *does* carry them, so a recipient does not open a shared
+// link under this venture's own default deposit and validity window. They
+// used to be listed here too, which is why they were missing from the link.
 test('a shared bid link carries no customer or business details', () => {
   const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
   for (const field of [
     'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
-    'clientName', 'clientAddress', 'proposalScope', 'proposalExclusions', 'proposalNotes',
-    'paymentTerms', 'depositPercent', 'validDays',
+    'clientName', 'clientAddress', 'proposalScope',
   ]) {
     assert.doesNotMatch(share, new RegExp(`'${field}'`), `${field} would be written into the shareable link`);
   }

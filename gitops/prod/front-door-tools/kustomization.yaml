@@ -33,15 +33,15 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 130 files, 545563 bytes
+#   portfolio-front-tools-0: 130 files, 546632 bytes
 #   portfolio-front-tools-1: 118 files, 555030 bytes
 #   portfolio-front-tools-2: 150 files, 553485 bytes
 #   portfolio-front-tools-3: 116 files, 542364 bytes
-#   portfolio-front-tools-4: 123 files, 557023 bytes
-#   portfolio-front-tools-5: 104 files, 535734 bytes
+#   portfolio-front-tools-4: 122 files, 554528 bytes
+#   portfolio-front-tools-5: 105 files, 539928 bytes
 #   portfolio-front-tools-6: 107 files, 545103 bytes
-#   portfolio-front-tools-7: 105 files, 555649 bytes
-#   portfolio-front-tools-8: 106 files, 553663 bytes
+#   portfolio-front-tools-7: 105 files, 555919 bytes
+#   portfolio-front-tools-8: 106 files, 554082 bytes
 #   portfolio-front-tools-9: 61 files, 328935 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -721,12 +721,12 @@ configMapGenerator:
       - flat-roof-bid-calculator__usage.mjs.gz=flat-roof-bid-calculator__usage.mjs.gz
       - flat-roof-bid-calculator__vs-acculynx.html.gz=flat-roof-bid-calculator__vs-acculynx.html.gz
       - flooring-bid-calculator__calc.mjs.gz=flooring-bid-calculator__calc.mjs.gz
-      - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - flooring-bid-calculator__how-much-to-charge.html.gz=flooring-bid-calculator__how-much-to-charge.html.gz
       - flooring-bid-calculator__index.html.gz=flooring-bid-calculator__index.html.gz
       - flooring-bid-calculator__share.mjs.gz=flooring-bid-calculator__share.mjs.gz
       - flooring-bid-calculator__usage.mjs.gz=flooring-bid-calculator__usage.mjs.gz
