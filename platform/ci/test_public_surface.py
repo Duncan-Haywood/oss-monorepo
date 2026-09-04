@@ -108,6 +108,101 @@ class HostProbeTests(unittest.TestCase):
             self.assertIn(probe.expect, {"serves", "gated"})
 
 
+def pages_row(classification, gates=()):
+    """One `publish_surface.survey()` row for the Pages workflow."""
+    return {
+        "workflow": ps.PAGES_WORKFLOW,
+        "classification": classification,
+        "publishes": [{"job": "deploy", "gates": list(gates)}],
+    }
+
+
+class PagesOriginTests(unittest.TestCase):
+    """The second origin: GitHub Pages, which no probe used to reach.
+
+    It fails independently of the cluster -- no k3s, no SSH key, no sealed
+    clone token -- so these pin that the prediction comes from the workflow's
+    own gate rather than from anything about `marisstella.dev`.
+    """
+
+    def test_the_base_url_is_read_from_build_mjs_not_restated(self):
+        """The one constant, parsed from the module that owns it."""
+        url = ps.pages_base_url()
+        self.assertTrue(url, "build.mjs no longer exports DEFAULT_BASE_URL")
+        self.assertTrue(url.startswith("https://"))
+
+    def test_the_parsed_base_url_matches_what_build_mjs_actually_exports(self):
+        """Guards the rename that a copied constant cannot notice.
+
+        `CLAUDE.md` records this exact failure twice: a value restated on this
+        side of the language boundary kept agreeing with itself while
+        `build.mjs` moved on. Ask node for the real export and compare.
+        """
+        import shutil
+        import subprocess
+
+        if not shutil.which("node"):
+            self.skipTest("node is not installed")
+        exported = subprocess.run(
+            [
+                "node",
+                "--input-type=module",
+                "-e",
+                "import {DEFAULT_BASE_URL} from './platform/pages/build.mjs';"
+                "process.stdout.write(DEFAULT_BASE_URL);",
+            ],
+            cwd=ps.REPO,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        self.assertEqual(ps.pages_base_url(), exported)
+
+    def test_a_gated_deploy_is_expected_to_be_dark(self):
+        probes = ps.pages_probes(
+            rows=[pages_row("gated", ["vars.PAGES_ENABLED == 'true'"])],
+            base_url="https://example.test/site/",
+        )
+        self.assertEqual(len(probes), 1)
+        self.assertEqual(probes[0].expect, "gated")
+        self.assertIn("PAGES_ENABLED", probes[0].why)
+
+    def test_an_ungated_deploy_is_expected_to_serve(self):
+        probes = ps.pages_probes(rows=[pages_row("live")], base_url="https://example.test/site/")
+        self.assertEqual(probes[0].expect, "serves")
+
+    def test_a_missing_workflow_predicts_nothing_rather_than_guessing(self):
+        """A rename must not become a fabricated prediction about a deploy."""
+        self.assertEqual(ps.pages_probes(rows=[], base_url="https://example.test/"), [])
+
+    def test_a_build_mjs_without_the_export_yields_no_url(self):
+        """A rename of the export is a reason to read nothing, not to guess."""
+        import tempfile
+
+        with tempfile.NamedTemporaryFile("w", suffix=".mjs", delete=False) as handle:
+            handle.write("export const SOMETHING_ELSE = 'https://wrong.test/';\n")
+            path = Path(handle.name)
+        try:
+            self.assertIsNone(ps.pages_base_url(path))
+        finally:
+            path.unlink()
+        self.assertIsNone(ps.pages_base_url(Path("/nonexistent/build.mjs")))
+
+    def test_no_base_url_means_no_probe(self):
+        """A wrong origin would 404 and read as an outage. Probe nothing."""
+        self.assertEqual(ps.pages_probes(rows=[pages_row("live")], base_url=""), [])
+
+    def test_the_real_workflows_produce_one_pages_probe(self):
+        probes = ps.pages_probes()
+        self.assertEqual(len(probes), 1, "portfolio-pages.yml no longer classifies as publishing")
+        self.assertIn(probes[0].expect, {"serves", "gated"})
+
+    def test_the_pages_origin_is_not_one_of_the_manifest_hosts(self):
+        """The point of the addition: it is an origin nothing else reaches."""
+        manifest_hosts = {p.url for p in ps.host_probes()}
+        self.assertNotIn(ps.pages_probes()[0].url, manifest_hosts)
+
+
 class ServingTests(unittest.TestCase):
     """What counts as a document, and what only looks like one."""
 

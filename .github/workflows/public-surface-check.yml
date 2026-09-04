@@ -1,6 +1,17 @@
 name: Public surface check
 
-# Ask marisstella.dev what it actually serves, from outside the cluster.
+# Ask the portfolio's public origins what they actually serve, from outside.
+#
+# Two of them, and they fail independently. `marisstella.dev` (and `www`,
+# and `tools.`) is the Argo CD surface on the Hetzner boxes. The second is
+# GitHub Pages at the origin `platform/pages/build.mjs` writes into the
+# canonical tag of all ~670 generated pages and into every venture
+# `sitemap.xml` -- published by `portfolio-pages.yml`, whose `deploy` job is
+# gated on the owner-set `PAGES_ENABLED`. That path needs no k3s, no SSH key
+# and no sealed clone token, so it can be serving while the cluster is down.
+# Added to this check on 2026-09-04: nothing had ever asked it anything, so
+# the repo could not have told a successful `PAGES_ENABLED` flip from a
+# no-op, and could not have seen a stale copy served there either.
 #
 # The portfolio has never had this reading. Every statement in `CLAUDE.md`,
 # `portfolio/DIRECTION.md` and the ledger about what the apex returns is
