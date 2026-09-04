@@ -259,6 +259,40 @@ If they are the same feature, close naming the *twin's file* — the rename
 report is what you looked at, not what decided it. If the branch changes
 what the twin does, that difference is the work and it still has to merge.
 
+A verdict may also carry a **STALE DRAFT SUSPECTED** section (added
+2026-09-04). It fires when `main` has committed to effectively every file the
+branch carries *more recently than the branch did*, and the unmatched lines
+have close twins **in those same files** on `main`. It prints each pair:
+
+```
+  ventures/moving-bid-calculator/vs-smartmoving.html — 38 unmatched, 10 with a later twin
+  branch  <tr><td>How does the math behind a per-job moving price actually work?
+  base    <tr><td>How does the math behind a local moving bid actually work?
+          ↳ 95% alike
+```
+
+This is the third shape, and it is the opposite of the rename above: there
+the work shipped *elsewhere* under another name; here `main` has a **later
+draft of these very lines, in these very files**. The branch is not ahead of
+`main`, it is behind it. Both existing proofs read it as unshipped work — an
+earlier draft's wording is genuinely absent from `main`, and a branch
+carrying one file `main` has since renamed does not replay into `main`'s
+tree — so it lands as a clean NOT SUPERSEDED and invites a merge that
+*reverts* the better copy. The revert then looks like a feature in the diff.
+
+Measured on `marketing/vs-smartmoving-moving-bid-calculator`: 67 lines
+"nowhere in `main`", every one an older wording `main` has replaced,
+including a mirror comment that would have put all 169 mirrored tools back
+to `noindex` and a shard filename from before the mirror was gzipped.
+
+**It does not license a close either, and the exit code stays 1.** Read the
+pairs and decide which wording is better. If `main`'s is later and fuller
+throughout, the branch is spent — close it naming the file. If any branch
+line says something `main`'s does not, that difference is the work. And note
+the direction it protects: a branch whose files `main` has *not* moved past,
+or whose lines have no twin, is not flagged — genuinely new work still reads
+as work.
+
 **Your clone is shallow.** `git fetch --unshallow` before any of this.
 Without it there is no merge base with `main`, so `git merge` refuses with
 "unrelated histories" and `git diff origin/main <branch>` reports thousands
