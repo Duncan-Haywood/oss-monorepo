@@ -81,6 +81,23 @@ REQUIRED = {
 # ordering is the cheapest-first #139 table again with extra steps. `check()`
 # enforces the type; the narrowness is a convention this comment is the whole
 # statement of.
+#
+# **More than one row can hold it, and on 2026-09-04 two do.** The paragraph
+# above was written the same day and says "the row that restores one outranks
+# them" — singular, because the repo still carried a one-surface model. #3199
+# had just established there are two independent public origins: the k3s
+# cluster behind `marisstella.dev`, and GitHub Pages at
+# `duncan-haywood.github.io/monorepo-projects/`, which needs no cluster, no SSH
+# key and no sealed Secret. `Public surface check` run 33912053750 measured
+# both dark in the same sweep — the three cluster hostnames refusing
+# connections on 443, and the Pages origin returning 404.
+#
+# The criterion is unchanged and both rows meet it on their own terms: each is
+# a row that *restores a public surface*, evidenced by that run. What the
+# singular phrasing hid is that they are alternatives rather than a queue. So
+# the flag ranks a row against the non-outage rows; it deliberately does not
+# rank the outage rows against each other, and `render()` says so rather than
+# implying the first is the one to do.
 OUTAGE = "outage"
 
 
@@ -218,16 +235,37 @@ def render(decisions: list[dict], today: dt.date) -> str:
     # Said in the header rather than only in the row, because an outage row is
     # the one case where reading no further is the correct behaviour, and the
     # header is what a hurried owner reads.
+    #
+    # The wording splits on how many rows are flagged, and the plural case is
+    # not cosmetic. The singular sentence used to be unconditional and said
+    # "every other row here is downstream of a host answering at all" — true
+    # when the repo believed there was one public surface, and wrong the moment
+    # #3199 established there are two independent origins (the k3s cluster and
+    # GitHub Pages). Two outage rows are alternative routes back, not a queue:
+    # neither is downstream of the other, either one alone puts the catalogue
+    # in front of a stranger, and an owner who reads "start with the first one"
+    # may spend a day on the expensive route while the cheap one stays unflipped.
     if outage:
+        ids = [d["id"] for d in outage]
         out.append("")
-        out += wrap(
-            "OUTAGE: the public surface is down. "
-            + ", ".join(d["id"] for d in outage)
-            + " comes first; every other row here is downstream of a host "
-            "answering at all.",
-            72,
-            "  ",
-        )
+        if len(ids) == 1:
+            body = (
+                f"OUTAGE: the public surface is down. {ids[0]} comes first; "
+                "every other row here is downstream of a host answering at all."
+            )
+        else:
+            body = (
+                "OUTAGE: the public surface is down. "
+                + str(len(ids))
+                + " independent routes restore one: "
+                + ", ".join(ids)
+                + ". They are not downstream of each other and not a "
+                "sequence — each reaches a different origin, so granting any "
+                "one of them alone puts the catalogue in front of a stranger. "
+                "Do the cheapest first. Every other row here is downstream of "
+                "something answering at all."
+            )
+        out += wrap(body, 72, "  ")
     out.append("")
 
     for i, d in enumerate(ordered, 1):
