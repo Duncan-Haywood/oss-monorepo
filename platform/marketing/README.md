@@ -2,10 +2,16 @@
 
 Distribution surfaces that are **not** part of the assembled tools site.
 
-`platform/pages/` builds `tools.marisstella.dev` — 169 tools, 544 pages, its
-own hub, feed, sitemaps and social cards. Anything that belongs *on* that site
-goes there. This directory is for the surfaces that sit outside it and would be
-wrong to fold in.
+`platform/pages/` builds `tools.marisstella.dev` — every venture with a static
+surface, plus its own hub, feed, sitemaps and social cards. Anything that
+belongs *on* that site goes there. This directory is for the surfaces that sit
+outside it and would be wrong to fold in.
+
+(This line carried a tool and page count until 2026-09-04, and both were stale
+by four and by a hundred respectively. A count here is a second copy of a
+number the build already prints and nothing checks it, so it goes stale
+silently and quietly misinforms the next reader about how big the site is. Run
+`node platform/pages/build.mjs` and read the totals off the run instead.)
 
 There is one today.
 

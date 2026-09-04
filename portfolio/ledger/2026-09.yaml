@@ -8640,3 +8640,69 @@ entries:
         pages, no dead links); `check_duplicate_symbols.py` clean;
         `front-door-tools.mjs --check` clean after `--write`. PR #3117.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs and zero branches with unique work
+        (only `main` and this run's own branch exist on the remote), so the
+        "if none exist, start new work after the overlap check" rule
+        applied and the quota phase completed with an empty queue.
+        Confirmed twice via `list_pull_requests` and `git branch -r`.
+      - >-
+        Closed the last real coverage gap in the acquisition surface:
+        `guide-coverage.mjs` reported 169 of 173 published surfaces
+        carrying a secondary page. Wrote three, one per venture whose
+        buyer has a genuine question the tool answers --
+        `which-job-first/how-do-i-decide-which-job-to-take-first.html`,
+        `print-atelier/site/what-resolution-do-i-need-to-print-my-artwork.html`
+        (pixel counts for all seven supported sizes at 150/240/300 DPI,
+        arithmetic derived from the venture's own `PRINT_SIZES` and
+        `MIN_IMPLIED_DPI`), and
+        `real-estate-agent-photo-app/site/why-was-my-listing-photo-rejected.html`
+        (the rejection reasons decidable from a file header, drawn from
+        `photo-spec.mjs`'s dated floor spec and its `UNIMPLEMENTED_RULES`).
+        Each carries visible Q&A with matching `FAQPage` JSON-LD, the
+        venture's no-warranty clause, and a link both ways with its entry
+        page. Coverage now 172/173.
+      - >-
+        Left `cra-evidence-desk` uncovered deliberately rather than
+        writing the fourth page. Its buyer question is about Cyber
+        Resilience Act obligations, whose dates and clause numbers cannot
+        be checked against primary legislation from here -- outbound HTTPS
+        to `eur-lex.europa.eu` is refused by the egress proxy and the
+        allowlist decision is queued as `egress-policy`. The mandate's
+        limit that every marketing claim must be true outranks a coverage
+        number, and `guide-coverage.mjs` is reporting-only for exactly this
+        case.
+      - >-
+        Regenerated `gitops/prod/front-door-tools/` and
+        `gitops/prod/front-door/` so the three pages actually deploy: the
+        apex serves them at `https://marisstella.dev/tools/<slug>/<page>`
+        and they are in `catalog.json` and `sitemap.xml`. A merge to `main`
+        is the Argo CD deploy, so this is the shipped half rather than a
+        follow-up. Mirror headroom after: 62.9% of the stored-byte ceiling.
+      - >-
+        Verified: `node --test platform/pages/*.test.mjs` (867 pass);
+        `node --test platform/marketing/*.test.mjs` (208 pass, including
+        the mirror staleness check that fails on an unregenerated
+        `--write`); `node --test` in all three ventures (15 + 88 pass);
+        `python3 -m pytest gitops/tests -q` (281 passed, 16 skipped);
+        `build.mjs` + `check.mjs` (173 products, 645 pages, no dead links,
+        up from 642); `clauses.mjs` on each touched venture;
+        `check_duplicate_symbols.py` and `publish_surface.py --check` both
+        clean.
+      - >-
+        No agent-actionable gap found in the three items the owner's
+        direction names. `deploy-cicd-readiness` (priority 7),
+        `marketing-distribution` (6) and the Codex worker stack were all
+        re-checked: the queue ordering already reflects that direction
+        (reordered 2026-09-01), `workers/mandate.md` already carries this
+        mandate's three-PR floor, and `codex-home.yaml` already persists
+        the rotated `auth.json` across Jobs so a ChatGPT plan's quota can
+        be drawn down over a week. What remains on all three is owner
+        flips already queued: seal `codex-secrets`, `policy.json`
+        `enabled: true`, CronJob `suspend: false`, and seal
+        `portfolio-site-repo` for the canonical host.
+    mrr_end: null
