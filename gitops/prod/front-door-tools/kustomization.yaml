@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 107 files, 553262 bytes
 #   portfolio-front-tools-7: 115 files, 546814 bytes
 #   portfolio-front-tools-8: 97 files, 554025 bytes
-#   portfolio-front-tools-9: 91 files, 482192 bytes
+#   portfolio-front-tools-9: 92 files, 485992 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1187,6 +1187,7 @@ configMapGenerator:
       - tender-radar__draft.mjs.gz=tender-radar__draft.mjs.gz
       - tender-radar__index.html.gz=tender-radar__index.html.gz
       - tender-radar__usage.mjs.gz=tender-radar__usage.mjs.gz
+      - tender-radar__vs-govwin.html.gz=tender-radar__vs-govwin.html.gz
       - tender-radar__which-tenders-are-worth-bidding-on.html.gz=tender-radar__which-tenders-are-worth-bidding-on.html.gz
       - toilet-replacement-bid-calculator__calc.mjs.gz=toilet-replacement-bid-calculator__calc.mjs.gz
       - toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz=toilet-replacement-bid-calculator__how-much-to-charge-to-replace-a-toilet.html.gz
