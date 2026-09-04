@@ -33,14 +33,14 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 130 files, 552584 bytes
+#   portfolio-front-tools-0: 130 files, 552687 bytes
 #   portfolio-front-tools-1: 117 files, 553636 bytes
 #   portfolio-front-tools-2: 148 files, 553731 bytes
 #   portfolio-front-tools-3: 117 files, 555751 bytes
 #   portfolio-front-tools-4: 124 files, 545861 bytes
 #   portfolio-front-tools-5: 107 files, 552426 bytes
 #   portfolio-front-tools-6: 109 files, 556504 bytes
-#   portfolio-front-tools-7: 113 files, 550750 bytes
+#   portfolio-front-tools-7: 114 files, 554846 bytes
 #   portfolio-front-tools-8: 96 files, 541822 bytes
 #   portfolio-front-tools-9: 89 files, 473337 bytes
 #
@@ -1013,6 +1013,7 @@ configMapGenerator:
       - quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz=quote-margin-check__should-i-take-this-kill-fee-or-finish.html.gz
       - quote-margin-check__summary.mjs.gz=quote-margin-check__summary.mjs.gz
       - quote-margin-check__usage.mjs.gz=quote-margin-check__usage.mjs.gz
+      - quote-margin-check__vs-bonsai.html.gz=quote-margin-check__vs-bonsai.html.gz
       - radon-mitigation-bid-calculator__calc.mjs.gz=radon-mitigation-bid-calculator__calc.mjs.gz
       - radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz=radon-mitigation-bid-calculator__how-much-to-charge-for-radon-mitigation.html.gz
       - radon-mitigation-bid-calculator__index.html.gz=radon-mitigation-bid-calculator__index.html.gz
