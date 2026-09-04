@@ -413,9 +413,14 @@ seal_agents() {
 
   say ""
   say "  The governor stays off until you say so, deliberately. After this is"
-  say "  pushed and you have watched a sync land, flip both:"
-  say "    gitops/agents/governor/cronjob.yaml   suspend: false"
-  say "    gitops/agents/governor/policy.json    \"enabled\": true"
+  say "  pushed and you have watched a sync land, turn it on:"
+  say "    ./bootstrap/scripts/enable-codex-governor.sh"
+  say ""
+  say "  That flips both switches at once -- the CronJob's 'suspend' and the"
+  say "  policy's 'enabled' -- which is why it exists: doing one by hand and"
+  say "  not the other fails silently in both directions. It refuses to run"
+  say "  until the Secret sealed above is committed and wired in, so running"
+  say "  it too early is safe. '--check' reports the state without writing."
 }
 
 # ---------------------------------------------------------------------- run

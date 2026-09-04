@@ -76,7 +76,7 @@
     color-scheme: light dark;
     --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
     --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
-    --good: #2f855a; --bad: #c53030; --warn: #b7791f;
+    --good: #2f855a; --bad: #c53030; --warn: #9a5b00;
   }
   @media (prefers-color-scheme: dark) {
     :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
@@ -93,6 +93,11 @@
   .lede { color: var(--muted); margin: 0 0 1.25rem; }
   .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; }
   .hint { color: var(--muted); font-size: 0.88rem; margin: 0.35rem 0 0; }
+  /* Visible to a screen reader, invisible on screen -- unlike the `hidden`
+     attribute this used to carry, which drops an element from the
+     accessibility tree entirely and left the file input with no name at
+     all. */
+  .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   a { color: var(--accent); }
   button {
     font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px;
@@ -145,6 +150,10 @@
     pairing. Your photos are read in this browser and never uploaded. Free, no
     signup.
   </p>
+  <p class="hint">
+    Had a set kicked back? <a href="./why-was-my-listing-photo-rejected.html">Why was my listing photo rejected?</a>
+    walks through the reasons that are readable from the file, and what to change.
+  </p>
 
   <section class="panel" aria-labelledby="pick-heading">
     <h2 id="pick-heading" style="margin-top:0">Choose the delivery folder</h2>
@@ -152,7 +161,7 @@
       <p><strong>Drop JPEG or PNG files here</strong></p>
       <p class="hint">or</p>
       <p>
-        <label for="files" class="visually-hidden" hidden>Listing photos</label>
+        <label for="files" class="visually-hidden">Listing photos</label>
         <input type="file" id="files" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
       </p>
       <p class="hint">

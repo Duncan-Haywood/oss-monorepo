@@ -40,6 +40,11 @@ test('the no-warranty disclaimer is on the page', () => {
   assert.match(html, /not tax, financial, or business advice/);
 });
 
+test('the page carries the standard sponsor link', () => {
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
+
 test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
   // Before this fix, a rejected input (a negative number, non-numeric text)
   // overwrote only the dollar hero (#price) with the error sentence and left
@@ -63,6 +68,17 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   }
   assert.match(body, /el\('currentBox'\)\.hidden\s*=\s*true/, 'the stale current-price box is never hidden');
   assert.match(body, /el\('errors'\)\.hidden\s*=\s*false/, 'the error message is never shown');
+});
+
+test('the result panel announces recalculation to screen readers', () => {
+  // The panel re-renders in place on every keystroke (price, revenue, labor
+  // hours, chemicals, overhead, total cost) with no page navigation and no
+  // focus change. Without aria-live, a screen-reader user who edits an input
+  // gets no indication the numbers just changed -- the same gap already
+  // fixed in which-job-first, cam-reconciliation-check, seller-net-sheet,
+  // ltl-freight-class-estimator, chargeback-evidence-packet, and
+  // subscription-price-impact.
+  assert.match(html, /<section class="result" aria-live="polite">/);
 });
 
 test('every default field the page collects is one share.mjs round-trips', () => {

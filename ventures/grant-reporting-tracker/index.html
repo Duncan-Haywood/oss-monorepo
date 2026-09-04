@@ -42,7 +42,7 @@
     <h3>Where is my grant data stored?</h3>
     <p>In this browser's local storage only. Nothing is uploaded to a server, and closing the tab does not lose your awards — they are still there next time you open the page on the same device and browser.</p>
   </section>
-  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.</footer>
+  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.<p class="support">Free and open source. If it kept a report deadline from slipping, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p></footer>
 </main><script type="module">
   import { reviewAll, toCsv, loadGrants, sampleGrants, removeGrant, markReportFiled } from './calc.mjs';
   const form=document.querySelector('#grant-form'), tbody=document.querySelector('tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='grant-tracker-awards';

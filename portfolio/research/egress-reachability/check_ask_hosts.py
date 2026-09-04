@@ -139,6 +139,12 @@ PUBLICATION_HOSTS = {
     # infra/README.md: already resolves to the cpx52 for something else. Named
     # in asks only to say the deploy must not take it.
     "marisstella.dev",
+    # gitops/prod/portfolio-front.yaml serves the same front door here as on
+    # the apex. Added 2026-09-04 alongside `hetzner-ssh-key-is-a-public-key`'s
+    # note on the `Public surface check` reading, which names all three
+    # `gitops/prod` hostnames together — omitting this one is the same gap
+    # this set exists to close, one host short.
+    "www.marisstella.dev",
 }
 
 

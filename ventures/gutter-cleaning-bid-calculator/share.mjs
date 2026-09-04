@@ -19,6 +19,11 @@ export const SHARE_FIELDS = Object.freeze([
   'minimumCharge',
   'proposedPrice',
   'runs',
+  // The proposal panel's terms (`platform/proposal/adopt.mjs`). Left off this
+  // list until now, so a shared link opened the sender's price under the
+  // recipient's own default 30%/30-day deposit terms — see
+  // `platform/proposal/term-ids.test.mjs`.
+  'depositPercent', 'validDays', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
 ]);
 
 const RUN_KEYS = Object.freeze(['name', 'linearFeet', 'story', 'pitch', 'guards', 'debris', 'downspouts']);

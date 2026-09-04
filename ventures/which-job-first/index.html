@@ -36,6 +36,7 @@
   <h1>Which job do you take first?</h1>
   <p class="intro">Paste the jobs you could take, then answer a handful of this-or-that questions. You never score anything — you just pick one — and the answers are assembled into a ranked work order.</p>
   <p class="value"><strong>After using this, you can now</strong> turn a list of possible jobs into an order you can act on, which used to mean staring at a whiteboard or scoring every job out of ten and getting twelve near-identical numbers back.</p>
+  <p class="note">New to this? <a href="./how-do-i-decide-which-job-to-take-first.html">How do I decide which job to take first?</a> covers what actually drives the order and how to run the comparison, on paper or here.</p>
 
   <section class="card" id="setup">
     <h2>Your list</h2>
@@ -65,7 +66,7 @@
     </div>
   </section>
 
-  <section class="card" id="result" hidden>
+  <section class="card" id="result" hidden aria-live="polite">
     <h2>Your work order</h2>
     <p class="note" id="result-note"></p>
     <ol class="result" id="order"></ol>
@@ -97,7 +98,10 @@
     <p>No — it ranks any list where the items are hard to score but easy to compare two at a time. Jobs and quotes are the case it was built for, because a trade with more work than weeks is the person who most often has to choose. It works the same way on a feature backlog, a shortlist of suppliers, or a stack of quotes you are deciding which to chase first.</p>
   </section>
 
-  <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or business advice and does not replace your own judgement. A ranking here reflects only the answers you gave it; you are responsible for reviewing it before acting on it, and for the commitments you make. The authors accept no liability for loss or damage arising from its use.</footer>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or business advice and does not replace your own judgement. A ranking here reflects only the answers you gave it; you are responsible for reviewing it before acting on it, and for the commitments you make. The authors accept no liability for loss or damage arising from its use.</p>
+    <p>Free and open source. If it helped you settle what to tackle first, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
 </main><script type="module">
   import {
     parseItems, createRanking, isComplete, nextPair, choose, ranking,

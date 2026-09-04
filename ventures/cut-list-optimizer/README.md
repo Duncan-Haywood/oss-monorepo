@@ -26,7 +26,7 @@ Enter the sheet size, your saw kerf, and one part per line:
 
 **Compare other sheet sizes** ranks the same parts list against a 5×5 Baltic birch, a 4×4 half-sheet, or a 5×10 — or any two sizes you type. When every size has a price, the ranking is cash; when prices are missing, it is sheets to buy. A size that cannot take every piece never wins, even if it is cheaper per sheet. The dedicated page [4×8 vs 5×5](compare-4x8-vs-5x5.html) walks the cabinet-door example.
 
-**Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Print** produces a paper copy of the diagrams with the controls hidden.
+**Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Download CSV** saves the same plan as a spreadsheet-ready file — one row per placed piece, with its sheet number, whether that sheet is a purchase or an on-hand offcut, its label, size, `x`/`y` position, and rotation — for pasting into a spreadsheet, a cut-list app, or a CNC nesting import. A piece that did not fit any sheet is still a row (`unplaced`, no sheet or position) rather than silently missing. **Print** produces a paper copy of the diagrams with the controls hidden.
 
 The current form is saved as an optional local draft when a field is changed, so a
 shop can return to an unfinished list after closing the tab. **Clear saved draft**
@@ -55,7 +55,7 @@ Two optional inputs turn the plan from a waste estimate into a purchasing decisi
 - **Offcuts you already have** — same `36 x 2` format as the cut list. These are consumed before any new stock is opened, shortest usable piece first, so the long stock on your rack stays whole for the next job. An offcut nothing gets cut from is left alone: it counts as neither consumed stock nor waste.
 - **Cost per stock piece** and **currency** — prices the plan, and reports how many purchases planning against your own rack avoided, and what that saved against buying everything new. Only pieces you actually buy are priced; an offcut off your own rack is already paid for and is not charged again.
 
-Both are carried into the copied job ticket alongside the stock length and kerf the plan assumed.
+Both are carried into the copied job ticket, and into the downloaded CSV, alongside the stock length and kerf the plan assumed. **Download CSV** on this tab saves one row per required cut — its bar number, whether that bar is a purchase or an on-hand offcut, the bar's stock length, and the cut's own length — for a spreadsheet or job-tracking sheet. A cut that fits nothing on hand or to buy is still a row (`unplaced`, no bar), matching the on-screen warning rather than dropping the line.
 
 **Which board length should you buy?** packs the same cuts onto 8 ft, 10 ft, 12 ft, and 16 ft stock (or the metric / feet equivalents) and ranks them by purchased length. An 8 ft stick wins over a 12 ft stick when both cover the list with one bar. **Use this length** writes that size onto the form.
 
@@ -68,9 +68,11 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | `cut-list-optimizer-runs` | A linear cut plan was calculated from a settled edit |
 | `cut-list-optimizer-copies` | A linear plan was copied out for a job ticket |
 | `cut-list-optimizer-compares` | A stock-length comparison was copied or applied to the form |
+| `cut-list-optimizer-csv-downloads` | A linear plan was downloaded as a CSV |
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
 | `cut-list-optimizer-sheet-compares` | Two or more sheet sizes were ranked on the same list |
+| `cut-list-optimizer-sheet-csv-downloads` | A sheet plan was downloaded as a CSV |
 
 The saved draft uses a separate local-storage key and is not an analytics event.
 
@@ -89,6 +91,7 @@ python3 -m http.server  # then verify the page at http://localhost:8000/
 | --- | --- |
 | `sheet.mjs` / `sheet.test.mjs` | 2D guillotine packing for sheet goods |
 | `calc.mjs` / `calc.test.mjs` | 1D packing for linear stock |
+| `csv.mjs` / `csv.test.mjs` | Shared CSV cell-escaping (including the spreadsheet-formula guard) used by both plans' CSV export |
 | `usage.mjs` / `usage.test.mjs` | The local, opt-out-able counters |
 | `page.test.mjs` | The markup-to-script contract for `index.html` |
 

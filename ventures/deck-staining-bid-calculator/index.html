@@ -309,7 +309,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your address, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-to-stain-a-deck.html">How much to charge to stain a deck</a>. See also: <a href="vs-joist.html">this calculator vs. Joist</a>.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -527,7 +527,18 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      // The proposal panel's terms (`platform/proposal/adopt.mjs`) are not
+      // part of FIELD_IDS/FLAG_IDS/SELECT_IDS `readInput()` reads, so they
+      // are merged in here -- see the matching SHARE_FIELDS entry in
+      // share.mjs and `platform/proposal/term-ids.test.mjs`.
+      const hash = encodeShare({
+        ...readInput(),
+        depositPercent: el('depositPercent').value,
+        validDays: el('validDays').value,
+        paymentTerms: el('paymentTerms').value,
+        proposalNotes: el('proposalNotes').value,
+        proposalExclusions: el('proposalExclusions').value,
+      });
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);

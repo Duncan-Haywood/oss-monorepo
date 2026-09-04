@@ -154,6 +154,14 @@ def front_door(tmp_path_factory) -> str:
     # `front-door-tools.test.mjs` is what proves every key is present and
     # inflates correctly; the merged view is still checked in memory above.
     served = {key: tools[key] for _, _, key in _sample_paths()}
+    # An aliased name has no stored bytes of its own — `dedupeMirror` keeps one
+    # copy and `00-mirror-alias.conf` points the other names at it — so serving
+    # it exercises a route the sampled keys above cannot: the `map` lookup. The
+    # canonical key is what has to be on disk for it to resolve.
+    alias_sample = _alias_sample()
+    if alias_sample:
+        _, canonical_key = alias_sample
+        served[canonical_key] = tools[canonical_key]
     root = tmp_path_factory.mktemp("front-door")
     for sub, keys in (
         ("html", maps["portfolio-front-html"]),
@@ -194,7 +202,7 @@ http {{
   fastcgi_temp_path {root}/tmp;
   uwsgi_temp_path {root}/tmp;
   scgi_temp_path {root}/tmp;
-  include {root}/conf/default.conf;
+  include {root}/conf/*.conf;
 }}
 """
     )
@@ -271,6 +279,74 @@ def _sample_paths() -> tuple[tuple[str, str, str], ...]:
         slug, _, tail = key[: -len(".gz")].partition("__")
         picks.append((f"/tools/{slug}/{'' if tail == 'index.html' else tail}", content_type, key))
     return tuple(picks)
+
+
+@functools.lru_cache(maxsize=1)
+def _alias_sample() -> tuple[str, str] | None:
+    """(url path, canonical mirror key) for one aliased file, or None if there are none.
+
+    Ventures ship their own copies of the shared helpers, so the flattened
+    mirror held `proposal.mjs` 104 times and `LICENSE` 161 times identically.
+    `dedupeMirror` stores one copy of each and `00-mirror-alias.conf` maps the
+    other names onto it, which is 18.5% of the mirror recovered from git, etcd
+    and both replicas' tmpfs.
+
+    That saving is only correct if the aliased URL still serves the same bytes,
+    and nothing else in this suite would notice if the map went missing: every
+    key `_sample_paths` picks is a *stored* one, which resolves to itself
+    through the map's identity default whether the map is loaded or not. So the
+    one route the alias mechanism actually adds is the one route that had no
+    test. This supplies it.
+
+    Returns None rather than failing when the mirror happens to hold no
+    duplicates at all — that is a legitimate state (it is what a catalogue of
+    entirely distinct files looks like), not a regression.
+    """
+    conf = _front_door_configmaps()["portfolio-front-nginx"].get(b"00-mirror-alias.conf")
+    if conf is None:
+        conf = _front_door_configmaps()["portfolio-front-nginx"].get("00-mirror-alias.conf")
+    assert conf is not None, (
+        "the nginx ConfigMap carries no 00-mirror-alias.conf. `front-door/default.conf` "
+        "rewrites six asset locations to `$fd_stored`, which only this file defines, so "
+        "without it nginx refuses to start with `unknown \"fd_stored\" variable`."
+    )
+    text = conf.decode() if isinstance(conf, bytes) else conf
+    stored = set(_mirror())
+    for line in text.splitlines():
+        line = line.strip()
+        if not line.startswith('"'):
+            continue
+        parts = [p for p in line.rstrip(";").split('"') if p.strip()]
+        if len(parts) != 2:
+            continue
+        alias, canonical = parts[0], parts[1]
+        if f"{canonical}.gz" not in stored:
+            continue
+        slug, _, tail = alias.partition("__")
+        # Only the two-segment shape, so the URL is `/tools/<slug>/<file>`; a
+        # subdirectory alias would need the third segment split out and adds no
+        # coverage of the map itself.
+        if "__" in tail:
+            continue
+        return f"/tools/{slug}/{tail}", f"{canonical}.gz"
+    return None
+
+
+def test_an_aliased_file_serves_the_bytes_of_its_stored_copy(front_door: str) -> None:
+    sample = _alias_sample()
+    if sample is None:
+        return
+    url_path, canonical_key = sample
+    status, _, body = _get(front_door + url_path, gzip_ok=True)
+    assert status == 200, (
+        f"{url_path} returned {status}. It is an aliased name with no stored bytes of its "
+        "own, so it resolves only through the `map` in 00-mirror-alias.conf — a 404 here "
+        "means the map is missing, misordered in conf.d, or names a key the mirror dropped."
+    )
+    assert body == gzip.decompress(_mirror()[canonical_key]), (
+        f"{url_path} served something other than the copy it aliases ({canonical_key}). "
+        "Deduplication is only sound while every aliased name serves byte-identical content."
+    )
 
 
 def test_every_shape_of_mirrored_path_is_served(front_door: str) -> None:
@@ -437,13 +513,91 @@ def test_an_unknown_category_is_a_404_rather_than_the_front_page(front_door: str
 
 
 def test_a_path_the_mirror_does_not_hold_is_a_404_rather_than_the_front_page(front_door: str) -> None:
-    # The catch-all answers every unmatched path with `index.html`, which is
-    # right for a mistyped URL and wrong under `/tools/`: a 200 carrying the
-    # front door tells a browser the tool exists and tells a crawler this
-    # domain has 156 pages of identical HTML.
+    # Under `/tools/` a 200 carrying the front door would tell a browser the
+    # tool exists and tell a crawler this domain has 173 pages of identical
+    # HTML. These blocks answer with nginx's own error page rather than the
+    # front page's body; the catch-all below serves the body instead, but both
+    # agree on the status, which is the part a crawler reads.
     for url_path in ("/tools/no-such-venture/", "/tools/no-such-venture/calc.mjs"):
         status, _, _ = _get(front_door + url_path, gzip_ok=True)
         assert status == 404, f"{url_path} returned {status} rather than 404"
+
+
+class _KeepRedirect(urllib.request.HTTPRedirectHandler):
+    """Stops urllib following a 3xx, so a redirect can be asserted on."""
+
+    def redirect_request(self, *args, **kwargs):  # noqa: D102
+        return None
+
+
+def _no_redirect(url: str):
+    """(status, Location) without following the redirect, which `_get` would."""
+    opener = urllib.request.build_opener(_KeepRedirect)
+    try:
+        response = opener.open(url, timeout=10)
+        return response.status, response.headers.get("Location")
+    except urllib.error.HTTPError as err:
+        err.read()
+        return err.code, err.headers.get("Location")
+
+
+def _get_with_error_body(url: str):
+    """Like `_get`, but keeps the body of a non-2xx response.
+
+    `_get` returns `b""` for an error because every caller before this one only
+    cared about the status. The catch-all's whole point is the body it serves
+    *with* a 404, so that case needs the bytes.
+    """
+    request = urllib.request.Request(url, headers={"Accept-Encoding": "identity"})
+    try:
+        response = urllib.request.urlopen(request, timeout=10)
+        return response.status, response.headers, response.read()
+    except urllib.error.HTTPError as err:
+        return err.code, err.headers, err.read()
+
+
+def test_an_unknown_path_serves_the_front_page_body_but_with_a_404(front_door: str) -> None:
+    # The two halves of this are separate decisions and only one of them was
+    # ever right.
+    #
+    # Serving the front page for a mistyped URL is deliberate — it is the one
+    # page here with a search box, so it beats a bare error — and it stays.
+    # Serving it with a `200` was a soft 404: this portfolio's only growth
+    # channel is organic search and AI answers, and a 200 tells a crawler that
+    # every typo, dead inbound link and `/wp-login.php` probe is a real page
+    # duplicating the front page, spending the crawl budget for 638 real URLs
+    # on an unbounded set of fake ones. It also left nothing downstream able to
+    # tell a live URL from a dead one.
+    front_page = _get_with_error_body(front_door + "/")[2]
+    for url_path in ("/some-typo", "/pricing/", "/wp-login.php", "/a/b/c"):
+        status, headers, body = _get_with_error_body(front_door + url_path)
+        assert status == 404, f"{url_path} returned {status} rather than 404"
+        assert body == front_page, f"{url_path} did not carry the front page's body"
+        # A cache holding "not found" for five minutes outlives the typo that
+        # produced it, so this one page opts out of the site-wide 300s.
+        assert "no-store" in (headers.get("Cache-Control") or ""), url_path
+
+
+def test_the_front_page_itself_is_still_a_200(front_door: str) -> None:
+    # The exact-match block exists so the catch-all above can return 404
+    # without taking the front page down with it. This is the test that would
+    # have caught that.
+    status, headers, _ = _get(front_door + "/", gzip_ok=True)
+    assert status == 200
+    assert "max-age=300" in (headers.get("Cache-Control") or "")
+
+
+def test_the_truncatable_parents_redirect_to_the_front_page(front_door: str) -> None:
+    # `/tools/` and `/c/` are what a reader gets by deleting the last segment
+    # of `/tools/<slug>/` or `/c/<id>/` in the address bar — not typos. The
+    # front page is the index of both, so a redirect is the honest answer; a
+    # 404 would be correct and useless, and a 200 would put a second copy of
+    # the front page at an address its own canonical tag does not name.
+    # `/index.html` is here for that last reason alone.
+    for url_path in ("/index.html", "/tools", "/tools/", "/c", "/c/"):
+        status, location = _no_redirect(front_door + url_path)
+        assert status == 301, f"{url_path} returned {status} rather than 301"
+        assert (location or "").endswith("/"), f"{url_path} redirected to {location}"
 
 
 def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:

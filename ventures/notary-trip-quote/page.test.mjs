@@ -12,6 +12,11 @@ test('landing page carries the disclaimer, structured data, and app script', () 
   assert.match(html, /calc\.mjs/);
 });
 
+test('the page carries the standard sponsor link', () => {
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
+
 test('the page imports the non-throwing wrapper, not the raw calculator', () => {
   // calculateQuote() throws on a negative or non-numeric figure. Importing it
   // directly into an input listener with no try/catch is exactly how a stray

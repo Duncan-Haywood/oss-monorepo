@@ -1,3 +1,5 @@
+import { csvCell, csvNumber, toCSV } from './csv.mjs';
+
 const LINE = /^(\d+(?:\.\d+)?)\s*(?:x|\*|,)?\s*(\d+)?$/i;
 
 function parseLengthList(text, label) {
@@ -174,6 +176,35 @@ export function formatCutPlan(result, { stockUnit = 'units', stockLength, kerf, 
   return lines.join('\n');
 }
 
+/**
+ * The same cutting plan as a CSV, one row per required cut: which bar it
+ * belongs to, whether that bar is a new purchase or an on-hand offcut, the
+ * bar's stock length, and the cut's own length. A shop pastes this into a
+ * spreadsheet or job-tracking sheet rather than retyping the plan by hand.
+ * A cut too long for any stock on hand or to buy still gets a row — `bar`
+ * blank, `source` "unplaced" — so the CSV never silently drops a line the
+ * on-screen warning already calls out.
+ */
+export function formatCutPlanCSV(result, { stockUnit = 'units' } = {}) {
+  const header = ['bar', 'source', 'stock_length', 'cut_length', 'unit'];
+  const rows = [];
+  result.bars.forEach((bar, index) => {
+    bar.cuts.forEach((cut) => {
+      rows.push([
+        csvNumber(index + 1),
+        csvCell(bar.source),
+        csvNumber(bar.length.toFixed(2)),
+        csvNumber(cut.toFixed(2)),
+        csvCell(stockUnit),
+      ]);
+    });
+  });
+  (result.oversize || []).forEach((cut) => {
+    rows.push(['', csvCell('unplaced'), '', csvNumber(cut.toFixed(2)), csvCell(stockUnit)]);
+  });
+  return toCSV(header, rows);
+}
+
 const LENGTH_EPS = 1e-9;
 
 // Lengths a lumberyard or metals supplier actually sells. The labels are
@@ -219,6 +250,17 @@ function rankStockRows(a, b) {
 function packStockCandidate(size, { cuts, kerf }) {
   try {
     const result = optimizeCutList({ stockLength: size.length, kerf, cuts });
+    // `optimizeCutList` never throws over a single cut that is too long for
+    // this stock length — it reports that cut in `oversize` and still packs
+    // everything else, so a candidate with a mid-length majority and one
+    // over-length outlier used to come back with `bars.length > 0` (the
+    // short cuts packed fine) and therefore `fits: true`, even though the
+    // long cut has nowhere to go on this stock at all. That let the ranking
+    // below pick it as the cheapest "buy this" size and the page render a
+    // working "Use this length" button for a length that cannot actually
+    // produce every piece on the list. Every cut has to be placed, not just
+    // some of them, for this size to count as fitting.
+    const fits = result.bars.length > 0 && result.oversize.length === 0;
     return {
       id: size.id,
       label: size.label,
@@ -228,7 +270,8 @@ function packStockCandidate(size, { cuts, kerf }) {
       buyLength: result.bars.length * size.length,
       waste: result.waste,
       utilization: result.utilization,
-      fits: result.bars.length > 0,
+      fits,
+      oversizeCount: result.oversize.length,
     };
   } catch (error) {
     return {

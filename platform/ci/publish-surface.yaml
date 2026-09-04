@@ -404,6 +404,9 @@ workflows:
 - workflow: opencode-high-throughput.yml
   classification: none
   publishes: []
+- workflow: outage-triage.yml
+  classification: none
+  publishes: []
 - workflow: owner-operator-cpm-calculator-ci.yml
   classification: none
   publishes: []
@@ -482,6 +485,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: public-record-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: public-surface-check.yml
   classification: none
   publishes: []
 - workflow: quick-pick-survey-ci.yml

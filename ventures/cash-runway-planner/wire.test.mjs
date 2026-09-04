@@ -188,6 +188,29 @@ test('a business spending more than it collects is told so instead of sold a dat
   assert.match(dom.output.innerHTML, /Moving <strong>Van<\/strong> \(\$1000\.00, week 3\) out of this window covers \$1000\.00 of it\./);
 });
 
+test('a forecast that dips, recovers, and dips again renders a plan for both shortfalls', async () => {
+  const dom = await loadApp(fakeDom({
+    values: {
+      ...GOOD, cash: '15', weeklyIncome: '90', weeklyCosts: '105', collectionWeeks: '0', weeks: '8',
+      item1Name: 'Bill', item1Amount: '20', item1Week: '2', item1Kind: 'out',
+      item2Name: 'FixIt', item2Amount: '70', item2Week: '4', item2Kind: 'in',
+    },
+  }));
+  dom.handlers.get('submit')({ preventDefault() {} });
+  assert.match(dom.output.innerHTML, /Cash shortfall/);
+  // The headline low point (the actual global minimum) falls in the second
+  // run, at week 8 -- not the first run this page used to stop reporting at.
+  assert.match(dom.output.innerHTML, /Lowest projected balance: -\$55\.00 in week 8/);
+  assert.match(dom.output.innerHTML, /First projected shortfall: <strong>week 2<\/strong>/);
+  assert.match(dom.output.innerHTML, /Shortfall 2: <strong>week 5<\/strong>.*low point \(week 8\)/);
+  // "Bill" already fixed the first shortfall and must not be reoffered for
+  // the second -- nothing else dated is available there.
+  const [, afterShortfall2] = dom.output.innerHTML.split('Shortfall 2:');
+  assert.match(afterShortfall2, /Nothing dated is available to move/);
+  // The structural note is shared across both runs, said only once.
+  assert.equal((dom.output.innerHTML.match(/not a timing problem/g) || []).length, 1);
+});
+
 test('a negative balance puts the minus outside the dollar sign', async () => {
   // `platform/ci/check_money_sign.py` is the site-wide rule; this pins the
   // rendered string, which is what a visitor actually reads.

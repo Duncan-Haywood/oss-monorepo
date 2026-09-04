@@ -134,52 +134,94 @@ export function status(rows) {
   return { lowest: low.balance, week: low.week, shortfall: low.balance < 0, shortfallWeek: firstShortfall?.week ?? null };
 }
 
+// Every contiguous run of negative-balance weeks in the forecast, in order.
+// A forecast can dip negative, recover, and dip again -- a mid-year cost
+// spike after an early one resolves is the ordinary case for a seasonal
+// business, not an edge case.
+function negativeRuns(rows) {
+  const runs = [];
+  let index = 0;
+  while (index < rows.length) {
+    if (rows[index].balance < 0) {
+      let end = index;
+      while (end + 1 < rows.length && rows[end + 1].balance < 0) end += 1;
+      runs.push({ startIndex: index, endIndex: end });
+      index = end + 1;
+    } else {
+      index += 1;
+    }
+  }
+  return runs;
+}
+
 // Naming the week cash runs out tells an owner they have a problem. It does
 // not tell them what to do about it, which is the only reason they opened the
 // page. This names the single payment whose date would close the gap, and --
 // when nothing dated can close it -- says so plainly instead of offering a
 // move that only postpones the same week.
-export function shortfallPlan(rows, { items = [], weeklyIncome = 0, weeklyCosts = 0 } = {}) {
+//
+// A forecast can carry more than one shortfall: cash recovers after the first
+// dip and then runs short again later, from a second cost spike or a delayed
+// invoice. `status()` reports the single deepest week across the whole
+// forecast, but that week can fall inside a *later* run than the first one --
+// so a plan that only ever looked at the first run could name a "low point"
+// week that does not match the headline lowest balance at all, and would say
+// nothing about the dip that headline balance is actually reporting. This
+// returns one plan per run, each measured against its own trough, so every
+// shortfall gets its own answer.
+export function shortfallPlans(rows, { items = [], weeklyIncome = 0, weeklyCosts = 0 } = {}) {
   if (!rows.length) throw new Error('At least one forecast week is required.');
-  const start = rows.findIndex((row) => row.balance < 0);
-  if (start === -1) return null;
-  let end = start;
-  while (end + 1 < rows.length && rows[end + 1].balance < 0) end += 1;
-  const run = rows.slice(start, end + 1);
-  const trough = run.reduce((worst, row) => row.balance < worst.balance ? row : worst, run[0]);
-  // What has to be found: the deepest point of this run of negative weeks, not
-  // the first week's gap. Covering only the first week leaves the owner short
-  // again a fortnight later, which is the shortfall they came here to avoid.
-  const deficit = -trough.balance;
   const recurringGap = Number(weeklyCosts) - Number(weeklyIncome);
   const structural = recurringGap > 0;
+  // A payment already named as the fix for an earlier shortfall is not a free
+  // lever for a later one too -- moving one bill cannot close two different
+  // gaps at once, and suggesting that would overstate what either move does.
+  const usedOutflow = new Set();
+  const usedInflow = new Set();
 
-  // Delaying a payment lifts every week from its own week onward, so it can
-  // only help the deficit this plan reports -- the trough, not the first
-  // negative week -- when it lands at or before that trough. A payment that
-  // lands after the run starts but still inside the window (say, a tax bill
-  // in week 3 of a run that first went negative in week 2) still deepens the
-  // trough and is still a lever to name, not a payment to ignore.
-  const outflow = items
-    .filter((item) => item.kind === 'out' && Number(item.week) <= trough.week)
-    .sort((a, b) => Number(b.amount) - Number(a.amount))[0] ?? null;
-  // Pulling money in only helps if it is not already inside the gap.
-  const inflow = items
-    .filter((item) => item.kind === 'in' && Number(item.week) > trough.week)
-    .sort((a, b) => Number(a.week) - Number(b.week) || Number(b.amount) - Number(a.amount))[0] ?? null;
+  return negativeRuns(rows).map(({ startIndex, endIndex }) => {
+    const run = rows.slice(startIndex, endIndex + 1);
+    const trough = run.reduce((worst, row) => row.balance < worst.balance ? row : worst, run[0]);
+    // What has to be found: the deepest point of this run of negative weeks,
+    // not the first week's gap. Covering only the first week leaves the owner
+    // short again a fortnight later, which is the shortfall they came here to
+    // avoid.
+    const deficit = -trough.balance;
 
-  const withVerdict = (item) => item && { ...item, amount: Number(item.amount), week: Number(item.week), clears: Number(item.amount) >= deficit };
-  return {
-    week: rows[start].week,
-    troughWeek: trough.week,
-    recoveryWeek: end + 1 < rows.length ? rows[end + 1].week : null,
-    runEndWeek: rows[end].week,
-    deficit,
-    structural,
-    recurringGap: structural ? recurringGap : 0,
-    delay: withVerdict(outflow),
-    pullForward: withVerdict(inflow),
-  };
+    // Delaying a payment lifts every week from its own week onward, so it can
+    // only help the deficit this plan reports -- the trough, not the first
+    // negative week -- when it lands at or before that trough. A payment that
+    // lands after the run starts but still inside the window (say, a tax bill
+    // in week 3 of a run that first went negative in week 2) still deepens the
+    // trough and is still a lever to name, not a payment to ignore.
+    const outflow = items
+      .filter((item) => item.kind === 'out' && Number(item.week) <= trough.week && !usedOutflow.has(item))
+      .sort((a, b) => Number(b.amount) - Number(a.amount))[0] ?? null;
+    // Pulling money in only helps if it is not already inside the gap.
+    const inflow = items
+      .filter((item) => item.kind === 'in' && Number(item.week) > trough.week && !usedInflow.has(item))
+      .sort((a, b) => Number(a.week) - Number(b.week) || Number(b.amount) - Number(a.amount))[0] ?? null;
+    if (outflow) usedOutflow.add(outflow);
+    if (inflow) usedInflow.add(inflow);
+
+    const withVerdict = (item) => item && { ...item, amount: Number(item.amount), week: Number(item.week), clears: Number(item.amount) >= deficit };
+    return {
+      week: rows[startIndex].week,
+      troughWeek: trough.week,
+      recoveryWeek: endIndex + 1 < rows.length ? rows[endIndex + 1].week : null,
+      runEndWeek: rows[endIndex].week,
+      deficit,
+      structural,
+      recurringGap: structural ? recurringGap : 0,
+      delay: withVerdict(outflow),
+      pullForward: withVerdict(inflow),
+    };
+  });
+}
+
+// The single earliest shortfall, for callers that only ever handled one.
+export function shortfallPlan(rows, options) {
+  return shortfallPlans(rows, options)[0] ?? null;
 }
 
 export function csv(rows) {
@@ -221,27 +263,36 @@ if (typeof document !== 'undefined') {
     return count;
   };
 
-  const planLines = (plan, span) => {
-    if (!plan) return `<p>No projected negative balance in this ${span}-week window.</p>`;
-    const lines = [
-      `<p>First projected shortfall: <strong>week ${plan.week}</strong>. You are ${money(plan.deficit)} short at the low point (week ${plan.troughWeek}).</p>`,
-    ];
-    if (plan.delay) {
-      const move = plan.recoveryWeek ? `past week ${plan.runEndWeek}` : 'out of this window';
-      lines.push(`<p>Moving <strong>${escapeText(plan.delay.name)}</strong> (${money(plan.delay.amount)}, week ${plan.delay.week}) ${move} ${
-        plan.delay.clears ? 'closes the gap.' : `covers ${money(plan.delay.amount)} of it.`}</p>`);
-    }
-    if (plan.pullForward) {
-      lines.push(`<p>Collecting <strong>${escapeText(plan.pullForward.name)}</strong> (${money(plan.pullForward.amount)}, due week ${plan.pullForward.week}) before week ${plan.week} ${
-        plan.pullForward.clears ? 'closes the gap.' : `covers ${money(plan.pullForward.amount)} of it.`}</p>`);
-    }
-    if (!plan.delay && !plan.pullForward) {
-      lines.push('<p>Nothing dated is available to move. Bring collection forward or move a cost out before that week.</p>');
-    }
-    if (plan.structural) {
+  const planLines = (plans, span) => {
+    if (!plans.length) return `<p>No projected negative balance in this ${span}-week window.</p>`;
+    // A forecast can carry more than one shortfall run -- cash recovers after
+    // the first dip, then runs short again later. Each gets its own heading
+    // and its own delay/pull-forward suggestion.
+    const lines = plans.map((plan, index) => {
+      const heading = index === 0 ? 'First projected shortfall' : `Shortfall ${index + 1}`;
+      const parts = [
+        `<p>${heading}: <strong>week ${plan.week}</strong>. You are ${money(plan.deficit)} short at the low point (week ${plan.troughWeek}).</p>`,
+      ];
+      if (plan.delay) {
+        const move = plan.recoveryWeek ? `past week ${plan.runEndWeek}` : 'out of this window';
+        parts.push(`<p>Moving <strong>${escapeText(plan.delay.name)}</strong> (${money(plan.delay.amount)}, week ${plan.delay.week}) ${move} ${
+          plan.delay.clears ? 'closes the gap.' : `covers ${money(plan.delay.amount)} of it.`}</p>`);
+      }
+      if (plan.pullForward) {
+        parts.push(`<p>Collecting <strong>${escapeText(plan.pullForward.name)}</strong> (${money(plan.pullForward.amount)}, due week ${plan.pullForward.week}) before week ${plan.week} ${
+          plan.pullForward.clears ? 'closes the gap.' : `covers ${money(plan.pullForward.amount)} of it.`}</p>`);
+      }
+      if (!plan.delay && !plan.pullForward) {
+        parts.push('<p>Nothing dated is available to move. Bring collection forward or move a cost out before that week.</p>');
+      }
+      return parts.join('');
+    });
+    if (plans[0].structural) {
       // Saying "move the tax bill" to someone whose weekly costs exceed their
-      // weekly collections sells them a week. They need to hear the real shape.
-      lines.push(`<p><strong>This is not a timing problem.</strong> Week to week you spend ${money(plan.recurringGap)} more than you collect, so moving one payment postpones this shortfall rather than fixing it.</p>`);
+      // weekly collections sells them a week. They need to hear the real
+      // shape. Structural is a property of the whole forecast, the same for
+      // every run, so it is said once rather than repeated after each one.
+      lines.push(`<p><strong>This is not a timing problem.</strong> Week to week you spend ${money(plans[0].recurringGap)} more than you collect, so moving one payment postpones each shortfall rather than fixing it.</p>`);
     }
     return lines.join('');
   };
@@ -260,11 +311,11 @@ if (typeof document !== 'undefined') {
       showError(error);
       return;
     }
-    const plan = shortfallPlan(rows, { items, weeklyIncome: data.weeklyIncome, weeklyCosts: data.weeklyCosts });
+    const plans = shortfallPlans(rows, { items, weeklyIncome: data.weeklyIncome, weeklyCosts: data.weeklyCosts });
     const today = new Date();
     output.innerHTML = `<strong>${result.shortfall ? 'Cash shortfall' : 'Cash stays positive'}</strong>`
       + `<p>Lowest projected balance: ${money(result.lowest)} in week ${result.week}.</p>`
-      + planLines(plan, rows.length)
+      + planLines(plans, rows.length)
       + `<ol>${rows.map((row) => {
         const dated = weekStart(row.week, today).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
         const note = row.items.length

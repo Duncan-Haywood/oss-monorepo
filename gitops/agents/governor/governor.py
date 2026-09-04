@@ -751,6 +751,15 @@ def build_job_manifest(
                                 # the sealed Secret goes stale after the first
                                 # Job and every later run fails to authenticate.
                                 {"name": "codex-home", "mountPath": "/var/lib/codex"},
+                                # gh and the Codex CLI, kept between Jobs. Both
+                                # are pinned and re-fetched from the network
+                                # otherwise -- 320 MB of npm plus an 11 MB
+                                # tarball, on a CronJob that ticks every five
+                                # minutes. With maxConcurrent 1 a registry blip
+                                # during the download costs the whole tick, so
+                                # this is a reliability mount at least as much
+                                # as a bandwidth one. See codex-tools.yaml.
+                                {"name": "codex-tools", "mountPath": "/var/lib/codex-tools"},
                             ],
                             "securityContext": {
                                 "allowPrivilegeEscalation": False,
@@ -765,6 +774,7 @@ def build_job_manifest(
                     "volumes": [
                         {"name": "worker", "configMap": {"name": "codex-worker-script", "defaultMode": 0o555}},
                         {"name": "codex-home", "persistentVolumeClaim": {"claimName": "codex-home"}},
+                        {"name": "codex-tools", "persistentVolumeClaim": {"claimName": "codex-tools"}},
                     ],
                 },
             },

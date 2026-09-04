@@ -387,6 +387,39 @@ def test_worker_uses_the_approval_flag_the_current_cli_accepts() -> None:
     assert "approval_policy=\"never\"" in text
 
 
+def test_the_pinned_tools_survive_between_jobs() -> None:
+    # The claim, its kustomization entry, and the worker default that has to
+    # agree with governor.py's mount path.
+    pvc = yaml.safe_load((AGENTS / "codex-tools.yaml").read_text())
+    assert pvc["kind"] == "PersistentVolumeClaim"
+    assert pvc["metadata"]["name"] == "codex-tools"
+    assert pvc["metadata"]["namespace"] == "agents"
+
+    kustomization = yaml.safe_load((AGENTS / "kustomization.yaml").read_text())
+    assert "codex-tools.yaml" in kustomization["resources"], (
+        "the tool-cache PVC is not applied, so every Job falls back to a "
+        "throwaway directory and re-downloads 320 MB of npm"
+    )
+
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert 'CODEX_TOOLS_DIR="${CODEX_TOOLS_DIR:-/var/lib/codex-tools}"' in worker, (
+        "worker.sh no longer defaults to the path governor.py mounts the claim at"
+    )
+
+
+def test_a_cached_tool_is_checked_against_its_pin_rather_than_merely_present() -> None:
+    # The hazard the cache introduces, and the reason install_tools grew a
+    # version check. gh and codex are pinned in git precisely so a version
+    # nobody reviewed cannot reach the binary that holds this Job's GH_TOKEN
+    # and the owner's ChatGPT auth.json. A cache that kept serving the
+    # superseded copy past a reviewed bump would make both pins decorative --
+    # silently, since everything downstream only asks whether the name is on
+    # PATH. `test_worker_run.py` drives this end to end; this pins the shape.
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert "gh_matches_pin" in worker and "codex_matches_pin" in worker
+    assert "cached gh" in worker and "cached codex" in worker
+
+
 def test_codex_credential_survives_between_jobs() -> None:
     pvc = yaml.safe_load((AGENTS / "codex-home.yaml").read_text())
     assert pvc["kind"] == "PersistentVolumeClaim"
@@ -940,9 +973,45 @@ def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
     # pins, so it is excluded here rather than silently satisfied.
     conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
     blocks = re.split(r"(?=^\s*location\b)", conf, flags=re.MULTILINE)
-    content_blocks = [
-        b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b
-    ]
+    located = [b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b]
+    # The second deliberate exception, and narrower than `/healthz`: a block
+    # that emits no body of its own. Two shapes qualify and both arrived with
+    # the soft-404 fix —
+    #
+    #   * `return 301 /` — the truncatable parents (`/tools/`, `/c/`) and
+    #     `/index.html`. A redirect has no body to frame.
+    #   * `error_page 404 @…; return 404;` — the catch-all, which hands the
+    #     response to `@front_page_not_found`. That named block *is* checked
+    #     below and does carry the header, which is the one that reaches the
+    #     client; `add_header` here would be dropped by the final location
+    #     anyway, so requiring it would pin a line that does nothing.
+    #
+    # The exclusion is by *shape*, not by name, and the two assertions below
+    # are what keep it from becoming a hole: a block only leaves the check
+    # while it still emits nothing, and the excluded set has to stay exactly
+    # the size it is today. Add a `try_files`, a `root`, or any other
+    # body-producing directive to one and it is a content block again on the
+    # next run, header requirement included.
+    bodyless = []
+    content_blocks = []
+    for block in located:
+        body = block[block.index("{") + 1 : block.rindex("}")]
+        directives = [
+            line.strip()
+            for line in body.splitlines()
+            if line.strip() and not line.strip().startswith("#")
+        ]
+        if directives and all(
+            re.fullmatch(r"(?:return \d{3}|error_page \d{3} @\w+)[^;]*;", d)
+            for d in directives
+        ):
+            bodyless.append(block.splitlines()[0].strip())
+        else:
+            content_blocks.append(block)
+    assert len(bodyless) == 6, (
+        "expected exactly six body-less blocks — the five redirects "
+        f"(/index.html, /tools, /tools/, /c, /c/) and the catch-all; got {bodyless}"
+    )
     #
     # Changed 2026-09-03, and deliberately narrowed rather than relaxed. The
     # tool entry page became framable for `?pfEmbed=1` only, so that one block
@@ -1139,7 +1208,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 173 since 2026-09-03, when `which-job-first` shipped — a static surface
     # from its first commit, so it entered the mirror and the total in the same
     # change rather than closing a gap between them.
-    total = 173  # `infra/OWNER_CHECKLIST.md`'s own "N of the 173 tools" wording.
+    # 174 since 2026-09-04, when `dns-configuration-evidence` gained a browser
+    # surface. Same shape as the three ventures above: its Python CLI stays
+    # canonical and an `index.html` beside it made the venture mirrorable, so
+    # the mirror and the total moved together and parity held.
+    total = 174  # `infra/OWNER_CHECKLIST.md`'s own "N of the 174 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

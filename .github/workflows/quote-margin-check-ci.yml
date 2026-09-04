@@ -15,6 +15,7 @@ on:
 permissions:
   contents: read
 
+# A second push to the same branch makes the first run irrelevant.
 concurrency:
   group: quote-margin-check-ci-${{ github.ref }}
   cancel-in-progress: true

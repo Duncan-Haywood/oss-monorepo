@@ -51,6 +51,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { onlySlugs, keepSlug, describeFilter, requireNonEmpty } from './only-slugs.mjs';
 
 // Playwright ships CommonJS, so a PLAYWRIGHT naming its entry *file* resolves
 // the exports under `.default` while a bare specifier gives them directly.
@@ -67,6 +68,11 @@ const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, ''
 const DIST = process.env.DIST || path.join(path.dirname(new URL(import.meta.url).pathname), 'dist');
 const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
 const LAUNCH = chromePath ? { executablePath: chromePath } : {};
+
+// Read once, at module scope, so every code path in this file sees the same
+// filter. `null` means "no filter"; see only-slugs.mjs for why that is kept
+// distinct from an empty set.
+const only = onlySlugs();
 
 /** Every published tool directory in the built artifact. */
 async function toolSlugs() {
@@ -196,20 +202,18 @@ async function checkTool(browser, slug) {
   }
 }
 
-const only = process.argv.slice(2);
 let slugs;
 try {
-  slugs = await toolSlugs();
+  slugs = (await toolSlugs()).filter((s) => keepSlug(s, only));
+  if (only) console.log(describeFilter(only));
 } catch (error) {
   console.error(`Could not read the built artifact at ${DIST}: ${error.message}`);
   console.error('Build it first: node platform/pages/build.mjs --out=platform/pages/dist');
   process.exit(2);
 }
-if (only.length) slugs = slugs.filter((slug) => only.includes(slug));
-if (slugs.length === 0) {
-  console.error('No tools to check.');
-  process.exit(2);
-}
+// Outside the try on purpose: an over-narrow filter is not a build problem,
+// and reporting it as one sends the reader to rebuild a site that is fine.
+requireNonEmpty(slugs, only, 'tool directories');
 
 const browser = await chromium.launch(LAUNCH);
 const results = [];

@@ -48,6 +48,7 @@
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { onlySlugs, keepSlug, describeFilter } from './only-slugs.mjs';
 
 import { HIGHLIGHT_PROMISE, NO_FIELD_LABEL } from './invalid.mjs';
 
@@ -67,6 +68,11 @@ const DIST = process.env.DIST || path.join(path.dirname(new URL(import.meta.url)
 const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
 const LAUNCH = chromePath ? { executablePath: chromePath } : {};
 
+// Read once, at module scope, so every code path in this file sees the same
+// filter. `null` means "no filter"; see only-slugs.mjs for why that is kept
+// distinct from an empty set.
+const only = onlySlugs();
+
 /**
  * The tools that make the promise, read from the artifact rather than guessed.
  *
@@ -79,6 +85,9 @@ async function promisingSlugs() {
   const slugs = [];
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
+    // Before the read, not after: under a filter this walk should not open 169
+    // entry pages in order to discard 168 of them.
+    if (!keepSlug(entry.name, only)) continue;
     try {
       const html = await fs.readFile(path.join(DIST, entry.name, 'index.html'), 'utf8');
       if (html.toLowerCase().includes(HIGHLIGHT_PROMISE)) slugs.push(entry.name);
@@ -166,7 +175,6 @@ async function checkTool(browser, slug) {
   }
 }
 
-const only = process.argv.slice(2);
 let slugs;
 try {
   slugs = await promisingSlugs();
@@ -175,9 +183,17 @@ try {
   console.error('Build it first: node platform/pages/build.mjs --out=platform/pages/dist');
   process.exit(2);
 }
-if (only.length) slugs = slugs.filter((slug) => only.includes(slug));
+if (only) console.log(describeFilter(only));
 if (slugs.length === 0) {
-  console.error('No tool in the artifact promises a highlight.');
+  // Exit 2 either way — nothing was verified — but the two causes need
+  // different reactions, and under a filter the second is the likely one. A
+  // venture that genuinely makes no highlight promise has nothing for this
+  // check to hold it to, which is not a defect in the venture.
+  console.error(only
+    ? `No tool matching ${describeFilter(only)} promises a highlight, so this\n`
+      + 'check has nothing to verify for it. Either the slug is misspelled, or\n'
+      + 'that venture does not print the promise sentence — which is allowed.'
+    : 'No tool in the artifact promises a highlight.');
   process.exit(2);
 }
 

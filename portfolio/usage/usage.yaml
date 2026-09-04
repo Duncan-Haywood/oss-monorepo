@@ -343,6 +343,72 @@ products:
           defect, so the fix covers it too rather than leaving one tool of
           four inflating its own numbers — which would be worse than uniform
           over-counting, because it makes the tools incomparable.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          First question-shaped page for this venture:
+          led-resistor-calculator/can-i-use-one-resistor-for-multiple-leds.html,
+          comparing a series string, one resistor per LED, and one shared
+          resistor across parallel LEDs (18 passing unit tests in
+          wiring.test.mjs, numbers derived from Ohm's law by hand rather than
+          baselined off a run).
+          Counted locally as `led_wiring_compared`, settled the same way as
+          the tools above so a page load records nothing and a burst of
+          typing records one — kept distinct from the parent tool's
+          `led_resistor_calculated` on purpose. The reading worth watching
+          once traffic exists is the ratio between the two: this page answers
+          the question people search for ("can I use one resistor for
+          multiple LEDs"), while the parent answers the one they have after
+          deciding, so entries here that go on to the parent are the
+          discoverability signal.
+          Unlike every earlier row in this entry, this one is **not**
+          publishing-gated. The venture's pages have been served from the
+          apex at /tools/ai-engineering-academy/ since the mirror learned to
+          read ENTRY_OVERRIDES, so this page is publicly reachable from the
+          commit that lands it. The zero below is a genuine pre-traffic
+          baseline rather than a note about a surface nobody can reach.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second question-shaped page for this venture:
+          555-timer-calculator/can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.
+          New computed capability, not just prose: designs the diode-mod
+          astable (any duty cycle from just above 0% to just below 100%,
+          including the 50%-and-below range the plain two-resistor astable
+          cannot reach and the parent tool's design panel already rejects
+          with an error) — 10 new passing unit tests in calc.test.mjs.
+          Counted locally as `diode_astable_designed`, settled the same way
+          as every other tool in this venture so a page load records
+          nothing and a burst of typing records one. Not publishing-gated,
+          same as the LED page above — publicly reachable from the commit
+          that lands it. Also linked from the parent calculator's design
+          panel this time, next to the "must be above 50" hint that
+          previously dead-ended, so this page does not repeat the
+          discoverability gap the LED page shipped with (its parent panel
+          carries no link back to it). The zero below is a genuine
+          pre-traffic baseline.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Third question-shaped page for this venture:
+          voltage-divider-calculator/how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.
+          New computed capability: designDividerForLoad() sizes R1/R2 from a
+          target output, a known load, and a bleeder-current multiple, then
+          reports the achieved output and power by calling the venture's
+          existing calculateVoltageDivider() rather than a second formula —
+          8 new passing unit tests, one of them asserting the achieved
+          result is deepEqual to a direct call into that existing function.
+          Counted locally as `divider_for_load_designed`, settled the same
+          way as the other tools in this venture. Not publishing-gated, same
+          as the two pages above. Linked from the parent calculator's
+          loaded-output section, next to the load-resistance field it
+          extends. The zero below is a genuine pre-traffic baseline.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
@@ -363,6 +429,14 @@ products:
           owner-gated, so there is no traffic signal to read yet; the
           page's counter reports only to the visitor's own browser.
           Baseline row for the browser surface.
+
+          Events counted locally: report_generated (once per visit -- it
+          was called from the input handler, so typing "4200" logged four
+          reports and the count measured keystrokes rather than use),
+          csv_copied, report_copied, link_copied, quote_restored_from_link.
+          The last four are the ones worth reading: a bare visit is not
+          evidence of value, but exporting a report or reopening a saved
+          quote is.
       - as_of: 2026-08-27
         signals:
           report_generated_events: 0
@@ -3694,6 +3768,20 @@ products:
           Shipped a local booth-rent vs commission take-home calculator for
           stylists; public URL remains owner-gated and the browser counter is
           local and opt-out.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added the payroll-tax comparison: employee FICA on the commission
+          side against self-employment tax on the booth side, which the tool
+          had been omitting while presenting the two take-homes as
+          comparable. New `tax_verdict_flipped` counter measures the thing
+          worth knowing -- how often accounting for it reverses which deal
+          wins. On the shipped example book the wedge is ~$3,200/year and it
+          reverses the verdict at a $420/week chair rent. Counter is still
+          local, aggregate, and opt-out; served on the apex via the front-door
+          mirror, so this one does reach strangers today.
 
   - slug: sump-pump-bid-calculator
     surface: static-page-in-repo
@@ -4492,3 +4580,36 @@ products:
           onto current main. Distinct from grant-deadline-tracker and
           grant-reporting-tracker. Public URL remains owner-gated; usage is
           opt-out and honors DNT/GPC. Baseline row.
+  - slug: dns-configuration-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          capture_started: 0
+          capture_completed: 0
+          baseline_saved: 0
+          report_built: 0
+          report_copied: 0
+        note: >-
+          Baseline at publication of the browser surface. The venture had real
+          product logic since its first commit and no interface but a Python
+          CLI, so both of its hypotheses sat `untested` -- an MSP mid-cutover
+          was never going to clone a repo to try it. `index.html` ships the
+          same capture/compare workflow over DNS-over-HTTPS from the visitor's
+          own browser, and the venture entered the apex mirror in the same
+          change, so it has a public route at
+          `/tools/dns-configuration-evidence/` from this commit rather than
+          being instrumented-but-unreachable.
+
+          The pair worth watching is `capture_completed` against
+          `report_built`. A capture is cheap curiosity; a report means somebody
+          came back after a real change with a baseline they had kept, which is
+          the only evidence that the before/after workflow -- not just a DNS
+          lookup box -- is what people want. `baseline_saved` sitting well
+          above `report_built` would say the second visit is not happening, and
+          that is a product problem rather than a copy problem.
+
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so a
+          zero here is the expected reading for a tool nobody has switched the
+          counter on for.

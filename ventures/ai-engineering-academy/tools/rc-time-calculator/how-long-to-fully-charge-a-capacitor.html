@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How long does it take a capacitor to fully charge? | RC time constants</title>
+<meta name="description" content="Free calculator showing how long an RC circuit takes to reach 63%, 95%, 99%, and the conventional 99.33% 'fully charged' point at 5 time constants — computed for your own resistor, capacitor, and supply voltage. A capacitor never mathematically reaches 100%. Runs in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="how-long-to-fully-charge-a-capacitor.html" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 22h9l3-12 4 20 3-14 2 6h7' fill='none' stroke='%23136f63' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<meta property="og:title" content="How long does it take a capacitor to fully charge?" />
+<meta property="og:description" content="A capacitor never mathematically finishes charging. See how long yours takes to reach 63%, 95%, 99%, and the conventional 99.33% 'done' point at 5 time constants." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Capacitor full-charge time calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": "Time to reach 1 through 7 time constants for your own resistor, capacitor, and supply voltage; voltage and percent-of-supply reached at each; the conventional 5-time-constant 'fully charged' point; exact time to reach any target percent below 100"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How long does it take a capacitor to fully charge?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Never — not in a strict mathematical sense. An RC charging curve is exponential, so it always leaves some gap to the supply voltage, however small. Engineers use a working definition instead: after 5 time constants (τ = R×C) a capacitor is considered fully charged, having reached 99.33% of the supply voltage. With this page's own defaults (R = 10 kΩ, C = 100 nF, 5 V supply — τ = 1 ms) that is 5 ms, at 4.9663 V."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many time constants is \"fully charged\"?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "By convention, five. At 1τ a capacitor has only reached 63.21% of the supply; at 3τ, 95.02%; at 5τ, 99.33%, which is close enough to call finished for almost any purpose; at 7τ, 99.91%. Each additional time constant closes most of what remains of the gap, so the returns shrink fast — going from 5τ to 7τ only buys another 0.58 percentage points, from 4.9663 V to 4.9954 V on this page's own 5 V default."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a capacitor ever reach exactly 100% of the supply voltage?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, not in any finite time. The charging current is proportional to the voltage still missing — (supply minus capacitor voltage) divided by R — so as the capacitor voltage climbs toward the supply, the current driving it shrinks too, and it approaches the supply asymptotically rather than arriving. In practice, leakage, the source's own tolerance, and measurement resolution make the difference undetectable long before the math would call it finished, which is why 5τ is treated as \"done.\""
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does charging slow down the longer it runs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the driving voltage across the resistor is the gap that's left, not the full supply. Early on that gap is nearly the whole supply, so the charging current — and the rate the voltage climbs — is at its highest; by 5τ the gap is down to 0.67% of the supply, so the current driving further charging is down to 0.67% of where it started. This page's own defaults show it directly: the first time constant closes 63.21 percentage points of the gap, but the fifth adds only 1.16 more (from 98.17% to 99.33%)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I find the time for a target other than the 5τ convention, like 99.9%?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use the target-percent tool above rather than reading the fixed table: it solves the same charging equation for any percent below 100 you pick. On this page's defaults, 99.9% takes 6.9078 time constants — 6.9078 ms — noticeably longer than the 5τ convention for one more '9' of precision, which is the general shape of an exponential tail: each added 9 costs roughly one more time constant."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #136f63; --panel: #f7f7f8; --focus: #136f63; --warn: #9a3412;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #65d6bd; --warn: #fca97a; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  select, input {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  select:focus, input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0 0.5rem; }
+  .row3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
+  .row3 > * { min-width: 0; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .verdict { font-size: 1.05rem; margin: 0 0 0.5rem; }
+  .verdict strong { color: var(--accent); }
+  .tablewrap { overflow-x: auto; margin-top: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { padding: 0.5rem 0.4rem; text-align: right; border-bottom: 1px solid var(--border); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+  tr.milestone td { font-weight: 700; }
+  .badge { font-size: 0.75rem; border-radius: 999px; padding: 0.1rem 0.5rem; border: 1px solid currentColor; white-space: nowrap; color: var(--accent); }
+  .note { margin-top: 1rem; padding: 0.75rem 0.9rem; border-radius: 8px; border: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+  .error { color: #c53030; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  @media (max-width: 640px) { .row3 { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>How long does it take a capacitor to fully charge?</h1>
+  <p class="lede">
+    Never — not exactly. An RC circuit's charging curve is exponential, so it
+    always leaves some gap to close and never mathematically finishes.
+    Engineers use a working definition instead: after 5 time constants
+    (τ = R×C) a capacitor is considered fully charged, at 99.33% of the
+    supply. Put your own numbers in below. Everything runs in this page;
+    nothing is uploaded.
+  </p>
+  <nav class="toolbar">
+    <a href="./">← RC charge and discharge time calculator</a> ·
+    <a href="../">All free electronics tools</a>
+  </nav>
+
+  <section aria-labelledby="calc-heading">
+    <h2 id="calc-heading">Your circuit</h2>
+
+    <div class="row3">
+      <div>
+        <label for="r">Resistance, R</label>
+        <div class="row">
+          <input type="number" id="r" inputmode="decimal" value="10" step="any" min="0" />
+          <select id="r-unit" aria-label="Resistance unit">
+            <option value="1">Ω</option>
+            <option value="1000" selected>kΩ</option>
+            <option value="1000000">MΩ</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label for="c">Capacitance, C</label>
+        <div class="row">
+          <input type="number" id="c" inputmode="decimal" value="100" step="any" min="0" />
+          <select id="c-unit" aria-label="Capacitance unit">
+            <option value="0.000000000001">pF</option>
+            <option value="0.000000001" selected>nF</option>
+            <option value="0.000001">µF</option>
+            <option value="0.001">mF</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label for="supply">Supply voltage (V)</label>
+        <input type="number" id="supply" inputmode="decimal" value="5" step="any" min="0" />
+      </div>
+    </div>
+
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="target-heading">
+    <h2 id="target-heading">Time to a target percent</h2>
+    <p class="hint" style="margin-top:-0.25rem;">
+      Not one of the rows above? Pick any percent below 100 and get the exact
+      time for your own R and C.
+    </p>
+    <label for="target">Target percent of supply (0–100, exclusive)</label>
+    <input type="number" id="target" inputmode="decimal" value="99.9" min="0" max="99.9999" step="any" />
+    <div class="result" id="target-result" role="status" aria-live="polite"></div>
+  </section>
+
+  <h2>Common questions</h2>
+
+  <h3>How long does it take a capacitor to fully charge?</h3>
+  <p>
+    Never — not in a strict mathematical sense. An RC charging curve is
+    exponential, so it always leaves some gap to the supply voltage, however
+    small. Engineers use a working definition instead: after 5 time constants
+    (τ&nbsp;=&nbsp;R×C) a capacitor is considered fully charged, having
+    reached 99.33% of the supply voltage. With this page's own defaults
+    (R&nbsp;=&nbsp;10&nbsp;kΩ, C&nbsp;=&nbsp;100&nbsp;nF, 5&nbsp;V supply —
+    τ&nbsp;=&nbsp;1&nbsp;ms) that is 5&nbsp;ms, at 4.9663&nbsp;V.
+  </p>
+
+  <h3>How many time constants is "fully charged"?</h3>
+  <p>
+    By convention, five. At 1τ a capacitor has only reached 63.21% of the
+    supply; at 3τ, 95.02%; at 5τ, 99.33%, which is close enough to call
+    finished for almost any purpose; at 7τ, 99.91%. Each additional time
+    constant closes most of what remains of the gap, so the returns shrink
+    fast — going from 5τ to 7τ only buys another 0.58 percentage points, from
+    4.9663&nbsp;V to 4.9954&nbsp;V on this page's own 5&nbsp;V default.
+  </p>
+
+  <h3>Does a capacitor ever reach exactly 100% of the supply voltage?</h3>
+  <p>
+    No, not in any finite time. The charging current is proportional to the
+    voltage still missing — (supply minus capacitor voltage) divided by R —
+    so as the capacitor voltage climbs toward the supply, the current driving
+    it shrinks too, and it approaches the supply asymptotically rather than
+    arriving. In practice, leakage, the source's own tolerance, and
+    measurement resolution make the difference undetectable long before the
+    math would call it finished, which is why 5τ is treated as "done."
+  </p>
+
+  <h3>Why does charging slow down the longer it runs?</h3>
+  <p>
+    Because the driving voltage across the resistor is the gap that's left,
+    not the full supply. Early on that gap is nearly the whole supply, so the
+    charging current — and the rate the voltage climbs — is at its highest;
+    by 5τ the gap is down to 0.67% of the supply, so the current driving
+    further charging is down to 0.67% of where it started. This page's own
+    defaults show it directly: the first time constant closes 63.21
+    percentage points of the gap, but the fifth adds only 1.16 more (from
+    98.17% to 99.33%).
+  </p>
+
+  <h3>How do I find the time for a target other than the 5τ convention, like 99.9%?</h3>
+  <p>
+    Use the target-percent tool above rather than reading the fixed table: it
+    solves the same charging equation for any percent below 100 you pick. On
+    this page's defaults, 99.9% takes 6.9078 time constants — 6.9078&nbsp;ms —
+    noticeably longer than the 5τ convention for one more '9' of precision,
+    which is the general shape of an exponential tail: each added 9 costs
+    roughly one more time constant.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not
+      engineering advice, and it does not replace checking your components'
+      real datasheets or measuring the built circuit. The 5-time-constant
+      "fully charged" point is a widely used engineering convention, not a
+      physical endpoint — a capacitor never reaches exactly 100% of the
+      supply in finite time. <strong>You are responsible for reviewing and
+      verifying its output before relying on it</strong>, including for
+      anything safety-critical. To the maximum extent permitted by law, the
+      authors accept no liability for any loss or damage arising from its
+      use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This
+      page counts anonymous, local feature-use events (e.g. "a calculation
+      was run") in your own browser's <code>localStorage</code>, only to help
+      this project's maintainers tell whether the tool is used at all —
+      nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT licensed — see
+      <a href="../LICENSE">LICENSE</a>. See also the
+      <a href="./">RC charge and discharge time calculator</a> this page
+      extends, and the
+      <a href="../rc-filter-calculator/">RC / RL filter calculator</a>.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { timeFromComponents, formatTime } from "./calc.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const r = document.getElementById("r");
+  const rUnit = document.getElementById("r-unit");
+  const c = document.getElementById("c");
+  const cUnit = document.getElementById("c-unit");
+  const supply = document.getElementById("supply");
+  const result = document.getElementById("result");
+
+  // The fraction of the supply voltage reached after n time constants is
+  // 1 - e^-n -- a mathematical constant of the exponential charging curve,
+  // true for any R and C. It only says *which threshold voltage* to ask
+  // calc.mjs's own timeFromComponents() for; the actual times shown come
+  // from that shared function, not from restating its formula here.
+  const MILESTONES = [1, 2, 3, 4, 5, 6, 7];
+  const CONVENTIONAL_TAU = 5;
+
+  function renderRow(n, resistanceOhms, capacitanceFarads, supplyVolts) {
+    const fraction = 1 - Math.exp(-n);
+    const thresholdVolts = supplyVolts * fraction;
+    const out = timeFromComponents({
+      mode: "charge",
+      resistanceOhms,
+      capacitanceFarads,
+      supplyVolts,
+      thresholdVolts,
+    });
+    const milestone = n === CONVENTIONAL_TAU;
+    return `<tr class="${milestone ? "milestone" : ""}">
+      <td>${n}τ ${milestone ? '<span class="badge">conventional "fully charged"</span>' : ""}</td>
+      <td>${(fraction * 100).toFixed(2)}%</td>
+      <td>${thresholdVolts.toFixed(4)} V</td>
+      <td>${formatTime(out.timeSeconds)}</td>
+    </tr>`;
+  }
+
+  // `update` runs on load to render a first result from the prefilled
+  // defaults, and again whenever a person changes something. Only the
+  // second is somebody using the tool, so only it is counted -- the same
+  // distinction the main calculator makes, and the reason portfolio/usage/
+  // readings mean anything.
+  function update(userAction) {
+    const resistanceOhms = Number(r.value) * Number(rUnit.value);
+    const capacitanceFarads = Number(c.value) * Number(cUnit.value);
+    const supplyVolts = Number(supply.value);
+    try {
+      const tau = timeFromComponents({
+        mode: "charge",
+        resistanceOhms,
+        capacitanceFarads,
+        supplyVolts,
+        // A throwaway threshold just to read back τ = RC from the shared
+        // function instead of recomputing R×C by hand here.
+        thresholdVolts: supplyVolts / 2,
+      }).timeConstantSeconds;
+      const conventional = timeFromComponents({
+        mode: "charge",
+        resistanceOhms,
+        capacitanceFarads,
+        supplyVolts,
+        thresholdVolts: supplyVolts * (1 - Math.exp(-CONVENTIONAL_TAU)),
+      });
+      result.classList.remove("error");
+      result.innerHTML = `
+        <p class="verdict">
+          Time constant τ = R×C = <strong>${formatTime(tau)}</strong>.
+          By the 5τ convention, this capacitor counts as fully charged after
+          <strong>${formatTime(conventional.timeSeconds)}</strong>.
+        </p>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Time constants</th>
+                <th scope="col">% of supply</th>
+                <th scope="col">Voltage reached</th>
+                <th scope="col">Elapsed time</th>
+              </tr>
+            </thead>
+            <tbody>${MILESTONES.map((n) => renderRow(n, resistanceOhms, capacitanceFarads, supplyVolts)).join("")}</tbody>
+          </table>
+        </div>
+        <p class="note">It never truly finishes: at 7τ there is still 0.09% of the gap left to close, and every further time constant only closes most of what remains — never all of it.</p>
+      `;
+      if (userAction) recordEventSettled("full_charge_time_calculated");
+    } catch (err) {
+      result.textContent = err.message;
+      result.classList.add("error");
+    }
+  }
+
+  for (const el of [r, rUnit, c, cUnit, supply]) {
+    el.addEventListener("input", () => update(true));
+    el.addEventListener("change", () => update(true));
+  }
+  update();
+
+  const target = document.getElementById("target");
+  const targetResult = document.getElementById("target-result");
+
+  // Reuses the same timeFromComponents() import above rather than a second
+  // module: a target percent is just another threshold voltage, and the
+  // shared function already inverts the charging equation for one.
+  function updateTarget(userAction) {
+    const resistanceOhms = Number(r.value) * Number(rUnit.value);
+    const capacitanceFarads = Number(c.value) * Number(cUnit.value);
+    const supplyVolts = Number(supply.value);
+    const percent = Number(target.value);
+    try {
+      if (!Number.isFinite(percent) || percent <= 0 || percent >= 100) {
+        throw new Error(
+          "Target percent must be greater than 0 and less than 100 — an RC charge " +
+            "never mathematically reaches 100% of the supply, only closer and closer to it.",
+        );
+      }
+      const out = timeFromComponents({
+        mode: "charge",
+        resistanceOhms,
+        capacitanceFarads,
+        supplyVolts,
+        thresholdVolts: supplyVolts * (percent / 100),
+      });
+      targetResult.classList.remove("error");
+      targetResult.innerHTML = `
+        <p>
+          <strong>${formatTime(out.timeSeconds)}</strong>
+          (${(out.timeSeconds / out.timeConstantSeconds).toFixed(4)} time constants) to reach
+          ${percent}% of the supply.
+        </p>
+      `;
+      if (userAction) recordEventSettled("target_percent_solved");
+    } catch (err) {
+      targetResult.textContent = err.message;
+      targetResult.classList.add("error");
+    }
+  }
+  for (const el of [r, rUnit, c, cUnit, supply, target]) {
+    el.addEventListener("input", () => updateTarget(true));
+    el.addEventListener("change", () => updateTarget(true));
+  }
+  updateTarget();
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>

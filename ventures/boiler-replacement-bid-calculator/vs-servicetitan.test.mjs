@@ -11,15 +11,6 @@ test('carries the no-warranty disclaimer', () => {
   assert.match(html, /not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice/i);
 });
 
-// Ported from the sibling implementation of this page (#2914) when the two
-// were reconciled, so consolidating on this copy did not drop its coverage.
-test('the canonical tag names this file', () => {
-  assert.match(
-    html,
-    /<link rel="canonical" href="https:\/\/example\.invalid\/boiler-replacement-bid-calculator\/vs-servicetitan\.html">/,
-  );
-});
-
 // The page prices the plant the user picks; it must never read as sizing or
 // certifying the flue, the gas piping, or the combustion venting.
 test('does not claim it checks fuel-gas code or chimney safety', () => {
@@ -41,6 +32,10 @@ test('no unverifiable price is claimed for ServiceTitan', () => {
   // product category) are stated; no dollar figure for ServiceTitan appears
   // anywhere on the page.
   assert.doesNotMatch(html, /\$\d/);
+});
+
+test('the canonical tag names this file, matching the venture convention', () => {
+  assert.match(html, /<link rel="canonical" href="vs-servicetitan\.html">/);
 });
 
 test('the FAQPage schema is valid JSON and matches the visible FAQ headings', () => {
