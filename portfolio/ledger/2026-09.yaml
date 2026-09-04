@@ -8965,3 +8965,40 @@ entries:
         seal plus the two knobs already itemised under `codex-governor-
         enable`, so no duplicate ask was added.
     mrr_end: null
+  - venture: ebay-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped one accessibility fix across three related ventures:
+        `ebay-fee-calculator`, `shopify-fee-calculator`, and
+        `amazon-fba-calculator` each already had their main `index.html`
+        result panel fixed for `aria-live` in a prior batch (#3125-#3127),
+        but each also ships a family of secondary "should I ..." decision
+        pages -- self-contained calculators with their own inputs and their
+        own `<section class="result">` -- that were missed. All 39 of them
+        (22 ebay, 15 shopify, 2 amazon-fba) re-render a hero figure and a
+        `dl` breakdown in place on every keystroke, with no page reload, and
+        carried no `aria-live`, so a screen-reader user changing an input
+        got no announcement that the answer had changed. One of the two
+        amazon-fba pages (`should-i-remove-aged-amazon-inventory.html`) has
+        two independent result sections and needed both fixed.
+      - >-
+        Added `aria-live="polite"` to every `<section class="result">`
+        found, matching the exact pattern used in the prior fixes, plus one
+        regression test per page (two assertions for the aged-inventory
+        page) that fails against the pre-fix markup and passes with the
+        fix -- verified by reverting one file in isolation and re-running
+        its test (7/8 -> 8/8).
+      - >-
+        Verified: `node --test ventures/ebay-fee-calculator/*.test.mjs` ->
+        480/480; `node --test ventures/shopify-fee-calculator/*.test.mjs` ->
+        296/296; `node --test ventures/amazon-fba-calculator/*.test.mjs` ->
+        307/307; `node --test platform/webcheck/*.test.mjs` -> 22/22 then
+        `node platform/webcheck/check_pages.mjs` -> 649 pages checked, all
+        sound; `python3 platform/ci/check_duplicate_symbols.py` clean.
+        Scope intentionally excludes `gitops/` -- the front-door mirror
+        regen for these pages is left for the fleet's regular
+        mirror-refresh sweep (as in #3133/#3134), per this session's brief.
+        PR #3138.
+    mrr_end: null
