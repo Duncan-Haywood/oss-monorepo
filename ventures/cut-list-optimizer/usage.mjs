@@ -3,12 +3,17 @@
 //
 // `event` separates the things worth knowing apart — how many cut plans were
 // actually calculated ('runs', 'sheet-runs'), how many were carried into a
-// job ticket ('copies', 'sheet-copies'), and how many times a shop used the
-// size comparison to decide what to buy ('compares', 'sheet-compares').
-// Counting them into one key made the number unreadable, and the sheet and
-// linear tools answer different questions about which half of the product
-// people come back for.
-export const EVENTS = ['runs', 'copies', 'compares', 'sheet-runs', 'sheet-copies', 'sheet-compares', 'draft-saves', 'draft-restores'];
+// job ticket ('copies', 'sheet-copies'), how many times a shop used the size
+// comparison to decide what to buy ('compares', 'sheet-compares'), and how
+// many were saved as a CSV for a spreadsheet or another app ('csv-downloads',
+// 'sheet-csv-downloads'). Counting them into one key made the number
+// unreadable, and the sheet and linear tools answer different questions
+// about which half of the product people come back for.
+export const EVENTS = [
+  'runs', 'copies', 'compares', 'csv-downloads',
+  'sheet-runs', 'sheet-copies', 'sheet-compares', 'sheet-csv-downloads',
+  'draft-saves', 'draft-restores',
+];
 
 // A visitor who has asked their browser to say "do not track me" has already
 // answered this question, so the opt-out checkbox is not the only way to say no.

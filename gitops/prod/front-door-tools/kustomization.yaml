@@ -35,9 +35,9 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 546989 bytes
 #   portfolio-front-tools-1: 117 files, 555739 bytes
-#   portfolio-front-tools-2: 148 files, 550112 bytes
-#   portfolio-front-tools-3: 119 files, 551838 bytes
-#   portfolio-front-tools-4: 120 files, 546814 bytes
+#   portfolio-front-tools-2: 149 files, 556504 bytes
+#   portfolio-front-tools-3: 118 files, 544786 bytes
+#   portfolio-front-tools-4: 121 files, 548994 bytes
 #   portfolio-front-tools-5: 107 files, 555074 bytes
 #   portfolio-front-tools-6: 109 files, 556523 bytes
 #   portfolio-front-tools-7: 106 files, 556717 bytes
@@ -470,12 +470,12 @@ configMapGenerator:
       - fence-bid-calculator__vs-fence-cloud.html.gz=fence-bid-calculator__vs-fence-cloud.html.gz
       - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
       - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
+      - ai-engineering-academy__555-timer-calculator__index.html.gz=ai-engineering-academy__555-timer-calculator__index.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
-      - ai-engineering-academy__555-timer-calculator__index.html.gz=ai-engineering-academy__555-timer-calculator__index.html.gz
       - ai-engineering-academy__555-timer-calculator__usage.mjs.gz=ai-engineering-academy__555-timer-calculator__usage.mjs.gz
       - ai-engineering-academy__LICENSE.gz=ai-engineering-academy__LICENSE.gz
       - ai-engineering-academy__index.html.gz=ai-engineering-academy__index.html.gz
@@ -609,6 +609,7 @@ configMapGenerator:
       - crown-molding-bid-calculator__vs-jobber.html.gz=crown-molding-bid-calculator__vs-jobber.html.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
+      - cut-list-optimizer__csv.mjs.gz=cut-list-optimizer__csv.mjs.gz
       - cut-list-optimizer__draft.mjs.gz=cut-list-optimizer__draft.mjs.gz
       - cut-list-optimizer__index.html.gz=cut-list-optimizer__index.html.gz
       - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz
