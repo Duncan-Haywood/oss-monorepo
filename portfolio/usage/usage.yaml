@@ -4500,3 +4500,36 @@ products:
           onto current main. Distinct from grant-deadline-tracker and
           grant-reporting-tracker. Public URL remains owner-gated; usage is
           opt-out and honors DNT/GPC. Baseline row.
+  - slug: dns-configuration-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          capture_started: 0
+          capture_completed: 0
+          baseline_saved: 0
+          report_built: 0
+          report_copied: 0
+        note: >-
+          Baseline at publication of the browser surface. The venture had real
+          product logic since its first commit and no interface but a Python
+          CLI, so both of its hypotheses sat `untested` -- an MSP mid-cutover
+          was never going to clone a repo to try it. `index.html` ships the
+          same capture/compare workflow over DNS-over-HTTPS from the visitor's
+          own browser, and the venture entered the apex mirror in the same
+          change, so it has a public route at
+          `/tools/dns-configuration-evidence/` from this commit rather than
+          being instrumented-but-unreachable.
+
+          The pair worth watching is `capture_completed` against
+          `report_built`. A capture is cheap curiosity; a report means somebody
+          came back after a real change with a baseline they had kept, which is
+          the only evidence that the before/after workflow -- not just a DNS
+          lookup box -- is what people want. `baseline_saved` sitting well
+          above `report_built` would say the second visit is not happening, and
+          that is a product problem rather than a copy problem.
+
+          Counts are local, opt-in, off by default, and honor DNT/GPC, so a
+          zero here is the expected reading for a tool nobody has switched the
+          counter on for.

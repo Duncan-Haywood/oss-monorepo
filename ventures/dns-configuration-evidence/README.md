@@ -10,9 +10,38 @@ write records, send mail, test uptime, or claim that a domain is secure,
 deliverable, or compliant. The customer remains responsible for authorization
 and deciding whether a change needs remediation.
 
+## Two interfaces, one evidence format
+
+| | Where | Queries over | Use it when |
+|---|---|---|---|
+| **Browser tool** (`index.html`) | `/tools/dns-configuration-evidence/` on the portfolio front door | DNS-over-HTTPS, from the visitor's own browser | You want the record now, on a machine you did not set up, or you want to hand a customer a link |
+| **Python CLI** (`src/dns_evidence/`) | Your machine | The DNS protocol, to resolvers you name by IP | You need a *specific* resolver (an internal one, a customer's own), or you are scripting captures |
+
+Both read and write the same snapshot JSON and render the same report, so a
+baseline captured in the browser compares with `python3 -m dns_evidence
+compare`, and vice versa. `dns-evidence.test.mjs` pins that by diffing both
+implementations' Markdown over the same snapshots.
+
+The CLI stays canonical: only it can name an arbitrary resolver, because a
+browser cannot open a UDP socket. The browser surface exists because that
+limitation was costing the venture every user who was not already willing to
+clone a repo mid-cutover.
+
+**One caveat when mixing them.** DoH endpoints present record text with small
+cosmetic differences from the wire format (trailing dots, TXT quoting). The
+browser normalises what it receives, so two browser captures always compare
+cleanly; mixing a CLI capture with a browser one can show a cosmetic `changed`
+on a record that did not move. Capture both halves the same way.
+
 ## Run
 
 ```bash
+# Browser tool — open it directly, or serve the directory
+python3 -m http.server -d . 8000   # then http://localhost:8000/
+
+# Its logic tests (Node 18+); the parity test also runs the Python CLI
+node --test dns-evidence.test.mjs
+
 python3 -m unittest discover -s tests -v
 
 # 1. Customer-authorized capture (writes a snapshot you can keep or share)

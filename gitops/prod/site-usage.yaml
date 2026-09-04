@@ -8,7 +8,7 @@
 # on its own change it. Every venture's `usage.mjs` counts into the visitor's
 # own `localStorage` and deliberately never transmits — correct for a
 # contractor's pricing, and it means the portfolio would go on learning nothing
-# about which of its 173 tools anyone opens.
+# about which of its 174 tools anyone opens.
 #
 # nginx already receives every request. The whole mechanism here is: log three
 # fields instead of nginx's default nine (see the `log_format privacy` block in
