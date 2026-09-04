@@ -1,0 +1,38 @@
+name: public-record-watch CI
+
+# Local snapshot comparer. Keep register-diff arithmetic covered
+# independently of the portfolio-wide validation workflow.
+on:
+  pull_request:
+    paths:
+      - "ventures/public-record-watch/**"
+      - ".github/workflows/public-record-watch-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/public-record-watch/**"
+      - ".github/workflows/public-record-watch-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: public-record-watch-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/public-record-watch
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run snapshot comparer tests
+        run: python3 -m unittest discover -s tests -v

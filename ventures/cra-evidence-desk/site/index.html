@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors</title>
+<meta name="description" content="Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='2' fill='%235c2a1f'/%3E%3Cpath d='M10 16l4 4 8-8' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E" />
+<meta property="og:title" content="CRA Evidence Desk — free SBOM vs advisory matcher" />
+<meta property="og:description" content="Match a CycloneDX or SPDX SBOM against an OSV advisory export and export a dated CRA evidence record. Free, private, runs entirely in your browser." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="." />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CRA Evidence Desk",
+  "applicationCategory": "SecurityApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free, local-first Cyber Resilience Act evidence tool for software vendors. Reads a CycloneDX, SPDX or plain component-list SBOM and an OSV or plain advisory export, reports exact name/ecosystem/version matches only, names the advisories it could not evaluate, and exports a dated JSON record plus a customer-reviewed Article 14 notification draft. The SBOM is never uploaded."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What SBOM formats does this accept?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CycloneDX JSON (what npm sbom, syft, cdxgen and trivy emit), SPDX JSON, and a plain component list of the form {\"components\": [{\"ecosystem\", \"name\", \"version\"}]}. Package URLs are read where present, so an npm scope, a Maven group and a Go module path all resolve to the coordinates an advisory names them by. Nested CycloneDX sub-components are walked too."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does it only match exact versions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because resolving a version range is a judgement about your product, not a lookup. An advisory saying \"all versions below 1.4.2\" requires deciding how your ecosystem orders versions, whether a backport applies, and whether the vulnerable path is reachable in your build. This tool refuses to make that call on your behalf and instead names every range-only advisory in the report so you review it yourself. That refusal is the point: an exact match is evidence, an inferred one is an opinion."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a match mean I have to file a CRA notification?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A match means one component in your SBOM has the same name, ecosystem and version as an entry in the advisory export you supplied. Whether it is exploitable in your product, whether it is an actively exploited vulnerability or a severe incident under Article 14, and whether a reporting deadline applies are all determinations for you and a qualified professional. The tool produces a draft to review, never a filing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my SBOM uploaded anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The files are read by your own browser and nothing is transmitted. There is no server, no account, and no upload step — you can disconnect from the network and the tool still works. This matters more than usual here: an SBOM is a complete map of your product's dependencies, and an advisory match list is a map of its exposure."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does a clean report actually prove?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only that no component in the SBOM you supplied exactly matched an entry in the advisory export you supplied, on the day you ran it. It is not a vulnerability scan, not conformity assessment, and not coverage of advisories you did not export. If part of your export stated versions as ranges, the report says so explicitly, because a clean result read without that caveat would look like far more assurance than it is."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030; --warn: #b7791f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.25rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1.02rem; margin: 1.4rem 0 0.3rem; }
+  p, li { color: var(--fg); }
+  .lede { font-size: 1.06rem; color: var(--muted); margin: 0 0 1.25rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0; }
+  label { display: block; font-weight: 600; margin: 0.85rem 0 0.25rem; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 0.9rem; display: block; }
+  input[type="text"], input[type="file"] {
+    width: 100%; padding: 0.55rem 0.6rem; font: inherit; color: var(--fg);
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  }
+  input:focus-visible, button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 1rem; }
+  .row > div { flex: 1 1 14rem; }
+  button {
+    font: inherit; font-weight: 600; padding: 0.6rem 1rem; border-radius: 6px;
+    border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer;
+  }
+  button.secondary { background: transparent; color: var(--accent); }
+  button[disabled] { opacity: 0.55; cursor: not-allowed; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; align-items: center; }
+  #status { margin: 0.9rem 0 0; min-height: 1.5rem; color: var(--muted); }
+  #status.error { color: var(--bad); font-weight: 600; }
+  table { border-collapse: collapse; width: 100%; margin-top: 0.75rem; font-size: 0.94rem; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  .tablewrap { overflow-x: auto; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  pre {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.9rem; overflow-x: auto; font-size: 0.86rem; white-space: pre-wrap;
+  }
+  .verdict { font-size: 1.1rem; font-weight: 700; margin: 0.4rem 0; }
+  .verdict.hit { color: var(--warn); }
+  .verdict.clear { color: var(--good); }
+  .caveat { color: var(--muted); font-size: 0.92rem; }
+  footer { margin-top: 2.5rem; border-top: 1px solid var(--border); padding-top: 1rem; color: var(--muted); font-size: 0.92rem; }
+  footer h2 { font-size: 1.05rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>CRA Evidence Desk</h1>
+  <p class="lede">
+    Match your SBOM against an advisory export, see exactly which components are
+    named, and download a dated record plus an Article 14 review draft.
+    <strong>Nothing leaves your device</strong> — your SBOM is never uploaded.
+  </p>
+
+  <section class="panel">
+    <h2 style="margin-top:0">1. Your files</h2>
+    <div class="row">
+      <div>
+        <label for="sbom-file">SBOM
+          <span class="hint">CycloneDX, SPDX, or a plain component list — JSON.</span>
+        </label>
+        <input type="file" id="sbom-file" accept=".json,application/json" />
+      </div>
+      <div>
+        <label for="advisory-file">Advisory export
+          <span class="hint">OSV, or a plain advisory list — JSON.</span>
+        </label>
+        <input type="file" id="advisory-file" accept=".json,application/json" />
+      </div>
+    </div>
+
+    <h2>2. Your product</h2>
+    <div class="row">
+      <div>
+        <label for="product">Product name
+          <span class="hint">Appears in the draft. Stays in your browser.</span>
+        </label>
+        <input type="text" id="product" placeholder="e.g. Acme Gateway" autocomplete="off" />
+      </div>
+      <div>
+        <label for="version">Version under review</label>
+        <input type="text" id="version" placeholder="e.g. 2026.09" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" id="run">Match and draft</button>
+      <button type="button" class="secondary" id="try-example">Try it with an example</button>
+    </div>
+    <p id="status" role="status" aria-live="polite">Choose an SBOM and an advisory export, or try the example.</p>
+  </section>
+
+  <section id="results" hidden aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <p class="caveat" id="read-summary"></p>
+
+    <div class="tablewrap">
+      <table id="findings-table" hidden>
+        <thead>
+          <tr><th scope="col">Component</th><th scope="col">Ecosystem</th><th scope="col">Advisory</th><th scope="col">Summary</th><th scope="col">Source</th></tr>
+        </thead>
+        <tbody id="findings-body"></tbody>
+      </table>
+    </div>
+
+    <div id="skipped-block" hidden>
+      <h3>Not evaluated by this tool</h3>
+      <p class="caveat">
+        These advisories stated their affected versions as a range. This tool
+        matches exact versions and does not resolve ranges, so it has neither
+        cleared nor flagged them — review each one yourself.
+      </p>
+      <ul id="skipped-list"></ul>
+    </div>
+
+    <h3>Article 14 review draft</h3>
+    <pre id="draft"></pre>
+    <div class="actions">
+      <button type="button" class="secondary" id="copy-draft">Copy draft</button>
+      <a id="download-draft" download="cra-evidence-draft.txt" href="#">Download draft (.txt)</a>
+      <a id="download-json" download="cra-evidence-record.json" href="#">Download record (.json)</a>
+    </div>
+  </section>
+
+  <h2>What this does not check</h2>
+  <ul>
+    <li><strong>Version ranges.</strong> An advisory saying "below 1.4.2" is reported as not evaluated, never resolved.</li>
+    <li><strong>Reachability and exploitability.</strong> A matched component may not be reachable in your build at all.</li>
+    <li><strong>Aliases and renames.</strong> A package published under two names matches only under the one your SBOM states.</li>
+    <li><strong>Advisories you did not export.</strong> Coverage is exactly the file you supplied, on the day you ran it.</li>
+    <li><strong>Whether an obligation applies.</strong> Severity, actively-exploited status and reporting deadlines are yours to determine.</li>
+  </ul>
+  <p>Review every finding against the authoritative advisory with a qualified professional before you rely on it.</p>
+
+  <h2>Questions</h2>
+  <h3>What SBOM formats does this accept?</h3>
+  <p>
+    CycloneDX JSON (what <code>npm sbom</code>, syft, cdxgen and trivy emit),
+    SPDX JSON, and a plain component list of the form
+    <code>{"components": [{"ecosystem", "name", "version"}]}</code>. Package
+    URLs are read where present, so an npm scope, a Maven group and a Go module
+    path all resolve to the coordinates an advisory names them by. Nested
+    CycloneDX sub-components are walked too.
+  </p>
+  <h3>Why does it only match exact versions?</h3>
+  <p>
+    Because resolving a version range is a judgement about your product, not a
+    lookup. An advisory saying "all versions below 1.4.2" requires deciding how
+    your ecosystem orders versions, whether a backport applies, and whether the
+    vulnerable path is reachable in your build. This tool refuses to make that
+    call on your behalf and instead names every range-only advisory in the
+    report so you review it yourself. That refusal is the point: an exact match
+    is evidence, an inferred one is an opinion.
+  </p>
+  <h3>Does a match mean I have to file a CRA notification?</h3>
+  <p>
+    No. A match means one component in your SBOM has the same name, ecosystem
+    and version as an entry in the advisory export you supplied. Whether it is
+    exploitable in your product, whether it is an actively exploited
+    vulnerability or a severe incident under Article 14, and whether a
+    reporting deadline applies are all determinations for you and a qualified
+    professional. The tool produces a draft to review, never a filing.
+  </p>
+  <h3>Is my SBOM uploaded anywhere?</h3>
+  <p>
+    No. The files are read by your own browser and nothing is transmitted.
+    There is no server, no account, and no upload step — you can disconnect
+    from the network and the tool still works. This matters more than usual
+    here: an SBOM is a complete map of your product's dependencies, and an
+    advisory match list is a map of its exposure.
+  </p>
+  <h3>What does a clean report actually prove?</h3>
+  <p>
+    Only that no component in the SBOM you supplied exactly matched an entry in
+    the advisory export you supplied, on the day you ran it. It is not a
+    vulnerability scan, not conformity assessment, and not coverage of
+    advisories you did not export. If part of your export stated versions as
+    ranges, the report says so explicitly, because a clean result read without
+    that caveat would look like far more assurance than it is.
+  </p>
+  <h3>My SBOM and my advisory export spell packages differently. Now what?</h3>
+  <p>
+    That is the normal case, not a broken export — the two formats name the
+    same registry two ways, and this tool folds them onto one spelling before
+    matching. <a href="sbom-and-advisory-package-names-dont-match.html">Why
+    don't my SBOM and advisory package names match?</a> walks through where
+    the mismatches come from and which ones can be resolved without guessing.
+  </p>
+  <h3>How is this different from OWASP Dependency-Track?</h3>
+  <p>
+    Dependency-Track is a continuous, self-hosted SBOM-analysis server; this
+    is a free, one-shot page with nothing to deploy. See
+    <a href="vs-dependency-track.html">CRA Evidence Desk vs. OWASP
+    Dependency-Track</a> for the full comparison.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not legal,
+      regulatory, or compliance advice, and it does not replace a qualified
+      professional. <strong>You are responsible for reviewing and verifying its
+      output before relying on it</strong>, and for meeting any obligation it
+      helps you prepare for. To the maximum extent permitted by law, the
+      authors accept no liability for any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice. Do not use this page as a system of record — if a draft needs to
+      survive, download it.
+    </p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your SBOM is never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This page
+      counts anonymous, local feature-use events (e.g. "a match was run") in
+      your own browser's <code>localStorage</code> — never component names,
+      advisory ids, filenames, or anything identifying — only to help this
+      project's maintainers tell whether the tool is used at all. Nothing is
+      sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      There is a command-line version of this tool in the same repository if
+      you would rather run it in CI: it reads the same formats and prints the
+      same draft.
+    </p>
+
+    <p>
+      MIT licensed — see <a href="LICENSE">LICENSE</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a>
+      if this saved you an afternoon — entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import {
+    article14Draft, describeAdvisories, describeSbom, parseInput, report,
+  } from "./match.mjs";
+  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const statusEl = $("status");
+  const resultsEl = $("results");
+  const runButton = $("run");
+
+  // Kept small on purpose: it exists so a first-time visitor sees what a
+  // finding looks like before deciding whether to point the tool at their own
+  // dependency map, which is not a file most people hand over casually.
+  const EXAMPLE_SBOM = {
+    bomFormat: "CycloneDX",
+    specVersion: "1.5",
+    components: [
+      { type: "library", name: "demo-parser", version: "1.2.3", purl: "pkg:npm/demo-parser@1.2.3" },
+      { type: "library", name: "safe-lib", version: "4.0.0", purl: "pkg:npm/safe-lib@4.0.0" },
+      { type: "library", name: "commons-lang3", version: "3.12.0", purl: "pkg:maven/org.apache.commons/commons-lang3@3.12.0" },
+    ],
+  };
+  const EXAMPLE_ADVISORIES = {
+    vulns: [
+      {
+        id: "GHSA-demo-1234",
+        summary: "Example parser issue requiring review",
+        affected: [{ package: { ecosystem: "npm", name: "demo-parser" }, versions: ["1.2.3"] }],
+        references: [{ type: "ADVISORY", url: "https://osv.dev/GHSA-demo-1234" }],
+      },
+      {
+        id: "GHSA-range-only-5678",
+        summary: "Example advisory expressed as a range",
+        affected: [{ package: { ecosystem: "Maven", name: "org.apache.commons:commons-lang3" }, ranges: [{ type: "ECOSYSTEM", events: [{ introduced: "0" }, { fixed: "9.9.9" }] }] }],
+      },
+    ],
+  };
+
+  function setStatus(message, isError = false) {
+    statusEl.textContent = message;
+    statusEl.classList.toggle("error", isError);
+  }
+
+  function readFile(input, label) {
+    const file = input.files?.[0];
+    if (!file) return Promise.resolve(null);
+    return file.text().then((text) => parseInput(text, label));
+  }
+
+  function renderFindings(result) {
+    const table = $("findings-table");
+    const body = $("findings-body");
+    body.replaceChildren();
+    table.hidden = result.matched_findings.length === 0;
+    for (const finding of result.matched_findings) {
+      const row = document.createElement("tr");
+      for (const value of [finding.component, finding.ecosystem, finding.advisory, finding.summary, finding.source]) {
+        const cell = document.createElement("td");
+        // textContent throughout: every string here came out of a file the
+        // user supplied, and an advisory summary is exactly the kind of field
+        // that carries angle brackets.
+        cell.textContent = value;
+        row.append(cell);
+      }
+      body.append(row);
+    }
+  }
+
+  function renderSkipped(result) {
+    const block = $("skipped-block");
+    const list = $("skipped-list");
+    const skipped = result.advisories_not_evaluated ?? [];
+    list.replaceChildren();
+    block.hidden = skipped.length === 0;
+    for (const entry of skipped) {
+      const item = document.createElement("li");
+      item.textContent = `${entry.advisory} — ${entry.reason}`;
+      list.append(item);
+    }
+  }
+
+  let objectUrls = [];
+  function offerDownload(anchor, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type }));
+    objectUrls.push(url);
+    anchor.href = url;
+  }
+
+  function render(result) {
+    const verdict = $("verdict");
+    const count = result.matched_findings.length;
+    verdict.textContent = count
+      ? `${count} component${count === 1 ? "" : "s"} matched an advisory you supplied — review each one.`
+      : "No component exactly matched an advisory in the export you supplied.";
+    verdict.className = `verdict ${count ? "hit" : "clear"}`;
+
+    const skipped = result.advisories_not_evaluated?.length ?? 0;
+    $("read-summary").textContent =
+      `Read ${result.component_count} component${result.component_count === 1 ? "" : "s"} and `
+      + `${result.advisory_count} exact advisory coordinate${result.advisory_count === 1 ? "" : "s"}`
+      + (skipped ? `, and set aside ${skipped} range-only advisor${skipped === 1 ? "y" : "ies"} below.` : ".");
+
+    renderFindings(result);
+    renderSkipped(result);
+
+    const draft = article14Draft(result);
+    $("draft").textContent = draft;
+
+    // Revoke the previous run's URLs before minting new ones, so someone
+    // checking several products in one sitting does not accumulate them.
+    for (const url of objectUrls) URL.revokeObjectURL(url);
+    objectUrls = [];
+    offerDownload($("download-draft"), draft, "text/plain");
+    offerDownload($("download-json"), `${JSON.stringify(result, null, 2)}\n`, "application/json");
+
+    resultsEl.hidden = false;
+  }
+
+  async function run(sbom, advisories, describedAs) {
+    const product = $("product").value.trim() || "Unnamed product";
+    const version = $("version").value.trim() || "unspecified";
+    const result = report(sbom, advisories, product, version);
+    recordEvent("sbom_matched");
+    render(result);
+    setStatus(`Matched your SBOM (${describedAs}) against your advisory export (${describeAdvisories(advisories)}).`);
+  }
+
+  runButton.addEventListener("click", async () => {
+    const sbomInput = $("sbom-file");
+    const advisoryInput = $("advisory-file");
+    if (!sbomInput.files?.length || !advisoryInput.files?.length) {
+      setStatus("Choose both an SBOM and an advisory export — or press “Try it with an example”.", true);
+      return;
+    }
+    runButton.disabled = true;
+    setStatus("Reading your files…");
+    try {
+      const [sbom, advisories] = await Promise.all([
+        readFile(sbomInput, "The SBOM"),
+        readFile(advisoryInput, "The advisory export"),
+      ]);
+      const describedAs = describeSbom(sbom);
+      if (describedAs === "unrecognised") {
+        setStatus("That SBOM is valid JSON but has no components or packages the tool recognises. Export it as CycloneDX or SPDX JSON.", true);
+        return;
+      }
+      if (describeAdvisories(advisories) === "unrecognised") {
+        setStatus("That advisory export is valid JSON but has no advisories the tool recognises. Export it as OSV JSON.", true);
+        return;
+      }
+      await run(sbom, advisories, describedAs);
+    } catch (error) {
+      setStatus(error?.message ?? "Sorry — could not read one or more files.", true);
+    } finally {
+      runButton.disabled = false;
+    }
+  });
+
+  $("try-example").addEventListener("click", async () => {
+    await run(EXAMPLE_SBOM, EXAMPLE_ADVISORIES, "CycloneDX");
+    setStatus("This is the built-in example: one exact match, and one range-only advisory the tool declines to resolve. Load your own files above when you are ready.");
+  });
+
+  $("copy-draft").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText($("draft").textContent);
+      recordEvent("draft_copied");
+      setStatus("Draft copied to the clipboard.");
+    } catch {
+      setStatus("Could not reach the clipboard — select the draft text and copy it manually.", true);
+    }
+  });
+
+  for (const anchor of [$("download-draft"), $("download-json")]) {
+    anchor.addEventListener("click", () => recordEvent("record_exported"));
+  }
+
+  const usageToggle = $("usage-toggle");
+  const usageStatusEl = $("usage-status");
+  function renderUsageToggle() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn local usage counting back on";
+    usageStatusEl.textContent = on ? "" : " Local counting is off.";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageToggle();
+  });
+  renderUsageToggle();
+</script>
+</body>
+</html>

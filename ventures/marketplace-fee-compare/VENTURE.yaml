@@ -1,0 +1,35 @@
+name: marketplace-fee-compare
+description: A private browser comparison that takes one item once — price, landed cost, category, monthly volume — and ranks net profit across eBay, Etsy, Amazon, Walmart, TikTok Shop, and an own Shopify store side by side, spreading subscriptions over the seller's own order count and naming what each channel's headline rate leaves out.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Multi-channel sellers will use a one-item cross-channel comparison before opening any single-channel calculator, because the question they start with is "where do I list this" and no tool in the portfolio answers it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing category referral rates diverge between marketplaces on the same item (8% electronics vs 20% jewelry on Amazon, flat 13.25% on eBay) changes a listing decision that a flat "eBay takes 13%" estimate would not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  # Onward traffic can only be observed once real visitors reach a public URL,
+  # which is still owner-gated — no session can check this one from the repo,
+  # so it is customer-contact rather than in-repo. `usage-counter` was not a
+  # value the schema accepts and failed Portfolio validate on every PR.
+  - claim: The comparison sends measurable traffic onward to the per-channel calculators it links, making it a hub for the seller-tool family rather than a seventh competitor to it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified multi-channel sellers run a comparison twice within 90 days.
+  - Sellers report the headline-rate model is too coarse to act on and go straight to the per-channel calculators instead.
+links:
+  production: null
+  analytics: null

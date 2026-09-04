@@ -109,6 +109,75 @@ export function calculateVoltageDivider({ vin, r1, r2, loadOhms }) {
 }
 
 /**
+ * Sizes a divider to survive a known load, rather than leaving loading to
+ * chance: picks R1 and R2 so the divider's own (unloaded) current is
+ * `bleederMultiple` times the current the load draws at the target voltage —
+ * the standard rule of thumb ("bleeder current") for keeping a passive
+ * divider stiff. A bigger multiple means less droop but more wasted power;
+ * the two trade off directly, which is why this returns the achieved result
+ * (via `calculateVoltageDivider`, not a second approximation) rather than
+ * just the resistor values — the residual droop from using a finite
+ * multiple, and from snapping to a buyable E24 pair, is the whole point.
+ */
+export function designDividerForLoad({ vin, targetVout, loadOhms, bleederMultiple = 10 }) {
+  requirePositive(vin, "Input voltage");
+  requirePositive(targetVout, "Target output voltage");
+  requirePositive(loadOhms, "Load resistance");
+  requirePositive(bleederMultiple, "Bleeder current multiple");
+  if (targetVout >= vin) {
+    throw new Error(
+      `Target output voltage (${targetVout} V) must be less than the input voltage (${vin} V) — a passive divider can only step voltage down.`,
+    );
+  }
+
+  // The load current at the target voltage is a starting estimate, not the
+  // final answer — the divider will droop below the target by construction,
+  // so the real load current ends up a little lower than this. `achieved`
+  // below reports what actually happens once R1/R2 are fixed and snapped.
+  const loadCurrentAmps = targetVout / loadOhms;
+  const bleederCurrentAmps = bleederMultiple * loadCurrentAmps;
+
+  const exactR2 = clean(targetVout / bleederCurrentAmps);
+  const exactR1 = clean((vin - targetVout) / bleederCurrentAmps);
+  const nearestR1 = nearestStandardResistor(exactR1);
+  const nearestR2 = nearestStandardResistor(exactR2);
+
+  const achieved = calculateVoltageDivider({ vin, r1: nearestR1, r2: nearestR2, loadOhms });
+
+  const notes = [];
+  if (Math.abs(achieved.loadDropPercent) > 5) {
+    notes.push({
+      severity: "warning",
+      message:
+        `Even sized this way, the load still pulls the output ${Math.abs(achieved.loadDropPercent).toFixed(2)}% ` +
+        `off target — this load is heavy enough relative to the divider that a passive divider is a poor fit. ` +
+        "Raise the bleeder multiple (more divider current, more wasted power, less droop) or use a proper " +
+        "regulator or a unity-gain buffer instead.",
+    });
+  }
+  const quiescentWatts = achieved.unloadedR1PowerWatts + achieved.unloadedR2PowerWatts;
+  if (quiescentWatts > 0.25) {
+    notes.push({
+      severity: "warning",
+      message:
+        `The divider alone dissipates ${(quiescentWatts * 1000).toFixed(1)} mW even before the load, from ` +
+        "keeping the bleeder current high enough to resist loading. On a battery-powered design, lower the " +
+        "bleeder multiple and accept more droop, or switch to active regulation.",
+    });
+  }
+
+  return {
+    bleederCurrentAmps: clean(bleederCurrentAmps),
+    exactR1,
+    exactR2,
+    nearestR1,
+    nearestR2,
+    achieved,
+    notes,
+  };
+}
+
+/**
  * Given a supply voltage, a target output voltage, and a preferred R1 (a
  * common starting point when designing a divider — pick R1, solve for R2),
  * returns the exact R2 needed and the nearest standard (E24) R2, plus the

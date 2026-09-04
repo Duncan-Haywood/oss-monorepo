@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I buy Shopify Shipping labels? | Shopify vs Pirate Ship profit</title>
+  <meta name="description" content="Compare buying a Shopify Shipping label with a Pirate Ship, Shippo, or carrier-account quote on the same order. See the label spread, the leftover if you charge Shopify's rate and buy cheaper postage, and the monthly gap.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-buy-shopify-shipping-labels.html">
+  <meta property="og:title" content="Should I buy Shopify Shipping labels?">
+  <meta property="og:description" content="See whether Shopify Shipping still beats your own label after card fees — and what you keep if checkout charges the Shopify quote.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify Shipping vs own label comparison",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Shopify Shipping vs own label, charge Shopify quote buy own label, label spread after card fees, monthly postage gap"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Shopify Shipping cheaper than Pirate Ship?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Often not on USPS. Shopify Shipping is a discounted label inside admin. A Pirate Ship, Shippo, or carrier-account quote on the same weight and service is frequently lower. Enter both quotes from a live preview — this page does not publish Shopify's or USPS rates."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I charge Shopify Shipping and buy a cheaper label?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, if checkout shipping is a rate you set. Charging Shopify's quote and buying a cheaper own label is not the raw label spread: Shopify Payments (or PayPal) takes a percentage of shipping charged, so lowering what the buyer pays also lowers the card fee. This calculator shows that leftover next to buying the Shopify label and buying your own label while checkout stays put."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .paths { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .paths label { display: flex; gap: .45rem; align-items: center; font-weight: 600; }
+    .paths input { width: auto; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether Shopify Shipping still beats your own label.</h1>
+    <p>
+      Paste the Shopify Shipping quote and a Pirate Ship, Shippo, or carrier
+      account quote for the same box. The table keeps checkout shipping where
+      you set it, then shows the leftover if you charge Shopify’s rate and
+      buy the cheaper label. Card fees move with shipping charged — the
+      pocketed spread is not a wash.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, labels and fees</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <div class="span2 paths" role="radiogroup" aria-label="Payment path">
+          <label><input type="radio" name="paymentMethod" value="shopify_payments" checked> Shopify Payments</label>
+          <label><input type="radio" name="paymentMethod" value="third_party"> PayPal / Stripe / other</label>
+        </div>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged at checkout <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shopify Shipping label <input id="shopifyLabelCost" type="number" min="0" step="0.01" value="5.49"></label>
+        <label>Own / third-party label <input id="ownLabelCost" type="number" min="0" step="0.01" value="4.25"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Shopify third-party fee (%) <input id="shopifyTxnRate" type="number" min="0" step="0.01" value="2"></label>
+        <label>Processor rate (%) <input id="processorRate" type="number" min="0" step="0.01" value="3.49"></label>
+        <label>Processor fixed fee <input id="processorFixed" type="number" min="0" step="0.01" value="0.49"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+        <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="40"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Own label vs Shopify Shipping</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept on the own / third-party label</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Shopify Shipping profit</dt><dd id="shopifyProfit"></dd>
+        <dt>Own-label profit</dt><dd id="ownProfit"></dd>
+        <dt>Charge Shopify quote, buy own</dt><dd id="matchedProfit"></dd>
+        <dt>Monthly gap vs Shopify Shipping</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same order, three label paths</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Label</th>
+            <th scope="col">Charged</th>
+            <th scope="col">Revenue</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Profit</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">The first two rows keep checkout shipping where you set it so the label is the only moving cost. The third row sets shipping charged to the Shopify quote. Transparent arithmetic from your inputs — not Shopify’s or USPS current rates.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Merchants search “Shopify Shipping vs Pirate Ship” because admin
+      labels look convenient and a third-party quote often looks cheaper.
+      The missing piece is checkout. If you already charge a flat shipping
+      rate, buying the cheaper label keeps the spread. If you drop checkout
+      shipping to match the Shopify quote, card fees fall with it — so the
+      leftover is smaller than the raw label gap.
+    </p>
+    <p>
+      It does not recommend a carrier, a label app, or a shipping rate, and
+      it is not tax or financial advice. Compare
+      <a href="why-paypal-costs-more.html">PayPal vs Shopify Payments</a>
+      or
+      <a href="shopify-pos-vs-online-fees.html">POS vs online fees</a>,
+      or
+      <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments vs a regular card</a>,
+      <a href="should-i-offer-store-credit-instead-of-a-refund.html">store credit vs a cash refund</a>,
+      or
+      <a href="should-i-take-shopify-capital.html">Shopify Capital vs waiting</a>,
+      or
+      <a href="should-i-fight-a-shopify-chargeback.html">refund vs fight vs accept</a>,
+      or
+      <a href="should-i-offer-local-delivery-on-shopify.html">local delivery vs the carrier label</a>,
+      or
+      <a href="should-i-sell-gift-cards-on-shopify.html">gift card vs selling the SKU now</a>
+      on the main <a href="./">Shopify fee calculator</a> when the question
+      is processor, counter, installment mix, a return, a dispute, a driver run, or stored value — not postage.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Is Shopify Shipping cheaper than Pirate Ship?</h3>
+  <p>Often not on USPS. Shopify Shipping is a discounted label inside admin. A Pirate Ship, Shippo, or carrier-account quote on the same weight and service is frequently lower. Enter both quotes from a live preview — this page does not publish Shopify's or USPS rates.</p>
+  <h3>Can I charge Shopify Shipping and buy a cheaper label?</h3>
+  <p>Yes, if checkout shipping is a rate you set. Charging Shopify's quote and buying a cheaper own label is not the raw label spread: Shopify Payments (or PayPal) takes a percentage of shipping charged, so lowering what the buyer pays also lowers the card fee. This calculator shows that leftover next to buying the Shopify label and buying your own label while checkout stays put.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from buying the expensive label, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareShippingLabels } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "shopifyLabelCost", "ownLabelCost",
+      "paymentsRate", "paymentsFixed", "shopifyTxnRate", "processorRate",
+      "processorFixed", "costOfGoods", "packagingCost", "otherCost",
+      "monthlyPlan", "monthlyOrders", "targetMargin",
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function paymentMethod() {
+      return document.querySelector('input[name="paymentMethod"]:checked').value;
+    }
+
+    function readInput() {
+      return {
+        ...Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value])),
+        paymentMethod: paymentMethod(),
+      };
+    }
+
+    function update() {
+      try {
+        const result = compareShippingLabels(readInput());
+        const extra = result.extraKeptOnOwn;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept on the own / third-party label" :
+          extra < 0 ? "own label keeps less than Shopify Shipping" :
+          "Shopify Shipping and the own label keep the same";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("shopifyProfit").textContent = money(result.shopify.profit);
+        document.getElementById("ownProfit").textContent = money(result.own.profit);
+        document.getElementById("matchedProfit").textContent = money(result.chargeShopifyBuyOwn.profit);
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnOwn >= 0
+            ? `${money(result.monthlyExtraOnOwn)} more`
+            : `${money(-result.monthlyExtraOnOwn)} less`;
+        const bestProfit = Math.max(...result.rows.map((row) => row.profit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.profit === bestProfit ? "best" : ""}"><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.shippingCharged)}</td><td>${money(row.revenue)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["shopifyProfit", "ownProfit", "matchedProfit", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function applyPlan() {
+      const filled = applyPlanPreset({}, document.getElementById("plan").value);
+      document.getElementById("paymentsRate").value = filled.paymentsRate;
+      document.getElementById("paymentsFixed").value = filled.paymentsFixed;
+      document.getElementById("shopifyTxnRate").value = filled.shopifyTxnRate;
+      document.getElementById("monthlyPlan").value = filled.monthlyPlan;
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_preset_applied");
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shipping_labels_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", applyPlan);
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        update();
+        recordCompare();
+      });
+    });
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

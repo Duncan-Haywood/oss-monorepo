@@ -1,0 +1,47 @@
+name: walmart-marketplace-calculator
+description: A private browser calculator for Walmart Marketplace sellers to compare WFS vs seller-fulfilled profit on the same listing after referral (including the per-item floor), fulfillment, storage, inbound, a competitive match price, whether a 2-day label still beats WFS after take rate, whether WFS still beats seller fulfilled after returns, whether leftover WFS units still beat a removal after aged storage, whether Walmart Connect ads still beat skipping them after last-click ACOS, and whether matching a lower offer still beats holding the list after Buy Box take — including the maximum inventory buy cost.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Walmart Marketplace sellers will return to a calculator that compares WFS against seller fulfilled on the same SKU, because generic Walmart fee pages hide inbound, storage, the referral floor, and the merchant-fulfilled alternative.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether a competitive match price still profits changes a sourcing or repricing decision before the seller buys inventory or drops the offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether a seller-fulfilled 2-day label still beats WFS after take rate changes a Buy Box decision that a completed-sale WFS vs seller table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether WFS still beats seller fulfilled after a return mix changes a fulfillment decision that a completed-sale table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether leftover WFS units still beat a removal after aged storage changes a hold-or-pull decision that a completed-sale table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether Walmart Connect extra units still cover last-click ACOS on organic sales changes an ads decision that a flat ads-per-unit leftover hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether a lower match price still beats holding the list after Buy Box take changes a repricing decision that a same-take unit-profit match hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Walmart Marketplace sellers use the calculator twice within 90 days.
+  - Users do not find the WFS vs seller-fulfilled comparison or the match view materially different from a single-path referral-fee estimate.
+links:
+  production: null
+  analytics: null

@@ -386,6 +386,15 @@ free.**
 
 ## Part 2: 10-Year Roadmap
 
+**Current priority (2026-08-25):** five calculators and a tools hub already
+exist in this repo (`resistor`, `led-resistor`, `voltage-divider`,
+`555-timer`, `rc-filter`, plus `tools/index.html`). None of them have a
+public URL. Put those built tools on a live page before writing more
+curriculum or more tools. That deploy is how Phase 1 gets its first real
+usage reading; another calculator in the repo does not. Portfolio rule:
+[`portfolio/DIRECTION.md`](../../../portfolio/DIRECTION.md) "Current
+priority".
+
 A ten-year roadmap for a company that doesn't exist yet is not a forecast —
 it is a statement of intent and a set of hypotheses, ordered by dependency.
 Treat every date and number below as directional. The actual path will bend

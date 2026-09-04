@@ -1,0 +1,27 @@
+name: cleaning-dilution-calculator
+description: A private browser calculator that turns commercial cleaning concentrate labels and container prices into ready-to-use chemical cost per gallon, bucket, and job.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent janitorial operators lose margin by pricing ready-to-use chemical from concentrate sticker price instead of actual dilution and waste.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A fast cost-per-bucket answer is useful often enough to bring operators back when they change suppliers or bid a new job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified cleaning operators use it twice within 90 days.
+  - Users need supplier catalog integrations before the arithmetic changes a purchasing or bid decision.
+links:
+  production: null
+  analytics: null

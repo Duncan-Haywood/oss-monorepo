@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I offer Shop Pay Installments? | Extra fee vs conversion lift</title>
+  <meta name="description" content="Compare a regular Shopify Payments card with Shop Pay Installments on the same order. See the extra installment fee, the blended month at your installment share, and the conversion lift needed to break even.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-offer-shop-pay-installments.html">
+  <meta property="og:title" content="Should I offer Shop Pay Installments?">
+  <meta property="og:description" content="See how much extra an installment checkout costs after Shopify Payments, what that does to a blended month, and how many extra orders you need for the mix to pay.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shop Pay Installments vs card comparison",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Shopify Payments vs Shop Pay Installments, extra installment fee, blended month at installment share, break-even conversion lift"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much extra does Shop Pay Installments cost the merchant?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Shop Pay Installments is usually a higher Shopify Payments rate than a regular card or Shop Pay card checkout. Enter the installment rate from a payout or the Shop Pay Installments line in admin — this page does not publish Affirm's or Shopify's live schedule. The extra fee is that rate gap on the order total, including shipping charged."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When do Shop Pay Installments still pay?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They pay when extra conversion covers the extra fee on the share of checkouts that use installments. This calculator shows the extra fee on one ticket, the blended month at your installment share, and the lift (extra orders) needed to match turning installments off at the same volume. Type extra monthly orders if you already see a lift."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether Shop Pay Installments still pay after the extra fee.</h1>
+    <p>
+      Paste the Shopify Payments card rate and the Shop Pay Installments
+      rate from a payout. The table keeps the same ticket, then blends a
+      month at the share of checkouts that actually use installments, and
+      shows the extra orders you need for that mix to match turning
+      installments off.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, rates and mix</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US card defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="88"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Shop Pay Installments (%) <input id="installmentRate" type="number" min="0" step="0.01" value="5.99"></label>
+        <label>Installments fixed fee <input id="installmentFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Installment share of checkouts (%) <input id="installmentSharePct" type="number" min="0" max="100" step="0.1" value="15"></label>
+        <label>Extra monthly orders from installments <input id="extraOrdersFromInstallments" type="number" min="0" step="0.1" value="0"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="28"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+        <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="40"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Card vs Shop Pay Installments</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra fee on an installment checkout</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Card profit</dt><dd id="cardProfit"></dd>
+        <dt>Installment profit</dt><dd id="installmentProfit"></dd>
+        <dt>Extra installment fee</dt><dd id="extraFee"></dd>
+        <dt>Monthly extra at this share</dt><dd id="monthlyExtra"></dd>
+        <dt>Break-even conversion lift</dt><dd id="breakEvenLift"></dd>
+      </dl>
+      <hr>
+      <h2>Same order, two payment paths</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Rate</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Profit</th>
+            <th scope="col">Vs card</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Both rows use the Shopify Payments path — Shop Pay Installments is not a PayPal checkout. The monthly extra applies the installment share to volume. Transparent arithmetic from your inputs — not Affirm’s or Shopify’s current rates.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Merchants search “Shop Pay Installments merchant fee” because the
+      installment rate looks expensive next to a 2.9% card. The missing
+      piece is mix. Most checkouts still pay with a card or Shop Pay; only
+      a share uses installments. A 3-point gap on 15% of orders is a
+      smaller monthly hole than the sticker rate, and a small conversion
+      lift can cover it.
+    </p>
+    <p>
+      It does not recommend turning installments on or off, and it is not
+      tax or financial advice. Compare
+      <a href="why-paypal-costs-more.html">PayPal vs Shopify Payments</a>,
+      <a href="shopify-pos-vs-online-fees.html">POS vs online fees</a>,
+      or
+      <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs your own label</a>,
+      or
+      <a href="should-i-offer-store-credit-instead-of-a-refund.html">store credit vs a cash refund</a>,
+      or
+      <a href="should-i-take-shopify-capital.html">Shopify Capital vs waiting</a>
+      on the main <a href="./">Shopify fee calculator</a> when the question
+      is processor, counter, postage, a return, or merchant funding — not
+      installment mix.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>How much extra does Shop Pay Installments cost the merchant?</h3>
+  <p>Shop Pay Installments is usually a higher Shopify Payments rate than a regular card or Shop Pay card checkout. Enter the installment rate from a payout or the Shop Pay Installments line in admin — this page does not publish Affirm's or Shopify's live schedule. The extra fee is that rate gap on the order total, including shipping charged.</p>
+  <h3>When do Shop Pay Installments still pay?</h3>
+  <p>They pay when extra conversion covers the extra fee on the share of checkouts that use installments. This calculator shows the extra fee on one ticket, the blended month at your installment share, and the lift (extra orders) needed to match turning installments off at the same volume. Type extra monthly orders if you already see a lift.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from turning installments off on a sticker rate, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareShopPayInstallments } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "paymentsRate", "paymentsFixed",
+      "installmentRate", "installmentFixed", "installmentSharePct",
+      "extraOrdersFromInstallments", "costOfGoods", "shippingCost",
+      "packagingCost", "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function liftText(result) {
+      if (result.breakEvenLiftPct === null) return "cannot recover at this mix";
+      if (result.breakEvenLiftPct === 0) return "none needed";
+      return `${result.breakEvenLiftPct.toFixed(2)}% (${result.breakEvenExtraOrders.toFixed(1)} orders)`;
+    }
+
+    function update() {
+      try {
+        const result = compareShopPayInstallments(readInput());
+        const extra = result.extraFeePerInstallment;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra > 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra fee on an installment checkout" :
+          extra < 0 ? "installments cheaper than a regular card" :
+          "installments and a regular card cost the same";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("cardProfit").textContent = money(result.card.profit);
+        document.getElementById("installmentProfit").textContent = money(result.installment.profit);
+        document.getElementById("extraFee").textContent = money(result.extraFeePerInstallment);
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraCost >= 0
+            ? `${money(result.monthlyExtraCost)} more`
+            : `${money(-result.monthlyExtraCost)} less`;
+        document.getElementById("breakEvenLift").textContent = liftText(result);
+        const bestProfit = Math.max(...result.rows.map((row) => row.profit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.profit === bestProfit ? "best" : ""}"><td>${row.label}</td><td>${row.rate.toFixed(2)}% + ${money(row.fixed)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${money(row.profitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["cardProfit", "installmentProfit", "extraFee", "monthlyExtra", "breakEvenLift"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function applyPlan() {
+      const filled = applyPlanPreset({}, document.getElementById("plan").value);
+      document.getElementById("paymentsRate").value = filled.paymentsRate;
+      document.getElementById("paymentsFixed").value = filled.paymentsFixed;
+      document.getElementById("monthlyPlan").value = filled.monthlyPlan;
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_preset_applied");
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shop_pay_installments_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", applyPlan);
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

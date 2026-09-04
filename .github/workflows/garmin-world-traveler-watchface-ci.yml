@@ -33,9 +33,25 @@ defaults:
 
 jobs:
   xml-sanity:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      # The self-hosted runner image (gitops/ci/runner.yaml, upstream
+      # ghcr.io/actions/actions-runner) installs only sudo, lsb-release,
+      # gpg-agent, software-properties-common, curl, jq, unzip and git --
+      # no Python, no Node (confirmed against actions/runner's own
+      # images/Dockerfile). This step used to run bare `python3`, which
+      # exists on GitHub-hosted ubuntu-latest by default but not here, so
+      # flipping CI_RUNNER to self-hosted would have turned this job red on
+      # its own first step, on every push and PR that touches this
+      # venture -- a break with nothing to do with the runner-starvation
+      # outage. Every other Python-only job in this repo (e.g.
+      # a11y-axe-recall-ci.yml) already downloads its own interpreter this
+      # way rather than relying on what the runner ships.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: manifest.xml and resources/**/*.xml are well-formed
         run: |
           python3 -c "

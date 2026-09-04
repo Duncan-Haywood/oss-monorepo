@@ -19,7 +19,8 @@ concurrency:
 jobs:
   deploy:
     name: Build and deploy to Cloudflare Pages
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
       deployments: write
@@ -62,7 +63,8 @@ jobs:
     name: Apply Cloudflare Access policy
     needs: deploy
     if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
     env:

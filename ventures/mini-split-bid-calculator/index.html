@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mini-Split Install Bid Calculator — Price Per Head</title>
+  <meta name="description" content="Price a ductless mini-split install from indoor heads, line-set extras, story height, electrical extras, and margin — then see price per head, crew hours, and the walk-away number a cheaper per-head quote hides.">
+  <meta property="og:title" content="Mini-Split Install Bid Calculator">
+  <meta property="og:description" content="Bid a mini-split the way the job actually costs — heads, line-set, height, and the circuit — before you match a cheaper per-head quote.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mini-Split Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Head-count system size, head-type and story labor factors, extra line-set feet, electrical extras, condensate pump adder, price per head, walk-away price, proposed-price margin check, copyable bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is equipment nearly two-thirds of the cost?","acceptedAnswer":{"@type":"Answer","text":"Because a mini-split is an equipment job with an install attached. On the defaults — one 12,000 BTU head — the outdoor unit is $1,400 and the indoor head $550, which is 64.1% of direct cost against 14.4% for the eight hours of labor. Your margin is far more sensitive to what you pay for equipment than to how fast the crew works, which is the opposite of most trades on this site."}},{"@type":"Question","name":"Why is the line set $0 when the job clearly needs one?","acceptedAnswer":{"@type":"Answer","text":"Because the first 15 feet per head is in the base equipment price, and the default run is exactly 15 feet. Only footage past the allowance bills, and it bills in labor as well as material — roughly an hour per extra ten feet, since a longer run means more penetration, hanging, and evacuation time. A second-floor head on a long run is where this number moves."}},{"@type":"Question","name":"Is $325 per thousand BTU a rate I can quote from?","acceptedAnswer":{"@type":"Answer","text":"Not across sizes. It is $3,902.33 divided by 12 kBTU, and it drops as capacity rises because the permit, travel, commissioning hour, and trip are the same for a bigger head. A 24,000 BTU single-head system does not cost twice as much. The figure is for checking one quote against another at the same capacity, not for scaling."}},{"@type":"Question","name":"Why doesn’t a 22% target margin mean adding 22% to cost?","acceptedAnswer":{"@type":"Answer","text":"Because margin is a fraction of the price. The default system costs $3,043.82, and holding 22% of the price as profit is $3,043.82 ÷ 0.78 = $3,902.33. Adding 22% to cost gives $3,713.46, an 18% margin — and on an equipment-heavy job like this one, where the cost base is large, that gap is $189 on a single head and scales with every head you add."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13202c; background: #e8f0f4; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0f6b7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d4dc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1020300d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5a66; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8ea3af; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8ea3af; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #13202c; }
+    button:hover { background: #dce8ed; }
+    .result { position: sticky; top: 15px; background: #14384a; color: #f2f8f8; border-color: #14384a; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec8c3; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5a66; }
+    footer a { color: #0f6b7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #c8eadf; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #7fa8bc; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #4a5a66; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #123444; --pr-accent: #1f6f8b;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1234440d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. `main` is hidden outright rather than by an
+       allow-list, so a cost field added to the calculator later cannot leak
+       onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR MINI-SPLIT INSTALLERS</p>
+    <h1>Bid the run and the circuit, not the head.</h1>
+    <p>A flat per-head quote treats a first-floor 12k wall-mount with 15 ft of line-set as the same job as a second-story cassette with a 50 ft run, a condensate pump, and a new 240 V circuit. Price the heads, the line-set extras, the height, and the electrical extras separately &mdash; then see the price, the dollars per head, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The system</h2>
+        <p class="hint">Start from a common residential layout, then replace head count and BTU with the equipment you actually quoted.</p>
+        <div class="fields">
+          <label>Starting layout <select id="systemPreset"></select></label>
+          <label>Indoor head count <input id="headCount" type="number" min="1" step="1" value="1"></label>
+          <label>BTU per head <input id="btuPerHead" type="number" min="1" step="1000" value="12000"></label>
+          <label>Outdoor unit cost <input id="outdoorUnitCost" type="number" min="0" step="1" value="1400"></label>
+          <label>Indoor head cost each <input id="indoorHeadCostEach" type="number" min="0" step="1" value="550"></label>
+          <label>Branch box / headers <input id="branchBoxCost" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>The run and the service</h2>
+        <p class="hint">Head type and story multiply indoor labor. Extra line-set hours also climb with height. Electrical extras are a fixed adder &mdash; they do not get cheaper on a single-zone job.</p>
+        <div class="fields">
+          <label>Indoor head type <select id="headTypePreset"></select></label>
+          <label>Head-type labor factor <input id="headTypeFactor" type="number" min="0.01" step="0.01" value="1"></label>
+          <label>Story / height <select id="storyPreset"></select></label>
+          <label>Story labor factor <input id="storyFactor" type="number" min="0.01" step="0.01" value="1"></label>
+          <label>Indoor hours per head (easy wall) <input id="indoorHoursPerHead" type="number" min="0.1" step="0.5" value="4"></label>
+          <label>Outdoor hours (pad and mount) <input id="outdoorHours" type="number" min="0" step="0.5" value="3"></label>
+          <label>Total line-set feet <input id="lineSetFeet" type="number" min="0" step="1" value="15"></label>
+          <label>Included feet per head <input id="includedFeetPerHead" type="number" min="0" step="1" value="15"></label>
+          <label>Material per extra foot <input id="lineSetMaterialPerExtraFoot" type="number" min="0" step="0.5" value="12"></label>
+          <label>Hours per extra 10 feet <input id="hoursPerExtraTenFeet" type="number" min="0" step="0.25" value="1"></label>
+          <label>Electrical extra <select id="electricalPreset"></select></label>
+          <label>Electrical extra hours <input id="electricalHours" type="number" min="0" step="0.5" value="0"></label>
+          <label>Electrical extra material <input id="electricalMaterial" type="number" min="0" step="1" value="0"></label>
+          <label>Condensate <select id="condensatePreset"></select></label>
+          <label>Condensate hours <input id="condensateHours" type="number" min="0" step="0.5" value="0"></label>
+          <label>Condensate material <input id="condensateMaterial" type="number" min="0" step="1" value="0"></label>
+          <label>Commission hours per head <input id="commissionHoursPerHead" type="number" min="0" step="0.25" value="1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Installer hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="1" value="175"></label>
+          <label>Travel and lift <input id="travelAndLift" type="number" min="0" step="1" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="22"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 2800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Matching a cheaper per-head quote after leaving it out is how a sold job becomes a loss.</p>
+      </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Northbridge Comfort Systems"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(413) 555-0155"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="MA-HVAC-27714"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="190 Pleasant St, Northampton MA"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="E. Sandoval"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="52 Bridge Rd"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install a dual-zone ductless heat pump&#10;New 20 A circuit and disconnect"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Electrical service upgrade&#10;Drywall patching and paint"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Line sets run in exterior chase, painted to match. Commissioning and filter training on completion."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">install price</div>
+      <dl>
+        <dt>System size</dt><dd id="systemSize"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Equipment</dt><dd id="equipment"></dd>
+        <dt>Line-set, electrical, condensate</dt><dd id="extras"></dd>
+        <dt>Permit and travel</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per head</dt><dd id="perHead"></dd>
+        <dt>Price per kBTU</dt><dd id="perKbtu"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Walk-away per head</dt><dd id="breakEvenHead"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Head-type factors, story factors, and extras are common ballpark starting points, not an industry standard, a benchmark, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Why is equipment nearly two-thirds of the cost?</h3>
+      <p>Because a mini-split is an equipment job with an install attached. On the defaults &mdash; one
+        12,000 BTU head &mdash; the outdoor unit is $1,400 and the indoor head $550, which is 64.1% of
+        direct cost against 14.4% for the eight hours of labor. Your margin is far more sensitive to what
+        you pay for equipment than to how fast the crew works, which is the opposite of most trades on
+        this site.</p>
+
+      <h3>Why is the line set $0 when the job clearly needs one?</h3>
+      <p>Because the first 15 feet per head is in the base equipment price, and the default run is
+        exactly 15 feet. Only footage past the allowance bills, and it bills in labor as well as material
+        &mdash; roughly an hour per extra ten feet, since a longer run means more penetration, hanging,
+        and evacuation time. A second-floor head on a long run is where this number moves.</p>
+
+      <h3>Is $325 per thousand BTU a rate I can quote from?</h3>
+      <p>Not across sizes. It is $3,902.33 divided by 12 kBTU, and it drops as capacity rises because the
+        permit, travel, commissioning hour, and trip are the same for a bigger head. A 24,000 BTU
+        single-head system does not cost twice as much. The figure is for checking one quote against
+        another at the same capacity, not for scaling.</p>
+
+      <h3>Why doesn&rsquo;t a 22% target margin mean adding 22% to cost?</h3>
+      <p>Because margin is a fraction of the price. The default system costs $3,043.82, and holding 22%
+        of the price as profit is $3,043.82 &divide; 0.78 = $3,902.33. Adding 22% to cost gives
+        $3,713.46, an 18% margin &mdash; and on an equipment-heavy job like this one, where the cost base
+        is large, that gap is $189 on a single head and scales with every head you add.</p>
+    </section>
+  </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the customer's sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a load calculation, permit approval, or refrigerant-handling determination. Verify every figure against your own payroll, invoices, AHJ requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your head count, wages, costs, or prices.</p>
+    <p>See also: <a href="./how-much-to-charge-to-install-a-mini-split.html">how much to charge to install a mini split</a> &middot; <a href="./vs-servicetitan.html">this calculator vs. ServiceTitan</a>.</p>
+    <p class="support">Free and open source. If it keeps you from matching a losing per-head quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      HEAD_TYPE_PRESETS,
+      STORY_PRESETS,
+      ELECTRICAL_PRESETS,
+      CONDENSATE_PRESETS,
+      SYSTEM_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+
+    const FIELD_IDS = [
+      'headCount','btuPerHead','outdoorUnitCost','indoorHeadCostEach','branchBoxCost',
+      'headTypeFactor','storyFactor','indoorHoursPerHead','outdoorHours',
+      'lineSetFeet','includedFeetPerHead','lineSetMaterialPerExtraFoot','hoursPerExtraTenFeet',
+      'electricalHours','electricalMaterial','condensateHours','condensateMaterial',
+      'commissionHoursPerHead','hourlyWage','burdenRate','permitFee','travelAndLift',
+      'overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    function fillSelect(select, items, getValue, getLabel) {
+      select.innerHTML = items.map((item, index) =>
+        `<option value="${getValue(item, index)}">${getLabel(item)}</option>`
+      ).join('');
+    }
+
+    fillSelect(el('systemPreset'), SYSTEM_PRESETS, (_, index) => String(index), item => item.label);
+    fillSelect(el('headTypePreset'), HEAD_TYPE_PRESETS, item => item.id, item => item.label);
+    fillSelect(el('storyPreset'), STORY_PRESETS, item => item.id, item => item.label);
+    fillSelect(el('electricalPreset'), ELECTRICAL_PRESETS, item => item.id, item => item.label);
+    fillSelect(el('condensatePreset'), CONDENSATE_PRESETS, item => item.id, item => item.label);
+    el('systemPreset').value = '0';
+    el('headTypePreset').value = 'wall';
+    el('storyPreset').value = 'first';
+    el('electricalPreset').value = 'existing';
+    el('condensatePreset').value = 'gravity';
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'install price';
+      ['systemSize','hours','labor','equipment','extras','soft','overhead','cost','profit','perHead','perKbtu','hourlyRate','breakEven','breakEvenHead']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'install price';
+      el('systemSize').textContent = `${result.headCount} head${result.headCount === 1 ? '' : 's'}, ${(result.totalBtu / 1000).toFixed(1)} kBTU`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('equipment').textContent = money(result.equipmentCost);
+      el('extras').textContent = money(result.extraMaterial);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perHead').textContent = money(result.pricePerHead);
+      el('perKbtu').textContent = result.pricePerKbtu === null ? 'n/a' : `$${result.pricePerKbtu.toFixed(2)}/kBTU`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('breakEvenHead').textContent = money(result.breakEvenPerHead);
+
+      const parts = [
+        ['Labor', result.shares.labor],
+        ['Equipment', result.shares.equipment],
+        ['Line-set & extras', result.shares.extras],
+        ['Permit & travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ].filter(part => part[1] > 0);
+      el('split').innerHTML = parts
+        .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${Math.min(share, 100).toFixed(1)}%"></span></span></li>`)
+        .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} (${money(result.proposed.perHead)}/head) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} (${money(result.proposed.perHead)}/head) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      }
+    }
+
+    async function copySummary() {
+      const text = formatBidSummary(calculateBid(readInput()));
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('systemPreset').addEventListener('change', () => {
+      const preset = SYSTEM_PRESETS[Number(el('systemPreset').value)];
+      if (!preset) return;
+      el('headCount').value = preset.headCount;
+      el('btuPerHead').value = preset.btuPerHead;
+      if (!el('outdoorUnitCost').dataset.edited) el('outdoorUnitCost').value = preset.outdoorUnitCost;
+      if (!el('indoorHeadCostEach').dataset.edited) el('indoorHeadCostEach').value = preset.indoorHeadCostEach;
+      if (!el('branchBoxCost').dataset.edited) el('branchBoxCost').value = preset.branchBoxCost;
+      if (!el('lineSetFeet').dataset.edited) el('lineSetFeet').value = preset.lineSetFeet;
+      count('system_preset_applied');
+      update();
+    });
+    el('outdoorUnitCost').addEventListener('input', () => { el('outdoorUnitCost').dataset.edited = '1'; });
+    el('indoorHeadCostEach').addEventListener('input', () => { el('indoorHeadCostEach').dataset.edited = '1'; });
+    el('branchBoxCost').addEventListener('input', () => { el('branchBoxCost').dataset.edited = '1'; });
+    el('lineSetFeet').addEventListener('input', () => { el('lineSetFeet').dataset.edited = '1'; });
+
+    el('headTypePreset').addEventListener('change', () => {
+      const preset = HEAD_TYPE_PRESETS.find(item => item.id === el('headTypePreset').value);
+      if (preset && !el('headTypeFactor').dataset.edited) el('headTypeFactor').value = preset.factor;
+      count('head_type_changed');
+      update();
+    });
+    el('headTypeFactor').addEventListener('input', () => { el('headTypeFactor').dataset.edited = '1'; });
+
+    el('storyPreset').addEventListener('change', () => {
+      const preset = STORY_PRESETS.find(item => item.id === el('storyPreset').value);
+      if (preset && !el('storyFactor').dataset.edited) el('storyFactor').value = preset.factor;
+      count('story_changed');
+      update();
+    });
+    el('storyFactor').addEventListener('input', () => { el('storyFactor').dataset.edited = '1'; });
+
+    el('electricalPreset').addEventListener('change', () => {
+      const preset = ELECTRICAL_PRESETS.find(item => item.id === el('electricalPreset').value);
+      if (!preset) return;
+      if (!el('electricalHours').dataset.edited) el('electricalHours').value = preset.hours;
+      if (!el('electricalMaterial').dataset.edited) el('electricalMaterial').value = preset.material;
+      count('electrical_changed');
+      update();
+    });
+    el('electricalHours').addEventListener('input', () => { el('electricalHours').dataset.edited = '1'; });
+    el('electricalMaterial').addEventListener('input', () => { el('electricalMaterial').dataset.edited = '1'; });
+
+    el('condensatePreset').addEventListener('change', () => {
+      const preset = CONDENSATE_PRESETS.find(item => item.id === el('condensatePreset').value);
+      if (!preset) return;
+      if (!el('condensateHours').dataset.edited) el('condensateHours').value = preset.hours;
+      if (!el('condensateMaterial').dataset.edited) el('condensateMaterial').value = preset.material;
+      count('condensate_changed');
+      update();
+    });
+    el('condensateHours').addEventListener('input', () => { el('condensateHours').dataset.edited = '1'; });
+    el('condensateMaterial').addEventListener('input', () => { el('condensateMaterial').dataset.edited = '1'; });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+
+    // ---- Customer-facing proposal -------------------------------------------
+
+    const COMPANY_KEY = 'mini-split-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. Typographic apostrophes only:
+    // a straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for its scope, figures, and performance. It was laid out with a free '
+      + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
+      + 'warranty. It is not a mechanical, electrical, building-code, refrigerant, or load-calculation determination.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    /**
+     * Default scope lines from the job the user actually priced, so the proposal
+     * is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Written by hand for the trade rather than derived from the pasted summary:
+     * that summary lists crew-hour breakdowns, which must not reach a customer.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      // "(use the harder one)" is an instruction to the estimator that has no
+      // business on a customer's quote, and the story preset's "easy access" is
+      // the same. Strip any parenthetical aside from a label before printing it.
+      const plain = (label) => String(label ?? '').replace(/\s*\([^)]*\)/g, '').trim();
+      const head = plain(HEAD_TYPE_PRESETS.find(item => item.id === el('headTypePreset').value)?.label);
+      const electrical = ELECTRICAL_PRESETS.find(item => item.id === el('electricalPreset').value);
+      const condensate = CONDENSATE_PRESETS.find(item => item.id === el('condensatePreset').value);
+      const suggested = [
+        `Supply and install a ${result.headCount}-zone ductless heat pump, ${result.totalBtu.toLocaleString('en-US')} BTU total`,
+        // "12,000 BTU each" reads as a mistake when there is one head.
+        head ? `Indoor unit${result.headCount === 1 ? '' : 's'}: ${head.toLowerCase()}, `
+          + `${result.btuPerHead.toLocaleString('en-US')} BTU${result.headCount === 1 ? '' : ' each'}` : '',
+        'Outdoor condenser set on brackets or a pad, with line-set connections',
+        result.extraLineSetFeet > 0 ? `${result.extraLineSetFeet} ft of additional line set` : '',
+        // "Existing 240 V disconnect in place" is the absence of electrical work.
+        electrical && electrical.id !== 'existing' ? plain(electrical.label) : '',
+        condensate && condensate.id !== 'gravity' ? plain(condensate.label) : '',
+        result.permitFee > 0 ? 'Permit pulled and inspection scheduled' : '',
+        'Vacuum, charge, commissioning, and homeowner walkthrough',
+      ].filter(Boolean);
+      scope.value = suggested.join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null ? result.price : result.proposed.price,
+        jobTitle: `Ductless mini-split — ${result.headCount} zone${result.headCount === 1 ? "" : "s"}`,
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Delegated from the document
+     * rather than called inside `update()`: every calculator has its own
+     * `update()` with its own shape, and one bubble-phase listener works in all
+     * of them, which is what makes this feature copyable.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    update();
+    restoreCompany();
+    refreshProposal();
+  </script>
+</body>
+</html>

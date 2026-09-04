@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hardwood Refinishing Bid Calculator — Stairs and Closets</title>
+  <meta name="description" content="Price a hardwood floor refinish from field square footage, stair treads, closets, stain, and extra coats — then see price per square foot, the share of hours eaten by stairs, and the walk-away number.">
+  <meta property="og:title" content="Hardwood Refinishing Bid Calculator">
+  <meta property="og:description" content="Bid hardwood refinishing the way the trade does — field, stairs, closets, and stain — and see the margin before you send the price.">
+  <link rel="canonical" href="https://example.invalid/hardwood-refinishing-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hardwood Refinishing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Field square-foot takeoff, stair treads and risers, closet hours, screen-and-recoat vs full sand, stain and color-change extra coat, loaded wage, overhead, target-margin price, price per square foot, walk-away price, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a 250 sq ft hallway with 14 treads a losing job at a per-square-foot rate?","acceptedAnswer":{"@type":"Answer","text":"Because stair treads are billed at their own hours per tread, not folded into the field square footage — each tread is estimated at about 4 sq ft of tread-and-riser for the finish and stain math, but its labor is a separate line entirely. A small hallway with a lot of stairs can carry more total labor hours than a much larger open room with none, which a flat rate written for the room square footage cannot see."}},{"@type":"Question","name":"Why does full sand cost so much more than screen and recoat on the same floor?","acceptedAnswer":{"@type":"Answer","text":"Screen and recoat starts at 3.5 hours per 100 sq ft with 2 base coats; full sand — cutting in and sanding the field down to bare wood — starts at 8 hours per 100 sq ft with 3 base coats. Both the labor rate and the coat count are higher, so the gap between the two methods compounds rather than adding once, which matters most on a same-color job where the temptation is to assume the cheaper method looks the same when it’s done."}},{"@type":"Question","name":"Why does a stain color change add a whole extra coat, not just stain time?","acceptedAnswer":{"@type":"Answer","text":"A poly-only job needs no stain step at all. Stain-then-finish adds stain application time across the full finish area, but a color change adds an additional finish coat on top of that — because covering an existing color evenly typically takes one more pass than staining bare wood. That extra coat’s hours and gallons are counted separately from the base coats the method itself sets."}},{"@type":"Question","name":"Why does the gallon count round up instead of matching the math exactly?","acceptedAnswer":{"@type":"Answer","text":"Because you can’t buy a fraction of a gallon of finish or stain. Gallons needed is finish area times coat count divided by coverage per gallon, then rounded up to the next whole gallon — so a job that calculates to 4.05 gallons still buys 5, and that rounding happens independently for the clear finish and for the stain, since they don’t share a coverage rate."}},{"@type":"Question","name":"Do closets and furniture moving get folded into the field square footage?","acceptedAnswer":{"@type":"Answer","text":"No — each closet adds its own fixed hours per closet regardless of its size, and furniture-move and repair hours are flat inputs on top of everything else, none of which scale with floor square footage. A job with several small closets and a furniture-heavy room can carry meaningfully more labor than the field square footage alone would suggest."}},{"@type":"Question","name":"What does “Copy share link” send, and does anything leave my browser?","acceptedAnswer":{"@type":"Answer","text":"It copies the current page’s address with the field square footage, stair and closet counts, method, stain choice, coats, and every rate encoded after a # in the URL. A browser never sends the part after # to a server, so pasting that link into a text or email is the only way the figures travel — opening it re-runs the same bid immediately, so a partner, estimator, or customer sees the exact job you priced rather than a screenshot of the total. Your business name, licence, and the customer’s name and address are never included; those stay on this device."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2318; background: #f3eee4; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a5418; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d6ccba; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a2a140d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7aa98; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+    .check input { width: auto; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7aa98; background: #f6f0e6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a2318; }
+    button:hover { background: #efe5d4; }
+    .result { position: sticky; top: 15px; background: #3d2914; color: #f7f1e8; border-color: #3d2914; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4a45a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a5418; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d3b0; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3d2914; --pr-accent: #8a5418;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HARDWOOD FLOOR REFINISHERS</p>
+    <h1>Bid the stairs, the closets, and the stain — not the square footage.</h1>
+    <p>A flat per-square-foot quote treats a 400 sq ft living room of screen-and-recoat as the same job as 400 sq ft of hallway plus fourteen stair treads, two closets, and a stain change. Stairs, closets, and extra coats do not scale with the room footage the homeowner measures. Price those extras separately, then see the walk-away number.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The floor</h2>
+        <p class="hint">Start from a common job, then replace every rate with numbers from your own crew and invoices. Picking a method or stain fills hours-per-100, coats, and extra coats only if you have not already changed them.</p>
+        <div class="presets" id="jobPresets"></div>
+        <div class="fields">
+          <label>Field square feet <input id="floorSqFt" type="number" min="0" step="10" value="800"></label>
+          <label>Stair treads <input id="treads" type="number" min="0" step="1" value="12"></label>
+          <label>Closets <input id="closets" type="number" min="0" step="1" value="2"></label>
+          <label>Refinish method
+            <select id="methodId">
+              <option value="screen">Screen and recoating (same color)</option>
+              <option value="full_sand" selected>Full sand (cut-in and field)</option>
+            </select>
+          </label>
+          <label>Stain
+            <select id="stainId">
+              <option value="poly_only">Poly / waterborne only</option>
+              <option value="stain">Stain then finish</option>
+              <option value="color_change">Stain color change (extra coat)</option>
+            </select>
+          </label>
+          <label>Hours / 100 sq ft of field <input id="hoursPer100" type="number" min="0.1" step="0.1" value="8"></label>
+          <label>Method labor factor <input id="methodLaborFactor" type="number" min="0.1" step="0.05" value="1"></label>
+          <label>Base finish coats <input id="baseCoats" type="number" min="1" step="1" value="3"></label>
+          <label>Extra coats <input id="extraCoats" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="staining" type="checkbox"> Stain the floor</label>
+          <label>Furniture move hours <input id="furnitureHours" type="number" min="0" step="0.5" value="3"></label>
+          <label>Repair / fill hours <input id="repairHours" type="number" min="0" step="0.5" value="1.5"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Hours / stair tread <input id="hoursPerTread" type="number" min="0" step="0.05" value="0.4"></label>
+          <label>Hours / closet <input id="hoursPerCloset" type="number" min="0" step="0.05" value="1"></label>
+          <label>Stain hours / 100 sq ft <input id="stainHoursPer100" type="number" min="0" step="0.1" value="1.8"></label>
+          <label>Extra-coat hours / 100 sq ft <input id="extraCoatHoursPer100" type="number" min="0" step="0.1" value="1.2"></label>
+          <label>Finish coverage (sq ft / gal / coat) <input id="finishCoverage" type="number" min="1" step="10" value="450"></label>
+          <label>Stain coverage (sq ft / gal) <input id="stainCoverage" type="number" min="1" step="10" value="500"></label>
+          <label>Finish / gallon <input id="finishCost" type="number" min="0" step="1" value="85"></label>
+          <label>Stain / gallon <input id="stainCost" type="number" min="0" step="1" value="45"></label>
+          <label>Screens, paper, tape / 100 sq ft <input id="suppliesPer100" type="number" min="0" step="1" value="18"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel, dustless, and containment <input id="travelAndEquipment" type="number" min="0" step="25" value="185"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 6400"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. A $42/h finisher loaded at 30% is $54.60. Quoting the raw wage is how a per-square-foot special that looked fine turns into a loss after the first stair run.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">refinish price</div>
+      <dl>
+        <dt>Field / treads / closets</dt><dd id="scope"></dd>
+        <dt>Finish area (field + stairs)</dt><dd id="finishArea"></dd>
+        <dt>Finish + stain</dt><dd id="gallons"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Travel + containment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per field sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and coverage are common ballpark figures, not an industry standard, a benchmark, or a flooring specification &mdash; replace them with your own takeoff.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Grainwright Floors LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Full sand and three coats of waterborne finish, 900 sq ft&#10;Stain to a medium walnut"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Board replacement or repair of deep damage&#10;Moving appliances or a piano"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Socks-only after 24 hours; rugs back after 10 days."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+      <section class="wide" id="faq">
+        <h2>Common questions</h2>
+        <h3>Why is a 250 sq ft hallway with 14 treads a losing job at a per-square-foot rate?</h3>
+        <p>Because stair treads are billed at their own hours per tread, not folded into the field square footage &mdash; each tread is estimated at about 4 sq ft of tread-and-riser for the finish and stain math, but its labor is a separate line entirely. A small hallway with a lot of stairs can carry more total labor hours than a much larger open room with none, which a flat rate written for the room square footage cannot see.</p>
+        <h3>Why does full sand cost so much more than screen and recoat on the same floor?</h3>
+        <p>Screen and recoat starts at 3.5 hours per 100 sq ft with 2 base coats; full sand &mdash; cutting in and sanding the field down to bare wood &mdash; starts at 8 hours per 100 sq ft with 3 base coats. Both the labor rate and the coat count are higher, so the gap between the two methods compounds rather than adding once, which matters most on a same-color job where the temptation is to assume the cheaper method looks the same when it&rsquo;s done.</p>
+        <h3>Why does a stain color change add a whole extra coat, not just stain time?</h3>
+        <p>A poly-only job needs no stain step at all. Stain-then-finish adds stain application time across the full finish area, but a color change adds an additional finish coat on top of that &mdash; because covering an existing color evenly typically takes one more pass than staining bare wood. That extra coat&rsquo;s hours and gallons are counted separately from the base coats the method itself sets.</p>
+        <h3>Why does the gallon count round up instead of matching the math exactly?</h3>
+        <p>Because you can&rsquo;t buy a fraction of a gallon of finish or stain. Gallons needed is finish area times coat count divided by coverage per gallon, then rounded up to the next whole gallon &mdash; so a job that calculates to 4.05 gallons still buys 5, and that rounding happens independently for the clear finish and for the stain, since they don&rsquo;t share a coverage rate.</p>
+        <h3>Do closets and furniture moving get folded into the field square footage?</h3>
+        <p>No &mdash; each closet adds its own fixed hours per closet regardless of its size, and furniture-move and repair hours are flat inputs on top of everything else, none of which scale with floor square footage. A job with several small closets and a furniture-heavy room can carry meaningfully more labor than the field square footage alone would suggest.</p>
+        <h3>What does &ldquo;Copy share link&rdquo; send, and does anything leave my browser?</h3>
+        <p>It copies the current page&rsquo;s address with the field square footage, stair and closet counts, method, stain choice, coats, and every rate encoded after a # in the URL. A browser never sends the part after # to a server, so pasting that link into a text or email is the only way the figures travel &mdash; opening it re-runs the same bid immediately, so a partner, estimator, or customer sees the exact job you priced rather than a screenshot of the total. Your business name, licence, and the customer&rsquo;s name and address are never included; those stay on this device.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not flooring, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices. A share link encodes only the bid fields above in the page&rsquo;s URL hash &mdash; it is not sent to us, and it never includes your business or customer details.</p>
+    <p>Related: <a href="how-much-to-charge-to-refinish-hardwood-floors.html">How much to charge to refinish hardwood floors</a> &middot; <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedHoursPer100,
+      suggestedBaseCoats,
+      suggestedStain,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+
+    const FIELD_IDS = [
+      'floorSqFt','treads','closets','hoursPer100','hoursPerTread','hoursPerCloset',
+      'methodLaborFactor','stainHoursPer100','extraCoats','extraCoatHoursPer100',
+      'furnitureHours','repairHours','baseCoats','finishCoverage','stainCoverage',
+      'finishCost','stainCost','suppliesPer100','hourlyWage','burdenRate',
+      'travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      return {
+        ...values,
+        staining: el('staining').checked,
+      };
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'refinish price';
+      ['scope','finishArea','gallons','hours','labor','materials','soft','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('hourSplit').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'refinish price';
+      el('scope').textContent = `${result.floorSqFt.toLocaleString('en-US')} / ${result.treads} / ${result.closets}`;
+      el('finishArea').textContent = `${result.finishArea.toLocaleString('en-US')} sq ft`;
+      el('gallons').textContent = `${result.finishGallons} finish + ${result.stainGallons} stain`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : money(result.pricePerSqFt);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourShares = [
+        ['Field', result.hourShares.field],
+        ['Stairs', result.hourShares.stairs],
+        ['Closets', result.hourShares.closets],
+        ['Stain + extra coats', result.hourShares.stain],
+        ['Furniture + repairs', result.hourShares.furniture],
+      ];
+      el('hourSplit').innerHTML = hourShares
+        .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${Math.min(100, share).toFixed(1)}%"></span></span></li>`)
+        .join('');
+
+      const shares = [
+        ['Labor', result.shares.labor],
+        ['Materials', result.shares.material],
+        ['Travel + containment', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ];
+      el('split').innerHTML = shares
+        .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${Math.min(100, share).toFixed(1)}%"></span></span></li>`)
+        .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, ${result.proposed.perSqFt === null ? 'n/a' : money(result.proposed.perSqFt)} per field sq ft.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = formatBidSummary(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeInputs({
+        ...readInput(),
+        methodId: el('methodId').value,
+        stainId: el('stainId').value,
+        // The proposal panel's terms -- see the matching note in applyShare.
+        depositPercent: el('depositPercent').value,
+        validDays: el('validDays').value,
+        paymentTerms: el('paymentTerms').value,
+        proposalNotes: el('proposalNotes').value,
+        proposalExclusions: el('proposalExclusions').value,
+      });
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Share link copied — it reopens this bid with the same figures.';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only FIELD_IDS values are
+     * ever written back into the form -- see share.mjs -- so a crafted
+     * fragment cannot set anything this page does not already ask for.
+     */
+    function applyShare(payload) {
+      if (!payload) return;
+      for (const id of FIELD_IDS) {
+        if (payload[id] === undefined) continue;
+        el(id).value = payload[id];
+      }
+      if (payload.staining !== undefined) el('staining').checked = Boolean(payload.staining);
+      if (payload.methodId !== undefined) el('methodId').value = payload.methodId;
+      if (payload.stainId !== undefined) el('stainId').value = payload.stainId;
+      // The proposal panel's terms -- named directly rather than via TERM_IDS
+      // below, which this function runs before (the panel's own script block
+      // declares it later in the file). A shared link opening under the
+      // recipient's own default deposit and validity window is the same
+      // "different money on acceptance" defect share.mjs's header describes.
+      for (const id of ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions']) {
+        if (payload[id] !== undefined) el(id).value = payload[id];
+      }
+      // A shared link already carries explicit hours and coat figures, so
+      // treat them as user-edited: switching the method or stain choice
+      // afterward must not silently overwrite what was shared.
+      el('hoursPer100').dataset.edited = '1';
+      el('baseCoats').dataset.edited = '1';
+      el('extraCoats').dataset.edited = '1';
+    }
+
+    function applyJob(preset) {
+      el('floorSqFt').value = preset.floorSqFt;
+      el('treads').value = preset.treads;
+      el('closets').value = preset.closets;
+      el('methodId').value = preset.methodId;
+      el('stainId').value = preset.stainId;
+      el('furnitureHours').value = preset.furnitureHours;
+      el('repairHours').value = preset.repairHours;
+      el('hoursPer100').value = suggestedHoursPer100(preset.methodId);
+      el('baseCoats').value = suggestedBaseCoats(preset.methodId);
+      const stain = suggestedStain(preset.stainId);
+      el('staining').checked = stain.staining;
+      el('extraCoats').value = stain.extraCoats;
+      delete el('hoursPer100').dataset.edited;
+      delete el('baseCoats').dataset.edited;
+      delete el('extraCoats').dataset.edited;
+      count('job_preset_applied');
+      update();
+    }
+
+    const presetHost = el('jobPresets');
+    JOB_PRESETS.forEach((preset) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = preset.label;
+      button.addEventListener('click', () => applyJob(preset));
+      presetHost.append(button);
+    });
+
+    el('methodId').addEventListener('change', () => {
+      if (!el('hoursPer100').dataset.edited) el('hoursPer100').value = suggestedHoursPer100(el('methodId').value);
+      if (!el('baseCoats').dataset.edited) el('baseCoats').value = suggestedBaseCoats(el('methodId').value);
+      count('method_changed');
+      update();
+    });
+    el('stainId').addEventListener('change', () => {
+      const stain = suggestedStain(el('stainId').value);
+      el('staining').checked = stain.staining;
+      if (!el('extraCoats').dataset.edited) el('extraCoats').value = stain.extraCoats;
+      count('stain_changed');
+      update();
+    });
+    el('hoursPer100').addEventListener('input', () => { el('hoursPer100').dataset.edited = '1'; });
+    el('baseCoats').addEventListener('input', () => { el('baseCoats').dataset.edited = '1'; });
+    el('extraCoats').addEventListener('input', () => { el('extraCoats').dataset.edited = '1'; });
+    el('staining').addEventListener('change', () => { count('stain_changed'); update(); });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the URL from the address bar.'; });
+    });
+
+    // A shared link takes priority over the page's own defaults -- a partner
+    // opening it should see the sender's job on first paint, not the default
+    // 800 sq ft / 12 tread example that then jumps to the real numbers.
+    const shared = decodeInputs(location.hash || location.search);
+    applyShare(shared);
+    if (Object.keys(shared).length) count('shared_link_opened');
+
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'hardwood-refinishing-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Existing boards may reveal colour variation, filled damage, or previous repairs once sanded; a stain sample is the only reliable guide to final colour.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{methodLabel} across {floorSqFt~0} sq ft of floor",
+        "Finish: {stainLabel} — {totalCoats} coat{totalCoats+s}",
+        {
+          "line": "Refinish {treads} stair tread{treads+s}",
+          "when": "treads"
+        },
+        {
+          "line": "Refinish {closets} closet{closets+s}",
+          "when": "closets"
+        },
+        "Dust-contained sanding, edge and corner work by hand",
+        "Vacuum and tack between coats; leave the floor cured and the site clean"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "methodLabel": el('methodId')?.selectedOptions?.[0]?.textContent?.trim(),
+        "stainLabel": el('stainId')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Hardwood refinishing — {finishArea~0} sq ft'], proposalFields(result))[0] || 'Hardwood refinishing — sq ft',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

@@ -80,7 +80,7 @@ export default function Home() {
             <Link href="/photo-check" className="font-medium text-brand-300 hover:text-brand-200">
               MLS listing photo preflight check
             </Link>{" "}
-            — no account, no upload.
+            — findings plus a copyable reshoot list. No account, no upload.
           </p>
         </div>
       </footer>

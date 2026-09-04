@@ -1,0 +1,32 @@
+name: gutter-cleaning-bid-calculator
+description: A free browser calculator for independent gutter-cleaning contractors that prices a visit from linear feet, stories, pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, overhead, a minimum stop charge, and an optional spring-and-fall contract.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent gutter contractors will use a run-by-run bid calculator because the per-linear-foot rules of thumb they find online cannot see that a two-story micro-mesh house takes more than twice the labor of a one-story open-gutter ranch of the same footage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away visit price, the implied price per linear foot, and the seasonal-contract total are the three numbers a contractor actually decides on when a homeowner asks them to match a cheaper quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A minimum stop charge changes the bid on small ranch houses more than any of the difficulty multipliers, so making it a required, explained input changes the resulting price materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified gutter contractors use the calculator twice within 90 days of publication.
+  - Contractors report that the story/guard/debris model is more work than their existing per-foot quote without changing the price they would have bid.
+  - The starting minutes-per-10-feet prove so far from real crews' times that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

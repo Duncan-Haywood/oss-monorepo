@@ -2,6 +2,12 @@
 
 Interactive business plan and platform demo for **Print Atelier** — an AI-first, software-driven marketplace that digitizes physical art, sells prints via POD, and pays artists 30% of net profit.
 
+Artists preparing a print master can run a private, no-upload [print-file preflight](/print-file-preflight), compare up to five exports at a chosen print size, and download a dated technical record before ordering a paid proof.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not printing, production, legal, or professional advice, and it does not replace a qualified printer or color manager. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+
+**Privacy.** The preflight reads files in your browser. Artwork is never uploaded. We count anonymous events (page viewed, check completed, files compared, record exported) — never filenames, images, IPs, or people. Honour Do Not Track / Global Privacy Control, or use the on-page opt-out.
+
 ## Strategy Pillars
 
 - **Software-first:** Every operational bottleneck solved with code before headcount
@@ -48,6 +54,7 @@ Visit [http://localhost:3000](http://localhost:3000) for the business plan dashb
 | `/payout-simulator` | Stripe Connect payout waterfall, transfer timing, and webhook env status |
 | `/api/stripe/webhook` | Stripe Connect webhook endpoint (configure via `.env.example`) |
 | `/storefront` | Consumer e-commerce storefront (demand side) |
+| `/print-file-preflight` | Private JPEG/PNG print-master check, size compare for up to five files, and a dated downloadable record |
 | `/buyer-portal` | Full buyer shop with filters and AI room visualization |
 | `/artist-portal` | Artist dashboard with portfolio, payouts, settings |
 | `/b2b-portal` | B2B trade portal for interior designers |

@@ -1,0 +1,34 @@
+name: no-show-fee-calculator
+description: Free calculator for appointment-based service businesses (personal trainers, salons, tutors, therapists) that turns their own price, booking volume, and no-show rate into a defensible cancellation fee, an estimate of revenue at risk, a 24-hour vs 48-hour waitlist-fill comparison, and a ready-to-copy cancellation policy.
+
+stage: prototype
+
+owner: duncan
+
+hypotheses:
+  - claim: Solo/small appointment-based service providers will use a free calculator to pick a specific no-show/late-cancellation fee and copy the generated policy text into their own booking system, rather than guessing a number or copying a generic boilerplate template.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: This narrow tool is discoverable via search terms scheduling suites (Calendly, Acuity, Mindbody) do not directly serve — those platforms offer a fee toggle but not a way to decide the amount or explain it to clients, so "no show fee calculator" / "cancellation policy generator" searches land on a gap.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 10
+  protected: true
+
+kill_criteria:
+  - No measurable return visits or organic referral traffic (via GitHub Pages repo views/clones) 60 days after the landing page is live.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+
+links:
+  production: null
+  analytics: null

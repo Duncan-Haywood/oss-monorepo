@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RC Charge and Discharge Time Calculator</title>
+<meta name="description" content="Free RC capacitor charge and discharge time calculator. Find time to a voltage threshold or design a buyable resistor or capacitor for a target delay. Private and client-side.">
+<meta name="robots" content="index, follow"><link rel="canonical" href=".">
+<meta property="og:title" content="RC Charge and Discharge Time Calculator"><meta property="og:description" content="Calculate capacitor timing to a real voltage threshold, or design a resistor or capacitor for a target delay."><meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"RC Charge and Discharge Time Calculator","applicationCategory":"EducationalApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Client-side calculator for capacitor charge and discharge timing and RC delay design."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does τ = RC matter, and what is a “time constant”?","acceptedAnswer":{"@type":"Answer","text":"τ = RC is the time it takes an RC circuit to close about 63.2% of the gap to its final voltage — that 63.2% figure is 1 − 1/e, and it is where the “time constant” name comes from. This page's own defaults show it directly: R = 10 kΩ and C = 100 nF give τ = 1 ms, and the default threshold of 3.16 V is exactly 63.2% of the 5 V supply — charging to it takes 999.7 µs, essentially one full time constant."}},{"@type":"Question","name":"What does “voltage after a delay” answer that the timing section doesn't?","acceptedAnswer":{"@type":"Answer","text":"It's the inverse question. Timing asks \u201chow long until I reach this voltage?\u201d; this asks \u201cwhat voltage is on the capacitor after this much time?\u201d Using this page's own defaults, after exactly 1 ms of charging (one time constant) the capacitor sits at 3.1606 V, 63.21% of the 5 V supply — the same 63.2% figure the first question describes, reached from the other direction."}},{"@type":"Question","name":"Why does the design tool pick a slightly different part than the exact math?","acceptedAnswer":{"@type":"Answer","text":"Because resistors and capacitors are only sold in a fixed set of standard values (E24 for resistors, E12 for capacitors), not any number the algebra produces. Asking this page's own default 1 ms target time to solve for resistance (with the default 100 nF capacitor) calls for an exact 10003.28 Ω — but the nearest standard value happens to be 10 kΩ, which is itself an E24 value, so the snapped part still lands the delay at 999.7 µs, only 0.03% off target. A less convenient target time can snap by several percent instead."}}]}</script>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#17202a;--muted:#59636e;--panel:#f4f6f8;--border:#d7dde3;--accent:#136f63} @media(prefers-color-scheme:dark){:root{--bg:#14181c;--fg:#edf2f5;--muted:#aab5bf;--panel:#20262c;--border:#3b454e;--accent:#65d6bd}}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif}main{max-width:720px;margin:auto;padding:2rem 1.2rem 4rem}h1{font-size:1.65rem;line-height:1.2;margin:.7rem 0}.lede,.hint,footer{color:var(--muted)}section{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:1.2rem;margin:1.5rem 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem}label{display:block;color:var(--muted);font-size:.86rem;margin:.7rem 0 0}input,select{width:100%;padding:.55rem;margin-top:.25rem;background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:6px;font:inherit}.field{display:grid;grid-template-columns:2fr 1fr;gap:.45rem}.modes{display:flex;gap:1rem;flex-wrap:wrap}.modes label{color:var(--fg);display:flex;gap:.35rem;align-items:center}.modes input{width:auto;margin:0}.result{border-left:4px solid var(--accent);padding:.85rem 1rem;background:var(--bg);margin-top:1rem}.result strong{color:var(--accent);font-size:1.25rem}.error{color:#c53030}.hidden{display:none}button{border:1px solid var(--border);border-radius:6px;padding:.4rem .7rem;background:var(--bg);color:var(--fg);cursor:pointer}footer{border-top:1px solid var(--border);padding-top:1rem;font-size:.86rem}a{color:var(--accent)}@media(max-width:560px){.grid{grid-template-columns:1fr}.modes{display:block}.modes label{margin:.5rem 0}}
+</style>
+</head>
+<body><main>
+<nav><a href="../">← All free electronics tools</a></nav>
+<h1>RC charge and discharge time calculator</h1>
+<p class="lede">Choose a real voltage threshold. Calculate the delay from R and C, or work backwards from a target time to a preferred part value. Nothing is uploaded.</p>
+<section><h2>Timing</h2>
+<fieldset><legend>Operation</legend><div class="modes"><label><input type="radio" name="mode" value="charge" checked> Charge</label><label><input type="radio" name="mode" value="discharge"> Discharge</label></div></fieldset>
+<div class="grid"><div><label for="r">Resistance</label><div class="field"><input id="r" type="number" value="10" min="0" step="any"><select id="ru" aria-label="Resistance unit"><option value="1">Ω</option><option value="1000" selected>kΩ</option><option value="1000000">MΩ</option></select></div></div><div><label for="c">Capacitance</label><div class="field"><input id="c" type="number" value="100" min="0" step="any"><select id="cu" aria-label="Capacitance unit"><option value="1e-12">pF</option><option value="1e-9" selected>nF</option><option value="1e-6">µF</option><option value="1e-3">mF</option></select></div></div></div>
+<div class="grid"><div><label for="supply">Supply voltage, Vs</label><input id="supply" type="number" value="5" min="0" step="any"></div><div><label for="initial">Initial voltage, V0 (discharge)</label><input id="initial" type="number" value="5" min="0" step="any"></div></div>
+<label for="threshold">Threshold voltage</label><input id="threshold" type="number" value="3.16" min="0" step="any"><p class="hint" id="threshold-hint">For charge, this is the voltage reached from 0 V.</p>
+<div id="result" class="result" aria-live="polite"></div>
+<p class="hint">Wondering when it's actually "done"? <a href="how-long-to-fully-charge-a-capacitor.html">How long until a capacitor is fully charged</a> — it technically never is, and this shows why.</p>
+</section>
+<section><h2>Voltage after a delay</h2><p class="hint">The inverse question: you already have R, C, and a clock edge. What voltage is on the capacitor then?</p>
+<div class="grid"><div><label for="probe">Elapsed time</label><div class="field"><input id="probe" type="number" value="1" min="0" step="any"><select id="pu" aria-label="Elapsed time unit"><option value="0.000001">µs</option><option value="0.001" selected>ms</option><option value="1">s</option></select></div></div></div>
+<div id="voltage" class="result" aria-live="polite"></div></section>
+<section><h2>Design a delay</h2><p class="hint">The same threshold conditions apply. The result includes the exact value and the nearest preferred part.</p>
+<div class="grid"><div><label for="target">Target time</label><div class="field"><input id="target" type="number" value="1" min="0" step="any"><select id="tu" aria-label="Target time unit"><option value="0.000001">µs</option><option value="0.001" selected>ms</option><option value="1">s</option></select></div></div><div><label for="solve">Solve for</label><select id="solve"><option value="resistance">Resistance</option><option value="capacitance">Capacitance</option></select></div></div><div id="design" class="result" aria-live="polite"></div></section>
+<section><h2>Common questions</h2>
+
+<h3>Why does &tau; = RC matter, and what is a &ldquo;time constant&rdquo;?</h3>
+<p>&tau; = RC is the time it takes an RC circuit to close about 63.2% of the
+gap to its final voltage — that 63.2% figure is 1 &minus; 1/e, and it is
+where the &ldquo;time constant&rdquo; name comes from. This page's own
+defaults show it directly: R = 10 kΩ and C = 100 nF give &tau; = 1 ms, and
+the default threshold of 3.16 V is exactly 63.2% of the 5 V supply — charging
+to it takes 999.7 &micro;s, essentially one full time constant.</p>
+
+<h3>What does &ldquo;voltage after a delay&rdquo; answer that the timing section doesn't?</h3>
+<p>It's the inverse question. Timing asks &ldquo;how long until I reach this
+voltage?&rdquo;; this asks &ldquo;what voltage is on the capacitor after
+this much time?&rdquo; Using this page's own defaults, after exactly 1 ms of
+charging (one time constant) the capacitor sits at 3.1606 V, 63.21% of the
+5 V supply — the same 63.2% figure the first question describes, reached
+from the other direction.</p>
+
+<h3>Why does the design tool pick a slightly different part than the exact math?</h3>
+<p>Because resistors and capacitors are only sold in a fixed set of standard
+values (E24 for resistors, E12 for capacitors), not any number the algebra
+produces. Asking this page's own default 1 ms target time to solve for
+resistance (with the default 100 nF capacitor) calls for an exact 10003.28 Ω
+— but the nearest standard value happens to be 10 kΩ, which is itself an E24
+value, so the snapped part still lands the delay at 999.7 &micro;s, only
+0.03% off target. A less convenient target time can snap by several percent
+instead.</p>
+</section>
+<footer><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering advice, and it does not replace checking your components' real datasheets or measuring the built circuit. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including for anything safety-critical. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Inputs stay in your browser. Anonymous feature-use events are counted locally only, never sent to an analytics vendor. <button id="privacy">Turn off local usage counting</button></p><p><a href="../">AI Engineering Academy</a> · MIT licensed · see also the <a href="how-long-to-fully-charge-a-capacitor.html">fully-charged time calculator</a> and the <a href="../rc-filter-calculator/">RC / RL filter calculator</a></p></footer>
+</main>
+<script type="module">
+import {timeFromComponents,designForTime,voltageAtTime,formatTime,formatResistance,formatCapacitance} from './calc.mjs'; import {recordEventSettled,setUsageCountingEnabled} from './usage.mjs';
+const $=id=>document.getElementById(id); const fields=['r','ru','c','cu','supply','initial','threshold','target','tu','solve','probe','pu'];
+function mode(){return document.querySelector('input[name=mode]:checked').value} function run(){try{const m=mode(), r=+$('r').value*+$('ru').value,c=+$('c').value*+$('cu').value,s=+$('supply').value,i=+$('initial').value,t=+$('threshold').value; const out=timeFromComponents({mode:m,resistanceOhms:r,capacitanceFarads:c,supplyVolts:s,initialVolts:i,thresholdVolts:t}); $('result').innerHTML=`<strong>${formatTime(out.timeSeconds)}</strong><br>Time constant: ${formatTime(out.timeConstantSeconds)}<p class="hint">${m==='charge'?'At this point the capacitor is '+(100*t/s).toFixed(1)+'% of supply voltage.':'The capacitor has fallen to '+(100*t/i).toFixed(1)+'% of its initial voltage.'}</p>`; const v=voltageAtTime({mode:m,resistanceOhms:r,capacitanceFarads:c,supplyVolts:s,initialVolts:i,timeSeconds:+$('probe').value*+$('pu').value}); $('voltage').innerHTML=m==='charge'?`<strong>${v.volts.toPrecision(4)} V</strong><br>${(v.fractionOfSupply*100).toFixed(1)}% of supply after ${formatTime(+$('probe').value*+$('pu').value)}`:`<strong>${v.volts.toPrecision(4)} V</strong><br>${(v.fractionOfInitial*100).toFixed(1)}% of the initial voltage after ${formatTime(+$('probe').value*+$('pu').value)}`; const d=designForTime({mode:m,targetTimeSeconds:+$('target').value*+$('tu').value,solveFor:$('solve').value,resistanceOhms:r,capacitanceFarads:c,supplyVolts:s,initialVolts:i,thresholdVolts:t}); $('design').innerHTML=`Exact ${d.componentLabel}: ${d.componentLabel==='resistance'?formatResistance(d.exactValue):formatCapacitance(d.exactValue)}<br><strong>Use ${d.componentLabel==='resistance'?formatResistance(d.snappedValue):formatCapacitance(d.snappedValue)}</strong><br>Actual delay: ${formatTime(d.achievedTimeSeconds)} (${d.errorPercent>=0?'+':''}${d.errorPercent.toFixed(1)}%)`; recordEventSettled('calculation');}catch(e){$('result').innerHTML=`<span class="error">${e.message}</span>`;$('voltage').textContent='Enter valid R, C, and voltages to see the voltage at a delay.';$('design').textContent='Enter valid timing values to design a part.'}} fields.forEach(id=>$(id).addEventListener('input',run)); document.querySelectorAll('input[name=mode]').forEach(e=>e.addEventListener('change',run)); $('privacy').onclick=()=>{setUsageCountingEnabled(false);$('privacy').textContent='Local usage counting is off'}; run();
+</script></body></html>

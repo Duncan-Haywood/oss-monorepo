@@ -5,10 +5,11 @@
     python3 platform/ci/publish_surface.py --json    # machine-readable
     python3 platform/ci/publish_surface.py --check   # compare to the snapshot
 
-`CLAUDE.md`'s agent-decidable test turns on one factual question -- does this
-change reach "any `ventures/*` app code that deploys to a live site"? -- and
-until now nothing in the repo answered it from the workflow files. The answer
-was hand-derived into prose in four places and then frozen:
+This answers a factual question -- what does a merge to `main` actually
+publish? -- from the workflow files. It does not block merging product
+code. Agents merge product PRs; this tool says whether that merge also
+goes live. The answer used to be hand-derived into prose in four places
+and then frozen:
 
   - `portfolio/ledger/asks.yaml`, as free-text `unlocks:` strings
   - `CLAUDE.md`'s agent-decidable list, which names no ventures at all
@@ -49,12 +50,56 @@ Four classifications result, and only the first means a merge publishes:
   gated        reachable trigger, but every publish step is behind an `if:`
   dispatch     publishes, but no push trigger can reach it
   none         no publishing step at all
+
+## GitOps is also a publish surface
+
+Everything above reads `.github/workflows/`, which was the whole delivery path
+when this tool was written. It stopped being so on 2026-08-29, when the
+portfolio site moved to the hel1 cluster: Argo CD watches `main` and syncs
+`gitops/`, so a manifest merged to `main` *is* the deploy. No workflow runs, no
+`uses:` matches, and this tool reported "no workflow publishes anything on a
+push to main" -- true of workflows, and the wrong answer to the question in the
+first line of this docstring.
+
+That mattered because the answer is load-bearing. `portfolio/DIRECTION.md`
+gates "deploy beats another build" on this tool reporting nothing live, so an
+instrument blind to the portfolio's own chosen delivery path kept the gate shut
+by construction, and would have gone on reporting nothing live on the day the
+site went up. This is the same failure the tool was built to prevent -- a frozen
+claim about a live configuration -- arriving from the direction the tool could
+not see.
+
+So `gitops_survey()` reads the Argo `Application` resources too, and the same
+four words classify them:
+
+  live         syncs `main` automatically and at least one hostname answers
+  gated        has hostnames, but every one fails closed on a Secret git lacks
+  dispatch     no automated sync policy, so a human must press Sync
+  none         reaches no public Ingress
+
+Classification is computed **per hostname** and the Application takes the best
+state any of them reaches. Per-Application was the first cut and it was wrong
+here: `gitops/prod` holds the content site on `tools.marisstella.dev`, whose pod
+clones the repo and waits on the unsealed token, *and* an annotation-only 301
+for the apex and `www`, which needs no workload and no Secret. Lumping them
+together reported all three as blocked -- the same conflation the 2026-08-30
+ledger entry made in prose. Two of those three answer on merge today.
+
+Which then needs saying out loud, because "2 of 3 hosts live" is a worse
+falsehood than the one it replaced: both are 301s *to the blocked host*, so no
+visitor reaches content either way. `dead_end_redirects()` derives that from the
+annotation rather than leaving the reader to notice, and the table prints it
+under the hosts it contradicts.
+
+`--check` pins these rows beside the workflow ones, so sealing the token, or
+adding a second public host, has to be a deliberate change here as well.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -285,20 +330,446 @@ def render(rows) -> str:
     return "\n".join(out)
 
 
+# ---------------------------------------------------------------- GitOps
+#
+# Argo CD is the portfolio's other delivery path, and the one the public site
+# actually uses. See "GitOps is also a publish surface" in the module docstring
+# for why a tool about workflows grew a second reader.
+
+GITOPS = REPO / "gitops"
+
+# This repository, as an Argo `repoURL` spells it. Compared case-insensitively
+# with any `.git` suffix and scheme stripped, because an Application pointing at
+# a *different* repo (the ingress-nginx or cert-manager charts, say) is somebody
+# else's artifact and not something a merge here publishes.
+REPO_REMOTE = "github.com/duncan-haywood/monorepo-projects"
+
+
+def _normalise_remote(url) -> str:
+    if not isinstance(url, str):
+        return ""
+    text = url.strip().lower()
+    for prefix in ("https://", "http://", "ssh://", "git@"):
+        if text.startswith(prefix):
+            text = text[len(prefix) :]
+    return text.removesuffix(".git").rstrip("/").replace(":", "/")
+
+
+def _documents(path):
+    """Every YAML document in a file, skipping ones that are not mappings."""
+    try:
+        loaded = list(yaml.safe_load_all(path.read_text()))
+    except yaml.YAMLError:
+        return []
+    return [d for d in loaded if isinstance(d, dict)]
+
+
+def _kustomize_resources(directory):
+    """The files a `kustomization.yaml` actually applies, resolved to paths.
+
+    Presence of a file on disk is not the question. `gitops/prod/secrets/`
+    holds `portfolio-repo-token.template.yaml`, which is a *template* the owner
+    fills in and seals -- it is committed, and it is deliberately absent from
+    the kustomization, so nothing it names exists in the cluster. Reading the
+    directory instead of the resource list would report the site's clone token
+    as provided and the whole deploy as live, which is the one answer this
+    section exists to get right.
+    """
+    kustomization = directory / "kustomization.yaml"
+    if not kustomization.is_file():
+        # No kustomization: Argo applies every manifest in the directory.
+        return sorted(p for p in directory.glob("*.yaml") if p.name != "kustomization.yaml")
+    data = yaml.safe_load(kustomization.read_text()) or {}
+    resources = data.get("resources")
+    if not isinstance(resources, list):
+        return []
+    paths = []
+    for entry in resources:
+        if not isinstance(entry, str):
+            continue
+        target = (directory / entry).resolve()
+        if target.is_file():
+            paths.append(target)
+        elif target.is_dir():
+            paths.extend(_kustomize_resources(target))
+    return paths
+
+
+def _walk(node):
+    """Every mapping nested anywhere inside a manifest."""
+    if isinstance(node, dict):
+        yield node
+        for value in node.values():
+            yield from _walk(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _walk(value)
+
+
+# ingress-nginx annotations that make the controller answer the request itself.
+# An Ingress carrying one never reaches its backend Service, so whatever the
+# backend needs to start is irrelevant to whether that hostname responds.
+#
+# This distinction is not academic. `gitops/prod` holds two Ingresses that both
+# name the `portfolio-site` Service: the content site on `tools.marisstella.dev`,
+# whose pod clones the repo and therefore waits on the unsealed token, and the
+# apex redirect on `marisstella.dev` / `www.marisstella.dev`, which is
+# annotation-only ("no volume, no workload and no secret", per its own comment).
+# Classifying per Application rather than per host reported all three as blocked
+# on `portfolio-site-repo` -- the same conflation the 2026-08-30 ledger entry
+# made in prose when it said "the apex redirect goes live on the same sealed
+# clone token the site itself already waits on". Two of those three hosts go
+# live on merge, today, with nothing sealed.
+REDIRECT_ANNOTATIONS = (
+    "nginx.ingress.kubernetes.io/permanent-redirect",
+    "nginx.ingress.kubernetes.io/temporal-redirect",
+)
+
+
+def _serves_its_own_response(ingress) -> bool:
+    annotations = ingress.get("metadata", {}).get("annotations") or {}
+    return any(key in annotations for key in REDIRECT_ANNOTATIONS)
+
+
+def _backend_services(ingress) -> set[str]:
+    names = set()
+    for rule in ingress.get("spec", {}).get("rules") or []:
+        if not isinstance(rule, dict):
+            continue
+        http = rule.get("http") or {}
+        for entry in http.get("paths") or []:
+            if not isinstance(entry, dict):
+                continue
+            service = (entry.get("backend") or {}).get("service") or {}
+            if isinstance(service.get("name"), str):
+                names.add(service["name"])
+    return names
+
+
+def _workload_secrets_by_service(docs) -> dict[str, set[str]]:
+    """Secrets each Service's backing workload must mount to start.
+
+    Matched by name rather than by label selector: everything in this tree names
+    its Deployment and its Service alike, and a selector walk would add a second
+    thing to keep true for no gain in what it can decide.
+    """
+    by_name = {}
+    for doc in docs:
+        if doc.get("kind") not in {"Deployment", "StatefulSet", "DaemonSet"}:
+            continue
+        name = doc.get("metadata", {}).get("name")
+        if isinstance(name, str):
+            by_name.setdefault(name, set()).update(mounted_secrets([doc]))
+    return by_name
+
+
+def public_hosts(docs) -> list[str]:
+    """Ingress hostnames in these manifests — the surface a stranger can reach."""
+    hosts = []
+    for doc in docs:
+        if doc.get("kind") != "Ingress":
+            continue
+        for rule in doc.get("spec", {}).get("rules") or []:
+            if isinstance(rule, dict) and isinstance(rule.get("host"), str):
+                hosts.append(rule["host"])
+    return sorted(set(hosts))
+
+
+def host_rows(docs) -> list[dict]:
+    """One row per public hostname, with what it needs before it answers."""
+    provided = provided_secrets(docs)
+    tls = _tls_secret_names(docs)
+    secrets_for = _workload_secrets_by_service(docs)
+    rows = {}
+    for doc in docs:
+        if doc.get("kind") != "Ingress":
+            continue
+        if _serves_its_own_response(doc):
+            needed = set()
+            serves = "redirect"
+        else:
+            serves = "workload"
+            needed = set()
+            for service in _backend_services(doc):
+                needed |= secrets_for.get(service, set())
+        unmet = sorted(needed - provided - tls)
+        for rule in doc.get("spec", {}).get("rules") or []:
+            if not isinstance(rule, dict) or not isinstance(rule.get("host"), str):
+                continue
+            rows[rule["host"]] = {
+                "host": rule["host"],
+                "serves": serves,
+                "unmet_secrets": unmet,
+            }
+    return [rows[h] for h in sorted(rows)]
+
+
+def _tls_secret_names(docs) -> set[str]:
+    """Ingress `tls.secretName`s.
+
+    Excluded from the unmet-Secret test on purpose: cert-manager mints these
+    from the ClusterIssuer when the Ingress is admitted, so they are correctly
+    absent from git and their absence blocks nothing.
+    """
+    names = set()
+    for doc in docs:
+        if doc.get("kind") != "Ingress":
+            continue
+        for entry in doc.get("spec", {}).get("tls") or []:
+            if isinstance(entry, dict) and isinstance(entry.get("secretName"), str):
+                names.add(entry["secretName"])
+    return names
+
+
+def mounted_secrets(docs) -> set[str]:
+    """Secret names a workload needs in order to start."""
+    names = set()
+    for doc in docs:
+        for node in _walk(doc):
+            ref = node.get("secretKeyRef") or node.get("secretRef")
+            if isinstance(ref, dict) and isinstance(ref.get("name"), str):
+                names.add(ref["name"])
+            secret = node.get("secret")
+            if isinstance(secret, dict) and isinstance(secret.get("secretName"), str):
+                names.add(secret["secretName"])
+    return names
+
+
+def provided_secrets(docs) -> set[str]:
+    """Secret names git supplies, sealed or plain."""
+    names = set()
+    for doc in docs:
+        if doc.get("kind") not in {"Secret", "SealedSecret"}:
+            continue
+        name = doc.get("metadata", {}).get("name")
+        if isinstance(name, str):
+            names.add(name)
+    return names
+
+
+def redirect_targets(docs) -> dict[str, str]:
+    """Each redirecting hostname mapped to the host it sends visitors to."""
+    targets = {}
+    for doc in docs:
+        if doc.get("kind") != "Ingress" or not _serves_its_own_response(doc):
+            continue
+        annotations = doc.get("metadata", {}).get("annotations") or {}
+        target = next(
+            (annotations[k] for k in REDIRECT_ANNOTATIONS if isinstance(annotations.get(k), str)),
+            None,
+        )
+        if not target:
+            continue
+        host = _normalise_remote(target).split("/")[0]
+        for rule in doc.get("spec", {}).get("rules") or []:
+            if isinstance(rule, dict) and isinstance(rule.get("host"), str):
+                targets[rule["host"]] = host
+    return targets
+
+
+def dead_end_redirects(rows) -> list[str]:
+    """Redirect hosts whose destination is itself blocked.
+
+    A 301 answers on merge, so per-host it is correctly `live` — but a visitor
+    following it lands on a host that serves nothing, and "two of three hosts
+    are live" then reads as a working public URL when there is none. The whole
+    point of this tool is that nobody has to hold that distinction in their
+    head, so it derives it: the redirect target is in the annotation, and
+    whether that target is blocked is already computed one row over.
+    """
+    problems = []
+    for row in rows:
+        by_host = {h["host"]: h for h in row["hosts"]}
+        for host, target in (row.get("redirects") or {}).items():
+            blocked = by_host.get(target, {}).get("unmet_secrets") or []
+            if blocked:
+                problems.append(
+                    f"{row['application']}: https://{host}/ answers on merge but 301s to "
+                    f"https://{target}/, which is waiting on Secret "
+                    f"{', '.join(blocked)}. No visitor reaches content until that is sealed."
+                )
+    return problems
+
+
+def classify_application(app, docs) -> tuple[str, dict]:
+    """Classify one Argo Application against the same four words as a workflow.
+
+    The Application takes the best state any of its hosts reaches, because the
+    question is "does a merge publish anything?" and one answering hostname is
+    enough for yes. The per-host rows carry the rest, so a `live` Application
+    with a blocked host still shows which is which rather than rounding to one
+    word.
+    """
+    hosts = host_rows(docs)
+    automated = bool(app.get("spec", {}).get("syncPolicy", {}).get("automated"))
+    unmet = sorted({s for h in hosts for s in h["unmet_secrets"]})
+    detail = {"hosts": hosts, "unmet_secrets": unmet, "redirects": redirect_targets(docs)}
+    if not hosts:
+        return "none", detail
+    if not automated:
+        return "dispatch", detail
+    if any(not host["unmet_secrets"] for host in hosts):
+        return "live", detail
+    return "gated", detail
+
+
+def gitops_survey() -> tuple[list[dict], list[str]]:
+    """Classify every Argo Application that syncs this repository."""
+    rows, errors = [], []
+    if not GITOPS.is_dir():
+        return rows, errors
+    for path in sorted(GITOPS.rglob("*.yaml")):
+        for doc in _documents(path):
+            if doc.get("kind") != "Application":
+                continue
+            source = doc.get("spec", {}).get("source") or {}
+            if _normalise_remote(source.get("repoURL")) != REPO_REMOTE:
+                continue
+            if source.get("targetRevision") not in (DEFAULT_BRANCH, "HEAD", None):
+                continue
+            synced = source.get("path")
+            if not isinstance(synced, str):
+                continue
+            directory = (REPO / synced).resolve()
+            if not directory.is_dir():
+                errors.append(f"{path.name}: syncs {synced!r}, which is not a directory")
+                continue
+            docs = [d for f in _kustomize_resources(directory) for d in _documents(f)]
+            classification, detail = classify_application(doc, docs)
+            rows.append(
+                {
+                    "application": doc.get("metadata", {}).get("name") or path.stem,
+                    "path": synced,
+                    "classification": classification,
+                    "hosts": detail["hosts"],
+                    "unmet_secrets": detail["unmet_secrets"],
+                    "redirects": detail["redirects"],
+                }
+            )
+    rows.sort(key=lambda r: r["application"])
+    return rows, errors
+
+
+def render_gitops(rows) -> str:
+    out = ["", f"What a merge to `{DEFAULT_BRANCH}` deploys through Argo CD", ""]
+    if not rows:
+        out.append("  No Argo Application in gitops/ syncs this repository.")
+        return "\n".join(out)
+    for classification, heading in (
+        ("live", "serve a public host on merge, synced automatically"),
+        ("gated", "would serve a public host but every one fails closed"),
+        ("dispatch", "serve a public host but need a manual Argo sync"),
+    ):
+        group = [r for r in rows if r["classification"] == classification]
+        if not group:
+            continue
+        out.append(f"  {len(group)} Application(s) {heading}:")
+        for row in group:
+            out.append(f"    {row['application']}  ({row['path']})")
+            for host in row["hosts"]:
+                # "would serve", not "serves". This tool reads manifests; it
+                # never makes a request, so it cannot know whether anything is
+                # listening. Saying "serves content" here is how CLAUDE.md came
+                # to assert the apex was serving 169 tools while every hostname
+                # refused connections on 443 (measured 2026-09-04, run
+                # 33887885219). `platform/ci/public_surface.py` is the tool that
+                # can answer the other question; this wording sends you there.
+                note = (
+                    "301 redirect at the ingress"
+                    if host["serves"] == "redirect"
+                    else "would serve content once synced"
+                )
+                if host["unmet_secrets"]:
+                    note += f", waiting on Secret {', '.join(host['unmet_secrets'])}"
+                    mark = "-"
+                else:
+                    mark = "+"
+                out.append(f"      {mark} https://{host['host']}/  ({note})")
+        out.append("")
+    quiet = [r for r in rows if r["classification"] == "none"]
+    out.append(f"  {len(quiet)} Application(s) reach no public Ingress.")
+    dead_ends = dead_end_redirects(rows)
+    if dead_ends:
+        out.append("")
+        out.append("  No stranger can reach content yet, despite the hosts marked + above:")
+        for problem in dead_ends:
+            out.append(f"    - {problem}")
+    return "\n".join(out)
+
+
 def load_snapshot():
     if not SNAPSHOT.exists():
         return None
     return yaml.safe_load(SNAPSHOT.read_text())
 
 
-def check(rows) -> list[str]:
-    """Compare the derived surface to the committed snapshot."""
+def check_gitops(rows, snapshot) -> list[str]:
+    """Compare the derived Argo surface to the committed snapshot.
+
+    A snapshot written before this section existed has no `gitops:` key. That is
+    not drift and must not read as "no Application publishes" -- it means the
+    snapshot predates the reader, so say exactly that rather than reporting a
+    clean comparison against nothing.
+    """
+    problems: list[str] = []
+    if "gitops" not in snapshot:
+        return [
+            f"{SNAPSHOT.name} predates the GitOps section and cannot pin it; "
+            f"re-run with --write to record the {len(rows)} Application(s) now derived."
+        ]
+    expected = {r["application"]: r for r in snapshot.get("gitops") or []}
+    actual = {r["application"]: r for r in rows}
+
+    for name in sorted(set(actual) - set(expected)):
+        row = actual[name]
+        problems.append(
+            f"{name}: new Argo Application, classified {row['classification']!r} and not in "
+            f"{SNAPSHOT.name}. Add it there once you have confirmed the classification is intended."
+        )
+    for name in sorted(set(expected) - set(actual)):
+        problems.append(f"{name}: in {SNAPSHOT.name} but no longer an Application in gitops/")
+
+    for name in sorted(set(actual) & set(expected)):
+        want, got = expected[name], actual[name]
+        if want.get("classification") != got["classification"]:
+            problems.append(
+                f"{name}: classification changed {want.get('classification')!r} -> "
+                f"{got['classification']!r}. A merge to {DEFAULT_BRANCH} now deploys a "
+                "different public surface than the snapshot records."
+            )
+            continue
+        if (want.get("hosts") or []) != got["hosts"]:
+            problems.append(
+                f"{name}: public hosts changed. Expected {want.get('hosts') or []}, "
+                f"derived {got['hosts']}."
+            )
+        if (want.get("unmet_secrets") or []) != got["unmet_secrets"]:
+            problems.append(
+                f"{name}: the Secrets it waits on changed. Expected "
+                f"{want.get('unmet_secrets') or []}, derived {got['unmet_secrets']}."
+            )
+        if (want.get("redirects") or {}) != got.get("redirects", {}):
+            problems.append(
+                f"{name}: where its hostnames redirect changed. Expected "
+                f"{want.get('redirects') or {}}, derived {got.get('redirects', {})}."
+            )
+    return problems
+
+
+def check(rows, gitops_rows=None) -> list[str]:
+    """Compare the derived surface to the committed snapshot.
+
+    `gitops_rows=None` means the caller surveyed workflows only, so the Argo
+    section is not compared. That is deliberately distinct from an empty list,
+    which asserts that this repository has no Application at all and would
+    report every pinned one as deleted.
+    """
+    problems: list[str] = []
     snapshot = load_snapshot()
     if snapshot is None:
-        return [f"{SNAPSHOT.name} is missing; run with --write to create it"]
+        return problems + [f"{SNAPSHOT.name} is missing; run with --write to create it"]
     expected = {r["workflow"]: r for r in snapshot.get("workflows", [])}
     actual = {r["workflow"]: r for r in rows}
-    problems = []
 
     for name in sorted(set(actual) - set(expected)):
         row = actual[name]
@@ -323,21 +794,145 @@ def check(rows) -> list[str]:
                 f"{name}: publish steps or their `if:` gates changed. Expected "
                 f"{want.get('publishes') or []}, derived {got['publishes']}."
             )
+    if gitops_rows is None:
+        return problems
+    return problems + check_gitops(list(gitops_rows), snapshot)
+
+
+# `vars.NAME` / `vars['NAME']` / `secrets.NAME` inside an `if:` expression.
+#
+# Secrets count alongside variables because the question this answers is "what
+# one owner action arms this deploy", and a job gated on `secrets.X != ''` is
+# armed by pasting that secret. Reading only `vars.` reported such a workflow as
+# *ungated* -- the right verdict for the wrong reason, and the message then told
+# the reader to add a gate the workflow already had.
+_OWNER_SWITCH_REF = re.compile(
+    r"(?:vars|secrets)\s*(?:\.\s*([A-Za-z_]\w*)|\[\s*['\"]([A-Za-z_]\w*)['\"]\s*\])"
+)
+
+# Every action that replaces this repository's one Pages site. A subset of
+# PUBLISH_ACTIONS, and it has to stay in step with it: matching only
+# `actions/deploy-pages` left the invariant blind to a workflow that deployed
+# with `peaceiris/actions-gh-pages` instead, which is the same single-instance
+# resource reached by a different name.
+PAGES_DEPLOY_ACTIONS = (
+    "actions/deploy-pages",
+    "JamesIves/github-pages-deploy-action",
+    "peaceiris/actions-gh-pages",
+)
+
+
+def pages_deploy_gates(rows) -> dict[str, set[str]]:
+    """
+    Workflows that publish the repository's GitHub Pages site, mapped to the set of
+    owner-set `vars.*` / `secrets.*` names that gate them.
+
+    A workflow with no gating switch maps to the empty set: nothing has to be
+    switched on for it to publish.
+    """
+    found = {}
+    for row in rows:
+        gates = set()
+        deploys = False
+        for step in row.get("publishes") or []:
+            marker = step.get("step") or ""
+            if not any(action in marker for action in PAGES_DEPLOY_ACTIONS):
+                continue
+            deploys = True
+            for gate in step.get("gates") or []:
+                gates.update(
+                    name for pair in _OWNER_SWITCH_REF.findall(str(gate)) for name in pair if name
+                )
+        if deploys:
+            found[row["workflow"]] = gates
+    return found
+
+
+def check_single_pages_deployer(rows) -> list[str]:
+    """
+    GitHub serves exactly one Pages site per repository, and `actions/deploy-pages`
+    replaces the whole thing. Two workflows that both deploy are not two sites —
+    they are two builds fighting over one origin, and the winner is whichever
+    finishes last. A shared `concurrency` group would only make them take turns;
+    the live site would still alternate between two different builds.
+
+    The invariant is therefore about a single owner action: **no one variable flip
+    may arm two Pages deployments.** Two workflows gated on *different* variables
+    are a deliberate either/or — `retail-pilot-intel-deploy-docs.yml` is gated on
+    `RETAIL_PILOT_INTEL_PAGES` precisely so the portfolio flip does not publish it —
+    and that stays legal. Two gated on the *same* variable, or any that is ungated,
+    is the bug.
+
+    This is a real incident, not a hypothetical. On 2026-08-26 two sessions
+    independently solved "the portfolio has no public URL" and both landed:
+    `pages.yml` (#1724, a Python builder) and `portfolio-pages.yml` (#1718, a Node
+    one). Each reasoned -- correctly, in isolation -- that it should reuse the
+    existing `GITHUB_PAGES_ENABLED` variable rather than open a second owner ask.
+    Neither could see the other.
+
+    Both trigger on a push to `main`, both match `ventures/**`, and both call
+    `actions/deploy-pages` against the single Pages site GitHub gives a repository.
+    Their `concurrency:` groups differ, so GitHub does not serialise them: they run
+    together and whichever finishes last wins. The owner's one flip would have
+    published a site that changed nondeterministically between two different builds
+    on every push.
+
+    Nothing in the repo caught it, and nothing could have: both workflows are
+    individually valid, both were correctly recorded in the snapshot as gated, and
+    the collision is invisible until the moment someone sets the variable -- at
+    which point it presents as a live site that flaps rather than as a failed
+    deploy. The snapshot pins each workflow against its own past self; this looks
+    across them.
+
+    The same cadence that caused the incident then produced two implementations of
+    this very check -- #1735's, hardened by #1762, and #1776's `check_one_origin_
+    per_gate` -- with duplicate `PAGES_DEPLOY_ACTIONS` constants where the later
+    definition silently rebound the earlier. They were consolidated here into one.
+    """
+    gated = pages_deploy_gates(rows)
+    problems = []
+
+    ungated = sorted(w for w, v in gated.items() if not v)
+    if ungated and len(gated) > 1:
+        problems.append(
+            "these workflows deploy GitHub Pages with no owner-set variable or secret gating them: "
+            + ", ".join(ungated)
+            + ". With another deployer present they can publish over each other unbidden."
+        )
+
+    by_var = {}
+    for workflow, variables in gated.items():
+        for name in variables:
+            by_var.setdefault(name, []).append(workflow)
+
+    for name, workflows in sorted(by_var.items()):
+        if len(workflows) > 1:
+            problems.append(
+                f"setting {name} would arm {len(workflows)} GitHub Pages deployments: "
+                + ", ".join(sorted(workflows))
+                + ". The repository has one Pages site, so they would race on every push and "
+                "the live site would be whichever finished last. Exactly one workflow may keep "
+                "its deploy job; the others should build and check only."
+            )
+
     return problems
 
 
-def write_snapshot(rows) -> None:
+def write_snapshot(rows, gitops_rows=()) -> None:
     header = (
         "# Derived by platform/ci/publish_surface.py --write. Do not hand-edit.\n"
         "#\n"
-        "# What a merge to `main` can publish, per workflow. `publish_surface.py\n"
-        "# --check` re-derives this from .github/workflows/ and fails if it has\n"
-        "# moved, so the claim that a venture \"deploys nothing\" cannot go stale\n"
-        "# without a check turning red.\n"
+        "# What a merge to `main` can publish, per workflow and per Argo\n"
+        "# Application. `publish_surface.py --check` re-derives this from\n"
+        "# .github/workflows/ and gitops/ and fails if it has moved, so the claim\n"
+        "# that a venture \"deploys nothing\" cannot go stale without a check\n"
+        "# turning red.\n"
         "#\n"
         "# classification: live | gated | dispatch | none  (see the module docstring)\n"
     )
-    body = yaml.safe_dump({"workflows": rows}, sort_keys=False, width=100)
+    body = yaml.safe_dump(
+        {"workflows": rows, "gitops": list(gitops_rows)}, sort_keys=False, width=100
+    )
     SNAPSHOT.write_text(header + body)
 
 
@@ -353,19 +948,35 @@ def main() -> int:
         return 0
 
     rows, errors = survey()
+    gitops_rows, gitops_errors = gitops_survey()
+    errors = errors + gitops_errors
     if errors:
         print("Could not derive the publish surface:\n", file=sys.stderr)
         for error in errors:
             print(f"  - {error}", file=sys.stderr)
         return 1
 
+    # Ahead of both --write and the snapshot comparison. A second Pages deployer
+    # is wrong whether or not the snapshot happens to record it, so `--write`
+    # must not be the way past it -- which it was while this sat inside the
+    # `--check` branch, contradicting the comment that said otherwise.
+    conflicts = check_single_pages_deployer(rows)
+    if conflicts:
+        print("Publish-surface conflict:\n", file=sys.stderr)
+        for conflict in conflicts:
+            print(f"  - {conflict}", file=sys.stderr)
+        return 1
+
     if args.write:
-        write_snapshot(rows)
-        print(f"Wrote {SNAPSHOT.relative_to(REPO)} ({len(rows)} workflows).")
+        write_snapshot(rows, gitops_rows)
+        print(
+            f"Wrote {SNAPSHOT.relative_to(REPO)} "
+            f"({len(rows)} workflows, {len(gitops_rows)} Argo Applications)."
+        )
         return 0
 
     if args.check:
-        problems = check(rows)
+        problems = check(rows, gitops_rows)
         if problems:
             print(f"{len(problems)} publish-surface change(s) not reflected in the snapshot:\n", file=sys.stderr)
             for problem in problems:
@@ -377,14 +988,44 @@ def main() -> int:
             )
             return 1
         live = sum(1 for r in rows if r["classification"] == "live")
-        print(f"Publish surface matches the snapshot ({len(rows)} workflows, {live} live).")
+        # Count hostnames that actually put content in front of a visitor: a
+        # hostname whose only job is to 301 somewhere blocked is not one of
+        # them, and summarising by Application classification would report the
+        # portfolio as publishing while every route dead-ends.
+        dead_ends = dead_end_redirects(gitops_rows)
+        serving = sum(
+            1
+            for row in gitops_rows
+            for host in row["hosts"]
+            if host["serves"] == "workload" and not host["unmet_secrets"]
+        )
+        summary = (
+            f"Publish surface matches the snapshot ({len(rows)} workflows, {live} live; "
+            f"{len(gitops_rows)} Argo Applications, {serving} hostname(s) configured to serve)."
+        )
+        print(summary)
+        # Said on every clean run, because the failure this guards against is
+        # a reader taking the line above as a statement about the live site.
+        # It is not one: nothing here opens a socket.
+        print(
+            "  (Read from the manifests. For what the hostnames actually "
+            "return, dispatch `Public surface check`.)"
+        )
+        for problem in dead_ends:
+            print(f"  note: {problem}")
         return 0
 
     if args.json:
-        print(json.dumps({"default_branch": DEFAULT_BRANCH, "workflows": rows}, indent=2))
+        print(
+            json.dumps(
+                {"default_branch": DEFAULT_BRANCH, "workflows": rows, "gitops": gitops_rows},
+                indent=2,
+            )
+        )
         return 0
 
     print(render(rows))
+    print(render_gitops(gitops_rows))
     return 0
 
 

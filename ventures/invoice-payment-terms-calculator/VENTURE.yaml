@@ -1,0 +1,41 @@
+name: invoice-payment-terms-calculator
+description: Free browser calculator that turns an invoice amount, payment terms, and late-fee policy into a due date, the date cash actually lands on the client's accounts-payable run, cash-flow exposure, copyable payment-terms wording, whether a 2/10 Net 30 discount still beats waiting, whether factoring still beats waiting after carrying cost, and how much finished work a deposit or milestone billing schedule leaves unpaid on handover day.
+
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Freelancers and small service firms will use a focused invoice terms calculator before sending quotes or invoices to see the cost of slow payment.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers looking for net 30 due dates, late payment fee calculators, and 2/10 Net 30 will prefer an interactive calculator that compares waiting versus an early-pay discount over generic templates.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Modelling the client's accounts-payable run — not just the contractual due date — is the differentiator users return for, because it is the only place that shows drift between "due" and "paid" and where a longer payment term costs nothing. Measured by the settlement_projected counter against calculation.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: Seeing whether a 3% factor fee still beats waiting after carrying cost changes a cash decision that a 2/10 discount table hides, because the fee is paid to a third party while the client still has Net 30.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Freelancers deciding a billing schedule care more about how much finished work is unpaid on handover day than about the financing cost of the float, and will engage with the deposit comparison separately from the single-invoice tools.
+    status: untested
+    checked: null
+    evidence: customer-contact
+    measure: schedule_compared fires independently of calculation and early_pay_compared once a public URL exists.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No return usage or organic referral signal after 60 days of public availability.
+  - No unsolicited feedback, star, fork, or referral after 90 days.
+links:
+  production: null
+  analytics: null

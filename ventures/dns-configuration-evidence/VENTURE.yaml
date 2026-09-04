@@ -1,5 +1,5 @@
 name: dns-configuration-evidence
-description: Customer-authorized DNS snapshot and change evidence for agencies and domain operators.
+description: Free browser tool that captures what public resolvers answer for a customer domain before and after a DNS change, and reports what changed, what did not, and what could not be observed — with a matching Python CLI for scripted capture.
 stage: prototype
 owner: duncan
 
@@ -12,11 +12,18 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: The reason the first two hypotheses stayed untested is that the only interface was a Python CLI, so an MSP mid-cutover had to clone a repo to try it. A browser surface on a public URL is what makes them testable at all.
+    status: untested
+    checked: null
+    evidence: in-repo
 
 economics:
   currency: USD
   mrr: null
-  monthly_cost: null
+  # Zero, and structurally so: the browser surface makes its DNS queries from
+  # the visitor's own browser to public DoH endpoints, so serving one more user
+  # costs a static file and nothing else.
+  monthly_cost: 0
   customers: null
 
 budget:

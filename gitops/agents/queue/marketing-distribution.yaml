@@ -1,0 +1,150 @@
+# Real, enabled queue item. Does not run until the governor's own kill
+# switch (gitops/agents/governor/policy.json "enabled") is also true and
+# the CronJob is unsuspended -- both still owner-only. See
+# infra/OWNER_CHECKLIST.md.
+#
+# Priority 6. **Changed 2026-09-01**, from 4, on the account owner's own
+# direction: "I want to make sure deployment and cicd is a priority and
+# building and deploying marketing materials on the hetzner vms". This item
+# is the "building and deploying marketing materials" half of that sentence,
+# so it now sits second, directly below deploy-cicd-readiness (7).
+#
+# It stays *below* deploy-cicd-readiness for the reason it always did: a
+# distribution asset for a site nobody can reach yet is worth less than the
+# path that makes it reachable, and the owner named deployment first in the
+# same sentence. It stays above seo-discoverability-audit (3), because that
+# item now reports full coverage on both of its backlogs (169/169 FAQ,
+# 169/169 guide pages on 2026-08-31) and has been reduced to depth work.
+#
+# What moved is what it overtook: the two backlog items (open-pr-repair-merge,
+# branch-pr-drain) that used to hold the top two slots. See
+# deploy-cicd-readiness.yaml's header for the full reasoning.
+#
+# All four candidates below had a baseline shipped by 2026-08-31 (embed
+# widget #2561, several venture compare pages, the /c/ hub copy, and the
+# /about/ press kit) -- this item too is now depth work, same as the SEO one,
+# not "whole mechanisms missing" as an earlier revision of this comment said.
+# Kept above seo-discoverability-audit anyway: a distribution gap (nobody
+# finding a page at all) still costs more per run than a crawler-legibility
+# gap on a page already found, once genuine gaps of each kind exist.
+#
+# Why this item exists separately from the SEO one: seo-discoverability-audit
+# improves how a page reads to a crawler that has already found it. This item
+# is about how anyone finds the site in the first place -- organic search
+# rankings take months, while an embed or a comparison page can earn a link
+# the week it ships.
+id: marketing-distribution
+repo: Duncan-Haywood/monorepo-projects
+ref: main
+workdir: ""
+modelClass: deep
+priority: 6
+enabled: true
+# This item's prompt opens its own PR and merges it, so worker.sh must not
+# fold the tree into one commit and open a second one.
+delivery: agent
+prompt: |
+  Read this repo's CLAUDE.md, AGENTS.md, PRODUCT_PLAYBOOK.md and
+  `portfolio/DIRECTION.md` first, and re-read the "Getting it in front of
+  people" section of the mandate above. Its two absolute limits govern this
+  entire item: **every claim must be true**, and **you never publish
+  outward**. Building the asset is yours; putting the portfolio's name on a
+  public forum, directory, listing or social account is the owner's, and is
+  already tracked in the decision queue. Do not open an account, submit the
+  site anywhere, or draft a post for immediate publication as though it were
+  going out.
+
+  Ship ONE distribution asset that lives in this repository and deploys with
+  the site, so it is working the day `tools.marisstella.dev` serves content.
+
+  Measure before you pick, the same discipline seo-discoverability-audit
+  learned the hard way -- an earlier revision of that item hard-coded which
+  backlog was largest and kept sending runs at an empty list. Build the site
+  and look at what is actually there:
+
+    PAGES_BASE_URL=https://tools.marisstella.dev/ node platform/pages/build.mjs
+    node platform/pages/check.mjs --dist=platform/pages/dist
+
+  Candidates, best first. **All four below had a baseline already shipped as
+  of 2026-08-31** -- confirm the gap is still real, and past that, look for
+  the depth or coverage gap within the candidate rather than re-building the
+  mechanism from scratch:
+
+  **Re-verified 2026-09-02, all four, by a dedicated research pass -- none
+  had a genuine shippable gap.** Read this before spending a run re-checking
+  the same four:
+
+  1. **An embeddable widget.** Done in #2561 (`platform/pages/embed.mjs`,
+     `injectEmbedWidget`, `pf-embed.js`/`pf-embed.css` at the site root,
+     17 passing tests in `embed.test.mjs`). Every entry page already carries
+     a copyable `<iframe>` snippet in its footer chrome. **Do not re-pick
+     this** unless you find entry pages it is silently skipping (check
+     `result.embedded.length` against the entry-page count in a real
+     `build.mjs` run) or a defect in the framing detection. **Checked
+     2026-09-02: 169/169, none skipped** (`Added an embed offer to 169 tool
+     entry page(s)` on a fresh build).
+  2. **A comparison or "alternatives" page** for a tool whose niche has an
+     obvious incumbent people search by name. High search intent, and the
+     honest version is genuinely useful. Compare on facts you can verify from
+     public documentation and cite them; if you cannot verify a competitor's
+     number, leave the row out rather than estimating it. Never disparage.
+     **This list undercounted badly and is corrected 2026-09-02: it is not
+     6, it is 78 and climbing** (a snapshot -- re-run
+     `find ventures -maxdepth 2 -iname "vs-*.html" -not -iname "*test*" | wc -l`
+     rather than trusting this number for long). The convention is a
+     `vs-<competitor>.html` page (not
+     `compare.mjs`, which only a handful use), e.g.
+     `cash-runway-planner/vs-quickbooks-cash-flow-planner.html`,
+     `str-host-payout-calculator/vs-airbnb-earnings-estimator.html`,
+     `amazon-fba-calculator/vs-amazon-revenue-calculator.html`. Every
+     household-name incumbent a search turned up already has one --
+     ServiceTitan/Jobber/JobNimbus/AcuLynx across ~15 trade-software
+     ventures, QuickBooks x2, Airbnb, Amazon's own Revenue Calculator,
+     Buildertrend, Bonsai, LevelSet, Baremetrics. The ~110 ventures still
+     without one were checked individually: none has a household-name
+     third-party competitor that is both distinct from the venture itself
+     (`seller-net-sheet` computes a marketplace's *own* fee schedule, not a
+     rival product) and verifiable without outbound web access, which this
+     environment does not have. **Do not re-pick this** without a specific
+     new incumbent name and a citable public source for its facts --
+     "find a comparison gap" alone will not turn up work.
+  3. **A category hub that reads as a landing page** rather than a list. The
+     7 hubs under `/c/` (`CATEGORY_PAGE_COPY` in `build.mjs`) already each
+     carry a `title`/`description`/`intro`/`audience` naming the problem and
+     who it is for. Re-read all 7 against a fresh `check.mjs` run before
+     calling any of them weak -- the copy is deliberately data, not prose, so
+     a "gap" here is more likely a stale reading of this file than a real one.
+     **Checked 2026-09-02: all 7 (including `more`, a genuine 4-tool
+     catch-all with no shared theme) read as substantive, not stale.**
+  4. **A press kit section on `/about/`** -- `renderAboutPage` in `build.mjs`
+     already has the one-liner, the paragraph, the facts list, the licence
+     and source link, and share-card meta tags (`og:image`, `SOCIAL_CARD_FILE`).
+     A real remaining gap here is narrow (e.g. a claim that has drifted from
+     what the build actually emits), not a missing section. **Checked
+     2026-09-02: its numeric claims are computed live from `surfaces`/
+     `groups`, not hardcoded, so nothing has drifted.**
+
+  Whatever you pick, it has to be finished, not scaffolded: real content or
+  real behaviour, the liability disclaimer every user-facing surface here
+  carries, usage tracking consistent with `portfolio/usage/`, tests for the
+  parts whose failure would matter, and no new third-party script, font, CDN
+  or network call -- `/about/` promises there are none and that promise is
+  load-bearing.
+
+  Verify before you open anything: the venture's own `node --test` if it has
+  one, plus a full `build.mjs` and `check.mjs` run (dead links, stale
+  origins, MIME coverage), plus `python3 -m pytest gitops/tests -q` if you
+  touched anything under `gitops/`. Record exactly what you ran and what it
+  said. A check that fails in 3-6 seconds with `runner_id: 0` is the known
+  Actions outage, not your regression -- confirm with
+  `python3 platform/ci/ci_starvation.py --run <id>`.
+
+  Before starting, check open PRs and recent commits for work on the same
+  asset and extend it instead of duplicating it; if an open PR already does
+  this, repair and merge that one and let this run end there. Open the PR,
+  note what you verified, and merge it yourself once sound, per this repo's
+  no-review-gate rule for product PRs.
+
+  Make the smallest correct change that ships one working asset. Do not start
+  unrelated new work in this run, and do not produce a marketing plan,
+  campaign document, or candidate list -- an asset that deploys, or nothing.

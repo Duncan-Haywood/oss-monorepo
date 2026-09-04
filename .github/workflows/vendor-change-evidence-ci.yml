@@ -1,0 +1,40 @@
+name: vendor-change-evidence CI
+
+# Standard-library Python CLI. Keep snapshot-diff status covered
+# independently of the portfolio-wide validation workflow.
+on:
+  pull_request:
+    paths:
+      - "ventures/vendor-change-evidence/**"
+      - ".github/workflows/vendor-change-evidence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/vendor-change-evidence/**"
+      - ".github/workflows/vendor-change-evidence-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vendor-change-evidence-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/vendor-change-evidence
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run snapshot-diff tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Example snapshots produce a report
+        run: python3 src/vendor_change.py examples/before.json examples/after.json --format markdown

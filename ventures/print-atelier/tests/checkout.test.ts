@@ -7,8 +7,10 @@ import {
   buildFulfillmentRoute,
   buildSampleCheckoutCart,
   calculateCheckoutTotals,
+  clampCheckoutQuantity,
   getCheckoutEnvStatus,
   validateCheckoutLineItem,
+  updateCheckoutLineQuantity,
 } from "../src/lib/checkout.ts";
 import { catalogArtworks, defaultListingConsentRecords } from "../src/lib/marketplace.ts";
 
@@ -26,6 +28,16 @@ test("validateCheckoutLineItem blocks listings missing storefront consent", () =
   const result = validateCheckoutLineItem(spring, defaultListingConsentRecords);
   assert.equal(result.eligible, false);
   assert.ok(result.blockers.some((blocker) => blocker.includes("Storefront consent")));
+});
+
+test("checkout quantities are bounded and zero removes a line", () => {
+  const cart = buildSampleCheckoutCart();
+  const slug = cart[0]?.artworkSlug;
+  assert.ok(slug);
+  assert.equal(clampCheckoutQuantity(3.9), 3);
+  assert.equal(clampCheckoutQuantity(99), 10);
+  assert.equal(updateCheckoutLineQuantity(cart, slug, 3)[0]?.quantity, 3);
+  assert.equal(updateCheckoutLineQuantity(cart, slug, 0).some((item) => item.artworkSlug === slug), false);
 });
 
 test("calculateCheckoutTotals includes shipping, tax, and artist split", () => {

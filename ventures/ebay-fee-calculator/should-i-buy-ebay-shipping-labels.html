@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I buy eBay shipping labels or use Pirate Ship?</title>
+  <meta name="description" content="Compare an eBay Shipping label with a Pirate Ship, Shippo, or carrier-account quote on the same sale. See leftover after item-not-received claims, upload time, and the quote that still ties eBay.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-buy-ebay-shipping-labels.html">
+  <meta property="og:title" content="Should I buy eBay shipping labels or use Pirate Ship?">
+  <meta property="og:description" content="See whether a cheaper Pirate Ship quote still beats an eBay label after item-not-received claims and the minutes you spend uploading tracking.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "eBay shipping labels vs Pirate Ship",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "eBay label vs Pirate Ship after item-not-received claims, third-party claim rate that ties the eBay label, third-party quote that ties the eBay label, expected leftover after returns and claims"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I buy eBay shipping labels or use Pirate Ship?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $18.05, the timed third-party path expects $16.99, and the same third-party postage with no extra time expects $18.19. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does Pirate Ship beat an eBay shipping label?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.64 against $18.05 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.31) because 2.5% of a high sunk cost is already more than the postage save."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this the same as shipping insurance or a Standard Envelope?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Package protection is an add-on on a tracked label you already bought. Standard Envelope is cheap untracked mail versus a tracked label. This page is where you buy the tracked label: eBay Shipping versus Pirate Ship, Shippo, or a carrier account, after the claim rate that usually moves with seller protection and the minutes you spend uploading tracking."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #3569cb; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EBAY RESELLERS</p>
+    <p><a href="./">← eBay fee calculator</a></p>
+    <h1>See whether an eBay label still beats Pirate Ship.</h1>
+    <p>
+      Buying the label is not the same decision as package
+      protection or a Standard Envelope. Protection is an
+      add-on on a tracked label you already bought. Envelope
+      is cheap untracked mail. Here the shipment is already
+      sold; only where you buy the tracked label changes.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>The shipment and the quotes</h2>
+      <div class="fields">
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="40"></label>
+        <label>Shipping charged to buyer <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Final value fee (%) <input id="finalValueRate" type="number" min="0" step="0.01" value="13.25"></label>
+        <label>Per-order fixed fee <input id="fixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="12"></label>
+        <label>eBay label cost <input id="ebayLabelCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Third-party / Pirate Ship label <input id="thirdPartyLabelCost" type="number" min="0" step="0.01" value="4.25"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Return shipping you pay <input id="returnShippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Expected return rate (%) <input id="returnRatePercent" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>eBay label claim rate (%) <input id="ebayLabelClaimRatePercent" type="number" min="0" max="100" step="0.1" value="0.8"></label>
+        <label>Third-party claim rate (%) <input id="thirdPartyClaimRatePercent" type="number" min="0" max="100" step="0.1" value="2.5"></label>
+        <label>Extra upload minutes <input id="labelUploadMinutes" type="number" min="0" step="0.1" value="4"></label>
+        <label>Hourly wage for that time <input id="labelUploadWage" type="number" min="0" step="0.01" value="18"></label>
+        <label>Label shipments per month <input id="monthlyLabelShipments" type="number" min="0" step="1" value="40"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>eBay label vs Pirate Ship</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">extra kept by the third-party label versus eBay</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>eBay label after claims</dt><dd id="ebayExpected"></dd>
+        <dt>Third-party after time and claims</dt><dd id="thirdExpected"></dd>
+        <dt>Third-party, no extra time</dt><dd id="postageExpected"></dd>
+        <dt>eBay claim leftover</dt><dd id="ebayClaim"></dd>
+        <dt>If they keep it, eBay</dt><dd id="ebayIfKeeps"></dd>
+        <dt>If they keep it, third-party</dt><dd id="thirdIfKeeps"></dd>
+        <dt>Third-party claim rate that still ties eBay</dt><dd id="breakEvenClaim"></dd>
+        <dt>Third-party quote that still ties eBay</dt><dd id="breakEvenLabel"></dd>
+        <dt>Monthly gap vs eBay (timed third-party)</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same shipment, three ways to buy the label</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Label</th>
+            <th scope="col">Extra time</th>
+            <th scope="col">Claim rate</th>
+            <th scope="col">If they keep it</th>
+            <th scope="col">Expected after claims</th>
+            <th scope="col">vs eBay</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">The quotes, claim rates, and upload minutes are inputs — not a carrier table or eBay seller-protection policy. Empty eBay label falls back to the typed shipping cost; empty third-party label uses $4.25 so the table is immediately useful.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Clothing, card, and small-goods sellers search “eBay
+      labels vs Pirate Ship” and “is eBay shipping cheaper”
+      because a $0.75 cheaper quote looks like free leftover.
+      It is also the path that usually loses eBay seller
+      protection and the minutes you spend buying the label
+      and uploading tracking.
+    </p>
+    <p>
+      On the defaults — $40 item, $6 shipping charged, 13.25%
+      final value fee, $0.30 fixed, $12 cost, $5 eBay label,
+      $4.25 Pirate Ship quote, $1 pack, $5 return label, 10%
+      returns, 0.8% eBay claims, 2.5% third-party claims, 4
+      minutes at $18, forty shipments — the eBay label expects
+      $18.05, the timed third-party path expects $16.99, and
+      the same third-party postage with no extra time expects
+      $18.19. Four minutes keeps $1.07 less on this decision
+      and −$42.71 across forty shipments. The postage-only
+      path keeps $0.13 more (+$5.29 / 40). No third-party
+      claim rate on these timed labels can match eBay. The
+      third-party quote has to stay at about $3.18, or extra
+      time has to stay under about 0.4 minutes, before the
+      timed path matches. If they keep the item, leftover is
+      $21.61 eBay versus $21.16 timed third-party.
+    </p>
+    <p>
+      A higher claim rate or a heavier sunk cost flips the
+      postage-only path too. Keep the same $40 listing, drop
+      extra time to zero, and raise third-party claims to 4%.
+      eBay still expects $18.05; third-party expects $17.64 —
+      $0.41 less. Claims have to stay at about 2.9% before
+      that path matches. A $180 item with $12 shipping
+      charged, $85 cost, a $12 eBay label, a $9.50
+      third-party quote, and $2 pack expects $56.68 eBay
+      versus $55.31 timed third-party (−$1.37). Third-party
+      claims only have to reach about 1.6% before eBay
+      matches, because 2.5% of a high sunk cost is already
+      more than a $2.50 postage save.
+    </p>
+    <p>
+      It does not tell you to buy a label, and it is not tax
+      or financial advice. Package protection, Standard
+      Envelope, free shipping, and Global Shipping are
+      different questions. Compare
+      <a href="should-i-add-shipping-insurance-on-ebay.html">skip versus insurance versus signature</a>,
+      <a href="is-ebay-standard-envelope-worth-it.html">Standard Envelope versus a tracked label</a>,
+      <a href="should-i-offer-free-shipping-on-ebay.html">free shipping versus charging the buyer</a>,
+      <a href="should-i-use-ebay-global-shipping-program.html">Global Shipping Program versus you-ship</a>,
+      or
+      <a href="is-ebay-managed-returns-worth-it.html">Managed Returns versus your own label</a>
+      on the main <a href="./">eBay fee calculator</a>.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I buy eBay shipping labels or use Pirate Ship?</h3>
+  <p>A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $18.05, the timed third-party path expects $16.99, and the same third-party postage with no extra time expects $18.19. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label.</p>
+  <h3>When does Pirate Ship beat an eBay shipping label?</h3>
+  <p>When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.64 against $18.05 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.31) because 2.5% of a high sunk cost is already more than the postage save.</p>
+  <h3>Is this the same as shipping insurance or a Standard Envelope?</h3>
+  <p>No. Package protection is an add-on on a tracked label you already bought. Standard Envelope is cheap untracked mail versus a tracked label. This page is where you buy the tracked label: eBay Shipping versus Pirate Ship, Shippo, or a carrier account, after the claim rate that usually moves with seller protection and the minutes you spend uploading tracking.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from buying a cheaper label that still lost after claims, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { compareEbayLabels, ebayLabelsNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "finalValueRate", "fixedFee",
+      "costOfGoods", "ebayLabelCost", "thirdPartyLabelCost", "packagingCost",
+      "returnShippingCost", "returnRatePercent", "ebayLabelClaimRatePercent",
+      "thirdPartyClaimRatePercent", "labelUploadMinutes", "labelUploadWage",
+      "monthlyLabelShipments",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareEbayLabels(readInput());
+        const extra = result.extraKeptOnThird;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by the third-party label versus eBay" :
+          extra < 0 ? "third-party keeps less than the eBay label" :
+          "third-party and eBay keep the same";
+        document.getElementById("summary").textContent = ebayLabelsNote(result);
+        document.getElementById("ebayExpected").textContent = money(result.ebay.expectedProfit);
+        document.getElementById("thirdExpected").textContent = money(result.third.expectedProfit);
+        document.getElementById("postageExpected").textContent = money(result.postageOnly.expectedProfit);
+        document.getElementById("ebayClaim").textContent = money(result.ebay.claimProfit);
+        document.getElementById("ebayIfKeeps").textContent = money(result.ebay.completedProfit);
+        document.getElementById("thirdIfKeeps").textContent = money(result.third.completedProfit);
+        document.getElementById("breakEvenClaim").textContent = Number.isFinite(result.breakEvenThirdPartyClaimRate)
+          ? `${result.breakEvenThirdPartyClaimRate.toFixed(1)}%`
+          : "none";
+        document.getElementById("breakEvenLabel").textContent = Number.isFinite(result.breakEvenThirdPartyLabelCost)
+          ? money(result.breakEvenThirdPartyLabelCost)
+          : "none";
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnThird >= 0
+            ? `${money(result.monthlyExtraOnThird)} more`
+            : `${money(-result.monthlyExtraOnThird)} less`;
+        const best = Math.max(...result.rows.map((row) => row.expectedProfit));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.expectedProfit === best ? "best" : ""}"><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.extraCost)}</td><td>${row.claimRatePercent}%</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td><td>${money(row.expectedProfitDelta)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["ebayExpected", "thirdExpected", "postageExpected", "ebayClaim", "ebayIfKeeps", "thirdIfKeeps", "breakEvenClaim", "breakEvenLabel", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "ebay_labels_compared");
+    }
+
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

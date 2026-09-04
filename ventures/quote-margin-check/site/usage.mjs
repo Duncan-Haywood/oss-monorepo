@@ -59,61 +59,60 @@ export function recordEvent(eventName) {
 }
 
 /**
- * Turns a stream of rapid input changes into at most one event per settled,
- * distinct result.
+ * Wraps `recordEvent` so a live-updating form counts *reports*, not keystrokes.
  *
- * The calculator re-renders on every keystroke, which is the right feel for
- * the user but the wrong thing to count: recording straight from the render
- * path scores "2400" as four reports and a backspace as a fifth, so the
- * `report_generated` figure the portfolio steers on would measure typing
- * speed rather than reports. Callers `note()` each valid render; nothing is
- * recorded until the figures have stopped changing for `delayMs`, and a
- * result identical to the last one already counted is never counted twice.
+ * The form recomputes on every `input` event, so calling `recordEvent` straight
+ * from the render path counts one "report" per character typed — typing `4200`
+ * into the price field logs four. And because the page opens pre-filled with a
+ * worked example, the first render counted a bare page view as a report too.
  *
- * `schedule`/`cancel` are injectable so this is testable without real timers.
+ * That inflates the only signal this portfolio uses to judge whether a tool is
+ * used at all, and inflates it most for the users who fiddle with their numbers
+ * the longest, which is exactly backwards.
+ *
+ * So: `seed()` the pre-filled first render without counting it, then wait until
+ * input has settled (`delayMs` with no further calls) and count once — and only
+ * if the settled quote actually differs from the last one counted, so tabbing
+ * through fields or retyping the same figure doesn't add a second report.
+ * `drop()` cancels a pending count when the form goes invalid mid-edit.
+ *
+ * Timer functions are injected so this is testable without real waiting.
  */
-export function createSettledRecorder({
+export function createReportCounter({
   record = recordEvent,
-  delayMs = 700,
-  schedule = setTimeout,
-  cancel = clearTimeout,
+  setTimer = (fn, ms) => setTimeout(fn, ms),
+  clearTimer = (id) => clearTimeout(id),
+  delayMs = 1200,
+  eventName = "report_generated",
 } = {}) {
-  let timer = null;
-  let lastSignature = null;
+  let pending = null;
+  let lastCounted = null;
 
-  function discard() {
-    if (timer !== null) {
-      cancel(timer);
-      timer = null;
+  function cancel() {
+    if (pending !== null) {
+      clearTimer(pending);
+      pending = null;
     }
   }
 
   return {
-    /**
-     * Marks `signature` (a stable string form of the rendered figures) as the
-     * result currently on screen. Records `eventName` once it settles.
-     */
-    note(eventName, signature) {
-      // Back on the result already counted (e.g. typed a digit and deleted
-      // it): drop the in-flight record too, or that transient would land.
-      if (signature === lastSignature) {
-        discard();
-        return;
-      }
-      discard();
-      timer = schedule(() => {
-        timer = null;
-        lastSignature = signature;
+    /** Marks a signature as already-seen without counting it (the pre-filled first render). */
+    seed(signature) {
+      cancel();
+      lastCounted = signature;
+    },
+    /** Cancels any pending count — the form is mid-edit and currently invalid. */
+    drop: cancel,
+    /** Counts one report once `signature` settles, if it differs from the last counted. */
+    count(signature) {
+      cancel();
+      pending = setTimer(() => {
+        pending = null;
+        if (signature === lastCounted) return;
+        lastCounted = signature;
         record(eventName);
       }, delayMs);
     },
-    /** Accepts a signature as already-counted without recording it — used for the pre-filled first render, which is a page view, not a report the visitor asked for. */
-    seed(signature) {
-      discard();
-      lastSignature = signature;
-    },
-    /** Drops a pending record, e.g. when input went invalid before it settled. */
-    discard,
   };
 }
 

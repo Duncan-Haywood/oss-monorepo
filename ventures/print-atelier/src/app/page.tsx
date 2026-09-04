@@ -37,6 +37,7 @@ const demoLinks = [
   { href: "/battlecards", label: "Competitive Battlecards", badge: "New" },
   { href: "/seo-lab", label: "Programmatic SEO Lab", badge: "New" },
   { href: "/storefront", label: "Storefront" },
+  { href: "/print-file-preflight", label: "Print File Preflight", badge: "New" },
   { href: "/buyer-portal", label: "Buyer Portal", badge: "New" },
   { href: "/artist-portal", label: "Artist Portal" },
   { href: "/b2b-portal", label: "B2B Designer Portal", badge: "New" },

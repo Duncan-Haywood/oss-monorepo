@@ -1,0 +1,49 @@
+name: proposal module CI
+
+# Tests the customer-proposal module and, more importantly, that every venture's
+# vendored copy still matches the canonical one in `platform/proposal/`.
+#
+# The ventures vendor the file because `platform/pages/build.mjs` publishes each
+# venture directory on its own and a cross-tree import would 404 on the live
+# site. Vendoring is fine until a fix lands in one copy and not the rest; this
+# job is what makes that a red build rather than a silent divergence.
+#
+# Static ES modules, no build step, no dependencies: this runs exactly what a
+# contributor runs locally. It publishes nothing and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "platform/proposal/**"
+      - "ventures/*/proposal.mjs"
+      - "ventures/*/proposal.test.mjs"
+      - ".github/workflows/proposal-module-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "platform/proposal/**"
+      - "ventures/*/proposal.mjs"
+      - "ventures/*/proposal.test.mjs"
+      - ".github/workflows/proposal-module-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: proposal-module-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  module-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: platform/proposal
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test

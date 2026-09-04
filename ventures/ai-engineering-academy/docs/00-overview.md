@@ -51,7 +51,9 @@ each other in this order:
 6. **[Market Landscape and 10-Year Roadmap](06-market-and-roadmap.md)** —
    Researched competitive analysis (MIT, Coursera, Khan Academy, edX,
    Brilliant, Udacity, and others) explaining why none of them occupy this
-   position, followed by a staged, honestly-hedged 10-year roadmap.
+   position, followed by a staged, honestly-hedged 10-year roadmap. Near-term
+   priority in that file: put the already-built calculators on a public URL
+   before more curriculum.
 
 ## The one metric that matters
 

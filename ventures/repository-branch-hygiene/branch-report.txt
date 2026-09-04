@@ -1,0 +1,9 @@
+Repository branch hygiene report
+
+Approval queue: review every finding before any Git operation.
+
+Counts: active=1, merged=1, moved-tip=1, protected=1
+- [protected] main (m3): branch is explicitly protected; action=do-not-delete
+- [merged] feature/merged (m2): closed pull request was merged and tip is in its base history; action=review-delete-candidate
+- [moved-tip] feature/moved (x2): closed pull request is not merged; preserve until reviewed; action=preserve-and-review
+- [active] feature/unique (u1): pull request is still open; action=preserve-active-work

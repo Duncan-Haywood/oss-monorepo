@@ -2,9 +2,11 @@
 
 Businesses that have been researched and scored but are **not** ventures yet.
 
-**Portfolio direction (2026-08-24):** candidates exist to be **built**, not
-re-screened. Graduate a `build-now` item and ship a free full-feature product
-with usage tracking. See [`../DIRECTION.md`](../DIRECTION.md) and
+**Portfolio direction (2026-08-24, deploy-first as of 2026-08-25):**
+candidates exist to be **built**, not re-screened — and a built product
+with no public URL outranks the next `build-now` item. Graduate only after
+something already on `main` is reachable by a stranger. See
+[`../DIRECTION.md`](../DIRECTION.md) "Current priority" and
 [`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md).
 
 Two of the scoring dimensions below read differently under that direction, and
@@ -131,23 +133,27 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | # | Candidate | Composite | Floor | Verdict |
 |---|---|---|---|---|
 | 1 | [Shopify accessibility evidence app](candidates/shopify-a11y-evidence.md) | 7.25 | 4 | Probe the channel — scored 2026-08-19. Top of the table only because nobody has probed it |
-| 2 | [Quote margin check](candidates/quote-margin-check.md) | 7.125 | 3 | Build now as `ventures/quote-margin-check`; deterministic local calculator, with repeat usage and defensibility still unmeasured |
-| 3 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
-| 4 | [Etsy profit calculator](candidates/etsy-profit-calculator.md) | 7.125 | 2 | Graduated 2026-08-24 as `ventures/etsy-profit-calculator`; browser-local fee-stack arithmetic, with repeat usage and organic search demand still unmeasured |
-| 5 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
-| 6 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
-| 7 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |
-| 8 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Build now, as a `real-estate-agent-photo-app` product line. Scored 2026-08-24 — file-spec evidence, not listing photography the venture and not web accessibility |
-| 9 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
-| 10 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Probe; public-page evidence feed, with distribution and archive value still unmeasured |
-| 11 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
-| 12 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
-| 13 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
-| 14 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
-| 15 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
-| 16 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 17 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 18 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 2 | [Invoice payment terms calculator](candidates/invoice-payment-terms-calculator.md) | 7.25 | 1 | Graduated 2026-08-26 as `ventures/invoice-payment-terms-calculator`; browser-local due-date, late-fee, exposure, and 2/10 Net 30 vs waiting arithmetic, with repeat usage and organic search demand still unmeasured |
+| 3 | [Quote margin check](candidates/quote-margin-check.md) | 7.125 | 3 | Graduated as `ventures/quote-margin-check`; deterministic local calculator now with proposal-batch comparison and a spreadsheet-ready review export, with repeat usage and defensibility still unmeasured |
+| 4 | [EAA remediation pipeline](candidates/eaa-remediation-pipeline.md) | 7.125 | 5 | Graduated 2026-08-24 as a `local-site-studio` product line. Both gates measured 2026-08-21 — `liability_containment` 6→5 (**on** the gate, unmoved), `ethical_robustness` 9→6→9 after the record began printing its error rates |
+| 5 | [Etsy profit calculator](candidates/etsy-profit-calculator.md) | 7.125 | 2 | Graduated 2026-08-24 as `ventures/etsy-profit-calculator`; browser-local fee-stack arithmetic, with repeat usage and organic search demand still unmeasured |
+| 6 | [Public-record watch](candidates/public-record-watch.md) | 7.0 | 4 | Cheap probe — one vertical, two weeks. `ethical_robustness` 9→6→9 on 2026-08-21, after the subscriber record was built; the detector still misses two thirds of the dormancy it looks for |
+| 7 | [Cut-list optimizer](candidates/cut-list-optimizer.md) | 7.0 | 2 | Graduated 2026-08-24 as `ventures/cut-list-optimizer`; deterministic kerf-aware stock planning for makers, with repeat usage and material savings still unmeasured |
+| 8 | [Pool route pricing calculator](candidates/pool-route-pricing.md) | 7.0 | 1 | Graduated 2026-08-24 as `ventures/pool-route-pricing`; browser-local recurring-account pricing that makes drive time and chemical allowance explicit, with repeat usage and organic search demand still unmeasured |
+| 9 | [Agent permission harness](candidates/agent-permission-harness.md) | 6.875 | 4 | Park; revisit 2027-Q1. Probed 2026-08-21 — internal build done, `ai_leverage` 9→8; `ethical_robustness` 9→7→9 after `validate_accuracy.py` measured 0 false positives / 0 false negatives on a 34-case fixture corpus and the findings report started disclosing it |
+| 10 | [MCP supply-chain watch](candidates/mcp-supply-chain-watch.md) | 6.875 | 3 | Probe: steps 1–2 run; mitigation refuted, cannot graduate as scored. `ai_leverage` 6→7 on 2026-08-22 — a blind model pass on the held-out corpus roughly doubled the rules classifier's F1 |
+| 11 | [MLS photo spec preflight](candidates/mls-photo-spec-preflight.md) | 6.75 | 5 | Graduated 2026-08-24 as a `real-estate-agent-photo-app` product line (`process/mls-compliance.ts`) — file-spec evidence, not listing photography the venture and not web accessibility |
+| 12 | [CRA evidence desk](candidates/cra-evidence-desk.md) | 6.75 | 3 | Probe (was build-now); wedge is egress-blocked. `ethical_robustness` 8→6→7→8 — 7→8 on 2026-08-21 after the triage engine's own record began carrying its hand-verified wrong-suppression rate (0 of 53 claims wrong) |
+| 13 | [Vendor-change evidence monitor](candidates/vendor-change-evidence.md) | 6.75 | 4 | Graduated 2026-08-29 as `ventures/vendor-change-watch`; free CLI to monitor vendor ToS/privacy pages, with distribution and archive value still unmeasured |
+| 14 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
+| 15 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
+| 16 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
+| 17 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
+| 18 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
+| 19 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
+| 20 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 21 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 22 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

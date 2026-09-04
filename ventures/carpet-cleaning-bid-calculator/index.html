@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carpet Cleaning Bid Calculator — Price the Stop, Not Room</title>
+  <meta name="description" content="Price a carpet cleaning job from soil-specific extraction rates: rooms, stairs, pet-urine extra passes, upholstery, furniture moving, and drive time — plus the walk-away number a $129 three-bedroom special hides.">
+  <meta property="og:title" content="Carpet Cleaning Bid Calculator">
+  <meta property="og:description" content="Bid the house the clock actually works — rooms, stairs, pets, sofa, and the drive — and see the margin before you text the special.">
+  <link rel="canonical" href="https://example.invalid/carpet-cleaning-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Carpet Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Soil-specific extraction hours by room, pet-urine extra passes, stairs, upholstery, furniture moving, drive time, payroll burden, chemistry, overhead, quoted price, price per room, effective hourly rate including drive, break-even walk-away price, proposed-special margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this quote actually add up?","acceptedAnswer":{"@type":"Answer","text":"The price adds up extraction hours per room from the square footage and production rate you enter, an extra extraction pass on any room marked pet treatment, stairs by flight, upholstery piece by piece, furniture-moving minutes, and the round-trip drive — plus chemistry per square foot and per pet room, other job costs, overhead, and your target margin, then compares that to your posted minimum charge and quotes whichever is higher."}},{"@type":"Question","name":"What is the “hours that are not extraction” number, and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"It is every hour on the ticket that is not carpet extraction — stairs, pet extra passes, upholstery, furniture moving, and the drive. A posted per-room special is built on light-soil, vacant-room extraction time; stairs, a sofa, a pet room, and the windshield time to get there are exactly the hours that special leaves off, which is why a “3 bedroom special” that looked full on the schedule can still lose money once they are added back in."}},{"@type":"Question","name":"Why does a pet-treatment room cost more than the same square footage without it?","acceptedAnswer":{"@type":"Answer","text":"A pet-treated room gets an extra extraction pass — by default a full second pass at the same production rate — on top of the normal extraction hours for that room’s square footage, plus its own line of pet chemistry cost. Two rooms of identical size price differently once one of them is marked for pet treatment."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser, and nothing about the job is sent anywhere. This calculator does not save your room list between visits or generate a shareable bid link; only your business details for the printed proposal are kept in this browser’s local storage so you do not retype them, and the customer’s details are never saved."}},{"@type":"Question","name":"What does “minimum applied” mean?","acceptedAnswer":{"@type":"Answer","text":"It shows whether your posted minimum charge ended up higher than the price the job’s own hours and costs would have produced. On a small stop — one light room and a short drive — the minimum is usually what you actually quote; on a house with stairs, pets, and upholstery, the job price passes the minimum on its own."}},{"@type":"Question","name":"Does this check drying time, mold risk, or whether a carpet is worth cleaning?","acceptedAnswer":{"@type":"Answer","text":"No. Production rates and chemistry costs are ballpark shop figures you can edit, not a moisture-control assessment, a mold-risk determination, or a guarantee that a given stain, pet odor, or worn carpet will come clean. Whether a carpet is salvageable, how long it needs to dry, and what soil level a specific room really is are still a judgment call from the walkthrough — this tool prices the job you describe, it does not inspect it."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a221c; background: #f3eee6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a3d1b; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #ddd2c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a1a0a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5147; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a896; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .room-row, .uph-row { display: grid; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .room-row { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr) minmax(0, 1.3fr) auto auto; }
+    .uph-row { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) auto; }
+    .room-head, .uph-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6a5c4e; }
+    .room-row .lbl, .uph-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .pet { display: flex; align-items: center; gap: 6px; font-size: .8rem; padding-bottom: 10px; }
+    .pet input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7a896; background: #f6f1ea; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a221c; }
+    button:hover { background: #eee4d6; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #3b2414; color: #f8f1e8; border-color: #3b2414; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c6e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b07a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5147; }
+    footer a { color: #8a3d1b; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d3b4; }
+    .docs { margin: 0 0 18px; font-size: .9rem; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .room-head, .uph-head { display: none; }
+      .room-row, .uph-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6ddd0; border-radius: 9px; padding: 11px; }
+      .room-row label, .uph-row label { font-size: .78rem; gap: 5px; }
+      .room-row .lbl, .uph-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .room-row label:first-child, .uph-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5147; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3b2414; --pr-accent: #8a3d1b;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CARPET CLEANING TECHNICIANS</p>
+    <h1>Bid the stop, not the room special.</h1>
+    <p>Price a carpet cleaning job the way the clock actually works: each room divided by the extraction rate that soil really takes, then stairs, pet-urine extra passes, the sofa, furniture moving, and the drive. You get the quote, what it works out to per room and per labor hour including windshield time, and the number below which a $129 three-bedroom special loses money.</p>
+    <p class="docs"><a href="how-to-price-carpet-cleaning.html">How to price carpet cleaning</a> &mdash; the method, without a lead form. &middot; <a href="./vs-servicemonster.html">This calculator vs. ServiceMonster</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">One row per room. Production rate is carpet square feet one technician extracts per hour &mdash; pick a soil level to start from a common figure, then replace it with a rate timed from your own stops. Check pet treatment when that room needs an extra extraction pass.</p>
+        <div class="room-row room-head" aria-hidden="true">
+          <span>Room</span><span>Sq ft</span><span>Soil / sq ft per hour</span><span>Pet</span><span></span>
+        </div>
+        <div id="rooms"></div>
+        <button type="button" id="addRoom" data-pf-repeat="r">+ Add a room</button>
+      </section>
+
+      <section>
+        <h2>What a per-room special cannot see</h2>
+        <div class="fields" style="margin-bottom:16px">
+          <label>Flights of stairs <input id="stairFlights" type="number" min="0" step="1" value="2"></label>
+          <label>Minutes per flight <input id="minutesPerFlight" type="number" min="0" step="1" value="12"></label>
+          <label>Furniture-moving minutes <input id="furnitureMoveMinutes" type="number" min="0" step="1" value="25"></label>
+          <label>Round-trip drive (minutes) <input id="travelMinutes" type="number" min="0" step="1" value="40"></label>
+          <label>Extra passes on pet rooms <input id="extraPassMultiplier" type="number" min="0" step="0.25" value="1"></label>
+        </div>
+        <p class="hint">Upholstery is its own clock. A sofa the customer thought was included is often an hour.</p>
+        <div class="uph-row uph-head" aria-hidden="true">
+          <span>Piece</span><span>Minutes</span><span></span>
+        </div>
+        <div id="upholstery"></div>
+        <button type="button" id="addUpholstery" data-pf-repeat="u">+ Add upholstery</button>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Technician hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="20"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Chemicals per sq ft <input id="chemicalsPerSqFt" type="number" min="0" step="0.005" value="0.04"></label>
+          <label>Pet chemistry per room <input id="petChemistryPerRoom" type="number" min="0" step="1" value="12"></label>
+          <label>Other cost this stop <input id="otherJobCost" type="number" min="0" step="1" value="12"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="35"></label>
+          <label>Minimum charge <input id="minimumCharge" type="number" min="0" step="1" value="149"></label>
+          <label>Special you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="1" placeholder="e.g. 129"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and unpaid windshield time that never shows up on the wage. Underestimating it is the usual reason a three-bedroom special that looked full was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Labor hours (incl. drive)</dt><dd id="totalHours"></dd>
+        <dt>Hours that are not extraction</dt><dd id="hiddenHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Chemistry</dt><dd id="chemicals"></dd>
+        <dt>Other this stop</dt><dd id="other"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per room</dt><dd id="perRoom"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective rate (incl. drive)</dt><dd id="hourlyRate"></dd>
+        <dt>On-site rate</dt><dd id="onSiteRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Minimum applied?</dt><dd id="minimum"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting extraction rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own stops and replace them.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Cleanstep Carpet Care LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Clean 4 rooms and a hall, 900 sq ft&#10;Pet treatment in the back bedroom"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Moving beds, pianos or full bookcases&#10;Repair of delamination or seam failure"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Allow 4–6 hours drying with air movement."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this quote actually add up?</h3>
+      <p>The price adds up extraction hours per room from the square footage and production rate you
+        enter, an extra extraction pass on any room marked pet treatment, stairs by flight, upholstery
+        piece by piece, furniture-moving minutes, and the round-trip drive &mdash; plus chemistry per
+        square foot and per pet room, other job costs, overhead, and your target margin, then compares
+        that to your posted minimum charge and quotes whichever is higher.</p>
+
+      <h3>What is the &ldquo;hours that are not extraction&rdquo; number, and why does it matter?</h3>
+      <p>It is every hour on the ticket that is not carpet extraction &mdash; stairs, pet extra passes,
+        upholstery, furniture moving, and the drive. A posted per-room special is built on light-soil,
+        vacant-room extraction time; stairs, a sofa, a pet room, and the windshield time to get there are
+        exactly the hours that special leaves off, which is why a &ldquo;3 bedroom special&rdquo; that
+        looked full on the schedule can still lose money once they are added back in.</p>
+
+      <h3>Why does a pet-treatment room cost more than the same square footage without it?</h3>
+      <p>A pet-treated room gets an extra extraction pass &mdash; by default a full second pass at the
+        same production rate &mdash; on top of the normal extraction hours for that room&rsquo;s square
+        footage, plus its own line of pet chemistry cost. Two rooms of identical size price differently
+        once one of them is marked for pet treatment.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser, and
+        nothing about the job is sent anywhere. This calculator does not save your room list between
+        visits or generate a shareable bid link; only your business details for the printed proposal are
+        kept in this browser&rsquo;s local storage so you do not retype them, and the customer&rsquo;s
+        details are never saved.</p>
+
+      <h3>What does &ldquo;minimum applied&rdquo; mean?</h3>
+      <p>It shows whether your posted minimum charge ended up higher than the price the job&rsquo;s own
+        hours and costs would have produced. On a small stop &mdash; one light room and a short drive
+        &mdash; the minimum is usually what you actually quote; on a house with stairs, pets, and
+        upholstery, the job price passes the minimum on its own.</p>
+
+      <h3>Does this check drying time, mold risk, or whether a carpet is worth cleaning?</h3>
+      <p>No. Production rates and chemistry costs are ballpark shop figures you can edit, not a
+        moisture-control assessment, a mold-risk determination, or a guarantee that a given stain, pet
+        odor, or worn carpet will come clean. Whether a carpet is salvageable, how long it needs to dry,
+        and what soil level a specific room really is are still a judgment call from the walkthrough
+        &mdash; this tool prices the job you describe, it does not inspect it.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your house, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateJob, SOIL_PRESETS, ROOM_NAME_PRESETS, UPHOLSTERY_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+
+    const COST_IDS = [
+      'stairFlights','minutesPerFlight','furnitureMoveMinutes','travelMinutes','extraPassMultiplier',
+      'hourlyWage','burdenRate','chemicalsPerSqFt','petChemistryPerRoom','otherJobCost',
+      'overheadRate','targetMargin','minimumCharge','proposedPrice',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    // A lived-in three-bed: enough hidden labor that the split immediately
+    // shows why a posted per-room special cannot see the stop.
+    const STARTING_ROOMS = [
+      { name: 'Living room', squareFeet: 320, productionRate: 280, petTreatment: true },
+      { name: 'Bedroom', squareFeet: 180, productionRate: 280, petTreatment: true },
+      { name: 'Bedroom', squareFeet: 140, productionRate: 280, petTreatment: false },
+      { name: 'Bedroom', squareFeet: 120, productionRate: 280, petTreatment: false },
+      { name: 'Hall / landing', squareFeet: 60, productionRate: 280, petTreatment: false },
+    ];
+    const STARTING_UPHOLSTERY = [{ name: 'Sofa (3-seat)', minutes: 75 }];
+
+    const ROOM_OPTIONS = ROOM_NAME_PRESETS
+      .map((name) => `<option value="${name}">${name}</option>`)
+      .join('');
+    const SOIL_OPTIONS = SOIL_PRESETS
+      .map((preset) => `<option value="${preset.id}">${preset.label} (${preset.rate} sq ft/h)</option>`)
+      .join('');
+    const UPH_OPTIONS = UPHOLSTERY_PRESETS
+      .map((preset) => `<option value="${preset.label}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other piece</option>';
+
+    const roomsHost = el('rooms');
+    const uphHost = el('upholstery');
+    let rowSeq = 0;
+
+    function addRoomRow(room) {
+      const id = `r${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'room-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Room</span><select class="r-name" id="${id}-name">${ROOM_OPTIONS}</select></label>
+        <label for="${id}-sqft"><span class="lbl">Square feet</span><input class="r-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
+        <label for="${id}-soil"><span class="lbl">Soil / extraction rate</span><select class="r-soil" id="${id}-soil">${SOIL_OPTIONS}</select>
+          <input class="r-rate" id="${id}-rate" type="number" min="1" step="10" aria-label="Sq ft extracted per hour"></label>
+        <label class="pet" for="${id}-pet"><input class="r-pet" id="${id}-pet" type="checkbox"><span>Pet</span></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this room</span></button>`;
+
+      const nameField = row.querySelector('.r-name');
+      const soilField = row.querySelector('.r-soil');
+      const rateField = row.querySelector('.r-rate');
+      nameField.value = ROOM_NAME_PRESETS.includes(room.name) ? room.name : 'Other room';
+      row.querySelector('.r-sqft').value = room.squareFeet;
+      const soil = SOIL_PRESETS.find((preset) => preset.rate === room.productionRate) || SOIL_PRESETS[1];
+      soilField.value = soil.id;
+      rateField.value = room.productionRate;
+      row.querySelector('.r-pet').checked = Boolean(room.petTreatment);
+
+      soilField.addEventListener('change', () => {
+        const preset = SOIL_PRESETS.find((item) => item.id === soilField.value);
+        if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        count('bid_calculated');
+        update();
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      row.querySelectorAll('input, select').forEach((input) => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('room_removed');
+        update();
+      });
+      roomsHost.append(row);
+    }
+
+    function addUpholsteryRow(piece) {
+      const id = `u${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'uph-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Piece</span><select class="u-type" id="${id}-type">${UPH_OPTIONS}</select></label>
+        <label for="${id}-min"><span class="lbl">Minutes</span><input class="u-min" id="${id}-min" type="number" min="0" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this piece</span></button>`;
+
+      const typeField = row.querySelector('.u-type');
+      const minField = row.querySelector('.u-min');
+      const presetIndex = UPHOLSTERY_PRESETS.findIndex((item) => item.label === piece.name);
+      typeField.value = presetIndex === -1 ? 'other' : piece.name;
+      minField.value = piece.minutes;
+
+      typeField.addEventListener('change', () => {
+        const preset = UPHOLSTERY_PRESETS.find((item) => item.label === typeField.value);
+        if (preset && !minField.dataset.edited) minField.value = preset.minutes;
+        count('bid_calculated');
+        update();
+      });
+      minField.addEventListener('input', () => { minField.dataset.edited = '1'; });
+      row.querySelectorAll('input, select').forEach((input) => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('upholstery_removed');
+        update();
+      });
+      uphHost.append(row);
+    }
+
+    function readRooms() {
+      return [...roomsHost.querySelectorAll('.room-row')].map((row) => ({
+        name: row.querySelector('.r-name').value,
+        squareFeet: row.querySelector('.r-sqft').value,
+        productionRate: row.querySelector('.r-rate').value,
+        petTreatment: row.querySelector('.r-pet').checked,
+      }));
+    }
+
+    function readUpholstery() {
+      return [...uphHost.querySelectorAll('.uph-row')].map((row) => {
+        const preset = UPHOLSTERY_PRESETS.find((item) => item.label === row.querySelector('.u-type').value);
+        return {
+          name: preset ? preset.label : '',
+          minutes: row.querySelector('.u-min').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['totalHours','hiddenHours','labor','chemicals','other','overhead','cost','profit','perRoom','perSqFt','hourlyRate','onSiteRate','breakEven','minimum']
+        .forEach((id) => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function readInput() {
+      return {
+        rooms: readRooms(),
+        upholstery: readUpholstery(),
+        ...Object.fromEntries(COST_IDS.map((id) => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function update() {
+      const rooms = readRooms();
+      if (rooms.length === 0) {
+        clearOutputs('Add a room to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one room above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateJob(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.quotedPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied
+        ? 'job price (minimum is holding the quote up)'
+        : 'job price';
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('hiddenHours').textContent = `${result.hiddenHours.toFixed(2)} h (${result.hiddenHoursShare.toFixed(0)}%)`;
+      el('labor').textContent = money(result.laborCost);
+      el('chemicals').textContent = money(result.chemicalCost);
+      el('other').textContent = money(result.otherJobCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.profit);
+      el('perRoom').textContent = result.pricePerRoom === null ? 'n/a' : money(result.pricePerRoom);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('onSiteRate').textContent = result.onSiteHourlyRate === null ? 'n/a' : `${money(result.onSiteHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('minimum').textContent = result.minimumApplied ? `Yes — floor ${money(result.minimumCharge)}` : 'No';
+
+      const worked = result.buckets.filter((bucket) => bucket.hours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No time on the clock yet — add rooms, stairs, or drive time.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.hours - a.hours)
+          .map((bucket) => `<li><span>${bucket.label}</span><span>${bucket.hoursShare.toFixed(0)}% · ${bucket.hours.toFixed(2)} h</span>
+            <span class="bar"><span style="width:${bucket.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        if (result.proposed.belowBreakEven) {
+          verdict.innerHTML = `At ${money(result.proposed.price)} this stop <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`;
+        } else if (result.proposed.belowMinimum) {
+          verdict.innerHTML = `At ${money(result.proposed.price)} you cover cost, but you are under your ${money(result.minimumCharge)} minimum. The quote that holds the floor is ${money(result.quotedPrice)}.`;
+        } else {
+          verdict.innerHTML = `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} including the drive.`;
+        }
+      }
+    }
+
+    function summaryText(result) {
+      const rooms = result.rooms
+        .filter((room) => room.squareFeet > 0)
+        .map((room) => `- ${room.name}: ${room.squareFeet.toLocaleString('en-US')} sq ft${room.petTreatment ? ', pet treatment' : ''}`)
+        .join('\n');
+      const pieces = result.upholstery
+        .filter((piece) => piece.minutes > 0)
+        .map((piece) => `- ${piece.name}: ${piece.minutes} min`)
+        .join('\n');
+      return [
+        'CARPET CLEANING QUOTE',
+        '',
+        `Proposed job price: ${money(result.quotedPrice)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Labor on the clock: ${result.totalHours.toFixed(2)} hours (including ${result.travelHours.toFixed(2)} h drive)`,
+        `Price per room: ${result.pricePerRoom === null ? 'n/a' : money(result.pricePerRoom)}`,
+        '',
+        'ROOMS',
+        rooms || '- No rooms entered',
+        '',
+        result.stairFlights > 0 ? `Stairs: ${result.stairFlights} flight(s)` : 'Stairs: none',
+        pieces ? `Upholstery:\n${pieces}` : 'Upholstery: none',
+        '',
+        'This is a draft for review. Confirm scope, soil, pet treatment, access, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateJob(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addRoom').addEventListener('click', () => {
+      addRoomRow({ name: 'Other room', squareFeet: 0, productionRate: 280, petTreatment: false });
+      count('room_added');
+      update();
+    });
+    el('addUpholstery').addEventListener('click', () => {
+      addUpholsteryRow({ name: 'Armchair', minutes: 30 });
+      count('upholstery_added');
+      update();
+    });
+
+    COST_IDS.forEach((id) => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_ROOMS.forEach(addRoomRow);
+    STARTING_UPHOLSTERY.forEach(addUpholsteryRow);
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'carpet-cleaning-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Cleaning cannot guarantee removal of every stain, and pre-existing wear, bleaching or dye loss may become more visible once soil is removed.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Hot-water extraction of {roomCount} room{roomCount+s}, {totalSquareFeet~0} sq ft",
+        {
+          "line": "Pet treatment in {petRoomCount} room{petRoomCount+s}",
+          "when": "petRoomCount"
+        },
+        {
+          "line": "Clean {stairFlights} flight{stairFlights+s} of stairs",
+          "when": "stairFlights"
+        },
+        {
+          "line": "Clean {upholstery.length} upholstery piece{upholstery.length+s}",
+          "when": "upholstery.length"
+        },
+        "Pre-spray, agitate, extract and groom the pile",
+        "Move and replace light furniture; corner blocks under damp legs"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.quotedPrice : result.proposed.price,
+        jobTitle: scopeLines(['Carpet cleaning — {roomCount} rooms'], result)[0] || 'Carpet cleaning — rooms',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateJob(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateJob(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

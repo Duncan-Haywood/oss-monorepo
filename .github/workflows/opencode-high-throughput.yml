@@ -70,14 +70,22 @@ on:
         default: "opencode/deepseek-v4-flash"
         type: string
 
+# File-level floor kept to the read-only default. It used to grant
+# contents/pull-requests/id-token write at this level, which every job in the
+# file inherited whether or not it asked for it -- including `resolve-config`
+# below, which only computes a matrix and echoes it to $GITHUB_OUTPUT and
+# never touches the API at all. `agent-permission-harness`'s R5 rule
+# (portfolio/pipeline/probes/agent-permission-harness/) names this file for
+# exactly that: a job silently holding a write-capable token because of where
+# it lives, not because it needs one. The actual write scopes now live only on
+# `opencode-agent`, the one job that pushes a branch and opens a PR.
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 jobs:
   resolve-config:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     outputs:
       num_agents: ${{ steps.config.outputs.num_agents }}
       agent_ids: ${{ steps.config.outputs.agent_ids }}
@@ -108,8 +116,18 @@ jobs:
 
   opencode-agent:
     needs: resolve-config
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 120
+    # The only job in this file that needs a write-capable token: it pushes a
+    # branch and opens a pull request (`use_github_token: true` below).
+    # Declared explicitly rather than inherited from the file-level floor --
+    # same three scopes the floor granted every job before this change, just
+    # now a decision this job makes rather than a side effect of the file it
+    # lives in.
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
     strategy:
       fail-fast: false
       max-parallel: 10

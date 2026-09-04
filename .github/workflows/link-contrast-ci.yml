@@ -1,0 +1,71 @@
+name: Link contrast
+
+# The portfolio's own shipped pages had no contrast gate at all.
+#
+# `platform/pages/contrast.mjs` is the real measurement — every built page, two
+# viewports, axe-core — but it needs Playwright and axe-core, neither of which
+# is a dependency of this repo, so it has never run in CI. On 2026-08-30 a
+# browser run of it found 20 serious WCAG 1.4.3 violations across four pages
+# that had been live in `main` the whole time. All 20 were on links: three
+# article pages whose accent colour sat at 4.09-4.49:1 against the page, a
+# `footer{opacity:.85}` that faded one of them further to 3.31:1, and a link
+# inside a dark `header` that no rule coloured, so the browser default #0000ee
+# rendered on #123c3a at 1.28:1.
+#
+# `platform/pages/ink.mjs` is the part of that check that survives without a
+# browser. It reproduces all five findings exactly, including axe's blended
+# #bc754c, from the stylesheet alone. It is deliberately narrower than axe: it
+# decides link text only, because without a DOM there is no way to know which
+# box a bare class sits in, and it counts what it declined so a clean run can
+# never be read as "the whole page was checked".
+#
+# Same shape as page-integrity-ci.yml: sweeps every .html under ventures/, so a
+# new venture is covered the day it lands with nothing to wire up. No
+# dependencies, no build step, no network, no publishing — not the
+# unattended-automation kind of workflow CLAUDE.md gates.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/**/*.html"
+      - "platform/pages/ink.mjs"
+      - "platform/pages/ink.test.mjs"
+      - ".github/workflows/link-contrast-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**/*.html"
+      - "platform/pages/ink.mjs"
+      - "platform/pages/ink.test.mjs"
+      - ".github/workflows/link-contrast-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: link-contrast-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  link-contrast:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # A node --test run plus a contrast sweep over every venture page --
+    # normally under 30s. See hetzner-gitops-ci.yml's timeout-minutes
+    # addition for why an unbounded job is worth capping on a
+    # metered-minutes account.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # The engine's own tests first, including the four shipped defects as
+      # fixtures and the false-positive shapes it must stay silent on. A gate
+      # whose tests do not run is a gate nobody can trust to have narrowed
+      # correctly.
+      - name: Gate unit tests
+        run: node --test platform/pages/ink.test.mjs
+      - name: Sweep every product page
+        run: node platform/pages/ink.mjs --strict

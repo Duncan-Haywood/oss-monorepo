@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopify Fee Calculator — Payments vs PayPal vs Grow</title>
+  <meta name="description" content="Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Shopify Fee Calculator — Payments vs PayPal, plan upgrade volume">
+  <meta property="og:description" content="See what a Shopify order really leaves after fees, and how many orders it takes for Grow or Advanced to pay for itself.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify Fee Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Shopify Payments vs third-party comparison, third-party transaction fee, net profit, margin, ROI, break-even price, target-margin price, target-profit price, Basic vs Grow vs Advanced vs Plus at monthly volume, refund vs store credit vs exchange, expected profit after a refund rate, Shopify Capital vs waiting vs a bank line, bank transfer vs card collection floor, chargeback refund vs fight vs accept, local delivery vs carrier label, gift card vs selling the SKU now, DDP vs DAP vs skipping international, leave vs recovery emails vs emails plus item coupon, one-time vs monthly subscribe vs prepaid pack, free pickup vs carrier label after no-show, skip vs checkout add-on vs post-purchase one-click, 10% off vs coupon vs free shipping leftover"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why does PayPal cost more on Shopify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "When a Shopify store uses a third-party processor such as PayPal or Stripe, Shopify may also charge a third-party transaction fee on the order total, on top of the processor's own percentage and fixed fee. Shopify Payments replaces that extra Shopify fee with the Shopify Payments processing rate. Enter the rates from your current statements — this page does not publish Shopify's live schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I calculate Shopify fees on an order?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Add the item price and shipping charged. Apply the payment-path rates that apply to you: Shopify Payments percentage plus fixed fee, or the third-party processor rates plus any Shopify third-party transaction fee. Subtract cost of goods, shipping you pay, packaging, and a share of the monthly Shopify plan. What remains is the order's net contribution."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does upgrading from Shopify Basic to Grow pay for itself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Grow costs more each month but usually charges a lower Shopify Payments rate and a lower third-party transaction fee. The upgrade starts paying from rates alone when monthly orders times the per-order fee savings exceed the extra monthly plan cost. Enter your own rates and volume — this page does not publish Shopify's live schedule or recommend a plan."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .9fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .paths { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .paths label { display: flex; gap: .45rem; align-items: center; font-weight: 600; }
+    .paths input { width: auto; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 6px; }
+    .actions button { border:0; border-radius:999px; background:#0d6b45; color:#fff; padding:10px 16px; font-weight:700; cursor:pointer; }
+    .share-status { font-size:.82rem; opacity:.85; min-height:1.2em; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <h1>Know what each Shopify order really leaves — and what price hits your target.</h1>
+    <p>
+      Enter your plan, payment path, and costs to see net profit, margin, and
+      the listing price that hits your target. The comparison shows the extra
+      Shopify third-party transaction fee that generic calculators skip, then
+      ranks Basic, Grow, Advanced, and Plus at your monthly volume so you can
+      see whether a higher plan’s lower rates cover its extra subscription.
+      Everything runs in this page; nothing is uploaded.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, plan and fees</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US online defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <div class="span2 paths" role="radiogroup" aria-label="Payment path">
+          <label><input type="radio" name="paymentMethod" value="shopify_payments" checked> Shopify Payments</label>
+          <label><input type="radio" name="paymentMethod" value="third_party"> PayPal / Stripe / other</label>
+        </div>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Shopify third-party fee (%) <input id="shopifyTxnRate" type="number" min="0" step="0.01" value="2"></label>
+        <label>Processor rate (%) <input id="processorRate" type="number" min="0" step="0.01" value="3.49"></label>
+        <label>Processor fixed fee <input id="processorFixed" type="number" min="0" step="0.01" value="0.49"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+        <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="40"></label>
+        <label>Target net profit <input id="targetProfit" type="number" min="0" step="0.01" value="20"></label>
+        <label>Percent-off promo (%) <input id="percentOff" type="number" min="0" max="100" step="0.1" value="10"></label>
+        <label>Amount-off promo ($) <input id="amountOff" type="number" min="0" step="0.01" value="10"></label>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Order result</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">estimated net profit on the selected path</div>
+      <dl>
+        <dt>Total revenue</dt><dd id="revenue"></dd>
+        <dt>Fees on this path</dt><dd id="fees"></dd>
+        <dt>Cash + allocated plan</dt><dd id="invested"></dd>
+        <dt>Net margin</dt><dd id="margin"></dd>
+        <dt>Return on investment</dt><dd id="roi"></dd>
+        <dt>Break-even item price</dt><dd id="breakEven"></dd>
+        <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
+        <dt>Price for target profit</dt><dd id="targetProfitPrice"></dd>
+        <dt>Extra vs Shopify Payments</dt><dd id="extra"></dd>
+      </dl>
+      <div class="actions">
+        <button type="button" id="copyShare">Copy share link</button>
+        <button type="button" id="copySummary">Copy order summary</button>
+      </div>
+      <p class="share-status" id="shareStatus" role="status" aria-live="polite"></p>
+      <hr>
+      <h2>Same order, both paths</h2>
+      <table>
+        <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Margin</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <h2>Same order, three checkout promos</h2>
+      <p id="promo-summary" class="note"></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Offer</th>
+            <th scope="col">Customer pays</th>
+            <th scope="col">Fees</th>
+            <th scope="col">You keep</th>
+            <th scope="col">Vs list</th>
+          </tr>
+        </thead>
+        <tbody id="promos"></tbody>
+      </table>
+      <p class="note">
+        Percentage fees follow the new total. Free shipping zeros what the customer
+        pays to ship; it does not zero the label you pay.
+        <a href="which-shopify-promo-costs-less.html">Which Shopify promo still pays</a>.
+      </p>
+      <p class="note">Transparent arithmetic from your inputs — not Shopify's current fee schedule. Rates vary by country, plan, card type, and processor contract. Verify against your statements.</p>
+      <hr>
+      <h2>Same volume, every plan</h2>
+      <p id="planHeadline" class="note">Enter monthly orders to compare plans.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Monthly</th>
+            <th>Fees / order</th>
+            <th>Profit / month</th>
+            <th>vs current</th>
+          </tr>
+        </thead>
+        <tbody id="planCompare"></tbody>
+      </table>
+      <p id="planBreakEven" class="note"></p>
+      <p class="note">
+        <a href="basic-vs-grow.html">Should I upgrade from Shopify Basic to Grow?</a>
+        walks through that search question with the same arithmetic.
+      </p>
+      <hr>
+      <h2>Card vs Shop Pay Installments</h2>
+      <p class="note">
+        The dedicated
+        <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments calculator</a>
+        already has the full math. This block uses the same
+        <code>compareShopPayInstallments</code> on the order you just typed,
+        so you do not leave the page. Defaults match that page (5.99% + $0.30,
+        15% of checkouts).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>Shop Pay Installments (%)
+          <input id="installmentRate" type="number" min="0" step="0.01" value="5.99">
+        </label>
+        <label>Installments fixed fee
+          <input id="installmentFixed" type="number" min="0" step="0.01" value="0.30">
+        </label>
+        <label>Installment share of checkouts (%)
+          <input id="installmentSharePct" type="number" min="0" max="100" step="0.1" value="15">
+        </label>
+        <label>Extra monthly orders from installments
+          <input id="extraOrdersFromInstallments" type="number" min="0" step="0.1" value="0">
+        </label>
+      </div>
+      <p id="installmentHeadline" class="note"></p>
+      <table id="installmentTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Rate</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs card</th>
+          </tr>
+        </thead>
+        <tbody id="installmentCompare"></tbody>
+      </table>
+      <p id="installmentNote" class="note"></p>
+      <hr>
+      <h2>Shopify Shipping vs your own label</h2>
+      <p class="note">
+        The dedicated
+        <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs own-label calculator</a>
+        already has the full math. This block uses the same
+        <code>compareShippingLabels</code> on the order you just typed,
+        so you do not leave the page. Empty Shopify label falls back to
+        Shipping you pay; empty own label uses $4.25 (Pirate Ship / Shippo
+        default on that page).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>Shopify Shipping label
+          <input id="shopifyLabelCost" type="number" min="0" step="0.01" value="5.49">
+        </label>
+        <label>Own / third-party label
+          <input id="ownLabelCost" type="number" min="0" step="0.01" value="4.25">
+        </label>
+      </div>
+      <p id="labelHeadline" class="note"></p>
+      <table id="labelTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Label</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs Shopify label</th>
+          </tr>
+        </thead>
+        <tbody id="labelCompare"></tbody>
+      </table>
+      <p id="labelNote" class="note"></p>
+      <hr>
+      <h2>Shopify POS vs online checkout</h2>
+      <p class="note">
+        The dedicated
+        <a href="shopify-pos-vs-online-fees.html">POS vs online calculator</a>
+        already has the full math. This block uses the same
+        <code>compareOnlineVsPos</code> on the order you just typed,
+        so you do not leave the page. Defaults match that page (2.6% + $0.10
+        in person, $49 card reader).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>In-person card rate (%)
+          <input id="posPaymentsRate" type="number" min="0" step="0.01" value="2.6">
+        </label>
+        <label>In-person fixed fee
+          <input id="posPaymentsFixed" type="number" min="0" step="0.01" value="0.10">
+        </label>
+        <label>Card reader cost
+          <input id="posHardwareCost" type="number" min="0" step="0.01" value="49">
+        </label>
+      </div>
+      <p id="posHeadline" class="note"></p>
+      <table id="posTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs online</th>
+          </tr>
+        </thead>
+        <tbody id="posCompare"></tbody>
+      </table>
+      <p id="posNote" class="note"></p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Generic “Shopify fee calculator” pages often stop at one processing rate.
+      The decision most merchants actually face is
+      <strong>Shopify Payments vs PayPal or Stripe</strong>: the third-party
+      path can add Shopify’s extra transaction fee on top of the processor.
+      <a href="why-paypal-costs-more.html">Why PayPal can cost more on Shopify</a>
+      walks through that in search-query words.
+      Selling the same SKU at a market or retail counter is a different
+      question — <a href="shopify-pos-vs-online-fees.html">Shopify POS vs online fees</a>
+      compares the cheaper tap with checkout after postage.
+      Buying the label is a third question —
+      <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs your own label</a>
+      compares admin postage with a Pirate Ship, Shippo, or carrier-account quote.
+      Shop Pay Installments is a fourth —
+      <a href="should-i-offer-shop-pay-installments.html">card vs Shop Pay Installments</a>
+      shows the extra fee, the blended month, and the conversion lift that covers it.
+      A requested return is a fifth —
+      <a href="should-i-offer-store-credit-instead-of-a-refund.html">store credit vs a cash refund</a>
+      compares sending cash, issuing credit, and exchanging on the same order.
+      A Capital offer is a sixth —
+      <a href="should-i-take-shopify-capital.html">Shopify Capital vs waiting</a>
+      shows the fee, days of holdback, simple annualized cost, and the extra
+      monthly profit that covers the fee.
+      A bank-transfer invoice is a seventh —
+      <a href="should-i-take-bank-transfer-on-shopify.html">bank transfer vs the card</a>
+      shows the fee you skip, the leftover if invoices pay, and the
+      collection rate that wipes the save.
+      A chargeback is an eighth —
+      <a href="should-i-fight-a-shopify-chargeback.html">refund vs fight vs accept</a>
+      shows the $15 fee, the leftover on each path, and the win rate
+      that makes representment beat a refund.
+      Local delivery is a ninth —
+      <a href="should-i-offer-local-delivery-on-shopify.html">local delivery vs the carrier label</a>
+      shows driver time, mileage, and the run cost that still beats postage.
+      A gift card is a tenth —
+      <a href="should-i-sell-gift-cards-on-shopify.html">gift card vs selling the SKU now</a>
+      shows sale-day fees, the second swipe after the face, and the mix that
+      only looks better because of breakage.
+      International duties are an eleventh —
+      <a href="should-i-collect-duties-on-shopify.html">DDP vs DAP vs skipping international</a>
+      shows the card fee on the collected duty, the door-refuse leftover,
+      and the take rate that flips collecting duties at checkout.
+      An abandoned checkout is a twelfth —
+      <a href="should-i-recover-abandoned-checkouts-on-shopify.html">leave vs recovery emails vs a coupon</a>
+      shows the recover rate, allocated send cost, cheaper ticket, and
+      the lift that still beats leaving it.
+      A subscription is a thirteenth —
+      <a href="should-i-offer-subscriptions-on-shopify.html">one-time vs monthly vs a prepaid pack</a>
+      shows the subscribe-and-save leftover, billing fee, skip rate,
+      and the stay that still beats a one-time checkout.
+      In-store pickup is a fourteenth —
+      <a href="should-i-offer-pickup-on-shopify.html">pickup vs the carrier label</a>
+      shows staff time, the bag, no-show refunds, and the label cost
+      that still beats a customer who comes in.
+      An add-on offer is a fifteenth —
+      <a href="should-i-add-a-shopify-upsell.html">checkout vs post-purchase upsell</a>
+      shows the second swipe, extra checkout abandon, and the drop
+      that still beats one-click.
+      A sale is a sixteenth —
+      <a href="which-shopify-promo-costs-less.html">10% off vs $10 off vs free shipping</a>
+      shows leftover after fees on the same order, because free shipping
+      still pays the label.
+      A typical refund rate is a sixteenth —
+      <a href="refunds.html">what a return still leaves</a>
+      mixes completed-order profit with a full-refund outcome so you can
+      see whether PayPal keeping its fee flips the path.
+    </p>
+    <p>
+      It does not recommend a price, a plan, or a processor, and it is not tax
+      or financial advice. The gap between paths, and the volume at which a
+      higher plan’s lower rates cover its extra monthly fee, are arithmetic
+      comparisons of the rates you entered.
+    </p>
+    <p>
+      <a href="basic-vs-grow.html">When does Shopify Grow beat Basic?</a>
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Why does PayPal cost more on Shopify?</h3>
+  <p>When a Shopify store uses a third-party processor such as PayPal or Stripe, Shopify may also charge a third-party transaction fee on the order total, on top of the processor's own percentage and fixed fee. Shopify Payments replaces that extra Shopify fee with the Shopify Payments processing rate. Enter the rates from your current statements — this page does not publish Shopify's live schedule.</p>
+  <h3>How do I calculate Shopify fees on an order?</h3>
+  <p>Add the item price and shipping charged. Apply the payment-path rates that apply to you: Shopify Payments percentage plus fixed fee, or the third-party processor rates plus any Shopify third-party transaction fee. Subtract cost of goods, shipping you pay, packaging, and a share of the monthly Shopify plan. What remains is the order's net contribution.</p>
+  <h3>When does upgrading from Shopify Basic to Grow pay for itself?</h3>
+  <p>Grow costs more each month but usually charges a lower Shopify Payments rate and a lower third-party transaction fee. The upgrade starts paying from rates alone when monthly orders times the per-order fee savings exceed the extra monthly plan cost. Enter your own rates and volume — this page does not publish Shopify's live schedule or recommend a plan.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Selling the same product somewhere else too? <a href="../where-to-sell-calculator/">Compare what one item nets on Shopify, eBay, Etsy, Amazon and a direct sale</a> side by side.</p>
+    <p>Already paying for a profit-analytics app? <a href="./vs-beprofit.html">How this calculator differs from BeProfit</a> &mdash; what a connected dashboard reports after the order, and what this page works out before it.</p>
+    <p>Free and open source. If it saved you from an underpriced order, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+    <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, compareOnlineVsPos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+    import {
+      encodeShareState, decodeShareState, decodeInputs,
+      FIELD_IDS, ORDER_FIELDS as ids, PROMO_FIELDS as promoIds,
+      INSTALLMENT_FIELDS as installmentIds, LABEL_FIELDS as labelIds,
+      POS_FIELDS as posIds,
+    } from "./share.mjs";
+
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const signedMoney = (value) => {
+      if (Math.abs(value) < 0.005) return "same";
+      return value > 0 ? `+${money(value)}` : money(value);
+    };
+    const ordersLabel = (value) => {
+      if (!Number.isFinite(value)) return "never from rates alone";
+      if (value <= 0) return "already cheaper";
+      const rounded = Math.ceil(value - 1e-9);
+      return `${rounded} order${rounded === 1 ? "" : "s"}/month`;
+    };
+
+    function paymentMethod() {
+      return document.querySelector('input[name="paymentMethod"]:checked').value;
+    }
+
+    function readInput() {
+      return {
+        ...Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(promoIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(installmentIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(labelIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(posIds.map((id) => [id, document.getElementById(id).value])),
+        paymentMethod: paymentMethod(),
+        planId: document.getElementById("plan").value,
+      };
+    }
+
+    /**
+     * Put a full share link back on the page — all of it.
+     *
+     * Every field the token carries, not the order and promo sections alone.
+     * Writing back two of five panels was how a recipient read this page's
+     * example Installments, label and POS figures while believing they were
+     * looking at the sender's scenario.
+     *
+     * The plan select is assigned rather than dispatched: firing its change
+     * event would run applyPlan() and overwrite the sender's own payment rates
+     * with that plan's presets, which is exactly the substitution this is
+     * fixing.
+     */
+    function applyShare(state) {
+      FIELD_IDS.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
+      const radio = document.querySelector(`input[name="paymentMethod"][value="${state.paymentMethod}"]`);
+      if (radio) radio.checked = true;
+      if (state.planId != null) document.getElementById("plan").value = state.planId;
+    }
+
+    /**
+     * Apply a partial link — a handoff that knows the item and nothing else.
+     *
+     * Returns how many values it actually set, so the caller can tell an
+     * empty or unreadable link from a real one and say which it was. Untouched
+     * fields keep this page's starting figures rather than being zeroed into
+     * something that reads like an answer.
+     */
+    function applyPartial(values) {
+      let applied = 0;
+      for (const id of FIELD_IDS) {
+        if (!(id in values)) continue;
+        document.getElementById(id).value = String(values[id]);
+        applied += 1;
+      }
+      if (values.paymentMethod) {
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${values.paymentMethod}"]`);
+        if (radio) { radio.checked = true; applied += 1; }
+      }
+      return applied;
+    }
+
+    function update() {
+      try {
+        const result = calculateOrder(readInput());
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(result.selected.profit);
+        profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          result.selected.profit < 0 ? "loss on this order" : "estimated net profit on the selected path";
+        document.getElementById("revenue").textContent = money(result.revenue);
+        document.getElementById("fees").textContent = money(result.selected.feeTotal);
+        document.getElementById("invested").textContent = money(result.selected.cashInvested);
+        document.getElementById("margin").textContent = `${result.selected.margin.toFixed(1)}%`;
+        document.getElementById("roi").textContent = result.selected.roi === null ? "n/a" : `${result.selected.roi.toFixed(1)}%`;
+        document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
+          ? money(result.selected.breakEvenPrice) : "never";
+        document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
+          ? money(result.selected.targetMarginPrice) : "unreachable";
+        document.getElementById("targetProfitPrice").textContent = Number.isFinite(result.selected.targetProfitPrice)
+          ? money(result.selected.targetProfitPrice) : "unreachable";
+        const extra = result.extraCostVsShopifyPayments;
+        document.getElementById("extra").textContent =
+          extra > 0 ? `${money(extra)} more with third-party` : extra < 0 ? `${money(-extra)} less with third-party` : "same fees";
+        document.getElementById("compare").innerHTML = [
+          ["Shopify Payments", result.shopifyPayments],
+          ["PayPal / Stripe / other", result.thirdParty],
+        ].map(([name, path]) =>
+          `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${path.margin.toFixed(1)}%</td></tr>`
+        ).join("");
+        const comparison = comparePromos(readInput(), defaultPromoSet({
+          percentOff: document.getElementById("percentOff").value,
+          amountOff: document.getElementById("amountOff").value,
+        }));
+        document.getElementById("promo-summary").textContent = promoComparisonSummary(comparison);
+        document.getElementById("promos").innerHTML = comparison.rows.map((row) => {
+          const delta = row.kind === "list" ? "—" : money(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${money(row.revenue)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+
+        const planComparison = comparePlans(readInput());
+        const current = planComparison.plans.find((plan) => plan.isCurrent) ?? planComparison.plans[0];
+        const best = planComparison.plans.find((plan) => plan.isBest);
+        const pathLabel = planComparison.paymentMethod === "third_party"
+          ? "PayPal / Stripe / other"
+          : "Shopify Payments";
+        const vsBest = best.monthlyProfit - current.monthlyProfit;
+        document.getElementById("planHeadline").textContent = best.id === current.id
+          ? `At ${planComparison.monthlyOrders} orders/month on ${pathLabel}, ${current.label} leaves the most of the four illustrative plans.`
+          : `At ${planComparison.monthlyOrders} orders/month on ${pathLabel}, ${best.label} leaves ${money(vsBest)} more this month than ${current.label}.`;
+        document.getElementById("planCompare").innerHTML = planComparison.plans.map((plan) => {
+          const name = plan.isCurrent ? `${plan.label} (current)` : plan.label;
+          const mark = plan.isBest ? " ★" : "";
+          return `<tr><td>${name}${mark}</td><td>${money(plan.monthlyPlan)}</td><td>${money(plan.perOrderFees)}</td><td>${money(plan.monthlyProfit)}</td><td>${signedMoney(plan.vsCurrentMonthly)}</td></tr>`;
+        }).join("");
+        const nextUp = planComparison.upgrades.find((step) => step.fromPlanId === current.id);
+        if (!nextUp) {
+          document.getElementById("planBreakEven").textContent =
+            "There is no higher illustrative plan above the one you selected.";
+        } else if (nextUp.neverPays) {
+          document.getElementById("planBreakEven").textContent =
+            `The next plan’s rates do not save enough per order to cover its extra ${money(nextUp.extraMonthly)} monthly fee.`;
+        } else {
+          const toLabel = planComparison.plans.find((plan) => plan.id === nextUp.toPlanId)?.label ?? nextUp.toPlanId;
+          document.getElementById("planBreakEven").textContent =
+            `${toLabel} starts covering its extra ${money(nextUp.extraMonthly)} / month at ${ordersLabel(nextUp.breakEvenOrders)} on this payment path (about ${money(nextUp.feeSavings)} less in fees per order).`;
+        }
+
+        const installment = compareShopPayInstallments(readInput());
+        document.getElementById("installmentHeadline").textContent = installment.summary;
+        document.getElementById("installmentCompare").innerHTML = installment.rows.map((row) => {
+          const delta = row.id === "card" ? "—" : signedMoney(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${row.rate.toFixed(2)}% + ${money(row.fixed)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("installmentNote").textContent = installment.liftPays
+          ? `Typed lift of ${installment.extraOrdersFromInstallments} extra orders covers the extra fee.`
+          : Number.isFinite(installment.breakEvenExtraOrders)
+            ? `Need about ${installment.breakEvenExtraOrders.toFixed(1)} extra orders / month for the mix to match turning installments off.`
+            : "The blended mix cannot cover the extra installment fee from volume alone.";
+
+        const labels = compareShippingLabels(readInput());
+        document.getElementById("labelHeadline").textContent = labels.summary;
+        document.getElementById("labelCompare").innerHTML = labels.rows.map((row) => {
+          const delta = row.id === "shopify" ? "—" : signedMoney(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("labelNote").textContent = Number.isFinite(labels.monthlyExtraOnOwn)
+          ? `Own-label leftover vs Shopify Shipping is ${signedMoney(labels.monthlyExtraOnOwn)} / month at this volume.`
+          : "Fix the label quotes to compare Shopify Shipping with your own postage.";
+
+        const pos = compareOnlineVsPos(readInput());
+        const posRows = [pos.online, pos.inPersonSameTicket, pos.inPersonPickup];
+        document.getElementById("posHeadline").textContent = pos.extraKeptOnPickup > 1e-9
+          ? `In-person pickup keeps ${signedMoney(pos.extraKeptOnPickup)} more than online checkout on this ticket.`
+          : pos.extraKeptOnPickup < -1e-9
+            ? `Online checkout keeps ${signedMoney(-pos.extraKeptOnPickup)} more than in-person pickup on this ticket.`
+            : "Online checkout and in-person pickup leave the same profit on this ticket.";
+        document.getElementById("posCompare").innerHTML = posRows.map((row) => {
+          const delta = row === pos.online ? "—" : signedMoney(row.profit - pos.online.profit);
+          return `<tr><td>${row.label}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("posNote").textContent = pos.ordersToRecoverHardware == null
+          ? (pos.posHardwareCost > 0
+            ? "The in-person path does not recover the card reader from extra leftover on this ticket."
+            : "No card-reader cost typed, so there is nothing to recover.")
+          : `About ${Math.ceil(pos.ordersToRecoverHardware)} in-person order${Math.ceil(pos.ordersToRecoverHardware) === 1 ? "" : "s"} recover the ${money(pos.posHardwareCost)} reader.`;
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "targetMarginPrice", "targetProfitPrice", "extra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+        document.getElementById("promos").innerHTML = "";
+        document.getElementById("promo-summary").textContent = "";
+        document.getElementById("planCompare").innerHTML = "";
+        document.getElementById("planHeadline").textContent = "Fix the inputs to compare plans.";
+        document.getElementById("planBreakEven").textContent = "";
+        document.getElementById("installmentCompare").innerHTML = "";
+        document.getElementById("installmentHeadline").textContent = "Fix the inputs to compare Shop Pay Installments.";
+        document.getElementById("installmentNote").textContent = "";
+        document.getElementById("labelCompare").innerHTML = "";
+        document.getElementById("labelHeadline").textContent = "Fix the inputs to compare shipping labels.";
+        document.getElementById("labelNote").textContent = "";
+        document.getElementById("posCompare").innerHTML = "";
+        document.getElementById("posHeadline").textContent = "Fix the inputs to compare POS vs online.";
+        document.getElementById("posNote").textContent = "";
+      }
+    }
+
+    function applyPlan() {
+      const filled = applyPlanPreset({}, document.getElementById("plan").value);
+      document.getElementById("paymentsRate").value = filled.paymentsRate;
+      document.getElementById("paymentsFixed").value = filled.paymentsFixed;
+      document.getElementById("shopifyTxnRate").value = filled.shopifyTxnRate;
+      document.getElementById("monthlyPlan").value = filled.monthlyPlan;
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_preset_applied");
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_upgrade_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", applyPlan);
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    promoIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    installmentIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    labelIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    posIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      const event = id === "targetMargin"
+        ? "target_margin_calculated"
+        : id === "targetProfit"
+          ? "target_profit_calculated"
+          : id === "monthlyOrders"
+            ? "plan_upgrade_compared"
+            : "order_profit_calculated";
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
+    }));
+    promoIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "promos_compared");
+    }));
+    installmentIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shop_pay_installments_compared");
+    }));
+    labelIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shipping_labels_compared");
+    }));
+    posIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "pos_online_compared");
+    }));
+    document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
+      el.addEventListener("change", () => {
+        update();
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "payment_path_compared");
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_upgrade_compared");
+      });
+    });
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    document.getElementById("copyShare").addEventListener("click", async () => {
+      const status = document.getElementById("shareStatus");
+      try {
+        const token = encodeShareState(readInput());
+        const url = `${location.origin}${location.pathname}#${token}`;
+        await navigator.clipboard.writeText(url);
+        status.textContent = "Share link copied. It stays in this browser until you send it.";
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+      } catch (error) {
+        status.textContent = error.message || "Could not copy a share link.";
+      }
+    });
+    document.getElementById("copySummary").addEventListener("click", async () => {
+      const status = document.getElementById("shareStatus");
+      try {
+        const result = calculateOrder(readInput());
+        const text = [
+          `Shopify order keep ${money(result.selected.profit)} after ${money(result.selected.feeTotal)} fees.`,
+          `Revenue ${money(result.revenue)}. Path: ${result.paymentMethod === "third_party" ? "third-party" : "Shopify Payments"}.`,
+          "Arithmetic on entered rates — not Shopify's live schedule.",
+        ].join(" ");
+        await navigator.clipboard.writeText(text);
+        status.textContent = "Order summary copied.";
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "order_summary_copied");
+      } catch (error) {
+        status.textContent = error.message || "Could not copy a summary.";
+      }
+    });
+    // Two link shapes arrive here. A full share link is one base64 token and
+    // must decode completely or be refused — the recipient sees exactly what
+    // the sender saw, or is told so. A handoff from where-to-sell-calculator
+    // is ordinary query text carrying only the item, and must fill in what it
+    // knows and leave this page's plan, promo, and POS figures alone.
+    const hash = location.hash.replace(/^#/, "");
+    if (hash) {
+      try {
+        applyShare(decodeShareState(hash));
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_opened");
+      } catch {
+        const applied = applyPartial(decodeInputs(hash));
+        if (applied > 0) {
+          recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_opened");
+          document.getElementById("shareStatus").textContent =
+            `Loaded ${applied} value${applied === 1 ? "" : "s"} from the link. Everything else is this page's own starting figure — check the plan and the payment rates against your own Shopify billing.`;
+        } else {
+          document.getElementById("shareStatus").textContent = "That share link could not be read. Showing the example numbers.";
+        }
+      }
+    }
+    update();
+  </script>
+</body>
+</html>

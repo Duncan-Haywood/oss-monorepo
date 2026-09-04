@@ -9,7 +9,7 @@
 
 import zlib from "node:zlib";
 
-import { checkBatch, checkPhoto } from "./photo-spec";
+import { SPEC_DATE, SPEC_ID, UNIMPLEMENTED_RULES, buildReshootPlan, checkBatch, checkPhoto, createEvidenceReport, formatReshootPlan } from "./photo-spec";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`Assertion failed: ${message}`);
@@ -167,6 +167,56 @@ function testUnreadableAndUnrecognisedFormat() {
   );
 }
 
+function testReshootPlanMapsFindingsToActions() {
+  const reports = checkBatch(fixtures());
+  const plan = buildReshootPlan(reports);
+  const byName = new Map(plan.items.map((item) => [item.fileName, item]));
+
+  assertEqual(plan.recaptureCount, 1, "one long-edge recapture");
+  assertEqual(plan.deskFixCount, 3, "aspect + branding + staging");
+  assertEqual(plan.blockingCount, 3, "long_edge, branding, staging are blocking");
+  assert(!byName.has("living-1024x768.png"), "passing photos stay off the list");
+  assertEqual(byName.get("too-small-64x48.png")!.kind, "recapture", "long_edge → recapture");
+  assertEqual(byName.get("wide-banner-1600x400.png")!.kind, "reexport", "aspect → reexport");
+  assertEqual(byName.get("agent-logo-1200x800.png")!.kind, "rename", "branding → rename");
+  assertEqual(byName.get("living-staged.png")!.kind, "pair", "staging → pair");
+}
+
+function testCleanBatchHasEmptyReshootPlan() {
+  const reports = checkBatch([
+    { name: "living-1024x768.png", data: pngBytes(1024, 768) },
+    { name: "kitchen-1200x800.jpg", data: jpegBytes(1200, 800) },
+  ]);
+  const plan = buildReshootPlan(reports);
+  assertEqual(plan.items.length, 0, "no items");
+  assert(formatReshootPlan(plan).includes("nothing to fix"), "empty copy");
+  assert(formatReshootPlan(plan).includes("visual_watermark"), "still discloses unimplemented");
+}
+
+function testReshootPlanTextIsCopyable() {
+  const plan = buildReshootPlan(checkBatch(fixtures()));
+  const text = formatReshootPlan(plan);
+  assert(text.includes("too-small-64x48.png"), "names the recapture file");
+  assert(text.includes("agent-logo-1200x800.png"), "names the rename file");
+  assert(text.includes("Go back to the property"), "groups recaptures");
+  assert(text.includes("Fix at the desk"), "groups desk fixes");
+  assert(text.includes("not a warranty"), "disclaimer stays on the copied list");
+}
+
+function testEvidenceReportNamesTheSpecAndUnimplementedRules(): void {
+  const reports = checkBatch([
+    { name: "kitchen-1600x1200.png", data: new Uint8Array(pngBytes(1600, 1200)) },
+  ]);
+  const evidence = createEvidenceReport(reports, ["notes.txt"], "2026-08-26T20:55:00.000Z");
+  assertEqual(evidence.reportType, "listing-lens-photo-preflight", "report type");
+  assertEqual(evidence.specId, SPEC_ID, "spec id");
+  assertEqual(evidence.specDate, SPEC_DATE, "spec date");
+  assertEqual(evidence.checkedPhotos, 1, "checked photo count");
+  assertEqual(evidence.skippedFiles, ["notes.txt"], "skipped files stay listed");
+  assertEqual([...evidence.unimplementedRules], [...UNIMPLEMENTED_RULES], "unimplemented rules stay explicit");
+  assert(evidence.photos[0].info.name === "kitchen-1600x1200.png", "keeps the checked photo");
+}
+
 const tests: Array<[string, () => void]> = [
   ["passing photos have no findings", testPassingPhotosHaveNoFindings],
   ["long edge / aspect / branding / staging", testLongEdgeAspectBrandingStaging],
@@ -174,6 +224,10 @@ const tests: Array<[string, () => void]> = [
   ["staged with original sibling passes", testStagedWithOriginalSiblingPasses],
   ["jpeg header roundtrip", testJpegHeaderRoundtrip],
   ["unreadable / unrecognised format", testUnreadableAndUnrecognisedFormat],
+  ["reshoot plan maps findings to actions", testReshootPlanMapsFindingsToActions],
+  ["clean batch has an empty reshoot plan", testCleanBatchHasEmptyReshootPlan],
+  ["reshoot plan text is copyable", testReshootPlanTextIsCopyable],
+  ["evidence report names the spec and unimplemented rules", testEvidenceReportNamesTheSpecAndUnimplementedRules],
 ];
 
 let failures = 0;

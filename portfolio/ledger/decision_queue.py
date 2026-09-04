@@ -23,14 +23,11 @@ decide the answer are absent from that sort:
     are adjacent rows, and are not the same kind of decision. `exposure`
     separates them.
 
-Reading those two axes off `asks.yaml` collapses the nine live asks (#139
-lists ten; Ask 8 is superseded by `break-even.md` and has nothing to grant)
-and the open pull requests they cover into a queue of decisions, of which
-exactly one moves the revenue ceiling -- and one, Ask 9, would remove
-another. (This paragraph originally counted six pull requests into ten
-decisions; three of those pull requests -- #372, #368, #583 -- merged on
-2026-08-24. Run the tool for the current count rather than trusting a number
-in a docstring.)
+Reading those two axes off `asks.yaml` collapses the live asks and the open
+pull requests they cover into a queue of decisions, of which exactly one
+moves the revenue ceiling. Product-code merges are not in this queue:
+answered yes on 2026-08-25. Run the tool for the current count rather than
+trusting a number in a docstring.
 
 This is a renderer, not a judge: every ordering rule below is a fixed rank over
 declared fields, so what it prints is a function of the data file and the data
@@ -65,6 +62,26 @@ REQUIRED = {
     "id", "asks", "prs", "gates", "exposure",
     "opened", "action", "unlocks", "blocked_by", "note",
 }
+
+# Optional. `outage: true` lifts a row above the `GATES` ordering entirely.
+#
+# It exists because the ordering above encodes an assumption that held until
+# 2026-09-04: that a `deployment` row "buys deployment for products that
+# already build", i.e. that the surface those products would deploy *to* is
+# working. On that date `Public surface check` (run 33887885219) measured all
+# three hostnames refusing connections on 443 and 0 of 24 sampled sitemap URLs
+# returning anything. With nothing served, a `revenue` row cannot earn and a
+# `distribution` row cannot distribute — every other ranking in this file is
+# downstream of a host answering at all, so the row that restores one outranks
+# them by construction rather than by urgency.
+#
+# **Reserved for a measured, current loss of the public surface**, evidenced by
+# a run id in the row's own text. It is not a priority flag: "this feels
+# important" is what `gates` is for, and a queue where anything can jump the
+# ordering is the cheapest-first #139 table again with extra steps. `check()`
+# enforces the type; the narrowness is a convention this comment is the whole
+# statement of.
+OUTAGE = "outage"
 
 
 def load(path: Path = ASKS) -> list[dict]:
@@ -108,6 +125,9 @@ def check(decisions: list[dict]) -> list[str]:
         if not d["asks"] and not d["prs"]:
             problems.append(f"{where}: covers neither an ask nor a pull request")
 
+        if OUTAGE in d and not isinstance(d[OUTAGE], bool):
+            problems.append(f"{where}: {OUTAGE}={d[OUTAGE]!r} is not true or false")
+
         for blocker in d["blocked_by"]:
             if blocker not in ids:
                 problems.append(f"{where}: blocked_by names unknown id {blocker!r}")
@@ -130,9 +150,12 @@ def check(decisions: list[dict]) -> list[str]:
 
 def sort_key(d: dict) -> tuple:
     # Blocked items sink below actionable ones: granting them today buys
-    # nothing, so they should not sit above something that would.
+    # nothing, so they should not sit above something that would. That test
+    # stays first even for an outage row — an unblockable fix is still
+    # unblockable, however badly it is wanted.
     return (
         bool(d["blocked_by"]),
+        not d.get(OUTAGE, False),
         GATES.index(d["gates"]),
         EXPOSURES.index(d["exposure"]),
         d["opened"],
@@ -171,22 +194,44 @@ def render(decisions: list[dict], today: dt.date) -> str:
     n_prs = sum(len(d["prs"]) for d in decisions)
     blocked = [d for d in ordered if d["blocked_by"]]
     revenue = [d for d in ordered if d["gates"] == "revenue"]
+    outage = [d for d in ordered if d.get(OUTAGE) and not d["blocked_by"]]
     oldest = max(age_days(d["opened"], today) for d in decisions)
 
     out = ["The account owner's decision queue", ""]
+    # "related", not "open". Every one of the seven pull requests this file
+    # names was closed by 2026-08-27 -- six merged, one closed unmerged -- while
+    # this line went on calling them open, so the queue's first sentence
+    # overstated it by seven items that no longer exist. The numbers are
+    # provenance: which PR raised the decision, or which one a revert is waiting
+    # on. A decision does not stop being the owner's because its PR closed
+    # (`funding-sponsors-live` is exactly that: merged, then reverted by #862,
+    # still undecided), and it does not become theirs again because one opened.
     out.append(
         f"  {len(decisions)} decisions, collapsed from {n_asks} asks and "
-        f"{n_prs} open pull requests."
+        f"{n_prs} related pull requests."
     )
     out.append(f"  Oldest has waited {oldest} days.")
     out.append(
         f"  {len(revenue)} of {len(decisions)} moves the revenue ceiling off $0; "
         f"{len(blocked)} cannot be acted on yet."
     )
+    # Said in the header rather than only in the row, because an outage row is
+    # the one case where reading no further is the correct behaviour, and the
+    # header is what a hurried owner reads.
+    if outage:
+        out.append("")
+        out += wrap(
+            "OUTAGE: the public surface is down. "
+            + ", ".join(d["id"] for d in outage)
+            + " comes first; every other row here is downstream of a host "
+            "answering at all.",
+            72,
+            "  ",
+        )
     out.append("")
 
     for i, d in enumerate(ordered, 1):
-        flag = "  [blocked]" if d["blocked_by"] else ""
+        flag = "  [blocked]" if d["blocked_by"] else ("  [OUTAGE]" if d.get(OUTAGE) else "")
         out.append(
             f"{i}. {d['id']}  ({covers(d)})  gates {d['gates']}, "
             f"exposure {d['exposure']}, {age_days(d['opened'], today)}d{flag}"
@@ -221,24 +266,59 @@ def main() -> int:
     decisions = load()
     problems = check(decisions)
 
-    if problems:
-        for p in problems:
-            print(f"asks.yaml: {p}", file=sys.stderr)
-        return 1
+    for p in problems:
+        print(f"asks.yaml: {p}", file=sys.stderr)
+
     if args.check:
+        if problems:
+            return 1
         print(f"asks.yaml: {len(decisions)} decisions, schema OK")
         return 0
 
     today = dt.date.fromisoformat(args.today) if args.today else dt.date.today()
 
-    if args.json:
-        print(json.dumps(
-            [dict(d, age_days=age_days(d["opened"], today))
-             for d in sorted(decisions, key=sort_key)],
-            indent=2,
-        ))
-    else:
-        print(render(decisions, today))
+    # A bookkeeping mistake must not hide the queue. `--check` above stays
+    # strict because CI needs a gate, but this is the path a person runs to
+    # find out what the owner has to decide, and answering it with one
+    # stderr line and nothing else is the wrong failure. On 2026-08-29 two
+    # sessions added the same Hetzner-deploy ask hours apart; from that
+    # merge until the duplicate was removed, every run printed `PR 1999
+    # claimed by both ...` and no queue, so the deployment decisions
+    # gating every live URL in the portfolio were unreadable -- because of
+    # a duplicate row that changed none of them.
+    #
+    # So: still exit non-zero, so a script or CI job cannot mistake this
+    # for a clean read, but print the queue anyway. Rendering is best
+    # effort -- a duplicate `prs` entry is harmless to render, a missing
+    # required field is not -- so a render that raises falls back to the
+    # old behaviour rather than dumping a traceback on the owner.
+    try:
+        if args.json:
+            print(json.dumps(
+                [dict(d, age_days=age_days(d["opened"], today))
+                 for d in sorted(decisions, key=sort_key)],
+                indent=2,
+            ))
+        else:
+            print(render(decisions, today))
+    except (KeyError, TypeError, ValueError) as exc:
+        if not problems:
+            raise
+        print(
+            f"asks.yaml: cannot render the queue until the problems above "
+            f"are fixed ({type(exc).__name__}: {exc})",
+            file=sys.stderr,
+        )
+        return 1
+
+    if problems:
+        print(
+            "\nasks.yaml: the queue above is shown despite "
+            f"{len(problems)} problem(s) reported on stderr; fix them with "
+            "`python3 portfolio/ledger/decision_queue.py --check`.",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

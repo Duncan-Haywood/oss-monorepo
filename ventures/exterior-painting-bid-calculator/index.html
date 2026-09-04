@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exterior Painting Bid Calculator — Elevation and Scrape</title>
+  <meta name="description" content="Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.">
+  <meta property="og:title" content="Exterior Painting Bid Calculator">
+  <meta property="og:description" content="A one-story ranch with 1,800 sf of sound paint is not the same job as a two-story colonial with peeling latex, 240 feet of trim, and hard second-story access. Bid the elevation and the stories.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Exterior Painting Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Two-coat repaint versus scrape-and-prime versus bare-wood versus elastomeric masonry, extra stories over the included first floor, extra elevation square footage over the included ranch, extra trim, shutters, scrape of failing paint, primer coat, occupied-home protection, hard second-story access, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this exterior paint estimate include?","acceptedAnswer":{"@type":"Answer","text":"Base setup, extra hours for elevation and stories beyond your included allowance, a scrape and prime pass if you flag them, trim beyond the included footage, shutters, occupied-home protection, hard-access time, paint, primer, and caulk from your coverage and coat count, travel and equipment, and overhead and margin on top."}},{"@type":"Question","name":"What’s the difference between this and a flat house-special price?","acceptedAnswer":{"@type":"Answer","text":"A flat price treats every house as the same job. This tool splits out a base allowance for elevation, stories, and trim from what goes beyond it, so a two-story colonial with extra trim, a scrape-and-prime pass, and hard second-story access prices differently than a one-story ranch with sound existing paint, instead of both landing on one number."}},{"@type":"Question","name":"Does changing the job type overwrite my own hourly rates?","acceptedAnswer":{"@type":"Answer","text":"No. Picking a job type only suggests a starting setup time, paint cost per gallon, and coat count, and it will not replace a rate you have already typed over that suggestion. Every hour and dollar figure stays something you can edit."}},{"@type":"Question","name":"Does this cover interior painting or cabinet refinishing?","acceptedAnswer":{"@type":"Answer","text":"No, this prices an exterior paint job specifically: elevation, stories, scrape and prime, and trim. Interior rooms and cabinet doors are a different scope with their own labor and material patterns and are not part of this calculation."}},{"@type":"Question","name":"Does it check for lead paint or the condition of the existing paint?","acceptedAnswer":{"@type":"Answer","text":"No. Scrape and prime are flags you set from your own inspection, and the tool does not test for lead paint, assess paint condition, or perform any building-code check. Confirm those separately before starting work, especially on an older home."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Only your business and contact details for the printed proposal are saved locally on this device; job numbers are not kept between visits."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2418; background: #efe6d4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #6b4a16; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fffdf8; border: 1px solid #d4c4a4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a18080d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5344; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8a7a5c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8a7a5c; background: #f4ead4; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a2418; }
+    button:hover { background: #ead8b0; }
+    .result { position: sticky; top: 15px; background: #2c2113; color: #f8f1e4; border-color: #2c2113; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b45a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5344; }
+    footer a { color: #6b4a16; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0ddb0; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #8a7a5c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #5c5344; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #2c2113; --pr-accent: #6b4a16;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EXTERIOR PAINTING CONTRACTORS</p>
+    <h1>Bid the elevation, the stories, and the scrape.</h1>
+    <p>Price an exterior paint job the way the trade actually loses money: the included one-story ranch, then the extra story, the extra elevation square footage, extra trim, shutters, a scrape of failing paint, a primer coat, occupied-home protection, and hard second-story access. You get the bid, the price per elevation square foot, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing job type never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting house…</option>
+            </select>
+          </label>
+          <label>System
+            <select id="jobType">
+              <option value="repaint" selected>2-coat repaint / $3,999 house special</option>
+              <option value="scrape">Scrape, prime, and two finish coats</option>
+              <option value="bare">Bare / new wood — primer + two finish coats</option>
+              <option value="elastomeric">Elastomeric masonry / stucco</option>
+            </select>
+          </label>
+          <label>Elevation square feet <input id="elevationSf" type="number" min="1" step="10" value="1800"></label>
+          <label>Stories <input id="stories" type="number" min="1" step="1" value="1"></label>
+          <label>Trim lineal feet (windows, fascia, soffit) <input id="trimFeet" type="number" min="0" step="1" value="90"></label>
+          <label>Shutters <input id="shutters" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="scrape" type="checkbox"> Failing paint — scrape first</label>
+          <label class="check"><input id="prime" type="checkbox"> Primer coat required</label>
+          <label class="check"><input id="occupied" type="checkbox"> Occupied home / landscaping</label>
+          <label class="check"><input id="hardAccess" type="checkbox"> Hard second-story / steep access</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Elevation included in the base setup <input id="includedElevationSf" type="number" min="1" step="10" value="1600"></label>
+          <label>Stories included <input id="includedStories" type="number" min="1" step="1" value="1"></label>
+          <label>Trim included (lf) <input id="includedTrimFeet" type="number" min="0" step="1" value="80"></label>
+          <label>Hours for a base setup <input id="hoursBaseSetup" type="number" min="0" step="0.05" value="6"></label>
+          <label>Hours / extra 100 sf <input id="hoursPer100Sf" type="number" min="0" step="0.05" value="2.4"></label>
+          <label>Hours / extra story <input id="hoursPerExtraStory" type="number" min="0" step="0.05" value="6"></label>
+          <label>Hours to scrape / 100 sf <input id="hoursScrapePer100" type="number" min="0" step="0.05" value="1.8"></label>
+          <label>Hours to prime / 100 sf <input id="hoursPrimePer100" type="number" min="0" step="0.05" value="0.8"></label>
+          <label>Hours of trim / 10 ft <input id="hoursTrimPer10Feet" type="number" min="0" step="0.05" value="0.7"></label>
+          <label>Hours / shutter <input id="hoursPerShutter" type="number" min="0" step="0.05" value="0.2"></label>
+          <label>Hours for an occupied home <input id="hoursOccupied" type="number" min="0" step="0.05" value="2"></label>
+          <label>Hours for hard access <input id="hoursHardAccess" type="number" min="0" step="0.05" value="5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.05" value="1"></label>
+          <label>Finish coats <input id="finishCoats" type="number" min="1" step="1" value="2"></label>
+          <label>Paint coverage (sf / gal) <input id="paintCoverage" type="number" min="1" step="5" value="350"></label>
+          <label>Paint $ / gallon <input id="paintCostPerGallon" type="number" min="0" step="1" value="48"></label>
+          <label>Primer $ / gallon <input id="primerCostPerGallon" type="number" min="0" step="1" value="38"></label>
+          <label>Caulk $ / 10 trim ft <input id="caulkPer10TrimFeet" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="36"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, lifts, drop cloths <input id="travelAndEquipment" type="number" min="0" step="5" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 3999 for the house special"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $36/h painter loaded at 32% is $47.52. Quoting the raw wage on a published $3,999 house special is how a two-story colonial that looked fine turns into a loss after the first extra story.</p>
+      </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the homeowner &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Aguilar Painting LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(503) 555-0126"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="OR-CCB-214880"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="2840 SE Division St, Portland OR"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="J. Moreau"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="1712 SE Ash St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Wash, scrape, prime and paint 2,400 sq ft of body&#10;Two finish coats"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Siding repair&#10;Lead abatement"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Colour selected from samples before the order is placed."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">paint price</div>
+      <dl>
+        <dt>Elevation, stories, and trim</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Paint + primer + caulk</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per elevation sf</dt><dd id="perSf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and paint rates are common ballpark figures, not an industry standard, a lead-paint determination, or a building-code inspection &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this exterior paint estimate include?</h3>
+      <p>Base setup, extra hours for elevation and stories beyond your included allowance, a scrape
+        and prime pass if you flag them, trim beyond the included footage, shutters, occupied-home
+        protection, hard-access time, paint, primer, and caulk from your coverage and coat count,
+        travel and equipment, and overhead and margin on top.</p>
+
+      <h3>What&rsquo;s the difference between this and a flat house-special price?</h3>
+      <p>A flat price treats every house as the same job. This tool splits out a base allowance for
+        elevation, stories, and trim from what goes beyond it, so a two-story colonial with extra trim,
+        a scrape-and-prime pass, and hard second-story access prices differently than a one-story ranch
+        with sound existing paint, instead of both landing on one number.</p>
+
+      <h3>Does changing the job type overwrite my own hourly rates?</h3>
+      <p>No. Picking a job type only suggests a starting setup time, paint cost per gallon, and coat
+        count, and it will not replace a rate you have already typed over that suggestion. Every hour
+        and dollar figure stays something you can edit.</p>
+
+      <h3>Does this cover interior painting or cabinet refinishing?</h3>
+      <p>No, this prices an exterior paint job specifically: elevation, stories, scrape and prime, and
+        trim. Interior rooms and cabinet doors are a different scope with their own labor and material
+        patterns and are not part of this calculation.</p>
+
+      <h3>Does it check for lead paint or the condition of the existing paint?</h3>
+      <p>No. Scrape and prime are flags you set from your own inspection, and the tool does not test
+        for lead paint, assess paint condition, or perform any building-code check. Confirm those
+        separately before starting work, especially on an older home.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Only
+        your business and contact details for the printed proposal are saved locally on this device;
+        job numbers are not kept between visits.</p>
+    </section>
+  </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, painting, lead-paint, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your elevation, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-paint-the-exterior-of-a-house.html">How much to charge to paint the exterior of a house</a> &middot; <a href="./vs-paintscout.html">this calculator vs. PaintScout</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedJobHours,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
+
+    const FIELD_IDS = [
+      'elevationSf','stories','trimFeet','shutters',
+      'includedElevationSf','includedStories','includedTrimFeet',
+      'hoursBaseSetup','hoursPer100Sf','hoursPerExtraStory','hoursScrapePer100',
+      'hoursPrimePer100','hoursTrimPer10Feet','hoursPerShutter',
+      'hoursOccupied','hoursHardAccess','siteHours',
+      'finishCoats','paintCoverage','paintCostPerGallon','primerCostPerGallon','caulkPer10TrimFeet',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['scrape','prime','occupied','hardAccess'];
+    const SELECT_IDS = ['jobType'];
+    const SUGGESTED_JOB_IDS = ['hoursBaseSetup','paintCostPerGallon','finishCoats'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyJobHours(force) {
+      const rates = suggestedJobHours(el('jobType').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('jobType').value = job.jobType;
+      applyJobHours(true);
+      SUGGESTED_JOB_IDS.forEach(id => { el(id).dataset.edited = ''; });
+      el('elevationSf').value = job.elevationSf;
+      el('stories').value = job.stories;
+      el('trimFeet').value = job.trimFeet;
+      el('shutters').value = job.shutters;
+      el('scrape').checked = job.scrape;
+      el('prime').checked = job.prime;
+      el('occupied').checked = job.occupied;
+      el('hardAccess').checked = job.hardAccess;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'paint price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perSf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'paint price';
+      el('scope').textContent = `${result.elevationSf} sf · ${result.stories} stor${result.stories === 1 ? 'y' : 'ies'} · ${result.trimFeet} lf trim`;
+      const extraBits = [
+        result.jobType,
+        result.extraStories ? `${result.extraStories} extra stor${result.extraStories === 1 ? 'y' : 'ies'}` : null,
+        result.extraSf ? `${result.extraSf} extra sf` : null,
+        result.extraTrim ? `${result.extraTrim} extra lf trim` : null,
+        result.scrape ? 'scrape' : null,
+        result.prime ? 'primer' : null,
+        result.shutters ? `${result.shutters} shutter${result.shutters === 1 ? '' : 's'}` : null,
+        result.occupied ? 'occupied' : null,
+        result.hardAccess ? 'hard access' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard ranch house special';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSf').textContent = result.pricePerSf === null ? 'n/a' : money(result.pricePerSf);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Base setup', result.hourShares.setup],
+        ['Stories + extra elevation + hard access', result.hourShares.access],
+        ['Scrape + prime + trim + shutters + occupied', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Paint + primer + caulk', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('jobType').addEventListener('change', () => {
+      applyJobHours(false);
+      count('bid_calculated');
+      update();
+    });
+
+    SUGGESTED_JOB_IDS
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'exterior-painting-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a building-code, lead-paint, or environmental determination, and it does not warrant the condition of any substrate found under the existing coating.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const suggested = [
+        `Wash and prepare ${Math.round(result.elevationSf).toLocaleString('en-US')} sq ft of `
+          + `${result.stories}-storey elevation`,
+        result.scrape ? 'Scrape and sand failing coating' : '',
+        result.prime ? 'Spot-prime bare and repaired areas' : '',
+        `Apply ${result.finishCoats} finish coat${result.finishCoats === 1 ? '' : 's'}`,
+        result.trimFeet > 0
+          ? `Cut and coat ${Math.round(result.trimFeet).toLocaleString('en-US')} lf of trim`
+          : '',
+        result.shutters > 0
+          ? `${result.shutters} shutter${result.shutters === 1 ? '' : 's'} removed, coated, and rehung`
+          : '',
+        'Caulk, mask, and protect landscaping; clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.price
+          : result.proposed.price,
+        jobTitle: 'Exterior painting',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
+    update();
+    restoreCompany();
+    refreshProposal();
+  </script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+name: Conflict markers
+
+# Fails a pull request that still carries a merge-conflict marker anywhere in
+# the tree.
+#
+# This has its own workflow, with no path filter, on purpose. `Portfolio
+# validate` already runs a stack of checks but only on the paths it lists, and
+# the point of this one is that it cannot know in advance which file a bad
+# resolution landed in. It reads tracked files and exits in well under a
+# second, so running it on every pull request costs nothing worth filtering
+# for.
+#
+# What it is here to catch: on 2026-08-26 a merge was resolved carefully in the
+# four files the venture's own suite loads, then committed with `git add -A`.
+# Two files that suite never imports -- a VENTURE.yaml and the append-only
+# monthly ledger -- went in with their markers intact, every test stayed green,
+# and `main` went red on a schema check that runs on every portfolio PR. Unrelated
+# branches then showed a red check that read as their own fault. A test suite
+# structurally cannot catch this in a file it does not load, and most of this
+# repo's YAML and Markdown is loaded by nothing.
+#
+# It publishes nothing, pushes nothing, and calls no paid API -- a test runner,
+# not the unattended-automation kind of workflow CLAUDE.md gates.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Checkout, Python setup, and a scan of tracked files for conflict
+    # markers -- normally under 15s. See hetzner-gitops-ci.yml's
+    # timeout-minutes addition for why an unbounded job is worth capping on a
+    # metered-minutes account.
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check no tracked file carries an unresolved conflict marker
+        run: python3 platform/ci/check_conflict_markers.py
+
+      - name: Guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_conflict_markers

@@ -13,6 +13,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Artists will use a dated print-file evidence record that states what was checked, not that a lab will print the file.
+    status: untested
+    checked: null
+    evidence: customer-contact
   - claim: recordStripeWebhookToLedger and buildStripePayoutLedgerSummary give the investor dashboard an accurate running total of revenue and artist transfers, not inflated by webhook redelivery.
     status: supported
     checked: 2026-08-21
@@ -55,3 +59,9 @@ kill_criteria:
 links:
   production: null
   analytics: null
+
+# Session-gate marker. pod-print-file-preflight graduates as a product
+# line here, not as a new ventures/ directory. The first customer-facing
+# slice is /print-file-preflight — a private, no-upload technical check.
+product_lines:
+  - slug: pod-print-file-preflight

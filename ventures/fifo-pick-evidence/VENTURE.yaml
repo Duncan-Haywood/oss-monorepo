@@ -1,0 +1,43 @@
+name: fifo-pick-evidence
+description: A local CSV checker that gives small 3PL warehouses a portable FIFO pick-order evidence report.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small 3PL warehouses need a fast way to identify and explain FIFO pick-order exceptions before customer audits.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A local, source-linked report is useful enough to replace a recurring spreadsheet review.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A CLI-only tool has no public URL and no way to prove itself to a
+      stranger without a clone and a Python install; a browser front end
+      that runs the identical check client-side (no upload) removes that
+      friction while keeping the same privacy posture.
+    status: supported
+    checked: 2026-08-30
+    evidence: in-repo
+    note: >-
+      evidence.js ports fifo_pick_evidence.py's check_rows/read_report rules
+      (missing-data, invalid-timestamp, time-order, fifo-exception, and the
+      headers-only-is-a-clean-zero-row-report fix) and evidence.test.js
+      pins the same verdicts test_fifo_pick_evidence.py already covers, so
+      the two surfaces cannot silently diverge. 19/19 node --test passing;
+      the unmodified CLI's 7/7 unittest still pass, proving both
+      implementations agree on the same fixtures.
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified warehouse operators run two reports within 90 days.
+  - Operators do not identify at least one useful exception or missing-data issue in pilot use.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/sitemap.xml

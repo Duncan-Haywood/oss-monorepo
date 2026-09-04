@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "tsx src/lib/photo-spec.test.ts"
+    "test": "tsx src/lib/photo-spec.test.ts && tsx src/components/PhotoCheckTool.test.ts"
   },
   "dependencies": {
     "lucide-react": "^0.331.0",

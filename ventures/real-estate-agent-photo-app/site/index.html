@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MLS Listing Photo Preflight — free listing photo checker for real estate agents</title>
+<meta name="description" content="Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='7' width='26' height='18' rx='2' fill='%235c2a1f'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='white' stroke-width='2'/%3E%3Cpath d='M11 7l2-3h6l2 3' fill='none' stroke='%235c2a1f' stroke-width='2'/%3E%3C/svg%3E" />
+<meta property="og:title" content="MLS Listing Photo Preflight — free listing photo checker" />
+<meta property="og:description" content="Check listing photos for resolution, size, format, aspect ratio, branding filenames, and staged-photo pairing before you deliver. Free, private, runs entirely in your browser." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="." />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "MLS Listing Photo Preflight",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "description": "Free, local-first preflight check for real estate listing photos. Reads each file's header in the browser and reports resolution, byte size, format, aspect ratio, branding filename tokens, and staged-photo pairing, then exports a dated evidence record. Nothing is uploaded."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why do MLS portals reject listing photos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The most common reasons are mechanical rather than artistic: the image is below the portal's minimum resolution, the file is larger than the upload cap, it is in a format the portal does not accept, it is cropped to a shape the gallery cannot use, or the filename or image carries brokerage branding, a logo, or an agent headshot. Many boards also require that a virtually staged photo be delivered alongside its unstaged original. Every one of those except the visual checks can be decided from the file itself before you upload anything."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What resolution do listing photos need to be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This tool checks against a documented floor of 1024px on the long edge, which is the common minimum across mainstream portals. Individual MLS boards frequently require more, and some set a maximum as well. Treat a pass here as clearing the floor, not as meeting your specific board's rule — check your board's current photo standards for the number that actually binds you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my listing photos uploaded anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The check runs entirely in your browser and reads only the first few hundred bytes of each file — the header that carries format and dimensions. The image pixels are never decoded, the files are never transmitted, and there is no server, account, or upload step. You can disconnect from the network and the tool still works."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a clean preflight mean the MLS will accept my photos?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, and the record says so on every copy. This checks file headers and filenames only. It cannot see a watermark or burned-in contact details drawn into the image itself, and it does not know any individual board's rules. A clean result means the mechanical floor is met; a human still has to review the photos against the destination board's current standards."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the staged-photo pairing check?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Many boards require a virtually staged photo to be disclosed and delivered next to the unstaged original of the same room. This tool looks for filenames containing staged, virtually-staged, or virtual-staged, and flags any that have no sibling file with the same stem once that token is removed — for example living-staged.jpg with no living.jpg or living-original.jpg beside it. It is a filename convention check, not a detection of staging in the image."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --good: #2f855a; --bad: #c53030; --warn: #9a5b00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --good: #48bb78; --bad: #fc8181; --warn: #f6ad55; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+  .lede { color: var(--muted); margin: 0 0 1.25rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.1rem; }
+  .hint { color: var(--muted); font-size: 0.88rem; margin: 0.35rem 0 0; }
+  /* Visible to a screen reader, invisible on screen -- unlike the `hidden`
+     attribute this used to carry, which drops an element from the
+     accessibility tree entirely and left the file input with no name at
+     all. */
+  .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  a { color: var(--accent); }
+  button {
+    font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer;
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  #drop {
+    border: 2px dashed var(--border); border-radius: 10px; padding: 1.75rem 1rem;
+    text-align: center; background: var(--panel);
+  }
+  #drop.over { border-color: var(--accent); }
+  #drop p { margin: 0.4rem 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+  .tally { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+  .tally li {
+    border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem 0.75rem;
+    font-size: 0.9rem; background: var(--panel);
+  }
+  .tally .blocking { color: var(--bad); font-weight: 600; }
+  .tally .degrading { color: var(--warn); font-weight: 600; }
+  .tally .pass { color: var(--good); font-weight: 600; }
+  .table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  td.file { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86rem; word-break: break-all; }
+  .sev-blocking { color: var(--bad); font-weight: 600; }
+  .sev-degrading { color: var(--warn); font-weight: 600; }
+  .sev-pass { color: var(--good); font-weight: 600; }
+  .group { margin-top: 1rem; }
+  .group ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+  .group li { margin-bottom: 0.35rem; }
+  .status { margin-top: 1rem; }
+  .status.error { color: var(--bad); border: 1px solid var(--bad); border-radius: 6px; padding: 0.6rem 0.8rem; }
+  [hidden] { display: none !important; }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; margin-top: 1.25rem; }
+  code { background: var(--panel); padding: 0.05rem 0.3rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>MLS listing photo preflight</h1>
+  <p class="lede">
+    Check a folder of listing photos before you deliver them: resolution, file
+    size, format, crop shape, branding in the filename, and staged-photo
+    pairing. Your photos are read in this browser and never uploaded. Free, no
+    signup.
+  </p>
+  <p class="hint">
+    Had a set kicked back? <a href="./why-was-my-listing-photo-rejected.html">Why was my listing photo rejected?</a>
+    walks through the reasons that are readable from the file, and what to change.
+  </p>
+
+  <section class="panel" aria-labelledby="pick-heading">
+    <h2 id="pick-heading" style="margin-top:0">Choose the delivery folder</h2>
+    <div id="drop">
+      <p><strong>Drop JPEG or PNG files here</strong></p>
+      <p class="hint">or</p>
+      <p>
+        <label for="files" class="visually-hidden">Listing photos</label>
+        <input type="file" id="files" multiple accept=".jpg,.jpeg,.png,image/jpeg,image/png" />
+      </p>
+      <p class="hint">
+        Nothing leaves your device. Only each file's header is read — the image
+        itself is never decoded or transmitted.
+      </p>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+
+    <div class="actions">
+      <button type="button" id="reset" disabled>Clear</button>
+    </div>
+  </section>
+
+  <section id="results" hidden aria-labelledby="results-heading">
+    <h2 id="results-heading">Findings</h2>
+    <ul class="tally" id="tally"></ul>
+    <div class="table-scroll">
+      <table>
+        <caption class="hint" style="text-align:left;caption-side:bottom;padding-top:0.4rem">
+          One row per finding. Files with no findings are listed as passing the
+          checks below — not as accepted by any MLS.
+        </caption>
+        <thead>
+          <tr><th scope="col">File</th><th scope="col">Rule</th><th scope="col">Severity</th><th scope="col">Detail</th></tr>
+        </thead>
+        <tbody id="findings"></tbody>
+      </table>
+    </div>
+
+    <h2>What to fix</h2>
+    <p class="hint">
+      Grouped by the most expensive thing each file needs. Photos with no
+      findings are left out.
+    </p>
+    <div id="plan"></div>
+
+    <h2>Take the record with you</h2>
+    <p class="hint">
+      Each export states what was and was not checked, so the limitation
+      travels with the file.
+    </p>
+    <div class="actions">
+      <button type="button" class="primary" id="download-json">Download evidence record (JSON)</button>
+      <button type="button" id="download-md">Download record (Markdown)</button>
+      <button type="button" id="copy-handoff">Copy photographer summary</button>
+      <span id="copy-status" class="hint" aria-live="polite"></span>
+    </div>
+
+    <h3>Skipped files</h3>
+    <p class="hint" id="skipped">None.</p>
+  </section>
+
+  <h2>What this checks</h2>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th scope="col">Rule</th><th scope="col">Floor</th><th scope="col">Severity</th></tr></thead>
+      <tbody>
+        <tr><td>Long edge</td><td>At least 1024px</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>File size</td><td>At most 20 MiB</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Format</td><td>JPEG or PNG</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Branding filename</td><td>No <code>logo</code>, <code>watermark</code>, <code>branded</code>, <code>brokerage</code>, <code>headshot</code></td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Staged pairing</td><td>A staged file has a sibling original</td><td class="sev-blocking">blocking</td></tr>
+        <tr><td>Aspect ratio</td><td>4:3, 3:2, 16:9, 5:4 or 1:1 (±4%)</td><td class="sev-degrading">degrading</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>What this does not check</h2>
+  <p>
+    Three things this tool deliberately cannot decide, because none of them is
+    visible in a file header or a filename:
+  </p>
+  <ul>
+    <li><strong>Visual watermarks.</strong> A logo drawn into the image is invisible to a header check. A file can pass the branding-filename rule and still carry branding in the picture.</li>
+    <li><strong>Burned-in contact details.</strong> Same reason — a phone number rendered into the photo is pixels, not metadata.</li>
+    <li><strong>Board-specific rules.</strong> Individual MLS boards set their own minimums, maximums, counts, ordering, and disclosure wording. This tool knows none of them.</li>
+  </ul>
+  <p>
+    So a clean result means the mechanical floor is met and nothing more. It is
+    not an acceptance decision, and it does not replace reading your board's
+    current photo standards.
+  </p>
+
+  <h2>Questions</h2>
+  <h3>Why do MLS portals reject listing photos?</h3>
+  <p>
+    The most common reasons are mechanical rather than artistic: the image is
+    below the portal's minimum resolution, the file is larger than the upload
+    cap, it is in a format the portal does not accept, it is cropped to a shape
+    the gallery cannot use, or the filename or image carries brokerage
+    branding, a logo, or an agent headshot. Many boards also require that a
+    virtually staged photo be delivered alongside its unstaged original. Every
+    one of those except the visual checks can be decided from the file itself
+    before you upload anything.
+  </p>
+  <h3>What resolution do listing photos need to be?</h3>
+  <p>
+    This tool checks against a documented floor of 1024px on the long edge,
+    which is the common minimum across mainstream portals. Individual MLS
+    boards frequently require more, and some set a maximum as well. Treat a
+    pass here as clearing the floor, not as meeting your specific board's rule
+    — check your board's current photo standards for the number that actually
+    binds you.
+  </p>
+  <h3>Are my listing photos uploaded anywhere?</h3>
+  <p>
+    No. The check runs entirely in your browser and reads only the first few
+    hundred bytes of each file — the header that carries format and dimensions.
+    The image pixels are never decoded, the files are never transmitted, and
+    there is no server, account, or upload step. You can disconnect from the
+    network and the tool still works.
+  </p>
+  <h3>Does a clean preflight mean the MLS will accept my photos?</h3>
+  <p>
+    No, and the record says so on every copy. This checks file headers and
+    filenames only. It cannot see a watermark or burned-in contact details
+    drawn into the image itself, and it does not know any individual board's
+    rules. A clean result means the mechanical floor is met; a human still has
+    to review the photos against the destination board's current standards.
+  </p>
+  <h3>What is the staged-photo pairing check?</h3>
+  <p>
+    Many boards require a virtually staged photo to be disclosed and delivered
+    next to the unstaged original of the same room. This tool looks for
+    filenames containing <code>staged</code>, <code>virtually-staged</code>, or
+    <code>virtual-staged</code>, and flags any that have no sibling file with
+    the same stem once that token is removed — for example
+    <code>living-staged.jpg</code> with no <code>living.jpg</code> or
+    <code>living-original.jpg</code> beside it. It is a filename convention
+    check, not a detection of staging in the image.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not legal,
+      compliance, or professional advice, and it does not replace your MLS
+      board's current photo standards or a qualified professional.
+      <strong>You are responsible for reviewing and verifying its output before
+      relying on it</strong>, and for meeting any obligation it helps you
+      prepare for. To the maximum extent permitted by law, the authors accept
+      no liability for any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your photos are never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This page
+      counts anonymous, local feature-use events (e.g. "a check was completed")
+      in your own browser's <code>localStorage</code> — never filenames, image
+      data, or anything identifying — only to help this project's maintainers
+      tell whether the tool is used at all. Nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      MIT licensed — see <a href="LICENSE">LICENSE</a>.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a>
+      if this saved you a re-upload — entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { checkBatch, buildReshootPlan, formatReshootPlan, isListingPhoto, UNIMPLEMENTED_RULES } from "./photo-spec.mjs";
+  import { reportMarkdown, formatHandoffSummary, evidenceJson, recordFileName, countFindings, photoReadErrorMessage } from "./report.mjs";
+  import { recordEvent, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const filesInput = $("files");
+  const drop = $("drop");
+  const statusEl = $("status");
+  const resultsEl = $("results");
+  const findingsEl = $("findings");
+  const tallyEl = $("tally");
+  const planEl = $("plan");
+  const skippedEl = $("skipped");
+  const copyStatus = $("copy-status");
+  const resetBtn = $("reset");
+
+  // The last completed run. Every export reads this rather than re-checking,
+  // so the downloaded record and the table on screen can never disagree.
+  let run = null;
+
+  const KIND_LABEL = {
+    recapture: "Recapture / re-export from RAW",
+    pair: "Add the original",
+    reexport: "Fix the export",
+    rename: "Rename the file",
+  };
+
+  function setStatus(message, isError = false) {
+    statusEl.textContent = message;
+    statusEl.classList.toggle("error", Boolean(isError));
+  }
+
+  function clearRun() {
+    run = null;
+    resultsEl.hidden = true;
+    findingsEl.replaceChildren();
+    tallyEl.replaceChildren();
+    planEl.replaceChildren();
+    copyStatus.textContent = "";
+    resetBtn.disabled = true;
+    setStatus("");
+  }
+
+  function cell(text, className) {
+    const td = document.createElement("td");
+    td.textContent = text;
+    if (className) td.className = className;
+    return td;
+  }
+
+  function renderTally(reports) {
+    const { total, blocking } = countFindings(reports);
+    const degrading = total - blocking;
+    const clean = reports.filter((r) => r.findings.length === 0).length;
+    const entries = [
+      [`${reports.length} photo${reports.length === 1 ? "" : "s"} checked`, ""],
+      [`${clean} with no findings`, "pass"],
+      [`${blocking} blocking`, "blocking"],
+      [`${degrading} degrading`, "degrading"],
+    ];
+    tallyEl.replaceChildren(...entries.map(([text, cls]) => {
+      const li = document.createElement("li");
+      if (cls) {
+        const strong = document.createElement("span");
+        strong.className = cls;
+        strong.textContent = text;
+        li.append(strong);
+      } else {
+        li.textContent = text;
+      }
+      return li;
+    }));
+  }
+
+  function renderFindings(reports) {
+    const rows = [];
+    for (const report of reports) {
+      if (report.findings.length === 0) {
+        const tr = document.createElement("tr");
+        tr.append(cell(report.info.name, "file"), cell("—"), cell("no findings", "sev-pass"), cell("File header checks passed"));
+        rows.push(tr);
+        continue;
+      }
+      for (const finding of report.findings) {
+        const tr = document.createElement("tr");
+        tr.append(
+          cell(report.info.name, "file"),
+          cell(finding.rule),
+          cell(finding.severity, `sev-${finding.severity}`),
+          cell(finding.detail),
+        );
+        rows.push(tr);
+      }
+    }
+    findingsEl.replaceChildren(...rows);
+  }
+
+  function renderPlan(reports) {
+    const plan = buildReshootPlan(reports);
+    if (plan.items.length === 0) {
+      const p = document.createElement("p");
+      p.textContent = "Nothing to fix on the checked floor spec. Not checked: " + UNIMPLEMENTED_RULES.join(", ") + ".";
+      planEl.replaceChildren(p);
+      return;
+    }
+    const groups = [
+      ["Go back to the property / re-export from RAW", ["recapture"]],
+      ["Fix at the desk", ["pair", "reexport", "rename"]],
+    ];
+    const sections = [];
+    for (const [heading, kinds] of groups) {
+      const items = plan.items.filter((item) => kinds.includes(item.kind));
+      if (items.length === 0) continue;
+      const div = document.createElement("div");
+      div.className = "group";
+      const h = document.createElement("h3");
+      h.textContent = `${heading} (${items.length})`;
+      const ul = document.createElement("ul");
+      for (const item of items) {
+        const li = document.createElement("li");
+        const name = document.createElement("code");
+        name.textContent = item.fileName;
+        li.append(name, document.createTextNode(` — ${KIND_LABEL[item.kind]}: ${item.action}`));
+        ul.append(li);
+      }
+      div.append(h, ul);
+      sections.push(div);
+    }
+    planEl.replaceChildren(...sections);
+  }
+
+  async function readFiles(fileList) {
+    return Promise.all(
+      Array.from(fileList).map(async (file) => ({
+        name: file.name,
+        data: new Uint8Array(await file.arrayBuffer()),
+      })),
+    );
+  }
+
+  async function handleFiles(fileList) {
+    const selected = Array.from(fileList);
+    if (selected.length === 0) return;
+
+    const skipped = selected.filter((f) => !isListingPhoto(f.name)).map((f) => f.name);
+    const photos = selected.filter((f) => isListingPhoto(f.name));
+
+    if (photos.length === 0) {
+      clearRun();
+      resetBtn.disabled = false;
+      setStatus(
+        `None of the ${selected.length} selected file${selected.length === 1 ? " is" : "s are"} a JPEG or PNG, so there is nothing to check. Select the delivery photos themselves, not a zip or a PDF.`,
+        true,
+      );
+      return;
+    }
+
+    setStatus(`Reading ${photos.length} photo${photos.length === 1 ? "" : "s"}…`);
+    try {
+      const withData = await readFiles(photos);
+      const reports = checkBatch(withData);
+      run = { reports, skipped, checkedAt: new Date().toISOString() };
+
+      renderTally(reports);
+      renderFindings(reports);
+      renderPlan(reports);
+      skippedEl.textContent = skipped.length === 0 ? "None." : skipped.join(", ");
+      resultsEl.hidden = false;
+      resetBtn.disabled = false;
+
+      const { blocking } = countFindings(reports);
+      setStatus(
+        blocking === 0
+          ? `Checked ${reports.length} photo${reports.length === 1 ? "" : "s"}. No blocking findings against the floor spec.`
+          : `Checked ${reports.length} photo${reports.length === 1 ? "" : "s"}. ${blocking} blocking finding${blocking === 1 ? "" : "s"} to fix before delivery.`,
+      );
+      recordEvent("check_completed");
+    } catch (error) {
+      clearRun();
+      resetBtn.disabled = false;
+      setStatus(photoReadErrorMessage(error), true);
+    }
+  }
+
+  function download(text, filename, mime) {
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    // Revoked on the next frame rather than immediately: some browsers have
+    // not started reading the blob by the time click() returns.
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  filesInput.addEventListener("change", () => handleFiles(filesInput.files));
+
+  for (const type of ["dragenter", "dragover"]) {
+    drop.addEventListener(type, (event) => {
+      event.preventDefault();
+      drop.classList.add("over");
+    });
+  }
+  for (const type of ["dragleave", "drop"]) {
+    drop.addEventListener(type, () => drop.classList.remove("over"));
+  }
+  drop.addEventListener("drop", (event) => {
+    event.preventDefault();
+    if (event.dataTransfer?.files?.length) handleFiles(event.dataTransfer.files);
+  });
+
+  resetBtn.addEventListener("click", () => {
+    filesInput.value = "";
+    clearRun();
+  });
+
+  $("download-json").addEventListener("click", () => {
+    if (!run) return;
+    download(evidenceJson(run), recordFileName(run.checkedAt, "json"), "application/json");
+    recordEvent("record_exported_json");
+  });
+
+  $("download-md").addEventListener("click", () => {
+    if (!run) return;
+    download(reportMarkdown(run), recordFileName(run.checkedAt, "md"), "text/markdown");
+    recordEvent("record_exported_markdown");
+  });
+
+  $("copy-handoff").addEventListener("click", async () => {
+    if (!run) return;
+    const text = formatHandoffSummary(run);
+    try {
+      await navigator.clipboard.writeText(text);
+      copyStatus.textContent = "Copied.";
+    } catch {
+      // Clipboard access is denied in some contexts (no permission, insecure
+      // origin). Fall back to a selection the user can copy by hand rather
+      // than silently doing nothing.
+      const area = document.createElement("textarea");
+      area.value = text;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.append(area);
+      area.select();
+      copyStatus.textContent = "Press Ctrl/Cmd+C to copy.";
+      setTimeout(() => area.remove(), 10000);
+    }
+    recordEvent("handoff_copied");
+  });
+
+  const usageToggle = $("usage-toggle");
+  const usageStatusEl = $("usage-status");
+  function renderUsageToggle() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn local usage counting back on";
+    usageStatusEl.textContent = on ? "" : " Local counting is off.";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageToggle();
+  });
+  renderUsageToggle();
+
+  recordEvent("page_viewed");
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+name: npm-deployment-evidence CI
+
+# evidence.js (browser) ports npm_deployment_evidence.py's (CLI)
+# classification rules, and the venture's own VENTURE.yaml claims the two
+# "cannot silently diverge" because evidence.test.js pins the same
+# verdicts tests/test_tool.py covers -- true only if both suites actually
+# run in CI, which until now neither did.
+on:
+  pull_request:
+    paths:
+      - "ventures/npm-deployment-evidence/**"
+      - ".github/workflows/npm-deployment-evidence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/npm-deployment-evidence/**"
+      - ".github/workflows/npm-deployment-evidence-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-deployment-evidence-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/npm-deployment-evidence
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run JS reachability-classifier tests
+        run: node --test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run Python CLI tests
+        run: python3 -m unittest discover -s tests -v

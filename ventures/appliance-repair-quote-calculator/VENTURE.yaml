@@ -1,0 +1,32 @@
+name: appliance-repair-quote-calculator
+description: A private browser calculator for independent appliance repair technicians to price diagnostic time, travel, parts markup, warranty reserve, overhead, and target margin before sending a repair quote — and to see whether finishing that repair still beats recommending replace.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent appliance repair technicians will return to a quote calculator that exposes travel, parts markup, and callback reserve instead of relying on a flat labor rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing a walk-away price and target-margin quote changes underquoted repair decisions more often than showing a single estimated total.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Technicians will return to compare a quoted repair against remaining years versus a replacement, because the quote alone hides when the customer pays more per year and the book still prefers the repair.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified appliance repair technicians use the calculator twice within 90 days.
+  - Users cannot explain or adjust the assumptions without a support interaction.
+  - Real repair quotes consistently need a workflow the local calculator cannot represent.
+links:
+  production: null
+  analytics: null

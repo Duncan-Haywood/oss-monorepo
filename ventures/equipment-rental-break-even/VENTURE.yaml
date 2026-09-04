@@ -1,0 +1,27 @@
+name: equipment-rental-break-even
+description: A private browser calculator that helps small equipment-rental operators price bookings after ownership, delivery, cleaning, damage reserve, and idle-time costs.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent equipment-rental operators will use a transparent booking calculator to avoid underpricing delivery and idle inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Break-even utilization and a downloadable quote snapshot are useful enough for recurring rental pricing reviews.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified rental operators use the calculator twice within 90 days.
+  - Users do not report finding an underpriced booking or changing a utilization assumption within 90 days.
+links:
+  production: null
+  analytics: null

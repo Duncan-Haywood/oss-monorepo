@@ -33,6 +33,52 @@ rescore_note: >-
   rescore-2026-08-20.md.
 
 candidates:
+  - slug: invoice-payment-terms-calculator
+    name: Invoice payment terms calculator
+    doc: candidates/invoice-payment-terms-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/invoice-payment-terms-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.25
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic cash-flow arithmetic as the complete free core and label late-fee and early-pay results as scenarios, not legal conclusions.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: cut-list-optimizer
+    name: Cut-list optimizer
+    doc: candidates/cut-list-optimizer.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/cut-list-optimizer
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 2
+    floor_dimension: ai_leverage
+    mitigation: Keep deterministic packing as the complete free core and disclose that it is a heuristic rather than an optimal or safety-certified plan.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: etsy-profit-calculator
     name: Etsy profit calculator
     doc: candidates/etsy-profit-calculator.md
@@ -280,7 +326,9 @@ candidates:
   - slug: cra-evidence-desk
     name: CRA evidence desk
     doc: candidates/cra-evidence-desk.md
-    verdict: probe
+    verdict: graduated
+    initiated: 2026-08-24
+    initiated_path: ventures/npm-deployment-evidence
     verdict_changed: >-
       build-now -> probe, 2026-08-20. "Build now, narrow scope" rested on the
       EUVD/ENISA mapping being the wedge; that host is still egress-denied
@@ -563,14 +611,11 @@ candidates:
   - slug: vendor-change-evidence
     name: Vendor-change evidence monitor
     doc: candidates/vendor-change-evidence.md
-    verdict: probe
-    probe_status: >-
-      step 1 partially run: local section-aware snapshot-diff tool built and
-      tested (7 tests) against fixtures, not live pages. Scheduled fetch/hash
-      loop, the 10-page replay, and step 3 (10 practitioner conversations, one
-      paid pilot) are unstarted.
+    verdict: graduated
     graduate_as: venture
     host_venture: null
+    initiated: 2026-08-29
+    initiated_path: ventures/vendor-change-watch
     scores:
       ai_leverage: 7
       autonomous_ops: 9
@@ -616,8 +661,9 @@ candidates:
   - slug: einvoice-preflight
     name: E-invoice preflight
     doc: candidates/einvoice-preflight.md
-    verdict: reject-broad-conditional-narrow
-    graduate_as: null
+    verdict: graduated-narrow
+    probe_status: local JSON preflight shipped 2026-08-24; format coverage and demand remain unmeasured
+    graduate_as: venture
     host_venture: null
     scores:
       ai_leverage: 5
@@ -632,14 +678,19 @@ candidates:
     floor: 4
     floor_dimension: defensibility
     note: >-
-      Transmission or filing versions fail the liability gate outright. The
-      validate-and-explain version clears it at 5 but is a thin utility against
-      free open-source validators. Recorded so the reasoning is not re-derived.
+      Narrow validate-and-explain version shipped despite thin defensibility:
+      it never transmits, selects tax treatment, or claims compliance. The
+      broad transmission version remains rejected on the liability gate.
+    mitigation: >-
+      Keep the supported schema deliberately narrow; publish rule IDs and
+      downloadable JSON so integrators can test the checker against their own
+      fixtures. Do not expand to transmission until a separate liability review
+      authorizes it.
 
   - slug: consent-change-record
     name: Consent change record
     doc: candidates/consent-change-record.md
-    verdict: probe
+    verdict: build-now
     graduate_as: venture
     host_venture: null
     scores:
@@ -655,9 +706,10 @@ candidates:
     floor: 4
     floor_dimension: distribution
     mitigation: >-
-      Distribution requires a named web-agency or privacy-implementation
-      partner before graduation; until then this remains a local probe rather
-      than a standalone venture.
+      Distribution remains unmeasured: the first release is a local, zero-cost
+      HAR diff that can be shown to web agencies and privacy implementers
+      without collecting customer data. Measure repeat use and partner demand
+      before adding hosted automation.
     first_experiment_days: 14
     first_experiment_budget_usd: 25
 
@@ -756,7 +808,13 @@ candidates:
     name: DNS configuration evidence monitor
     doc: candidates/dns-configuration-evidence.md
     verdict: probe
-    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
+    probe_status: >-
+      step 1 partially run: local multi-resolver snapshot-diff tool built and
+      tested (12 tests) against fixtures, not live resolvers. Step 1's mutation
+      set (changed TXT, changed delegation, resolver disagreement, timeout,
+      unchanged) is covered, plus refusal, servfail and DNSSEC failure. The
+      scheduled resolver-poll loop and step 3 (10 practitioner conversations,
+      one paid pilot) are unstarted.
     graduate_as: venture
     host_venture: null
     scores:
@@ -809,3 +867,50 @@ candidates:
       component for distribution.
     first_experiment_days: 14
     first_experiment_budget_usd: 100
+  - slug: pool-route-pricing
+    name: Pool route pricing calculator
+    doc: candidates/pool-route-pricing.md
+    verdict: graduated
+    probe_status: Browser-local vertical slice shipped on 2026-08-24; demand and distribution remain unmeasured.
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/pool-route-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label operating assumptions as user-supplied planning inputs; measure repeat use before adding integrations.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: grant-reporting-tracker
+    name: Grant reporting tracker
+    doc: candidates/grant-reporting-tracker.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/grant-reporting-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep date arithmetic and exports deterministic; label the queue as planning evidence and require users to verify each award agreement.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

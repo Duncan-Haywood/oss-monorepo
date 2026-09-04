@@ -1,0 +1,35 @@
+name: shopify-fee-calculator
+description: A private browser calculator for Shopify merchants to see order profit after Shopify Payments or third-party processor fees, the extra Shopify transaction fee, shipping, and cost of goods — and to compare payment paths, Basic vs Grow vs Advanced vs Plus at the same monthly volume, POS vs online, Shopify Shipping vs an own-label quote, Shop Pay Installments vs a regular card, refund vs store credit vs exchange, expected leftover after a typical refund rate when PayPal keeps its fee, a Shopify Capital offer vs waiting or a bank line, a bank-transfer / Mark as paid invoice vs the card after unpaid invoices, a chargeback refund vs fight vs accept, local delivery vs a carrier label after driver time, a gift card vs selling the SKU now after sale-day fees and a later redeem, Shopify Markets DDP vs DAP vs skipping international after the card fee on collected duty and the door-refuse leftover, leaving an abandoned checkout versus recovery emails or emails plus an item coupon after the send cost, a one-time checkout versus monthly subscribe-and-save or a prepaid pack after the billing fee and skip rate, free or paid in-store pickup versus a carrier label after staff time and no-show refunds, skipping an add-on versus a checkout upsell or a post-purchase one-click after the second swipe and extra checkout abandon, and 10% off versus a coupon versus free shipping after percentage fees still leave the label on the order.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Shopify merchants will return to a calculator that compares Shopify Payments against PayPal or Stripe on the same order, because generic fee pages hide the extra Shopify third-party transaction fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing the extra cost of a third-party processor, plus the listing price needed for a target margin, changes a merchant's payment-method or pricing decision.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Merchants deciding whether to upgrade from Basic to Grow will use a volume break-even (extra monthly plan cost divided by per-order fee savings) more than a single-plan fee page.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A merchant who has just seen an own store win the cross-channel comparison will read the Shopify Payments versus PayPal/Stripe split when the item carries over, and will not if it means retyping the order — so the handoff, not the depth of this page, decides whether its scenarios are used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified Shopify merchants use the calculator twice within 90 days.
+  - Users do not find the Shopify Payments vs third-party comparison materially different from a single-path fee estimate.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,39 @@
+name: cam-reconciliation-check CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/cam-reconciliation-check/**"
+      - ".github/workflows/cam-reconciliation-check-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/cam-reconciliation-check/**"
+      - ".github/workflows/cam-reconciliation-check-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cam-reconciliation-check-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/cam-reconciliation-check
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run calculator tests
+        run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs cam-reconciliation-check

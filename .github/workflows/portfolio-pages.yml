@@ -1,0 +1,185 @@
+# Builds the portfolio's public site — every static, browser-runnable venture
+# surface assembled into one GitHub Pages deployment.
+#
+# The build runs on every push to `main` so a broken site is caught at merge
+# time, whether or not publishing is switched on. Publishing itself is gated on
+# the owner-set `PAGES_ENABLED` variable, because `actions/deploy-pages`
+# 404s until Pages is enabled in repository settings and would otherwise turn
+# this workflow red on every merge.
+#
+# Not `GITHUB_PAGES_ENABLED`, which this workflow's own gate carried until
+# found and fixed: GitHub rejects any Actions configuration-variable name that
+# starts with `GITHUB_` (case-insensitive), reserved for GitHub's own use --
+# see https://docs.github.com/en/actions/learn-github-actions/variables#naming-conventions-for-configuration-variables
+# -- and enforced at creation time, so the owner could never actually have
+# set it. `vars.GITHUB_PAGES_ENABLED` would always have read as unset,
+# `deploy` would always have been skipped, and the "one flip" the decision
+# queue and every doc pointed at would have silently done nothing. Confirmed
+# with `actionlint`, which flags any `vars.GITHUB_*` / `secrets.GITHUB_*`
+# reference for exactly this reason.
+#
+# This is the workflow that owner flip publishes. See portfolio/DIRECTION.md
+# ("Current priority: deploy what is already built") and platform/pages/README.md.
+name: Portfolio Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**"
+      - "platform/pages/**"
+      - ".github/workflows/portfolio-pages.yml"
+  pull_request:
+    paths:
+      - "ventures/**"
+      - "platform/pages/**"
+      - ".github/workflows/portfolio-pages.yml"
+  workflow_dispatch:
+
+# One slot per ref, not one slot for the whole repository.
+#
+# This was a single global `portfolio-pages` group covering every run. The
+# constraint it was written for is real but belongs to the deploy alone (see the
+# `deploy` job below); applied workflow-wide it also made every pull request
+# queue behind `main`. A calculator lands on `main` here most days — several an
+# hour on a busy one — and GitHub cancels a *pending* run when a newer one
+# queues behind it, so pull-request builds were being cancelled seconds after
+# starting rather than ever reporting. PR #1755's first run was cancelled two
+# seconds in, which is how this was found: a check that never runs is
+# indistinguishable from one that has not finished, and neither is a green tick
+# anyone can merge on.
+concurrency:
+  group: portfolio-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+    # Builds and checks the whole 500+-page site artifact -- measured at 173s
+    # on a recent PR. See hetzner-gitops-ci.yml's timeout-minutes addition for
+    # why an unbounded job is worth capping on a metered-minutes account.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # A glob, not a list. The list named build and check only, so
+      # `clauses.test.mjs` had never run here — a suite can be added beside the
+      # thing it tests and silently not be CI's problem, which is the one way a
+      # test file is worse than no test file.
+      - name: Test the site builder
+        run: node --test "*.test.mjs"
+        working-directory: platform/pages
+
+      - name: Build the site
+        env:
+          # Owner-overridable (a custom domain, say). The default is where
+          # GitHub serves a project Pages site for this repository.
+          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+        run: node build.mjs --out=dist
+        working-directory: platform/pages
+
+      # Runs against the artifact, not the sources. A dead link, a leftover
+      # placeholder origin, or a sitemap URL that 404s is created by the copy,
+      # so only the output can show it — and publishing one is expensive to
+      # undo once a crawler has read it.
+      - name: Check the built artifact
+        run: node check.mjs dist
+        working-directory: platform/pages
+
+      - name: Upload Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: platform/pages/dist
+
+  deploy:
+    needs: build
+    # `github.ref` as well as the event: `workflow_dispatch` can be run against
+    # any branch, and publishing the live site from a feature branch by accident
+    # is not a mistake anyone would notice quickly.
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PAGES_ENABLED == 'true' }}
+    # GitHub serves one Pages site per repository, so two deployments must never
+    # race — this is where that constraint actually lives, and the group is
+    # deliberately not keyed by ref so nothing can publish alongside `main`.
+    # `cancel-in-progress: false` lets an in-flight publish finish rather than
+    # leaving the live site half-swapped.
+    concurrency:
+      group: github-pages-deploy
+      cancel-in-progress: false
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      pages: write
+      id-token: write
+    # The actual publish step, gated to main and non-PR events above. See
+    # hetzner-gitops-ci.yml's timeout-minutes addition for why an unbounded
+    # job is worth capping on a metered-minutes account -- doubly so for a
+    # job that holds pages: write and publishes the live site.
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify the published site answers
+        # A completed deploy step is not evidence that anything serves. Check
+        # the front page, both sitemaps, robots, and one product through the
+        # real public URL, so "deployed" is a fact rather than an inference.
+        #
+        # The product page is named by the live catalog rather than hardcoded:
+        # a hardcoded slug stops proving anything the moment that venture is
+        # renamed, and the loop below would then have reported a 404 as the
+        # site's fault instead of the check's. Reading the slug back off the
+        # origin also proves catalog.json is the same one this build wrote.
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+
+          # The product page to exercise comes from the live catalog rather than
+          # a literal slug: a renamed or retired venture would otherwise make
+          # this step fail for the wrong reason, or -- worse, once someone
+          # "fixes" it by deleting the line -- pass without touching a tool at
+          # all. Pages can also serve the previous revision for a few seconds
+          # after the deployment API reports success, hence the retries.
+          curl --fail --silent --show-error --retry 5 --retry-delay 10 \
+               --retry-all-errors "${base}/catalog.json" -o catalog.json
+          # jq, not python3: this job has no setup-python step, and the
+          # self-hosted runner image ships jq but no interpreter (see
+          # gitops/ci/README.md) -- ubuntu-latest happening to have python3
+          # available masked that until CI_RUNNER is flipped to self-hosted.
+          tools=$(jq '.tools | length' catalog.json)
+          echo "Catalog lists ${tools} tool(s)"
+          [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
+          slug=$(jq -r '.tools[0].slug' catalog.json)
+
+          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/feed.xml" "/${slug}/"; do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
+                     --retry-all-errors "${base}${path}")
+            echo "${code}  ${base}${path}"
+            [ "$code" = "200" ] || { echo "::error::${base}${path} returned ${code}"; exit 1; }
+          done
+          curl -sS "${base}/sitemap.xml" | grep -q "<sitemapindex" \
+            || { echo "::error::sitemap.xml served without a sitemap index"; exit 1; }
+          # A 200 on llms.txt is not enough: Pages would serve an empty file
+          # just as happily, and an assistant reading it would find no tools.
+          curl -sS "${base}/llms.txt" | grep -q "^- \[" \
+            || { echo "::error::llms.txt served without any tool entries"; exit 1; }
+          # Same argument for the feed, and one more: a feed that serves 200
+          # with zero entries is indistinguishable from a healthy one to every
+          # subscriber, who simply never hears about a new tool again.
+          curl -sS "${base}/feed.xml" | grep -q "<entry>" \
+            || { echo "::error::feed.xml served without any entries"; exit 1; }
+          echo "Published and verified: ${base}/ (product page /${slug}/)"
