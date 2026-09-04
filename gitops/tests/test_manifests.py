@@ -973,9 +973,45 @@ def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
     # pins, so it is excluded here rather than silently satisfied.
     conf = (ROOT / "prod" / "front-door" / "default.conf").read_text()
     blocks = re.split(r"(?=^\s*location\b)", conf, flags=re.MULTILINE)
-    content_blocks = [
-        b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b
-    ]
+    located = [b for b in blocks if re.match(r"\s*location\b", b) and "healthz" not in b]
+    # The second deliberate exception, and narrower than `/healthz`: a block
+    # that emits no body of its own. Two shapes qualify and both arrived with
+    # the soft-404 fix —
+    #
+    #   * `return 301 /` — the truncatable parents (`/tools/`, `/c/`) and
+    #     `/index.html`. A redirect has no body to frame.
+    #   * `error_page 404 @…; return 404;` — the catch-all, which hands the
+    #     response to `@front_page_not_found`. That named block *is* checked
+    #     below and does carry the header, which is the one that reaches the
+    #     client; `add_header` here would be dropped by the final location
+    #     anyway, so requiring it would pin a line that does nothing.
+    #
+    # The exclusion is by *shape*, not by name, and the two assertions below
+    # are what keep it from becoming a hole: a block only leaves the check
+    # while it still emits nothing, and the excluded set has to stay exactly
+    # the size it is today. Add a `try_files`, a `root`, or any other
+    # body-producing directive to one and it is a content block again on the
+    # next run, header requirement included.
+    bodyless = []
+    content_blocks = []
+    for block in located:
+        body = block[block.index("{") + 1 : block.rindex("}")]
+        directives = [
+            line.strip()
+            for line in body.splitlines()
+            if line.strip() and not line.strip().startswith("#")
+        ]
+        if directives and all(
+            re.fullmatch(r"(?:return \d{3}|error_page \d{3} @\w+)[^;]*;", d)
+            for d in directives
+        ):
+            bodyless.append(block.splitlines()[0].strip())
+        else:
+            content_blocks.append(block)
+    assert len(bodyless) == 6, (
+        "expected exactly six body-less blocks — the five redirects "
+        f"(/index.html, /tools, /tools/, /c, /c/) and the catch-all; got {bodyless}"
+    )
     #
     # Changed 2026-09-03, and deliberately narrowed rather than relaxed. The
     # tool entry page became framable for `?pfEmbed=1` only, so that one block
