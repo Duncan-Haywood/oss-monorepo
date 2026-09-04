@@ -98,3 +98,17 @@ test("index surfaces compareOnlineVsPos on the order itself", () => {
   const cells = (index.match(/posRows\.map[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
   assert.equal(cells.length, columns, "POS row emits a different cell count than the header");
 });
+
+test("the result panel is announced to screen readers when it updates", () => {
+  // The result section re-renders the hero profit number, the <dl>
+  // breakdown, and the compare/promo tables in place on every keystroke,
+  // with no page reload. Before this fix the only aria-live element on the
+  // page was #shareStatus (a share-link message the update handlers never
+  // touch), so a screen-reader user changing an input got no announcement
+  // that the readout had changed.
+  assert.match(
+    index,
+    /<section class="result" aria-live="polite">/,
+    "the result section is not a live region, so updates are never announced",
+  );
+});
