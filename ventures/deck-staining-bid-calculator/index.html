@@ -527,7 +527,18 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      // The proposal panel's terms (`platform/proposal/adopt.mjs`) are not
+      // part of FIELD_IDS/FLAG_IDS/SELECT_IDS `readInput()` reads, so they
+      // are merged in here -- see the matching SHARE_FIELDS entry in
+      // share.mjs and `platform/proposal/term-ids.test.mjs`.
+      const hash = encodeShare({
+        ...readInput(),
+        depositPercent: el('depositPercent').value,
+        validDays: el('validDays').value,
+        paymentTerms: el('paymentTerms').value,
+        proposalNotes: el('proposalNotes').value,
+        proposalExclusions: el('proposalExclusions').value,
+      });
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);

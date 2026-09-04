@@ -45,6 +45,28 @@ test('an observation present on only one side is inconclusive, not dropped', () 
   assert.equal(txt.after_status, 'missing');
 });
 
+test('two answers do not compare equal to one answer containing a separator', () => {
+  // `buildReport` compares answer sets by joining them. DNS text contains
+  // spaces (any TXT record) and colons (any SPF record), so joining on one of
+  // those would make ['a b'] and ['a', 'b'] identical and report a real change
+  // as `unchanged`. This pins the separator choice, not the implementation.
+  const before = snapshot([observation({ type: 'TXT', answers: ['a b'] })]);
+  const after = snapshot([observation({ type: 'TXT', answers: ['a', 'b'] })]);
+  assert.equal(buildReport(before, after).findings[0].status, 'changed');
+});
+
+test('the source carries no raw NUL byte, which would make git treat it as binary', async () => {
+  // The separator is a real NUL at runtime and must stay one; writing it as a
+  // literal byte instead of an escape turned the whole module binary to git,
+  // costing the diff and line comments on review. Caught by CI, pinned here.
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const url = await import('node:url');
+  const source = fs.readFileSync(
+    path.join(path.dirname(url.fileURLToPath(import.meta.url)), 'dns-evidence.mjs'));
+  assert.equal(source.includes(0x00), false, 'write NUL as the \\u0000 escape, not a literal byte');
+});
+
 test('identical answers in a different order are unchanged', () => {
   const before = snapshot([observation({ answers: ['192.0.2.1', '192.0.2.2'] })]);
   const after = snapshot([observation({ answers: ['192.0.2.2', '192.0.2.1'] })]);
@@ -246,13 +268,15 @@ test('utcNow is the ISO-8601 shape the Python capture writes', () => {
 
 // --- Parity with the canonical Python implementation ------------------------
 
-test('the Markdown matches `python3 -m dns_evidence compare` byte for byte', async () => {
+test('the Markdown matches `python3 -m dns_evidence compare` byte for byte', async (t) => {
   // The product's claim is that a snapshot captured in the browser is the same
   // evidence artefact as one captured by the CLI. That is only true while both
   // renderers agree, and the two are separate codebases that drift silently --
   // the limitations strings had already diverged once when this was written.
   // Skips rather than fails where python3 is unavailable, so the suite stays
-  // runnable in a bare Node environment.
+  // runnable in a bare Node environment. `dns-configuration-evidence-ci.yml`
+  // deliberately runs this in the same job as the Python step so that the skip
+  // path is unreachable in CI.
   const { execFileSync } = await import('node:child_process');
   const fs = await import('node:fs');
   const os = await import('node:os');
@@ -263,7 +287,12 @@ test('the Markdown matches `python3 -m dns_evidence compare` byte for byte', asy
   try {
     execFileSync('python3', ['--version'], { stdio: 'ignore' });
   } catch {
-    return; // no interpreter here; the parity claim is checked wherever there is one
+    // `t.skip` rather than a bare `return`: a return reports this as a *pass*,
+    // so a CI job that lost its interpreter would show green while checking
+    // nothing -- an unobserved result presented as a good one, which is the
+    // exact failure this whole venture exists to prevent. Skipped shows up as
+    // skipped in the summary and in `node --test`'s exit output.
+    return t.skip('python3 is not available here; the parity claim is unchecked in this run');
   }
 
   const before = snapshot([

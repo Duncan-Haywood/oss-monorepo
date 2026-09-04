@@ -99,7 +99,10 @@
         over a saved draft when you open one.</p>
     </section>
   </main>
-  <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
+  <footer>
+    <p><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></p>
+    <p>Free and open source. If it saved you a reclass dispute with the carrier, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
   <script type="module">
     import { estimateFreightClass } from './calc.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';

@@ -40,6 +40,11 @@ test('the no-warranty disclaimer is on the page', () => {
   assert.match(html, /not tax, financial, or business advice/);
 });
 
+test('the page carries the standard sponsor link', () => {
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
+
 test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
   // Before this fix, a rejected input (a negative number, non-numeric text)
   // overwrote only the dollar hero (#price) with the error sentence and left

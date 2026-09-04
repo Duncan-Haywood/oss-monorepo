@@ -36,3 +36,12 @@ test('the share button and status region exist and are wired to the share module
   assert.match(html, /id="shareStatus"/);
   assert.match(html, /from '.\/share\.mjs'/);
 });
+
+test('the results table shows profit and margin, not just cost, using the revenue field it already collects', () => {
+  // Regression: "Revenue per job" was collected, validated, persisted, and
+  // shared but never used to compute anything -- the table only ever showed
+  // cost-side figures. See calc.test.mjs for the arithmetic coverage.
+  assert.match(html, /<th>Profit \/ job<\/th><th>Margin<\/th>/);
+  assert.match(html, /row\.profitPerJob/);
+  assert.match(html, /row\.marginPercent/);
+});
