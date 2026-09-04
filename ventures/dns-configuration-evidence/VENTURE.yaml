@@ -15,7 +15,7 @@ hypotheses:
   - claim: The reason the first two hypotheses stayed untested is that the only interface was a Python CLI, so an MSP mid-cutover had to clone a repo to try it. A browser surface on a public URL is what makes them testable at all.
     status: untested
     checked: null
-    evidence: usage
+    evidence: in-repo
 
 economics:
   currency: USD
