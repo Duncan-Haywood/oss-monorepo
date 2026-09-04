@@ -1136,7 +1136,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # SBOM/advisory matcher, whose Python CLI stays canonical). This constant is
     # the one number here that is typed rather than computed, so it moves
     # whenever a venture gains or loses a public surface.
-    total = 172  # `infra/OWNER_CHECKLIST.md`'s own "N of the 172 tools" wording.
+    # 173 since 2026-09-03, when `which-job-first` shipped — a static surface
+    # from its first commit, so it entered the mirror and the total in the same
+    # change rather than closing a gap between them.
+    total = 173  # `infra/OWNER_CHECKLIST.md`'s own "N of the 173 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

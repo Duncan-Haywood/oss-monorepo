@@ -1123,6 +1123,249 @@ ${sections}
 }
 
 /**
+ * The nginx log fields the About page promises this host does *not* record.
+ *
+ * The page's strongest claim is that the access log carries no IP address, no
+ * user agent and no referrer — that "we do not profile you" is a property of
+ * the configuration rather than a promise about what happens to the data
+ * afterwards. That claim is only as good as `front-door/default.conf`'s one
+ * `log_format`, which a later change could widen without anyone remembering
+ * this page exists.
+ *
+ * So the page does not merely assert it: `front-door.test.mjs` reads the
+ * manifest and fails if any of these appears in it. Adding a field to the log
+ * then breaks a test naming this page, which is the only way a claim in prose
+ * stays true across the sessions that come after the one that wrote it.
+ */
+export const PRIVACY_LOG_FIELDS = ['$remote_addr', '$http_user_agent', '$http_referer'];
+
+/**
+ * The ConfigMap key the About page is stored under.
+ *
+ * Flat for the same reason `categoryPageKey` is: a ConfigMap key must match
+ * `[-._a-zA-Z0-9]+`, so `about/index.html` cannot be one however much it is
+ * the URL. nginx puts the shape back — see the `^/about/?$` block in
+ * `front-door/default.conf`.
+ *
+ * The *path* it is served at is `ABOUT_PATH`, imported from `build.mjs` rather
+ * than restated here. Both hosts put their About page at the same place, and
+ * this tree has twice paid for copying a constant out of `build.mjs` instead
+ * of importing it — see `venturePageRoot`'s note in `front-door-tools.mjs`.
+ */
+export const ABOUT_KEY = 'about.html';
+
+/** Where `--write` puts the rendered About page. */
+export const aboutOutputFile = () =>
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', ABOUT_KEY);
+
+/** The About page's URL on this host. */
+export const apexAboutUrl = () => `${FRONT_DOOR_URL}${ABOUT_PATH}`;
+
+/** The portfolio's GitHub Sponsors page — the only monetisation this site has. */
+export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+
+/**
+ * The apex's About and press-kit page.
+ *
+ * ## Why this is not `build.mjs`'s About page
+ *
+ * `build.mjs` has had `renderAboutPage` since the site build was written, and
+ * like the category pages it publishes to `tools.marisstella.dev` — which
+ * fails closed on the unsealed `portfolio-site-repo` Secret and has never
+ * served a byte. So the portfolio's positioning, its privacy story and its
+ * press kit have been written, reviewed and reachable by nobody, while the
+ * apex — the only host answering — offered a visitor no page at all saying
+ * what this is or what happens to what they type.
+ *
+ * The obvious move is to render that same page here, and it is wrong. Its copy
+ * is true of the catalogue host and false of this one in two places that
+ * matter, both of them privacy claims:
+ *
+ * - It says the tally of which tools get opened is "written to your own
+ *   browser's local storage". This host ships no such counter: nothing in
+ *   `front-door/index.html` touches `localStorage`, and what actually counts a
+ *   visit here is nginx's `log_format privacy`.
+ * - It points at "an opt-out checkbox at the foot of the tool list". There is
+ *   no checkbox on this host, because there is nothing client-side to opt out
+ *   of.
+ *
+ * It also loads `pf-site.js` and an `alternate icon` at `favicon.ico`, neither
+ * of which this document root serves. A shared renderer would therefore have
+ * had to be parameterised on all four, and the two hosts' privacy stories are
+ * genuinely different mechanisms rather than one mechanism with different
+ * paths — so this states this host's, and `PRIVACY_LOG_FIELDS` below is what
+ * stops it going quietly false.
+ *
+ * ## Every claim here is checked
+ *
+ * `PRODUCT_PLAYBOOK.md` and the fleet mandate both make "marketing claims must
+ * be true" an absolute limit, and an About page is the one page whose entire
+ * job is claims. So each is either derived from the build or pinned by a test
+ * in `front-door.test.mjs`:
+ *
+ * - **The tool count and the categories** come from the mirror, like every
+ *   other number on this host.
+ * - **"Nothing you type is uploaded"** — verified against the built mirror:
+ *   no mirrored page contains a `fetch(`, an `XMLHttpRequest`, or a
+ *   `src="https://…`. The only absolute URLs in the mirror are `schema.org`
+ *   (a JSON-LD `@context`, not a request), `github.com`, and citation links a
+ *   reader can choose to click. Unlike the catalogue host, this one needs no
+ *   documented exception, because no mirrored tool makes a live API call.
+ * - **What the server logs** is quoted from the one `log_format` in
+ *   `front-door/default.conf`, and `PRIVACY_LOG_FIELDS` pins the absence of
+ *   `$remote_addr`, `$http_user_agent` and `$http_referer` so a future field
+ *   added there fails a test rather than making this page a lie.
+ * - **MIT** is the licence every mirrored venture ships, served beside it.
+ *
+ * Nothing here claims traction, users, endorsements or benchmarks, because
+ * there are none to claim.
+ */
+export function renderFrontDoorAbout({ mirrored = [], total = 0, categories = [] } = {}) {
+  const url = apexAboutUrl();
+  const count = mirrored.length;
+  const title = 'About these tools';
+  const description =
+    `Who makes these ${count} free calculators, why they are free, and what happens to the ` +
+    `numbers you type in — nothing leaves your browser, and this site logs no addresses.`;
+
+  // The boilerplate a linker copies. Data, not prose, so the count in it
+  // cannot drift from the catalogue the way hand-written copy does.
+  const shortBoiler =
+    `${count} free, private calculators for small businesses — bid pricing, marketplace fees, ` +
+    `cashflow and compliance checks. No account, everything runs in your browser.`;
+  const longBoiler =
+    `${SITE_NAME} is a collection of ${count} free web tools for people who run a small ` +
+    `business: trade contractors pricing a job, marketplace sellers working out what a sale ` +
+    `actually nets, logistics buyers comparing quotes, and small teams assembling compliance ` +
+    `evidence. Every tool is a single static page that does its arithmetic in the visitor's own ` +
+    `browser. There is no account system, no payment and no third-party analytics; the numbers a ` +
+    `user types never leave their device. All ${count} are free, with no gated features and no ` +
+    `paid tier.`;
+
+  const categoryLinks = categories
+    .map(
+      (category) =>
+        `    <li><a href="${escapeHtml(apexCategoryUrl(category.id))}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a></li>`,
+    )
+    .join('\n');
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: title,
+    url,
+    description,
+    inLanguage: 'en',
+    isAccessibleForFree: true,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: FRONT_DOOR_URL },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: FRONT_DOOR_URL },
+        { '@type': 'ListItem', position: 2, name: title, item: url },
+      ],
+    },
+  };
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(`${title} — ${SITE_NAME}`)}</title>
+<meta name="description" content="${escapeHtml(description)}">
+<link rel="icon" href="/${escapeHtml(FAVICON_FILE)}" type="image/svg+xml">
+<meta name="theme-color" content="${escapeHtml(THEME_COLOR)}">
+<link rel="canonical" href="${escapeHtml(url)}">
+<link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — tools on ${FRONT_DOOR_HOST}`)}" href="/${escapeHtml(FEED_FILE)}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:url" content="${escapeHtml(url)}">
+<meta property="og:image" content="${escapeHtml(`${FRONT_DOOR_URL}${SOCIAL_CARD_FILE}`)}">
+<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">
+<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">
+<meta property="og:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${escapeHtml(`${FRONT_DOOR_URL}${SOCIAL_CARD_FILE}`)}">
+<meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_CARD_ALT)}">
+<meta name="robots" content="index, follow">
+<style>${STYLE}</style>
+<script type="application/ld+json">
+${jsonLd(structuredData)}
+</script>
+</head>
+<body>
+<header>
+  <h1>${escapeHtml(title)}</h1>
+  <p class="lede">${count} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type is uploaded.</p>
+</header>
+<main>
+  <h2>What this is</h2>
+  <p>A working set of ${count} small, single-purpose web tools across ${categories.length} areas — pricing a job, checking what a marketplace sale actually nets, planning cashflow, normalising freight quotes, and assembling the evidence a compliance obligation asks for. Each one exists because the arithmetic behind it is easy to get wrong under time pressure and expensive to get wrong in front of a customer.</p>
+  <p>They are deliberately narrow. A tool here answers one question for one kind of business, rather than being a spreadsheet template that answers none of them well.</p>
+
+  <h2>What happens to what you type</h2>
+  <p><strong>Nothing. There is no server that could receive it.</strong> Every tool on this site is a static page, and the calculation happens in your browser, in JavaScript you can read with your browser's own <em>View Source</em> — no build step, no minification, nothing hidden from you.</p>
+  <ul>
+    <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
+    <li><strong>Nothing you enter is transmitted.</strong> These pages make no network request with your input — no form post, no background beacon.</li>
+    <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. The only outside addresses on this site are links you can choose to click.</li>
+    <li><strong>No cookies and no cross-site identifiers.</strong></li>
+    <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off — the plainest demonstration that the answer is computed where you are.</li>
+  </ul>
+
+  <h2>What this site's server records</h2>
+  <p>One line per request, and it holds four things: the time, the HTTP status, the path that was asked for, and whether the page was loaded inside somebody else's page as an embed. That is the whole record.</p>
+  <p>It deliberately does <strong>not</strong> include your IP address, your user agent, or the page you came from. Those are the fields a normal web server log carries by default and this one leaves out, so "we do not build a profile of you" is a property of the configuration rather than a promise about what we do with it afterwards. The log exists to answer "is anything on this site being used, and is anything broken" — nothing finer.</p>
+
+  <h2>Why it is free</h2>
+  <p>Because keeping it free costs almost nothing. A static page has no per-user cost, so there is no usage to meter and no reason to build a paywall around arithmetic. There is no paid tier, no trial, and no feature held back — the version you are using is the whole product.</p>
+  <p>If one of these has saved you money, <a href="${escapeHtml(SPONSORS_URL)}">sponsoring on GitHub</a> is welcome and entirely optional. Declining changes nothing about what any tool does, and nothing here is gated behind it.</p>
+
+  <h2>What these tools are not</h2>
+  <p>They are estimates and working records, not professional advice and not a determination made on anyone's behalf. They do not replace a quantity surveyor, an accountant, a lawyer, or an engineer, and the output of any of them is a starting figure to check against your own numbers before you quote it to a customer or file it anywhere. The full terms are in the footer of this and every other page.</p>
+
+  <h2>Linking to these tools</h2>
+  <p>You do not need permission to link to anything here, quote a page, or screenshot a result — for a forum answer, a trade newsletter, a course handout, or a write-up. Linking straight to the individual tool is more use to a reader than linking to the front page. If it helps, here is the description, already written:</p>
+  <h3>One line</h3>
+  <p class="fine">${escapeHtml(shortBoiler)}</p>
+  <h3>A paragraph</h3>
+  <p class="fine">${escapeHtml(longBoiler)}</p>
+  <h3>The facts, if you would rather write your own</h3>
+  <ul>
+    <li><strong>${count} tools</strong> across ${categories.length} categories, all free, none gated.</li>
+    <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics, no upload; works offline once opened.</li>
+    <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
+    <li><strong>Front page:</strong> <a href="/">${escapeHtml(FRONT_DOOR_URL)}</a></li>
+  </ul>
+  <p>Please do not describe these as certified, audited, guaranteed, or as professional advice — they are none of those things, and saying so would mislead the person you are recommending them to.</p>
+
+  <h2>Embedding a tool on your own page</h2>
+  <p>Every one of the ${count} tools here can be framed on someone else's page — a trade association's resource page, a supplier's blog post, a forum's sidebar. Open any tool and scroll to the bottom for a ready-made, copyable snippet built from that page's own address and title; there is nothing to write by hand. The framed page is the calculator's own page rather than a stripped-down copy, so it keeps the tool's full working and its liability notice, and it adds no script, cookie or request of its own. This needs no permission and no message to us first.</p>
+
+  <h2>For crawlers and assistants</h2>
+  <p>The catalogue is published in machine-readable form so an assistant can cite the right tool rather than guess at one: <a href="/${escapeHtml(CATALOG_FILE)}">catalog.json</a> lists every tool with its category and description, <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a> is the same catalogue as prose, and <a href="/${escapeHtml(SITEMAP_FILE)}">sitemap.xml</a> indexes every published page. To follow new tools rather than re-read the catalogue, subscribe to the <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">Atom feed</a>.</p>
+
+  <h2>Browse by trade</h2>
+  <ul>
+${categoryLinks}
+  </ul>
+</main>
+<footer>
+  <p><a href="/">All ${total} tools</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a> · <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a></p>
+  <p class="fine"><strong>No warranty.</strong> ${escapeHtml(NO_WARRANTY)}</p>
+  <p class="fine"><strong>Best-effort hosting, no SLA.</strong> ${escapeHtml(NO_SLA.replace('Best-effort hosting, no SLA. ', ''))}</p>
+</footer>
+</body>
+</html>
+`;
+}
+
+/**
  * The mirrored tools grouped by the category their slug classifies into.
  *
  * Uses `categoryFor`, the same function that decides where a tool sits on the
@@ -1635,7 +1878,14 @@ export function renderFrontDoor({
    * are live for real.
    */
   const footerLinks = hasMirror
-    ? `<a href="#open-now">The ${mirrored.length} tools on this host</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a> · <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a>`
+    ? // `/about/` joins this row rather than only the no-mirror branch below.
+      // That branch has linked "About these tools" at `${toolsUrl}${ABOUT_PATH}`
+      // since it was written, and that URL has never served anything — so on
+      // the live host, the page saying what this site is and what it does with
+      // what you type was reachable from nowhere. It is this host's own page
+      // now (`renderFrontDoorAbout`), so the link is root-relative like its
+      // neighbours.
+      `<a href="#open-now">The ${mirrored.length} tools on this host</a> · <a href="/${escapeHtml(ABOUT_PATH)}">About &amp; privacy</a> · <a href="/${escapeHtml(FEED_FILE)}" type="application/atom+xml">New tools feed</a> · <a href="/${escapeHtml(LLMS_FILE)}">llms.txt</a>`
     : `<a href="${escapeHtml(toolsUrl)}">All ${total} tools</a> · <a href="${escapeHtml(`${toolsUrl}${ABOUT_PATH}`)}">About these tools</a> · <a href="${escapeHtml(`${toolsUrl}${FEED_FILE}`)}">New tools feed</a>`;
 
   const how = HOW_IT_WORKS.map(
@@ -1850,12 +2100,31 @@ export async function buildFrontDoor() {
     html: renderFrontDoor({ slugs, mirrored: tools }),
     feed: renderFrontDoorFeed({ mirrored: tools, launched }),
     categoryPages,
+    // Rendered from the same mirror the rest of this host is, so its tool
+    // count and its category list cannot disagree with the front page's.
+    // `categories` is the served set rather than `ALL_CATEGORIES`, for the
+    // reason `categoryPages` gives above: a category this host serves no tools
+    // for has no page, and linking to one would be a link to a 404.
+    about: renderFrontDoorAbout({
+      mirrored: tools,
+      total: slugs.length,
+      categories: served.map((entry) => entry.category),
+    }),
     // The category pages join the mirrored tool pages as things this host
     // answers for and therefore asks crawlers to index. Same guard: when the
     // tools host is sealed `categoryPages` is empty and these vanish from the
     // sitemap in the same commit that stops rendering them.
     sitemap: renderSitemap({
-      pages: [...indexablePages, ...categoryPages.map((page) => `/${categoryPagePath(page.id)}`)],
+      pages: [
+        ...indexablePages,
+        ...categoryPages.map((page) => `/${categoryPagePath(page.id)}`),
+        // Unconditional, unlike the two above: the About page is this host's
+        // own, rendered from `SITE_NAME` and the nginx config rather than from
+        // the mirror, so it keeps being served — and keeps being worth
+        // indexing — on the day `portfolio-site-repo` is sealed and everything
+        // else here empties.
+        `/${ABOUT_PATH}`,
+      ],
     }),
     llms: renderFrontDoorLlms({ mirrored: tools, total: slugs.length, categories }),
     catalog: renderFrontDoorCatalog({
@@ -1870,7 +2139,7 @@ export async function buildFrontDoor() {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isMain) {
-  const { html, feed, llms, sitemap, catalog, categoryPages } = await buildFrontDoor();
+  const { html, feed, llms, sitemap, catalog, categoryPages, about } = await buildFrontDoor();
   if (process.argv.includes('--write')) {
     await fs.mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
     await fs.writeFile(OUTPUT_FILE, html);
@@ -1954,6 +2223,13 @@ if (isMain) {
       await fs.writeFile(file, page.html);
       console.log(`wrote ${path.relative(REPO_ROOT, file)} (${page.html.length} bytes)`);
     }
+    // Same run as the sitemap that lists it and the front page that links to
+    // it, for the reason every other artifact here is written together: a page
+    // referenced by two files it was not committed beside is a 404 that only
+    // shows up in production.
+    const aboutFile = aboutOutputFile();
+    await fs.writeFile(aboutFile, about);
+    console.log(`wrote ${path.relative(REPO_ROOT, aboutFile)} (${about.length} bytes)`);
   } else {
     process.stdout.write(html);
   }

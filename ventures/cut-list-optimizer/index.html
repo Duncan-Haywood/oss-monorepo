@@ -282,6 +282,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
         </dl>
+        <div class="warn" id="linear-oversize"></div>
         <div id="plan"></div>
         <div class="actions">
           <button type="button" id="copy-plan" disabled>Copy cut plan</button>
@@ -645,16 +646,25 @@ Top: 31.5 x 11.25 x 2</textarea>
           onHand: parseStock($('onhand').value),
           stockCost,
         });
-        $('headline').textContent = result.purchased === 0
-          ? 'Nothing to buy'
-          : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
-        $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.';
+        $('headline').textContent = !result.bars.length
+          ? 'No cut fits this stock size'
+          : result.purchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+        $('message').textContent = result.bars.length
+          ? 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.'
+          : 'No cut on this list fits your stock length or on-hand offcuts.';
         $('bars').textContent = result.bars.length;
         $('purchased').textContent = result.purchased;
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
         $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
+        $('linear-oversize').innerHTML = result.oversize.length
+          ? `<strong>${result.oversize.length} cut${result.oversize.length === 1 ? ' does' : 's do'} not fit any stock length on hand or to buy:</strong> `
+            + result.oversize.map((cut) => format(cut)).join(', ')
+            + '. Check the length, or use a longer stock size.'
+          : '';
 
         const saved = $('saved');
         if (result.purchasesAvoided > 0) {
@@ -695,6 +705,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('message').textContent = error.message;
         $('saved').hidden = true;
         LINEAR_STATS.forEach((id) => { $(id).textContent = '—'; });
+        $('linear-oversize').innerHTML = '';
         $('plan').textContent = '';
         $('copy-plan').disabled = true;
         $('copy-plan').dataset.plan = '';

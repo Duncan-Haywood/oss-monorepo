@@ -48,6 +48,43 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: which-job-first
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 5
+      gross_margin: 10
+      defensibility: 3
+      distribution: 7
+    composite: 6.0
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is nothing here for a model to do. The value is a comparison sort
+      driven by the user's own judgement, and a generated opinion about which
+      job to take would be worth less than the arithmetic while costing per
+      run and inviting a liability the current disclaimer does not cover.
+    basis: >-
+      Graduated on 2026-09-03 into a gap the portfolio's 172 pricing tools
+      leave open: they price a job, none helps choose between jobs. The first
+      slice is a browser-local pairwise ranker for trades and freelancers with
+      more work available than capacity, with no account, network, or paid
+      dependency, published on the apex from its first commit.
+      Defensibility is low and honestly so -- the method is a merge sort with
+      a human comparator, which anyone can copy; what is not trivially copied
+      is being adjacent to a hundred bid calculators the same audience already
+      lands on.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      The ranking is an ordering of the user's own answers, not business,
+      financial, or legal advice, and the page says the result reflects only
+      what was entered and must be reviewed before acting on it. The list
+      never leaves the device, the usage counter is opt-in and off by default,
+      and the transitivity assumption the method depends on is stated to the
+      user rather than hidden, so nobody is misled about what the order means.
   - slug: music-lesson-break-even
     scores:
       ai_leverage: 1

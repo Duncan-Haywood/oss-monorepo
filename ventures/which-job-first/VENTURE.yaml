@@ -1,0 +1,27 @@
+name: which-job-first
+description: Free browser-based pairwise ranker that turns a contractor's list of possible jobs into a prioritised work order by asking simple head-to-head questions instead of asking for scores.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Trades and freelancers with more work available than capacity will use a head-to-head ranker because picking between two concrete jobs is a judgement they can make, while scoring twelve jobs out of ten is not.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A share link carrying the job list rather than the ranking will get used between partners and foremen, because the disagreement they need to resolve is about the order, not about the list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 10
+  protected: true
+kill_criteria:
+  - No measurable return usage or organic referral traffic 60 days after publishing.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: null
+  analytics: null

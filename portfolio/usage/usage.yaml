@@ -6,6 +6,25 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: which-job-first
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-09-03
+        signals:
+          live_url_visitors: null
+          ranking_started: 0
+          ranking_completed: 0
+          exported: 0
+        note: >-
+          Baseline at publication. The tool ships with a public route on the
+          apex from its first commit (`/tools/which-job-first/`), so unlike
+          most rows here it has never been an instrumented-but-unreachable
+          product. `ranking_completed` against `ranking_started` is the signal
+          worth watching: a run abandoned partway means the question count is
+          too high for the value returned, which is the one design risk a
+          pairwise ranker carries and the thing no amount of copy can settle.
+          Counts are local, opt-in, and off by default, so a zero here is the
+          expected reading for a tool nobody has switched the counter on for.
   - slug: cra-evidence-desk
     surface: static-page-in-repo
     readings:

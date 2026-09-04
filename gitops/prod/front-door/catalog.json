@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 172,
-  "collection_total": 172,
+  "served_here": 173,
+  "collection_total": 173,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 4
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -736,7 +736,7 @@
       "url": "https://marisstella.dev/tools/entry-door-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "epoxy-garage-floor-bid-calculator",
@@ -1040,7 +1040,7 @@
       "url": "https://marisstella.dev/tools/patio-door-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "paver-patio-bid-calculator",
@@ -1248,7 +1248,7 @@
       "url": "https://marisstella.dev/tools/skylight-install-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new cut-in, asphalt versus tile/metal versus low-slope, and extras — plus the walk-away price an $800 / unit special cannot see.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "snow-removal-bid-calculator",
@@ -1376,7 +1376,7 @@
       "url": "https://marisstella.dev/tools/walk-in-shower-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.",
-      "pages": 5
+      "pages": 6
     },
     {
       "slug": "walk-in-tub-bid-calculator",
@@ -1416,7 +1416,7 @@
       "url": "https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "where-to-sell-calculator",
@@ -1425,6 +1425,14 @@
       "category": "Marketplace seller tools",
       "description": "Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, your own store, and a local sale.",
       "pages": 4
+    },
+    {
+      "slug": "which-job-first",
+      "name": "Which Job First? Free Pairwise Job Priority Ranker for Contractors",
+      "url": "https://marisstella.dev/tools/which-job-first/",
+      "category": "More free tools",
+      "description": "Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.",
+      "pages": 1
     },
     {
       "slug": "window-cleaning-bid-calculator",
