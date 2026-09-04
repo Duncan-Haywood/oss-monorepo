@@ -387,6 +387,39 @@ def test_worker_uses_the_approval_flag_the_current_cli_accepts() -> None:
     assert "approval_policy=\"never\"" in text
 
 
+def test_the_pinned_tools_survive_between_jobs() -> None:
+    # The claim, its kustomization entry, and the worker default that has to
+    # agree with governor.py's mount path.
+    pvc = yaml.safe_load((AGENTS / "codex-tools.yaml").read_text())
+    assert pvc["kind"] == "PersistentVolumeClaim"
+    assert pvc["metadata"]["name"] == "codex-tools"
+    assert pvc["metadata"]["namespace"] == "agents"
+
+    kustomization = yaml.safe_load((AGENTS / "kustomization.yaml").read_text())
+    assert "codex-tools.yaml" in kustomization["resources"], (
+        "the tool-cache PVC is not applied, so every Job falls back to a "
+        "throwaway directory and re-downloads 320 MB of npm"
+    )
+
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert 'CODEX_TOOLS_DIR="${CODEX_TOOLS_DIR:-/var/lib/codex-tools}"' in worker, (
+        "worker.sh no longer defaults to the path governor.py mounts the claim at"
+    )
+
+
+def test_a_cached_tool_is_checked_against_its_pin_rather_than_merely_present() -> None:
+    # The hazard the cache introduces, and the reason install_tools grew a
+    # version check. gh and codex are pinned in git precisely so a version
+    # nobody reviewed cannot reach the binary that holds this Job's GH_TOKEN
+    # and the owner's ChatGPT auth.json. A cache that kept serving the
+    # superseded copy past a reviewed bump would make both pins decorative --
+    # silently, since everything downstream only asks whether the name is on
+    # PATH. `test_worker_run.py` drives this end to end; this pins the shape.
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert "gh_matches_pin" in worker and "codex_matches_pin" in worker
+    assert "cached gh" in worker and "cached codex" in worker
+
+
 def test_codex_credential_survives_between_jobs() -> None:
     pvc = yaml.safe_load((AGENTS / "codex-home.yaml").read_text())
     assert pvc["kind"] == "PersistentVolumeClaim"

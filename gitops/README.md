@@ -43,6 +43,12 @@ quota. It is not a second copy of every product.
   the `codex-home` PVC because Codex rotates it on use. Which one to seal
   is the owner's call — `agents/secrets/README.md` lays out the
   trade-off, and `infra/OWNER_CHECKLIST.md` is the procedure.
+- A second PVC, `codex-tools`, caches the two pinned binaries a worker
+  needs — `gh` and the Codex CLI, ~332 MB between them — so a five-minute
+  CronJob does not re-fetch them before every Job. It is a cache, not
+  state: losing it costs one slow run. A pin bump still lands, because
+  `install_tools` checks a cached binary's version against the pin rather
+  than merely finding it on PATH.
 - Every queue item's prompt is prefixed with `agents/workers/mandate.md`,
   the standing product-first brief and the floor a run may not cross. An
   item sets `delivery: agent` when its own prompt opens the PR, or leaves
