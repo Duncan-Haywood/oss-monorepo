@@ -496,7 +496,7 @@
       "url": "https://marisstella.dev/tools/ai-engineering-academy/",
       "category": "More free tools",
       "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
-      "pages": 9
+      "pages": 10
     },
     {
       "slug": "appointment-deposit-calculator",
@@ -1232,7 +1232,7 @@
       "url": "https://marisstella.dev/tools/shopify-fee-calculator/",
       "category": "Marketplace seller tools",
       "description": "Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.",
-      "pages": 19
+      "pages": 20
     },
     {
       "slug": "shopify-permission-drift",
