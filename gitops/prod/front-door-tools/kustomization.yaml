@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 131 files, 553688 bytes
-#   portfolio-front-tools-1: 116 files, 549791 bytes
+#   portfolio-front-tools-1: 117 files, 554135 bytes
 #   portfolio-front-tools-2: 149 files, 556575 bytes
 #   portfolio-front-tools-3: 118 files, 545421 bytes
 #   portfolio-front-tools-4: 121 files, 546038 bytes
@@ -306,6 +306,7 @@ configMapGenerator:
       - freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html.gz=freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html.gz
       - freight-accessorial-auditor__should-i-dispute-this-detention-charge.html.gz=freight-accessorial-auditor__should-i-dispute-this-detention-charge.html.gz
       - freight-accessorial-auditor__usage.mjs.gz=freight-accessorial-auditor__usage.mjs.gz
+      - freight-accessorial-auditor__vs-trax.html.gz=freight-accessorial-auditor__vs-trax.html.gz
       - ltl-freight-class-estimator__calc.mjs.gz=ltl-freight-class-estimator__calc.mjs.gz
       - ltl-freight-class-estimator__how-to-calculate-freight-class.html.gz=ltl-freight-class-estimator__how-to-calculate-freight-class.html.gz
       - ltl-freight-class-estimator__index.html.gz=ltl-freight-class-estimator__index.html.gz

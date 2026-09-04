@@ -9533,6 +9533,53 @@ entries:
         only in the Pages artifact: new shard key present, listed in
         `kustomization.yaml` and in the front door's `sitemap.xml`.
     mrr_end: null
+  - venture: freight-accessorial-auditor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-trax.html`, the venture's first competitor comparison
+        page, following the established vs-<competitor> pattern from
+        `cam-reconciliation-check/vs-yardi.html` and
+        `window-cleaning-bid-calculator/vs-servicemonster.html`. Picked
+        Trax Technologies as the competitor because it is the credible,
+        well-known named product in this exact niche -- enterprise
+        transportation spend management / freight audit and payment (FAP)
+        software that shippers with real freight volume actually run, as
+        opposed to a strawman.
+      - >-
+        Contrasts two different shapes with concrete mechanical claims, not
+        vague marketing language: Trax ingests carrier invoices (commonly
+        via EDI/TMS integration), audits at scale across a shipper's whole
+        carrier network under an ongoing enterprise account, and can
+        disburse carrier payment; this calculator imports one carrier's CSV
+        or hand-typed lines, prices them against a rate card typed once
+        (flat or per-unit with a free allowance and cap), flags duplicates
+        and overages, runs a detention-clock and fuel-surcharge check, and
+        never integrates, pays a carrier, or uploads anything -- no account,
+        free. No dollar figure is claimed for Trax since its pricing page is
+        not reachable from this session; only well-documented category facts
+        are stated.
+      - >-
+        FAQPage JSON-LD written to match the visible `<h3>`/`<p>` copy
+        exactly (verified with a bisecting divergence check in the new
+        `vs-trax.test.mjs`, mirroring `platform/pages/faq-visible.test.mjs`'s
+        own method). Linked from `index.html`'s existing extras line, added
+        to `sitemap.xml`, non-affiliation and no-warranty disclaimers
+        carried over from the venture's own footer, no third-party script,
+        font, stylesheet, or network call.
+      - >-
+        Regenerated the front-door mirror so the page actually deploys:
+        `node platform/marketing/front-door-tools.mjs --write` (new shard
+        key, `kustomization.yaml` updated) then `node
+        platform/marketing/front-door.mjs --write` (catalog.json,
+        sitemap.xml). Verified: venture's own `node --test` -> 128/128 (was
+        108, +20 new); `platform/pages/*.test.mjs` -> 880/880;
+        `platform/marketing/*.test.mjs` -> 208/208 (5 mirror-staleness
+        failures before the regen, 0 after); `node platform/pages/build.mjs`
+        -> 174 products, 665 pages; `node platform/pages/check.mjs
+        platform/pages/dist` -> "no dead links".
+    mrr_end: null
   - venture: cra-evidence-desk
     agent_spend_usd: null
     human_hours: 0
