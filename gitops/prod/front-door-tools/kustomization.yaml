@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 117 files, 555739 bytes
 #   portfolio-front-tools-2: 149 files, 556742 bytes
 #   portfolio-front-tools-3: 118 files, 552251 bytes
-#   portfolio-front-tools-4: 121 files, 544633 bytes
+#   portfolio-front-tools-4: 122 files, 548461 bytes
 #   portfolio-front-tools-5: 105 files, 544996 bytes
 #   portfolio-front-tools-6: 111 files, 553111 bytes
 #   portfolio-front-tools-7: 109 files, 542129 bytes
@@ -640,6 +640,7 @@ configMapGenerator:
       - delivery-app-margin-calculator__index.html.gz=delivery-app-margin-calculator__index.html.gz
       - delivery-app-margin-calculator__usage.mjs.gz=delivery-app-margin-calculator__usage.mjs.gz
       - dns-configuration-evidence__dns-evidence.mjs.gz=dns-configuration-evidence__dns-evidence.mjs.gz
+      - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
       - dryer-vent-bid-calculator__calc.mjs.gz=dryer-vent-bid-calculator__calc.mjs.gz
       - dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz=dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz

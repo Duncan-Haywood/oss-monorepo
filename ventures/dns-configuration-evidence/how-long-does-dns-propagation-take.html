@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How long does DNS propagation take? — what the wait actually is</title>
+  <meta name="description" content="DNS propagation is not an event, it is cache expiry. The wait is bounded by the TTL the old record carried, why nameserver changes take longer, and how to show what has actually moved.">
+  <meta property="og:title" content="How long does DNS propagation take?">
+  <meta property="og:description" content="There is no propagation event. Resolvers hold the old answer until its TTL expires — here is what sets the wait, and how to record what has actually changed.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How long does DNS propagation actually take?","acceptedAnswer":{"@type":"Answer","text":"There is no propagation event to wait for. An authoritative change is live the moment your DNS provider publishes it. What you are actually waiting on is every recursive resolver that already holds the old answer in cache, and each one keeps it until the TTL it was handed expires. So the honest upper bound is the TTL that was on the old record when a resolver last looked it up, not a fixed number of hours."}},{"@type":"Question","name":"Why does everyone say 24 to 48 hours?","acceptedAnswer":{"@type":"Answer","text":"That figure comes from changing which nameservers a domain uses, not from editing a record. A delegation change has to be picked up through the TLD zone, whose TTLs are measured in days rather than minutes, and some resolvers hold a delegation longer still. Editing an A, MX or TXT record while the nameservers stay put is usually bounded by that record's own TTL instead, which is often an hour or less."}},{"@type":"Question","name":"Can I make a change go faster once I have already made it?","acceptedAnswer":{"@type":"Answer","text":"No. Once resolvers have cached the old answer, nothing done at the authoritative side shortens the TTL they were already given. Speed has to be arranged beforehand: lower the TTL on the record, wait for the old TTL to expire so resolvers pick up the shorter one, and only then make the real change. After the fact the only options are waiting, and being able to show what has moved so far."}},{"@type":"Question","name":"How do I know the change is actually done?","acceptedAnswer":{"@type":"Answer","text":"By asking named resolvers and writing down what they answered, rather than trusting a provider panel that shows intent rather than effect. Capture what a set of resolvers answer before the change, capture the same queries again afterwards, and compare the two. During the window different resolvers will legitimately disagree, and a per-resolver record shows that instead of averaging it away."}},{"@type":"Question","name":"Does this tool show me the TTL?","acceptedAnswer":{"@type":"Answer","text":"No. It records the answers each resolver returned and compares them; it does not record the TTL attached to those answers. Read the TTL from your DNS provider's panel, or from a dig query, if you need to predict how long the wait will be. This tool is for establishing what changed, not for forecasting when it will."}},{"@type":"Question","name":"Why does one online propagation checker say done and another say not yet?","acceptedAnswer":{"@type":"Answer","text":"Because they queried different resolvers, at different moments, from different places. That is the normal shape of a change still in flight, not a fault in either checker. It is also why a single global verdict is the least useful thing such a tool can report, and why this one keeps every resolver on its own row."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#1b2027; --muted:#5c6672; --paper:#f4f2ee; --card:#fffefb; --accent:#1f6f5c; --line:#dcd7cd; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.55 system-ui,sans-serif; }
+    main { max-width:760px; margin:auto; padding:36px 20px 60px; }
+    h1 { font:700 clamp(1.9rem,5vw,3.1rem)/1.05 Georgia,serif; letter-spacing:-.02em; margin:0 0 14px; }
+    h2 { font:700 1.45rem Georgia,serif; margin:0 0 6px; } h3 { font:700 1.05rem Georgia,serif; margin:22px 0 4px; }
+    .intro { color:var(--muted); font-size:1.1rem; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:24px; box-shadow:0 8px 28px #2a231812; }
+    .note { margin:0 0 10px; }
+    .cta { border-left:4px solid var(--accent); padding:10px 16px; margin-top:24px; }
+    a { color:var(--accent); }
+    footer { margin-top:32px; color:var(--muted); font-size:.9rem; }
+    ol { padding-left:20px; } li { margin:6px 0; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>How long does DNS propagation take?</h1>
+  <p class="intro">Short answer: it is not a journey, so nothing is travelling. A change is live at your provider immediately, and the wait you are feeling is other people's resolvers holding a cached copy of the old answer until its TTL runs out.</p>
+
+  <section class="card">
+    <h2>What sets the wait</h2>
+    <p class="note">Three things, in the order they usually bite:</p>
+    <ol>
+      <li><strong>The old record's TTL.</strong> A resolver that cached the previous answer keeps serving it for as long as the TTL it received. That is the number that bounds an ordinary record edit.</li>
+      <li><strong>Whether the nameservers changed.</strong> A delegation change is resolved through the TLD zone, whose TTLs run to days, which is where the folklore figure of 24 to 48 hours comes from.</li>
+      <li><strong>Resolver behaviour.</strong> Some resolvers clamp very short TTLs upward, so a 60-second TTL does not guarantee a 60-second wait everywhere.</li>
+    </ol>
+    <p class="note">None of these are visible from a provider panel, which is why a change can look finished to you and not to a customer.</p>
+  </section>
+
+  <section class="card">
+    <h2>How to plan a cutover around it</h2>
+    <ol>
+      <li>Lower the TTL on the records you are about to change, well before the change window.</li>
+      <li>Wait at least the old TTL, so resolvers have picked up the shorter one.</li>
+      <li>Record what named resolvers answer now — this is your before.</li>
+      <li>Make the change.</li>
+      <li>Record the same queries again, and compare. What is still unchanged is what is still cached.</li>
+    </ol>
+  </section>
+
+  <!--
+    These questions and answers are duplicated verbatim in the FAQPage JSON-LD
+    in the document head, in this order. `platform/pages/faq-visible.test.mjs`
+    pins that: structured data a visitor cannot see on the page is a claim made
+    only to a search engine. Edit both halves together.
+  -->
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How long does DNS propagation actually take?</h3>
+    <p class="note">There is no propagation event to wait for. An authoritative change is live the moment your DNS provider publishes it. What you are actually waiting on is every recursive resolver that already holds the old answer in cache, and each one keeps it until the TTL it was handed expires. So the honest upper bound is the TTL that was on the old record when a resolver last looked it up, not a fixed number of hours.</p>
+    <h3>Why does everyone say 24 to 48 hours?</h3>
+    <p class="note">That figure comes from changing which nameservers a domain uses, not from editing a record. A delegation change has to be picked up through the TLD zone, whose TTLs are measured in days rather than minutes, and some resolvers hold a delegation longer still. Editing an A, MX or TXT record while the nameservers stay put is usually bounded by that record's own TTL instead, which is often an hour or less.</p>
+    <h3>Can I make a change go faster once I have already made it?</h3>
+    <p class="note">No. Once resolvers have cached the old answer, nothing done at the authoritative side shortens the TTL they were already given. Speed has to be arranged beforehand: lower the TTL on the record, wait for the old TTL to expire so resolvers pick up the shorter one, and only then make the real change. After the fact the only options are waiting, and being able to show what has moved so far.</p>
+    <h3>How do I know the change is actually done?</h3>
+    <p class="note">By asking named resolvers and writing down what they answered, rather than trusting a provider panel that shows intent rather than effect. Capture what a set of resolvers answer before the change, capture the same queries again afterwards, and compare the two. During the window different resolvers will legitimately disagree, and a per-resolver record shows that instead of averaging it away.</p>
+    <h3>Does this tool show me the TTL?</h3>
+    <p class="note">No. It records the answers each resolver returned and compares them; it does not record the TTL attached to those answers. Read the TTL from your DNS provider's panel, or from a dig query, if you need to predict how long the wait will be. This tool is for establishing what changed, not for forecasting when it will.</p>
+    <h3>Why does one online propagation checker say done and another say not yet?</h3>
+    <p class="note">Because they queried different resolvers, at different moments, from different places. That is the normal shape of a change still in flight, not a fault in either checker. It is also why a single global verdict is the least useful thing such a tool can report, and why this one keeps every resolver on its own row.</p>
+  </section>
+
+  <p class="cta"><strong>Want the before-and-after record?</strong> <a href="index.html">DNS Change Evidence</a> captures what Cloudflare, Google and Quad9 answer for a domain, then compares two captures and reports changed, unchanged and inconclusive separately. It runs entirely in your browser, and it is free.</p>
+
+  <footer><strong>No warranty.</strong> This page is free and as-is, and it is general operational explanation rather than DNS, security, deliverability, compliance, legal, or professional advice. TTL behaviour varies between resolvers and providers, so treat the timings here as how the mechanism works rather than a guarantee about your domain. You are responsible for confirming your authorization to change or query a domain, and for reviewing any record before relying on it. The authors accept no liability for loss or damage arising from its use.</footer>
+</main>
+</body>
+</html>

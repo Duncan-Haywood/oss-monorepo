@@ -9489,3 +9489,47 @@ entries:
         touched. No third-party script/font/CDN/network call added -- the
         change only discloses network calls the site already made.
     mrr_end: null
+  - venture: dns-configuration-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Measured the backlog instead of assuming one: `guide-coverage.mjs`
+        reported 172 of 174 published surfaces carrying a secondary page,
+        naming `cra-evidence-desk` and `dns-configuration-evidence` as the
+        only two without. FAQ coverage was already 174/174, so the guide
+        backlog was the real gap. Picked the DNS one over the CRA one
+        deliberately: a Cyber Resilience Act explainer would need
+        obligation dates checked against primary legislation, and this
+        environment has no outbound HTTPS to reach it, so an honest page
+        was not writable here.
+      - >-
+        Shipped `how-long-does-dns-propagation-take.html` -- the
+        informational query ("how long does DNS propagation take?") that
+        sits upstream of the tool's own transactional one, so it does not
+        cannibalise the entry page. Answers it from the mechanism (a change
+        is authoritative immediately; the wait is other resolvers' caches
+        expiring, bounded by the TTL the old record carried), covers why
+        nameserver changes take days where record edits take the record's
+        TTL, and why lowering a TTL after the fact does nothing. Visible
+        Q&A with matching FAQPage JSON-LD generated from one source of
+        truth so the two halves cannot drift, no-warranty clause, linked
+        from `index.html`, no third-party script, font, or network call.
+      - >-
+        Stated the tool's limit rather than overclaiming: it records the
+        answers each resolver returned, not their TTLs, so the page says so
+        and points at the DNS panel or `dig` for the TTL. Checked the
+        source before writing that -- no TTL handling exists in
+        `index.html` or `dns-evidence.mjs`.
+      - >-
+        Verified: `faq-visible`, `secondary-schema` and `clauses` tests
+        19/19; venture `node --test` 25/25; `platform/pages/*.test.mjs`
+        880/880; `platform/marketing/*.test.mjs` 208/208; `pytest
+        gitops/tests -q` 300 passed, 16 skipped. `build.mjs` -> 174
+        products, 663 pages, `check.mjs` -> "no dead links".
+        `guide-coverage.mjs` 172/174 -> 173/174. Regenerated the apex
+        mirror (`front-door-tools.mjs --write`, then `front-door.mjs
+        --write`) so the page deploys on the Hetzner front door rather than
+        only in the Pages artifact: new shard key present, listed in
+        `kustomization.yaml` and in the front door's `sitemap.xml`.
+    mrr_end: null
