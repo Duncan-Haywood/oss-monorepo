@@ -109,31 +109,15 @@ decisions:
     job afterwards and then nobody dispatched it again, so the secret has sat
     wrong for eleven days with the repo asserting otherwise.
 
-    **Corrected 2026-09-04, same day this row opened.** `Public surface
-    check` (the tool this row's `action` cites as the reason SSH access was
-    no longer needed to answer "is the site up") has now run three times
-    against `main` (runs 33887885219, 33888988972, 33888990022, all
-    `workflow_dispatch`, all on real GitHub-hosted runners, no credential
-    used). All three report **all three hostnames — `marisstella.dev`,
-    `www.marisstella.dev`, and `tools.marisstella.dev` alike —
-    `unreachable: [Errno 111] Connection refused`.** That includes the two
-    hosts CLAUDE.md and this file's own `action` text assert are already
-    serving the front-door/tool-mirror ConfigMap with no unmet Secret.
-    Connection refused, not a timeout or TLS/DNS failure, means something
-    upstream of the application (DNS, the load balancer, or the ingress) is
-    actively refusing the connection or nothing is listening at all — not a
-    single-tool gating gap. This is a live, unverified-root-cause reading,
-    not a diagnosis: it could be the whole cluster down, the LB
-    misconfigured, DNS repointed, or a `gitops/prod` change that broke
-    ingress routing. Nothing in this repo can currently distinguish those
-    without either this key or someone checking the Hetzner console
-    directly, because `HETZNERSSHKEY` is still the wrong half of the keypair
-    (unchanged as of this correction). **This raises this row's priority
-    above the two seals it was previously ranked below**: sealing
-    `portfolio-site-repo` or `codex-secrets` delivers nothing to a stranger
-    if the entire public surface is unreachable regardless of what's sealed.
-    Rerun `Public surface check` (`workflow_dispatch`, no inputs) to see if
-    this has since self-resolved before assuming it is still down.
+    **Not a one-off blip, as of 2026-09-04.** The `action` above cites the
+    first `Public surface check` run (33887885219); it has since run twice
+    more (33888988972, 33888990022), independently `workflow_dispatch`ed,
+    same result each time — all three hostnames `Connection refused`. Three
+    consistent readings rule out a transient network hiccup at measurement
+    time; they don't yet distinguish which of the causes `unlocks` above
+    lists. `HETZNERSSHKEY` was still the wrong half of the keypair as of the
+    third run. Rerun `Public surface check` (`workflow_dispatch`, no inputs)
+    to see if this has since self-resolved before assuming it is still down.
 
 - id: actions-runners-unavailable
   asks: []
