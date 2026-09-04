@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRA Evidence Desk vs. OWASP Dependency-Track | CRA Evidence Desk</title>
+<meta name="description" content="OWASP Dependency-Track is a self-hosted, always-on SBOM and vulnerability-management server. This is a free, one-shot, no-install browser or CLI tool that matches one SBOM against one advisory export and drafts a CRA Article 14 notification. Not affiliated with the OWASP Foundation." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="./vs-dependency-track.html" />
+<meta property="og:title" content="CRA Evidence Desk vs. OWASP Dependency-Track" />
+<meta property="og:description" content="Two different shapes: Dependency-Track is a continuous, self-hosted vulnerability-management platform. This page is a free, one-shot worksheet that turns one SBOM and one advisory export into a CRA Article 14 draft." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I use CRA Evidence Desk or OWASP Dependency-Track?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They solve different problems. Dependency-Track is a continuous SBOM-analysis server: you deploy it (Docker containers, a database, ongoing patching and access control), feed it SBOMs over time, and it watches every component against multiple vulnerability-intelligence sources for as long as it keeps running, with a policy engine and EPSS-based prioritisation across your whole portfolio of projects. CRA Evidence Desk does none of that. It is a static page or a CLI, not a server: give it one CycloneDX/SPDX SBOM and one advisory export (OSV or a plain list) and it makes only exact name, ecosystem and version matches, names what it could not evaluate, and produces a dated JSON record plus an Article 14 draft. Nothing is installed, nothing runs between visits, and nothing is uploaded. A vendor already running Dependency-Track gets continuous monitoring from the platform it operates; a vendor who needs a single, disclosed evidence artifact right now, or who does not want to stand up and secure a server to get one, is in the right place here."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this page affiliated with OWASP or Dependency-Track?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. This page is not affiliated with, endorsed by, or sponsored by the OWASP Foundation or the Dependency-Track project. Dependency-Track is free, open-source software; it is named here only to describe what this tool is and is not."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, -apple-system, Segoe UI, sans-serif; }
+  main { max-width: 46rem; margin: 0 auto; padding: 2.25rem 1.25rem 3.5rem; }
+  h1 { font-size: clamp(1.5rem, 4.5vw, 2.2rem); line-height: 1.15; margin: 0 0 0.6rem; }
+  h2 { font-size: 1.2rem; margin: 1.6rem 0 0.5rem; }
+  h3 { font-size: 1.02rem; margin: 1.4rem 0 0.3rem; }
+  .intro { color: var(--muted); font-size: 1.05rem; margin: 0 0 1.4rem; }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.15rem 1.25rem; margin-top: 1.4rem; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  table { border-collapse: collapse; width: 100%; margin-top: 0.7rem; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: left; vertical-align: top; }
+  th { font-weight: 600; }
+  .wrap { overflow-x: auto; }
+  .eyebrow { font-size: 0.9rem; }
+  footer { margin-top: 2.4rem; border-top: 1px solid var(--border); padding-top: 1rem; color: var(--muted); font-size: 0.92rem; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow"><a href="./">&larr; CRA Evidence Desk</a></p>
+  <h1>CRA Evidence Desk vs. OWASP Dependency-Track</h1>
+  <p class="intro">Two different shapes: Dependency-Track is a continuous, self-hosted SBOM-analysis server you run and maintain. This is a free, one-shot page or CLI for a single question &mdash; do this SBOM and this advisory export name any of the same components right now, and can I get a reviewable Article&nbsp;14 draft out of that in minutes.</p>
+
+  <section class="panel">
+    <h2>What each tool is for</h2>
+    <p>
+      <strong>OWASP Dependency-Track</strong> is a free, open-source platform
+      that organizations deploy as a running service (Docker containers plus
+      a database) to ingest SBOMs continuously and watch every tracked
+      component &mdash; libraries, containers, operating systems, firmware,
+      services &mdash; against multiple vulnerability-intelligence sources
+      (the NVD, Sonatype OSS Index, GitHub Advisories, OSV, and others) for as
+      long as it keeps running, so a CVE disclosed after your last build still
+      fires an alert. It has a policy engine, EPSS-based prioritisation, and
+      portfolio-wide project tracking. Running it is an ongoing operational
+      commitment: someone has to deploy it, secure the database and API,
+      patch it, and keep it fed.
+    </p>
+    <p>
+      CRA Evidence Desk does none of that. It has no server, no database, and
+      no memory between visits &mdash; it is a static page (or a CLI you run
+      by hand or in CI) that reads one SBOM and one advisory export you
+      already have and makes only exact name/ecosystem/version matches,
+      names the advisories it could not evaluate, and exports a dated JSON
+      record plus a customer-reviewed Article&nbsp;14 notification draft. It
+      does not watch anything over time, does not carry its own vulnerability
+      database, and needs nothing installed or kept running.
+    </p>
+    <div class="wrap">
+    <table>
+      <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+      <tbody>
+        <tr><td>I want continuous monitoring across every project I ship, watching new advisories as they are published, with a policy engine and prioritisation.</td><td>Dependency-Track &mdash; that ongoing, portfolio-wide watch is what it is built for.</td></tr>
+        <tr><td>I have one SBOM and one advisory export in hand right now and need to know which named components actually match, plus a draft I can hand a reviewer today.</td><td>CRA Evidence Desk &mdash; free, instant, private, nothing to deploy.</td></tr>
+        <tr><td>I don't want to stand up, secure, and patch a server just to answer one reporting question.</td><td>CRA Evidence Desk &mdash; it is a static page or a single CLI invocation, not a service.</td></tr>
+        <tr><td>I need a document shaped for a specific obligation &mdash; a CRA Article&nbsp;14 notification draft &mdash; not a general vulnerability dashboard.</td><td>CRA Evidence Desk's draft output is built around that one document.</td></tr>
+        <tr><td>I want my own private vulnerability-intelligence database, aggregated from multiple public feeds, kept current automatically.</td><td>Dependency-Track &mdash; it maintains that database for you as a running service.</td></tr>
+        <tr><td>Does the tool upload my SBOM anywhere?</td><td>CRA Evidence Desk: no, it never leaves your device. Dependency-Track: it is designed to receive SBOMs, since ingesting and storing them is its job.</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>
+      Most vendors get different value from each: Dependency-Track (or a
+      comparable SCA platform) for an always-on watch across a whole
+      portfolio, and a tool like this one for an instant, no-deployment check
+      of one SBOM against one advisory export before a specific filing
+      question. This page's own output is a single evidence artifact from the
+      inputs you gave it, not a vulnerability database, a continuous scan, or
+      a substitute for reviewing the advisories yourself.
+    </p>
+    <p>This tool needs no install and no server: it is a static page, the matching runs in your browser (or as a single CLI command), and once loaded it keeps working with the connection off.</p>
+  </section>
+
+  <section class="panel">
+    <h2>Common questions</h2>
+    <h3>Should I use CRA Evidence Desk or OWASP Dependency-Track?</h3>
+    <p>They solve different problems. Dependency-Track is a continuous SBOM-analysis server: you deploy it (Docker containers, a database, ongoing patching and access control), feed it SBOMs over time, and it watches every component against multiple vulnerability-intelligence sources for as long as it keeps running, with a policy engine and EPSS-based prioritisation across your whole portfolio. CRA Evidence Desk does none of that. It is a static page or a CLI, not a server: give it one CycloneDX/SPDX SBOM and one advisory export and it makes only exact name, ecosystem and version matches, names what it could not evaluate, and produces a dated JSON record plus an Article&nbsp;14 draft. Nothing is installed, nothing runs between visits, and nothing is uploaded. A vendor already running Dependency-Track gets continuous monitoring from the platform it operates; a vendor who needs a single, disclosed evidence artifact right now, or who does not want to stand up and secure a server to get one, is in the right place here.</p>
+    <h3>Is this page affiliated with OWASP or Dependency-Track?</h3>
+    <p>No. This page is not affiliated with, endorsed by, or sponsored by the OWASP Foundation or the Dependency-Track project. Dependency-Track is free, open-source software; it is named here only to describe what this tool is and is not.</p>
+    <p>
+      Open the <a href="./">CRA Evidence Desk</a> to run your own SBOM and
+      advisory export, or see <a href="./sbom-and-advisory-package-names-dont-match.html">why your SBOM and advisory package names don't match</a> first if the two files use different spellings for the same registry.
+    </p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page is free and as-is, without warranty of any kind, express or implied. It is general technical description, not legal, regulatory, or compliance advice, and not a determination that any obligation does or does not apply to you. You are responsible for reviewing and verifying its output, and any comparison here, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These pages are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Everything runs in your browser. Nothing is uploaded, and this page makes no live comparison against Dependency-Track &mdash; it is a static page describing publicly documented facts about free, open-source software.</p>
+    <p>MIT licensed &mdash; see <a href="LICENSE">LICENSE</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> if this saved you an afternoon &mdash; entirely optional, the tool stays free either way.</p>
+  </footer>
+</main>
+</body>
+</html>
