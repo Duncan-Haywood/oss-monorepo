@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 169 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 173 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 169 of them — and
+Every tool in the collection is listed below — all 173 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -153,8 +153,11 @@ page that hosts it.
 - [Grant Deadline Tracker for Small Nonprofits](https://marisstella.dev/tools/grant-deadline-tracker/): Free private grant deadline and reporting tracker for small nonprofits. Find overdue obligations, see award funds remaining, and compare hiring a grant writer against the cash a late report puts at risk.
 - [Shopify Accessibility Evidence Report](https://marisstella.dev/tools/shopify-a11y-evidence/): Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.
 - [Consent Change Record](https://marisstella.dev/tools/consent-change-record/): Compare before-and-after consent browser traces and create a local request and storage change record.
+- [CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors](https://marisstella.dev/tools/cra-evidence-desk/): Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.
 - [E-invoice Preflight — Check JSON, UBL, CII, or Factur-X](https://marisstella.dev/tools/einvoice-preflight/): Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.
 - [MCP Supply-Chain Watch](https://marisstella.dev/tools/mcp-supply-chain-watch/): Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.
+- [Print File Preflight — free DPI and print-size checker for artists](https://marisstella.dev/tools/print-atelier/): Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.
+- [MLS Listing Photo Preflight — free listing photo checker for real estate agents](https://marisstella.dev/tools/real-estate-agent-photo-app/): Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.
 - [Shopify Permission Drift Record](https://marisstella.dev/tools/shopify-permission-drift/): Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.
 
 ## Marketplace seller tools
@@ -210,6 +213,7 @@ page that hosts it.
 - [Sponsor Ready — free GitHub Sponsors readiness checklist](https://marisstella.dev/tools/sponsor-ready/): Free, no-signup checklist that scores a public GitHub repo against the signals that correlate with attracting GitHub Sponsors, and tells you exactly what to fix first.
 - [Free Electronics Calculators — AI Engineering Academy](https://marisstella.dev/tools/ai-engineering-academy/): A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.
 - [Tender Radar](https://marisstella.dev/tools/tender-radar/): Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.
+- [Which Job First? Free Pairwise Job Priority Ranker for Contractors](https://marisstella.dev/tools/which-job-first/): Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.
 
 ## Optional
 

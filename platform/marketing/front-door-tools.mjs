@@ -81,6 +81,7 @@
  * commit with the command that fixes it.
  */
 
+import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
@@ -88,7 +89,7 @@ import { fileURLToPath } from 'node:url';
 // The canonical site build's own entry-point rules, imported rather than
 // restated. `venturePageRoot` is the only consumer; see its comment for why a
 // copy here has twice gone stale against the original.
-import { ENTRY_CANDIDATES, ENTRY_OVERRIDES } from '../pages/build.mjs';
+import { ABOUT_PATH, ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
 
 // The embed offer, imported whole rather than reproduced for this host.
 //
@@ -113,6 +114,15 @@ export const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 
 /** Where `--write` puts the mirror; a kustomization in the same directory reads it. */
 export const OUTPUT_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door-tools');
+
+/**
+ * The front door's own directory — `default.conf` and the pages `front-door.mjs`
+ * writes. `writeMirror` puts the generated alias map here rather than in
+ * `OUTPUT_DIR` because it is nginx configuration, not mirrored content, and it
+ * has to land in the `portfolio-front-nginx` ConfigMap beside the config that
+ * reads it.
+ */
+export const FRONT_DOOR_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door');
 
 /** The canonical host every tool page belongs to; see `build.mjs`. */
 export const TOOLS_URL = 'https://tools.marisstella.dev/';
@@ -330,6 +340,79 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  */
 export const MIRROR_BYTE_CEILING = 8 * 1024 * 1024;
 
+/**
+ * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
+ * running out of room, rather than merely measured.
+ *
+ * ## Why a second, lower number
+ *
+ * `MIRROR_BYTE_CEILING` is a wall, not a warning: `buildMirror` throws on it,
+ * and the throw lands in `portfolio-validate` — which every PR that touches a
+ * venture page runs. So the first session to cross it does not discover a
+ * capacity problem, it discovers that *no tool can be published at all* until
+ * someone resolves one, in the middle of whatever else it was shipping. The
+ * catalogue is the portfolio's entire public surface and the fleet adds tools
+ * daily, so that is a stop-the-world failure arriving with no notice.
+ *
+ * Measured 2026-09-03, before deduplication: 173 tools, 6,416,254 stored bytes,
+ * 76.5% of the ceiling, ~37,088 stored bytes per tool. At that rate the wall
+ * was ~53 tools out, which at the fleet's rate of four or so a day was about a
+ * fortnight. Nothing in the tree was tracking the number, which is how it got
+ * to three quarters unremarked.
+ *
+ * 85% is chosen so the report fires with roughly a third of the runway still
+ * unspent. That is enough room for a remedy to land as an ordinary reviewed
+ * change rather than an emergency.
+ *
+ * ## The remedy has since been implemented, and this is what it bought
+ *
+ * Not "drop a venture", which is what the wall's message used to say. That
+ * advice predates the mirror covering the whole catalogue: dropping a tool to
+ * publish a tool is a wash, and `STARTER_SET` is no longer where the bulk is.
+ *
+ * The measured answer was `duplicateBytes` below: **18.5% of the mirror
+ * (1,186,041 stored bytes) was byte-identical duplicate content.** Ventures
+ * here are deliberately self-contained — each ships its own copy of the shared
+ * helpers — so `proposal.mjs` was stored 104 times identically (760,552
+ * redundant bytes), `share.mjs` 37 times (224,964), `LICENSE` 161 times
+ * (104,960) and `proposal-terms.mjs` 21 times (82,940). Every one of those
+ * files is genuinely referenced by the pages that ship beside it, so none
+ * could simply be dropped.
+ *
+ * `dedupeMirror` now stores one copy of each and `renderMirrorAliases` writes
+ * an nginx `map` that points the other names at it, with an identity default so
+ * only duplicated keys are affected. **Result, same day: 5,230,213 stored bytes,
+ * 62.3% of the ceiling, ~104 tools of runway rather than ~53, and 12 shards
+ * down to 10.** All 1,439 mirrored URLs were served from the real `default.conf`
+ * before and after and compared byte-for-byte: identical status, content type
+ * and sha256 on every one.
+ *
+ * The other mechanism considered was **projecting one ConfigMap key to many
+ * paths** (`items: [{key, path}]` in the projected volume). It was not chosen:
+ * it recovers the repository and ConfigMap bytes but not the pod's memory,
+ * because the kubelet still materialises every path into the tmpfs the mirror
+ * is charged against — so the two costs would have had to be split and
+ * separately bounded first — and it spends ~670 lines of generated YAML inside
+ * the Deployment spec. The `map` recovers both costs at once and keeps the
+ * generated bulk in a config file.
+ *
+ * An earlier revision of this comment ruled the `map` out because it "wants an
+ * environment that can actually run nginx against the built mirror. This one
+ * cannot: no nginx binary and no Docker daemon, verified 2026-09-03." That was
+ * true of the session that wrote it and false of the repository:
+ * `apt-get install nginx-light` supplies nginx 1.24 built
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`, which is
+ * everything this config uses. `gitops/tests/test_front_door_serving.py` had in
+ * fact been carrying a full nginx harness the whole time — it was *skipping*
+ * for want of the binary, so eleven serving tests silently did not run. Check
+ * what the tree already has before recording a limit as a property of it.
+ *
+ * Do not raise `MIRROR_BYTE_CEILING` to clear this report: both costs its
+ * comment names are real, and the duplicate bytes are now recovered
+ * automatically, so a future breach is genuine growth rather than waste.
+ */
+export const MIRROR_HEADROOM_WARN_RATIO = 0.85;
+
 /** The name prefix every mirror shard's ConfigMap takes; `-0`, `-1`, ... follow. */
 export const SHARD_PREFIX = 'portfolio-front-tools';
 
@@ -395,8 +478,14 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
  * `ventures/` today, which is how the wrong claim survived. See
  * `STRIPPED_LINK_RELS` for the fix.
  */
-const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
-const SERVABLE_NAMES = new Set(['LICENSE']);
+/*
+ * Exported so `workflow-coverage.test.mjs` can hold the CI path filters to
+ * these two sets rather than restating them. A venture file this mirror
+ * serves but no workflow watches is edited, merged, and never regenerated —
+ * see that file's header for the two times it happened.
+ */
+export const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
+export const SERVABLE_NAMES = new Set(['LICENSE']);
 
 /**
  * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
@@ -1122,6 +1211,13 @@ export const APEX_ROOT_PATHS = new Set([
   // and the page that runs it is somebody else's — but it is served from this
   // document root and so belongs in the same allowlist.
   `/${EMBED_HOST_FILE}`,
+  // The About and press-kit page, `renderFrontDoorAbout` in `front-door.mjs`,
+  // served from the document root by `default.conf`'s `^/about/?$` block. In
+  // the allowlist so a mirrored page may link to it — the injected chrome does
+  // not today, but `validateLinks` rejects any absolute link this root does not
+  // serve, and a page that *can* be linked to belongs here rather than being
+  // discovered as a build failure by whoever first adds the link.
+  `/${ABOUT_PATH}`,
 ]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);
@@ -1420,7 +1516,11 @@ export function injectMirrorTags(html, { slug, file }) {
     `<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">` +
     `<meta property="og:image:alt" content="${SOCIAL_CARD_ALT}">` +
     `<meta name="twitter:card" content="summary_large_image">` +
-    NAV_STYLE;
+    NAV_STYLE +
+    // Only entry pages carry the cross-link block, so only they need its rule.
+    // Shipping it on all 544 mirrored pages would spend bytes on 375 that have
+    // no element to match.
+    (file === 'index.html' ? RELATED_STYLE : '');
   const stripped = html
     .replace(STRIPPED_LINK, '')
     .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '')
@@ -1506,12 +1606,20 @@ export const NAV_STYLE =
  * category. The link is what makes that grouping reachable from where people
  * actually land.
  *
- * ## Why one link, at the top, rather than a related-tools block
+ * ## Why one link, at the top
  *
- * Bytes are the mirror's binding constraint — see `MIRROR_BYTE_CEILING` — and
- * a per-page block of siblings would cost several times this and go stale
- * against `STARTER_SET`. One link to the front door reaches all of them,
- * because the front door is already the catalogue.
+ * It reaches every tool, because the front door is already the catalogue, and
+ * it costs one anchor on a page where bytes are the binding constraint — see
+ * `MIRROR_BYTE_CEILING`.
+ *
+ * This comment used to end "rather than a related-tools block", on the grounds
+ * that a per-page list of siblings "would cost several times this and go stale
+ * against `STARTER_SET`". `injectMirrorRelated` is that block, and its own
+ * comment records why both halves of that argument expired: there is no
+ * `STARTER_SET` left to drift against, and the measured cost of the block is
+ * 48 KB against ~2 MB of headroom. The two are complements now — this one is
+ * the hop back to the catalogue, that one is the hop sideways to the three or
+ * four tools the same visitor actually sells.
  *
  * It goes immediately after `<body>` rather than in the footer because a
  * calculator page is long: a footer link is below a form nobody scrolls past
@@ -1537,6 +1645,108 @@ export function injectMirrorNav(html, { toolCount }) {
   }
   const at = html.indexOf(body[0]) + body[0].length;
   return html.slice(0, at) + nav + html.slice(at);
+}
+
+/**
+ * The class the cross-link block takes. Same reasoning as `NAV_CLASS`: an
+ * `fd-` prefix no venture uses, asserted by a test over the mirrored sources.
+ */
+export const RELATED_CLASS = 'fd-related';
+
+/** How many sibling tools an entry page offers. `relatedTools`' own default. */
+export const RELATED_LIMIT = 4;
+
+/**
+ * The rule for the cross-link block. Injected into the head beside
+ * `NAV_STYLE`, and for the same three reasons: a `@media print` rule the
+ * venture stylesheets would otherwise not apply (a contractor's printed bid
+ * must not carry a list of other calculators), a `.pf-embed` rule so the block
+ * disappears when this page is the one inside someone else's iframe, and
+ * literal colours because the venture pages do not define the front door's
+ * custom properties.
+ *
+ * Deliberately quiet: a bordered-top list in the page's own text colour at
+ * inherited size, not a second call-to-action competing with the tool. The
+ * visitor came for a number; this is what they see after they have it.
+ */
+export const RELATED_STYLE =
+  // `display` is declared on all three elements, and that is not padding.
+  // These rules are injected ahead of the venture's own <style>, so on a tie
+  // the venture wins; a class selector outranks a bare element one, so we win
+  // — but only for properties we actually state. Three mirrored ventures set
+  // `display` on a bare `nav`, `ul` or `p` (`nav{display:flex}` in
+  // faire-wholesale-calculator lays the heading beside the list;
+  // `p{display:none}` would delete the heading outright), and every one of
+  // those would have reached the block through a property this rule left
+  // unmentioned. Stating the layout is what makes the block's appearance a
+  // property of the block rather than of whichever venture it lands in.
+  `<style>.${RELATED_CLASS}{display:block;margin:2.5rem 0 0;padding:1rem 0 0;` +
+  `border-top:1px solid #c9d4da;font:400 14px system-ui,sans-serif}` +
+  `.${RELATED_CLASS} p{display:block;margin:0 0 .5rem;font-weight:600}` +
+  `.${RELATED_CLASS} ul{display:block;margin:0;padding:0 0 0 1.1rem;list-style:disc}` +
+  `.${RELATED_CLASS} li{display:list-item;margin:.25rem 0}` +
+  `.${RELATED_CLASS} a{color:#12506b}` +
+  `@media print{.${RELATED_CLASS}{display:none!important}}` +
+  `.pf-embed .${RELATED_CLASS}{display:none}</style>`;
+
+/**
+ * Offer four sibling tools at the foot of a mirrored entry page.
+ *
+ * ## Why this exists, and why the old answer stopped being right
+ *
+ * `injectMirrorNav`'s comment argues for one link to the front door "rather
+ * than a related-tools block", on two grounds: that a block "would cost
+ * several times this" against `MIRROR_BYTE_CEILING`, and that it would "go
+ * stale against `STARTER_SET`". Both were true when written and neither is
+ * now.
+ *
+ * `STARTER_SET` is gone — the mirror covers every eligible venture, so there
+ * is no curated subset for a per-page list to drift out of step with. And the
+ * ceiling stopped binding at this scale when the mirror went gzip-only: the
+ * committed mirror is ~6.0 MB against 8 MiB, and four anchors on 169 entry
+ * pages is a fraction of the ~2.0 MB spare. The byte argument was sound
+ * arithmetic against a 5 MiB ceiling holding 53 uncompressed tools; it is not
+ * arithmetic about the mirror that exists.
+ *
+ * What the one link cannot do is the part that matters. It reaches the
+ * catalogue, but it asks a visitor who has just got their number to go back to
+ * a page of 169 tools and work out which of them also applies to them. A
+ * contractor on the fence calculator is one click from the concrete, deck and
+ * retaining-wall bids — *if* something names them. Internal links between
+ * related pages are also the single largest on-site lever a static catalogue
+ * has for search, and these are the pages that carry it: while
+ * `TOOLS_HOST_SERVES` is false the apex is each tool's canonical and the only
+ * indexable copy.
+ *
+ * ## Why it imports `relatedTools` rather than choosing its own four
+ *
+ * `build.mjs` already ranks siblings — same sub-group first, then the rest of
+ * the category, then the rest of the site, rotated by the tool's own position
+ * so neighbouring tools do not all advertise the same four. That ranking is
+ * the reason a metal-roof page offers another roof and not a music-lesson
+ * break-even, and it is tested where it lives. `CLAUDE.md` records two
+ * occasions where restating a `build.mjs` rule here instead of importing it
+ * cost live product; this module already imports `ENTRY_CANDIDATES` and
+ * `injectEmbedWidget` for exactly that reason.
+ *
+ * The links are root-absolute `/tools/<slug>/` rather than `../<slug>/`
+ * because a mirrored page can be served from `/tools/<slug>/` or from a
+ * subdirectory below it, so a relative hop would resolve differently by depth.
+ * `validateLinks` checks them against the mirror's own file list, so a link
+ * here can no more go dead than a venture's own can.
+ */
+export function injectMirrorRelated(html, { file, related }) {
+  if (file !== 'index.html' || !related?.length) return html;
+  const items = related
+    .map(({ slug, title }) => `<li><a href="${mirrorUrl(slug, 'index.html')}">${title}</a></li>`)
+    .join('');
+  const block =
+    `<nav class="${RELATED_CLASS}" aria-label="Other free tools">` +
+    `<p>Other free tools for the same work</p><ul>${items}</ul></nav>`;
+  if (!/<\/body>/i.test(html)) {
+    throw new Error('a mirrored entry page has no </body>, so the related tools have nowhere to go');
+  }
+  return html.replace(/<\/body>/i, `${block}</body>`);
 }
 
 /**
@@ -1720,6 +1930,20 @@ export function validateLinks(files) {
       // root, not by this mirror, so it is checked against what that root
       // actually holds rather than resolved against the venture directory.
       if (target.startsWith('/')) {
+        // `/tools/<slug>/` is this mirror's own address space, not the front
+        // door's document root, so it is checked against the file list rather
+        // than the root allowlist. `injectMirrorRelated` is the only injector
+        // that writes one, and this is what stops it offering a tool the
+        // mirror does not serve — the same guarantee a venture's own relative
+        // links get below.
+        if (target.startsWith(`/${MIRROR_PREFIX}`)) {
+          const within = target.slice(`/${MIRROR_PREFIX}`.length);
+          const candidate = within.endsWith('/') ? `${within}index.html` : within;
+          if (!present.has(candidate)) {
+            problems.push(`${slug}/${file} → "${href}" (no ${candidate} in the mirror)`);
+          }
+          continue;
+        }
         if (!APEX_ROOT_PATHS.has(target)) {
           problems.push(
             `${slug}/${file} → "${href}" (the apex document root serves only ` +
@@ -1758,8 +1982,16 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // filesystem; a caller passing an explicit `set` (every test that exercises
   // packing or a deliberate failure) must not pay for a scan of `ventures/`.
   set ??= await mirrorSet(venturesDir);
-  const files = [];
-  const tools = [];
+
+  // Read every venture first, inject afterwards.
+  //
+  // The passes used to be one loop, and could be until `injectMirrorRelated`
+  // arrived: what a page needs to name its siblings is *their* titles, and a
+  // single pass has only read the ventures before it. Reading first is the
+  // cheap fix — the raw contents were already all held in `files` by the end
+  // of the old loop, so this costs no memory the function did not spend
+  // anyway, and the filesystem reads are unchanged in number and order.
+  const sources = [];
   for (const { slug, why } of set) {
     // Before the filesystem read, so an unroutable slug reports why it is
     // unroutable rather than an ENOENT from a directory nobody should add.
@@ -1773,13 +2005,35 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
     if (!names.includes('index.html')) {
       throw new Error(`${slug} has no index.html — it cannot be an entry in STARTER_SET`);
     }
+    const raws = new Map();
     for (const file of names) {
       if (!ROUTABLE_SUBPATH.test(file)) {
         throw new Error(
           `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
         );
       }
-      const raw = await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8');
+      raws.set(file, await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8'));
+    }
+    sources.push({ slug, why, names, raws });
+  }
+
+  // What `relatedTools` ranks over, and the titles the block displays. The
+  // title is the venture's own `<title>` taken from `raw`, which is what a
+  // link to that page should say — the same source `tools` below uses.
+  const surfaces = sources.map(({ slug, raws }) => ({
+    slug,
+    title: pageTitle(raws.get('index.html')),
+  }));
+  const bySlug = new Map(surfaces.map((surface) => [surface.slug, surface]));
+
+  const files = [];
+  const tools = [];
+  for (const { slug, why, names, raws } of sources) {
+    // Resolved once per venture rather than per file: only `index.html`
+    // carries the block, and `relatedTools` is a ranking over all 169.
+    const related = relatedTools(surfaces, slug, RELATED_LIMIT).map(({ slug: id }) => bySlug.get(id));
+    for (const file of names) {
+      const raw = raws.get(file);
       // The title is read from the venture's own markup before any pass runs.
       // `pageTitle` is applied to the *injected* contents further down for the
       // feed, and either would do here — but taking it from `raw` keeps the
@@ -1787,7 +2041,10 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
       // is what a stranger's page ends up displaying.
       const contents = file.endsWith('.html')
         ? injectMirrorEmbed(
-            injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length }),
+            injectMirrorRelated(
+              injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length }),
+              { file, related },
+            ),
             { slug, file, title: file === 'index.html' ? pageTitle(raw) : undefined },
           )
         : raw;
@@ -1825,11 +2082,31 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // candidate rather than something the apex serves.
   assertNoConflictMarkers(files);
 
-  const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
+  // Deduplication happens before every measurement below, because after it the
+  // aliased copies are not written anywhere: not to `gitops/prod/front-door-tools/`,
+  // not into a shard, and not into either replica's tmpfs. `bytes` is therefore
+  // what the mirror actually costs, which is what `MIRROR_BYTE_CEILING` bounds.
+  const { stored, aliases } = dedupeMirror(files);
+  const bytes = stored.reduce((sum, f) => sum + f.bytes.length, 0);
+  // What the same catalogue would have cost stored one-copy-per-name. Reported
+  // rather than checked: it is the number that says whether the alias map is
+  // still earning its place, and nothing stores it.
+  const undedupedBytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
+    // Name the measured remedy, not a guess. This message used to say "drop a
+    // venture from STARTER_SET", which stopped being the answer when the
+    // mirror grew to cover the whole catalogue: dropping a tool to publish a
+    // tool is a wash, and the bulk is no longer in `STARTER_SET`. It then named
+    // byte-identical duplication, which `dedupeMirror` above now recovers
+    // automatically — so by the time this throws, that remedy is already spent
+    // and quoting it again would send a session after bytes that are gone.
+    const dup = duplicateBytes(stored);
     throw new Error(
-      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling — ` +
-        `drop a venture from STARTER_SET rather than raising it without reading its comment`,
+      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling.\n` +
+        `Aliasing has already recovered ${undedupedBytes - bytes} bytes across ${aliases.length} ` +
+        `duplicate name(s); ${dup.redundant} bytes in ${dup.groups} group(s) remain duplicated and ` +
+        `are content the alias map deliberately does not touch (see dedupeMirror).\n` +
+        `Do not raise MIRROR_BYTE_CEILING without reading its comment: both costs it names are real.`,
     );
   }
   // What the mirror would have cost uncompressed, reported rather than
@@ -1837,7 +2114,308 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // place, and it has no ceiling of its own because nothing stores it.
   const sourceBytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
 
-  return { files, tools, bytes, sourceBytes, shards: packShards(files) };
+  return {
+    files,
+    stored,
+    aliases,
+    tools,
+    bytes,
+    undedupedBytes,
+    sourceBytes,
+    shards: packShards(stored),
+  };
+}
+
+/**
+ * The mirror's byte-identical duplication, by content.
+ *
+ * Ventures here are self-contained on purpose — `platform/pages/build.mjs`
+ * publishes each one as a standalone directory, so a venture that needs
+ * `proposal.mjs` ships its own copy rather than importing a shared one. That
+ * is the right call for the product and it is invisible on the canonical host,
+ * where each venture is served from its own tree. The mirror is where it costs
+ * something: it flattens every venture into one key space under a single
+ * ceiling, so the 104th identical copy of `proposal.mjs` spends 7,384 bytes of
+ * a budget the other 172 tools share.
+ *
+ * Grouped by the *stored* (compressed) bytes rather than the source, because
+ * stored bytes are what every ceiling in this file measures. gzip is
+ * deterministic at a fixed level, so identical source compresses to identical
+ * output and the two groupings agree — hashing the stored form just means the
+ * number reported is the number recoverable.
+ *
+ * `redundant` is what deduplication would return: every group's size times one
+ * fewer than its member count, since one copy always has to stay.
+ *
+ * Reported, never enforced. There is no ceiling on duplication itself — it is
+ * a property of how the ventures are built, not a defect in any one of them,
+ * and the day a venture stops sharing a helper byte-for-byte is not a day
+ * anything should fail.
+ */
+export function duplicateBytes(files) {
+  const byHash = new Map();
+  for (const file of files) {
+    const digest = createHash('sha256').update(file.bytes).digest('hex');
+    const group = byHash.get(digest) ?? { size: file.bytes.length, keys: [] };
+    group.keys.push(file.key);
+    byHash.set(digest, group);
+  }
+  const duplicated = [...byHash.values()]
+    .filter((group) => group.keys.length > 1)
+    .map((group) => ({
+      size: group.size,
+      copies: group.keys.length,
+      redundant: group.size * (group.keys.length - 1),
+      // The shared filename when every copy has one — `proposal.mjs` for the
+      // 104-way group. Falls back to a key so a group of unrelated files that
+      // happen to be identical still names something findable.
+      file: sharedFileName(group.keys),
+    }))
+    .sort((a, b) => b.redundant - a.redundant);
+  return {
+    groups: duplicated.length,
+    redundant: duplicated.reduce((sum, group) => sum + group.redundant, 0),
+    largest: duplicated,
+  };
+}
+
+/**
+ * Split the mirror into the bytes actually stored and the aliases that point
+ * at them.
+ *
+ * ## What this recovers, and why it is worth a mechanism
+ *
+ * `duplicateBytes` above measures the problem: ventures here are deliberately
+ * self-contained, so `proposal.mjs` is stored 104 times identically, `LICENSE`
+ * 161 times, `share.mjs` 37. On 2026-09-03 that was 1,186,041 stored bytes —
+ * 18.5% of the whole mirror — spent on content the mirror already had.
+ *
+ * Every one of those files is genuinely referenced by the pages beside it, so
+ * none can be dropped. What can change is how many times the *same* bytes are
+ * stored: keep one copy, and have nginx resolve the other 103 names to it.
+ * `renderMirrorAliases` writes that resolution as a `map`, and the six asset
+ * `location` blocks in `front-door/default.conf` route through it.
+ *
+ * ## Why the alias goes in nginx rather than the projected volume
+ *
+ * A projected volume's `items: [{key, path}]` can also present one key under
+ * many paths, and `MIRROR_HEADROOM_WARN_RATIO` named it first. It recovers the
+ * repository and ConfigMap bytes and *not* the pod's memory, because the
+ * kubelet still materialises every path into the tmpfs the mirror is charged
+ * against — so the two costs would have to be split and separately bounded
+ * before it helped. It also spends ~670 lines of generated YAML inside the
+ * Deployment spec.
+ *
+ * The `map` recovers both costs at once: an aliased file is not written to the
+ * volume at all, so it is absent from git, from etcd and from both replicas'
+ * tmpfs. That is why this is the mechanism chosen.
+ *
+ * `MIRROR_HEADROOM_WARN_RATIO` recorded that the `map` "wants an environment
+ * that can actually run nginx against the built mirror. This one cannot: no
+ * nginx binary and no Docker daemon, verified 2026-09-03." That was true of the
+ * session that wrote it and is not a property of the repository:
+ * `apt-get install nginx-light` supplies nginx 1.24 with both
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`, which is
+ * everything the front door's config uses. `mirror-nginx.test.mjs` now serves
+ * the real `default.conf` over the real generated mirror and asserts every
+ * mirrored URL byte-for-byte, which is a stronger check than either mechanism
+ * had before.
+ *
+ * ## Why `index.html` is never aliased
+ *
+ * Entry and subpage documents carry slug-specific injected content — the
+ * canonical link, `og:url`, the return nav — so two of them cannot be
+ * byte-identical, and today none are. The guard below makes that structural
+ * rather than incidental: the two `index.html` `location` blocks in
+ * `default.conf` are deliberately left routing straight to their stored key,
+ * so a future injection change that somehow made two entry pages identical
+ * would cost duplicate bytes rather than 404 a tool's front page.
+ *
+ * The canonical copy is the member whose key sorts first, so the choice is
+ * stable across runs and independent of venture discovery order — a mirror
+ * regenerated on an unchanged tree produces an identical alias file.
+ */
+export function dedupeMirror(files) {
+  const hashes = new Map();
+  const byHash = new Map();
+  for (const file of files) {
+    if (file.file === 'index.html' || file.file.endsWith('/index.html')) continue;
+    const hash = createHash('sha256').update(file.bytes).digest('hex');
+    hashes.set(file, hash);
+    const group = byHash.get(hash);
+    if (group) group.push(file);
+    else byHash.set(hash, [file]);
+  }
+
+  const canonical = new Map();
+  for (const [hash, group] of byHash) {
+    canonical.set(
+      hash,
+      group.reduce((best, file) => (file.key < best.key ? file : best)),
+    );
+  }
+
+  const stored = [];
+  const aliases = [];
+  for (const file of files) {
+    const head = hashes.has(file) ? canonical.get(hashes.get(file)) : null;
+    if (!head || head === file) {
+      stored.push(file);
+    } else {
+      aliases.push({ key: file.key, canonical: head.key, bytes: file.bytes.length });
+    }
+  }
+  return { stored, aliases };
+}
+
+/**
+ * The generated nginx `map` that resolves an aliased mirror key to its stored one.
+ *
+ * ## Why the name starts with `00-`
+ *
+ * This file sets `map_hash_bucket_size`, and nginx accepts that directive only
+ * *before* the first `map` block it parses — afterwards the value is already
+ * fixed and setting it again is rejected as `"map_hash_bucket_size" directive
+ * is duplicate`, which is a refusal to start, not a warning. `default.conf`
+ * opens with three `map` blocks of its own (`$portfolio_embed_view` and the two
+ * framing maps), and nginx's `include /etc/nginx/conf.d/*.conf` expands the
+ * glob in sorted order — so a file named `mirror-alias.conf` is parsed after
+ * `default.conf` and the front door does not boot.
+ *
+ * The `00-` prefix is what orders this ahead of it. It is load-bearing, not
+ * decoration: `front-door-tools.test.mjs` asserts the name still sorts before
+ * `default.conf`, because renaming it to something tidier is a change that
+ * looks cosmetic and takes the apex down.
+ */
+export const MIRROR_ALIAS_FILE = '00-mirror-alias.conf';
+
+/**
+ * The nginx variable the asset `location` blocks set, and the one they rewrite
+ * to. Named here so `default.conf`, the generated map and the tests cannot
+ * drift apart.
+ */
+export const ALIAS_SOURCE_VAR = 'fd_flat';
+export const ALIAS_TARGET_VAR = 'fd_stored';
+
+/**
+ * Render the alias map.
+ *
+ * Always emitted, even with no aliases at all: `default.conf` references
+ * `$fd_stored` unconditionally, and nginx refuses to start on an unknown
+ * variable. A map carrying only its `default` is the correct empty state, not
+ * a missing file.
+ *
+ * `default $fd_flat` is what makes this safe to route *every* asset request
+ * through: a key with no alias resolves to itself, so the map can only ever
+ * redirect the names it explicitly lists.
+ */
+export function renderMirrorAliases(aliases) {
+  const entries = [...aliases]
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map((a) => `  "${a.key}"  "${a.canonical}";`)
+    .join('\n');
+  const recovered = aliases.reduce((sum, a) => sum + a.bytes, 0);
+  // nginx sizes a map's hash buckets at startup and *refuses to start* if a key
+  // does not fit — `could not build map_hash, you should increase
+  // map_hash_bucket_size`. The default is one cache line (64 bytes on x86-64)
+  // and these keys are `<slug>__<file>`, already 59 bytes at their longest, so
+  // the default is not enough and the failure mode is the front door not
+  // booting at all. Computed from the longest key actually emitted, rounded up
+  // to the next power of two and floored at the default, so it tracks the
+  // catalogue instead of being a constant someone has to remember to raise.
+  // The headroom is not slack: nginx stores each key in an `ngx_hash_elt_t`
+  // alongside its length and a value pointer, and pads the entry, so a bucket
+  // has to hold rather more than the key's own bytes. 16 is comfortably past
+  // that overhead on 64-bit, and rounding to a power of two keeps the value one
+  // of the sizes nginx's own documentation uses. Measured: 59-byte keys need
+  // 128; 64 is what nginx refuses.
+  const longest = aliases.reduce((max, a) => Math.max(max, a.key.length), 0);
+  const bucket = Math.max(64, 2 ** Math.ceil(Math.log2(longest + 16)));
+  return `# Generated by \`node platform/marketing/front-door-tools.mjs --write\`.
+# Do not hand-edit: \`platform/marketing/front-door-tools.test.mjs\` regenerates
+# this file beside the mirror and fails if the commit is stale.
+#
+# Ventures in this repository are self-contained by design — each ships its own
+# copy of the shared helpers — which is right for the product and free on the
+# canonical host, where every venture is served from its own tree. The mirror
+# flattens them all into one key space under one ceiling, so the 104th
+# identical copy of \`proposal.mjs\` spends bytes the other tools share.
+#
+# This map is how the mirror stores one copy and serves it under every name.
+# The six asset \`location\` blocks in \`default.conf\` set \`$${ALIAS_SOURCE_VAR}\`
+# to the \`<slug>__<file>\` key the request resolves to, then rewrite to
+# \`$${ALIAS_TARGET_VAR}\` — this map — instead of to the key directly. The
+# \`default\` below is the identity, so a key that is not listed here resolves to
+# itself and routing is unchanged for it.
+#
+# \`index.html\` keys never appear here. Entry pages carry slug-specific injected
+# content and cannot be byte-identical; \`dedupeMirror\` refuses to alias them so
+# that a tool's front page can never depend on this file being right.
+#
+# ${aliases.length} alias(es), ${recovered} stored bytes recovered.
+#
+# Sized for the longest key above (${longest} bytes). nginx refuses to start if a
+# map key does not fit its bucket, so this tracks the catalogue rather than
+# being a constant to remember.
+map_hash_bucket_size ${bucket};
+map $${ALIAS_SOURCE_VAR} $${ALIAS_TARGET_VAR} {
+  default $${ALIAS_SOURCE_VAR};
+${entries}
+}
+`;
+}
+
+/** The file name every one of these `<slug>__<file>` keys shares, or the first key. */
+function sharedFileName(keys) {
+  const names = new Set(keys.map((key) => key.slice(key.lastIndexOf('__') + 2)));
+  return names.size === 1 ? [...names][0] : keys[0];
+}
+
+/**
+ * How much room the mirror has left, and what it would cost to make more.
+ *
+ * Exists because `MIRROR_BYTE_CEILING` is a wall with no approach lights: it
+ * throws inside `buildMirror`, which `portfolio-validate` runs on every PR
+ * touching a venture page, so crossing it stops the whole catalogue from
+ * publishing with no warning to the session that happens to be holding the
+ * pen. See `MIRROR_HEADROOM_WARN_RATIO` for why 85% and what to do when it
+ * trips.
+ *
+ * `toolsRemaining` divides by the *mean* tool, which is the honest estimate
+ * available here and not a promise — tools range from a single page to
+ * `ebay-fee-calculator`'s 818,849 bytes, so the next one could spend a
+ * twentieth of the remaining room or half of it. It answers "roughly how many
+ * more" well enough to tell a comfortable margin from a tight one, which is
+ * the decision it exists to inform.
+ */
+export function mirrorHeadroom({ files, stored, aliases, tools, bytes, undedupedBytes }) {
+  const remaining = MIRROR_BYTE_CEILING - bytes;
+  const perTool = tools.length ? bytes / tools.length : 0;
+  // `stored`/`aliases` are what `buildMirror` returns today. The fallbacks keep
+  // this callable with a bare `{ files, tools, bytes }` — which several tests
+  // and `--headroom`'s own error paths still build by hand — rather than making
+  // every caller construct a deduped mirror to ask a question about size.
+  const kept = stored ?? files;
+  const aliased = aliases ?? [];
+  return {
+    bytes,
+    ceiling: MIRROR_BYTE_CEILING,
+    ratio: bytes / MIRROR_BYTE_CEILING,
+    remaining,
+    perTool: Math.round(perTool),
+    toolsRemaining: perTool > 0 ? Math.floor(remaining / perTool) : Infinity,
+    // Below the warn ratio the mirror is merely large; at or above it, the
+    // runway is short enough that the remedy has to start now to land before
+    // the wall.
+    tight: bytes / MIRROR_BYTE_CEILING >= MIRROR_HEADROOM_WARN_RATIO,
+    // Residual duplication only — what aliasing has *not* recovered. Measured
+    // over `stored` rather than `files` on purpose: reporting the raw catalogue
+    // duplication here would keep advertising 18.5% of recoverable bytes that
+    // `dedupeMirror` has already recovered, and send a session after them.
+    duplicates: duplicateBytes(kept),
+    aliases: aliased.length,
+    recovered: (undedupedBytes ?? bytes) - bytes,
+  };
 }
 
 /**
@@ -2199,9 +2777,19 @@ export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
-  for (const file of built.files) {
+  // `built.stored`, not `built.files`: an aliased copy is deliberately never
+  // written, which is the whole saving. `renderMirrorAliases` below is what
+  // keeps its URL working.
+  for (const file of built.stored) {
     await fs.writeFile(path.join(outputDir, file.stored), file.bytes);
   }
+  // The alias map rides in the nginx ConfigMap beside `default.conf`, not in
+  // this directory: it is configuration for the server, not content for it to
+  // serve, and `gitops/prod/kustomization.yaml` generates the two together.
+  await fs.writeFile(
+    path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
+    renderMirrorAliases(built.aliases),
+  );
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
   // Same call, same commit: the shards and the Deployment that mounts them are
   // one artifact, and a tree where only half of it was regenerated is exactly
@@ -2222,15 +2810,72 @@ const shardSummary = (shards) =>
     )
     .join('\n');
 
+/**
+ * The headroom report `--headroom` prints and every other mode appends.
+ *
+ * Always printed, not only when tight: the number nobody was looking at is how
+ * the mirror reached three quarters of its ceiling unremarked, and a figure
+ * that appears only once it is already a problem trains no one to watch it.
+ */
+const headroomSummary = (headroom) => {
+  const { bytes, ceiling, ratio, remaining, perTool, toolsRemaining, tight, duplicates } = headroom;
+  const lines = [
+    `mirror headroom: ${bytes} of ${ceiling} stored bytes (${(100 * ratio).toFixed(1)}%), ` +
+      `${remaining} left — roughly ${toolsRemaining} more tools at ${perTool} bytes each`,
+  ];
+  if (headroom.recovered) {
+    lines.push(
+      `  ${headroom.recovered} bytes already recovered by aliasing ${headroom.aliases} duplicate ` +
+        `name(s) onto stored copies — see dedupeMirror and front-door/${MIRROR_ALIAS_FILE}`,
+    );
+  }
+  if (duplicates.groups) {
+    lines.push(
+      `  ${duplicates.redundant} of those bytes (${(100 * (duplicates.redundant / bytes)).toFixed(1)}%) ` +
+        `are byte-identical duplicates still stored in ${duplicates.groups} group(s):`,
+    );
+    for (const group of duplicates.largest.slice(0, 5)) {
+      lines.push(
+        `    ${String(group.copies).padStart(4)}x ${String(group.size).padStart(7)} bytes ` +
+          `→ ${String(group.redundant).padStart(8)} recoverable  ${group.file}`,
+      );
+    }
+  }
+  if (tight) {
+    lines.push(
+      '',
+      `  WARNING: at or above ${(100 * MIRROR_HEADROOM_WARN_RATIO).toFixed(0)}% of the ceiling.`,
+      '  Crossing the ceiling itself throws inside buildMirror, which portfolio-validate runs on',
+      '  every PR touching a venture page — so it stops the whole catalogue publishing, not just',
+      '  the tool that crossed it. Start the remedy now: read MIRROR_HEADROOM_WARN_RATIO in',
+      '  platform/marketing/front-door-tools.mjs for the two mechanisms that recover the',
+      '  duplicate bytes above, and why raising MIRROR_BYTE_CEILING is not the first answer.',
+    );
+  }
+  return lines.join('\n');
+};
+
 if (isMain) {
   const totals = ({ files, tools, bytes, sourceBytes, shards }) =>
     `${tools.length} tools, ${files.length} files, ${bytes} stored bytes ` +
     `(${Math.round((bytes / MIRROR_BYTE_CEILING) * 100)}% of the mirror ceiling; ` +
     `${sourceBytes} uncompressed, ${(sourceBytes / bytes).toFixed(2)}x) ` +
     `in ${shards.length} shards\n${shardSummary(shards)}`;
-  if (process.argv.includes('--write')) {
+  if (process.argv.includes('--headroom')) {
+    // The CI mode. Prints the same report the other modes append and exits
+    // non-zero once the mirror is tight, so `portfolio-validate` fails while
+    // there is still room to act rather than when the ceiling has already
+    // stopped every venture PR in the repository. Deliberately skips the
+    // per-tool listing and the ineligibility report: this answers one
+    // question, and a check whose output has to be scrolled past is a check
+    // people stop reading.
+    const headroom = mirrorHeadroom(await buildMirror());
+    console.log(headroomSummary(headroom));
+    if (headroom.tight) process.exitCode = 1;
+  } else if (process.argv.includes('--write')) {
     const built = await writeMirror();
     console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    console.log(headroomSummary(mirrorHeadroom(built)));
     // Say so out loud: a changed mount list means the shard count moved, which
     // is the one outcome of a regeneration that alters a file outside the
     // mirror directory and so is easy to leave out of a commit.
@@ -2244,6 +2889,7 @@ if (isMain) {
     const built = await buildMirror();
     for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
     console.log(`\n${totals(built)}`);
+    console.log(`\n${headroomSummary(mirrorHeadroom(built))}`);
     // The other half of the answer, and the half that used to need a
     // throwaway script: which ventures are *not* here, and why each one is
     // not. See `explainIneligible` for what the reasons mean and which of

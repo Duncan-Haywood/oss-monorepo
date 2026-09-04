@@ -27,6 +27,13 @@ import {
   discoverEligible,
   explainIneligible,
   MIRROR_BYTE_CEILING,
+  MIRROR_HEADROOM_WARN_RATIO,
+  duplicateBytes,
+  dedupeMirror,
+  renderMirrorAliases,
+  MIRROR_ALIAS_FILE,
+  FRONT_DOOR_DIR,
+  mirrorHeadroom,
   SHARD_BYTE_CEILING,
   packShards,
   shardName,
@@ -60,10 +67,14 @@ import {
   apexUrl,
   injectMirrorTags,
   injectMirrorNav,
+  injectMirrorRelated,
   blankScriptBodies,
   dynamicLinks,
   NAV_CLASS,
   NAV_STYLE,
+  RELATED_CLASS,
+  RELATED_LIMIT,
+  RELATED_STYLE,
   APEX_ROOT_PATHS,
   decodeCharacterReferences,
   FAVICON_FILE,
@@ -78,7 +89,11 @@ import {
   SOCIAL_CARD_ALT as FRONT_DOOR_SOCIAL_CARD_ALT,
   renderFrontDoor,
 } from './front-door.mjs';
-import { SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD, discoverSurfaces } from '../pages/build.mjs';
+import {
+  SOCIAL_CARD_FILE as FRONT_DOOR_SOCIAL_CARD,
+  discoverSurfaces,
+  relatedTools,
+} from '../pages/build.mjs';
 import {
   SOCIAL_CARD_WIDTH as OFFLINE_CARD_WIDTH,
   SOCIAL_CARD_HEIGHT as OFFLINE_CARD_HEIGHT,
@@ -88,8 +103,13 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
 
 test('the committed mirror matches what the generator produces', async () => {
-  const { files } = await buildMirror();
-  for (const file of files) {
+  // `stored`, not `files`: a file whose bytes are byte-identical to one already
+  // in the mirror is deliberately not written at all — `00-mirror-alias.conf`
+  // points its name at the copy that is. The two tests below cover the aliased
+  // half, which is the half a `files` loop here would silently have demanded on
+  // disk.
+  const { stored } = await buildMirror();
+  for (const file of stored) {
     const onDisk = await fs.readFile(path.join(OUTPUT_DIR, file.stored)).catch(() => null);
     assert.notEqual(onDisk, null, `${file.stored} is missing from the commit — run \`${REGENERATE}\``);
     assert.ok(onDisk.equals(file.bytes), `${file.stored} is stale — run \`${REGENERATE}\``);
@@ -105,8 +125,8 @@ test('the committed mirror matches what the generator produces', async () => {
 });
 
 test('the mirror directory holds nothing the generator did not write', async () => {
-  const { files } = await buildMirror();
-  const expected = new Set([...files.map((f) => f.stored), 'kustomization.yaml']);
+  const { stored } = await buildMirror();
+  const expected = new Set([...stored.map((f) => f.stored), 'kustomization.yaml']);
   const actual = await fs.readdir(OUTPUT_DIR);
   for (const name of actual) {
     assert.ok(
@@ -115,6 +135,120 @@ test('the mirror directory holds nothing the generator did not write', async () 
     );
   }
   assert.equal(actual.length, expected.size, `run \`${REGENERATE}\``);
+});
+
+test('the committed alias map matches what the generator produces', async () => {
+  const { aliases } = await buildMirror();
+  const onDisk = await fs
+    .readFile(path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE), 'utf8')
+    .catch(() => null);
+  assert.notEqual(onDisk, null, `${MIRROR_ALIAS_FILE} is missing — run \`${REGENERATE}\``);
+  assert.equal(onDisk, renderMirrorAliases(aliases), `stale — run \`${REGENERATE}\``);
+});
+
+test('the alias map is parsed before the config whose maps it must precede', () => {
+  // nginx accepts `map_hash_bucket_size` only before the first `map` block it
+  // parses; afterwards it is rejected as a duplicate directive and the server
+  // refuses to start. `default.conf` opens with three maps of its own, and
+  // `include /etc/nginx/conf.d/*.conf` expands in sorted order — so this file
+  // has to sort first. Renaming it to something tidier reads as cosmetic and
+  // takes the apex down, which is why the ordering is asserted rather than
+  // merely commented.
+  assert.ok(
+    MIRROR_ALIAS_FILE < 'default.conf',
+    `${MIRROR_ALIAS_FILE} must sort before default.conf inside conf.d, or nginx will not start`,
+  );
+});
+
+test('every alias resolves to bytes the mirror actually stores', async () => {
+  const { stored, aliases, files } = await buildMirror();
+  const storedKeys = new Set(stored.map((f) => f.key));
+  const bytesByKey = new Map(files.map((f) => [f.key, f.bytes]));
+  for (const alias of aliases) {
+    assert.ok(
+      storedKeys.has(alias.canonical),
+      `${alias.key} aliases ${alias.canonical}, which is not stored — its URL would 404`,
+    );
+    assert.ok(
+      !storedKeys.has(alias.key),
+      `${alias.key} is both aliased and stored, so the saving was not taken`,
+    );
+    // The whole mechanism is only sound while the two are byte-identical.
+    assert.ok(
+      bytesByKey.get(alias.key).equals(bytesByKey.get(alias.canonical)),
+      `${alias.key} would be served ${alias.canonical}'s bytes, which differ`,
+    );
+  }
+});
+
+test('an entry page is never aliased', async () => {
+  // Entry and subpage documents carry slug-specific injected content, so two
+  // cannot be byte-identical today — but `dedupeMirror` refuses them
+  // structurally rather than relying on that. The two `index.html` location
+  // blocks in `default.conf` deliberately still rewrite straight to their key
+  // with no `map` lookup, so an aliased entry page would 404 a tool's front
+  // page, which is the one URL the catalogue cannot afford to lose.
+  const { aliases } = await buildMirror();
+  for (const alias of aliases) {
+    assert.ok(
+      !alias.key.endsWith('__index.html'),
+      `${alias.key} is an entry page and must never be aliased`,
+    );
+  }
+});
+
+test('dedupeMirror keeps one copy and picks the same one every run', () => {
+  const bytes = Buffer.from('shared helper');
+  const other = Buffer.from('distinct');
+  const file = (key, buf) => ({ key, file: key.split('__').pop(), stored: `${key}.gz`, bytes: buf });
+  // Declaration order deliberately puts the later-sorting key first, so a
+  // canonical chosen by position rather than by name would show up here.
+  const input = [
+    file('zulu__proposal.mjs', bytes),
+    file('alpha__proposal.mjs', bytes),
+    file('mike__proposal.mjs', bytes),
+    file('alpha__calc.mjs', other),
+  ];
+  const { stored, aliases } = dedupeMirror(input);
+  assert.deepEqual(
+    stored.map((f) => f.key).sort(),
+    ['alpha__calc.mjs', 'alpha__proposal.mjs'],
+  );
+  assert.deepEqual(
+    aliases.map((a) => [a.key, a.canonical]).sort(),
+    [
+      ['mike__proposal.mjs', 'alpha__proposal.mjs'],
+      ['zulu__proposal.mjs', 'alpha__proposal.mjs'],
+    ],
+  );
+  // Same input in a different order produces the same canonical, so a mirror
+  // regenerated on an unchanged tree cannot churn the committed alias file.
+  const reversed = dedupeMirror([...input].reverse());
+  assert.deepEqual(
+    reversed.aliases.map((a) => a.canonical).sort(),
+    aliases.map((a) => a.canonical).sort(),
+  );
+});
+
+test('the alias map defaults to the identity, so an unlisted key routes unchanged', () => {
+  const rendered = renderMirrorAliases([
+    { key: 'b__LICENSE', canonical: 'a__LICENSE', bytes: 10 },
+  ]);
+  assert.match(rendered, /^map \$fd_flat \$fd_stored \{$/m);
+  assert.match(rendered, /^ {2}default \$fd_flat;$/m);
+  assert.match(rendered, /^ {2}"b__LICENSE" {2}"a__LICENSE";$/m);
+  // Sized for the key, not left at nginx's 64-byte default, which these keys
+  // outgrow — the failure is a refusal to start, not a slow lookup.
+  assert.match(rendered, /^map_hash_bucket_size \d+;$/m);
+});
+
+test('an empty mirror still renders a usable alias map', () => {
+  // `default.conf` references `$fd_stored` unconditionally and nginx refuses to
+  // start on an unknown variable, so "no duplicates" has to mean a map with
+  // only its default — never an absent file.
+  const rendered = renderMirrorAliases([]);
+  assert.match(rendered, /^map \$fd_flat \$fd_stored \{$/m);
+  assert.match(rendered, /^ {2}default \$fd_flat;$/m);
 });
 
 test('the committed kustomization matches the file list', async () => {
@@ -433,13 +567,15 @@ test('shards are named in order and hold every file exactly once', async () => {
   // gap or a repeat in the sequence is a mount that silently drops a shard's
   // worth of tools. And a file that lands in two shards is a duplicate key,
   // which makes the volume fail to mount outright.
-  const { files, shards } = await buildMirror();
+  const { stored, shards } = await buildMirror();
   assert.deepEqual(
     shards.map((s) => s.name),
     shards.map((_, i) => shardName(i)),
   );
   const packed = shards.flatMap((s) => s.files.map((f) => f.key));
-  assert.deepEqual(packed.slice().sort(), files.map((f) => f.key).sort());
+  // Against `stored` rather than `files`: only the stored copies are packed,
+  // and an aliased name is served by the `map` instead of by a shard of its own.
+  assert.deepEqual(packed.slice().sort(), stored.map((f) => f.key).sort());
   assert.equal(new Set(packed).size, packed.length, 'a file was packed into two shards');
 });
 
@@ -1043,6 +1179,183 @@ test('no venture source already uses the return link class', async () => {
   }
 });
 
+test('every mirrored entry page offers sibling tools, and no other page does', async () => {
+  // The defect this guards is the one `injectMirrorNav` half-fixed: the return
+  // link reaches the catalogue, but it asks a visitor who has just got their
+  // number to go back to a page of 169 and work out which others apply to
+  // them. Asserted over what is committed rather than over
+  // `injectMirrorRelated` alone, because the unit test below would still pass
+  // if `buildMirror` stopped calling it.
+  //
+  // The negative half matters as much: a venture's sub-pages are its own
+  // articles and comparisons, and a block of other trades' calculators at the
+  // foot of each would be 375 more places to go stale for no added reach the
+  // entry page does not already give.
+  const { files } = await buildMirror();
+  const pages = files.filter((f) => f.file.endsWith('.html'));
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    const has = page.contents.includes(`<nav class="${RELATED_CLASS}"`);
+    if (page.file === 'index.html') {
+      assert.ok(has, `${page.key} is an entry page with no sibling tools offered`);
+      assert.ok(
+        page.contents.includes(`.${RELATED_CLASS}{`),
+        `${page.key} offers siblings with no rule to style them`,
+      );
+      assert.equal(
+        page.contents.match(new RegExp(`<nav class="${RELATED_CLASS}"`, 'g')).length,
+        1,
+        `${page.key} carries more than one sibling block`,
+      );
+    } else {
+      assert.ok(!has, `${page.key} is not an entry page but offers sibling tools`);
+      assert.ok(
+        !page.contents.includes(`.${RELATED_CLASS}{`),
+        `${page.key} pays for the sibling rule with no element to match it`,
+      );
+    }
+  }
+});
+
+test('every tool a mirrored page offers is one the mirror actually serves', async () => {
+  // `validateLinks` already refuses a dead *relative* link. These are
+  // root-absolute `/tools/<slug>/`, which it used to wave through against the
+  // apex root allowlist — so this is the assertion that makes the new links as
+  // checked as a venture's own. A stranger following one to a 404 on the one
+  // page the portfolio can show them is the failure being ruled out.
+  const { files } = await buildMirror();
+  const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
+  let offered = 0;
+  for (const page of files.filter((f) => f.file === 'index.html')) {
+    const block = page.contents.match(
+      new RegExp(`<nav class="${RELATED_CLASS}"[\\s\\S]*?</nav>`),
+    );
+    assert.ok(block, `${page.key} has no sibling block to check`);
+    const hrefs = [...block[0].matchAll(/href="([^"]*)"/g)].map(([, href]) => href);
+    assert.equal(hrefs.length, RELATED_LIMIT, `${page.key} offers ${hrefs.length} tools`);
+    for (const href of hrefs) {
+      const slug = href.replace(/^\/tools\//, '').replace(/\/$/, '');
+      assert.ok(present.has(`${slug}/index.html`), `${page.key} offers ${href}, which is not mirrored`);
+      assert.notEqual(slug, page.slug, `${page.key} offers itself`);
+      offered += 1;
+    }
+  }
+  assert.ok(offered > 0);
+});
+
+test('validateLinks catches a sibling offer the mirror does not serve', () => {
+  // The guarantee above is only worth having if the checker can actually fail.
+  // Without the `/tools/` branch this link was measured against the apex root
+  // allowlist and reported as "the document root serves only /, /favicon.svg,
+  // …" — a true sentence about the wrong address space, and one that would
+  // have been silenced by adding the path to that allowlist.
+  const problems = validateLinks([
+    {
+      slug: 'demo',
+      file: 'index.html',
+      contents: '<body><a href="/tools/not-mirrored/">gone</a></body>',
+    },
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /no not-mirrored\/index\.html in the mirror/);
+});
+
+test('the tools a page offers come from build.mjs’ ranking, not a second one here', () => {
+  // `CLAUDE.md` records two occasions where restating a `build.mjs` rule in
+  // this module cost live product, so the ranking is imported. This asserts
+  // the import is load-bearing: same sub-group first is what makes a fence
+  // page offer another outdoor trade rather than whichever four a flat
+  // rotation lands on.
+  const surfaces = [
+    { slug: 'fence-bid-calculator', title: 'Fence' },
+    { slug: 'deck-bid-calculator', title: 'Deck' },
+    { slug: 'pergola-bid-calculator', title: 'Pergola' },
+    { slug: 'ebay-fee-calculator', title: 'eBay' },
+    { slug: 'etsy-profit-calculator', title: 'Etsy' },
+  ];
+  const picked = relatedTools(surfaces, 'fence-bid-calculator', RELATED_LIMIT).map((s) => s.slug);
+  assert.ok(!picked.includes('fence-bid-calculator'));
+  // The marketplace tools are in a different category, so they rank last.
+  assert.ok(
+    picked.indexOf('ebay-fee-calculator') > picked.indexOf('deck-bid-calculator'),
+    `a trades page offered a marketplace tool ahead of a trades one: ${picked.join(', ')}`,
+  );
+});
+
+test('the sibling block states its own layout rather than inheriting a venture’s', async () => {
+  // The hazard is not hypothetical and specificity alone does not close it.
+  // These rules are injected ahead of the venture's own <style>, so a class
+  // selector beats a bare element one — but only for properties the class
+  // rule states. Three mirrored ventures set `display` on a bare `nav`, `ul`
+  // or `p`: `faire-wholesale-calculator`'s `nav{display:flex}` would lay the
+  // heading beside the list, and a bare `p{display:none}` would delete the
+  // heading. Both reach the block through a property an unstated rule leaves
+  // open.
+  for (const selector of [RELATED_CLASS, `${RELATED_CLASS} p`, `${RELATED_CLASS} ul`]) {
+    assert.match(
+      RELATED_STYLE,
+      new RegExp(`\\.${selector.replace(' ', ' \\.?')}\\{[^}]*display:`),
+      `.${selector} does not state a display, so a venture's bare element rule decides it`,
+    );
+  }
+  // And the hazard is still live in the mirror — if it ever stops being, this
+  // assertion is what says the guard above may be reconsidered rather than
+  // quietly kept forever.
+  const risky = [];
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (file !== 'index.html') continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      if (/(?:^|[;{}>\s])(?:nav|ul|p)\s*\{[^}]*display\s*:/.test(raw)) risky.push(slug);
+    }
+  }
+  assert.ok(risky.length > 0, 'no venture styles a bare nav/ul/p display any more');
+});
+
+test('the sibling block is hidden when a venture page is printed or embedded', () => {
+  // Same two reasons as the return link. A contractor's printed bid is the one
+  // page of this portfolio a stranger's own customer sees, and it must not
+  // carry a list of other calculators; and an embedded calculator inside
+  // someone else's page has no business advertising the rest of this site.
+  assert.match(RELATED_STYLE, /@media print\{\.fd-related\{display:none!important\}\}/);
+  assert.ok(RELATED_STYLE.includes(`.pf-embed .${RELATED_CLASS}{display:none}`));
+});
+
+test('injectMirrorRelated refuses a document with no closing body', () => {
+  assert.throws(
+    () =>
+      injectMirrorRelated('<body><main>x</main>', {
+        file: 'index.html',
+        related: [{ slug: 'demo', title: 'Demo' }],
+      }),
+    { message: /no <\/body>/ },
+  );
+});
+
+test('injectMirrorRelated leaves a page alone when there is nothing to offer', () => {
+  // A one-venture mirror (every fixture-driven test in this file) has no
+  // siblings to name, and an empty list rendered as an empty <ul> would be a
+  // heading promising links that are not there.
+  const html = '<body><main>x</main></body>';
+  assert.equal(injectMirrorRelated(html, { file: 'index.html', related: [] }), html);
+  assert.equal(injectMirrorRelated(html, { file: 'guide.html', related: [{ slug: 'a', title: 'A' }] }), html);
+});
+
+test('no venture source already uses the sibling block class', async () => {
+  // Same cascade hazard as the return link: the rule is injected near the top
+  // of <head>, ahead of the venture's own <style>.
+  for (const { slug } of STARTER_SET) {
+    for (const file of await ventureFiles(slug)) {
+      if (!file.endsWith('.html')) continue;
+      const raw = await fs.readFile(path.join(REPO_ROOT, 'ventures', slug, file), 'utf8');
+      assert.ok(
+        !raw.includes(RELATED_CLASS),
+        `${slug}/${file} already uses "${RELATED_CLASS}" — rename RELATED_CLASS rather than shipping the collision`,
+      );
+    }
+  }
+});
+
 test('every unmirrored venture is explained, and a collateral drop is not blamed on itself', async () => {
   // The report is only worth having if its reasons are the fixpoint's real
   // ones. Re-checking an excluded venture on its own does not give those: in
@@ -1387,11 +1700,20 @@ test('every mirrored URL routes to its own stored key through the real config', 
     'utf8',
   );
   const blocks = [...conf.matchAll(/location ~ "([^"]+)" \{\n([\s\S]*?)\n  \}/g)].map(
-    ([, pattern, body]) => ({
-      pattern: new RegExp(pattern),
-      rewrite: body.match(/rewrite \^ \/(\S+) break;/)?.[1] ?? null,
-      typed: /default_type text\/javascript;/.test(body),
-    }),
+    ([, pattern, body]) => {
+      // The six asset blocks do not rewrite to the key directly any more: they
+      // `set $fd_flat` to it and rewrite to `$fd_stored`, which
+      // `00-mirror-alias.conf` maps back to the one stored copy of those bytes.
+      // Follow the same indirection here, so this simulation keeps judging the
+      // key a request lands on rather than the literal `$fd_stored`.
+      const rewrite = body.match(/rewrite \^ \/(\S+) break;/)?.[1] ?? null;
+      const flat = body.match(/set \$fd_flat "([^"]+)";/)?.[1] ?? null;
+      return {
+        pattern: new RegExp(pattern),
+        rewrite: rewrite === '$fd_stored' ? flat : rewrite,
+        typed: /default_type text\/javascript;/.test(body),
+      };
+    },
   );
   assert.ok(blocks.length >= 8, `only ${blocks.length} regex locations parsed out of the config`);
 
@@ -1410,14 +1732,21 @@ test('every mirrored URL routes to its own stored key through the real config', 
     return null;
   };
 
-  const { files } = await buildMirror();
+  const { files, aliases } = await buildMirror();
+  // What `00-mirror-alias.conf`'s `map` does, as a lookup: an aliased name
+  // resolves to the key that holds the bytes, anything else to itself.
+  const canonical = new Map(aliases.map((a) => [a.key, a.canonical]));
   let subdirChecked = 0;
+  let aliasChecked = 0;
   for (const file of files) {
     const hit = route(mirrorUrl(file.slug, file.file));
     assert.ok(hit, `no location block matches ${mirrorUrl(file.slug, file.file)}`);
-    // `gzip_static` appends `.gz` to whatever the rewrite produced, so this is
-    // the exact filename the pod opens.
-    assert.equal(`${hit.key}.gz`, file.stored, `${mirrorUrl(file.slug, file.file)} routes to the wrong key`);
+    // `gzip_static` appends `.gz` to whatever the rewrite produced — after the
+    // alias map has had its say — so this is the exact filename the pod opens.
+    const opened = `${canonical.get(hit.key) ?? hit.key}.gz`;
+    const expected = `${canonical.get(file.key) ?? file.key}.gz`;
+    assert.equal(opened, expected, `${mirrorUrl(file.slug, file.file)} routes to the wrong key`);
+    if (canonical.has(file.key)) aliasChecked += 1;
     // A module served without an explicit JavaScript type is refused by the
     // browser, and the page renders inert with a 200 in the log.
     assert.equal(
@@ -1428,6 +1757,14 @@ test('every mirrored URL routes to its own stored key through the real config', 
     if (file.file.includes('/')) subdirChecked += 1;
   }
   assert.ok(subdirChecked > 0, 'no page-subdirectory file was exercised, so those blocks are unproven');
+  // Every aliased name must be one of the URLs walked above, or the saving is
+  // being taken on files nothing routes to. Guards against an alias map built
+  // over keys the config cannot reach.
+  assert.equal(
+    aliasChecked,
+    aliases.length,
+    'an aliased name was never exercised by the routing walk, so its URL is unproven',
+  );
 
   // The directory-index form: a trailing slash has to reach `__index.html`,
   // because a flattened key has nothing for nginx to append `index.html` to.
@@ -1600,4 +1937,118 @@ test('the embed runtime and stylesheet are reachable paths at the apex root', as
   const { EMBED_MODULE_FILE, EMBED_STYLE_FILE } = await import('../pages/embed.mjs');
   assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_MODULE_FILE}`));
   assert.ok(APEX_ROOT_PATHS.has(`/${EMBED_STYLE_FILE}`));
+});
+
+test('duplicateBytes counts only what deduplication would actually return', () => {
+  // One copy of every group always has to stay, so an N-way group recovers
+  // N-1 copies and never N. Getting that off by one would overstate the
+  // remedy in the one report a session reads when deciding whether the
+  // ceiling is worth acting on.
+  const file = (key, body) => ({ key, bytes: Buffer.from(body) });
+  const { groups, redundant, largest } = duplicateBytes([
+    file('a__proposal.mjs', 'shared'),
+    file('b__proposal.mjs', 'shared'),
+    file('c__proposal.mjs', 'shared'),
+    file('a__calc.mjs', 'unique-a'),
+    file('b__calc.mjs', 'unique-b'),
+  ]);
+  assert.equal(groups, 1, 'the two distinct calc.mjs files are not a duplicate group');
+  assert.equal(redundant, 'shared'.length * 2, 'three copies recover two, not three');
+  assert.deepEqual(largest[0], {
+    size: 6,
+    copies: 3,
+    redundant: 12,
+    file: 'proposal.mjs',
+  });
+});
+
+test('duplicateBytes names the shared file, and falls back when there is none', () => {
+  // The report is read to decide what to do about a group, so it has to say
+  // *what* is duplicated. When every key ends in the same file name that name
+  // is the answer; when they do not, a key is at least findable, where an
+  // empty string or a bare count would not be.
+  const file = (key, body) => ({ key, bytes: Buffer.from(body) });
+  const named = duplicateBytes([file('a__share.mjs', 'x'), file('b__share.mjs', 'x')]);
+  assert.equal(named.largest[0].file, 'share.mjs');
+
+  const mixed = duplicateBytes([file('a__robots.txt', 'x'), file('b__humans.txt', 'x')]);
+  assert.equal(mixed.largest[0].file, 'a__robots.txt');
+});
+
+test('duplicateBytes reports nothing when every file is distinct', () => {
+  const file = (key, body) => ({ key, bytes: Buffer.from(body) });
+  assert.deepEqual(duplicateBytes([file('a__x.mjs', '1'), file('b__y.mjs', '2')]), {
+    groups: 0,
+    redundant: 0,
+    largest: [],
+  });
+});
+
+test('mirrorHeadroom warns below the ceiling, not at it', async () => {
+  // The point of the warn ratio: `MIRROR_BYTE_CEILING` throws inside
+  // `buildMirror`, which `portfolio-validate` runs on every PR touching a
+  // venture page — so the session that crosses it discovers that nothing in
+  // the catalogue can publish, mid-way through shipping something else. This
+  // asserts the warning is strictly earlier than that wall, which is the only
+  // property that makes it useful.
+  assert.ok(
+    MIRROR_HEADROOM_WARN_RATIO > 0 && MIRROR_HEADROOM_WARN_RATIO < 1,
+    'a warn ratio at or above 1 fires only once the build already throws',
+  );
+
+  const at = (ratio) =>
+    mirrorHeadroom({
+      files: [],
+      tools: [{ slug: 'a' }],
+      bytes: Math.round(MIRROR_BYTE_CEILING * ratio),
+    });
+  assert.equal(at(MIRROR_HEADROOM_WARN_RATIO - 0.01).tight, false);
+  assert.equal(at(MIRROR_HEADROOM_WARN_RATIO).tight, true, 'the ratio itself is tight, not just above it');
+  assert.equal(at(0.99).tight, true);
+});
+
+test('mirrorHeadroom estimates the remaining tools from the mean tool', async () => {
+  const headroom = mirrorHeadroom({
+    files: [],
+    tools: Array.from({ length: 10 }, (_, i) => ({ slug: `t${i}` })),
+    bytes: 1000,
+  });
+  assert.equal(headroom.perTool, 100);
+  assert.equal(headroom.remaining, MIRROR_BYTE_CEILING - 1000);
+  assert.equal(headroom.toolsRemaining, Math.floor((MIRROR_BYTE_CEILING - 1000) / 100));
+});
+
+test('mirrorHeadroom does not divide by zero on an empty mirror', () => {
+  // Reachable through `--headroom` against a tree with no eligible venture,
+  // and a NaN in the one number a session reads to decide whether to act is
+  // worse than no report at all.
+  const headroom = mirrorHeadroom({ files: [], tools: [], bytes: 0 });
+  assert.equal(headroom.perTool, 0);
+  assert.equal(headroom.toolsRemaining, Infinity);
+  assert.equal(headroom.tight, false);
+});
+
+test('the real mirror is under the warn ratio, and its duplication is measured', async () => {
+  // The live reading. If this fails the mirror has crossed the warn ratio and
+  // the remedy in `MIRROR_HEADROOM_WARN_RATIO`'s comment is now due — that is
+  // the test doing its job, not a test to relax. Do not "fix" it by raising
+  // either constant without reading both comments.
+  const headroom = mirrorHeadroom(await buildMirror());
+  assert.equal(
+    headroom.tight,
+    false,
+    `the mirror is at ${(100 * headroom.ratio).toFixed(1)}% of its ceiling, over the ` +
+      `${(100 * MIRROR_HEADROOM_WARN_RATIO).toFixed(0)}% warn ratio — ` +
+      `${headroom.duplicates.redundant} bytes are recoverable duplicates`,
+  );
+  // Not an assertion about a number that moves with the catalogue: only that
+  // the accounting is wired to the real build and self-consistent. The exact
+  // figures live in the constant's comment, dated, where a stale one is prose
+  // rather than a false test.
+  assert.ok(headroom.duplicates.redundant < headroom.bytes);
+  assert.equal(
+    headroom.duplicates.redundant,
+    headroom.duplicates.largest.reduce((sum, g) => sum + g.redundant, 0),
+    'the reported total does not match the groups it is summed from',
+  );
 });

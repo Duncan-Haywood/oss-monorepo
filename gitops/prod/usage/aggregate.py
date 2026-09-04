@@ -9,7 +9,7 @@ wrote down does not exist. Every venture already carries a `usage.mjs`, but all
 of them are deliberately `localStorage`-only: the count lives in the visitor's
 own browser and never leaves the device. That is the right default for a
 contractor's pricing, and it means that on the day `tools.marisstella.dev`
-goes live the portfolio still learns nothing about which of its 169 tools
+goes live the portfolio still learns nothing about which of its 173 tools
 anyone opened. `usage.yaml` would stay `null` forever.
 
 This closes that without asking the browser to transmit anything new. nginx
@@ -105,7 +105,7 @@ EMBED_PREFIX = "embed/"
 # key for the whole pod, not a path breakdown, because there is only ever one
 # path: that pod's nginx does `try_files /index.html =404`, so every request it
 # counts logs the same URI. A per-path split would be fiction." That was true
-# and is not any more. `front-door-tools.mjs` mirrors 169 complete ventures onto
+# and is not any more. `front-door-tools.mjs` mirrors 173 complete ventures onto
 # that same pod, so it now serves the front page *and* those tools, and folding
 # them all onto one key would recreate — inside this pod — exactly the
 # conflation this key was added to prevent: "did anyone find the portfolio" and
@@ -123,6 +123,23 @@ FRONT_KEY = "_front"
 # question — whether the mirror earns its keep is precisely the difference.
 # It sorts beside `_front` for free, and it disappears with the mirror.
 FRONT_TOOL_PREFIX = f"{FRONT_KEY}/"
+
+# The apex's own About & privacy page (`gitops/prod/front-door/about.html`,
+# 2026-09-03) gets its own row rather than folding into `FRONT_KEY`.
+#
+# When `FRONT_KEY`'s comment above was written, "the front page" and "anything
+# this pod resolves through its catch-all" were the same set: `location /`
+# does `try_files /index.html`, and that was the only page-shaped thing this
+# host served outside the mirror and the category pages. `about.html` broke
+# that: it has its own `location ~ "^/about/?$" { try_files /about.html; }` in
+# `default.conf`, so `$uri` resolves to a page that is not `index.html` and is
+# not mirrored or category content either. Left unhandled it fell through to
+# the `else` branch below like the front page does, silently merging "did
+# anyone land on the front page" with "did anyone read the page that explains
+# what this host does and does not log" -- the exact conflation the category
+# and mirrored-tool branches exist to prevent for their own pages.
+FRONT_ABOUT_SLUG = "about"
+FRONT_ABOUT_KEY = f"{FRONT_TOOL_PREFIX}about"
 
 # How a mirrored file's logged `$uri` maps back to its venture.
 #
@@ -253,11 +270,13 @@ def fold_for_app(counts: dict[str, int], app: str | None) -> dict[str, int]:
     something.
 
     A pod that maps to a string used to collapse onto that single key, because
-    it served a single page. The apex now serves the front page *and* the
-    mirrored tools, so its lines split: anything carrying `MIRROR_SEPARATOR` is
-    a mirrored venture and gets its own `_front/<slug>` row, and everything else
-    — which is the front page, since that pod's fallback is `try_files
-    /index.html` — stays on the bare key.
+    it served a single page. The apex now serves the front page, the mirrored
+    tools, the category pages and its own About page, so its lines split:
+    anything carrying `MIRROR_SEPARATOR` is a mirrored venture or a category
+    page and gets its own `_front/<slug>` or `_front/c/<id>` row, the About
+    page (`FRONT_ABOUT_SLUG`) gets `FRONT_ABOUT_KEY`, and everything else --
+    which is the front page, since that pod's remaining fallback is
+    `try_files /index.html` -- stays on the bare key.
     """
     if app not in APP_KEYS:
         return {}
@@ -285,6 +304,12 @@ def fold_for_app(counts: dict[str, int], app: str | None) -> dict[str, int]:
             # Both belong to the venture, matching how the tools host rolls a
             # tool's sub-pages onto its own row.
             row = f"{FRONT_TOOL_PREFIX}{slug.split(MIRROR_SEPARATOR, 1)[0]}"
+        elif slug == FRONT_ABOUT_SLUG:
+            # `about.html` carries no `MIRROR_SEPARATOR` -- it is a flat
+            # ConfigMap key, not a flattened `<slug>__<file>` one -- so without
+            # this branch it falls to `else` below and merges into the front
+            # page's count. See `FRONT_ABOUT_KEY`.
+            row = FRONT_ABOUT_KEY
         else:
             row = key
         folded[row] = folded.get(row, 0) + hits
@@ -305,10 +330,11 @@ def merge_days(existing: dict[str, Any], day: str, counts: dict[str, int]) -> di
         "note": (
             "Aggregate page views of the public tool site, plus the apex "
             "front door under the key _front, each tool the apex mirrors "
-            "under _front/<slug>, and each category browse page it serves "
-            "under _front/c/<category>. No addresses, user agents, referrers or "
-            "query strings are logged upstream, so no field here derives "
-            "from one. See portfolio/usage/README.md."
+            "under _front/<slug>, each category browse page it serves under "
+            "_front/c/<category>, and its own About page under _front/about. "
+            "No addresses, user agents, referrers or query strings are logged "
+            "upstream, so no field here derives from one. See "
+            "portfolio/usage/README.md."
         ),
         "days": kept,
     }

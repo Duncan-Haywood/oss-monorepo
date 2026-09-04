@@ -515,7 +515,7 @@ test('the itemised calculators are offered the control once they declare their r
     assert.equal(pageTakesBidLink(html, { hasShareModule: true }), false, `${slug} defers to a share module`);
   }
 
-  // Six of the eight take the platform control today; all eight declare their
+  // Five of the eight take the platform control today; all eight declare their
   // rows. Pinned as counts so a venture growing or dropping its own share
   // control shows up here as a number to re-read rather than silently.
   const takes = [];
@@ -528,7 +528,9 @@ test('the itemised calculators are offered the control once they declare their r
     'pest-control keeps the share control it shipped in #2699');
   assert.equal(takes.includes('snow-removal-bid-calculator'), false,
     'snow-removal keeps the share control it shipped in #3048');
-  assert.equal(takes.length, 6);
+  assert.equal(takes.includes('gutter-cleaning-bid-calculator'), false,
+    'gutter-cleaning keeps the share control it shipped in #3052');
+  assert.equal(takes.length, 5);
 
   // And the exclusion is intact for a runtime-built page that declares nothing,
   // which is what stops this widening past the eight pages above.
