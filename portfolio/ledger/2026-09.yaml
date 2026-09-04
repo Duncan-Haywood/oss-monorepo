@@ -8706,3 +8706,61 @@ entries:
         `enabled: true`, CronJob `suspend: false`, and seal
         `portfolio-site-repo` for the canonical host.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: zero open PRs existed. Audited all 233 remote
+        branches for unique commits vs. `main` (90 carry at least one);
+        `supersede_check.py` classified most as superseded outright, and
+        the 11 it flagged NOT SUPERSEDED were checked by hand — every one
+        turned out to already be reimplemented on `main` under a different
+        structure once read semantically (a workflow diagnostic step main
+        already covers more thoroughly with CRLF handling; an RBAC verb
+        trim main already made with fuller comments; four marketing
+        comparison pages that already exist on `main` under the same
+        filenames; a 175-file share.mjs privacy sweep main superseded with
+        a later URL-fragment redesign that the branch's older version would
+        regress; a no-show-fee-calculator main already rebuilt with 17
+        files against the branch's 13; a branch-hygiene scanner main
+        already built out with cli.py/record.py the branch lacked; a CI
+        currency-mask fix main already landed on 2026-08-24, before this
+        branch's session even ran). This is the "RENAME SUSPECTED" failure
+        mode `CLAUDE.md`'s Duplicate PRs section describes, just past what
+        the line-level tool alone catches — logging the pattern here so a
+        future session doesn't re-run the same hour of `git diff` archaeology
+        on the same branches. Quota phase complete with a genuinely empty,
+        verified queue; no PRs opened for the audited branches since none
+        would have added anything.
+      - >-
+        Re-confirmed (independently of the prior session's same finding
+        above) that `deploy-cicd-readiness`, `marketing-distribution`, and
+        the Codex worker/governor stack have no agent-actionable gap left:
+        self-hosted CI runner, front-door marketing mirror, and
+        `gitops/agents/` Codex pipeline are all built and tested, each
+        blocked on the same owner-only seal-and-flip steps already in
+        `portfolio/ledger/asks.yaml`. Did not touch any of the three.
+      - >-
+        Shipped one real fix: `pool-route-pricing`'s result panel
+        recalculates on every keystroke with no `aria-live` region, so a
+        screen-reader user got no indication the price, revenue, labor
+        hours, chemicals, overhead, or total cost just changed. Same defect
+        already fixed fleet-wide in `which-job-first`,
+        `cam-reconciliation-check` (#3104), `seller-net-sheet`,
+        `ltl-freight-class-estimator`, `chargeback-evidence-packet`, and
+        `subscription-price-impact` (#3117). Scanned all 186 ventures'
+        entry pages for missing `aria-live`; only 5 had none, and
+        `pool-route-pricing` was the only one of those five with a
+        keystroke-driven live-recalculating numeric result rather than a
+        static or table-driven page (`consent-change-record`,
+        `grant-deadline-tracker`, `grant-reporting-tracker`, and
+        `shopify-a11y-evidence` don't have this pattern, so left alone).
+      - >-
+        Verified: `node --test` in the venture (42/42, up from 41; new
+        regression test confirmed to fail against the pre-fix markup via a
+        `git checkout`/`git apply` round-trip before trusting it);
+        `front-door-tools.mjs --check` and `--write` (mirror regenerated,
+        clean after); `publish_surface.py --check` and
+        `check_duplicate_symbols.py` both clean. PR #3122.
+    mrr_end: null
