@@ -343,6 +343,32 @@ products:
           defect, so the fix covers it too rather than leaving one tool of
           four inflating its own numbers — which would be worse than uniform
           over-counting, because it makes the tools incomparable.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          First question-shaped page for this venture:
+          led-resistor-calculator/can-i-use-one-resistor-for-multiple-leds.html,
+          comparing a series string, one resistor per LED, and one shared
+          resistor across parallel LEDs (18 passing unit tests in
+          wiring.test.mjs, numbers derived from Ohm's law by hand rather than
+          baselined off a run).
+          Counted locally as `led_wiring_compared`, settled the same way as
+          the tools above so a page load records nothing and a burst of
+          typing records one — kept distinct from the parent tool's
+          `led_resistor_calculated` on purpose. The reading worth watching
+          once traffic exists is the ratio between the two: this page answers
+          the question people search for ("can I use one resistor for
+          multiple LEDs"), while the parent answers the one they have after
+          deciding, so entries here that go on to the parent are the
+          discoverability signal.
+          Unlike every earlier row in this entry, this one is **not**
+          publishing-gated. The venture's pages have been served from the
+          apex at /tools/ai-engineering-academy/ since the mirror learned to
+          read ENTRY_OVERRIDES, so this page is publicly reachable from the
+          commit that lands it. The zero below is a genuine pre-traffic
+          baseline rather than a note about a surface nobody can reach.
   - slug: quote-margin-check
     surface: repository-cli
     readings:

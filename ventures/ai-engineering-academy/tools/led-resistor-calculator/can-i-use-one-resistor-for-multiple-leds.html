@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Can I use one resistor for multiple LEDs? | Series vs one-each vs shared</title>
+<meta name="description" content="Free calculator comparing the three ways to wire several LEDs on one supply: a series string with one resistor, one resistor per LED, or one shared resistor. Exact resistor values, wasted power, and why a shared resistor saves parts but not power. Runs in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="can-i-use-one-resistor-for-multiple-leds.html" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='13' r='9' fill='%23e53e3e'/%3E%3Crect x='13' y='21' width='6' height='7' fill='%23a0aec0'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Can I use one resistor for multiple LEDs?" />
+<meta property="og:description" content="Compare a series string, one resistor per LED, and one shared resistor — with exact values, wasted power, and the current a shared resistor cannot control." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "LED wiring comparison: series, one resistor each, or one shared",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": "Series string vs individual resistors vs one shared resistor, exact and nearest-standard resistor values, per-resistor power rating, supply current, wasted power, efficiency, maximum LEDs per series string"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I use one resistor for multiple LEDs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, if the LEDs are in series — and that is the good version. In a series string there is only one current, so one resistor sets it for every LED. Sharing one resistor across LEDs wired in parallel also 'works' in the sense that it lights them, but the resistor then fixes only the total current; how that total divides between the LEDs is set by their forward-voltage curves, which the resistor cannot influence because every LED sits across the same node. On this page's defaults (9 V supply, 2.0 V LEDs at 20 mA, four LEDs) the series string needs one 50 Ω resistor, the nearest buyable part being 51 Ω."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does a shared resistor save power compared with one resistor per LED?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — it saves parts, not power, and this surprises people. Both parallel wirings drop the same voltage (supply minus one forward voltage) at the same total current, so they waste identically. On the defaults each is 0.72 W from the supply, 0.16 W of it in the LEDs and 0.56 W as heat. The difference is where that heat goes: four 350 Ω resistors dissipate 0.14 W each and want 0.5 W parts, while the single shared 87.5 Ω resistor takes all 0.56 W itself and wants a 2 W part."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What actually goes wrong with one shared resistor on parallel LEDs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The current divides by forward voltage rather than evenly. LEDs from the same reel differ slightly, and the one with the lowest forward voltage takes more than its share, heats up, drops further, and takes more still. The bound is certain even though the split is not: the resistor holds the total, so if one LED ends up carrying it alone it carries all of it. With four LEDs designed for 20 mA each, that ceiling is 80 mA through a single 20 mA part. This page states that bound rather than predicting the split, which would need each LED's own measured curve."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many LEDs can I put in one series string?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "As many as fit inside the supply voltage with something left over for the resistor. A string that used the whole supply would leave the resistor 0 V, at which point nothing sets the current. On a 9 V supply with 2.0 V LEDs that is four (8 V of LEDs, 1 V for the resistor); a fifth would need 10 V. Where the string does not fit, give each LED its own resistor — that wiring is always available because each branch only ever needs one forward voltage of headroom."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does a series string waste so much less power?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the supply delivers the design current once instead of once per LED. Four LEDs in series draw 20 mA total on the defaults; four parallel branches draw 80 mA. Same light, four times the current, and the extra goes into the resistors as heat: 0.02 W wasted by the string against 0.56 W by four separate resistors, or 89% efficient against 22%. On a battery that is the difference between hours and a fraction of one."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --warn: #9a3412; --good: #1a6b3c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #fca97a; --good: #7fd6a0; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  select, input {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  select:focus, input:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 1rem; }
+  .row > * { min-width: 0; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .verdict { font-size: 1.05rem; margin: 0 0 0.5rem; }
+  .verdict strong { color: var(--accent); }
+  /* The comparison table is wider than a phone. Scrolling it inside its own
+     box keeps every cell on the panel background its colours were chosen
+     for, rather than letting the last column spill onto the page. */
+  .tablewrap { overflow-x: auto; margin-top: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { padding: 0.5rem 0.4rem; text-align: right; border-bottom: 1px solid var(--border); }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { color: var(--muted); font-size: 0.8rem; font-weight: 600; }
+  tr.pick td { font-weight: 700; }
+  tr.unavailable td { color: var(--muted); }
+  .badge { font-size: 0.75rem; border-radius: 999px; padding: 0.1rem 0.5rem; border: 1px solid currentColor; white-space: nowrap; }
+  .badge.good { color: var(--good); }
+  .badge.warn { color: var(--warn); }
+  .risk { margin-top: 1rem; padding: 0.75rem 0.9rem; border-radius: 8px; border: 1px solid var(--warn); color: var(--warn); font-size: 0.9rem; }
+  .error { color: #c53030; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  @media (max-width: 640px) { .row { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Can I use one resistor for multiple LEDs?</h1>
+  <p class="lede">
+    Yes — if they are in series. Sharing one resistor across LEDs wired in
+    <em>parallel</em> is the version that quietly kills LEDs, and it does not
+    even save power. Put your numbers in and compare all three wirings.
+    Everything runs in this page; nothing is uploaded.
+  </p>
+  <nav class="toolbar">
+    <a href="./">← LED series resistor calculator</a> ·
+    <a href="../">All free electronics tools</a>
+  </nav>
+
+  <section aria-labelledby="calc-heading">
+    <h2 id="calc-heading">Your supply and LEDs</h2>
+
+    <label for="preset">LED colour preset (fills in a typical forward voltage — override it if you know your LED's actual value)</label>
+    <select id="preset">
+      <option value="">Custom / not listed</option>
+      <option value="1.8">Infrared (~1.8 V)</option>
+      <option value="2.0">Red (~2.0 V)</option>
+      <option value="2.0">Yellow (~2.0 V)</option>
+      <option value="2.1">Amber (~2.1 V)</option>
+      <option value="3.0">Green (~3.0 V)</option>
+      <option value="3.2">Blue (~3.2 V)</option>
+      <option value="3.2">White (~3.2 V)</option>
+      <option value="3.3">UV (~3.3 V)</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label for="supply">Supply voltage (V)</label>
+        <input type="number" id="supply" inputmode="decimal" value="9" step="any" />
+      </div>
+      <div>
+        <label for="vf">LED forward voltage, V<sub>f</sub> (V)</label>
+        <input type="number" id="vf" inputmode="decimal" value="2.0" step="any" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="if">LED forward current, I<sub>f</sub> (mA)</label>
+        <input type="number" id="if" inputmode="decimal" value="20" step="any" />
+        <p class="hint">From the LED's datasheet. 20 mA is common for 5 mm indicator LEDs; many are rated lower.</p>
+      </div>
+      <div>
+        <label for="n">How many LEDs</label>
+        <input type="number" id="n" inputmode="numeric" value="4" min="1" step="1" />
+      </div>
+    </div>
+
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+  </section>
+
+  <h2>Common questions</h2>
+
+  <h3>Can I use one resistor for multiple LEDs?</h3>
+  <p>
+    Yes, if the LEDs are in series — and that is the good version. In a series
+    string there is only one current, so one resistor sets it for every LED. On
+    this page's defaults (9&nbsp;V supply, 2.0&nbsp;V LEDs at 20&nbsp;mA, four
+    LEDs) that is a single 50&nbsp;Ω resistor, or 51&nbsp;Ω as the nearest part
+    you can actually buy.
+  </p>
+  <p>
+    Sharing one resistor across LEDs wired in <em>parallel</em> also lights
+    them, but the resistor then fixes only the <em>total</em> current. How that
+    total divides between the LEDs is set by their forward-voltage curves,
+    which the resistor cannot influence — every LED sits across the same node.
+  </p>
+
+  <h3>Does a shared resistor save power compared with one resistor per LED?</h3>
+  <p>
+    No. It saves parts, not power, which surprises most people the first time.
+    Both parallel wirings drop the same voltage (supply minus one forward
+    voltage) at the same total current, so they waste identically: on the
+    defaults, 0.72&nbsp;W drawn from the supply, 0.16&nbsp;W of it doing
+    useful work in the LEDs and 0.56&nbsp;W leaving as heat either way.
+  </p>
+  <p>
+    What changes is <em>where</em> the heat goes. Four separate 350&nbsp;Ω
+    resistors dissipate 0.14&nbsp;W each and want 0.5&nbsp;W parts. The single
+    shared 87.5&nbsp;Ω resistor takes all 0.56&nbsp;W by itself and wants a
+    2&nbsp;W part — a much bigger component than most people reach for when
+    they are trying to save one.
+  </p>
+
+  <h3>What actually goes wrong with one shared resistor?</h3>
+  <p>
+    The current divides by forward voltage rather than evenly. LEDs off the
+    same reel differ slightly; the one with the lowest forward voltage takes
+    more than its share, heats up, drops further, and takes more still.
+  </p>
+  <p>
+    The split is not predictable without each LED's own measured curve, so this
+    page does not pretend to predict it. The <em>bound</em> is certain: the
+    resistor holds the total, so if one LED ends up carrying that total alone,
+    it carries all of it. Four LEDs designed for 20&nbsp;mA each give a ceiling
+    of 80&nbsp;mA through a single 20&nbsp;mA part.
+  </p>
+
+  <h3>How many LEDs can I put in one series string?</h3>
+  <p>
+    As many as fit inside the supply voltage with something left over for the
+    resistor. A string that consumed the whole supply would leave the resistor
+    0&nbsp;V, and then nothing sets the current at all. On a 9&nbsp;V supply
+    with 2.0&nbsp;V LEDs that is four — 8&nbsp;V of LEDs and 1&nbsp;V for the
+    resistor. A fifth would need 10&nbsp;V.
+  </p>
+  <p>
+    Where the string does not fit, give each LED its own resistor. That wiring
+    is always available, because each branch only ever needs one forward
+    voltage of headroom no matter how many branches there are.
+  </p>
+
+  <h3>Why does a series string waste so much less power?</h3>
+  <p>
+    Because the supply delivers the design current once instead of once per
+    LED. Four LEDs in series draw 20&nbsp;mA in total on the defaults; four
+    parallel branches draw 80&nbsp;mA for the same light, and the extra ends up
+    in the resistors as heat — 0.02&nbsp;W wasted by the string against
+    0.56&nbsp;W by four separate resistors, or 89% efficient against 22%. On a
+    battery that is the difference between hours and a fraction of one.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not engineering
+      advice, and it does not replace checking your LED's real datasheet or
+      measuring the built circuit. The worst-case current shown for a shared
+      resistor is an upper bound derived from the total, not a prediction of
+      how a particular set of LEDs will divide it. <strong>You are responsible
+      for reviewing and verifying its output before relying on it</strong>,
+      including for anything safety-critical. To the maximum extent permitted
+      by law, the authors accept no liability for any loss or damage arising
+      from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This page
+      counts anonymous, local feature-use events (e.g. "a comparison was run")
+      in your own browser's <code>localStorage</code>, only to help this
+      project's maintainers tell whether the tool is used at all — nothing is
+      sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT licensed — see
+      <a href="../LICENSE">LICENSE</a>. See also the
+      <a href="./">LED series resistor calculator</a> this page extends, and the
+      <a href="../resistor-calculator/">resistor colour code &amp; Ohm's law
+      calculator</a> for reading the part you end up buying.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { compareLedWiring, wiringNote } from "./wiring.mjs";
+  import { recordEvent, recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const preset = document.getElementById("preset");
+  const supply = document.getElementById("supply");
+  const vf = document.getElementById("vf");
+  const if_ = document.getElementById("if");
+  const n = document.getElementById("n");
+  const result = document.getElementById("result");
+
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const watts = (w) => `${w.toFixed(3)} W`;
+  const rating = (w) => (w === null ? "over common ratings" : `${w} W`);
+
+  preset.addEventListener("change", () => {
+    if (preset.value !== "") {
+      vf.value = preset.value;
+      recordEvent("preset_selected");
+      update(true);
+    }
+  });
+
+  function renderRow(option, recommended) {
+    if (option.available === false) {
+      return `<tr class="unavailable">
+        <td>${esc(option.label)}</td>
+        <td colspan="6">Does not fit — ${esc(option.unavailableReason)}</td>
+      </tr>`;
+    }
+    const pick = option.key === recommended;
+    return `<tr class="${pick ? "pick" : ""}">
+      <td>${esc(option.label)} ${pick ? '<span class="badge good">use this</span>' : ""}${option.key === "shared" ? ' <span class="badge warn">no current control</span>' : ""}</td>
+      <td>${option.resistorCount}</td>
+      <td>${esc(option.formattedResistor)}</td>
+      <td>${esc(option.formattedNearestStandard)}</td>
+      <td>${rating(option.recommendedPowerRatingWatts)}</td>
+      <td>${option.supplyCurrentMa.toFixed(1)} mA</td>
+      <td>${watts(option.wastedPowerWatts)}</td>
+    </tr>`;
+  }
+
+  // `update` runs on load to render a first result from the prefilled
+  // defaults, and again whenever a person changes something. Only the second
+  // is somebody using the tool, so only it is counted — the same distinction
+  // the main calculator makes, and the reason portfolio/usage/ readings mean
+  // anything.
+  function update(userAction) {
+    const inputs = {
+      supplyVoltage: Number(supply.value),
+      ledForwardVoltage: Number(vf.value),
+      ledForwardCurrentMa: Number(if_.value),
+      numLeds: Number(n.value),
+    };
+    try {
+      const r = compareLedWiring(inputs);
+      const shared = r.options.find((o) => o.key === "shared");
+      const risk = shared?.sharedResistorRisk;
+      result.classList.remove("error");
+      result.innerHTML = `
+        <p class="verdict"><strong>${esc(wiringNote(r))}</strong></p>
+        <div class="tablewrap">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Wiring</th>
+                <th scope="col">Resistors</th>
+                <th scope="col">Exact</th>
+                <th scope="col">Nearest E24</th>
+                <th scope="col">Rating each</th>
+                <th scope="col">From supply</th>
+                <th scope="col">Wasted as heat</th>
+              </tr>
+            </thead>
+            <tbody>${r.options.map((o) => renderRow(o, r.recommended)).join("")}</tbody>
+          </table>
+        </div>
+        ${risk ? `<p class="risk"><strong>The shared resistor sets the total, not the split.</strong>
+          Each LED is designed for ${risk.designCurrentMa} mA. Because the resistor
+          only holds the total at ${risk.worstCaseCurrentMa} mA, the ceiling for any
+          single LED is ${risk.worstCaseCurrentMa} mA — ${risk.worstCaseMultiple}× its
+          design current — if forward-voltage mismatch sends the whole total through
+          it. That is a bound, not a prediction.</p>` : ""}
+        <p class="hint">This supply fits ${r.maxLedsInSeries} LED${r.maxLedsInSeries === 1 ? "" : "s"} of ${esc(r.ledForwardVoltage)} V in one series string.</p>
+      `;
+      if (userAction) recordEventSettled("led_wiring_compared");
+    } catch (err) {
+      result.textContent = err.message;
+      result.classList.add("error");
+    }
+  }
+
+  for (const el of [supply, vf, if_, n]) el.addEventListener("input", () => update(true));
+  update();
+
+  const usageToggle = document.getElementById("usage-toggle");
+  const usageStatus = document.getElementById("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>

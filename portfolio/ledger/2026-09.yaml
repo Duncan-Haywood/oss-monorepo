@@ -9186,3 +9186,65 @@ entries:
         one-line `index.html`/`sitemap.xml` additions each) -- no
         unrelated changes.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first question-shaped page:
+        `led-resistor-calculator/can-i-use-one-resistor-for-multiple-leds.html`.
+        Measured before picking it: of the 174 tools the apex serves, three
+        had zero pages beyond their entry page, and `ai-engineering-academy`
+        was the largest of the three -- a hub plus six working electronics
+        calculators with no content answering the question anyone actually
+        types into a search box. The parent tool sizes a resistor once you
+        already know how you are wiring; nothing answered "can I use one
+        resistor for multiple LEDs", which is the question that comes first.
+      - >-
+        The page is a working comparison, not an article. `wiring.mjs`
+        prices all three standard wirings from the same inputs -- a series
+        string with one resistor, one resistor per LED, and one shared
+        resistor across parallel LEDs -- giving exact and nearest-E24
+        values, per-resistor power rating, supply current, wasted power and
+        efficiency for each, plus the largest string the supply can hold.
+        It reuses `calc.mjs`'s own `nearestStandardResistor` and
+        `recommendedPowerRating` by import rather than restating them, per
+        the rule `CLAUDE.md` records twice as having cost live product.
+      - >-
+        The finding the page exists to deliver: a shared resistor saves
+        parts, not power. Both parallel wirings drop (supply - Vf) at the
+        same total current, so they waste identically -- on the defaults
+        0.56 W either way. What the shared one gives up is control of the
+        split, which the resistor cannot influence because every LED sits
+        across the same node. That is stated as a **bound** rather than a
+        prediction (the resistor holds the total, so a single LED's ceiling
+        is N x its design current), because predicting the actual split
+        needs each LED's measured forward-voltage curve and this page will
+        not invent one. Both the page copy and the disclaimer say so.
+      - >-
+        Verified: `node --test` in the venture -> 39/39 (18 new in
+        `wiring.test.mjs`, with every expected figure worked from Ohm's law
+        by hand rather than baselined off a run, so a behaviour change fails
+        rather than re-baselining itself). `node platform/pages/build.mjs`
+        -> 174 products, 649 pages (up one); `node platform/pages/check.mjs
+        --dist=platform/pages/dist` -> "no dead links".
+        `python3 platform/ci/browser_checks.py --only=ai-engineering-academy`
+        -> 6 of 7 checks pass (`sideways`, `presets`, `roundtrip`, `sweep`,
+        `journey`, and `contrast` with axe-core installed: 8 pages across
+        desktop and phone, no WCAG A/AA violations). The seventh,
+        `highlight`, reports nothing to verify for this venture because it
+        prints no highlight promise -- a skip by design, not a failure.
+        `platform/marketing/*.test.mjs` -> 208/208 and
+        `python3 -m pytest gitops/tests -q` -> 300 passed after regenerating
+        the front door.
+      - >-
+        Deployed, not merely built. Regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`), so
+        the page and the `wiring.mjs` module it imports both ship as
+        ConfigMap shards and the sitemap lists the new URL -- a merge to
+        `main` is the deploy on the Argo path, with no clone token, Actions
+        runner or Pages flip involved. Confirmed `wiring.mjs.gz` is in the
+        mirror specifically: a mirrored page whose module was left behind
+        would render and compute nothing, which is the failure this
+        venture's own history already contains.
+    mrr_end: null
