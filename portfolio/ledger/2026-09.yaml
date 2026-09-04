@@ -9426,6 +9426,69 @@ entries:
         sweep/journey all ok (highlight and contrast skipped: no highlight
         promise on this venture, and axe-core not installed locally).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item (priority 6): built the site fresh
+        (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs`, `node platform/pages/check.mjs
+        --dist=platform/pages/dist`) rather than re-running the 2026-09-02
+        research pass blind. Embed widget: 174/174 entry pages, no skip.
+        Comparison pages: 141 `vs-*.html` and climbing (was 78 on
+        2026-09-02) -- multiple other sessions already actively filling
+        this backlog against verified household-name incumbents in the
+        same window, and the 5 ventures merged since 2026-09-02
+        (which-job-first, dns-configuration-evidence, cra-evidence-desk,
+        print-atelier, real-estate-agent-photo-app) have no household-name
+        third-party competitor distinct enough for an honest comparison.
+        Category hubs and /about/'s structure: unchanged since the last
+        pass. That left candidate 4's own stated failure mode -- "a claim
+        that's drifted from what the build actually emits" -- as the one
+        to check for real, since dns-configuration-evidence shipped its
+        browser surface 2026-09-04 (#3128), after the last pass.
+      - >-
+        Found and fixed a real drift: `surfaceExternalFetchHosts` in
+        `build.mjs` (which drives /about/'s "nothing you type leaves your
+        browser, except..." claim and each tool's card footer) only
+        scanned `.js`/`.html` files and only recognised a `fetch()` call
+        with a literal or top-level-const URL. `dns-configuration-evidence`
+        queries three public DoH resolvers (Cloudflare, Google, Quad9)
+        from `dns-evidence.mjs`, via `fetchImpl(\`${resolver.endpoint}?...\`)`
+        -- wrong file extension and an untraceable URL indirection, both
+        at once. Net effect: /about/ said "one documented exception"
+        (Sponsor Ready) while a second tool was already making real
+        third-party calls, correctly disclosed on its own page but not on
+        the sitewide privacy claim or its own card footer.
+      - >-
+        Fix (PR #3165, merged 45448cfa): scan `.mjs` too, plus a
+        deliberately over-inclusive fallback -- any `https://` literal in
+        a `.js`/`.mjs` file that also makes a fetch-shaped call becomes a
+        candidate exception host. Checked against the whole built site:
+        adds exactly the one host set it exists to catch and no new false
+        positive (only `sponsor-ready/app.js`, already correctly flagged,
+        makes any fetch-shaped call with a hardcoded external literal
+        anywhere else in the 610 `.mjs` + existing `.js` outputs; the
+        other `fetch()`-using tools -- vendor-change-evidence,
+        public-record-watch, npm-deployment-evidence, fifo-pick-evidence,
+        the service worker -- all fetch same-origin relative paths only).
+        Two new regression tests added (`.mjs` + object-field-URL
+        indirection caught; same-origin-only `.mjs` fetch stays unflagged).
+      - >-
+        Verified: `node --test platform/pages/build.test.mjs` -> 250/250
+        (was 248, +2 new tests). `node --test platform/pages/check.test.mjs`
+        -> 72/72. `node --test
+        ventures/dns-configuration-evidence/dns-evidence.test.mjs` ->
+        25/25 (venture's own suite, untouched). Full build + check after
+        the fix: 174 products, 662 pages, no dead links; /about/ now names
+        both exceptions and dns-configuration-evidence's own card footer
+        switched to the exception footer. All 14 PR #3165 check runs
+        completed green on real runners (durations up to ~3m, not the
+        3-6s starvation signature) before merge. No `gitops/` files
+        touched. No third-party script/font/CDN/network call added -- the
+        change only discloses network calls the site already made.
+    mrr_end: null
   - venture: dns-configuration-evidence
     agent_spend_usd: null
     human_hours: 0
