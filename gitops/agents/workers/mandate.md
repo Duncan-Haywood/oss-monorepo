@@ -76,6 +76,16 @@ Do not close a PR as "already on main" without running
 `python3 portfolio/ledger/supersede_check.py <pr-number>`. Exit 0 is the only
 proof that the close destroys nothing.
 
+Read that tool's advisory sections before you *merge*, too, not only before
+you close. **STALE DRAFT SUSPECTED** means `main` has a later draft of the
+very lines the branch adds: the branch is behind `main`, not ahead of it, and
+merging it reverts the better copy while the diff makes the revert look like a
+feature. **RENAME SUSPECTED** means the work shipped elsewhere under another
+name. Neither changes the exit code, and neither decides anything on its own —
+read the printed pairs and say in the PR which wording you kept and why. This
+matters most on the branch-drain item, where the oldest branches are the ones
+`main` is most likely to have overtaken.
+
 ## Deployment and CI/CD count as product work
 
 A finished tool nobody can reach has not shipped. Work that moves the portfolio

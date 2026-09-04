@@ -146,6 +146,22 @@ _RECORD_FILES = re.compile(
     r"|progress-log\.ts)$"
 )
 
+# The share of a branch's carrying files on which the base must have moved more
+# recently before the branch reads as an older draft rather than newer work.
+#
+# Not 1.0: a branch of any size usually touches one file nobody else has --
+# a test, a sitemap entry -- and one such file should not clear the signal.
+_STALE_SHARE = 0.8
+
+# Same-file twins needed across the branch before recency means anything.
+#
+# Recency alone is far too weak to report: `main` moves constantly here, so
+# "the base touched these files after you did" is true of almost every branch
+# and says nothing about whether the work is already shipped. What makes it
+# evidence is the pairing -- the branch's unmatched lines having close twins
+# *in the very file it is editing*, which is what redrafted prose looks like.
+_STALE_MIN_TWINS = 3
+
 
 @dataclass
 class FileVerdict:
@@ -154,14 +170,36 @@ class FileVerdict:
     unmatched: list[str] = field(default_factory=list)
     missing_from_base: bool = False
     near: list[NearMatch] = field(default_factory=list)
+    # Whether the base's last commit touching this path is newer than the
+    # branch's. `None` when the path has no history on the base at all, which
+    # is a genuinely new file and the one case that is never stale.
+    base_newer: bool | None = None
+
+    @property
+    def renamed_twins(self) -> list[NearMatch]:
+        """Twins living somewhere other than the file the branch edited.
+
+        The split is the whole distinction between the two reports below. A
+        rename means the base re-implemented this work *elsewhere*, under
+        another name -- `nearest_in_base` searches a whole venture directory
+        precisely because the twin is "almost always a *different* file".
+        A twin in the same file is not that: it is the base's own, later
+        wording of the line the branch is proposing to add.
+        """
+        return [m for m in self.near if m.base_path != self.path]
+
+    @property
+    def redraft_twins(self) -> list[NearMatch]:
+        return [m for m in self.near if m.base_path == self.path]
 
     @property
     def rename_suspected(self) -> bool:
         if _RECORD_FILES.search(self.path):
             return False
-        if len(self.near) < _RENAME_MIN_TWINS:
+        twins = self.renamed_twins
+        if len(twins) < _RENAME_MIN_TWINS:
             return False
-        return len(self.near) / len(self.unmatched) >= _RENAME_SHARE
+        return len(twins) / len(self.unmatched) >= _RENAME_SHARE
 
 
 @dataclass
@@ -199,6 +237,50 @@ class Verdict:
         read, and leaves the exit code saying "do not close".
         """
         return not self.superseded and bool(self.renamed_files)
+
+    @property
+    def carrying_files(self) -> list[FileVerdict]:
+        return [f for f in self.files if f.unmatched]
+
+    @property
+    def redraft_total(self) -> int:
+        return sum(
+            len(f.redraft_twins) for f in self.carrying_files
+            if not _RECORD_FILES.search(f.path)
+        )
+
+    @property
+    def stale_files(self) -> list[FileVerdict]:
+        return [f for f in self.carrying_files if f.base_newer]
+
+    @property
+    def stale_draft_suspected(self) -> bool:
+        """Whether the branch is an older draft of what the base already says.
+
+        The case neither proof above catches. The line scan asks whether the
+        base contains these lines, and the replay asks whether the branch's
+        tree survives a merge; both answer "this is unshipped work" for a
+        branch that wrote an *earlier, thinner* version of a page the base has
+        since rewritten. Merging it then reverts the better copy.
+
+        Measured on `marketing/vs-smartmoving-moving-bid-calculator`: 67 lines
+        "nowhere in main", a clean NOT SUPERSEDED, and every one of them an
+        older wording of a line `main` carries -- including a mirror comment
+        that would have put all 169 mirrored tools back to `noindex`.
+
+        Two independent signals have to agree, because either alone is noise:
+        the base moved later on effectively every file the branch carries
+        (recency), and those unmatched lines have close twins *in those same
+        files* (redrafting). Advisory only, exactly like `rename_suspected` --
+        the exit code still says do not close, because an older draft can
+        still carry the one fix the branch exists to make.
+        """
+        if self.superseded:
+            return False
+        carrying = self.carrying_files
+        if not carrying or self.redraft_total < _STALE_MIN_TWINS:
+            return False
+        return len(self.stale_files) / len(carrying) >= _STALE_SHARE
 
 
 def _git(*args: str, check: bool = True) -> str:
@@ -395,6 +477,18 @@ def nearest_in_base(
     return matches
 
 
+def last_touched(ref: str, path: str) -> int | None:
+    """Commit timestamp of the last change to `path` on `ref`, or None.
+
+    None means the path has no history on that ref at all -- a file the branch
+    created. Committer date, not author date: a branch cherry-picked or
+    rebased forward keeps its original author dates, and the question here is
+    which side wrote its version of this file into its history last.
+    """
+    out = _git("log", "-1", "--format=%ct", ref, "--", path, check=False).strip()
+    return int(out) if out else None
+
+
 def is_shallow() -> bool:
     """Whether this clone's history is truncated."""
     return _git("rev-parse", "--is-shallow-repository", check=False).strip() == "true"
@@ -538,12 +632,19 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
         if unaccounted:
             elsewhere = base_contains(base, [l.strip() for l in unaccounted])
             unaccounted = [l for l in unaccounted if l.strip() not in elsewhere]
+        base_at = last_touched(base, path)
+        head_at = last_touched(head, path)
         files.append(
             FileVerdict(
                 path=path,
                 added=len(candidates),
                 unmatched=unaccounted,
                 missing_from_base=path not in existing_paths,
+                # A file the base has never had cannot be a redraft of it.
+                base_newer=(
+                    None if base_at is None or head_at is None
+                    else base_at > head_at
+                ),
             )
         )
 
@@ -635,6 +736,64 @@ def render(verdict: Verdict, ref: str, base_ref: str, samples: int = 3) -> str:
 
     if verdict.rename_suspected:
         out.append(_render_rename(verdict, ref, base_ref, samples))
+    if verdict.stale_draft_suspected:
+        out.append(_render_stale_draft(verdict, ref, base_ref, samples))
+    return "\n".join(out).rstrip()
+
+
+def _render_stale_draft(
+    verdict: Verdict, ref: str, base_ref: str, samples: int
+) -> str:
+    """The older-draft report appended under a NOT SUPERSEDED verdict.
+
+    Separate from the rename report for the same reason that one is separate
+    from the verdict: it says something the scan above cannot. The rename
+    report says the work shipped *elsewhere*; this says the base has a later
+    version of these very lines, in these very files.
+    """
+    stale = verdict.stale_files
+    carrying = verdict.carrying_files
+    out = [
+        f"STALE DRAFT SUSPECTED — {base_ref} has committed to "
+        f"{len(stale)} of {len(carrying)} of these",
+        f"file(s) more recently than {ref} did, and {verdict.redraft_total} of the "
+        "unmatched lines have a",
+        "close twin in the same file on the base. That is what an older draft "
+        "looks like:",
+        f"not work {base_ref} lacks, but wording {base_ref} has since replaced.",
+        "",
+        "The scan above cannot see this. It asks whether the base contains these "
+        "lines,",
+        "and an earlier draft's lines are genuinely absent — so a thinner, older "
+        "copy of",
+        "a page the base rewrote reads as unshipped work. Merging it reverts the "
+        "better",
+        "copy, and the revert looks like a feature in the diff.",
+        "",
+        "This does not license a close, and the exit code still says so. Compare "
+        "each",
+        "pair below and decide which reads better. If the base's is the later and "
+        "fuller",
+        f"wording throughout, {ref} is spent — close it naming the file, not this "
+        "report.",
+        "If any branch line says something the base's does not, that difference is "
+        "the",
+        "work, and it still has to merge.",
+        "",
+    ]
+    for f in stale:
+        twins = sorted(f.redraft_twins, key=lambda m: -m.ratio)
+        out.append(
+            f"  {f.path} — {len(f.unmatched)} unmatched, "
+            f"{len(twins)} with a later twin in this same file"
+        )
+        for match in twins[:samples]:
+            out.append(f"      branch  {match.line.strip()[:88]}")
+            out.append(f"      base    {match.base_line.strip()[:88]}")
+            out.append(f"              ↳ {match.ratio:.0%} alike")
+        if len(twins) > samples:
+            out.append(f"      ... and {len(twins) - samples} more pair(s)")
+        out.append("")
     return "\n".join(out).rstrip()
 
 
