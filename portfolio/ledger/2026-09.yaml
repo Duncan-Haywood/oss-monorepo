@@ -10381,3 +10381,35 @@ entries:
         against a live URL: the public surface is still down and both
         restore routes are owner-blocked (see the decision queue).
     mrr_end: null
+  - venture: shopify-a11y-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first vs-competitor marketing/SEO page:
+        vs-accessibe.html, contrasting the free, local, no-account
+        axe-core-scan-to-evidence-record tool against accessiBe's paid,
+        ongoing accessWidget subscription (an installed live-storefront
+        widget plus audits/monitoring) -- following the portfolio's
+        established vs-<competitor> pattern (canonical tag, FAQPage
+        JSON-LD matching visible headings word-for-word including the
+        em-dash entity/unicode-character distinction faq-visible.test.mjs
+        checks for, no-warranty and best-effort-hosting disclaimers,
+        explicit non-affiliation statement, and no invented accessiBe
+        pricing since current terms could not be verified from this
+        session). Chose accessiBe because it is a real, well-known,
+        publicly documented commercial product in the same problem space
+        (Shopify/web accessibility) with a genuinely different shape from
+        this tool (installed ongoing widget vs. free local one-off
+        evidence formatter), so the comparison is honest rather than
+        invented. Linked from index.html, listed in sitemap.xml,
+        regenerated the front-door mirror (front-door-tools.mjs --write)
+        and the front-door site (front-door.mjs --write) so the page
+        ships on merge (Argo CD deploys gitops/prod). Verified: `node
+        --test` in the venture 67/67 (was 66); `node --test
+        platform/marketing/*.test.mjs` 208/208; `node --test
+        platform/pages/faq-visible.test.mjs` 4/4; canonical
+        `platform/pages/build.mjs` plus `check.mjs` reports 174 products,
+        676 pages, no dead links. Could not verify against a live URL:
+        the public surface is still down (see the decision queue).
+    mrr_end: null
