@@ -72,22 +72,23 @@ jobs:
       - name: Install dependencies
         run: pip install pyyaml
 
+      # One invocation, both outputs. `--json-out` exists precisely so this
+      # step does not have to run the prober twice to get a summary and an
+      # artifact -- that would double the requests we make to our own site,
+      # and with `--all` that is 1,328 rather than 664.
+      #
+      # The machine copy is written whatever the verdict, because comparing
+      # two runs is how a slow regression (a tool page that started 404ing)
+      # becomes visible at all, and a reading that only survives on failure
+      # cannot be compared to anything.
       - name: Probe the public hostnames and the published sitemap
         id: probe
         working-directory: platform/ci
         run: |
           set -o pipefail
           python3 public_surface.py ${{ inputs.all && '--all' || '' }} \
+            --json-out "${RUNNER_TEMP}/public-surface.json" \
             | tee "${GITHUB_STEP_SUMMARY}"
-
-      # The machine-readable copy, kept whatever the verdict: comparing two
-      # runs is how a slow regression (a tool page that started 404ing) shows
-      # up at all, and a report that only survives on failure cannot be
-      # compared to anything.
-      - name: Record the reading as an artifact
-        if: always()
-        working-directory: platform/ci
-        run: python3 public_surface.py --json > "${RUNNER_TEMP}/public-surface.json" || true
 
       - uses: actions/upload-artifact@v4
         if: always()

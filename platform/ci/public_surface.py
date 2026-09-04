@@ -367,6 +367,16 @@ def main(argv=None) -> int:
     )
     parser.add_argument("--json", action="store_true", help="emit JSON instead of markdown")
     parser.add_argument(
+        "--json-out",
+        metavar="PATH",
+        help=(
+            "also write the JSON reading to PATH. Exists so one invocation can "
+            "produce both the human summary and the machine copy: probing twice "
+            "to get two formats would double the requests we make to our own "
+            "site, and with --all that is 1,328 rather than 664."
+        ),
+    )
+    parser.add_argument(
         "--hosts-only",
         action="store_true",
         help="skip the sitemap sample; probe only the public hostnames",
@@ -380,6 +390,8 @@ def main(argv=None) -> int:
         urls = sitemap_urls()
         pages = run_probes(sitemap_probes(limit=limit or len(urls), urls=urls))
 
+    if args.json_out:
+        Path(args.json_out).write_text(as_json(hosts, pages), encoding="utf-8")
     print(as_json(hosts, pages) if args.json else render(hosts, pages))
     # Exit 1 on a disagreement, so the job that runs this is red exactly when
     # the public surface stops matching what this repository ships -- and

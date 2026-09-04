@@ -232,6 +232,23 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(len(payload["hosts"]), 2)
 
 
+class JsonOutTests(unittest.TestCase):
+    """`--json-out` is what keeps the workflow from probing the site twice."""
+
+    def test_json_out_writes_the_reading_while_stdout_stays_markdown(self):
+        import tempfile
+        import unittest.mock
+
+        out = Path(self.enterContext(tempfile.TemporaryDirectory())) / "reading.json"
+        with unittest.mock.patch.object(ps, "run_probes", return_value=[]), \
+             unittest.mock.patch.object(ps, "sitemap_urls", return_value=[]), \
+             unittest.mock.patch("sys.stdout", new_callable=__import__("io").StringIO) as stdout:
+            code = ps.main(["--hosts-only", "--json-out", str(out)])
+        self.assertEqual(code, 0)
+        self.assertIn("hosts", json.loads(out.read_text()))
+        self.assertIn("Public surface", stdout.getvalue())
+
+
 class ExitCodeTests(unittest.TestCase):
     def test_disagreements_are_what_decides_the_exit_code(self):
         ok = ps.Result(probe=ps.Probe(APEX, "serves", "x"), status=200, body_bytes=9000)
