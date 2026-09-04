@@ -10161,3 +10161,39 @@ entries:
         merge -- once the standing outage this file records elsewhere is
         resolved -- not only once a further seal lands.
     mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-vagaro.html` (+ `vs-vagaro.test.mjs`, 13 new tests),
+        this venture's first competitor-comparison page -- it previously had
+        zero `vs-*.html` pages despite a complete, tested commission/booth-rent
+        take-home calculator (`calc.mjs`, `payroll.mjs`, 35 existing tests).
+        Vagaro (salon/spa/barbershop business-management SaaS: online
+        booking storefront, POS/payment processing, staff scheduling,
+        marketing, sold as an ongoing subscription account to the business)
+        is named only for its well-documented category; no dollar figure
+        for it appears anywhere on the page, matching the discipline in
+        `freight-accessorial-auditor/vs-trax.html` and
+        `equipment-rental-break-even/site/vs-booqable.html`. Linked from
+        `index.html` and added to `sitemap.xml`. Checked `git branch -r` and
+        `list_pull_requests` first -- zero open PRs, and the four existing
+        `vs-*` branches (gutter-guard, toilet-replacement,
+        window-cleaning, moving-bid-calculator) all target other ventures,
+        so this is not a duplicate. Verified: `node --test
+        ventures/booth-rent-vs-commission/*.test.mjs` 48/48; canonical
+        `platform/pages/build.mjs` build succeeds (174 tools, 671 pages,
+        up from 670) and `node platform/pages/check.mjs dist` reports no
+        dead links; `platform/pages/clauses.mjs` reports the no-warranty
+        clause on all 660 published pages across 174 surfaces. This venture
+        is in the front-door mirror's `STARTER_SET`, so also regenerated
+        `gitops/prod/front-door-tools/` (`front-door-tools.mjs --write`,
+        174 tools / 10 shards, 64.8% mirror headroom) and
+        `gitops/prod/front-door/catalog.json` + `sitemap.xml`
+        (`front-door.mjs --write`); `node --test platform/marketing/*.test.mjs`
+        208/208. So this page ships to
+        `marisstella.dev/tools/booth-rent-vs-commission/` on merge -- once
+        the standing outage this file records elsewhere is resolved -- not
+        only once a further seal lands.
+    mrr_end: null
