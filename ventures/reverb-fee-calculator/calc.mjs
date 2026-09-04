@@ -506,7 +506,12 @@ export function compareReturnResolution(input, salePrice = input?.price) {
   const relist = itemResellable ? calculateReverbSale(input, relistPrice) : null;
   const relistNet = itemResellable ? relist.profit : -itemCost;
 
-  const unrefundedFees = sold.fees.total * (1 - feeRefundRate);
+  // Only the percentage fees (marketplace, gives, the variable share of
+  // payment processing) are refund-linked. The fixed per-order payment fee
+  // and a bump already spent are not, per percentFeeRate's own rule above,
+  // so they stay in unrefundedFees at their full amount regardless of
+  // feeRefundRate rather than being scaled down by it.
+  const unrefundedFees = sold.fees.total - feeCreditOn(sold.revenue);
   const returnPosition = -(shippingCost + returnShippingCost + otherCost + unrefundedFees) + relistNet;
   const keepPosition = (amount) => sold.profit - amount + feeCreditOn(amount);
 
@@ -532,7 +537,7 @@ export function compareReturnResolution(input, salePrice = input?.price) {
       label: 'Take the return, relist it',
       cashBack: sold.revenue,
       itemRecovered: true,
-      feeCredit: sold.fees.total * feeRefundRate,
+      feeCredit: feeCreditOn(sold.revenue),
       position: returnPosition,
     },
     {
