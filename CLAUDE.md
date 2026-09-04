@@ -129,10 +129,37 @@ candidate list. Either:
 > ship a 185th tool into a catalogue nobody can open, and do not rank the
 > `portfolio-site-repo` seal first — sealing a clone token for a cluster that
 > is not serving changes nothing. The blocking ask is now
-> `hetzner-ssh-key-is-a-public-key`: without shell on the box no one can find
-> out *why* nothing is listening, and no credential-free check can tell you.
-> Re-run `Public surface check` (it needs no secret) before trusting any
-> statement here; it is cheap and it is the only ground truth.
+> `hetzner-ssh-key-is-a-public-key`. Re-run `Public surface check` (it needs
+> no secret) before trusting any statement here; it is cheap and it is the
+> only ground truth about whether a hostname answers.
+>
+> **Corrected the same day (#3188): "no credential-free check can tell you
+> why" was too strong, and believing it would have cost the next session the
+> whole diagnosis.** That is what this paragraph said, and `Outage triage`
+> (`.github/workflows/outage-triage.yml`, run 33889983086) then answered most
+> of "why" without shell on anything. Dispatch it before escalating:
+>
+> ```
+>   both servers                       running   (Hetzner read-only API)
+>   marisstella.dev / www / tools  →  89.167.29.39   (ours)
+>   :22    open      on both boxes
+>   :80    refused   on both boxes
+>   :443   refused   on both boxes
+>   :6443  refused   on both boxes
+> ```
+>
+> So it is **not** power, **not** DNS, **not** the firewall (a drop times out;
+> an RST means the host is up and nothing is bound), and **not** TLS. `:6443`
+> refused is the sharp end: the k3s API server itself is not listening, so
+> this is a dead or absent cluster rather than a crashed ingress, and no pods
+> exist to serve 80 or 443.
+>
+> Two lessons, and the second is the reusable one. First, the SSH ask is
+> **confirmed rather than assumed**: sshd is up, so a rotated key will get in.
+> Second, nobody had checked whether it was — and had port 22 been refused
+> alongside 443, the top-ranked ask would have been the *wrong credential*,
+> costing the owner a day while the surface stayed down. An outage row should
+> say which action ends it, and that is a claim to measure, not to reason to.
 
 (1) comes first while a product on `main` still has no public route at all. As
 of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
