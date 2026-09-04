@@ -175,6 +175,7 @@ _dmarc TXT</textarea>
     <p class="note">Yes. The snapshot JSON this page downloads is the same schema the Python package in the repository reads, so a baseline captured here can be compared with <code>python3 -m dns_evidence compare</code>, and a snapshot captured by the CLI can be loaded here as the 'before'. The two produce the same report.</p>
     <h3>Why does a CNAME'd name show no A record?</h3>
     <p class="note">Only the record type you asked for is recorded, so a CNAME in the resolution chain is never written down as if it were the A record. Query CNAME on that name to see the chain itself.</p>
+    <p class="note">Still waiting on a change to land? <a href="how-long-does-dns-propagation-take.html">How long does DNS propagation take?</a> covers what actually sets the wait, and how to plan a cutover around it.</p>
     <details>
       <summary>One caveat when mixing the browser and the CLI</summary>
       <p class="note">The CLI queries resolvers directly over the DNS protocol; this page goes through DNS-over-HTTPS, and those endpoints present record text with small cosmetic differences (trailing dots, TXT quoting). This page normalises what it receives, so two captures made <em>here</em> always compare cleanly. Mixing a CLI capture with a browser capture can show a cosmetic “changed” on a record that did not really move. Capture both halves the same way and the question does not arise.</p>
