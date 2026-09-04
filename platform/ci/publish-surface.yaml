@@ -484,6 +484,9 @@ workflows:
 - workflow: public-record-watch-ci.yml
   classification: none
   publishes: []
+- workflow: public-surface-check.yml
+  classification: none
+  publishes: []
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []

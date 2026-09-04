@@ -9869,3 +9869,95 @@ entries:
         `platform/pages/*.test.mjs` 880/880; `platform/marketing/*.test.mjs`
         208/208.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met. `list_pull_requests` and
+        `search_pull_requests` both returned **zero open PRs** at the start
+        of the run, so there was nothing to review, repair or merge. Under
+        the "if none exist, start new work after the overlap check" rule the
+        phase completes empty.
+      - >-
+        Branch drain, done as a sweep rather than by sampling. Replayed all
+        86 branches carrying commits not on `main` with `git merge-tree
+        --write-tree -X ours` and compared the result to `main`'s tree -- the
+        identical-merge proof `supersede_check.py` documents, applied to the
+        whole set at once instead of to the handful a session usually has
+        time for. 66 produce `main`'s tree exactly and are superseded. Of
+        the 20 that do not, 18 have August merge-bases and delete thousands
+        of lines against today's `main` (the STALE DRAFT shape: an earlier
+        draft of files `main` has since moved past -- merging one reverts
+        live work). The two with merge-bases from the last two days were
+        read by hand: `claude/happy-wozniak-nl2ful` is one pinned test count
+        `main` has since moved, and
+        `ai-engineering-academy/rc-time-fully-charged` is a duplicate of the
+        capacitor-settling page `main` already carries via #3150/#3151, with
+        `main`'s copy the fuller one (446 lines and a target-percent solver
+        against the branch's 382). **No branch carries unshipped work.** No
+        PR opened from any of them, and none closed or deleted.
+      - >-
+        Dispatched `hetzner-gitops CI` with `preflight: true` -- something no
+        session appears to have done since the job was added -- to get ground
+        truth on the Hetzner deployment. It fails in under a second on the
+        workflow's own format classifier: `HETZNERSSHKEY holds a public key,
+        not a private key` (run 33884253173, job 101060068559, on a real
+        runner id 1000053402, so `ci_starvation.py`'s signature does not
+        apply). **The one mechanism this repo had for verifying its own
+        public surface has never produced a reading**, and three documents
+        (`infra/OWNER_CHECKLIST.md`, `bootstrap/README.md`,
+        `infra/README.md`) asserted the opposite. The owner was debugging
+        exactly this on 2026-08-24 via the one-shot `tmp/ssh-key-smoke`
+        branch; the diagnostic was folded into the preflight job afterwards
+        and nobody dispatched it again.
+      - >-
+        Shipped #3184, which makes the reading possible without that key.
+        `CLAUDE.md` said no session can verify the public surface -- true of
+        the *session sandbox*, whose egress proxy answers `CONNECT tunnel
+        failed, response 403`, and the repo had been reading it as a fact
+        about the portfolio. A GitHub runner is not in that sandbox.
+        `platform/ci/public_surface.py` asks every hostname the manifests
+        declare what it serves, over real DNS and real TLS, and compares the
+        answer to `publish_surface.py`'s classification -- so a run reports a
+        disagreement between what we ship and what we serve rather than a
+        bare status code, stays green while a Secret-gated host is correctly
+        dark, and flags a seal landing as news too. Hostnames come from
+        `gitops_survey()` and paths from the published
+        `gitops/prod/front-door/sitemap.xml`; neither list is restated, which
+        also makes it a dead-link check on the document crawlers read first.
+        26 unit tests, no socket opened.
+        `.github/workflows/public-surface-check.yml` runs it with no secret
+        of any kind; the daily schedule is gated behind
+        `PUBLIC_SURFACE_CHECK_ENABLED` so it costs nothing until the owner
+        opts in, the same pattern `claude-routine-trigger.yml` uses.
+      - >-
+        Corrected every document that claimed the SSH preflight was
+        available, and queued `hetzner-ssh-key-is-a-public-key` in
+        `asks.yaml`. Ranked below `portfolio-site-repo` and `codex-secrets`
+        on purpose: rotating the key buys diagnosis (pod state, k3s health,
+        disk), not delivery, and it is no longer how anyone answers "is the
+        site up".
+      - >-
+        Re-confirmed, for the standing owner brief, that the Codex-on-Hetzner
+        stack is built and owner-blocked rather than unfinished:
+        `gitops/agents/` carries the governor, the worker, the queue and the
+        RBAC, `worker.sh` already prefers `CODEX_AUTH_JSON` (the plan-quota
+        route the brief asks for) and `unset`s a metered `OPENAI_API_KEY` on
+        that path so a plan run cannot bill, and `workers/mandate.md` already
+        carries the current product-first mandate including the three-PR
+        drain floor. `pytest gitops/tests` 300 passed / 16 skipped. The only
+        remaining step is the `codex-secrets` seal, already queued. Nothing
+        to build; did not open a PR restating it.
+      - >-
+        Verified: `test_public_surface` 26/26; with `test_publish_surface`
+        and `test_validate_workflows` 112/112; `pytest gitops/tests` 300
+        passed / 16 skipped; `validate_workflows.py` all 224 valid;
+        `router/validate.py` 183 valid; `workflow-coverage.test.mjs` 4/4;
+        `front-door.test.mjs` 98/98 and `front-door-tools.test.mjs` 101/101
+        (so the committed apex mirror is current with `main`);
+        conflict-marker and duplicate-symbol sweeps clean;
+        `decision_queue.py --check` exit 0. Regenerated
+        `platform/ci/publish-surface.yaml` and updated the `runs-on` count in
+        `gitops/ci/README.md`; both have tests that failed before I did.
+    mrr_end: null
