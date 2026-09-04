@@ -106,8 +106,24 @@ decisions:
     control plane**, which sharpens the hypothesis before anyone logs in: the
     k3s API server itself is not listening, so this is not a crashed ingress
     but an absent or dead cluster, and no pods exist to serve 80 or 443.
+    **Sharpened again 2026-09-04 by PR #3195, and this changes what you should
+    expect to find.** `Outage triage` now reads the Hetzner *action log*
+    (read-only, same token), which no session had ever queried. Both machines
+    return nothing but their own creation burst — `create_server`,
+    `enable_backup` and the `start_server` that first boots them, all inside
+    fifteen seconds, on 2026-08-24T11:15Z and 2026-08-25T15:29Z. There has
+    been **no reboot, no rebuild and no rescue boot on either box since it was
+    created**. So k3s did not fail to survive a restart: there has been no
+    restart. Combined with this row's own finding — `bootstrap/` is the only
+    documented install path, it needs SSH, and `HETZNERSSHKEY` has never held
+    a usable key — the leading hypothesis is now that **k3s was never
+    installed and the public surface has never once been up**, rather than
+    that a working catalogue went dark. Expect a **first bootstrap**, not a
+    repair. `ls -l /etc/rancher/k3s/k3s.yaml` settles it in one line the
+    moment SSH works; absent means run `bootstrap/install-k3s-server.sh` then
+    `install-argocd.sh`, and Argo takes it from there.
   unlocks:
-    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box; only SSH can say why k3s is dead."
+    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box. **'Only SSH can say why k3s is dead' was too strong (corrected #3195):** the Hetzner action log says both boxes have been untouched since creation — no reboot, no rebuild — which eliminates 'k3s did not come back from a restart' without a shell and makes 'never installed' the leading hypothesis. SSH is still what confirms it and what runs the install."
     - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them. The 6443 reading above already favours the first."
     - "#3186 raised a third candidate — a healthy cluster with the fault in front of it (the ingress, a load balancer, or DNS at the node) — and was right that `Connection refused` alone does not choose between the three. #3188 measured it away rather than argued it away: DNS resolves to our own address, both servers report `running`, and :6443 is refused on the control plane itself, which no fault *in front of* a healthy cluster produces. Kept here because the reasoning is the reusable part — a bare status code never picks a cause, and the fix was to go and take a second reading."
   blocked_by: []
