@@ -635,20 +635,38 @@ decisions:
 
 - id: agent-cross-review-automerge
   asks: []
-  prs: [870]
+  prs: [870, 3024]
   gates: deployment
   exposure: credential
   opened: "2026-08-24"
   action: >-
-    Informational -- #870 is now closed, not merged, and `platform/ci/
-    agent_review/` never landed on `main`, so there is nothing left to
-    enable. No owner action needed unless someone reopens or re-proposes
-    this automation, in which case unattended auto-merge of paid or
-    identity-gated work is still owner-only. Product PRs merge on green CI.
+    Not informational any more -- #3024 merged `platform/ci/agent_review/`
+    (`review.py`, `config.yaml`) plus `.github/workflows/agent-cross-review.yml`
+    and `.github/workflows/agent-pr-auto-merge.yml` to `main` on 2026-09-03,
+    the same shape #870 proposed and this row previously recorded as
+    abandoned. It ships fail-closed: each of the four review jobs checks its
+    own `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
+    few seconds when they are unset, so nothing runs, approves, or merges
+    today -- there is no exposure yet, only an inert, tested no-op. Turning
+    it on needs the "One-time owner setup" in
+    `platform/ci/agent_review/README.md`: create 4 GitHub Apps (Pull
+    requests: Read & write; Contents: Read; Metadata: Read; install on this
+    repo only), add the 8 `AGENT_REVIEWER_*` secrets, and set
+    `required_approving_review_count: 2` plus required status checks on the
+    `main` ruleset. No `infra/OWNER_CHECKLIST.md` item pointed at this until
+    now (added under "You decide (not blocking the scaffold)" the same
+    session this row was corrected) -- so a stranger reading only that file
+    would never learn the automation exists to turn on.
   unlocks:
     - >-
-      Nothing further; kept as a record of a real design gap found during
-      review, in case this automation shape is proposed again.
+      Two of the four reviewer identities approving, plus green CI, is what
+      lets `agent-pr-auto-merge.yml` squash-merge an internal
+      (non-`ventures/*`) PR without an agent session or the owner doing it
+      by hand -- `review.py`'s `path_touches_ventures()` refuses to
+      auto-merge anything under `ventures/*` regardless of approvals, so
+      product PRs stay on the existing agent-merges-on-green-CI path this
+      does not touch. What it buys is fewer platform/gitops/CI PRs sitting
+      open only because no session has come back to merge them.
   blocked_by: []
   note: >-
     Opened 2026-08-24 by a branch-hygiene sweep session, which correctly
@@ -674,6 +692,17 @@ decisions:
     question, so the close's *outcome* (no unattended auto-merge enabled)
     was fine even though its stated rationale leaned on the same
     not-independently-verified "product-first direction" premise.
+
+    **Corrected 2026-09-04.** The verdict above held until #3024
+    (2026-09-03) rebuilt the same shape from scratch -- `path_touches_ventures`
+    now actively blocks auto-merge on `ventures/*` rather than only noting it,
+    which was this row's own stated concern -- and merged it, unnoticed by
+    this row, as a normal green-CI platform PR (CLAUDE.md and AGENTS.md both
+    describe it as live). "Informational, nothing to enable" was therefore
+    wrong from 2026-09-03 onward: the code exists on `main`, gated only on
+    secrets nobody has been asked for. `action` and `unlocks` above are
+    rewritten for the current state; `prs` now also names #3024, the PR that
+    actually shipped what #870 proposed.
 
 - id: codex-governor-enable
   asks: []
