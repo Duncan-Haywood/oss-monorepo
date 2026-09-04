@@ -178,6 +178,32 @@ test('a length that cannot take the longest cut loses to one that can', () => {
   assert.equal(comparison.winner.id, '10ft');
 });
 
+// The longest-cut test above happens to make every candidate either fully
+// fit or fully fail (both 110in cuts miss 8ft together), which let `fits:
+// bars.length > 0` pass by accident. A list with one over-length outlier
+// among cuts that DO fit is the case that actually exposed the bug: the
+// short cuts filled a bar (bars.length > 0) while the long one landed in
+// `oversize`, so this candidate reported `fits: true` and could win the
+// "buy this" recommendation for a stock length that cannot produce every
+// piece on the list.
+test('a candidate that packs some cuts but strands one oversize cut does not fit', () => {
+  const comparison = compareStockLengths({
+    cuts: parseCuts('200\n10 x 3'),
+    kerf: 0,
+    unit: 'in',
+  });
+  // 200in exceeds every catalog length (up to 192in/16ft), so none of them
+  // can produce the full list even though the three 10in cuts pack easily.
+  for (const row of comparison.rows) {
+    assert.equal(row.fits, false, `${row.label} should not report fits: true with a 200in cut stranded`);
+    assert.equal(row.oversizeCount, 1);
+  }
+  assert.equal(comparison.winner, null);
+  const text = formatStockComparison(comparison);
+  assert.match(text, /at least one cut does not fit/);
+  assert.doesNotMatch(text, /buy this/);
+});
+
 test('includes a custom current length that is not in the catalog', () => {
   const comparison = compareStockLengths({
     cuts: parseCuts('20 x 2'),
