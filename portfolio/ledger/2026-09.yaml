@@ -8513,3 +8513,50 @@ entries:
         clean. Merged via GitHub's squash after all 18 PR checks (CI +
         four-bot cross-review) went green.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Carried forward `claude/funny-archimedes-895zx9` (2 product commits,
+        no open PR) into a new PR per the repo's duplicate-PR convention:
+        `site/index.html` shipped a browser tool and a first CI workflow for
+        this venture back on 2026-08-24, but by the time this session ran,
+        many concurrent sessions had already rebuilt the same surface on
+        `main` into a far more complete app (calc.mjs, export.mjs,
+        markdown.mjs, review.mjs, drafts.mjs, history.mjs, usage.mjs) --
+        including the exact two features the branch's later commits
+        targeted: Markdown export with CLI-parity rounding
+        (`markdown.mjs` + `format.mjs`, which does exact BigInt
+        round-half-to-even rather than the branch's `value * 100;
+        Math.round(...)`, already flagged in `format.mjs`'s own comment as
+        unsafe) and a shareable-link URL fragment (`calc.mjs`'s
+        `encodeQuote`/`decodeQuote`, which also carries the kill-fee and
+        change-order panel fields the branch's `encodeQuoteToHash` did
+        not). This is the "RENAME SUSPECTED" case CLAUDE.md's Duplicate
+        PRs section describes: same feature, different names, no line-level
+        merge conflict resolution would have caught it as redundant on its
+        own.
+      - >-
+        Resolved the merge by keeping `main`'s `index.html` and its
+        existing `report.mjs` (`reportDocument`, still imported by
+        `index.html` and unrelated to the branch's same-named module)
+        verbatim -- confirmed with `git diff origin/main` reporting no
+        difference on all three files -- rather than reintroducing the
+        superseded duplicate. Recovered one real loss found along the way:
+        `usage.yaml`'s conflict showed `main`'s 2026-08-24 browser-baseline
+        note had silently dropped an "Events counted locally" paragraph
+        that both the merge-base and the branch still carried, so that
+        paragraph is restored rather than merged away a second time. Also
+        kept a small explanatory comment the branch's CI workflow added
+        over `main`'s equivalent job.
+      - >-
+        Verified: `node --test` in `ventures/quote-margin-check/site`
+        (126/126), `python3 -m unittest discover -s tests` (37/37), `ruff
+        check .` (clean), `node platform/pages/clauses.mjs
+        quote-margin-check` (no-warranty clause present),
+        `check_ledger_only.py` (OK). Net product diff against `main` is
+        the restored usage-log paragraph, the CI comment, and this
+        venture's original 2026-08-24 ledger entries -- not a new feature,
+        because `main` already had the equivalent one.
+    mrr_end: null

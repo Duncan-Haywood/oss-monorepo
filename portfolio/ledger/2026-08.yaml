@@ -23446,6 +23446,52 @@ entries:
           by hand instead of regenerating) rather than re-diagnosing it
           from scratch.
     mrr_end: null
+  - venture: quote-margin-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        session_gate.py read BUILD; triaged the 10 open PRs first and
+        merged one clean doc-only PR (#938). The other 9 were mid-flight
+        on static-tool candidates already claimed by concurrent sessions
+        (per #938's own body), so rather than duplicate a tenth, looked
+        for an existing, real product with a genuine gap instead.
+        quote-margin-check was CLI-only (Python script) despite targeting
+        freelancers -- a population unlikely to run a script -- and its
+        own Python test suite had never been wired into CI at all
+        (`portfolio-validate.yml` only runs portfolio-infra tests, not
+        venture tests; grepped every workflow file to confirm).
+      - >-
+        Shipped `web/index.html`: a zero-dependency, zero-build static
+        page with the identical calculation logic (`web/calc.mjs` mirrors
+        `src/quote_margin.py`'s `load_quote()`/`calculate()` field-for-
+        field, so CLI and browser tool can't quietly diverge). Same
+        definition-of-done as the portfolio's other static tools: MIT
+        LICENSE (linked from the existing venture-root LICENSE), no-
+        warranty/not-financial-advice disclaimer, honest all-client-side
+        privacy line, local-first DNT/GPC-respecting usage counter with a
+        visible opt-out toggle, JSON-LD (SoftwareApplication + FAQPage),
+        meta description, and robots.txt.
+      - >-
+        Added `.github/workflows/quote-margin-check-ci.yml`: the Python
+        CLI's `unittest` suite and `ruff check .` now actually run in CI
+        for the first time, alongside a new `node --test` job for the web
+        tool. Verified rather than assumed: `python3 -m unittest discover
+        -s tests -v` (9/9 pass), `ruff check .` (0.15.8, clean), `node
+        --test` in `web/` (13/13 pass -- 9 calc cases mirroring the CLI's
+        suite plus 4 usage-counter cases). Also drove the page end-to-end
+        in a real headless Chromium via Playwright (not just unit tests):
+        filled the form with the CLI's own website-redesign-shaped
+        numbers, confirmed the rendered table matches the hand-computed
+        arithmetic (91.25 USD/hour effective rate, 50 USD gap-to-target)
+        and the "Above target rate" status renders, zero console errors.
+      - >-
+        Not deployed to a public URL -- publishing under the portfolio's
+        name stays owner-gated per `portfolio/DIRECTION.md`; ready to
+        deploy the moment that gate opens. Added a second usage.yaml
+        baseline row for the new surface. All portfolio validators
+        (doc-consistency, candidates, router, score_ventures, workflows)
+        re-run clean.
   - venture: photos-import-tools
     agent_spend_usd: null
     human_hours: 0
