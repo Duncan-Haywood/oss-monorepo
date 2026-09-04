@@ -9313,3 +9313,61 @@ entries:
         the parent calculator) and the sitemap lists the new URL. A merge
         to `main` is the deploy on the Argo path.
     mrr_end: null
+  - venture: construction-evidence-log
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the marketing-distribution queue item's own checklist
+        (gitops/agents/queue/marketing-distribution.yaml) rather than
+        re-treading its 2026-09-02 sweep: embed offer 174/174 entry pages
+        (no gap), all 7 category hubs still substantive, /about/ numbers
+        still computed live, and comparison pages had grown from 78 to 138
+        vs-*.html files in two days as other sessions picked off the
+        household-name trade-software incumbents. Read the ~51 ventures
+        still without one; nearly all had no distinct, confidently-known
+        competitor. `construction-evidence-log` did: its own README already
+        names "project-management suites" as the alternative it is not, and
+        Procore is the obvious household name in that category.
+      - >-
+        Shipped `vs-procore.html` -- category/founding-year/HQ-city facts
+        only (2002, Carpinteria, California), no pricing or feature claim
+        that needed live verification, same discipline the repo's other
+        vs-* pages already use for unreachable vendor sites. No dollar
+        figure for Procore appears on the page. Linked from `index.html`
+        (not orphaned), added to the venture's own `sitemap.xml`, carries
+        the standard no-warranty/no-SLA disclaimer and the "not affiliated"
+        FAQ, and adds no third-party script, font, or network call.
+      - >-
+        Verified: venture `node --test` -> 22/22 (new `vs-procore.test.mjs`
+        mirrors `pool-plaster-bid-calculator/vs-buildxact.test.mjs`'s
+        checks -- disclaimer, no unverifiable price, canonical tag, FAQ
+        JSON-LD matches visible copy, linked not orphaned, listed in
+        sitemap, no disparagement, no third-party call). Caught and fixed a
+        real bug this way: the JSON-LD FAQ text used a literal `--` where
+        the visible prose used `&mdash;`, which
+        `platform/pages/faq-visible.test.mjs`'s tree-wide check (test 447
+        of 878) correctly flagged as a mismatch -- fixed by matching the
+        em dash in the JSON-LD. Full `node platform/pages/build.mjs` ->
+        174 products, 659 pages, "Added an embed offer to 174 tool entry
+        page(s)" (no gap); `node platform/pages/check.mjs
+        --dist=platform/pages/dist` -> "no dead links". Regenerated the
+        apex mirror (`front-door-tools.mjs --write`, then
+        `front-door.mjs --write`) after two same-day merges to `main`
+        touched it first; `platform/marketing/*.test.mjs` -> 208/208 after
+        each regen. `python3 -m pytest gitops/tests -q` -> 300 passed, 16
+        skipped. `python3 platform/ci/run_workflow_locally.py
+        --for-changes` -> 6/9 selected workflows fully green
+        (construction-evidence-log-ci, conflict-markers-ci,
+        link-contrast-ci, page-integrity-ci, portfolio-pages.yml,
+        portfolio-validate.yml all clean, including the apex-mirror
+        staleness check); the other 3 failed only on local-environment
+        gaps unrelated to this diff -- `pages.yml` needs a `_site` this
+        runner can't build locally (a `${{ }}` step it can't evaluate),
+        and `hetzner-gitops-ci.yml`'s `tofu fmt` needs the `tofu` CLI,
+        not installed here and untouched by this change (no `.tf` file
+        in the diff). `PLAYWRIGHT=... python3 platform/ci/browser_checks.py
+        --only construction-evidence-log` -> sideways/presets/roundtrip/
+        sweep/journey all ok (highlight and contrast skipped: no highlight
+        promise on this venture, and axe-core not installed locally).
+    mrr_end: null
