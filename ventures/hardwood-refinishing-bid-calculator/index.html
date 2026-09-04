@@ -414,6 +414,12 @@
         ...readInput(),
         methodId: el('methodId').value,
         stainId: el('stainId').value,
+        // The proposal panel's terms -- see the matching note in applyShare.
+        depositPercent: el('depositPercent').value,
+        validDays: el('validDays').value,
+        paymentTerms: el('paymentTerms').value,
+        proposalNotes: el('proposalNotes').value,
+        proposalExclusions: el('proposalExclusions').value,
       });
       const url = `${location.origin}${location.pathname}#${hash}`;
       try {
@@ -452,6 +458,14 @@
       if (payload.staining !== undefined) el('staining').checked = Boolean(payload.staining);
       if (payload.methodId !== undefined) el('methodId').value = payload.methodId;
       if (payload.stainId !== undefined) el('stainId').value = payload.stainId;
+      // The proposal panel's terms -- named directly rather than via TERM_IDS
+      // below, which this function runs before (the panel's own script block
+      // declares it later in the file). A shared link opening under the
+      // recipient's own default deposit and validity window is the same
+      // "different money on acceptance" defect share.mjs's header describes.
+      for (const id of ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions']) {
+        if (payload[id] !== undefined) el(id).value = payload[id];
+      }
       // A shared link already carries explicit hours and coat figures, so
       // treat them as user-edited: switching the method or stain choice
       // afterward must not silently overwrite what was shared.

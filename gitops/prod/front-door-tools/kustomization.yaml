@@ -33,15 +33,15 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 130 files, 545802 bytes
+#   portfolio-front-tools-0: 130 files, 546871 bytes
 #   portfolio-front-tools-1: 117 files, 555605 bytes
 #   portfolio-front-tools-2: 149 files, 556365 bytes
 #   portfolio-front-tools-3: 118 files, 544786 bytes
-#   portfolio-front-tools-4: 120 files, 546484 bytes
-#   portfolio-front-tools-5: 109 files, 557007 bytes
-#   portfolio-front-tools-6: 108 files, 556242 bytes
-#   portfolio-front-tools-7: 105 files, 553295 bytes
-#   portfolio-front-tools-8: 105 files, 551012 bytes
+#   portfolio-front-tools-4: 120 files, 546814 bytes
+#   portfolio-front-tools-5: 107 files, 555074 bytes
+#   portfolio-front-tools-6: 109 files, 556523 bytes
+#   portfolio-front-tools-7: 106 files, 556591 bytes
+#   portfolio-front-tools-8: 105 files, 551431 bytes
 #   portfolio-front-tools-9: 63 files, 338294 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -831,13 +831,13 @@ configMapGenerator:
       - irrigation-winterization-bid-calculator__share.mjs.gz=irrigation-winterization-bid-calculator__share.mjs.gz
       - irrigation-winterization-bid-calculator__usage.mjs.gz=irrigation-winterization-bid-calculator__usage.mjs.gz
       - irrigation-winterization-bid-calculator__vs-jobber.html.gz=irrigation-winterization-bid-calculator__vs-jobber.html.gz
-      - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
-      - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz=janitorial-bid-calculator__5x-vs-3x-cleaning-price.html.gz
+      - janitorial-bid-calculator__area-name.mjs.gz=janitorial-bid-calculator__area-name.mjs.gz
       - janitorial-bid-calculator__calc.mjs.gz=janitorial-bid-calculator__calc.mjs.gz
       - janitorial-bid-calculator__index.html.gz=janitorial-bid-calculator__index.html.gz
       - janitorial-bid-calculator__second-site.html.gz=janitorial-bid-calculator__second-site.html.gz
@@ -945,12 +945,12 @@ configMapGenerator:
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
       - plantation-shutter-bid-calculator__usage.mjs.gz=plantation-shutter-bid-calculator__usage.mjs.gz
       - pole-barn-bid-calculator__calc.mjs.gz=pole-barn-bid-calculator__calc.mjs.gz
-      - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
   - name: portfolio-front-tools-7
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz=pole-barn-bid-calculator__how-much-to-charge-to-build-a-pole-barn.html.gz
       - pole-barn-bid-calculator__index.html.gz=pole-barn-bid-calculator__index.html.gz
       - pole-barn-bid-calculator__usage.mjs.gz=pole-barn-bid-calculator__usage.mjs.gz
       - pole-barn-bid-calculator__vs-jobtread.html.gz=pole-barn-bid-calculator__vs-jobtread.html.gz

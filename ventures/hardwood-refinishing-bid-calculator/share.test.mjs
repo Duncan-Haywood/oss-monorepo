@@ -2,8 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {
-  encodeInputs, decodeInputs, NUMBER_FIELD_IDS, BOOLEAN_FIELD_IDS, METHOD_VALUES, STAIN_VALUES,
+  encodeInputs, decodeInputs, NUMBER_FIELD_IDS, TEXT_FIELD_IDS, BOOLEAN_FIELD_IDS, METHOD_VALUES, STAIN_VALUES,
 } from './share.mjs';
+
+// The proposal panel's terms (`platform/proposal/adopt.mjs`), not the core
+// pricing calculator -- see the field-list test below, which checks the two
+// groups against index.html separately.
+const TERM_NUMBER_IDS = ['depositPercent', 'validDays'];
 
 const sample = {
   floorSqFt: 800,
@@ -30,9 +35,14 @@ const sample = {
   overheadRate: 15,
   targetMargin: 25,
   proposedPrice: 6400,
+  depositPercent: 30,
+  validDays: 30,
   methodId: 'full_sand',
   stainId: 'color_change',
   staining: true,
+  proposalExclusions: 'Board replacement\nRepair of deep damage',
+  paymentTerms: 'Deposit on acceptance, balance on completion.',
+  proposalNotes: 'Socks-only after 24 hours.',
 };
 
 test('round-trips every field the form reads', () => {
@@ -51,6 +61,13 @@ test('field list matches the FIELD_IDS array index.html actually wires into the 
   // silently drops off a shared link -- the same drift class a select field
   // left off an allowlist caused on the paver-patio/roofing calculators
   // (#2962). Kept in sync by assertion rather than by hand.
+  //
+  // TERM_NUMBER_IDS is excluded on purpose: those arrive with the proposal
+  // panel `platform/proposal/adopt.mjs` generates into the page, below and
+  // after FIELD_IDS is declared, so they cannot be part of the page's own
+  // pricing-field list without that generator restating a list it does not
+  // own -- see `platform/proposal/term-ids.test.mjs` for the check that
+  // covers this venture instead.
   const html = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
   const match = html.match(/const FIELD_IDS = \[([^\]]+)\]/);
   assert.ok(match, 'expected to find the FIELD_IDS array in index.html');
@@ -58,7 +75,17 @@ test('field list matches the FIELD_IDS array index.html actually wires into the 
     .split(',')
     .map((s) => s.trim().replace(/^'|'$/g, ''))
     .filter(Boolean);
-  assert.deepEqual([...NUMBER_FIELD_IDS].sort(), [...pageIds].sort());
+  const numberIds = NUMBER_FIELD_IDS.filter((id) => !TERM_NUMBER_IDS.includes(id));
+  assert.deepEqual([...numberIds].sort(), [...pageIds].sort());
+});
+
+test('the proposal panel terms round-trip and an over-long note is dropped, not truncated', () => {
+  assert.deepEqual([...TERM_NUMBER_IDS].sort(), [...NUMBER_FIELD_IDS.filter((id) => TERM_NUMBER_IDS.includes(id))].sort());
+  assert.deepEqual([...TEXT_FIELD_IDS].sort(), ['paymentTerms', 'proposalExclusions', 'proposalNotes'].sort());
+  const overlong = { ...sample, proposalNotes: 'x'.repeat(513) };
+  const decoded = decodeInputs(encodeInputs(overlong));
+  assert.equal('proposalNotes' in decoded, false);
+  assert.equal(decodeInputs(encodeInputs({ ...sample, proposalNotes: 'x'.repeat(512) })).proposalNotes, 'x'.repeat(512));
 });
 
 test('the staining checkbox this module encodes is the one the page reads', () => {
