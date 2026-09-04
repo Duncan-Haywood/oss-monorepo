@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 150 files, 553486 bytes
 #   portfolio-front-tools-3: 116 files, 542364 bytes
 #   portfolio-front-tools-4: 123 files, 557023 bytes
-#   portfolio-front-tools-5: 104 files, 535734 bytes
+#   portfolio-front-tools-5: 105 files, 539823 bytes
 #   portfolio-front-tools-6: 107 files, 545103 bytes
 #   portfolio-front-tools-7: 105 files, 555659 bytes
 #   portfolio-front-tools-8: 106 files, 553663 bytes
@@ -750,6 +750,7 @@ configMapGenerator:
       - french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz=french-drain-bid-calculator__how-much-to-charge-for-a-french-drain.html.gz
       - french-drain-bid-calculator__index.html.gz=french-drain-bid-calculator__index.html.gz
       - french-drain-bid-calculator__usage.mjs.gz=french-drain-bid-calculator__usage.mjs.gz
+      - french-drain-bid-calculator__vs-jobber.html.gz=french-drain-bid-calculator__vs-jobber.html.gz
       - furnace-bid-calculator__calc.mjs.gz=furnace-bid-calculator__calc.mjs.gz
       - furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz=furnace-bid-calculator__how-much-to-charge-to-replace-a-furnace.html.gz
       - furnace-bid-calculator__index.html.gz=furnace-bid-calculator__index.html.gz
