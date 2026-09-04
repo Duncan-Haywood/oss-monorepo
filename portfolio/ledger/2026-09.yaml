@@ -10197,3 +10197,51 @@ entries:
         the standing outage this file records elsewhere is resolved -- not
         only once a further seal lands.
     mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-square-appointments.html` plus
+        `vs-square-appointments.test.mjs` (11 new assertions) -- this
+        venture's first competitor-comparison page despite a complete,
+        tested deposit calculator (`calc.mjs`, `app.mjs`, a net-revenue
+        "does the deposit pay for itself" panel, 38 existing tests).
+        Picked over 38 other vs-*-less ventures because it names a
+        well-known account-based competitor its own audience (salons,
+        trainers, tutors, photographers) already pays for -- Square
+        Appointments, from Block, Inc. -- and contrasts cleanly: an
+        account-based booking-and-payments platform vs. a free, static,
+        no-account worksheet for the one number (deposit percent, and
+        whether it pays off) that goes into that platform's deposit
+        setting. Only Square's well-documented identity (founders,
+        founding year, HQ, parent company, product category) is stated;
+        no dollar figure for it appears anywhere on the page, matching
+        the discipline already used by
+        `no-show-fee-calculator/vs-acuity-scheduling.html` (a sibling
+        venture) and `gutter-guard-bid-calculator/vs-jobnimbus.html`.
+        Linked from `index.html`'s header note and added to
+        `sitemap.xml`. Checked `git log origin/main -- ventures
+        /appointment-deposit-calculator/` first -- most recent commit
+        (#2719) only reworded an unrelated internal panel, no vs-* page
+        existed, not a duplicate. Verified: `node --test
+        ventures/appointment-deposit-calculator/*.test.mjs
+        ventures/appointment-deposit-calculator/test/*.test.mjs` 49/49;
+        canonical `platform/pages/build.mjs --out=dist` build succeeds
+        (174 tools, 673 pages) and `node platform/pages/check.mjs dist`
+        reports no dead links. CI's `validate` job then failed for real
+        (`ci_starvation.py` confirmed a live runner, not starvation):
+        `platform/marketing/front-door.test.mjs` correctly rejected the
+        now-stale committed `gitops/prod/front-door/catalog.json` and
+        `sitemap.xml` once this venture's own sitemap.xml and page count
+        changed. Regenerated with `front-door.mjs --write` and
+        `front-door-tools.mjs --write` (174 tools / 10 shards, 64.9%
+        mirror headroom) -- a small, contained diff (catalog.json's
+        `pages: 3` to `4`, one new sitemap `<url>`, the new page's gzip
+        shard, and shard-size rebalancing in `kustomization.yaml`), not a
+        deployment or cluster change. `node --test
+        platform/marketing/*.test.mjs` 208/208 after. So this page ships
+        to `marisstella.dev/tools/appointment-deposit-calculator/` on
+        merge, once the standing cluster outage this file records
+        elsewhere is resolved.
+    mrr_end: null
