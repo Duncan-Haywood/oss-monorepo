@@ -9248,3 +9248,68 @@ entries:
         would render and compute nothing, which is the failure this
         venture's own history already contains.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the 555 timer calculator's first question-shaped page:
+        `555-timer-calculator/can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html`.
+        The venture's own hub page already told visitors "duty cycles at or
+        below 50% need a diode," and the parent calculator's design panel
+        already rejects a target duty of 50% or below with an error
+        explaining the same fix in prose -- but nothing computed it. This
+        page does: given a target frequency, any duty cycle from just above
+        0% to just below 100%, and a capacitor, it returns the exact R1/R2
+        for the diode-mod astable, the nearest E24 pair, and what that
+        buyable pair actually produces.
+      - >-
+        New tested capability, not just a content page: added
+        `designAstableWithDiode()` to `calc.mjs` -- the diode across R2
+        removes R2 from the charge path, so charge and discharge no longer
+        share a resistor and duty cycle (R1 / (R1 + R2)) is free to land
+        anywhere in (0%, 100%), unlike the plain two-resistor astable's
+        `designAstable()`, which `calc.mjs` already correctly refuses for
+        50% and below. The new function surfaces the one thing the ideal
+        formula can't capture -- a real diode's ~0.5-0.7 V forward drop,
+        which shifts the achieved duty cycle at low supply voltages or a
+        small R1 -- as an explicit warning rather than folding it into false
+        precision, plus the same discharge-current and drift warnings the
+        plain astable already carries.
+      - >-
+        Learned from the previous entry's own mistake and did not repeat
+        it: wrote the FAQPage JSON-LD by copying the visible paragraph text
+        verbatim instead of paraphrasing it, since `faq-visible.test.mjs`
+        (added after the LED page shipped with five divergent answers) now
+        catches exactly that gap. It passed on the first run. Also linked
+        the new page from the parent calculator's design panel, next to the
+        "must be above 50" hint that used to dead-end -- the earlier LED
+        page shipped with no link back from its own parent panel, and nothing
+        caught that either.
+      - >-
+        Verified: `node --test` in the venture -> 45/45 (10 new in
+        `calc.test.mjs`, every expected figure worked from R1 = R2 for
+        exactly 50%, and cases the plain astable rejects re-derived by
+        hand). `node --test platform/pages/faq-visible.test.mjs` -> 4/4 on
+        first run. `node platform/pages/build.mjs` -> 174 products, 657
+        pages (up one); `node platform/pages/check.mjs
+        --dist=platform/pages/dist` -> "no dead links".
+        `python3 platform/ci/browser_checks.py --only=ai-engineering-academy`
+        -> 6 of 7 checks pass (`sideways`, `presets`, `roundtrip`, `sweep`,
+        `journey`, and `contrast` with axe-core installed: no WCAG A/AA
+        violations); `highlight` skips by design, same as the prior entry.
+        `platform/marketing/*.test.mjs` -> 208/208 after regenerating both
+        the tool mirror and the front door (sitemap/catalog were stale
+        after the mirror regen alone). `python3 -m pytest gitops/tests -q`
+        -> 300 passed, 16 skipped. `node platform/pages/faq-duplicate.mjs`,
+        `check_form_defaults.py`, `check_input_bounds.py`,
+        `check_money_sign.py`, `publish_surface.py --check`,
+        `clauses.mjs`, and `browser-signals.mjs` all clean.
+      - >-
+        Deployed, not merely built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`), so
+        the new page ships as a ConfigMap shard (it needs no new module --
+        it imports the venture's existing `calc.mjs`, already mirrored for
+        the parent calculator) and the sitemap lists the new URL. A merge
+        to `main` is the deploy on the Argo path.
+    mrr_end: null
