@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 130 files, 553239 bytes
 #   portfolio-front-tools-1: 117 files, 553636 bytes
 #   portfolio-front-tools-2: 148 files, 553731 bytes
-#   portfolio-front-tools-3: 117 files, 555751 bytes
-#   portfolio-front-tools-4: 124 files, 545861 bytes
+#   portfolio-front-tools-3: 115 files, 552976 bytes
+#   portfolio-front-tools-4: 127 files, 552917 bytes
 #   portfolio-front-tools-5: 107 files, 552426 bytes
 #   portfolio-front-tools-6: 109 files, 556656 bytes
 #   portfolio-front-tools-7: 114 files, 554846 bytes
@@ -513,6 +513,7 @@ configMapGenerator:
       - appointment-deposit-calculator__index.html.gz=appointment-deposit-calculator__index.html.gz
       - appointment-deposit-calculator__style.css.gz=appointment-deposit-calculator__style.css.gz
       - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
+      - appointment-deposit-calculator__vs-square-appointments.html.gz=appointment-deposit-calculator__vs-square-appointments.html.gz
       - appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz=appointment-deposit-calculator__what-percentage-deposit-should-i-charge.html.gz
       - artificial-turf-bid-calculator__calc.mjs.gz=artificial-turf-bid-calculator__calc.mjs.gz
       - artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz=artificial-turf-bid-calculator__how-much-to-charge-for-artificial-turf.html.gz
@@ -589,14 +590,14 @@ configMapGenerator:
       - concrete-lifting-bid-calculator__usage.mjs.gz=concrete-lifting-bid-calculator__usage.mjs.gz
       - concrete-lifting-bid-calculator__vs-quoteiq.html.gz=concrete-lifting-bid-calculator__vs-quoteiq.html.gz
       - consent-change-record__calc.mjs.gz=consent-change-record__calc.mjs.gz
-      - consent-change-record__index.html.gz=consent-change-record__index.html.gz
-      - consent-change-record__style.css.gz=consent-change-record__style.css.gz
-      - consent-change-record__tool__har-diff.mjs.gz=consent-change-record__tool__har-diff.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - consent-change-record__index.html.gz=consent-change-record__index.html.gz
+      - consent-change-record__style.css.gz=consent-change-record__style.css.gz
+      - consent-change-record__tool__har-diff.mjs.gz=consent-change-record__tool__har-diff.mjs.gz
       - consent-change-record__tool__index.html.gz=consent-change-record__tool__index.html.gz
       - consent-change-record__tool__trackers.mjs.gz=consent-change-record__tool__trackers.mjs.gz
       - consent-change-record__tool__usage.mjs.gz=consent-change-record__tool__usage.mjs.gz
