@@ -53,6 +53,98 @@ test("rejects invalid inputs", () => {
   assert.throws(() => scenarioCost({ storageGb: Infinity }), /Storage/);
 });
 
+test("a free egress allowance is subtracted before billing", () => {
+  const result = scenarioCost({
+    storageGb: 0,
+    egressGb: 120,
+    egressRate: 0.05,
+    freeEgressGb: 100,
+  });
+  assert.equal(result.egressGb, 120);
+  assert.equal(result.freeEgressGb, 100);
+  assert.equal(result.billableEgressGb, 20);
+  assert.equal(result.egress, 1);
+  assert.equal(result.total, 1);
+});
+
+test("a free egress allowance larger than usage bills nothing, not a negative amount", () => {
+  const result = scenarioCost({ storageGb: 0, egressGb: 50, egressRate: 0.09, freeEgressGb: 80 });
+  assert.equal(result.billableEgressGb, 0);
+  assert.equal(result.egress, 0);
+});
+
+test("omitting freeEgressGb reproduces the old all-billed arithmetic exactly", () => {
+  const result = scenarioCost({ storageGb: 0, egressGb: 100, egressRate: 0.01 });
+  assert.equal(result.freeEgressGb, 0);
+  assert.equal(result.billableEgressGb, 100);
+  assert.equal(result.egress, 1);
+});
+
+test("rejects a negative free egress allowance", () => {
+  assert.throws(() => scenarioCost({ storageGb: 0, egressGb: 1, freeEgressGb: -1 }), /Free egress/);
+});
+
+test("a free tier can flip which option is cheaper", () => {
+  // Same rates and workload; only option B has a 100 GB/month free allowance.
+  // Without it both would bill $9.00 of egress and tie on storage; with it
+  // option B's whole 100 GB is free.
+  const result = compareScenarios({
+    first: { storageGb: 500, egressGb: 100, storageRate: 0.023, egressRate: 0.09 },
+    second: { storageGb: 500, egressGb: 100, storageRate: 0.023, egressRate: 0.09, freeEgressGb: 100 },
+  });
+  assert.equal(result.first.egress, 9);
+  assert.equal(result.second.egress, 0);
+  assert.equal(result.cheaper, "second");
+  assert.equal(result.savings, 9);
+});
+
+test("break-even can fall inside a free-tier allowance", () => {
+  // Option A bills every GB from zero at 0.05/GB. Option B carries a fixed
+  // $5 cost (its storage) but the first 200 GB of egress are free, so its
+  // cost is flat at $5 until the allowance runs out. The lines cross at
+  // 0.05 * e = 5 -> e = 100, which is inside B's 200 GB free segment, not
+  // at the segment boundary a rate-only solve would assume.
+  const result = compareScenarios({
+    first: { storageGb: 0, egressGb: 50, egressRate: 0.05 },
+    second: { storageGb: 500, storageRate: 0.01, egressGb: 50, egressRate: 0.02, freeEgressGb: 200 },
+  });
+  assert.equal(result.breakEvenEgressGb, 100);
+});
+
+test("break-even still finds the old single-segment answer when neither option has a free tier", () => {
+  const result = compareScenarios({
+    first: { storageGb: 500, requestsMillion: 0, egressGb: 50, storageRate: 0.006, egressRate: 0.09 },
+    second: { storageGb: 500, requestsMillion: 0, egressGb: 50, storageRate: 0.023, egressRate: 0.01 },
+  });
+  assert.equal(result.breakEvenEgressGb, 106.25);
+});
+
+test("no crossing when a free tier keeps one option always cheaper", () => {
+  const result = compareScenarios({
+    first: { storageGb: 0, egressGb: 10, egressRate: 0.05 },
+    second: { storageGb: 0, egressGb: 10, egressRate: 0.05, freeEgressGb: 1000 },
+  });
+  // Same rate everywhere except B is free until 1000 GB, which this
+  // workload never reaches within any positive volume comparison — B is
+  // cheaper or tied at every volume, so there is no crossing to report.
+  assert.equal(result.breakEvenEgressGb, null);
+  assert.equal(result.cheaper, "second");
+});
+
+test("reviewRecord carries the free-tier volumes without leaking rates", () => {
+  const record = reviewRecord({
+    storageGb: 100,
+    egressGb: 120,
+    first: { name: "Current", storageRate: 0.02, egressRate: 0.09 },
+    second: { name: "Alternative", storageRate: 0.01, egressRate: 0.05, freeEgressGb: 100 },
+  });
+  assert.equal(record.options[0].freeEgressGb, 0);
+  assert.equal(record.options[0].billableEgressGb, 120);
+  assert.equal(record.options[1].freeEgressGb, 100);
+  assert.equal(record.options[1].billableEgressGb, 20);
+  assert.equal(Object.hasOwn(record.options[1], "egressRate"), false);
+});
+
 test("defaults optional usage dimensions to zero", () => {
   const result = scenarioCost({ storageGb: 10, storageRate: 0.02 });
   assert.deepEqual(
