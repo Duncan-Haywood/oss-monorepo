@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { forecast, status, csv, parseItems, shortfallPlan, weekStart, escapeText } from './app.mjs';
+import { forecast, status, csv, parseItems, shortfallPlan, shortfallPlans, weekStart, escapeText } from './app.mjs';
 
 test('accumulates cash week by week instead of rewriting earlier weeks', () => {
   const rows = forecast({ cash: 5000, weeklyIncome: 1800, collectionWeeks: 2, weeklyCosts: 1400 });
@@ -180,6 +180,78 @@ test('a healthy forecast has no plan at all', () => {
   const rows = forecast({ cash: 5000, weeklyIncome: 1800, collectionWeeks: 0, weeklyCosts: 1400 });
   assert.equal(shortfallPlan(rows, { items: [], weeklyIncome: 1800, weeklyCosts: 1400 }), null);
   assert.throws(() => shortfallPlan([]), /At least one forecast week/);
+  assert.deepEqual(shortfallPlans(rows, { items: [], weeklyIncome: 1800, weeklyCosts: 1400 }), []);
+});
+
+test('a forecast that recovers and dips again gets a plan for each dip, not just the first', () => {
+  // Income covers costs on its own (recurringGap is 0), so the two dips are
+  // both timing problems caused entirely by the one-off rows: an early bill,
+  // a deposit that patches it, then a second, larger bill after recovery.
+  const items = [
+    { name: 'Insurance', amount: 500, week: 2, kind: 'out' },
+    { name: 'Deposit', amount: 600, week: 3, kind: 'in' },
+    { name: 'Repair bill', amount: 700, week: 6, kind: 'out' },
+  ];
+  const rows = forecast({ cash: 0, weeklyIncome: 1000, collectionWeeks: 0, weeklyCosts: 1000, weeks: 8, items });
+  assert.deepEqual(rows.map((row) => row.balance), [0, -500, 100, 100, 100, -600, -600, -600]);
+
+  // The forecast's own headline low point (status()) falls inside the
+  // *second* run -- a plan that only ever looked at the first run would name
+  // a different "low point" week than the one the headline reports.
+  assert.deepEqual(status(rows), { lowest: -600, week: 6, shortfall: true, shortfallWeek: 2 });
+
+  const plans = shortfallPlans(rows, { items, weeklyIncome: 1000, weeklyCosts: 1000 });
+  assert.equal(plans.length, 2);
+
+  assert.equal(plans[0].week, 2);
+  assert.equal(plans[0].troughWeek, 2);
+  assert.equal(plans[0].deficit, 500);
+  assert.equal(plans[0].recoveryWeek, 3);
+  assert.equal(plans[0].delay.name, 'Insurance');
+  assert.equal(plans[0].delay.clears, true);
+  assert.equal(plans[0].pullForward.name, 'Deposit');
+  assert.equal(plans[0].pullForward.clears, true);
+
+  // The second run's trough (week 6) matches the headline lowest week above.
+  assert.equal(plans[1].week, 6);
+  assert.equal(plans[1].troughWeek, 6);
+  assert.equal(plans[1].deficit, 600);
+  assert.equal(plans[1].recoveryWeek, null);
+  // Insurance already fixed the first shortfall -- it must not be offered a
+  // second time as the lever for a different, later gap.
+  assert.equal(plans[1].delay.name, 'Repair bill');
+  assert.equal(plans[1].delay.clears, true);
+  // The deposit already used for run 1 is not reoffered, and nothing else
+  // dated lands after week 6.
+  assert.equal(plans[1].pullForward, null);
+
+  // shortfallPlan (singular) still answers only the first run, for callers
+  // that never handled more than one.
+  const single = shortfallPlan(rows, { items, weeklyIncome: 1000, weeklyCosts: 1000 });
+  assert.deepEqual(single, plans[0]);
+});
+
+test('a payment already used to fix an earlier shortfall is not reoffered for a later one', () => {
+  // The only "money out" row on the list lands early enough (week 2) to be a
+  // candidate lever for both runs below. Offering it a second time would
+  // claim the same bill closes two different gaps at once.
+  const items = [
+    { name: 'Bill', amount: 20, week: 2, kind: 'out' },
+    { name: 'FixIt', amount: 50, week: 4, kind: 'in' },
+  ];
+  const rows = forecast({ cash: 15, weeklyIncome: 90, collectionWeeks: 0, weeklyCosts: 100, weeks: 8, items });
+  assert.deepEqual(rows.map((row) => row.balance), [5, -25, -35, 5, -5, -15, -25, -35]);
+
+  const plans = shortfallPlans(rows, { items, weeklyIncome: 90, weeklyCosts: 100 });
+  assert.equal(plans.length, 2);
+  assert.equal(plans[0].delay.name, 'Bill');
+  // Run 1 already claimed "Bill"; run 2 has nothing else dated to offer.
+  assert.equal(plans[1].delay, null);
+  assert.equal(plans[0].pullForward.name, 'FixIt');
+  // Both runs share the same structural, whole-forecast gap.
+  assert.equal(plans[0].structural, true);
+  assert.equal(plans[1].structural, true);
+  assert.equal(plans[0].recurringGap, 10);
 });
 
 test('csv carries the one-off items and quotes a description containing a comma', () => {
