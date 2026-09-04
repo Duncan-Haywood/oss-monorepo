@@ -46,3 +46,26 @@ test('missing storage is a no-op rather than a crash', () => {
   assert.doesNotThrow(() => recordUsage(null));
   assert.doesNotThrow(() => recordUsage(undefined, false, 'comparison_calculated'));
 });
+
+test('the tax-flip outcome count is a bare tally like every other event', () => {
+  // Recorded when the payroll-tax verdict disagrees with the pre-tax one, so
+  // the venture can learn whether this section changes real decisions or only
+  // decorates them. It must carry no figure from the book -- a flip says a
+  // stylist's two offers were close, which is itself about their pay.
+  const storage = new Map();
+  storage.getItem = key => storage.get(key) ?? null;
+  storage.setItem = (key, value) => storage.set(key, value);
+
+  recordUsage(storage, false, 'tax_verdict_flipped');
+  recordUsage(storage, false, 'tax_verdict_flipped');
+  const event = JSON.parse(storage.getItem('booth-rent-vs-commission-usage'));
+  assert.equal(event.tax_verdict_flipped, 2);
+  assert.deepEqual(Object.keys(event).sort(), ['last_day', 'tax_verdict_flipped']);
+
+  // And it honours the opt-out like the rest.
+  const optedOut = new Map();
+  optedOut.getItem = key => optedOut.get(key) ?? null;
+  optedOut.setItem = (key, value) => optedOut.set(key, value);
+  recordUsage(optedOut, true, 'tax_verdict_flipped');
+  assert.equal(optedOut.getItem('booth-rent-vs-commission-usage'), null);
+});
