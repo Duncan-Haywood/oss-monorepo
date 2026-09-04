@@ -35,8 +35,8 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 546989 bytes
 #   portfolio-front-tools-1: 117 files, 555739 bytes
-#   portfolio-front-tools-2: 148 files, 550112 bytes
-#   portfolio-front-tools-3: 119 files, 553566 bytes
+#   portfolio-front-tools-2: 149 files, 556464 bytes
+#   portfolio-front-tools-3: 119 files, 553627 bytes
 #   portfolio-front-tools-4: 122 files, 554993 bytes
 #   portfolio-front-tools-5: 106 files, 545615 bytes
 #   portfolio-front-tools-6: 111 files, 556709 bytes
@@ -470,6 +470,7 @@ configMapGenerator:
       - fence-bid-calculator__vs-fence-cloud.html.gz=fence-bid-calculator__vs-fence-cloud.html.gz
       - ai-engineering-academy__555-timer-calculator__LICENSE.gz=ai-engineering-academy__555-timer-calculator__LICENSE.gz
       - ai-engineering-academy__555-timer-calculator__calc.mjs.gz=ai-engineering-academy__555-timer-calculator__calc.mjs.gz
+      - ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz=ai-engineering-academy__555-timer-calculator__can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:

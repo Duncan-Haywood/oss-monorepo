@@ -369,6 +369,28 @@ products:
           read ENTRY_OVERRIDES, so this page is publicly reachable from the
           commit that lands it. The zero below is a genuine pre-traffic
           baseline rather than a note about a surface nobody can reach.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Second question-shaped page for this venture:
+          555-timer-calculator/can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.
+          New computed capability, not just prose: designs the diode-mod
+          astable (any duty cycle from just above 0% to just below 100%,
+          including the 50%-and-below range the plain two-resistor astable
+          cannot reach and the parent tool's design panel already rejects
+          with an error) — 10 new passing unit tests in calc.test.mjs.
+          Counted locally as `diode_astable_designed`, settled the same way
+          as every other tool in this venture so a page load records
+          nothing and a burst of typing records one. Not publishing-gated,
+          same as the LED page above — publicly reachable from the commit
+          that lands it. Also linked from the parent calculator's design
+          panel this time, next to the "must be above 50" hint that
+          previously dead-ended, so this page does not repeat the
+          discoverability gap the LED page shipped with (its parent panel
+          carries no link back to it). The zero below is a genuine
+          pre-traffic baseline.
   - slug: quote-margin-check
     surface: repository-cli
     readings:

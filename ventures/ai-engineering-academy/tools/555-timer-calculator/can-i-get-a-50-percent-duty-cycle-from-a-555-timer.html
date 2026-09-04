@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>50% duty cycle from a 555 timer | Diode-mod astable calculator</title>
+<meta name="description" content="Free calculator for the 555 timer diode mod: get any duty cycle, including 50% or below, that the standard two-resistor astable cannot reach. Enter a target frequency and duty cycle and get the exact R1/R2, the nearest buyable E24 pair, and what that pair really produces. Runs in your browser." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='7' width='24' height='18' rx='2' fill='%232b6cb0'/%3E%3Cpath d='M8 20V13h4v7h4v-7h4v7' stroke='white' stroke-width='2.2' fill='none' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Can I get a 50% duty cycle from a 555 timer?" />
+<meta property="og:description" content="The standard 555 astable cannot reach 50% or below. The diode mod can — enter a frequency and duty cycle and get the exact resistors and the nearest E24 pair." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "555 timer diode-mod astable calculator",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (runs in a web browser)",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "featureList": "Diode-mod 555 astable design from a target frequency and any duty cycle (including 50% or below), exact and nearest-standard resistor values, achieved frequency and duty cycle, buildability warnings"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I get a 50% duty cycle from a 555 timer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not from the standard two-resistor astable — it charges through R1 + R2 and discharges through R2 alone, so the high time is always longer than the low time and 50% is a limit it only approaches, never reaches. Add a diode across R2, forward-biased so it shorts R2 out of the charge path, and the capacitor charges through R1 alone instead. High time and low time no longer share a resistor, so any duty cycle is possible, including 50% or below."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What resistor values give an exact 50% duty cycle with the diode mod?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "R1 = R2. With the diode in place, high time is ln(2) times R1 times C and low time is ln(2) times R2 times C, so they are equal exactly when the resistors are equal — and the frequency formula collapses to the familiar single-resistor form, f = 1 divided by (2 times ln(2) times R times C)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the diode need to be a specific type?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Any small switching diode works electrically — a 1N4148 is the usual choice. What varies is its forward voltage drop while conducting: roughly 0.6 to 0.7 V for silicon, lower for a Schottky part. That drop is not in the formula below, so it is a real source of error, worse at low supply voltages or a small R1 where the drop is a bigger fraction of the charging voltage. A Schottky diode shrinks that error; it does not change which duty cycles are reachable."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can the diode mod reach duty cycles below 50%, not just down to it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Duty cycle is R1 divided by (R1 + R2) once the diode is in place, and that ratio is free to land anywhere between 0% and 100% by choosing R1 smaller or larger than R2 — the 50%-or-above restriction was specific to the plain two-resistor astable, and the diode removes it rather than just extending it to exactly 50%."
+      }
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+    --warn: #a0691b; --bad: #c53030;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; --warn: #ecc94b; --bad: #fc8181; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  nav.toolbar { font-size: 0.85rem; margin: 0 0 1.5rem; }
+  section {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.25rem; margin: 1.5rem 0;
+  }
+  h2 { font-size: 1.15rem; margin-top: 0; }
+  h3 { font-size: 1rem; margin: 1.5rem 0 0; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-top: 0.75rem; }
+  input, select {
+    width: 100%; padding: 0.5rem; margin-top: 0.25rem; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--bg); color: var(--fg); font-size: 1rem;
+  }
+  input:focus, select:focus { outline: 2px solid var(--focus); outline-offset: 1px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 1rem; }
+  @media (max-width: 520px) { .row3, .row { grid-template-columns: 1fr; } }
+  .cap { display: grid; grid-template-columns: 2fr 1fr; gap: 0 0.5rem; }
+  .result {
+    margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border); font-size: 1.05rem;
+  }
+  .result dl { margin: 0; }
+  .result dt { font-size: 0.8rem; color: var(--muted); margin-top: 0.6rem; }
+  .result dt:first-child { margin-top: 0; }
+  .result dd { margin: 0.1rem 0 0; }
+  .result.error { color: var(--bad); }
+  ul.notes { margin: 0.75rem 0 0; padding-left: 1.1rem; font-size: 0.9rem; }
+  ul.notes li.error { color: var(--bad); }
+  ul.notes li.warning { color: var(--warn); }
+  ul.notes li.info { color: var(--muted); }
+  .hint { font-size: 0.8rem; color: var(--muted); margin: 0.25rem 0 0; }
+  footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Can I get a 50% duty cycle from a 555 timer?</h1>
+  <p class="lede">
+    Not from the standard two-resistor astable — but a single diode fixes it,
+    and opens up any duty cycle, not just 50%. Put your target frequency and
+    duty cycle in and get the resistors to buy. Everything runs in this page;
+    nothing is uploaded.
+  </p>
+  <nav class="toolbar">
+    <a href="./">← 555 timer calculator</a> ·
+    <a href="../">All free electronics tools</a>
+  </nav>
+
+  <section aria-labelledby="calc-heading">
+    <h2 id="calc-heading">Design the diode-mod astable</h2>
+    <p class="hint">
+      Pick the capacitor you have, the frequency and duty cycle you want —
+      any value from just above 0% to just below 100% — and get the exact
+      R1/R2, the nearest standard (E24) values, and what those buyable
+      resistors really produce.
+    </p>
+
+    <div class="row3">
+      <div>
+        <label for="freq">Target frequency (Hz)</label>
+        <input type="number" id="freq" inputmode="decimal" value="1000" step="any" />
+      </div>
+      <div>
+        <label for="duty">Target duty cycle (%)</label>
+        <input type="number" id="duty" inputmode="decimal" value="50" min="0" max="100" step="any" />
+      </div>
+      <div>
+        <label for="vcc">Supply V<sub>cc</sub> (V, optional)</label>
+        <input type="number" id="vcc" inputmode="decimal" value="5" step="any" />
+      </div>
+    </div>
+    <label for="cap">Capacitor you have</label>
+    <div class="cap">
+      <input type="number" id="cap" inputmode="decimal" value="100" step="any" />
+      <select id="cap-unit" aria-label="Capacitance unit">
+        <option value="1e-12">pF</option>
+        <option value="1e-9" selected>nF</option>
+        <option value="1e-6">µF</option>
+        <option value="1e-3">mF</option>
+      </select>
+    </div>
+
+    <div class="result" id="result" role="status" aria-live="polite"></div>
+  </section>
+
+  <h2>Common questions</h2>
+
+  <h3>Can I get a 50% duty cycle from a 555 timer?</h3>
+  <p>
+    Not from the standard two-resistor astable — it charges through R1 + R2
+    and discharges through R2 alone, so the high time is always longer than
+    the low time and 50% is a limit it only approaches, never reaches. Add a
+    diode across R2, forward-biased so it shorts R2 out of the charge path,
+    and the capacitor charges through R1 alone instead. High time and low
+    time no longer share a resistor, so any duty cycle is possible, including
+    50% or below.
+  </p>
+
+  <h3>What resistor values give an exact 50% duty cycle with the diode mod?</h3>
+  <p>
+    R1 = R2. With the diode in place, high time is ln(2) times R1 times C and
+    low time is ln(2) times R2 times C, so they are equal exactly when the
+    resistors are equal — and the frequency formula collapses to the familiar
+    single-resistor form, f = 1 divided by (2 times ln(2) times R times C).
+  </p>
+
+  <h3>Does the diode need to be a specific type?</h3>
+  <p>
+    Any small switching diode works electrically — a 1N4148 is the usual
+    choice. What varies is its forward voltage drop while conducting: roughly
+    0.6 to 0.7 V for silicon, lower for a Schottky part. That drop is not in
+    the formula below, so it is a real source of error, worse at low supply
+    voltages or a small R1 where the drop is a bigger fraction of the
+    charging voltage. A Schottky diode shrinks that error; it does not change
+    which duty cycles are reachable.
+  </p>
+
+  <h3>Can the diode mod reach duty cycles below 50%, not just down to it?</h3>
+  <p>
+    Yes. Duty cycle is R1 divided by (R1 + R2) once the diode is in place,
+    and that ratio is free to land anywhere between 0% and 100% by choosing
+    R1 smaller or larger than R2 — the 50%-or-above restriction was specific
+    to the plain two-resistor astable, and the diode removes it rather than
+    just extending it to exactly 50%.
+  </p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is,
+      without warranty of any kind, express or implied. It is not engineering
+      advice, and it does not replace reading your specific chip's datasheet
+      or measuring the built circuit — 555 variants differ, and the practical
+      limits it checks against are rules of thumb for a bipolar NE555. The
+      diode's forward-voltage drop is not modeled and will shift the achieved
+      duty cycle from what is shown. <strong>You are responsible for
+      reviewing and verifying its output before relying on it</strong>,
+      including for anything safety-critical. To the maximum extent permitted
+      by law, the authors accept no liability for any loss or damage arising
+      from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2 id="privacy-heading">Privacy</h2>
+    <p>
+      Everything runs in your browser. Your inputs are never uploaded, and we
+      don't have accounts, tracking cookies, or an analytics vendor. This page
+      counts anonymous, local feature-use events (e.g. "a design was
+      computed") in your own browser's <code>localStorage</code>, only to
+      help this project's maintainers tell whether the tool is used at all —
+      nothing is sent anywhere.
+      <button type="button" id="usage-toggle" style="background:none;border:none;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font:inherit;">
+        Turn off local usage counting
+      </button>
+      <span id="usage-status"></span>
+    </p>
+
+    <p>
+      Part of <a href="../">the free electronics tools</a> from
+      <a href="../">AI Engineering Academy</a>. MIT licensed — see
+      <a href="../LICENSE">LICENSE</a>. See also the
+      <a href="./">555 timer calculator</a> this page extends, for the
+      standard astable, monostable, and both forward and backward analysis.
+    </p>
+  </footer>
+</main>
+
+<script type="module">
+  import { designAstableWithDiode, formatResistance, formatCapacitance, formatFrequency } from "./calc.mjs";
+  import { recordEventSettled, isUsageCountingEnabled, setUsageCountingEnabled } from "./usage.mjs";
+
+  const $ = (id) => document.getElementById(id);
+  const result = $("result");
+
+  function readCapacitance() {
+    return Number($("cap").value) * Number($("cap-unit").value);
+  }
+
+  function renderNotes(notes) {
+    if (!notes || notes.length === 0) return "";
+    const items = notes.map((n) => `<li class="${n.severity}">${n.message}</li>`).join("");
+    return `<ul class="notes">${items}</ul>`;
+  }
+
+  function update(userAction) {
+    try {
+      const d = designAstableWithDiode({
+        frequencyHz: Number($("freq").value),
+        dutyCyclePercent: Number($("duty").value),
+        capacitanceFarads: readCapacitance(),
+        supplyVolts: $("vcc").value === "" ? undefined : Number($("vcc").value),
+      });
+      const sign = (n) => (n > 0 ? "+" : "");
+      result.classList.remove("error");
+      result.innerHTML = `
+        <dl>
+          <dt>Exact resistors for the target</dt>
+          <dd>R1 = ${formatResistance(d.exactR1)}, R2 = ${formatResistance(d.exactR2)} with ${formatCapacitance(readCapacitance())}, diode across R2</dd>
+          <dt>Nearest standard (E24) values you can buy</dt>
+          <dd><strong>R1 = ${formatResistance(d.nearestR1)}, R2 = ${formatResistance(d.nearestR2)}</strong></dd>
+          <dt>What those really produce (ideal diode)</dt>
+          <dd>${formatFrequency(d.achievedFrequencyHz)} (${sign(d.frequencyErrorPercent)}${d.frequencyErrorPercent.toFixed(2)}%) at ${d.achievedDutyCyclePercent.toFixed(2)}% duty (${sign(d.dutyErrorPercent)}${d.dutyErrorPercent.toFixed(2)} points)</dd>
+        </dl>
+        ${renderNotes(d.notes)}
+      `;
+      if (userAction) recordEventSettled("diode_astable_designed");
+    } catch (err) {
+      result.textContent = err.message;
+      result.classList.add("error");
+    }
+  }
+
+  for (const id of ["freq", "duty", "vcc", "cap", "cap-unit"]) {
+    $(id).addEventListener("input", () => update(true));
+    $(id).addEventListener("change", () => update(true));
+  }
+  update();
+
+  const usageToggle = $("usage-toggle");
+  const usageStatus = $("usage-status");
+  function renderUsageStatus() {
+    const on = isUsageCountingEnabled();
+    usageToggle.textContent = on ? "Turn off local usage counting" : "Turn on local usage counting";
+    usageStatus.textContent = on ? "" : " (currently off)";
+  }
+  usageToggle.addEventListener("click", () => {
+    setUsageCountingEnabled(!isUsageCountingEnabled());
+    renderUsageStatus();
+  });
+  renderUsageStatus();
+</script>
+</body>
+</html>
