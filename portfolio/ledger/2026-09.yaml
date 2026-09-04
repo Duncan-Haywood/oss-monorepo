@@ -10197,3 +10197,42 @@ entries:
         the standing outage this file records elsewhere is resolved -- not
         only once a further seal lands.
     mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-square-appointments.html` plus
+        `vs-square-appointments.test.mjs` (11 new assertions) -- this
+        venture's first competitor-comparison page despite a complete,
+        tested deposit calculator (`calc.mjs`, `app.mjs`, a net-revenue
+        "does the deposit pay for itself" panel, 38 existing tests).
+        Picked over 38 other vs-*-less ventures because it names a
+        well-known account-based competitor its own audience (salons,
+        trainers, tutors, photographers) already pays for -- Square
+        Appointments, from Block, Inc. -- and contrasts cleanly: an
+        account-based booking-and-payments platform vs. a free, static,
+        no-account worksheet for the one number (deposit percent, and
+        whether it pays off) that goes into that platform's deposit
+        setting. Only Square's well-documented identity (founders,
+        founding year, HQ, parent company, product category) is stated;
+        no dollar figure for it appears anywhere on the page, matching
+        the discipline already used by
+        `no-show-fee-calculator/vs-acuity-scheduling.html` (a sibling
+        venture) and `gutter-guard-bid-calculator/vs-jobnimbus.html`.
+        Linked from `index.html`'s header note and added to
+        `sitemap.xml`. Checked `git log origin/main -- ventures
+        /appointment-deposit-calculator/` first -- most recent commit
+        (#2719) only reworded an unrelated internal panel, no vs-* page
+        existed, not a duplicate. Verified: `node --test
+        ventures/appointment-deposit-calculator/*.test.mjs
+        ventures/appointment-deposit-calculator/test/*.test.mjs` 49/49;
+        canonical `platform/pages/build.mjs --out=dist` build succeeds
+        (174 tools, 673 pages) and `node platform/pages/check.mjs dist`
+        reports no dead links. Did not touch `gitops/` or the front-door
+        mirror -- out of scope for this session; a later session should
+        regenerate the mirror to pick this page up, and it ships to
+        `marisstella.dev/tools/appointment-deposit-calculator/` on merge
+        once the standing cluster outage this file records elsewhere is
+        resolved.
+    mrr_end: null
