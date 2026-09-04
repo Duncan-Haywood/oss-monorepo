@@ -9961,3 +9961,72 @@ entries:
         `platform/ci/publish-surface.yaml` and updated the `runs-on` count in
         `gitops/ci/README.md`; both have tests that failed before I did.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met again. `list_pull_requests` and
+        `search_pull_requests` both returned zero open PRs at this run's
+        start. Spot-checked the four largest ahead-of-main branches by
+        commit count with `supersede_check.py` (`agent/deploy-cicd-ledger-2868`,
+        `claude/toilet-replacement-vs-servicetitan`,
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`,
+        `pr/where-to-sell-rank-by-profit-per-day`) -- all four SUPERSEDED,
+        consistent with the prior session's full 86-branch sweep recorded
+        above. Started a fresh full re-sweep of the (now 83, excluding
+        `tmp/ssh-key-smoke`, a 936-commit unrelated-history outlier) branches
+        ahead of `main`; it was still running in the background past this
+        session's own remaining budget and is not reported as complete here
+        -- do not treat its absence as a finding either way.
+      - >-
+        **Dispatched `Public surface check` three times (run 33887885219 at
+        15:09:44Z was already queued by the owner moments before this
+        session's own two dispatches landed) and all three agree: both
+        `https://marisstella.dev/` and `https://www.marisstella.dev/` return
+        `[Errno 111] Connection refused` from a real GitHub-hosted runner --
+        not a TLS/cert/403 block, nothing listening at all.** This
+        contradicts this file's own standing claim ("the apex serves all 169
+        tools itself") and needs owner attention: the Hetzner box, k3s
+        cluster, or ingress/load-balancer appears down. Could not diagnose
+        further from here -- `HETZNERSSHKEY` still holds a public key
+        (queued as `hetzner-ssh-key-is-a-public-key`, unresolved), so the one
+        SSH-based diagnostic remains unusable. Notified the owner directly
+        since no session can fix a Hetzner-side outage from GitHub Actions
+        or this sandbox. 0/24 sampled sitemap URLs served on all three runs.
+      - >-
+        Re-verified the two owner-blocked deployment seals this file has
+        tracked since 2026-09-02 are unchanged: `codex-governor/policy.json`
+        still reads `"enabled": false`, the governor CronJob still
+        `suspend: true`, and `gitops/agents/kustomization.yaml` still lists
+        no `codex-secrets` resource -- so the Codex-CLI-on-Hetzner pipeline
+        (`CODEX_AUTH_JSON`, ChatGPT-plan-quota route) is exactly as built and
+        exactly as blocked as previously recorded. No code changes needed;
+        did not re-open a PR restating it.
+    mrr_end: null
+  - venture: equipment-rental-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-booqable.html` (+ `vs-booqable.test.mjs`, 13 new tests),
+        this venture's first competitor-comparison page -- it previously had
+        zero `vs-*.html` pages despite a complete, tested break-even
+        calculator. Booqable (rental & inventory management SaaS: online
+        booking storefront, barcode/QR checkout-in/out scanning, invoicing,
+        sold as an ongoing subscription account) is named only for its
+        well-documented category; no dollar figure for it appears anywhere
+        on the page, matching the discipline in
+        `freight-accessorial-auditor/vs-trax.html`. Linked from `index.html`
+        and added to `sitemap.xml`. Verified: `node --test
+        ventures/equipment-rental-break-even/site/*.test.mjs` 41/41;
+        `platform/pages/clauses.mjs equipment-rental-break-even` reports the
+        no-warranty clause on all 3 published pages; canonical
+        `platform/pages/build.mjs` build succeeds (174 tools) and `node
+        platform/pages/check.mjs dist` reports no dead links. Not in the
+        front-door mirror's `STARTER_SET` (this venture uses the `site/`
+        flat-layout, one of the five `build.mjs`-only ventures this file
+        already documents as excluded from the mirror), so it reaches users
+        only once `deploy-settings` or `portfolio-site-repo` is granted --
+        same as the other 173 tools in the canonical Pages build.
+    mrr_end: null
