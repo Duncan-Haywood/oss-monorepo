@@ -12,3 +12,10 @@ test('the planning-estimate panel is announced to screen readers on every update
   const html = page('index.html');
   assert.match(html, /<section class="result" aria-live="polite"><h2>Planning estimate<\/h2>/);
 });
+
+test('the page carries the standard disclaimer and sponsor link', () => {
+  const html = page('index.html');
+  assert.match(html, /No warranty/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
