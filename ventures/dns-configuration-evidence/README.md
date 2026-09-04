@@ -42,6 +42,11 @@ python3 -m http.server -d . 8000   # then http://localhost:8000/
 # Its logic tests (Node 18+); the parity test also runs the Python CLI
 node --test dns-evidence.test.mjs
 
+# The primary customer journey through a real browser. Needs Playwright, so it
+# is not in CI -- same convention as platform/pages/journey.mjs. Stubs the DoH
+# endpoints, so it needs no network and no real domain.
+node tests/journey.mjs
+
 python3 -m unittest discover -s tests -v
 
 # 1. Customer-authorized capture (writes a snapshot you can keep or share)
