@@ -60,6 +60,46 @@
 
 decisions:
 
+- id: hetzner-ssh-key-is-a-public-key
+  asks: []
+  prs: [3184]
+  gates: deployment
+  exposure: credential
+  opened: "2026-09-04"
+  action: >-
+    Replace the Actions secret `HETZNERSSHKEY` with the **private** key
+    matching the public key already installed on `root@89.167.29.39` and
+    `root@157.180.80.188` — the whole file, `-----BEGIN OPENSSH PRIVATE
+    KEY-----` through `-----END …-----`, pasted into Settings → Secrets and
+    variables → Actions. Then dispatch `hetzner-gitops CI` with `preflight:
+    true` to confirm; it is read-only and never installs k3s or runs tofu.
+    **Measured, not inferred:** that dispatch on 2026-09-04 (run 33884253173,
+    job 101060068559) exits in under a second on the workflow's own format
+    classifier — `HETZNERSSHKEY holds a public key, not a private key` — so
+    the preflight has never produced a single reading, and every "SSH to the
+    boxes and see" instruction in this repo has been unfollowable since it was
+    written. The workflow already normalises literal `\n` escapes and CRLF, so
+    a plain paste is fine; the failure is the key half, not the formatting.
+    **Deliberately ranked below the two seals.** It buys diagnosis, not
+    delivery: `portfolio-site-repo` and `codex-secrets` each stand between the
+    portfolio and something a stranger can use, and this one only lets us look
+    inside a cluster that is already serving. It is also no longer the way to
+    answer "is the site up" — `Public surface check` does that from a runner
+    with no credential at all.
+  unlocks:
+    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read."
+    - "The ability to diagnose a *failure* rather than only detect one. `Public surface check` says a hostname stopped serving; only SSH says why."
+  blocked_by: []
+  note: >-
+    Found by dispatching the preflight rather than by reading anything — no
+    document in the repo recorded this, and three of them (`OWNER_CHECKLIST`,
+    `bootstrap/README`, `infra/README`) actively said the dispatch was
+    available. All three corrected in the same change that opened this row.
+    The owner was debugging exactly this on 2026-08-24 via the one-shot
+    `tmp/ssh-key-smoke` branch; that diagnostic was folded into the preflight
+    job afterwards and then nobody dispatched it again, so the secret has sat
+    wrong for eleven days with the repo asserting otherwise.
+
 - id: actions-runners-unavailable
   asks: []
   prs: [1842, 2021, 2022]
