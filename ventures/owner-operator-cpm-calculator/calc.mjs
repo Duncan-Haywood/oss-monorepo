@@ -131,7 +131,15 @@ export function calculateWeek(input) {
     } else if (factoringMultiplier === 0) {
       rateForTarget = null;
     } else {
-      rateForTarget = (weeklyCost - accessorialNet + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
+      // A big accessorial week (long detention, a real layover) can net
+      // accessorialNet above weeklyCost + targetWeeklyTakeHome on its own,
+      // same as the loadedMilesToBreakEven case below. Left unclamped, the
+      // numerator goes negative and this divides through to a negative
+      // $/mile — "rate for target take-home: -$0.30/mi" printed as though
+      // it were a quote to post, not the "you already cleared the target
+      // without a single loaded mile" result it actually is. Floor at 0:
+      // any non-negative rate already meets the target in that case.
+      rateForTarget = Math.max(0, weeklyCost - accessorialNet + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
     }
   }
 

@@ -56,7 +56,7 @@ quota. It is not a second copy of every product.
 
 ## The public product site
 
-`prod/portfolio-site.yaml` serves the portfolio's 169 finished static
+`prod/portfolio-site.yaml` serves the portfolio's 173 finished static
 tools on **`tools.marisstella.dev`**. It is the first thing in this
 cluster on a public name.
 
@@ -103,7 +103,7 @@ Argo syncs the manifests and the pods crash-loop on the missing secret,
 which is the intended fail-closed state.
 
 Note what this section is and is not about since 2026-09-02: it is the step
-that makes the **169 tools** reachable. The portfolio's apex is already
+that makes the **173 tools** reachable. The portfolio's apex is already
 serving (`prod/portfolio-front.yaml`, above), and every category card on
 that page links in here — so this seal is what turns a live front door into
 a live catalogue, not what turns the domain on.
@@ -142,6 +142,12 @@ Re-verified again on 2026-09-02 against a later `main` still: 524 pages,
 not a regression. Re-verified once more the same day, at `main`'s
 d8e27a884: 544 pages, 169 products still unchanged, no dead links — the
 same drift, not a second regression.
+
+Re-verified 2026-09-03: 632 pages, 173 products, no dead links. The product
+count moved (three ventures gained a `site/index.html` entry point,
+`which-job-first` shipped with one from its first commit — see `CLAUDE.md`),
+still the drift this paragraph predicted rather than a regression, and the
+build+check pair still exits 0.
 
 This says the seal will land on a working build; it does not confirm
 anything about the cluster. Certificate issuance and public reachability

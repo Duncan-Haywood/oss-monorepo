@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free pricing calculators for service businesses — 6 free tools</title>
+<meta name="description" content="Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time and materials into a price.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#12594a">
+<link rel="canonical" href="https://marisstella.dev/c/services/">
+<link rel="alternate" type="application/atom+xml" title="Free small-business calculators — tools on marisstella.dev" href="/feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Free small-business calculators">
+<meta property="og:title" content="Free pricing calculators for service businesses — 6 free tools">
+<meta property="og:description" content="Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time and materials into a price.">
+<meta property="og:url" content="https://marisstella.dev/c/services/">
+<meta property="og:image" content="https://marisstella.dev/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://marisstella.dev/social-card.png">
+<meta name="twitter:image:alt" content="The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.">
+<meta name="robots" content="index, follow">
+<style>
+  :root {
+    color-scheme: light dark;
+    --ink: #16191d;
+    --ink-soft: #454c55;
+    --paper: #fbfaf8;
+    --card: #ffffff;
+    --rule: #ddd8d0;
+    --link: #12506b;
+    /* The call to action needs its own pair rather than reusing --link on a
+       white foreground. In dark mode --link is a pale blue, and white text on
+       it measured 1.93:1 — a headless contrast pass caught it before this page
+       ever shipped. The button inverts instead: pale fill, dark ink. */
+    --cta-bg: #12506b;
+    --cta-fg: #ffffff;
+    /* The search field's edge, and the one border on this page that is not
+       --rule. --rule measures 1.36:1 against --paper in light and 1.54:1 in
+       dark: fine for a card, whose shape a reader gets from its fill and its
+       content, and a failure of WCAG 2.1 SC 1.4.11 for a text input, where
+       the boundary is the only thing saying "you can type here". A headless
+       pass over the rendered page caught it before this shipped; both values
+       below clear 3:1 against --paper. */
+    --field-edge: #8a8379;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eceef1;
+      --ink-soft: #b3bac3;
+      --paper: #14171a;
+      --card: #1c2025;
+      --rule: #333940;
+      --link: #7fc4e2;
+      --cta-bg: #7fc4e2;
+      --cta-fg: #10161a;
+      --field-edge: #6f7780;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main, header, footer { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding-top: 3.5rem; padding-bottom: 1rem; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 0.75rem; letter-spacing: -0.015em; }
+  .lede { font-size: clamp(1.05rem, 2.4vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.5rem; max-width: 44rem; }
+  .cta {
+    display: inline-block;
+    background: var(--cta-bg);
+    color: var(--cta-fg);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.7rem 1.3rem;
+    border-radius: 0.4rem;
+  }
+  .cta:hover, .cta:focus { filter: brightness(1.1); }
+  h2 { font-size: 1.35rem; margin: 2.75rem 0 1rem; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent, var(--rule));
+    border-radius: 0.5rem;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
+  .card h3 a { color: var(--link); text-decoration: none; }
+  .card h3 a:hover, .card h3 a:focus { text-decoration: underline; }
+  .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  /* The category headings inside the mirror section. Sized between an h2 and a
+     card title so the section reads as one list with dividers rather than as
+     several sections; scroll-margin-top keeps a heading off the very top
+     edge when a card's fragment link jumps to it. */
+  .group { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 1.75rem 0 0.75rem; scroll-margin-top: 1rem; }
+  .group:first-of-type { margin-top: 0; }
+  header .fine { color: var(--ink-soft); font-size: 0.9rem; max-width: 60ch; margin: 0.75rem 0 0; }
+  .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; }
+  .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+  .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; }
+  footer a { color: var(--link); }
+  footer p { max-width: 52rem; }
+  .fine strong { color: var(--ink); }
+  /* The filter over the mirrored tools. Revealed by script — see
+     FILTER_SCRIPT — so a reader without JavaScript never meets a box that
+     does nothing.
+
+     Every element the filter hides needs a rule here, and the reason is the
+     cascade rather than specificity: the UA sheet's [hidden] { display: none }
+     loses to ANY author display declaration, however weak. .filter and .grid
+     both set display: grid, so without these two selectors the hidden element
+     keeps its box. For .grid that was not hypothetical — it was measured in a
+     browser: filtering to one trade left the six emptied category lists still
+     rendering. Nothing was visible, because a grid with no visible items has
+     no height, so the page looked right and a screen reader read six empty
+     lists between the heading and the one result. */
+  .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; }
+  .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; }
+  .filter label { font-size: 0.88rem; color: var(--ink-soft); }
+  .filter input {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--field-edge);
+    border-radius: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    width: 100%;
+  }
+  .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+  .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
+  .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Free pricing calculators for service businesses",
+  "url": "https://marisstella.dev/c/services/",
+  "description": "Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time and materials into a price.",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Free small-business calculators",
+    "url": "https://marisstella.dev/"
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": 6,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Pool Route Pricing Calculator — Price Weekly Accounts",
+        "url": "https://marisstella.dev/tools/pool-route-pricing/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Translator Project Quote Calculator",
+        "url": "https://marisstella.dev/tools/translator-project-quote/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Porta Potty Event Quote Calculator — Restroom Rental Bid",
+        "url": "https://marisstella.dev/tools/portable-restroom-event-quote/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Commercial Photography Licensing Quote Calculator",
+        "url": "https://marisstella.dev/tools/commercial-photo-license-calculator/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "Mobile Notary & Loan Signing Fee Calculator",
+        "url": "https://marisstella.dev/tools/notary-trip-quote/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
+        "name": "Booth Rent vs Commission Calculator",
+        "url": "https://marisstella.dev/tools/booth-rent-vs-commission/"
+      }
+    ]
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <h1>Free pricing calculators for service businesses</h1>
+  <p class="lede">A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.</p>
+  <p class="fine">6 of the 173 free tools on this site, served from this domain. They run in your browser — nothing you type is uploaded.</p>
+</header>
+<main>
+  <ul class="grid">
+        <li class="card">
+          <h3><a href="/tools/pool-route-pricing/">Pool Route Pricing Calculator — Price Weekly Accounts</a></h3>
+        </li>
+        <li class="card">
+          <h3><a href="/tools/translator-project-quote/">Translator Project Quote Calculator</a></h3>
+        </li>
+        <li class="card">
+          <h3><a href="/tools/portable-restroom-event-quote/">Porta Potty Event Quote Calculator — Restroom Rental Bid</a></h3>
+        </li>
+        <li class="card">
+          <h3><a href="/tools/commercial-photo-license-calculator/">Commercial Photography Licensing Quote Calculator</a></h3>
+        </li>
+        <li class="card">
+          <h3><a href="/tools/notary-trip-quote/">Mobile Notary &amp; Loan Signing Fee Calculator</a></h3>
+        </li>
+        <li class="card">
+          <h3><a href="/tools/booth-rent-vs-commission/">Booth Rent vs Commission Calculator</a></h3>
+        </li>
+  </ul>
+</main>
+<footer>
+  <p><a href="/">All 173 tools</a> · <a href="/feed.xml" type="application/atom+xml">New tools feed</a> · <a href="/llms.txt">llms.txt</a></p>
+  <p class="fine"><a href="https://marisstella.dev/c/trades/">Free contractor bid calculators and estimating tools</a> · <a href="https://marisstella.dev/c/evidence/">Free compliance check and evidence record tools</a> · <a href="https://marisstella.dev/c/marketplace/">Free marketplace seller fee calculators</a> · <a href="https://marisstella.dev/c/backoffice/">Free small-business cash flow and pricing tools</a> · <a href="https://marisstella.dev/c/logistics/">Free freight, 3PL and cloud cost calculators</a> · <a href="https://marisstella.dev/c/more/">More free small-business calculators</a></p>
+  <p class="fine"><strong>No warranty.</strong> These tools are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, engineering or professional advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+</footer>
+</body>
+</html>

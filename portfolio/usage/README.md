@@ -99,8 +99,8 @@ kubectl -n prod get configmap portfolio-site-usage -o jsonpath='{.data.usage\.js
 
 Keys are catalogue slugs, plus `_hub` for the catalogue's front page,
 `c/<category>` for a category page, `embed/<slug>` for a view served inside
-somebody else's page through the embed widget, and `_front` for the apex front
-door at `marisstella.dev`.
+somebody else's page through the embed widget, and `_front` for the apex
+front door at `marisstella.dev`.
 
 `_front` and `_hub` are two different pages on two different hostnames, and
 they are separate rows because they answer different questions: `_front` is
@@ -110,9 +110,25 @@ downstream could have taken them apart if they had shared a row — the split is
 made where the line is read, by which workload served it
 (`aggregate.py`'s `APP_KEYS`).
 
-`_front` is a single row rather than a per-path breakdown because the front
-door serves one page: its nginx resolves every request to `index.html` before
-`$uri` is logged.
+**`_front` is no longer the whole story for that pod.** It used to be a
+single row because the front door served exactly one page — every request
+resolved to `index.html` before `$uri` was logged. That stopped being true
+when the apex began mirroring the catalogue's tools and category pages, and
+again when it grew its own About page:
+
+- `_front/<slug>` — a visit to a tool the apex mirrors at `/tools/<slug>/`,
+  same slug the catalogue host uses for the tool itself.
+- `_front/c/<category>` — a visit to one of the apex's seven category browse
+  pages, e.g. `_front/c/trades`.
+- `_front/about` — a visit to the apex's own About & privacy page. Distinct
+  from `about`, the catalogue host's own About page under a different key
+  (`APP_KEYS["portfolio-site"]` is `None`, so that host's rows keep
+  `slug_for`'s bare names).
+- `_front` itself is what remains: the apex's front page, since that pod's
+  fallback `try_files` still resolves everything else to `index.html`.
+
+See `aggregate.py`'s `fold_for_app` for the split logic and
+`gitops/tests/test_site_usage.py` for what pins each row.
 
 That last split is the point of the fourth field. The embed snippet points at
 `/<slug>/?pfEmbed=1`, and `$uri` is resolved *past* the query string, so a

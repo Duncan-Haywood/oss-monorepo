@@ -11,6 +11,12 @@ test('carries the no-warranty disclaimer', () => {
   assert.match(html, /not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice/i);
 });
 
+// The page prices the plant the user picks; it must never read as sizing or
+// certifying the flue, the gas piping, or the combustion venting.
+test('does not claim it checks fuel-gas code or chimney safety', () => {
+  assert.match(html, /judgment call for the licensed tech on site/);
+});
+
 test('states it is not affiliated with ServiceTitan', () => {
   assert.match(html, /not affiliated with, endorsed by, or sponsored by ServiceTitan, Inc\./);
 });

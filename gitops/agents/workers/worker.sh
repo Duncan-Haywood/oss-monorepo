@@ -121,7 +121,7 @@ hit_auth_failure() {
 # these three lines together, not silently on whichever Tuesday a Job runs.
 # Checksums are the ones cli/cli publishes in `gh_<version>_checksums.txt`.
 #
-# All three are `${VAR:-pin}` so the test suite can point the installer at a
+# All four are `${VAR:-pin}` so the test suite can point the installer at a
 # tarball it built itself and still exercise the real verify-then-install path.
 # Nothing sets them in the cluster: governor.py passes a fixed env list, and
 # `codex-secrets` holds credentials. Anything able to set them here already
@@ -129,6 +129,24 @@ hit_auth_failure() {
 GH_VERSION="${GH_VERSION:-2.63.2}"
 GH_SHA256_AMD64="${GH_SHA256_AMD64:-912fdb1ca29cb005fb746fc5d2b787a289078923a29d0f9ec19a0b00272ded00}"
 GH_SHA256_ARM64="${GH_SHA256_ARM64:-0f31e2a8549c64b5c1679f0b99ce5e0dac7c91da9e86f6246adb8805b0f0b4bb}"
+
+# Codex is pinned for the same reason, and it matters more here than for `gh`.
+# This line read `@${CODEX_VERSION:-latest}` until 2026-09-03, which made the
+# paragraph above false about the one binary that receives *both* this Job's
+# `GH_TOKEN` and the owner's ChatGPT `auth.json`: gh arrived at a reviewed
+# version with a checksum, and the more privileged of the two arrived at
+# whatever npm happened to serve that Tuesday.
+#
+# The cadence makes it concrete rather than theoretical. `@openai/codex` is
+# pre-1.0 and ships continuously — 0.153.1 was `latest` when this pin was
+# written, with 0.154.0-alpha.2 already tagged — so "latest" moves within a
+# single five-hour quota window. A behaviour change in `codex exec --json`,
+# whose output this script parses for the limit and auth markers below, would
+# land mid-window across every queue item at once, and the only thing an
+# operator would see is that the codex container exited non-zero.
+#
+# Bump this deliberately, as a reviewed commit, the same way GH_VERSION moves.
+CODEX_VERSION="${CODEX_VERSION:-0.153.1}"
 
 # Where a downloaded binary lands. Deliberately not /usr/local/bin: the worker
 # runs as root today only because the apt path above required it, and this
@@ -185,8 +203,39 @@ install_tools() {
   fi
 
   command -v gh >/dev/null 2>&1 || install_gh
-  if ! command -v codex >/dev/null 2>&1; then
-    npm install -g "@openai/codex@${CODEX_VERSION:-latest}"
+  command -v codex >/dev/null 2>&1 || install_codex
+}
+
+install_codex() {
+  # `npm` by name, but through a variable, for the same reason GH_VERSION is
+  # one: it is the only way a test can exercise this function. Line 44 forces
+  # /usr/local/bin to the front of PATH, so a stub npm placed on PATH by a test
+  # is shadowed by the real one — which is how these tests first "passed" by
+  # installing Codex from the live registry. Same reachability argument as the
+  # pins above: nothing sets it in the cluster.
+  local npm_bin="${CODEX_NPM:-npm}"
+  echo "worker: installing @openai/codex@${CODEX_VERSION}"
+  "$npm_bin" install -g "@openai/codex@${CODEX_VERSION}"
+
+  # Confirm the pin actually took, rather than trusting npm's exit code.
+  #
+  # `npm install -g` succeeds in cases that leave a different binary in front:
+  # an `@openai/codex` already global at another version keeps its bin symlink,
+  # and the platform-specific optional dependency this package resolves through
+  # (`@openai/codex-linux-x64` and friends) can satisfy the install from cache
+  # at a version the pin did not name. Either way the run continues on an
+  # unreviewed Codex, which is the exact thing the pin exists to prevent — and
+  # silently, because everything downstream only cares that `codex` is on PATH.
+  #
+  # Fail closed instead. A Job that stops here costs one tick and names the
+  # reason; one that proceeds spends the window and reports a Codex error.
+  local installed
+  installed="$(codex --version 2>/dev/null || true)"
+  if [[ "$installed" != *"$CODEX_VERSION"* ]]; then
+    echo "worker: codex version mismatch — refusing to run." >&2
+    echo "worker:   pinned    $CODEX_VERSION" >&2
+    echo "worker:   installed ${installed:-<no version reported>}" >&2
+    return 1
   fi
 }
 

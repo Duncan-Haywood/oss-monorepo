@@ -14,6 +14,11 @@ import {
   FAVICON_SVG,
   FEED_OUTPUT_FILE,
   FRONT_DOOR_URL,
+  CATALOG_FILE,
+  CATALOG_OUTPUT_FILE,
+  EMBED_HOST_OUTPUT_FILE,
+  EMBED_MODULE_OUTPUT_FILE,
+  EMBED_STYLE_OUTPUT_FILE,
   LLMS_FILE,
   LLMS_OUTPUT_FILE,
   OUTPUT_FILE,
@@ -27,15 +32,25 @@ import {
   SOCIAL_CARD_ALT,
   SOCIAL_CARD_OUTPUT_FILE,
   TOOLS_URL,
+  ABOUT_KEY,
+  PRIVACY_LOG_FIELDS,
+  SPONSORS_URL,
+  aboutOutputFile,
+  apexAboutUrl,
   buildFrontDoor,
   categoryAnchor,
+  apexCategoryUrl,
   categoryCounts,
+  categoryOutputFile,
+  categoryPageKey,
   extraTokens,
   mirroredByCategory,
   orderedCategories,
   feedEntryId,
   publishedSlugs,
   renderFrontDoor,
+  renderFrontDoorAbout,
+  renderFrontDoorCatalog,
   renderFrontDoorFeed,
   renderFrontDoorLlms,
   renderSitemap,
@@ -192,16 +207,271 @@ test('a category card with tools on this host leads to them, not to the dark hub
   // tools.marisstella.dev, which serves nothing until portfolio-site-repo is
   // sealed. A card that has tools here must lead to them.
   for (const id of ['trades', 'logistics']) {
-    assert.match(html, new RegExp(`<h3><a href="#${categoryAnchor(id)}">`));
+    // The heading leads to this host's own category page. It was a fragment
+    // into the section further down this page until `renderCategoryPage`
+    // existed, which was the best available destination at the time; now that
+    // `/c/<id>/` is served here it is the better one, because it carries
+    // `categoryPageCopy`'s own copy, sub-groups the tools, and is a URL a
+    // search result can land on. The fragment section it replaced is still
+    // rendered and still reachable from the hero call-to-action.
+    assert.match(html, new RegExp(`<h3><a href="${FRONT_DOOR_URL}${categoryPagePath(id)}">`));
     assert.match(html, new RegExp(`id="${categoryAnchor(id)}"`));
   }
-  // No *clickable* category link into the dark host remains. The JSON-LD's
-  // `hasPart` still names those `/c/<id>/` URLs and should: structured data
-  // describes where the collection's parts canonically live, which is the hub,
-  // and a crawler reading it is not a visitor spending a click.
+  // No category link into the dark host remains anywhere in the document —
+  // not in the cards, and no longer in the JSON-LD either.
+  //
+  // This assertion used to be scoped to `href="…"` on purpose, with the
+  // reasoning that `hasPart` should keep naming the hub because "structured
+  // data describes where the collection's parts canonically live, which is the
+  // hub, and a crawler reading it is not a visitor spending a click".
+  //
+  // That reasoning does not survive `TOOLS_HOST_SERVES === false`. The mirror
+  // already declares *this* host canonical for every tool page it serves, so a
+  // `hasPart` naming the catalogue host contradicted the canonical policy one
+  // level down, and described seven CollectionPages at URLs that answer
+  // nothing. "A crawler is not spending a click" is true and beside the point:
+  // being found by crawlers is the entire purpose of this portfolio's
+  // structured data, and pointing them at 404s is a worse failure than a dead
+  // link a person can at least see and route around.
   assert.ok(
-    !html.includes(`href="${TOOLS_URL}c/`),
-    'no category card should still send a click into the host that serves nothing',
+    !html.includes(`${TOOLS_URL}c/`),
+    'no category URL on the dark host should remain, in a link or in structured data',
+  );
+});
+
+test('each served category gets a page on this host, and it is what the page points at', async () => {
+  const { html, categoryPages, sitemap } = await buildFrontDoor();
+  assert.ok(categoryPages.length > 0, 'the mirror serves tools, so it must serve category pages');
+
+  for (const page of categoryPages) {
+    const url = `${FRONT_DOOR_URL}${categoryPagePath(page.id)}`;
+
+    // The card, the JSON-LD and the sitemap must all name the same URL. These
+    // three drifted apart before: the cards were fixed to stop pointing at the
+    // dark host while `hasPart` went on doing it, so the page disagreed with
+    // itself about where its own collections lived.
+    assert.ok(html.includes(url), `the front page must link ${page.id} at ${url}`);
+    assert.ok(sitemap.includes(`<loc>${url}</loc>`), `${page.id} must be in the sitemap`);
+
+    // The page has to declare itself canonical at the URL nginx serves it
+    // from, or the whole set is indexed under the front page's canonical and
+    // the seven pages compete with it instead of ranking for their own intent.
+    assert.match(page.html, new RegExp(`<link rel="canonical" href="${url}">`));
+
+    // Every user-facing surface in this portfolio carries the no-warranty
+    // clause (PRODUCT_PLAYBOOK §5b). A generated page is not exempt because it
+    // is generated.
+    assert.match(page.html, /<strong>No warranty\.<\/strong>/);
+    assert.match(page.html, /<strong>Best-effort hosting, no SLA\.<\/strong>/);
+
+    // Nothing on these pages may point at the host that serves nothing.
+    assert.ok(!page.html.includes(TOOLS_URL), `${page.id} must not link the dark host`);
+  }
+});
+
+test('a category page lists exactly the tools this host serves in that category', async () => {
+  const { categoryPages } = await buildFrontDoor();
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { tools } = await buildMirror();
+  const grouped = mirroredByCategory(tools);
+
+  for (const page of categoryPages) {
+    const expected = grouped.get(page.id) ?? [];
+    // Every tool in the category appears, and the count in the fine print is
+    // the real one. A browse page that silently drops a tool is worse than no
+    // browse page: the tool is live, reachable, and now invisible to anyone
+    // browsing rather than searching — the same "public nowhere" failure the
+    // ENTRY_OVERRIDES bug caused, one layer up.
+    for (const tool of expected) {
+      assert.ok(
+        page.html.includes(`href="${tool.url}"`),
+        `${page.id} must list ${tool.slug}, which this host serves`,
+      );
+    }
+    const links = page.html.match(/href="\/tools\/[^"]*"/g) ?? [];
+    assert.equal(
+      links.length,
+      expected.length,
+      `${page.id} must list only the tools this host serves in that category`,
+    );
+  }
+});
+
+test('the nginx rewrite and the ConfigMap key agree about where a category page is stored', async () => {
+  // These two are the halves of one mapping, written in two languages in two
+  // files: `categoryPageKey` names the file, and the `^/c/(?<cat>…)/?$` block
+  // in `default.conf` rewrites the URL to that name. If they disagree the
+  // pages are dark while every other check in this file still passes — the
+  // generator writes them, the kustomization mounts them, the sitemap asks
+  // crawlers to fetch them, and nginx answers 404.
+  const conf = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), 'default.conf'),
+    'utf8',
+  );
+  assert.match(conf, /location ~ "\^\/c\/\(\?<cat>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$" \{/);
+  assert.match(conf, /try_files \/c__\$\{cat\}\.html =404;/);
+
+  const { categoryPages } = await buildFrontDoor();
+  for (const page of categoryPages) {
+    // The URL path the sitemap advertises, run through the rewrite by hand,
+    // must be the key the generator writes.
+    const served = categoryPagePath(page.id).replace(/^c\/([a-z0-9-]+)\/$/, 'c__$1.html');
+    assert.equal(served, categoryPageKey(page.id));
+  }
+});
+
+test('the committed embed runtime and stylesheet match what embed.mjs renders', async () => {
+  // The same staleness guard every other generated file here gets, and it
+  // matters more for these two than for a document: they are *imported* from
+  // `platform/pages/embed.mjs` rather than written here, so an edit to the
+  // widget on the tools host would otherwise leave the apex serving last
+  // week's runtime with no test anywhere noticing. `CLAUDE.md` records two
+  // occasions where a copied-instead-of-imported rule cost live product; this
+  // is the check that keeps the import honest at the file level too.
+  const { renderEmbedModule, renderEmbedStyle, renderEmbedHostModule } =
+    await import('../pages/embed.mjs');
+
+  const committedModule = await fs.readFile(EMBED_MODULE_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    committedModule,
+    renderEmbedModule(),
+    'gitops/prod/front-door/pf-embed.js is stale — run `node platform/marketing/front-door.mjs --write`',
+  );
+
+  const committedStyle = await fs.readFile(EMBED_STYLE_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    committedStyle,
+    renderEmbedStyle(),
+    'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/front-door.mjs --write`',
+  );
+
+  // The resizer matters more here than either file above, not less: nothing on
+  // this host loads it, so a stale or missing copy is invisible from every
+  // page we can look at and broken on every site that pasted the snippet.
+  const committedHost = await fs.readFile(EMBED_HOST_OUTPUT_FILE, 'utf8');
+  assert.equal(
+    committedHost,
+    renderEmbedHostModule(),
+    'gitops/prod/front-door/pf-embed-host.js is stale — run `node platform/marketing/front-door.mjs --write`',
+  );
+});
+
+test('nginx serves the embed runtime and stylesheet as their own types', async () => {
+  // The catch-all `location /` answers every path with the front page's HTML,
+  // and a browser *refuses* a stylesheet and an ES module served as
+  // `text/html` rather than merely mistyping them — the offer box would render
+  // unstyled and the copy button would do nothing, with a 200 in the log. So
+  // an exact-match block per file, each setting its own type.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  for (const [file, type] of [
+    ['pf-embed.js', 'text/javascript'],
+    ['pf-embed.css', 'text/css'],
+    // The resizer, whose failure mode is worse than a wrong type: served as
+    // `text/html` by the catch-all it is refused outright, and the only person
+    // who ever sees that is the embedder whose page silently stopped sizing.
+    ['pf-embed-host.js', 'text/javascript'],
+  ]) {
+    assert.ok(
+      conf.includes(`location = /${file} {`),
+      `default.conf must answer /${file} with its own block, not the catch-all`,
+    );
+    // Sliced to the block's own closing brace at the location's indent level,
+    // not to the first `}` — these blocks open with `types { }`, whose brace
+    // would end the slice before `default_type` was ever in it.
+    const from = conf.indexOf(`location = /${file} {`);
+    const block = conf.slice(from, conf.indexOf('\n  }', from));
+    assert.ok(
+      block.includes(`default_type ${type};`),
+      `/${file} must be served as ${type}`,
+    );
+  }
+});
+
+test('the AI-discovery surfaces describe the embed with the real parameter', async () => {
+  // These two files are read by something that will *act* on them — an
+  // assistant answering "is there a free calculator for X I could put on my
+  // site" is the most likely way anyone now discovers these tools are
+  // embeddable at all. So a stale parameter name here does not read as a typo;
+  // it publishes a working-looking instruction that produces an iframe every
+  // browser refuses. Pinned to `embed.mjs`'s own constants rather than to
+  // literals, so a rename over there fails here instead of shipping.
+  const { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } = await import('../pages/embed.mjs');
+  const { llms, catalog } = await buildFrontDoor();
+
+  assert.match(
+    llms,
+    new RegExp(`\\?${EMBED_QUERY_PARAM}=1`),
+    'llms.txt does not tell a model how to embed a tool',
+  );
+  assert.ok(
+    llms.includes(`${DEFAULT_EMBED_HEIGHT}px`),
+    'llms.txt names a starting height that is not the one the snippet uses',
+  );
+
+  const parsed = JSON.parse(catalog);
+  assert.equal(parsed.embed.supported, true);
+  assert.equal(parsed.embed.suggested_min_height_px, DEFAULT_EMBED_HEIGHT);
+  assert.equal(
+    parsed.embed.url_pattern,
+    `${FRONT_DOOR_URL.replace(/\/$/, '')}/tools/{slug}/?${EMBED_QUERY_PARAM}=1`,
+  );
+
+  // The pattern has to be the shape nginx actually frames, not merely a string
+  // containing the parameter. Substituting a real slug must reproduce a tool
+  // URL this host serves — the same one `injectMirrorEmbed` puts in the
+  // snippet and `test_the_entry_page_is_framable_only_with_the_embed_parameter`
+  // exercises against real nginx.
+  const sample = parsed.tools[0];
+  assert.equal(
+    parsed.embed.url_pattern.replace('{slug}', sample.slug),
+    `${sample.url}?${EMBED_QUERY_PARAM}=1`,
+    'the advertised embed URL does not match the tool URLs in the same file',
+  );
+});
+
+test('the kustomization mounts the embed runtime and stylesheet', async () => {
+  // Generated into `front-door/` and linked absolutely from every mirrored
+  // entry page, so they have to reach the document-root volume. Without these
+  // two lines the mirror ships 169 pages referencing paths the catch-all
+  // answers with the front page.
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  for (const key of ['pf-embed.js', 'pf-embed.css', 'pf-embed-host.js']) {
+    assert.ok(
+      kustomization.includes(`- ${key}=front-door/${key}`),
+      `gitops/prod/kustomization.yaml must mount ${key}; without it the embed offer is inert`,
+    );
+  }
+});
+
+test('every rendered category page is mounted by the kustomization', async () => {
+  // The set is generated but the file list in `gitops/prod/kustomization.yaml`
+  // is hand-kept, which is the seam a new category falls through: it would be
+  // rendered, linked, and in the sitemap, but never delivered — the ConfigMap
+  // would not carry it and nginx would 404 the URL the page advertises.
+  const { categoryPages } = await buildFrontDoor();
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  for (const page of categoryPages) {
+    const key = categoryPageKey(page.id);
+    assert.ok(
+      kustomization.includes(`- ${key}=front-door/${key}`),
+      `gitops/prod/kustomization.yaml must mount ${key}; add it or the page is dark`,
+    );
+  }
+  // And nothing stale: a line for a category that is no longer rendered makes
+  // `kustomize build` fail on a missing file, which takes the whole prod
+  // Application down rather than just that page.
+  const mounted = [...kustomization.matchAll(/- (c__[a-z0-9-]+\.html)=front-door\//g)].map(
+    (match) => match[1],
+  );
+  assert.deepEqual(
+    mounted.sort(),
+    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
   );
 });
 
@@ -304,7 +574,7 @@ test('writes search tokens only where the slug says something the title does not
   // The haystack is built in the browser from what the page already displays —
   // the card's own text and its category heading — so neither is repeated into
   // an attribute. Only the leftover slug words are written out, which is what
-  // keeps this feature under 2 KB gzipped across 156 cards.
+  // keeps this feature under 2 KB gzipped across 159 cards.
   assert.equal(extraTokens({ slug: 'roofing-bid-calculator', title: 'Roofing Bid Calculator' }), '');
   assert.equal(extraTokens({ slug: '3pl-quote-normalizer', title: 'Normalise a 3PL Quote' }), 'normalizer');
   assert.equal(
@@ -579,10 +849,51 @@ test('the committed robots.txt and sitemap match what this generator produces', 
     ROBOTS_TXT,
     'gitops/prod/front-door/robots.txt is stale — run: node platform/marketing/front-door.mjs --write',
   );
+  // Through `buildFrontDoor` rather than a bare `renderSitemap()`, because the
+  // sitemap's contents now depend on the mirror build — the same source that
+  // decides each page's robots directive, which is what keeps the two from
+  // ever contradicting each other.
+  const { sitemap } = await buildFrontDoor();
   assert.equal(
     await fs.readFile(SITEMAP_OUTPUT_FILE, 'utf8'),
-    renderSitemap(),
+    sitemap,
     'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('the committed category pages match what this generator produces', async () => {
+  // Same contract as every other generated file here: Argo CD delivers what is
+  // in git, so a stale commit ships stale bytes.
+  //
+  // These have a wider blast radius than the rest of the set, because their
+  // content comes from `build.mjs` — `categoryPageCopy` and the
+  // `SUBCATEGORY_RULES` behind `groupBySubcategory`. Editing a category's copy
+  // there is an edit to seven published pages that names none of them, and the
+  // only thing standing between that and a stale deploy is this assertion.
+  // `hetzner-gitops-ci.yml` already triggers on `platform/pages/build.mjs`, so
+  // such an edit runs this test.
+  const { categoryPages } = await buildFrontDoor();
+  for (const page of categoryPages) {
+    assert.equal(
+      await fs.readFile(categoryOutputFile(page.id), 'utf8'),
+      page.html,
+      `gitops/prod/front-door/${categoryPageKey(page.id)} is stale — run: node platform/marketing/front-door.mjs --write`,
+    );
+  }
+
+  // And no orphans on disk. A category that loses its last mirrored tool stops
+  // being rendered and stops being mounted, but its file would stay in git and
+  // stay in the tree — the kustomization test above would then fail on a key
+  // it cannot find a line for, which is a confusing way to learn this. The
+  // `--write` path sweeps them; this is what proves it did.
+  const dir = path.dirname(OUTPUT_FILE);
+  const onDisk = (await fs.readdir(dir)).filter(
+    (name) => name.startsWith('c__') && name.endsWith('.html'),
+  );
+  assert.deepEqual(
+    onDisk.sort(),
+    categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+    'a category page on disk is no longer rendered — run: node platform/marketing/front-door.mjs --write',
   );
 });
 
@@ -625,16 +936,28 @@ test('robots.txt is plain ASCII, so no crawler has to guess an encoding', () => 
   );
 });
 
-test('the sitemap lists the one indexable URL and no noindex page', () => {
-  const xml = renderSitemap();
+test('the sitemap lists every indexable page and never a noindex one', async () => {
+  const { sitemap: xml } = await buildFrontDoor();
   assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
   assert.match(xml, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
   const locs = [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs, [FRONT_DOOR_URL]);
-  // A sitemap entry for a `noindex` page asks a crawler to index what the page
-  // then forbids; consoles report the pair as an error rather than picking a
-  // winner. Every /tools/ page is noindex, so none of them belongs here.
-  assert.ok(!xml.includes('/tools/'));
+  assert.ok(locs.includes(FRONT_DOOR_URL), 'the apex is missing from its own sitemap');
+  assert.deepEqual(locs, [...locs].sort(), 'the sitemap is not in a stable order');
+  assert.equal(new Set(locs).size, locs.length, 'the sitemap lists a URL twice');
+  for (const loc of locs) assert.ok(loc.startsWith(FRONT_DOOR_URL), `${loc} is not on this host`);
+
+  // The invariant that outlives the switch: a sitemap entry for a `noindex`
+  // page asks a crawler to index what the page then forbids, and consoles
+  // report the pair as an error rather than picking a winner. So the tool
+  // pages belong here exactly when they are indexable, and the premise is read
+  // from the mirror rather than restated.
+  const { TOOLS_HOST_SERVES } = await import('./front-door-tools.mjs');
+  const toolLocs = locs.filter((l) => l.includes('/tools/'));
+  if (TOOLS_HOST_SERVES) {
+    assert.equal(toolLocs.length, 0, 'the mirror is noindex again but still listed for indexing');
+  } else {
+    assert.ok(toolLocs.length > 100, `expected the mirrored catalogue, got ${toolLocs.length}`);
+  }
   // No `<lastmod>`: the only value available at build time is the build's own
   // clock, which would move on every regeneration and make the staleness test
   // above unpassable while training crawlers to distrust the field.
@@ -907,7 +1230,17 @@ test('llms.txt names the catalogue host but never links it', () => {
   // The Optional section offers only paths this host actually serves.
   assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + FEED_FILE)}\\)`));
   assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + SITEMAP_FILE)}\\)`));
-  assert.ok(!txt.includes('catalog.json'), 'catalog.json lives on the tools host and is not served here');
+  // `catalog.json` is a third such path as of this change. This line used to
+  // assert its absence, with the reason "lives on the tools host and is not
+  // served here" — true until `renderFrontDoorCatalog` gave the apex its own.
+  // The rule did not change, only which host satisfies it: what must never
+  // appear is a link at the *dark* host, which the two assertions above check
+  // by hostname rather than by filename.
+  assert.match(txt, new RegExp(`\\]\\(${escapeForRegExp(FRONT_DOOR_URL + CATALOG_FILE)}\\)`));
+  assert.ok(
+    !txt.includes(`${TOOLS_URL}${CATALOG_FILE}`),
+    'the catalogue host\'s own catalog.json is still not something to link',
+  );
 });
 
 test('llms.txt keeps each tool to one bullet line', () => {
@@ -919,7 +1252,7 @@ test('llms.txt keeps each tool to one bullet line', () => {
   ];
   const lines = renderFrontDoorLlms({ mirrored: wrapped, total: 1 }).split('\n');
   const bullets = lines.filter((l) => l.startsWith('- ['));
-  assert.equal(bullets.length, 3, 'one tool bullet plus the two Optional entries');
+  assert.equal(bullets.length, 4, 'one tool bullet plus the three Optional entries');
   assert.match(bullets[0], /^- \[Roofing Bid Calculator\]\(\S+\): First half\. Second half\.$/);
 });
 
@@ -931,6 +1264,39 @@ test('llms.txt states the real counts, and both come from the caller', () => {
   // ships, and a marketing document stating a stale one is the defect this
   // whole generator exists to prevent.
   assert.ok(!renderFrontDoorLlms({ mirrored: MIRROR, total: 4 }).includes('169'));
+});
+
+test('llms.txt claims a wider collection only while one actually exists', () => {
+  // The regression this pins: the coverage paragraph was unconditional, so
+  // once the two 2026-09-03 mirror fixes brought `mirrored` up to `total` it
+  // told every crawler the 169 tools it had just linked were a subset, and
+  // that their real home was a hostname serving nothing. `llms.txt` is read
+  // by a model that paraphrases it, so a false "there are more, elsewhere"
+  // becomes a confident recommendation of a dead end.
+  const partial = renderFrontDoorLlms({ mirrored: MIRROR, total: MIRROR.length + 1 });
+  assert.match(partial, /The wider\s+collection runs to/, 'a real subset still says so');
+
+  const complete = renderFrontDoorLlms({ mirrored: MIRROR, total: MIRROR.length });
+  assert.ok(
+    !/wider\s+collection/.test(complete),
+    'a complete mirror must not claim tools it is not showing',
+  );
+  assert.ok(
+    !/will be published at/.test(complete),
+    'the tools are published here — saying they are yet to be sends readers away',
+  );
+  assert.match(complete, new RegExp(`all ${MIRROR.length} of them`));
+
+  // The invariant that holds either way, and the reason this test asserts on
+  // both branches rather than swapping the paragraph out: the catalogue host
+  // is named so a model meeting it elsewhere knows not to send anyone there,
+  // and is never linked. A future flip of `TOOLS_HOST_SERVES` is what retires
+  // this pair, not a count change.
+  for (const txt of [partial, complete]) {
+    assert.ok(txt.includes('tools.marisstella.dev'), 'the catalogue host is still named');
+    assert.ok(!txt.includes('](https://tools.'), 'and still never linked');
+    assert.match(txt, /not serving yet/);
+  }
 });
 
 test('the committed llms.txt matches what this generator produces', async () => {
@@ -951,7 +1317,11 @@ test('every link in the committed llms.txt resolves on this host', async () => {
   const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
   const links = [...txt.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1]);
   assert.ok(links.length > 10, 'the committed llms.txt should carry the mirrored tools');
-  const served = new Set([`${FRONT_DOOR_URL}${FEED_FILE}`, `${FRONT_DOOR_URL}${SITEMAP_FILE}`]);
+  const served = new Set([
+    `${FRONT_DOOR_URL}${FEED_FILE}`,
+    `${FRONT_DOOR_URL}${SITEMAP_FILE}`,
+    `${FRONT_DOOR_URL}${CATALOG_FILE}`,
+  ]);
   for (const link of links) {
     if (served.has(link)) continue;
     const slug = link.match(/^https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/$/)?.[1];
@@ -1004,4 +1374,446 @@ test('the footer offers llms.txt only where this host serves one', () => {
   // With no mirror there is nothing to describe, and the footer returns to the
   // shape it takes after the seal.
   assert.ok(!renderFrontDoor({ slugs: SAMPLE }).includes(`href="/${LLMS_FILE}"`));
+});
+
+// ---------------------------------------------------------------------------
+// catalog.json — the structured counterpart to llms.txt.
+//
+// `llms.txt` is markdown a model reads; this is JSON a client parses. The
+// failure modes differ accordingly, and these tests are written against the
+// parsing one: a model handed the wrong bytes reports nothing useful, but a
+// client handed the wrong bytes throws at `JSON.parse` and silently drops the
+// whole collection. So every assertion below is about what a parser sees.
+// ---------------------------------------------------------------------------
+
+test('catalog.json is valid JSON with the envelope build.mjs uses', () => {
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  // The same key names `platform/pages/build.mjs`'s `renderCatalog` emits, so
+  // a client that learns to read one reads the other — and so the two hosts do
+  // not disagree about what a tool is on the day the seal lands.
+  for (const key of ['name', 'url', 'license', 'price', 'privacy', 'tools']) {
+    assert.ok(key in catalog, `catalog.json must carry ${key}, as the tools host's does`);
+  }
+  assert.equal(catalog.url, FRONT_DOOR_URL);
+  assert.equal(catalog.license, 'MIT');
+  assert.deepEqual(catalog.price, { amount: '0', currency: 'USD' });
+  assert.equal(catalog.privacy, 'client-side-only');
+  assert.equal(
+    catalog.generated_by,
+    'platform/marketing/front-door.mjs',
+    'must name the generator that actually wrote this file, not the tools host one',
+  );
+});
+
+test('catalog.json states the subset honestly and links nothing dark', () => {
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.equal(catalog.served_here, MIRROR.length);
+  assert.equal(catalog.collection_total, 169);
+  // The whole reason this file lists only the mirrored tools: every entry
+  // carries a URL a client will follow without a human reading it, so a link
+  // to the unsealed host would be a machine-checkable dead end republished by
+  // aggregators. The wider figure is a number instead.
+  const json = renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 });
+  assert.ok(
+    !json.includes(TOOLS_URL.replace(/\/$/, '')),
+    'catalog.json must never link the catalogue host while it serves nothing',
+  );
+});
+
+test('catalog.json describes every mirrored tool at a URL on this host', () => {
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.equal(catalog.tools.length, MIRROR.length);
+  for (const tool of catalog.tools) {
+    for (const key of ['slug', 'name', 'url', 'category']) {
+      assert.ok(tool[key], `every tool needs ${key}`);
+    }
+    assert.match(
+      tool.url,
+      new RegExp(`^${escapeForRegExp(FRONT_DOOR_URL.replace(/\/$/, ''))}/tools/[a-z0-9-]+/$`),
+      `${tool.url} is not a path this host serves`,
+    );
+  }
+});
+
+test('catalog.json category links land on category pages this host serves', async () => {
+  // This asserted the front page's `#open-<id>` fragment until the apex grew
+  // real category pages, on the reasoning that a `/c/<id>/` URL "would be the
+  // tools host's collection page, which serves nothing". That premise is gone:
+  // the apex renders and serves those seven pages itself, `renderFrontDoor`'s
+  // JSON-LD `hasPart` already names them, and this file is the one a consumer
+  // is told to parse instead of `llms.txt` — so it should hand back the page
+  // that lists a category, not a fragment it would have to scrape a 55 KB home
+  // page for.
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.ok(catalog.categories.length > 0);
+  for (const category of catalog.categories) {
+    assert.equal(category.url, apexCategoryUrl(category.id));
+    assert.ok(!category.url.includes('#'), `${category.url} should be a page, not an anchor`);
+    assert.ok(
+      category.url.startsWith(FRONT_DOOR_URL),
+      'a category URL on the dark host is the failure this file must never publish',
+    );
+  }
+
+  // The pair that makes those URLs true rather than merely well-formed, run
+  // against the real tree rather than the fixture: every category the built
+  // catalogue names was rendered as a page in the same build and is in the
+  // same build's sitemap. A group with no page behind it is the one way a URL
+  // here could go dead, and it would go dead silently.
+  const built = await buildFrontDoor();
+  const rendered = new Set(built.categoryPages.map((page) => page.id));
+  const builtCatalog = JSON.parse(built.catalog);
+  assert.ok(builtCatalog.categories.length > 0);
+  for (const category of builtCatalog.categories) {
+    assert.equal(category.url, apexCategoryUrl(category.id));
+    assert.ok(rendered.has(category.id), `no page was rendered for /c/${category.id}/`);
+    assert.ok(built.sitemap.includes(category.url), `${category.url} is missing from the sitemap`);
+  }
+  assert.equal(
+    catalog.categories.reduce((sum, c) => sum + c.tool_count, 0),
+    MIRROR.length,
+    'a tool counted twice, or dropped, would misstate the collection',
+  );
+});
+
+test('catalog.json flattens descriptions that would break a reader', () => {
+  // Not a JSON-escaping worry — `JSON.stringify` handles a newline. This is
+  // the same normalisation `renderFrontDoorLlms` does, kept so the two files
+  // quote a venture's description identically rather than one wrapping and one
+  // not.
+  const catalog = JSON.parse(
+    renderFrontDoorCatalog({
+      mirrored: [{ ...MIRROR[0], description: 'One line\n  and its wrapped   second half.' }],
+      total: 169,
+    }),
+  );
+  assert.equal(catalog.tools[0].description, 'One line and its wrapped second half.');
+});
+
+test('catalog.json omits the page count rather than guessing it', () => {
+  // `null` or `0` would both read as a fact to a client filtering on it. The
+  // key is absent when unknown, so a consumer that reads it at all can trust
+  // it — `renderCatalog`'s rule for `launched`, applied to the same problem.
+  const withCounts = JSON.parse(
+    renderFrontDoorCatalog({
+      mirrored: MIRROR,
+      total: 169,
+      pageCounts: new Map([[MIRROR[0].slug, 4]]),
+    }),
+  );
+  assert.equal(withCounts.tools[0].pages, 4);
+  assert.ok(!('pages' in withCounts.tools[1]), 'an unknown page count must be absent, not 0');
+});
+
+test('catalog.json carries no funding key', () => {
+  // Same reason `renderCatalog` refuses one: `funding-sponsors-live` is an
+  // open owner decision and a machine-readable file must not pre-answer it.
+  const catalog = JSON.parse(renderFrontDoorCatalog({ mirrored: MIRROR, total: 169 }));
+  assert.ok(!('sponsor' in catalog), 'catalog.json must not carry a funding field');
+  assert.ok(!('funding' in catalog));
+});
+
+test('the committed catalog.json matches what this generator produces', async () => {
+  const { catalog } = await buildFrontDoor();
+  assert.equal(
+    await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'),
+    catalog,
+    'gitops/prod/front-door/catalog.json is stale — run: node platform/marketing/front-door.mjs --write',
+  );
+});
+
+test('every tool in the committed catalog.json is backed by a mirrored page', async () => {
+  // The same check `llms.txt` gets, and it binds harder here: a client parses
+  // this file and follows a URL with nobody watching, so a stale entry is a
+  // 404 served to a machine that will republish it.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { files } = await buildMirror();
+  const keys = new Set(files.map((f) => f.key));
+  const catalog = JSON.parse(await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'));
+  assert.ok(catalog.tools.length > 10, 'the committed catalog should carry the mirrored tools');
+  for (const tool of catalog.tools) {
+    assert.ok(
+      keys.has(`${tool.slug}__index.html`),
+      `catalog.json lists ${tool.slug}, which the mirror lacks`,
+    );
+  }
+  assert.equal(
+    catalog.served_here,
+    catalog.tools.length,
+    'served_here must be the length of the list it describes',
+  );
+});
+
+test('the committed catalog.json parses and agrees with llms.txt', async () => {
+  // Three documents describing one host is three chances to disagree. The feed
+  // is capped and the sitemap counts pages, so the tool *set* is only
+  // comparable between these two — and a client that read both and got
+  // different collections would have no way to tell which was right.
+  const catalog = JSON.parse(await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'));
+  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  const linked = new Set(
+    [...txt.matchAll(/\]\((https:\/\/marisstella\.dev\/tools\/([a-z0-9-]+)\/)\)/g)].map((m) => m[2]),
+  );
+  assert.deepEqual(
+    catalog.tools.map((t) => t.slug).sort(),
+    [...linked].sort(),
+    'catalog.json and llms.txt must describe the same tools',
+  );
+});
+
+test('llms.txt offers the catalogue now that this host serves one', async () => {
+  // The premise this change retired: `## Optional` used to say catalog.json
+  // "lives on the tools host and is not served here". It is served here now,
+  // and the rule that produced the old exclusion — every entry is a path this
+  // host answers — is what makes listing it correct rather than a regression.
+  const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
+  assert.ok(
+    txt.includes(`${FRONT_DOOR_URL}${CATALOG_FILE}`),
+    'llms.txt should point a model at the structured catalogue',
+  );
+  const optional = txt.slice(txt.indexOf('## Optional'));
+  assert.ok(optional.includes(CATALOG_FILE), 'it belongs under ## Optional, beside the feed');
+});
+
+test('nginx answers /catalog.json as JSON, above the catch-all', async () => {
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  const block = conf.match(
+    new RegExp(`location = /${escapeForRegExp(CATALOG_FILE)} \\{[\\s\\S]*?\\n {2}\\}`),
+  );
+  assert.ok(block, `front-door/default.conf must serve /${CATALOG_FILE} explicitly`);
+  assert.match(block[0], /default_type application\/json;/);
+  assert.match(block[0], new RegExp(`try_files /${escapeForRegExp(CATALOG_FILE)} =404;`));
+  assert.match(block[0], /charset utf-8;/);
+  assert.ok(!/X-Robots-Tag/.test(block[0]), '/catalog.json exists to be fetched by clients');
+  // The highest-stakes ordering assertion in this file. Below the catch-all,
+  // `/catalog.json` returns 49 KB of HTML under a 200 and every client fails
+  // at JSON.parse with nothing to report.
+  assert.ok(
+    conf.indexOf(`location = /${CATALOG_FILE}`) < conf.indexOf('location / {'),
+    'keep the /catalog.json block above the catch-all',
+  );
+});
+
+test('catalog.json rides in the ConfigMap that mounts at the document root', async () => {
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), '..', 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.match(
+    kustomization,
+    new RegExp(`- ${escapeForRegExp(CATALOG_FILE)}=front-door/${escapeForRegExp(CATALOG_FILE)}`),
+  );
+});
+
+test('the generated front-door set stays under the ConfigMap object ceiling', async () => {
+  // Every file below rides in one ConfigMap because they all have to sit at
+  // the document root, and there are two ceilings on that object, not one:
+  //
+  //   262144 bytes — the API server's cap on an object's annotations, which a
+  //     client-side apply has to fit a whole copy of the object into. Adding
+  //     catalog.json took this generator from ~226 KB to ~314 KB and past it.
+  //     That is handled in `gitops/prod/kustomization.yaml` by asking Argo for
+  //     `ServerSideApply=true`, which writes no such annotation, and it is
+  //     `test_a_configmap_too_large_for_client_side_apply_asks_for_server_side`
+  //     in `gitops/tests/test_manifests.py` that enforces the pairing.
+  //   1 MiB — etcd's ceiling on the object itself, which nothing can opt out
+  //     of. That is the one this test guards, and with the cap above lifted it
+  //     is now the only thing standing between a growing mirror and a front
+  //     door that cannot be applied at all.
+  //
+  // The card is counted base64'd, which is how kustomize stores it.
+  const files = [
+    OUTPUT_FILE,
+    ROBOTS_OUTPUT_FILE,
+    SITEMAP_OUTPUT_FILE,
+    FEED_OUTPUT_FILE,
+    LLMS_OUTPUT_FILE,
+    CATALOG_OUTPUT_FILE,
+    FAVICON_OUTPUT_FILE,
+  ];
+  let total = 0;
+  for (const file of files) total += (await fs.readFile(file)).byteLength;
+  total += Math.ceil((await fs.readFile(SOCIAL_CARD_OUTPUT_FILE)).byteLength / 3) * 4;
+  assert.ok(
+    total < 1024 * 1024,
+    `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
+  );
+});
+
+test('the About page is mounted by the kustomization and served by nginx', async () => {
+  // The same seam the category-page test guards, and the About page falls
+  // through it identically: rendered, linked from the front page, and in the
+  // sitemap, but never delivered unless the ConfigMap carries it and nginx has
+  // a route to it. Both halves, because either alone is a 404 on a URL two
+  // other artifacts advertise.
+  const frontDoorDir = path.dirname(OUTPUT_FILE);
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(frontDoorDir), 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.ok(
+    kustomization.includes(`- ${ABOUT_KEY}=front-door/${ABOUT_KEY}`),
+    `gitops/prod/kustomization.yaml must mount ${ABOUT_KEY}; without it /about/ is a 404`,
+  );
+  const conf = await fs.readFile(path.join(frontDoorDir, 'default.conf'), 'utf8');
+  assert.match(
+    conf,
+    /location ~ "\^\/about\/\?\$"/,
+    'front-door/default.conf must route /about/, or the catch-all answers it with the front page',
+  );
+  assert.ok(
+    conf.includes(`try_files /${ABOUT_KEY} =404`),
+    `the /about/ block must rewrite to ${ABOUT_KEY}, the key the kustomization mounts`,
+  );
+});
+
+test('the About page claim about the access log matches the log_format that ships', async () => {
+  // The page's strongest claim is that this host records no IP address, no
+  // user agent and no referrer — stated as a property of the configuration
+  // rather than a promise. A later change that widens `log_format privacy`
+  // would make that claim false with nothing else failing, so it fails here
+  // instead, in a test that names the page.
+  const conf = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), 'default.conf'),
+    'utf8',
+  );
+  const logFormats = [...conf.matchAll(/^log_format\s+\w+\s+(.*);$/gm)].map((m) => m[1]);
+  assert.ok(logFormats.length, 'no log_format found — the About page describes one that must exist');
+  for (const field of PRIVACY_LOG_FIELDS) {
+    for (const format of logFormats) {
+      assert.ok(
+        !format.includes(field),
+        `${field} is now logged, so /about/'s "no addresses, no user agent, no referrer" claim ` +
+          `is false. Either drop the field or rewrite renderFrontDoorAbout — do not delete this test.`,
+      );
+    }
+  }
+});
+
+test('the About page states no claim this host cannot keep', async () => {
+  // The two claims `build.mjs`'s About page makes that are false here, and the
+  // reason this page exists separately rather than reusing it. Asserted as
+  // absences because the failure mode is a future session "unifying" the two
+  // renderers and silently importing copy about a counter this host does not
+  // ship.
+  const { about } = await buildFrontDoor();
+  assert.ok(
+    !/local storage|localStorage/i.test(about),
+    'the apex ships no local-storage counter — see renderFrontDoorAbout on why this page is separate',
+  );
+  assert.ok(
+    !/opt-out checkbox/i.test(about),
+    'the apex front page has no opt-out checkbox, so the page must not send a reader looking for one',
+  );
+  // And nothing this document root does not serve. `pf-site.js` and
+  // `favicon.ico` are the two build.mjs loads that would 404 here.
+  assert.ok(!about.includes('pf-site.js'), 'the apex does not serve pf-site.js');
+  assert.ok(!about.includes('favicon.ico'), 'the apex serves favicon.svg only');
+});
+
+test('every link on the About page is one this host serves', async () => {
+  // `validateLinks` covers the mirrored pages; this page is not mirrored, so
+  // nothing else checks it. A dead link on the one page whose whole job is
+  // credibility is worse than a dead link anywhere else here.
+  const { about, categoryPages } = await buildFrontDoor();
+  const served = new Set([
+    '/',
+    `/${ABOUT_PATH}`,
+    `/${FAVICON_FILE}`,
+    `/${FEED_FILE}`,
+    `/${LLMS_FILE}`,
+    `/${CATALOG_FILE}`,
+    `/${SITEMAP_FILE}`,
+    ...categoryPages.map((page) => `/${categoryPagePath(page.id)}`),
+  ]);
+  const hrefs = [...about.matchAll(/href="([^"]+)"/g)].map((match) => match[1]);
+  assert.ok(hrefs.length > 5, 'the About page rendered with almost no links — something is wrong');
+  for (const href of hrefs) {
+    if (href.startsWith('https://')) {
+      // Absolute links are either this host (the canonical and the category
+      // links, both checked below in their root-relative form) or an outside
+      // address a reader chooses to click.
+      if (href.startsWith(FRONT_DOOR_URL)) {
+        assert.ok(
+          served.has(`/${href.slice(FRONT_DOOR_URL.length)}`),
+          `${href} is on this host but is not a path it serves`,
+        );
+      }
+      continue;
+    }
+    assert.ok(served.has(href), `${href} is not a path this host serves`);
+  }
+});
+
+test('the About page carries the §5b clauses, the sponsor link, and no invented traction', async () => {
+  const { about } = await buildFrontDoor();
+  assert.ok(about.includes('No warranty.'), 'a hosted surface here carries the no-warranty clause');
+  assert.ok(about.includes('no SLA'), 'a hosted surface here carries the no-SLA clause');
+  // GitHub Sponsors is the only monetisation this portfolio has, and the page
+  // has to say declining costs the reader nothing.
+  assert.ok(about.includes(SPONSORS_URL));
+  assert.match(about, /entirely optional/);
+  // The absolute limit on this page: never claim traction that does not exist.
+  // Matched as claim *shapes* rather than bare words — the page legitimately
+  // uses "certified" and "guaranteed" to say these tools are neither, and a
+  // word-level check would forbid the disclaimer along with the boast. That is
+  // not a hypothetical: the first version of this test failed on the page's
+  // own "please do not describe these as certified, audited, guaranteed".
+  for (const forbidden of [
+    /\btrusted by\b/i,
+    /\bused by [\d,]+/i,
+    /\btestimonial/i,
+    /\b(is|are|been)\s+(certified|audited|guaranteed)\b/i,
+    /\b[\d,]+\+?\s+(users|customers|businesses|contractors)\b/i,
+  ]) {
+    assert.ok(!forbidden.test(about), `the About page must not claim ${forbidden}`);
+  }
+  // And the caveat itself is present, which is the other half of the same
+  // rule: the page tells a linker not to describe these as certified.
+  assert.match(about, /do not describe these as certified/i);
+});
+
+test('the About page counts the tools and categories this host actually serves', async () => {
+  // Derived, never written down: the count on this page is the same mirror the
+  // front page and the catalogue read, so the three cannot disagree. The
+  // failure this prevents is a press-kit paragraph a linker copies that names
+  // a tool count the site has not had for weeks.
+  const { about, categoryPages } = await buildFrontDoor();
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { tools } = await buildMirror();
+  assert.ok(
+    about.includes(`${tools.length} free, private calculators`),
+    'the one-line boilerplate does not carry the live tool count',
+  );
+  assert.ok(
+    about.includes(`<strong>${tools.length} tools</strong> across ${categoryPages.length} categories`),
+    'the facts list does not carry the live tool and category counts',
+  );
+  assert.equal(apexAboutUrl(), `${FRONT_DOOR_URL}${ABOUT_PATH}`);
+  assert.ok(aboutOutputFile().endsWith(ABOUT_KEY));
+});
+
+test('the front page and the sitemap both lead to the About page', async () => {
+  // It existed and was reachable from nowhere for as long as the only link to
+  // it was `${toolsUrl}${ABOUT_PATH}` on a host that serves nothing.
+  const { html, sitemap } = await buildFrontDoor();
+  assert.ok(
+    html.includes(`href="/${ABOUT_PATH}"`),
+    'the front page must link /about/, or the page is published and unreachable',
+  );
+  assert.ok(
+    sitemap.includes(`<loc>${FRONT_DOOR_URL}${ABOUT_PATH}</loc>`),
+    'the sitemap must list /about/',
+  );
+});
+
+test('renderFrontDoorAbout survives an empty catalogue', async () => {
+  // Reachable on the day `portfolio-site-repo` is sealed: the mirror empties,
+  // `categoryPages` goes to zero, and this page keeps being served because it
+  // is this host's own. It must not render "0 free tools" as a broken sentence
+  // or throw on the empty category list.
+  const about = renderFrontDoorAbout();
+  assert.ok(about.includes('<!doctype html>'));
+  assert.ok(about.includes('No warranty.'));
+  assert.ok(about.includes(SPONSORS_URL));
 });

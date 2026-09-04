@@ -20,6 +20,29 @@ arithmetic and layout in the browser, like everything else here.
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked.
 
+**And, since 2026-09-03, one venture that is not a bid calculator at all:**
+`translator-project-quote`. A freelance translator's quote is the same artifact
+— what the project covers, the price, the deposit split, a date it is held
+until, a line to sign — and the module was already generic enough to render it.
+What was *not* generic was four assumptions nobody had had to question, because
+every previous adopter happened to satisfy all four:
+
+| Assumption | Why it broke | Now |
+|---|---|---|
+| Figures are in dollars | `money()` hard-coded `$`. A quote paid in euros reading `$580.00` misstates the price on the one sheet meant to settle it. | `money(value, currency)`, defaulting to `'$'`; a trade names its currency field with `currencyFrom`. |
+| A `when` field is a number | Scope lines read with `input` come back as strings, and `"0"` is truthy — so a rush fee left at zero still printed "Rush or weekend delivery" on the client's quote. | `{ "number": "id" }` reads it as a number; `input` stays for text. |
+| The buyer is a customer at a job address | "Customer name", "Job address", "Licence number" are trade words. | Optional `labels` in `trades.json`, defaulting to today's wording. |
+| The page is written in house style | The anchors required `from './usage.mjs'` in single quotes and a `  </script>` indented two spaces — both formatting, neither load-bearing — and a page that differed was refused with a message saying the import or the tag was missing when it was in plain sight. | Either quote style; any indentation. |
+
+The first two were **defects on a customer-facing document**, not merely
+limitations: one misstates the price, the other promises work the price does
+not cover. They were invisible for as long as the only adopters were US
+contractors quoting in dollars with every optional charge filled in.
+
+Adopting a non-trade needs no flag. `adopt.mjs <slug>` only requires an entry
+in `trades.json` and the page conventions `inspect()` lists; the
+`*-bid-calculator` filter applies to `--list` alone.
+
 27 of those were hand-ported, one batch of six at a time. The remaining 74 are
 generated from `trades.json` by `adopt.mjs`, and their pages carry
 `proposal:begin` / `proposal:end` markers so a re-run replaces the generated

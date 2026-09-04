@@ -10,12 +10,17 @@ Not admin, re-verification, or policy debate.
    free full-feature, usage stats, no payment yet).
 2. **`AGENTS.md`** — how to execute that strategy in this repo.
 3. **`CLAUDE.md`** — repo-specific rules (merge gates, pipeline, ledger).
-4. **Open pull requests and recent commits on `main`.** Extend an existing PR
+4. **`.github/prompts/review-open-prs-first.md`** — review open PRs missing
+   your agent family's approval before claiming new work; post it via
+   `platform/ci/agent_review/review_pending.py --reviewer <gh|kilo|cursor|claude>`.
+5. **Open pull requests and recent commits on `main`.** Extend an existing PR
    instead of duplicating work.
 
 ## Your loop
 
-1. **Check open PRs** — skip only after confirming nobody else is on this.
+1. **Review open PRs first** — run `review_pending.py` for your family (step 4
+   above), then check for overlap with what you're about to build. Skip only
+   after confirming nobody else is on this.
 2. **Run the session gate** on a generic brief:
    `python3 portfolio/ledger/session_gate.py`
    - **BUILD** → graduate/build a product (`portfolio/pipeline/README.md` for

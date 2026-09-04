@@ -1,3 +1,5 @@
+import { encodeInputs, decodeInputs } from './share.mjs';
+
 // How many one-off rows the page carries. The rows are written into the HTML
 // rather than created at runtime, so the form's field set is the same on every
 // visit: the saved-bid band injected by the Pages build compares a restored
@@ -275,12 +277,22 @@ if (typeof document !== 'undefined') {
     if (items.length) bump('cash-runway-item-events');
   };
 
-  let saved = null;
-  try { saved = JSON.parse(read('cash-runway-draft') || 'null'); } catch { saved = null; }
+  // A shared link takes priority over a local draft: someone who opens a link
+  // a colleague sent them wants that colleague's figures, not whatever they
+  // themselves last typed on this device.
+  const fromLink = decodeInputs(location.hash || location.search);
+  const sharedLink = Object.keys(fromLink).length > 0;
+  let saved = fromLink;
+  if (!sharedLink) {
+    try { saved = JSON.parse(read('cash-runway-draft') || 'null'); } catch { saved = null; }
+  }
   if (saved) Object.entries(saved).forEach(([key, value]) => { const field = form.elements[key]; if (field) field.value = value; });
   // A restored draft that used row 5 has to show row 5. Otherwise the forecast
   // includes a payment the visitor cannot see, edit, or remove.
   for (let index = VISIBLE_ITEMS + 1; index <= MAX_ITEMS; index += 1) if (rowFilled(index)) revealRow(index);
+  // The whole point of opening a shared link is seeing the forecast, not
+  // re-entering numbers to see it -- run it immediately.
+  if (sharedLink) save();
 
   form.addEventListener('submit', save);
   document.querySelector('#add-item')?.addEventListener('click', () => {
@@ -311,5 +323,21 @@ if (typeof document !== 'undefined') {
     try { localStorage.removeItem('cash-runway-draft'); } catch { /* site data blocked; the reset still clears the form */ }
     form.reset();
     output.textContent = 'Enter your numbers to see the forecast.';
+  });
+  // A share link has to reproduce the sender's forecast exactly, including
+  // which one-off rows are filled in -- not just the four headline numbers --
+  // or the recipient sees a different shortfall than the one they were sent.
+  document.querySelector('#share')?.addEventListener('click', async () => {
+    const status = document.querySelector('#shareStatus');
+    const data = Object.fromEntries(new FormData(form));
+    const query = encodeInputs(data);
+    history.replaceState(null, '', `${location.pathname}#${query}`);
+    try {
+      await navigator.clipboard.writeText(location.href);
+      if (status) status.textContent = 'Link copied — it reopens this forecast with the same figures.';
+    } catch {
+      if (status) status.textContent = 'Link is in your address bar — copy it to share this forecast.';
+    }
+    bump('cash-runway-share-events');
   });
 }

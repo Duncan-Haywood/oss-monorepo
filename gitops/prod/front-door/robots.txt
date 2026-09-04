@@ -1,12 +1,13 @@
 # https://marisstella.dev/robots.txt
 #
-# Crawling is unrestricted on purpose. The mirrored tools under /tools/ are
-# copies whose canonical lives on https://tools.marisstella.dev/
-# and they must not be indexed here. That is enforced by a noindex meta on
-# every mirrored page and an X-Robots-Tag: noindex header on every /tools/
-# response -- NOT by a Disallow. A disallowed page is never fetched, so its
-# noindex is never read, and the URL can still be indexed bare. Allowing the
-# crawl is what makes the noindex work.
+# Crawling is unrestricted on purpose, and so is indexing. This host serves
+# the tools under /tools/ itself, so it is their canonical home and they say
+# so; the sitemap lists every one of them. See TOOLS_HOST_SERVES in
+# platform/marketing/front-door-tools.mjs for when that changes back.
+#
+# A Disallow would be the wrong tool either way. robots.txt governs crawling,
+# not indexing: a disallowed page is never fetched, so a directive inside it
+# is never read, and the URL can still be indexed bare.
 User-agent: *
 Allow: /
 

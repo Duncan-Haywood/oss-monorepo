@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeRecord, summary } from './record.mjs';
+import { makeRecord, summary, buildEvidencePack, packSummary } from './record.mjs';
 
 const complete = {
   date: '2026-08-26',
@@ -39,4 +39,44 @@ test('scope change without requester or details is flagged', () => {
   assert.equal(bundle.record.change.impact, 'Adds 2 days');
   assert.equal(bundle.findings.length, 2);
   assert.match(summary(bundle), /Change\/delay: \(not described\)/);
+});
+
+test('buildEvidencePack sorts entries by date regardless of save order', () => {
+  const day2 = { ...makeRecord({ ...complete, date: '2026-08-27' }), savedAt: '2026-08-27T09:00:00.000Z' };
+  const day1 = { ...makeRecord({ ...complete, date: '2026-08-25' }), savedAt: '2026-08-25T09:00:00.000Z' };
+  const pack = buildEvidencePack([day2, day1]);
+  assert.equal(pack.schema, 'construction-evidence-log/pack/v1');
+  assert.equal(pack.entryCount, 2);
+  assert.deepEqual(pack.entries.map((r) => r.log.date), ['2026-08-25', '2026-08-27']);
+  assert.deepEqual(pack.dateRange, { from: '2026-08-25', to: '2026-08-27' });
+  assert.deepEqual(pack.projects, ['Oak Street renovation']);
+});
+
+test('buildEvidencePack collects review notes and change/delay count across days', () => {
+  const thin = { ...makeRecord({ ...complete, date: '2026-08-25', crew: '' }), savedAt: '2026-08-25T09:00:00.000Z' };
+  const withChange = {
+    ...makeRecord({ ...complete, date: '2026-08-26', changeType: 'delay', requestedBy: 'Owner', impact: '1 day', changeDetails: 'Rain stopped exterior work.' }),
+    savedAt: '2026-08-26T09:00:00.000Z',
+  };
+  const pack = buildEvidencePack([thin, withChange]);
+  assert.equal(pack.changeOrDelayEntryCount, 1);
+  assert.equal(pack.reviewNotes.length, 1);
+  assert.match(pack.reviewNotes[0], /^2026-08-25: People on site/);
+});
+
+test('buildEvidencePack on an empty list has no date range and stays valid', () => {
+  const pack = buildEvidencePack([]);
+  assert.equal(pack.entryCount, 0);
+  assert.equal(pack.dateRange, null);
+  assert.deepEqual(pack.projects, []);
+  assert.match(packSummary(pack), /no dated entries/);
+});
+
+test('packSummary reads as a short combined-pack review line', () => {
+  const day1 = { ...makeRecord({ ...complete, date: '2026-08-25' }), savedAt: '2026-08-25T09:00:00.000Z' };
+  const pack = buildEvidencePack([day1]);
+  const text = packSummary(pack);
+  assert.match(text, /^1 day logged \(2026-08-25 to 2026-08-25\)/);
+  assert.match(text, /Oak Street renovation/);
+  assert.match(text, /No missing-field observations across the pack\./);
 });

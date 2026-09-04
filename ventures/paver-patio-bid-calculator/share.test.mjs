@@ -42,6 +42,12 @@ test('a shared link keeps base depth, waste, haul-away, and margin', () => {
   assert.equal(restored.proposedPrice, 9800);
 });
 
+test('a shared link keeps the chosen pattern and use, not just the derived numbers', () => {
+  const restored = decodeShare(encodeShare({ ...sample, patternId: 'herringbone', useId: 'walkway' }));
+  assert.equal(restored.patternId, 'herringbone');
+  assert.equal(restored.useId, 'walkway');
+});
+
 test('unknown keys never survive encoding or decoding', () => {
   const encoded = encodeShare(sample);
   assert.equal(encoded.includes('must-not-round-trip'), false);
@@ -69,7 +75,7 @@ test('empty or broken fragments are absent, not a crash', () => {
 });
 
 test('SHARE_FIELDS includes the lines a dropped field would silently change', () => {
-  for (const key of ['lengthFeet', 'widthFeet', 'wastePct', 'baseDepthIn', 'haulAway', 'targetMargin', 'proposedPrice']) {
+  for (const key of ['lengthFeet', 'widthFeet', 'wastePct', 'baseDepthIn', 'haulAway', 'targetMargin', 'proposedPrice', 'patternId', 'useId']) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
 });

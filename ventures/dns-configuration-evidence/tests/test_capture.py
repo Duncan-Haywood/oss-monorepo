@@ -95,6 +95,38 @@ class PlanTests(unittest.TestCase):
         self.assertTrue(name_in_authorized_domain("www.Example.TEST", "example.test"))
         self.assertFalse(name_in_authorized_domain("example.test.evil", "example.test"))
 
+    def test_plan_file_timeout_survives_when_no_override_given(self):
+        with tempfile.TemporaryDirectory() as directory:
+            plan_path = Path(directory) / "plan.json"
+            plan_path.write_text(json.dumps(plan(timeout=7.0)))
+            loaded = plan_from_cli(
+                domain=None, authorized=False, queries=[], resolvers=[], timeout=None, plan_path=plan_path,
+            )
+            self.assertEqual(loaded["timeout"], 7.0)
+
+    def test_explicit_timeout_matching_the_flag_default_still_overrides_the_plan(self):
+        # `--timeout 3` used to be indistinguishable from "not passed" because
+        # the flag's own default was also 3.0, so a plan's own timeout won
+        # even when the caller typed the default explicitly.
+        with tempfile.TemporaryDirectory() as directory:
+            plan_path = Path(directory) / "plan.json"
+            plan_path.write_text(json.dumps(plan(timeout=7.0)))
+            loaded = plan_from_cli(
+                domain=None, authorized=False, queries=[], resolvers=[], timeout=3.0, plan_path=plan_path,
+            )
+            self.assertEqual(loaded["timeout"], 3.0)
+
+    def test_plan_timeout_override_is_still_bounds_checked(self):
+        # A CLI override used to skip validation entirely, so `--timeout 999`
+        # (or a negative value) reached the resolver socket unclamped.
+        with tempfile.TemporaryDirectory() as directory:
+            plan_path = Path(directory) / "plan.json"
+            plan_path.write_text(json.dumps(plan(timeout=7.0)))
+            with self.assertRaisesRegex(CaptureError, "timeout must be between"):
+                plan_from_cli(
+                    domain=None, authorized=False, queries=[], resolvers=[], timeout=999.0, plan_path=plan_path,
+                )
+
 
 class CaptureTests(unittest.TestCase):
     def test_snapshot_is_loadable_and_compareable(self):

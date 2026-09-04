@@ -926,3 +926,132 @@ def test_a_tampered_gh_tarball_is_refused_rather_than_installed(world) -> None:
     assert proc.returncode != 0, proc.stdout + proc.stderr
     assert "checksum mismatch" in (proc.stdout + proc.stderr)
     assert not world["pr"].exists(), "a PR was opened with an unverified gh"
+
+
+# ---------------------------------------------------------------------------
+# install_codex()
+#
+# The same blind spot that hid the apt bug for `gh`, on the other half of
+# install_tools. Every test above puts a stub `codex` on PATH, so
+# `command -v codex` short-circuits and the install branch had never executed
+# under test — which is how it went on saying `@latest` while the comment
+# directly above it explained why pinning was mandatory. These remove `codex`
+# from PATH so the branch has to run.
+# ---------------------------------------------------------------------------
+
+CODEX_PIN = "0.153.1"
+
+
+def _path_without_codex(world) -> str:
+    """PATH carrying every tool the worker needs except `codex`.
+
+    Same construction as `_path_without_gh`, and for the same reason: a real
+    `codex` anywhere on PATH would satisfy `command -v` and hide the installer.
+    """
+    farm = world["tmp"] / "codexpathfarm"
+    farm.mkdir(exist_ok=True)
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        source = Path(directory)
+        if not source.is_dir():
+            continue
+        for entry in source.iterdir():
+            link = farm / entry.name
+            if entry.name == "codex" or link.exists() or link.is_symlink():
+                continue
+            try:
+                link.symlink_to(entry)
+            except OSError:
+                pass
+    assert not (farm / "codex").exists(), "the PATH farm still resolves codex"
+    return f"{world['bin']}{os.pathsep}{farm}"
+
+
+def _stub_npm(world, *, installs: str, version: str) -> Path:
+    """An `npm` that "installs" a codex reporting `version`.
+
+    `installs` is the version string npm is told to fetch; `version` is what
+    the resulting binary reports. Passing different values is how the
+    mismatch test simulates npm resolving a pin to something else.
+
+    Returned rather than found on PATH, and pointed at with `CODEX_NPM`,
+    because worker.sh forces /usr/local/bin to the front of PATH before
+    install_tools runs. A stub npm on PATH is shadowed by the real one there —
+    which is not a hypothetical: written that way, these tests went to the live
+    registry and installed Codex for real, then hung in `codex exec`.
+    """
+    farm = world["tmp"] / "codexpathfarm"
+    npm = world["bin"] / "npm-stub"
+    npm.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        f'echo "npm $*" >> "{world["log"]}"\n'
+        # Only a global codex install produces a binary; anything else is a
+        # no-op, so an unrelated npm call cannot accidentally satisfy the test.
+        f'if [[ "$*" == *"@openai/codex@{installs}"* ]]; then\n'
+        f'  printf \'#!/usr/bin/env bash\\necho "codex-cli {version}"\\n\' > "{farm}/codex"\n'
+        f'  chmod 755 "{farm}/codex"\n'
+        "fi\n"
+        "exit 0\n"
+    )
+    npm.chmod(0o755)
+    return npm
+
+
+def test_the_worker_pins_the_codex_version_rather_than_tracking_latest() -> None:
+    # The static half. `@latest` on the binary that holds both this Job's
+    # GH_TOKEN and the owner's ChatGPT auth.json is a supply-chain change
+    # arriving without review, and @openai/codex is pre-1.0 and ships often
+    # enough that "latest" moves inside a single quota window.
+    code = _worker_code()
+    assert "@openai/codex@${CODEX_VERSION}" in code, (
+        "install_codex no longer installs exactly the pinned version"
+    )
+    assert "codex@latest" not in code and ":-latest}" not in code, (
+        "worker.sh is back to tracking a floating codex release"
+    )
+    assert re.search(r'CODEX_VERSION="\$\{CODEX_VERSION:-\d+\.\d+\.\d+\}"', code), (
+        "CODEX_VERSION is not pinned to a concrete release"
+    )
+
+
+def test_install_codex_installs_the_pinned_version_and_runs_it(world) -> None:
+    # The end-to-end proof, mirroring the gh test above: `codex` is absent from
+    # PATH, so the run can only reach `codex exec` if install_codex genuinely
+    # installed one. A PR at the end means the installed binary did the work.
+    _path = _path_without_codex(world)
+    npm = _stub_npm(world, installs=CODEX_PIN, version=CODEX_PIN)
+    (world["bin"] / "codex").unlink(missing_ok=True)
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "codex-install-ok"},
+        env_extra={"PATH": _path, "CODEX_NPM": str(npm)},
+    )
+
+    calls = world["log"].read_text()
+    assert f"@openai/codex@{CODEX_PIN}" in calls, (
+        f"install_codex did not install the pinned version:\n{calls}"
+    )
+    assert "codex@latest" not in calls, f"a floating version was installed:\n{calls}"
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_a_codex_that_reports_the_wrong_version_stops_the_run(world) -> None:
+    # The pin is only worth having if a mismatch stops the run. npm can exit 0
+    # having left a different binary in front -- a cached platform-specific
+    # optional dependency, or an existing global whose bin symlink survives --
+    # and everything downstream only checks that `codex` is on PATH. A run that
+    # continued would spend the window on an unreviewed Codex, silently.
+    _path = _path_without_codex(world)
+    npm = _stub_npm(world, installs=CODEX_PIN, version="0.99.0")
+    (world["bin"] / "codex").unlink(missing_ok=True)
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "codex-install-mismatch"},
+        env_extra={"PATH": _path, "CODEX_NPM": str(npm)},
+    )
+
+    assert proc.returncode != 0, proc.stdout + proc.stderr
+    assert "version mismatch" in (proc.stdout + proc.stderr), proc.stdout + proc.stderr
+    assert not world["pr"].exists(), "a PR was opened by an unpinned codex"
