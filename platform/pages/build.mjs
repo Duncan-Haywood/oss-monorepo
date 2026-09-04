@@ -1102,14 +1102,24 @@ async function countPages(sourceDir) {
  * already guard against.
  *
  * Heuristic, not a JS parser: it recognises a `const NAME = "https://...";`
- * style declaration and a `fetch()` call whose target is a literal URL or
- * one of those constants — every shape this codebase currently uses. A
- * fetch target built some other way (concatenation, a computed URL) would
- * not be caught, which is why callers should read an empty result as "none
- * found", not as a verified guarantee that none exist.
+ * style declaration, a `fetch()`/`fetchImpl()`-shaped call whose target is a
+ * literal URL or one of those constants, and — for `.js`/`.mjs` files only,
+ * to avoid flagging a page's own canonical/share-card links — any
+ * `https://` literal at all in a file that makes a fetch-shaped call
+ * somewhere, to catch a target built by indirection (a record's own
+ * `endpoint` field, say) that the precise checks can't trace. That last rule
+ * trades precision for recall on purpose: naming a URL that turns out not to
+ * be requested is a harmless over-disclosure, missing one that is requested
+ * is a false privacy claim. It still cannot see a target assembled from
+ * string concatenation with no literal `https://` substring anywhere in the
+ * file, which is why callers should read an empty result as "none found",
+ * not as a verified guarantee that none exist.
  */
 export async function surfaceExternalFetchHosts(dir) {
-  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.html'));
+  // `.mjs` too, not just `.js`: ventures overwhelmingly ship ES modules
+  // (`calc.mjs`, `share.mjs`, …), and a scanner that only reads `.js` never
+  // opens most of a venture's own logic.
+  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.mjs') || f.endsWith('.html'));
   const hosts = new Set();
 
   for (const file of files) {
@@ -1119,14 +1129,30 @@ export async function surfaceExternalFetchHosts(dir) {
       urlConsts.set(m[1], m[2]);
     }
     const targets = [
-      ...[...src.matchAll(/fetch\(\s*[`'"](https?:\/\/[^`'"]+)[`'"]/g)].map((m) => m[1]),
-      ...[...src.matchAll(/fetch\(\s*`\$\{([A-Za-z_$][\w$]*)\}/g)]
+      ...[...src.matchAll(/fetch\w*\(\s*[`'"](https?:\/\/[^`'"]+)[`'"]/g)].map((m) => m[1]),
+      ...[...src.matchAll(/fetch\w*\(\s*`\$\{([A-Za-z_$][\w$]*)\}/g)]
         .map((m) => urlConsts.get(m[1]))
         .filter(Boolean),
-      ...[...src.matchAll(/fetch\(\s*([A-Za-z_$][\w$]*)\s*[+,)]/g)]
+      ...[...src.matchAll(/fetch\w*\(\s*([A-Za-z_$][\w$]*)\s*[+,)]/g)]
         .map((m) => urlConsts.get(m[1]))
         .filter(Boolean),
     ];
+    // A fetch-shaped call (`fetch(`, `fetchImpl(`, …) whose URL is built from
+    // something other than a literal or a top-level const -- a record's own
+    // `endpoint` field read inside a template literal, say -- is invisible to
+    // the three precise checks above, and the gap was not hypothetical: it is
+    // exactly how dns-configuration-evidence queries three public DoH
+    // resolvers (`` fetchImpl(`${resolver.endpoint}?name=...`) ``), and it
+    // went undisclosed on /about/ until this was added. Rather than trace
+    // every such indirection, treat any `https://` literal in a `.js`/`.mjs`
+    // file that also makes a fetch-shaped call as a target. This is safe to
+    // over-disclose (a URL named in the source but never actually requested
+    // still just adds a mention) and unsafe to under-disclose (a false "stays
+    // in your browser" claim) -- and checked against the whole built site on
+    // 2026-09-04, it adds no host beyond the one it exists to catch.
+    if (!file.endsWith('.html') && /\bfetch\w*\(/.test(src)) {
+      targets.push(...[...src.matchAll(/["'`](https?:\/\/[^"'`\s]+)["'`]/g)].map((m) => m[1]));
+    }
     // HTML-only: a browser fetches these on page load without any `fetch()`
     // call ever appearing in a `.js` file, so the checks above miss them
     // entirely. `rel="canonical"` / `rel="alternate"` are metadata a crawler
