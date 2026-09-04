@@ -8612,3 +8612,31 @@ entries:
         `suspend: true` -- those are owner flips with real spend behind
         them and are already queued as `agent-runner-subscription-login`.
     mrr_end: null
+  - venture: subscription-price-impact
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Result panel re-renders in place on every keystroke (headline
+        max-churn percentage, revenue figures, churn-scenario table) with
+        no live region announcing the update -- the page's only
+        `aria-live` element, `#status`, was dead code that `render()`
+        never wrote to. Same gap already fixed fleet-wide in
+        `which-job-first`, `cam-reconciliation-check` (#3104),
+        `seller-net-sheet`, `ltl-freight-class-estimator` and
+        `chargeback-evidence-packet`. Added `aria-live="polite"` to
+        `#result`, matching that pattern, plus a regression test proven to
+        fail against the old markup (reverted `index.html` alone, reran
+        `page.test.mjs`) and pass with the fix.
+      - >-
+        Regenerated `gitops/prod/front-door-tools/` via
+        `front-door-tools.mjs --write` so the apex mirror at
+        `/tools/subscription-price-impact/` serves the fixed markup --
+        the step #3104 needed and #3105 skipped, which left `main` red
+        until a follow-up commit caught it.
+      - >-
+        Verified: `node --test` in the venture (29/29 pass);
+        `platform/pages/build.mjs` + `check.mjs` (173 products, 640
+        pages, no dead links); `check_duplicate_symbols.py` clean;
+        `front-door-tools.mjs --check` clean after `--write`. PR #3117.
+    mrr_end: null
