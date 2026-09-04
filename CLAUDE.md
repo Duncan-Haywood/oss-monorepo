@@ -95,11 +95,53 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
+> **MEASURED 2026-09-04: nothing is served. Read this before anything below.**
+>
+> Every claim in this section was derived from the manifests. On 2026-09-04 the
+> hostnames were asked directly, from a GitHub runner, over real DNS and real
+> TLS — the first time in this repository's life that anything did
+> ([`Public surface check`](.github/workflows/public-surface-check.yml), run
+> 33887885219):
+>
+> ```
+> https://marisstella.dev/         unreachable: [Errno 111] Connection refused
+> https://www.marisstella.dev/     unreachable: [Errno 111] Connection refused
+> https://tools.marisstella.dev/   unreachable: [Errno 111] Connection refused
+> Sitemap sample: 0/24 served
+> ```
+>
+> **Connection refused, not a timeout.** DNS resolves, the IP answers, and
+> nothing is listening on 443. That rules out the firewall (a drop times out),
+> the TLS certificate (no handshake was reached) and a routing mistake in the
+> Ingress (nginx would answer 404). Something upstream of all three is not
+> running: ingress-nginx, k3s, or the node.
+>
+> So **the catalogue is dark, and every sentence below saying otherwise is
+> wrong.** Not one of the ~184 finished products is reachable by anybody. The
+> error was structural rather than careless: `gitops/prod` deploys through Argo
+> CD, so a merge to `main` *is* the deploy, and the repo slid from "shipped" to
+> "served" with nothing able to contradict it —
+> `bootstrap/preflight.sh` needs `HETZNERSSHKEY`, and that secret holds a
+> public key (run 33884253173).
+>
+> **What this changes for you.** Deploy-first is not one priority among
+> several; it is the only one that matters until a hostname answers. Do not
+> ship a 185th tool into a catalogue nobody can open, and do not rank the
+> `portfolio-site-repo` seal first — sealing a clone token for a cluster that
+> is not serving changes nothing. The blocking ask is now
+> `hetzner-ssh-key-is-a-public-key`: without shell on the box no one can find
+> out *why* nothing is listening, and no credential-free check can tell you.
+> Re-run `Public surface check` (it needs no secret) before trusting any
+> statement here; it is cheap and it is the only ground truth.
+
 (1) comes first while a product on `main` still has no public route at all. As
 of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
 one still waiting on `portfolio-site-repo` — but the apex serves all 169
 tools itself, so "the catalogue is dark" is not the right reading. See the
 correction below before ranking the seal against shipping.
+**(Superseded by the measurement above: `publish_surface.py` reports what the
+manifests would publish, never what a host returns. Both halves of that
+sentence are manifest-derived and the second is now known false.)**
 
 **That tool now reads `gitops/` as well as `.github/workflows/`** (changed
 2026-08-31). It used to answer "what does a merge to `main` publish?" from the
@@ -112,10 +154,11 @@ that reads:
 
 ```
     prod  (gitops/prod)
-      + https://marisstella.dev/            (serves content)
-      - https://tools.marisstella.dev/      (serves content, waiting on Secret
+      + https://marisstella.dev/            (would serve content once synced)
+      - https://tools.marisstella.dev/      (would serve content once synced,
+                                             waiting on Secret
                                              portfolio-site-repo)
-      + https://www.marisstella.dev/        (serves content)
+      + https://www.marisstella.dev/        (would serve content once synced)
 ```
 
 **Changed 2026-09-02 (#2723): "nothing live" is no longer true.** The apex and
@@ -133,6 +176,18 @@ So the standing reading has two halves now, and they differ:
 - **1 of the 169 tools, and the canonical host, are one seal away**:
   `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
   It is queued.
+
+**Both bullets are false as of the 2026-09-04 measurement at the top of this
+section.** A stranger typing the domain gets a refused connection, not
+positioning; and the distance to a working catalogue is not one seal but
+whatever is stopping :443 from being served at all. They are kept rather than
+deleted because the reasoning that produced them is the thing to avoid
+repeating: each is a correct statement about `gitops/prod/portfolio-front.yaml`
+— the manifest really does mount a front-door page needing no clone token —
+restated as a statement about what a visitor receives. Argo CD makes those two
+look identical right up until the cluster is not running, at which point every
+manifest-derived claim in this file goes quietly wrong at once and no amount of
+re-reading the manifests can notice.
 
 **Corrected 2026-09-02.** This section used to say the tools were *all* one
 seal away and that "every category card on the front door links into that

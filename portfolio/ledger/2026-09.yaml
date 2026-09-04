@@ -9961,3 +9961,68 @@ entries:
         `platform/ci/publish-surface.yaml` and updated the `runs-on` count in
         `gitops/ci/README.md`; both have tests that failed before I did.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The public surface is down, and this is the first time anyone has
+        checked.** Merged #3184 (the credential-free `Public surface check`),
+        dispatched it, and got the portfolio's first measurement of what its
+        own hostnames return: run 33887885219, from a GitHub runner over real
+        DNS and real TLS. All three refuse connections on 443 --
+        `marisstella.dev`, `www.marisstella.dev`, `tools.marisstella.dev`, each
+        `[Errno 111] Connection refused` -- and 0 of 24 sampled URLs from the
+        apex's own published sitemap returned anything.
+      - >-
+        Read the error precisely, because it narrows the cause a long way.
+        `ECONNREFUSED` is not a timeout: DNS resolved, the packet reached a
+        host, and that host sent an RST. So it is not the Hetzner firewall (a
+        drop times out), not the TLS certificate (no handshake was reached),
+        and not an Ingress routing mistake (nginx would answer 404). Nothing is
+        listening on 443 at all -- ingress-nginx, k3s, or the node itself.
+        Which of those three cannot be told from outside, and that is the whole
+        argument for the SSH ask below.
+      - >-
+        What it means for the standing reading: **`CLAUDE.md` was wrong, and
+        wrong in a structural way worth naming.** It asserted the apex "serves
+        all 169 tools" and instructed sessions not to describe the catalogue as
+        dark. Every word of that came from the manifests -- and for
+        `gitops/prod` a merge to `main` *is* the Argo deploy, so the repo slid
+        from "shipped" to "served" with nothing able to contradict it. The one
+        tool that could (`bootstrap/preflight.sh`) needs `HETZNERSSHKEY`, which
+        holds a public key. So ~184 finished, tested, free products are
+        reachable by nobody, and have been for as long as the file has said
+        otherwise. Corrected at the top of that section, with the run id, and
+        the two superseded bullets kept rather than deleted so the reasoning
+        that produced them is visible.
+      - >-
+        Re-ranked `hetzner-ssh-key-is-a-public-key` from last to first, hours
+        after writing it, and said so in the row rather than quietly editing:
+        it was filed as "diagnosis, not delivery ... this one only lets us look
+        inside a cluster that is already serving", and the cluster is not
+        already serving. `portfolio-site-repo` now ranks below it -- sealing a
+        clone token for a cluster that serves nothing changes nothing a
+        stranger can see.
+      - >-
+        The queue could not express that, so gave it one narrow way to.
+        `decision_queue.py`'s sort is (blocked, gates, exposure, age), and
+        `GATES` puts `deployment` last on the reasoning that such a row "buys
+        deployment for products that already build" -- an assumption that
+        silently required the surface those products deploy *to* to be working.
+        Added an optional `outage: true` that lifts a row above the gates
+        ordering, plus an OUTAGE line in the header, since an outage row is the
+        one case where reading no further is correct behaviour. Deliberately
+        fenced: reserved for a measured, current loss of the public surface
+        evidenced by a run id, never a general priority flag -- a queue where
+        anything can jump the ordering is the cheapest-first #139 table again.
+        Blocked still beats outage: wanting a fix badly does not make it
+        actionable.
+      - >-
+        Verified: `test_decision_queue` 34/34 -> 43/43 (9 new, covering both
+        sort directions, the blocked-outage interaction, the non-boolean schema
+        rejection, and that omitting the field orders exactly as before);
+        `decision_queue.py --check` exit 0; `test_public_surface` 27/27;
+        `pytest gitops/tests` 300 passed / 16 skipped; `validate_workflows.py`
+        all 224 valid; `router/validate.py` 183 valid.
+    mrr_end: null
