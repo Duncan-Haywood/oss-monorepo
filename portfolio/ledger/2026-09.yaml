@@ -9692,6 +9692,77 @@ entries:
         `sitemap.xml`. Mirror still at 64.3% of ceiling, 10 shards, all
         already mounted by `portfolio-front.yaml`.
     mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a decision-flipping omission rather than adding a feature: the
+        calculator compared a W-2 commission check against self-employed booth
+        income as though a dollar of each were the same dollar. It is not.
+        Commission take-home carries the employee half of FICA (7.65%) because
+        the salon pays the other half; booth take-home carries both halves
+        (15.3% of 92.35% of net, an effective 14.1%). That ~6.5-point wedge
+        falls on the booth side only, and salons price chairs so the two deals
+        land within a few percent of each other -- exactly the range where the
+        omission decides the answer. The venture's own README had listed "no
+        tax handling" as a known limitation since it shipped.
+      - >-
+        Measured on the shipped example book: the wedge is $3,198/year, the
+        break-even client count rises 8.4 -> 9.4, and the most a stylist can
+        pay for a chair and still match her split falls $451.17 -> $405.67 a
+        week. At a $420/week rent -- an ordinary chair, not a contrived one --
+        the pre-tax model called it for booth rent by $31.17/week while the
+        after-tax answer is commission by $12.31/week. That case is pinned as
+        a test, so a regression shows up as a reversed verdict rather than a
+        drifted tolerance.
+      - >-
+        Scope held deliberately to payroll tax. Income tax is not modelled: it
+        lands on either deal much the same for the same net income and depends
+        on filing status and household detail the tool has no business asking
+        for. Its one appearance is an optional marginal-bracket input that
+        values the deductible half of SE tax, defaulting to 0 -- which
+        understates booth rent rather than overstating it. The Social Security
+        wage base is an editable input (2025 default, indexed annually,
+        labelled as such); Medicare is uncapped; additional Medicare is out of
+        scope and said so.
+      - >-
+        Two guards worth naming. A blank wage-base box reaches the calculator
+        as `''`, which `Number('')` turns into 0 -- silently removing the cap
+        and 12.4 points of the booth renter's tax, in the direction that
+        flatters booth rent; empty inputs now fall back to the default instead.
+        And the after-tax break-even and matching rent are solved by bisection
+        over the same function rather than by a second closed form, because the
+        92.35% base and the wage-base cap make the after-tax difference
+        piecewise-linear and a parallel derivation is what drifts.
+      - >-
+        Outcome measurement, not vanity: a new `tax_verdict_flipped` local
+        counter tallies settled books where the tax layer reversed the winner.
+        If it stays near zero on real use the section is decoration and should
+        shrink to a footnote; if it is common, the untaxed comparison was
+        sending stylists the wrong way. Bare count, no figures, opt-out and
+        DNT/GPC honoured like every other event here.
+      - >-
+        Verified: venture `node --test` 34/34 (was 23); `platform/pages/*.test.mjs`
+        21 suites, 0 failures; `platform/marketing/*.test.mjs` 4 suites, 0
+        failures; `clauses.mjs booth-rent-vs-commission` 2 pages; `build.mjs`
+        + `check.mjs` "looks publishable: 174 products, 666 pages, no dead
+        links"; `check_ledger_only.py` clean. Browser pass in Chromium over
+        HTTP (ES modules need it): defaults render, the $420 flip banner
+        fires, the copied summary carries the after-tax block, the share link
+        round-trips both new inputs, a blank wage base does not zero the cap,
+        and a bad input blanks every after-tax cell instead of leaving a stale
+        one under an error.
+      - >-
+        Deployed rather than only built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`), which
+        picked up the new `payroll.mjs` as its own shard entry -- without that
+        the served `calc.mjs` would import a module the front door does not
+        have and the live page would break. Confirmed
+        `booth-rent-vs-commission__payroll.mjs.gz` is listed in
+        `kustomization.yaml`. Mirror at 64.5% of ceiling, 10 shards, all
+        already mounted by `portfolio-front.yaml`.
+    mrr_end: null
   - venture: grant-deadline-tracker
     agent_spend_usd: null
     human_hours: 0
