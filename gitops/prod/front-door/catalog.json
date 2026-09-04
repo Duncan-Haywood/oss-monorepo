@@ -88,7 +88,7 @@
       "url": "https://marisstella.dev/tools/contractor-bid-readiness/",
       "category": "Trade & contractor bids",
       "description": "Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and browser-local.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "construction-evidence-log",
@@ -104,7 +104,7 @@
       "url": "https://marisstella.dev/tools/tender-bid-readiness/",
       "category": "More free tools",
       "description": "Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "job-margin-variance",
