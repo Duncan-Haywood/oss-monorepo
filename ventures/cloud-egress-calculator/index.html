@@ -60,6 +60,8 @@
       <label>Storage $/GB-month<input id="aStorage" type="number" min="0" step="any" value="0.023"></label>
       <label>Requests $/million<input id="aRequests" type="number" min="0" step="any" value="0.40"></label>
       <label>Egress $/GB<input id="aEgress" type="number" min="0" step="any" value="0.09"></label>
+      <label>Free egress (GB/month)<input id="aFree" type="number" min="0" step="any" value="0"></label>
+      <p id="aFreeNote" class="small"></p>
     </div>
     <div class="panel">
       <h2>Option B</h2>
@@ -67,6 +69,8 @@
       <label>Storage $/GB-month<input id="bStorage" type="number" min="0" step="any" value="0.006"></label>
       <label>Requests $/million<input id="bRequests" type="number" min="0" step="any" value="0.36"></label>
       <label>Egress $/GB<input id="bEgress" type="number" min="0" step="any" value="0"></label>
+      <label>Free egress (GB/month)<input id="bFree" type="number" min="0" step="any" value="0"></label>
+      <p id="bFreeNote" class="small"></p>
     </div>
   </section>
 
@@ -110,8 +114,16 @@
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
-  const ids = ["storage", "requests", "egress", "aStorage", "aRequests", "aEgress", "bStorage", "bRequests", "bEgress"];
+  const ids = ["storage", "requests", "egress", "aStorage", "aRequests", "aEgress", "aFree", "bStorage", "bRequests", "bEgress", "bFree"];
   let usageTimer;
+
+  function freeNote(option) {
+    if (option.freeEgressGb <= 0) return "";
+    if (option.billableEgressGb <= 0) {
+      return `Entire ${option.egressGb} GB outbound is inside the ${option.freeEgressGb} GB free allowance — $0.00 egress.`;
+    }
+    return `${option.freeEgressGb} GB free, ${option.billableEgressGb} GB billed at the entered rate.`;
+  }
 
   function money(value) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
@@ -129,8 +141,8 @@
     try {
       const load = workload();
       const result = compareScenarios({
-        first: { ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
-        second: { ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+        first: { ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value },
+        second: { ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value },
       });
       const firstName = $("aName").value || "Option A";
       const secondName = $("bName").value || "Option B";
@@ -138,6 +150,8 @@
       $("bLabel").textContent = secondName;
       $("aTotal").textContent = money(result.first.total);
       $("bTotal").textContent = money(result.second.total);
+      $("aFreeNote").textContent = freeNote(result.first);
+      $("bFreeNote").textContent = freeNote(result.second);
       $("difference").textContent = money(result.savings);
       $("verdict").textContent = result.cheaper === "tie"
         ? "Same monthly total"
@@ -165,6 +179,8 @@
       $("verdict").className = "small";
       $("annualImpact").textContent = "";
       $("breakEven").textContent = "";
+      $("aFreeNote").textContent = "";
+      $("bFreeNote").textContent = "";
     }
   }
 
@@ -200,8 +216,8 @@
     try {
       const load = workload();
       const text = decisionSummary({
-        first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
-        second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+        first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value },
+        second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value },
       });
       await copyText(text);
       $("exportStatus").textContent = "Copied";
@@ -216,8 +232,8 @@
       const load = workload();
       const record = reviewRecord({
         ...load,
-        first: { name: $("aName").value, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
-        second: { name: $("bName").value, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+        first: { name: $("aName").value, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value },
+        second: { name: $("bName").value, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value },
       });
       const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
       const link = document.createElement("a");

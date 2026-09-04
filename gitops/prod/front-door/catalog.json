@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 173,
-  "collection_total": 173,
+  "served_here": 174,
+  "collection_total": 174,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 17
+      "tool_count": 18
     },
     {
       "id": "marketplace",
@@ -683,6 +683,14 @@
       "pages": 3
     },
     {
+      "slug": "dns-configuration-evidence",
+      "name": "DNS Change Evidence — Free Before/After DNS Record Report",
+      "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
+      "category": "Compliance checks & evidence records",
+      "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
+      "pages": 1
+    },
+    {
       "slug": "dryer-vent-bid-calculator",
       "name": "Dryer Vent Bid Calculator — Stories, Run, and Roof Cap",
       "url": "https://marisstella.dev/tools/dryer-vent-bid-calculator/",
@@ -816,7 +824,7 @@
       "url": "https://marisstella.dev/tools/french-drain-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price an exterior French drain from trench depth, pipe size, soil, daylight versus drywell versus storm tie-in, catch basins, downspout ties, and driveway crossings — not a published $25-a-foot special. See the walk-away number before you match a cheaper quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "furnace-bid-calculator",
