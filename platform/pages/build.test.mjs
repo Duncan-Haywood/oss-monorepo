@@ -3598,6 +3598,41 @@ test('surfaceExternalFetchHosts ignores an HTML file with no off-origin request'
   assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
 });
 
+test('surfaceExternalFetchHosts reads .mjs files, and catches a fetch-shaped call whose URL comes from an object field, not a literal or a top-level const', async () => {
+  // dns-configuration-evidence calls a public DoH resolver as
+  // `fetchImpl(\`${resolver.endpoint}?name=...\`)`, where `fetchImpl` is an
+  // injectable default parameter and `resolver.endpoint` is a field on an
+  // array literal, not a top-level `const` this scanner's precise checks can
+  // trace. That call sat in a `.mjs` file, which the scanner used to skip
+  // outright. Both gaps together meant this tool's real third-party calls to
+  // Cloudflare/Google/Quad9 went undisclosed on /about/ and on its own card.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-mjs-'));
+  await fs.writeFile(
+    path.join(dir, 'lookup.mjs'),
+    `export const RESOLVERS = Object.freeze([
+      { id: 'cloudflare', endpoint: 'https://cloudflare-dns.com/dns-query' },
+      { id: 'google', endpoint: 'https://dns.google/resolve' },
+    ]);
+    export async function queryResolver(name, resolver, { fetchImpl = globalThis.fetch } = {}) {
+      const url = \`\${resolver.endpoint}?name=\${encodeURIComponent(name)}\`;
+      return fetchImpl(url);
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), ['cloudflare-dns.com', 'dns.google']);
+});
+
+test('surfaceExternalFetchHosts does not flag a .mjs file that fetches only a same-origin relative path', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-fetch-scan-mjs-local-'));
+  await fs.writeFile(
+    path.join(dir, 'load-example.mjs'),
+    `export async function loadExample() {
+      const res = await fetch('examples/before.json');
+      return res.json();
+    }`,
+  );
+  assert.deepEqual(await surfaceExternalFetchHosts(dir), []);
+});
+
 test('a category holding a documented external-call exception says so, not "nothing you type is uploaded" unconditionally', async () => {
   // A category's "nothing you type is uploaded" line is a privacy claim, not
   // decoration -- and it is false for a category that files a tool like

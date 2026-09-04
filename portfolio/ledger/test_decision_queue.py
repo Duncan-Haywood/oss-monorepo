@@ -122,6 +122,122 @@ class Ordering(unittest.TestCase):
         ordered = sorted([risky, safe], key=sort_key)
         self.assertEqual([d["id"] for d in ordered], ["safe", "risky"])
 
+    def test_an_outage_outranks_even_revenue(self):
+        # The case the flag exists for: on 2026-09-04 every hostname refused
+        # connections, so the `deployment` row that restores one outranks the
+        # `revenue` row that cannot earn through a dead host.
+        down = decision(
+            id="down", asks=[7], gates="deployment", exposure="credential", outage=True
+        )
+        ordered = sorted([decision(), down], key=sort_key)
+        self.assertEqual([d["id"] for d in ordered], ["down", "payout-rail"])
+
+    def test_a_blocked_outage_still_sinks(self):
+        # Wanting it badly does not make it actionable.
+        stuck = decision(
+            id="stuck", asks=[7], gates="deployment",
+            outage=True, blocked_by=["payout-rail"],
+        )
+        ordered = sorted([stuck, decision()], key=sort_key)
+        self.assertEqual([d["id"] for d in ordered], ["payout-rail", "stuck"])
+
+    def test_absent_outage_field_orders_exactly_as_before(self):
+        # The flag is optional; every existing row omits it and must be
+        # unaffected. Compare a set with no flags against itself.
+        rows = [
+            decision(),
+            decision(id="a", asks=[3], gates="measurement", exposure="none"),
+            decision(id="b", asks=[4], gates="deployment", exposure="credential"),
+        ]
+        with_false = [dict(r, outage=False) for r in rows]
+        self.assertEqual(
+            [d["id"] for d in sorted(rows, key=sort_key)],
+            [d["id"] for d in sorted(with_false, key=sort_key)],
+        )
+
+
+class OutageFlag(unittest.TestCase):
+    """The flag is narrow on purpose; these pin the narrowness."""
+
+    def test_a_non_boolean_outage_is_a_schema_problem(self):
+        problems = check([decision(outage="yes")])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("not true or false", problems[0])
+
+    def test_a_boolean_outage_is_clean(self):
+        self.assertEqual(check([decision(outage=True)]), [])
+        self.assertEqual(check([decision(outage=False)]), [])
+
+    def test_omitting_it_is_clean(self):
+        self.assertEqual(check([decision()]), [])
+
+    def test_the_header_names_the_outage_row_and_says_to_start_there(self):
+        down = decision(
+            id="down", asks=[7], gates="deployment", exposure="credential", outage=True
+        )
+        text = render([decision(), down], TODAY)
+        self.assertIn("OUTAGE: the public surface is down.", text)
+        self.assertIn("down", text.split("1. ")[0])
+        self.assertIn("[OUTAGE]", text)
+
+    def test_no_outage_row_means_no_outage_header(self):
+        self.assertNotIn("OUTAGE", render([decision()], TODAY))
+
+    def test_a_blocked_outage_row_is_not_announced_as_actionable(self):
+        stuck = decision(
+            id="stuck", asks=[7], gates="deployment",
+            outage=True, blocked_by=["payout-rail"],
+        )
+        text = render([decision(), stuck], TODAY)
+        self.assertNotIn("OUTAGE: the public surface is down.", text)
+        self.assertIn("[blocked]", text)
+
+    # The portfolio ships to two independent public origins (the k3s cluster
+    # and GitHub Pages), and #3199 established they fail independently. When
+    # both are dark, two rows carry the flag and they are alternatives, not a
+    # sequence -- so the header must not tell the owner to start at the first
+    # and must not repeat the singular claim that everything else is
+    # "downstream of a host answering at all". Getting this wrong is expensive
+    # in one specific direction: the owner spends a day on the route that
+    # needs a credential they may no longer have, while the two-click route
+    # sits unflipped.
+    def test_two_outage_rows_are_announced_as_alternatives_not_an_order(self):
+        cluster = decision(
+            id="cluster", asks=[7], gates="deployment", exposure="credential",
+            outage=True,
+        )
+        pages = decision(
+            id="pages", asks=[8], gates="deployment", exposure="credential",
+            outage=True,
+        )
+        header = render([decision(), cluster, pages], TODAY).split("1. ")[0]
+        self.assertIn("OUTAGE: the public surface is down.", header)
+        self.assertIn("cluster", header)
+        self.assertIn("pages", header)
+        # The whole point: neither is presented as the one to do first, and
+        # each alone is said to be sufficient.
+        self.assertNotIn("comes first", header)
+        self.assertIn("not downstream of each other", header)
+        self.assertIn("any one of them alone", header)
+
+    def test_one_outage_row_keeps_the_singular_wording(self):
+        down = decision(
+            id="down", asks=[7], gates="deployment", exposure="credential", outage=True
+        )
+        header = render([decision(), down], TODAY).split("1. ")[0]
+        self.assertIn("down comes first", header)
+        self.assertNotIn("not downstream of each other", header)
+
+    def test_the_live_queue_flags_both_dark_origins(self):
+        # Not a fixture: the real asks.yaml. Both origins were measured dark on
+        # 2026-09-04 (run 33912053750), so both rows carry the flag, and a
+        # future session that fixes one and clears its flag should see this
+        # test fall back to the singular case rather than silently keep the
+        # plural header.
+        flagged = {d["id"] for d in load() if d.get("outage") and not d["blocked_by"]}
+        self.assertIn("hetzner-ssh-key-is-a-public-key", flagged)
+        self.assertIn("deploy-settings", flagged)
+
 
 class Helpers(unittest.TestCase):
     def test_age_counts_whole_days(self):

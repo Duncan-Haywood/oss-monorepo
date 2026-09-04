@@ -5,6 +5,7 @@ import {
   nearestStandardResistor,
   calculateVoltageDivider,
   suggestDividerForTarget,
+  designDividerForLoad,
   E24_BASE,
 } from "./calc.mjs";
 
@@ -93,4 +94,51 @@ test("suggestDividerForTarget rejects a target at or above the supply", () => {
     () => suggestDividerForTarget({ vin: 5, targetVout: 6, r1: 10000 }),
     /less than the input voltage/,
   );
+});
+
+test("designDividerForLoad sizes the bleeder current as the given multiple of the load current", () => {
+  // 5V -> 2.5V into a 1k load: load current at target = 2.5mA, so a 10x
+  // bleeder multiple asks for 25mA of divider current.
+  const d = designDividerForLoad({ vin: 5, targetVout: 2.5, loadOhms: 1000, bleederMultiple: 10 });
+  assert.ok(Math.abs(d.bleederCurrentAmps - 0.025) < 1e-9);
+  // Exact R1 = R2 = 2.5 / 0.025 = 100 ohms each (symmetric because target is
+  // exactly half of vin here).
+  assert.ok(Math.abs(d.exactR1 - 100) < 1e-6);
+  assert.ok(Math.abs(d.exactR2 - 100) < 1e-6);
+});
+
+test("designDividerForLoad's achieved output comes from calculateVoltageDivider, not a second formula", () => {
+  const d = designDividerForLoad({ vin: 12, targetVout: 3.3, loadOhms: 2000, bleederMultiple: 10 });
+  const cross = calculateVoltageDivider({ vin: 12, r1: d.nearestR1, r2: d.nearestR2, loadOhms: 2000 });
+  assert.deepEqual(d.achieved, cross);
+});
+
+test("designDividerForLoad's droop shrinks as the bleeder multiple grows", () => {
+  const low = designDividerForLoad({ vin: 9, targetVout: 4.5, loadOhms: 1000, bleederMultiple: 3 });
+  const high = designDividerForLoad({ vin: 9, targetVout: 4.5, loadOhms: 1000, bleederMultiple: 30 });
+  assert.ok(Math.abs(high.achieved.loadDropPercent) < Math.abs(low.achieved.loadDropPercent));
+});
+
+test("designDividerForLoad warns when the load is too heavy for the chosen multiple", () => {
+  // A low multiple against a genuinely heavy load should still droop a lot.
+  const d = designDividerForLoad({ vin: 9, targetVout: 4.5, loadOhms: 1000, bleederMultiple: 1 });
+  assert.ok(d.notes.some((n) => n.severity === "warning" && /pulls the output/i.test(n.message)));
+});
+
+test("designDividerForLoad warns about quiescent power at a high bleeder multiple", () => {
+  const d = designDividerForLoad({ vin: 24, targetVout: 12, loadOhms: 100000, bleederMultiple: 1000 });
+  assert.ok(d.notes.some((n) => n.severity === "warning" && /dissipates/i.test(n.message)));
+});
+
+test("designDividerForLoad rejects a target at or above the supply", () => {
+  assert.throws(
+    () => designDividerForLoad({ vin: 5, targetVout: 5, loadOhms: 1000 }),
+    /less than the input voltage/,
+  );
+});
+
+test("designDividerForLoad rejects non-positive inputs", () => {
+  assert.throws(() => designDividerForLoad({ vin: 0, targetVout: 2.5, loadOhms: 1000 }));
+  assert.throws(() => designDividerForLoad({ vin: 5, targetVout: 2.5, loadOhms: 0 }));
+  assert.throws(() => designDividerForLoad({ vin: 5, targetVout: 2.5, loadOhms: 1000, bleederMultiple: 0 }));
 });

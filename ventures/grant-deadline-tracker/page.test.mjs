@@ -34,6 +34,14 @@ test("the tracker page wires the late-report comparison without a build step", (
   assert.match(html, /GitHub Sponsors/);
 });
 
+test("the tracker wires the calendar (.ics) export without a build step", () => {
+  assert.match(html, /icsCalendar/);
+  assert.match(html, /id="exportIcs"/);
+  assert.match(html, /text\/calendar/);
+  assert.match(html, /grant-deadlines\.ics/);
+  assert.match(html, /ics-exported/);
+});
+
 test("the due-date landing page stays crawlable and sends people to the tracker", () => {
   assert.match(dueSeo, /<title>When Is My Next Grant Report Due\?/);
   assert.match(dueSeo, /name="description"/);

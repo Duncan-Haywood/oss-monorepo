@@ -265,6 +265,21 @@
     ranges, the report says so explicitly, because a clean result read without
     that caveat would look like far more assurance than it is.
   </p>
+  <h3>My SBOM and my advisory export spell packages differently. Now what?</h3>
+  <p>
+    That is the normal case, not a broken export — the two formats name the
+    same registry two ways, and this tool folds them onto one spelling before
+    matching. <a href="sbom-and-advisory-package-names-dont-match.html">Why
+    don't my SBOM and advisory package names match?</a> walks through where
+    the mismatches come from and which ones can be resolved without guessing.
+  </p>
+  <h3>How is this different from OWASP Dependency-Track?</h3>
+  <p>
+    Dependency-Track is a continuous, self-hosted SBOM-analysis server; this
+    is a free, one-shot page with nothing to deploy. See
+    <a href="vs-dependency-track.html">CRA Evidence Desk vs. OWASP
+    Dependency-Track</a> for the full comparison.
+  </p>
 
   <footer>
     <h2>Disclaimer</h2>

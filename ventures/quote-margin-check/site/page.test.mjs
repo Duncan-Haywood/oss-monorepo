@@ -149,6 +149,7 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   assert.match(sitemap, /should-i-send-a-fixed-quote-or-bill-hourly\.html/);
   assert.match(sitemap, /should-i-take-this-kill-fee-or-finish\.html/);
   assert.match(sitemap, /effective-hourly-rate\.html/);
+  assert.match(sitemap, /vs-bonsai\.html/);
   assert.match(robots, /Sitemap: sitemap\.xml/);
 });
 

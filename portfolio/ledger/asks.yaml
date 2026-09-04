@@ -60,6 +60,93 @@
 
 decisions:
 
+- id: hetzner-ssh-key-is-a-public-key
+  asks: []
+  prs: [3184]
+  gates: deployment
+  exposure: credential
+  opened: "2026-09-04"
+  # Measured, current loss of the public surface: run 33887885219, all three
+  # hostnames refusing on 443. See OUTAGE in decision_queue.py for how narrow
+  # this flag is meant to be -- it is not a way to say "important".
+  outage: true
+  action: >-
+    Replace the Actions secret `HETZNERSSHKEY` with the **private** key
+    matching the public key already installed on `root@89.167.29.39` and
+    `root@157.180.80.188` — the whole file, `-----BEGIN OPENSSH PRIVATE
+    KEY-----` through `-----END …-----`, pasted into Settings → Secrets and
+    variables → Actions. Then dispatch `hetzner-gitops CI` with `preflight:
+    true` to confirm; it is read-only and never installs k3s or runs tofu.
+    **Measured, not inferred:** that dispatch on 2026-09-04 (run 33884253173,
+    job 101060068559) exits in under a second on the workflow's own format
+    classifier — `HETZNERSSHKEY holds a public key, not a private key` — so
+    the preflight has never produced a single reading, and every "SSH to the
+    boxes and see" instruction in this repo has been unfollowable since it was
+    written. The workflow already normalises literal `\n` escapes and CRLF, so
+    a plain paste is fine; the failure is the key half, not the formatting.
+    **Re-ranked to first, hours after this row was written, by the measurement
+    the same PR made possible.** It said "deliberately ranked below the two
+    seals ... this one only lets us look inside a cluster that is already
+    serving". The cluster is not already serving. `Public surface check` (run
+    33887885219) got `Connection refused` from all three hostnames and 0 of 24
+    sampled sitemap URLs — DNS resolves and the IP answers, but nothing is
+    listening on 443. So this row is no longer diagnosis-of-a-healthy-system;
+    it is the only way to find out why the portfolio's entire public surface
+    is down, and `portfolio-site-repo` now ranks *below* it (sealing a clone
+    token for a cluster that serves nothing changes nothing a stranger can
+    see). Do this one first.
+    **Confirmed sufficient 2026-09-04 by `Outage triage` (run 33889983086,
+    PR #3188) — this row is no longer a hopeful ask.** A key rotation would
+    have bought nothing had sshd been down, and nothing had checked. It is up:
+    port 22 accepts connections on both boxes, so the rotated key will get in.
+    The same run ruled out every cheaper cause — both servers report `running`
+    to the Hetzner read API, and all three hostnames resolve to
+    `89.167.29.39`, which is ours — so this is not a power, DNS, firewall or
+    TLS problem, and no console visit is needed. **6443 is refused on the
+    control plane**, which sharpens the hypothesis before anyone logs in: the
+    k3s API server itself is not listening, so this is not a crashed ingress
+    but an absent or dead cluster, and no pods exist to serve 80 or 443.
+    **Sharpened again 2026-09-04 by PR #3195, and this changes what you should
+    expect to find.** `Outage triage` now reads the Hetzner *action log*
+    (read-only, same token), which no session had ever queried. Both machines
+    return nothing but their own creation burst — `create_server`,
+    `enable_backup` and the `start_server` that first boots them, all inside
+    fifteen seconds, on 2026-08-24T11:15Z and 2026-08-25T15:29Z. There has
+    been **no reboot, no rebuild and no rescue boot on either box since it was
+    created**. So k3s did not fail to survive a restart: there has been no
+    restart. Combined with this row's own finding — `bootstrap/` is the only
+    documented install path, it needs SSH, and `HETZNERSSHKEY` has never held
+    a usable key — the leading hypothesis is now that **k3s was never
+    installed and the public surface has never once been up**, rather than
+    that a working catalogue went dark. Expect a **first bootstrap**, not a
+    repair. `ls -l /etc/rancher/k3s/k3s.yaml` settles it in one line the
+    moment SSH works; absent means run `bootstrap/install-k3s-server.sh` then
+    `install-argocd.sh`, and Argo takes it from there.
+  unlocks:
+    - "**The portfolio's entire public surface.** Measured 2026-09-04: all three hostnames refuse connections on 443 and 0 of 24 sampled sitemap URLs return anything, so none of the ~184 finished products is reachable by anyone. `Public surface check` detects the outage; `Outage triage` narrows it to a dead k3s on a healthy, powered-on, correctly-addressed box. **'Only SSH can say why k3s is dead' was too strong (corrected #3195):** the Hetzner action log says both boxes have been untouched since creation — no reboot, no rebuild — which eliminates 'k3s did not come back from a restart' without a shell and makes 'never installed' the leading hypothesis. SSH is still what confirms it and what runs the install."
+    - "`bootstrap/preflight.sh`'s cluster half — pod state in `prod`, whether k3s is healthy, whether the private NIC is up, disk and node conditions. None of that is observable from outside, and none of it has ever been read. Its own output distinguishes the two live hypotheses in one run: `no /etc/rancher/k3s/k3s.yaml` means the cluster was never installed, while a running k3s with no `prod` pods means it was and something evicted or crash-looped them. The 6443 reading above already favours the first."
+    - "#3186 raised a third candidate — a healthy cluster with the fault in front of it (the ingress, a load balancer, or DNS at the node) — and was right that `Connection refused` alone does not choose between the three. #3188 measured it away rather than argued it away: DNS resolves to our own address, both servers report `running`, and :6443 is refused on the control plane itself, which no fault *in front of* a healthy cluster produces. Kept here because the reasoning is the reusable part — a bare status code never picks a cause, and the fix was to go and take a second reading."
+  blocked_by: []
+  note: >-
+    Found by dispatching the preflight rather than by reading anything — no
+    document in the repo recorded this, and three of them (`OWNER_CHECKLIST`,
+    `bootstrap/README`, `infra/README`) actively said the dispatch was
+    available. All three corrected in the same change that opened this row.
+    The owner was debugging exactly this on 2026-08-24 via the one-shot
+    `tmp/ssh-key-smoke` branch; that diagnostic was folded into the preflight
+    job afterwards and then nobody dispatched it again, so the secret has sat
+    wrong for eleven days with the repo asserting otherwise.
+
+    **Not a one-off blip, as of 2026-09-04.** The `action` above cites the
+    first `Public surface check` run (33887885219); it has since run twice
+    more (33888988972, 33888990022), independently `workflow_dispatch`ed,
+    same result each time — all three hostnames `Connection refused`. Three
+    consistent readings rule out a transient network hiccup at measurement
+    time; they don't yet distinguish which of the causes `unlocks` above
+    lists. `HETZNERSSHKEY` was still the wrong half of the keypair as of the
+    third run. Rerun `Public surface check` (`workflow_dispatch`, no inputs)
+    to see if this has since self-resolved before assuming it is still down.
+
 - id: actions-runners-unavailable
   asks: []
   prs: [1842, 2021, 2022]
@@ -306,6 +393,19 @@ decisions:
   gates: deployment
   exposure: credential
   opened: "2026-08-19"
+  # Measured, current loss of a public surface, per the OUTAGE convention in
+  # decision_queue.py: `Public surface check` run 33912053750 (2026-09-04,
+  # no credential, every request one a stranger could make) got 404 from
+  # `https://duncan-haywood.github.io/monorepo-projects/` — the origin ~670
+  # generated pages name in their own `<link rel="canonical">`.
+  #
+  # This row sat at position 9 for 16 days while the queue's outage banner
+  # told the owner that "every other row here is downstream of a host
+  # answering at all". That sentence was true of one surface and this is the
+  # other one: GitHub Pages needs no k3s, no SSH key and no sealed clone
+  # token, so it is not downstream of the cluster and never was. The ranking
+  # encoded the pre-#3199 belief that the portfolio had a single origin.
+  outage: true
   action: >-
     Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
     Actions", and set repository variable `PAGES_ENABLED=true`. (Not
@@ -319,8 +419,11 @@ decisions:
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
     secrets as the way the portfolio goes live.
   unlocks:
-    - "**161 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Was recorded as 33 until 2026-08-27; the portfolio grew ~5x since and the figure had not kept up, understating the payoff of this one flip.)"
-    - "Verified publishable on 2026-08-27, not merely assumed: `node platform/pages/build.mjs` produces 161 tools / 434 pages, and `node platform/pages/check.mjs dist` returns \"looks publishable: 161 products, 437 pages, no dead links\" (exit 0). Every inline script on every page parses, and all 446 pages pass the integrity sweep. There is no unfinished build work between this flip and a stranger using one of these tools."
+    - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
+    - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
+    - "**This is the cheaper of the two routes to a public surface, and the only one that asks the owner for nothing they have to find.** `hetzner-ssh-key-is-a-public-key` needs the private half of a keypair installed on two boxes in August -- if that file is gone, the row cannot be completed at all and the recovery is a Hetzner console visit or a rebuild. This row is two clicks and a variable, in settings the owner already controls: Settings → Pages → Source \"GitHub Actions\", then `PAGES_ENABLED=true`. Neither route is a prerequisite for the other."
+    - "The artifact is **already built and validated on every merge to `main`** -- `portfolio-pages.yml`'s `build` job runs the builder, the integrity check and `upload-pages-artifact`, and succeeds; only the `deploy` job is gated on `vars.PAGES_ENABLED == 'true'` and it is skipped every time (measured: run 33910587055, `deploy` conclusion `skipped`, `build` conclusion `success` on the same run). So the flip publishes something that has already passed its checks, rather than starting a build that might not."
+    - "The flip is self-verifying: `portfolio-pages.yml`'s deploy job ends by fetching `/`, both sitemaps, `robots.txt`, `catalog.json`, `llms.txt`, `feed.xml` and one real product page through the live public URL, and fails if any returns non-200. `Public surface check` (no credential) then re-measures the same origin on demand, so \"it worked\" is a reading rather than an inference."
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
   blocked_by: []
@@ -635,20 +738,38 @@ decisions:
 
 - id: agent-cross-review-automerge
   asks: []
-  prs: [870]
+  prs: [870, 3024]
   gates: deployment
   exposure: credential
   opened: "2026-08-24"
   action: >-
-    Informational -- #870 is now closed, not merged, and `platform/ci/
-    agent_review/` never landed on `main`, so there is nothing left to
-    enable. No owner action needed unless someone reopens or re-proposes
-    this automation, in which case unattended auto-merge of paid or
-    identity-gated work is still owner-only. Product PRs merge on green CI.
+    Not informational any more -- #3024 merged `platform/ci/agent_review/`
+    (`review.py`, `config.yaml`) plus `.github/workflows/agent-cross-review.yml`
+    and `.github/workflows/agent-pr-auto-merge.yml` to `main` on 2026-09-03,
+    the same shape #870 proposed and this row previously recorded as
+    abandoned. It ships fail-closed: each of the four review jobs checks its
+    own `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
+    few seconds when they are unset, so nothing runs, approves, or merges
+    today -- there is no exposure yet, only an inert, tested no-op. Turning
+    it on needs the "One-time owner setup" in
+    `platform/ci/agent_review/README.md`: create 4 GitHub Apps (Pull
+    requests: Read & write; Contents: Read; Metadata: Read; install on this
+    repo only), add the 8 `AGENT_REVIEWER_*` secrets, and set
+    `required_approving_review_count: 2` plus required status checks on the
+    `main` ruleset. No `infra/OWNER_CHECKLIST.md` item pointed at this until
+    now (added under "You decide (not blocking the scaffold)" the same
+    session this row was corrected) -- so a stranger reading only that file
+    would never learn the automation exists to turn on.
   unlocks:
     - >-
-      Nothing further; kept as a record of a real design gap found during
-      review, in case this automation shape is proposed again.
+      Two of the four reviewer identities approving, plus green CI, is what
+      lets `agent-pr-auto-merge.yml` squash-merge an internal
+      (non-`ventures/*`) PR without an agent session or the owner doing it
+      by hand -- `review.py`'s `path_touches_ventures()` refuses to
+      auto-merge anything under `ventures/*` regardless of approvals, so
+      product PRs stay on the existing agent-merges-on-green-CI path this
+      does not touch. What it buys is fewer platform/gitops/CI PRs sitting
+      open only because no session has come back to merge them.
   blocked_by: []
   note: >-
     Opened 2026-08-24 by a branch-hygiene sweep session, which correctly
@@ -675,9 +796,27 @@ decisions:
     was fine even though its stated rationale leaned on the same
     not-independently-verified "product-first direction" premise.
 
+    **Corrected 2026-09-04.** The verdict above held until #3024
+    (2026-09-03) rebuilt the same shape from scratch -- `path_touches_ventures`
+    now actively blocks auto-merge on `ventures/*` rather than only noting it,
+    which was this row's own stated concern -- and merged it, unnoticed by
+    this row, as a normal green-CI platform PR (CLAUDE.md and AGENTS.md both
+    describe it as live). "Informational, nothing to enable" was therefore
+    wrong from 2026-09-03 onward: the code exists on `main`, gated only on
+    secrets nobody has been asked for. `action` and `unlocks` above are
+    rewritten for the current state; `prs` now also names #3024, the PR that
+    actually shipped what #870 proposed.
+
 - id: codex-governor-enable
   asks: []
   prs: [1996]
+  # Downstream of the outage (measured 2026-09-04, run 33889983086): the
+  # governor and its workers schedule onto the k3s cluster, whose API server
+  # is not listening -- :6443 refused on both boxes. Sealing the credential is
+  # durable preparation and does not expire, so it is not wasted, but nothing
+  # will run until `hetzner-ssh-key-is-a-public-key` leads to k3s coming back.
+  # Not marked `blocked_by`: the seal is a git commit Argo picks up whenever
+  # it next syncs, so it is genuinely doable today -- just not observable.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
@@ -773,6 +912,12 @@ decisions:
 - id: portfolio-site-hetzner-deploy
   asks: []
   prs: [1999]
+  # Downstream of the outage, exactly as `codex-governor-enable` above: this
+  # seals a clone token for an in-cluster workload, and the cluster's API
+  # server is not listening (run 33889983086, :6443 refused on both boxes).
+  # The seal is durable and worth doing, but it publishes nothing while k3s
+  # is down -- so do not read a completed seal as a live `tools.` hostname
+  # until `Public surface check` says a host answers.
   gates: deployment
   exposure: credential
   opened: "2026-08-29"

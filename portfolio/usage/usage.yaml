@@ -374,25 +374,41 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: >-
-          Second question-shaped page for this venture, same continuation
-          #3146 named as the obvious next step:
-          rc-time-calculator/how-long-until-a-capacitor-is-fully-charged.html.
-          The parent tool answers "how long to reach this threshold voltage"
-          — it needs a threshold. This page answers the question that comes
-          before anyone has picked one: an RC charge never mathematically
-          reaches 100%, so "how long until it's basically fully charged" has
-          no exact answer, only a settling table (1τ through 10τ, exact
-          percent and voltage reached at each) plus a percent-to-time solver
-          for any target the visitor picks. 13 passing unit tests in
-          settling.test.mjs, every figure worked from V(t) = Vs(1 − e^-t/RC)
-          by hand rather than baselined off a run.
-          Counted locally as two new events, `settling_table_computed` and
-          `target_percent_solved`, settled the same 800 ms way as every
-          other tool in this venture so a page load records nothing and a
-          burst of typing records one.
-          Not publishing-gated, same as the row above: this page is served
-          from the apex mirror as of the commit that lands it. The zero
-          below is a genuine pre-traffic baseline.
+          Second question-shaped page for this venture:
+          555-timer-calculator/can-i-get-a-50-percent-duty-cycle-from-a-555-timer.html.
+          New computed capability, not just prose: designs the diode-mod
+          astable (any duty cycle from just above 0% to just below 100%,
+          including the 50%-and-below range the plain two-resistor astable
+          cannot reach and the parent tool's design panel already rejects
+          with an error) — 10 new passing unit tests in calc.test.mjs.
+          Counted locally as `diode_astable_designed`, settled the same way
+          as every other tool in this venture so a page load records
+          nothing and a burst of typing records one. Not publishing-gated,
+          same as the LED page above — publicly reachable from the commit
+          that lands it. Also linked from the parent calculator's design
+          panel this time, next to the "must be above 50" hint that
+          previously dead-ended, so this page does not repeat the
+          discoverability gap the LED page shipped with (its parent panel
+          carries no link back to it). The zero below is a genuine
+          pre-traffic baseline.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Third question-shaped page for this venture:
+          voltage-divider-calculator/how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.
+          New computed capability: designDividerForLoad() sizes R1/R2 from a
+          target output, a known load, and a bleeder-current multiple, then
+          reports the achieved output and power by calling the venture's
+          existing calculateVoltageDivider() rather than a second formula —
+          8 new passing unit tests, one of them asserting the achieved
+          result is deepEqual to a direct call into that existing function.
+          Counted locally as `divider_for_load_designed`, settled the same
+          way as the other tools in this venture. Not publishing-gated, same
+          as the two pages above. Linked from the parent calculator's
+          loaded-output section, next to the load-resistance field it
+          extends. The zero below is a genuine pre-traffic baseline.
   - slug: quote-margin-check
     surface: repository-cli
     readings:
@@ -3752,6 +3768,20 @@ products:
           Shipped a local booth-rent vs commission take-home calculator for
           stylists; public URL remains owner-gated and the browser counter is
           local and opt-out.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added the payroll-tax comparison: employee FICA on the commission
+          side against self-employment tax on the booth side, which the tool
+          had been omitting while presenting the two take-homes as
+          comparable. New `tax_verdict_flipped` counter measures the thing
+          worth knowing -- how often accounting for it reverses which deal
+          wins. On the shipped example book the wedge is ~$3,200/year and it
+          reverses the verdict at a $420/week chair rent. Counter is still
+          local, aggregate, and opt-out; served on the apex via the front-door
+          mirror, so this one does reach strangers today.
 
   - slug: sump-pump-bid-calculator
     surface: static-page-in-repo

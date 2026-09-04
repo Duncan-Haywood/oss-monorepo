@@ -88,7 +88,7 @@
       "url": "https://marisstella.dev/tools/contractor-bid-readiness/",
       "category": "Trade & contractor bids",
       "description": "Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and browser-local.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "construction-evidence-log",
@@ -96,7 +96,7 @@
       "url": "https://marisstella.dev/tools/construction-evidence-log/",
       "category": "Trade & contractor bids",
       "description": "Free private construction daily log and change order documentation tool for small contractors. Create a dated, reviewable evidence pack in your browser, saved locally so you can export a combined pack across the whole project.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "tender-bid-readiness",
@@ -104,7 +104,7 @@
       "url": "https://marisstella.dev/tools/tender-bid-readiness/",
       "category": "More free tools",
       "description": "Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "job-margin-variance",
@@ -112,7 +112,7 @@
       "url": "https://marisstella.dev/tools/job-margin-variance/",
       "category": "Trade & contractor bids",
       "description": "Compare estimated and actual job hours and costs to find the largest job cost variance before your next contractor quote.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "seller-net-sheet",
@@ -144,7 +144,7 @@
       "url": "https://marisstella.dev/tools/cam-reconciliation-check/",
       "category": "Back-office money & contracts",
       "description": "Free CAM reconciliation calculator for small commercial landlords and tenants. Check area-share math, credits, billed charges, and variance privately in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "appliance-repair-quote-calculator",
@@ -224,7 +224,7 @@
       "url": "https://marisstella.dev/tools/translator-project-quote/",
       "category": "Service business pricing & quotes",
       "description": "Free private translator quote calculator. Price new words, fuzzy matches, QA, DTP, rush work, and a minimum project fee in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "ebay-fee-calculator",
@@ -288,7 +288,7 @@
       "url": "https://marisstella.dev/tools/freight-accessorial-auditor/",
       "category": "Logistics, freight & cloud cost",
       "description": "Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.",
-      "pages": 5
+      "pages": 6
     },
     {
       "slug": "ltl-freight-class-estimator",
@@ -368,7 +368,7 @@
       "url": "https://marisstella.dev/tools/shopify-a11y-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Turn a Shopify storefront's axe-core JSON export into a dated, readable accessibility evidence record. Runs locally in your browser.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "faire-wholesale-calculator",
@@ -408,7 +408,7 @@
       "url": "https://marisstella.dev/tools/music-lesson-break-even/",
       "category": "Back-office money & contracts",
       "description": "Free music lesson pricing calculator for independent teachers. Include cancellations, preparation, travel, studio costs, and target pay to find a sustainable lesson price.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "portable-restroom-event-quote",
@@ -440,7 +440,7 @@
       "url": "https://marisstella.dev/tools/booth-rent-vs-commission/",
       "category": "Service business pricing & quotes",
       "description": "Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "sponsor-ready",
@@ -496,7 +496,7 @@
       "url": "https://marisstella.dev/tools/ai-engineering-academy/",
       "category": "More free tools",
       "description": "A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded.",
-      "pages": 9
+      "pages": 11
     },
     {
       "slug": "appointment-deposit-calculator",
@@ -504,7 +504,7 @@
       "url": "https://marisstella.dev/tools/appointment-deposit-calculator/",
       "category": "Back-office money & contracts",
       "description": "Free appointment deposit calculator for salons, trainers, tutors, photographers, and other service businesses. Set a deposit, see the balance due, check whether it pays for itself against your no-show rate, and draft your policy.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "artificial-turf-bid-calculator",
@@ -632,7 +632,7 @@
       "url": "https://marisstella.dev/tools/cra-evidence-desk/",
       "category": "Compliance checks & evidence records",
       "description": "Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.",
-      "pages": 1
+      "pages": 3
     },
     {
       "slug": "crawl-space-encapsulation-bid-calculator",
@@ -688,7 +688,7 @@
       "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "dryer-vent-bid-calculator",
@@ -760,7 +760,7 @@
       "url": "https://marisstella.dev/tools/equipment-rental-break-even/",
       "category": "Back-office money & contracts",
       "description": "Free private equipment rental break-even calculator. Include ownership, delivery, cleaning, damage reserve, and utilization costs before quoting a booking.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "ev-charger-bid-calculator",
@@ -976,7 +976,7 @@
       "url": "https://marisstella.dev/tools/marketplace-fee-compare/",
       "category": "Marketplace seller tools",
       "description": "Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "mcp-supply-chain-watch",
@@ -1136,7 +1136,7 @@
       "url": "https://marisstella.dev/tools/quote-margin-check/",
       "category": "Trade & contractor bids",
       "description": "Free calculator for freelancers and small agencies: turn a proposed price, delivery hours, admin/revision time, overhead, and subcontractor cost into your real effective hourly rate before you send the quote. Runs entirely in your browser.",
-      "pages": 6
+      "pages": 7
     },
     {
       "slug": "radon-mitigation-bid-calculator",
@@ -1232,7 +1232,7 @@
       "url": "https://marisstella.dev/tools/shopify-fee-calculator/",
       "category": "Marketplace seller tools",
       "description": "Free Shopify fee calculator: see order profit after Shopify Payments or PayPal/Stripe, including the extra Shopify third-party transaction fee. Then compare Basic, Grow, Advanced, and Plus at your monthly volume.",
-      "pages": 19
+      "pages": 20
     },
     {
       "slug": "shopify-permission-drift",

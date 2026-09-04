@@ -88,9 +88,38 @@ Hold the PAT until the cluster can seal it. Do not put it in the `agents`
 namespace as plaintext, and do not mount it into a workflow that does not
 need it.
 
-**SSH — `HETZNERSSHKEY` is already in Actions.** Dispatch
-`hetzner-gitops CI` with `preflight: true`. Read-only: it never
-installs k3s or runs tofu.
+**SSH — `HETZNERSSHKEY` is set but holds the wrong half of the keypair.**
+This paragraph used to say the secret "is already in Actions", and it is —
+that was never the question. Measured 2026-09-04 by dispatching
+`hetzner-gitops CI` with `preflight: true` (run 33884253173, job
+101060068559): the job exits in under a second on
+
+```
+HETZNERSSHKEY holds a public key, not a private key.
+```
+
+which is the workflow's own format classifier, not an SSH error. So the
+preflight has **never produced a reading**, and every "SSH to the boxes and
+see" instruction in this repository — here, in `bootstrap/README.md`, in
+`infra/README.md` — has been unfollowable since it was written. That is why
+`bootstrap/preflight.sh`'s "what the apex actually serves" section, the one
+check no agent session can run for itself, has never once been run.
+
+**The fix is yours and takes a minute:** put the *private* key matching the
+public key already on `root@89.167.29.39` and `root@157.180.80.188` into
+Settings → Secrets and variables → Actions → `HETZNERSSHKEY` (the whole file,
+`-----BEGIN OPENSSH PRIVATE KEY-----` through `-----END …-----`). Then
+dispatch `hetzner-gitops CI` with `preflight: true` again; it is read-only and
+never installs k3s or runs tofu. The workflow already normalises the two ways
+a pasted key usually breaks (literal `\n` escapes and CRLF), so a plain paste
+is fine.
+
+**Nothing else waits on this.** `Public surface check`
+(`.github/workflows/public-surface-check.yml`) answers the question the
+preflight was wanted for — what each hostname actually serves — from a
+runner's ordinary internet, with no credential at all. Rotate the key for
+cluster-level diagnosis (pod state, k3s health, disk); the public surface is
+already observable without it.
 
 **Hetzner Read token — `HETZNERREADAPIKEY` is already in Actions.** CI
 probes `POST /servers` with an empty body (cannot create a server).
@@ -460,3 +489,22 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise
   from the dashboard, not from a key the cluster holds).
+- **Cross-agent PR review + auto-merge, added 2026-09-04.** #3024
+  (2026-09-03) merged `platform/ci/agent_review/` and
+  `.github/workflows/agent-cross-review.yml` /
+  `agent-pr-auto-merge.yml` to `main` — four reviewer GitHub-App
+  identities (GH, Kilo, Cursor, Claude) that review each other's PRs and
+  squash-merge an internal (non-`ventures/*`) PR once two approve and CI
+  is green. It ships fail-closed: every review job checks its own
+  `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
+  few seconds when they are unset, so today it runs, does nothing, and
+  approves nothing. Nothing here is blocking, and nothing about the
+  scaffold needs it. If you want it live, `platform/ci/agent_review/
+  README.md`'s "One-time owner setup" is the whole procedure: create 4
+  GitHub Apps (Pull requests: Read & write; Contents: Read; Metadata:
+  Read; installed on this repo only), add the 8 `AGENT_REVIEWER_*`
+  secrets it names, and set `required_approving_review_count: 2` plus
+  required status checks on the `main` branch ruleset. The
+  `agent-cross-review-automerge` row in `portfolio/ledger/asks.yaml`
+  used to say this shape was abandoned (#870, closed 2026-08-24) and
+  never mention #3024 — corrected the same day this bullet was added.

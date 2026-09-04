@@ -63,6 +63,43 @@ REQUIRED = {
     "opened", "action", "unlocks", "blocked_by", "note",
 }
 
+# Optional. `outage: true` lifts a row above the `GATES` ordering entirely.
+#
+# It exists because the ordering above encodes an assumption that held until
+# 2026-09-04: that a `deployment` row "buys deployment for products that
+# already build", i.e. that the surface those products would deploy *to* is
+# working. On that date `Public surface check` (run 33887885219) measured all
+# three hostnames refusing connections on 443 and 0 of 24 sampled sitemap URLs
+# returning anything. With nothing served, a `revenue` row cannot earn and a
+# `distribution` row cannot distribute — every other ranking in this file is
+# downstream of a host answering at all, so the row that restores one outranks
+# them by construction rather than by urgency.
+#
+# **Reserved for a measured, current loss of the public surface**, evidenced by
+# a run id in the row's own text. It is not a priority flag: "this feels
+# important" is what `gates` is for, and a queue where anything can jump the
+# ordering is the cheapest-first #139 table again with extra steps. `check()`
+# enforces the type; the narrowness is a convention this comment is the whole
+# statement of.
+#
+# **More than one row can hold it, and on 2026-09-04 two do.** The paragraph
+# above was written the same day and says "the row that restores one outranks
+# them" — singular, because the repo still carried a one-surface model. #3199
+# had just established there are two independent public origins: the k3s
+# cluster behind `marisstella.dev`, and GitHub Pages at
+# `duncan-haywood.github.io/monorepo-projects/`, which needs no cluster, no SSH
+# key and no sealed Secret. `Public surface check` run 33912053750 measured
+# both dark in the same sweep — the three cluster hostnames refusing
+# connections on 443, and the Pages origin returning 404.
+#
+# The criterion is unchanged and both rows meet it on their own terms: each is
+# a row that *restores a public surface*, evidenced by that run. What the
+# singular phrasing hid is that they are alternatives rather than a queue. So
+# the flag ranks a row against the non-outage rows; it deliberately does not
+# rank the outage rows against each other, and `render()` says so rather than
+# implying the first is the one to do.
+OUTAGE = "outage"
+
 
 def load(path: Path = ASKS) -> list[dict]:
     doc = yaml.safe_load(path.read_text())
@@ -105,6 +142,9 @@ def check(decisions: list[dict]) -> list[str]:
         if not d["asks"] and not d["prs"]:
             problems.append(f"{where}: covers neither an ask nor a pull request")
 
+        if OUTAGE in d and not isinstance(d[OUTAGE], bool):
+            problems.append(f"{where}: {OUTAGE}={d[OUTAGE]!r} is not true or false")
+
         for blocker in d["blocked_by"]:
             if blocker not in ids:
                 problems.append(f"{where}: blocked_by names unknown id {blocker!r}")
@@ -127,9 +167,12 @@ def check(decisions: list[dict]) -> list[str]:
 
 def sort_key(d: dict) -> tuple:
     # Blocked items sink below actionable ones: granting them today buys
-    # nothing, so they should not sit above something that would.
+    # nothing, so they should not sit above something that would. That test
+    # stays first even for an outage row — an unblockable fix is still
+    # unblockable, however badly it is wanted.
     return (
         bool(d["blocked_by"]),
+        not d.get(OUTAGE, False),
         GATES.index(d["gates"]),
         EXPOSURES.index(d["exposure"]),
         d["opened"],
@@ -168,6 +211,7 @@ def render(decisions: list[dict], today: dt.date) -> str:
     n_prs = sum(len(d["prs"]) for d in decisions)
     blocked = [d for d in ordered if d["blocked_by"]]
     revenue = [d for d in ordered if d["gates"] == "revenue"]
+    outage = [d for d in ordered if d.get(OUTAGE) and not d["blocked_by"]]
     oldest = max(age_days(d["opened"], today) for d in decisions)
 
     out = ["The account owner's decision queue", ""]
@@ -188,10 +232,44 @@ def render(decisions: list[dict], today: dt.date) -> str:
         f"  {len(revenue)} of {len(decisions)} moves the revenue ceiling off $0; "
         f"{len(blocked)} cannot be acted on yet."
     )
+    # Said in the header rather than only in the row, because an outage row is
+    # the one case where reading no further is the correct behaviour, and the
+    # header is what a hurried owner reads.
+    #
+    # The wording splits on how many rows are flagged, and the plural case is
+    # not cosmetic. The singular sentence used to be unconditional and said
+    # "every other row here is downstream of a host answering at all" — true
+    # when the repo believed there was one public surface, and wrong the moment
+    # #3199 established there are two independent origins (the k3s cluster and
+    # GitHub Pages). Two outage rows are alternative routes back, not a queue:
+    # neither is downstream of the other, either one alone puts the catalogue
+    # in front of a stranger, and an owner who reads "start with the first one"
+    # may spend a day on the expensive route while the cheap one stays unflipped.
+    if outage:
+        ids = [d["id"] for d in outage]
+        out.append("")
+        if len(ids) == 1:
+            body = (
+                f"OUTAGE: the public surface is down. {ids[0]} comes first; "
+                "every other row here is downstream of a host answering at all."
+            )
+        else:
+            body = (
+                "OUTAGE: the public surface is down. "
+                + str(len(ids))
+                + " independent routes restore one: "
+                + ", ".join(ids)
+                + ". They are not downstream of each other and not a "
+                "sequence — each reaches a different origin, so granting any "
+                "one of them alone puts the catalogue in front of a stranger. "
+                "Do the cheapest first. Every other row here is downstream of "
+                "something answering at all."
+            )
+        out += wrap(body, 72, "  ")
     out.append("")
 
     for i, d in enumerate(ordered, 1):
-        flag = "  [blocked]" if d["blocked_by"] else ""
+        flag = "  [blocked]" if d["blocked_by"] else ("  [OUTAGE]" if d.get(OUTAGE) else "")
         out.append(
             f"{i}. {d['id']}  ({covers(d)})  gates {d['gates']}, "
             f"exposure {d['exposure']}, {age_days(d['opened'], today)}d{flag}"

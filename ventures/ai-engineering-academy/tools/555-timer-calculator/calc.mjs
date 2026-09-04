@@ -250,6 +250,112 @@ export function designAstable({ frequencyHz, dutyCyclePercent, capacitanceFarads
 }
 
 /**
+ * Designs the diode-mod astable: a diode in parallel with R2, forward-biased
+ * so it shorts R2 out of the charge path. The capacitor then charges through
+ * R1 alone and discharges through R2 alone, so high time and low time no
+ * longer share a resistor — duty = R1 / (R1 + R2), free to go below 50%,
+ * unlike the plain two-resistor astable `designAstable` rejects for exactly
+ * that range.
+ *
+ * The diode's own forward voltage drop (~0.5–0.7 V for silicon, lower for
+ * Schottky) is not in this formula — it is a real error source this function
+ * cannot correct without knowing which diode, so it is surfaced as a warning
+ * instead of folded into the arithmetic as false precision.
+ */
+export function designAstableWithDiode({ frequencyHz, dutyCyclePercent, capacitanceFarads, supplyVolts }) {
+  requirePositive(frequencyHz, "Frequency");
+  requirePositive(capacitanceFarads, "Capacitance");
+  if (!Number.isFinite(dutyCyclePercent)) {
+    throw new Error("Duty cycle must be a number.");
+  }
+  if (dutyCyclePercent <= 0 || dutyCyclePercent >= 100) {
+    throw new Error(
+      `Duty cycle must be between 0% and 100% (exclusive) — ${clean(dutyCyclePercent)}% is outside that range.`,
+    );
+  }
+
+  const duty = dutyCyclePercent / 100;
+  const sumR = 1 / (LN2 * frequencyHz * capacitanceFarads);
+  const exactR1 = sumR * duty;
+  const exactR2 = sumR * (1 - duty);
+
+  const nearestR1 = nearestStandardResistor(exactR1);
+  const nearestR2 = nearestStandardResistor(exactR2);
+
+  const highSeconds = LN2 * nearestR1 * capacitanceFarads;
+  const lowSeconds = LN2 * nearestR2 * capacitanceFarads;
+  const periodSeconds = highSeconds + lowSeconds;
+  const achievedFrequencyHz = clean(1 / periodSeconds);
+  const achievedDutyCyclePercent = clean((highSeconds / periodSeconds) * 100);
+
+  // Buildability warnings mirror `astableWarnings`, but the diode changes
+  // which physical path each resistor sits on, so they are recomputed here
+  // rather than reused: charge now runs through R1 alone (the diode bypasses
+  // R2), and discharge still runs through R2 alone, same as the plain
+  // astable, so the discharge-current model (R1 from Vcc, R2 from the cap's
+  // 2/3-Vcc peak) is unchanged and still applies.
+  const notes = [];
+  if (nearestR1 < MIN_R1_OHMS) {
+    notes.push({
+      severity: "error",
+      message:
+        `R1 = ${formatResistance(nearestR1)} is below the ${formatResistance(MIN_R1_OHMS)} practical minimum.`,
+    });
+  }
+  const totalTimingR = nearestR1 + nearestR2;
+  if (totalTimingR > MAX_TIMING_R_OHMS) {
+    notes.push({
+      severity: "warning",
+      message:
+        `R1 + R2 = ${formatResistance(totalTimingR)} exceeds the ${formatResistance(MAX_TIMING_R_OHMS)} ` +
+        "rule of thumb for a bipolar NE555 — pin leakage will make the real timing drift from this " +
+        "calculation. A CMOS 555 (7555/TLC555) tolerates far higher resistances.",
+    });
+  }
+  if (supplyVolts !== undefined && supplyVolts !== null) {
+    requirePositive(supplyVolts, "Supply voltage");
+    const dischargePeakAmps = supplyVolts / nearestR1 + ((2 / 3) * supplyVolts) / nearestR2;
+    if (dischargePeakAmps > MAX_DISCHARGE_CURRENT_AMPS) {
+      notes.push({
+        severity: "error",
+        message:
+          `At the instant discharge starts, the discharge pin sinks about ${display(dischargePeakAmps * 1000)} mA ` +
+          `from R1 and R2 combined — above its ${MAX_DISCHARGE_CURRENT_AMPS * 1000} mA limit. Raise R1, raise R2, ` +
+          "or lower the supply.",
+      });
+    }
+  }
+  notes.push({
+    severity: "warning",
+    message:
+      "This formula treats the diode as ideal. A real silicon diode drops roughly 0.5–0.7 V (a Schottky " +
+      "less) while it conducts, which shortens the charge time slightly and pulls the achieved duty cycle " +
+      "down from the number below — more noticeably at low supply voltages or low R1, where that drop is a " +
+      "larger fraction of the charging voltage. Bench-trim R1 if the exact duty cycle matters.",
+  });
+  if (capacitanceFarads >= 1e-6) {
+    notes.push({
+      severity: "warning",
+      message:
+        `A timing capacitor of ${formatCapacitance(capacitanceFarads)} is almost certainly an electrolytic, ` +
+        "whose tolerance is commonly −20%/+80% and which drifts with age and temperature.",
+    });
+  }
+
+  return {
+    exactR1: clean(exactR1),
+    exactR2: clean(exactR2),
+    nearestR1,
+    nearestR2,
+    achievedFrequencyHz,
+    achievedDutyCyclePercent,
+    frequencyErrorPercent: clean(((achievedFrequencyHz - frequencyHz) / frequencyHz) * 100),
+    dutyErrorPercent: clean(achievedDutyCyclePercent - dutyCyclePercent),
+    notes,
+  };
+}
+
+/**
  * Analyses a 555 monostable (one-shot): a trigger pulse starts a single
  * output pulse of ln(3)·R·C, after which the output returns low regardless
  * of the input.
