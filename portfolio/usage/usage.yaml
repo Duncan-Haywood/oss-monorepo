@@ -391,6 +391,24 @@ products:
           discoverability gap the LED page shipped with (its parent panel
           carries no link back to it). The zero below is a genuine
           pre-traffic baseline.
+      - as_of: 2026-09-04
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Third question-shaped page for this venture:
+          voltage-divider-calculator/how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.
+          New computed capability: designDividerForLoad() sizes R1/R2 from a
+          target output, a known load, and a bleeder-current multiple, then
+          reports the achieved output and power by calling the venture's
+          existing calculateVoltageDivider() rather than a second formula —
+          8 new passing unit tests, one of them asserting the achieved
+          result is deepEqual to a direct call into that existing function.
+          Counted locally as `divider_for_load_designed`, settled the same
+          way as the other tools in this venture. Not publishing-gated, same
+          as the two pages above. Linked from the parent calculator's
+          loaded-output section, next to the load-resistance field it
+          extends. The zero below is a genuine pre-traffic baseline.
   - slug: quote-margin-check
     surface: repository-cli
     readings:

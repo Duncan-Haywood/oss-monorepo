@@ -9313,3 +9313,58 @@ entries:
         the parent calculator) and the sitemap lists the new URL. A merge
         to `main` is the deploy on the Argo path.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Third question-shaped page for this venture:
+        voltage-divider-calculator/how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.
+        The parent tool already models loading correctly (given R1, R2, and
+        a load, it reports the real Vout) but only in the analysis
+        direction -- nothing solved the design direction: given a load,
+        what R1/R2 keep the output close enough to target. New capability
+        added to `calc.mjs`: `designDividerForLoad()`, which sizes the
+        divider's bleeder current as a chosen multiple of the load current
+        (the standard rule of thumb, 10x by default), snaps to a buyable
+        E24 pair, and reports the achieved output and power by calling the
+        venture's existing, already-tested `calculateVoltageDivider()` --
+        not a second, parallel formula that could drift from it. 8 new
+        passing unit tests, including one asserting the achieved result is
+        `deepEqual` to a direct call into the existing function.
+      - >-
+        Warns rather than silently accepting a bad trade-off: if the chosen
+        multiple still leaves the output off target by more than 5%, or if
+        the divider's own quiescent power (present even with nothing
+        connected) exceeds 250 mW, the page says so and recommends either
+        raising the multiple (more power, less droop) or switching to a
+        real regulator -- consistent with, not contradicting, the parent
+        page's existing disclaimer that a divider is a voltage reference,
+        not a regulator.
+      - >-
+        Linked from the parent calculator's loaded-output section, next to
+        the load-resistance field it extends. FAQPage JSON-LD written as a
+        direct copy of the visible paragraph text, per the practice the
+        previous two entries in this venture established after the first
+        one shipped without it.
+      - >-
+        Verified: `node --test` in the venture -> 26/26 (8 new). `node
+        --test platform/pages/faq-visible.test.mjs` -> 4/4 on the first
+        run. `node platform/pages/build.mjs` -> 174 products, 660 pages;
+        `check.mjs --dist=platform/pages/dist` -> "no dead links".
+        `python3 platform/ci/browser_checks.py --only=ai-engineering-academy`
+        -> 6 of 7 checks pass (contrast with axe-core installed: no WCAG
+        A/AA violations); `highlight` skips by design, same as the two
+        prior entries. `platform/marketing/*.test.mjs` -> 208/208 after
+        regenerating both the tool mirror and the front door. `python3 -m
+        pytest gitops/tests -q` -> 300 passed, 16 skipped.
+        `faq-duplicate.mjs`, `check_form_defaults.py`,
+        `check_input_bounds.py`, `check_money_sign.py`,
+        `publish_surface.py --check`, `clauses.mjs`, and
+        `browser-signals.mjs` all clean.
+      - >-
+        Deployed, not merely built: regenerated the apex mirror and front
+        door, so the page ships as a ConfigMap shard (again reusing the
+        existing `calc.mjs`, no new module) and the sitemap lists the new
+        URL. A merge to `main` is the deploy on the Argo path.
+    mrr_end: null
