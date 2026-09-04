@@ -78,6 +78,22 @@ test('an invalid input hides stale results instead of leaving them next to a sil
   assert.match(body, /errorsEl\.hidden\s*=\s*false/, 'the error message is never shown');
 });
 
+test('the result panel is announced to screen readers when it updates', () => {
+  // The section re-renders in place on every keystroke (no page reload), and
+  // it holds the whole answer: the headline churn percentage, the revenue
+  // figures, and the churn-scenario table. Before this fix, none of that was
+  // in a live region -- the only aria-live element on the page was #status,
+  // which the render() function never writes to -- so a screen-reader user
+  // changing an input got no announcement that the readout had changed at
+  // all, only silence unless they went looking for it by hand.
+  const html = page('index.html');
+  assert.match(
+    html,
+    /<section id="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
 test('the worked example the page ships with actually computes', async () => {
   const { calculateImpact } = await import('./calc.mjs');
   const markup = page('index.html');
