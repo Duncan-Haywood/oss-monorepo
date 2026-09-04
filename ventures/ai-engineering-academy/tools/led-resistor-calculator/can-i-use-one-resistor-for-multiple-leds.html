@@ -32,7 +32,7 @@
       "name": "Can I use one resistor for multiple LEDs?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, if the LEDs are in series — and that is the good version. In a series string there is only one current, so one resistor sets it for every LED. Sharing one resistor across LEDs wired in parallel also 'works' in the sense that it lights them, but the resistor then fixes only the total current; how that total divides between the LEDs is set by their forward-voltage curves, which the resistor cannot influence because every LED sits across the same node. On this page's defaults (9 V supply, 2.0 V LEDs at 20 mA, four LEDs) the series string needs one 50 Ω resistor, the nearest buyable part being 51 Ω."
+        "text": "Yes, if the LEDs are in series — and that is the good version. In a series string there is only one current, so one resistor sets it for every LED. On this page's defaults (9 V supply, 2.0 V LEDs at 20 mA, four LEDs) that is a single 50 Ω resistor, or 51 Ω as the nearest part you can actually buy. Sharing one resistor across LEDs wired in parallel also lights them, but the resistor then fixes only the total current. How that total divides between the LEDs is set by their forward-voltage curves, which the resistor cannot influence — every LED sits across the same node."
       }
     },
     {
@@ -40,15 +40,15 @@
       "name": "Does a shared resistor save power compared with one resistor per LED?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No — it saves parts, not power, and this surprises people. Both parallel wirings drop the same voltage (supply minus one forward voltage) at the same total current, so they waste identically. On the defaults each is 0.72 W from the supply, 0.16 W of it in the LEDs and 0.56 W as heat. The difference is where that heat goes: four 350 Ω resistors dissipate 0.14 W each and want 0.5 W parts, while the single shared 87.5 Ω resistor takes all 0.56 W itself and wants a 2 W part."
+        "text": "No. It saves parts, not power, which surprises most people the first time. Both parallel wirings drop the same voltage (supply minus one forward voltage) at the same total current, so they waste identically: on the defaults, 0.72 W drawn from the supply, 0.16 W of it doing useful work in the LEDs and 0.56 W leaving as heat either way. What changes is where the heat goes. Four separate 350 Ω resistors dissipate 0.14 W each and want 0.5 W parts. The single shared 87.5 Ω resistor takes all 0.56 W by itself and wants a 2 W part — a much bigger component than most people reach for when they are trying to save one."
       }
     },
     {
       "@type": "Question",
-      "name": "What actually goes wrong with one shared resistor on parallel LEDs?",
+      "name": "What actually goes wrong with one shared resistor?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The current divides by forward voltage rather than evenly. LEDs from the same reel differ slightly, and the one with the lowest forward voltage takes more than its share, heats up, drops further, and takes more still. The bound is certain even though the split is not: the resistor holds the total, so if one LED ends up carrying it alone it carries all of it. With four LEDs designed for 20 mA each, that ceiling is 80 mA through a single 20 mA part. This page states that bound rather than predicting the split, which would need each LED's own measured curve."
+        "text": "The current divides by forward voltage rather than evenly. LEDs off the same reel differ slightly; the one with the lowest forward voltage takes more than its share, heats up, drops further, and takes more still. The split is not predictable without each LED's own measured curve, so this page does not pretend to predict it. The bound is certain: the resistor holds the total, so if one LED ends up carrying that total alone, it carries all of it. Four LEDs designed for 20 mA each give a ceiling of 80 mA through a single 20 mA part."
       }
     },
     {
@@ -56,7 +56,7 @@
       "name": "How many LEDs can I put in one series string?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "As many as fit inside the supply voltage with something left over for the resistor. A string that used the whole supply would leave the resistor 0 V, at which point nothing sets the current. On a 9 V supply with 2.0 V LEDs that is four (8 V of LEDs, 1 V for the resistor); a fifth would need 10 V. Where the string does not fit, give each LED its own resistor — that wiring is always available because each branch only ever needs one forward voltage of headroom."
+        "text": "As many as fit inside the supply voltage with something left over for the resistor. A string that consumed the whole supply would leave the resistor 0 V, and then nothing sets the current at all. On a 9 V supply with 2.0 V LEDs that is four — 8 V of LEDs and 1 V for the resistor. A fifth would need 10 V. Where the string does not fit, give each LED its own resistor. That wiring is always available, because each branch only ever needs one forward voltage of headroom no matter how many branches there are."
       }
     },
     {
@@ -64,7 +64,7 @@
       "name": "Why does a series string waste so much less power?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Because the supply delivers the design current once instead of once per LED. Four LEDs in series draw 20 mA total on the defaults; four parallel branches draw 80 mA. Same light, four times the current, and the extra goes into the resistors as heat: 0.02 W wasted by the string against 0.56 W by four separate resistors, or 89% efficient against 22%. On a battery that is the difference between hours and a fraction of one."
+        "text": "Because the supply delivers the design current once instead of once per LED. Four LEDs in series draw 20 mA in total on the defaults; four parallel branches draw 80 mA for the same light, and the extra ends up in the resistors as heat — 0.02 W wasted by the string against 0.56 W by four separate resistors, or 89% efficient against 22%. On a battery that is the difference between hours and a fraction of one."
       }
     }
   ]
