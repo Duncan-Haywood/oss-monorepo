@@ -9104,6 +9104,42 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Fixed a real product-logic bug on the linear/1D cut-list tab:
+        `optimizeCutList` threw the instant any single required cut
+        couldn't fit a stock length or on-hand offcut, discarding every
+        already-placed bar with it. A single mistyped length on a 40-line
+        cut list nuked the whole plan and gave the user nothing but an
+        error, even though the other 39 lines packed fine. `sheet.mjs` (the
+        2D sheet-goods packer on the same page) already made the opposite,
+        documented call -- return unplaceable parts in `oversize`, keep
+        packing the rest -- so the two modes on one page were silently
+        inconsistent for the same class of input error.
+      - >-
+        `optimizeCutList` now matches sheet.mjs's behavior: an unfittable
+        cut is collected into a new `oversize` array instead of thrown, and
+        packing continues. totalCuts/waste/utilization now count only cuts
+        actually placed. `formatCutPlan` and a new `#linear-oversize`
+        element (mirroring `#sheet-oversize`) surface the unplaced cuts
+        instead of silently dropping them. Genuinely invalid input
+        (non-finite/non-positive lengths, negative stock cost, an empty
+        list) still throws -- only the "physically doesn't fit" case
+        changed.
+      - >-
+        Verified: `node --test ventures/cut-list-optimizer/*.test.mjs`,
+        114/114 passing (added 2 calc.test.mjs cases and 1 page.test.mjs
+        wiring check). Read the changed index.html script by hand end to
+        end; did not launch a real browser. Regenerated the committed
+        front-door mirror (`node platform/marketing/front-door-tools.mjs
+        --write`) after `validate` caught it as stale on the first CI run
+        -- a 3-file, comment-and-checksum-only diff. All 18 checks green
+        on real runners (job durations up to 4m23s, not the 3-6s
+        starvation signature) before merging PR #3097 (squash).
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Shipped CSV export for both plan types (sheet goods and linear
         stock). Both tabs previously offered only "Copy cut plan" (plain
         text for a job ticket) and Print; a shop that wanted the plan in a
