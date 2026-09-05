@@ -3812,6 +3812,47 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   }
 });
 
+test('the About page privacy panel counts its exceptions instead of assuming one', async () => {
+  // Regression target: the panel heading, the "Nothing you enter is
+  // transmitted" clause, and the "third-party scripts" clause each hardcoded
+  // "one documented exception" / a singular verb. That was silently correct
+  // while Sponsor Ready was the only externalCallExceptions entry, and went
+  // quietly false the day a second one (DNS Change Evidence) existed
+  // alongside it -- exactly the kind of drift this page exists to prevent
+  // everywhere else. This asserts the wording tracks the real count, not a
+  // number frozen at write time.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+  const exceptions = externalCallExceptions(surfaces);
+
+  if (exceptions.length === 0) {
+    assert.match(about, /Nothing\. There is no server that could receive it\./);
+    assert.ok(!about.includes('documented exception'));
+  } else if (exceptions.length === 1) {
+    assert.match(about, /Nothing, with one documented exception below\./);
+    assert.match(about, /Nothing you enter is transmitted, with one documented exception\./);
+  } else {
+    assert.match(
+      about,
+      new RegExp(`Nothing, with ${exceptions.length} documented exceptions below\\.`),
+      `panel heading should count all ${exceptions.length} exceptions, not say "one"`,
+    );
+    assert.match(
+      about,
+      new RegExp(`Nothing you enter is transmitted, with ${exceptions.length} documented exceptions\\.`),
+    );
+    assert.ok(
+      !about.includes('one documented exception'),
+      `About page has ${exceptions.length} exceptions but still says "one documented exception" somewhere`,
+    );
+    assert.match(
+      about,
+      /Besides the live API calls .+ make, above, the/,
+      'plural exceptions need "calls ... make", not the singular "call ... makes"',
+    );
+  }
+});
+
 test('the About page is reachable from the hub, the categories and every tool page', async () => {
   const { outDir, surfaces } = await site();
 

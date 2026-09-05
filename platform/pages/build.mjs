@@ -1548,10 +1548,10 @@ export function renderCategoryPage({ category, items, groups, baseUrl }) {
   const toRoot = '../../';
   const subgroups = groupBySubcategory(category.id, items);
   // Computed the same way the About page proves its own privacy claim, so a
-  // category that happens to hold the one tool with a documented external
-  // call (Sponsor Ready, filed under "more") does not have this page say
-  // "nothing you type is uploaded" for all of its tools when that is false
-  // for one of them.
+  // category that happens to hold a tool with a documented external call
+  // (Sponsor Ready under "more", DNS Change Evidence under "evidence") does
+  // not have this page say "nothing you type is uploaded" for all of its
+  // tools when that is false for one of them.
   const categoryExceptions = externalCallExceptions(items);
   const countPrivacyClaim = categoryExceptions.length
     ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => x.title))}`
@@ -1848,7 +1848,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>What happens to what you type</h2>
       <div class="panel">
-        <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
+        <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read with your browser's own
@@ -1857,8 +1857,8 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? 'Nothing you enter is transmitted, with one documented exception.' : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
-          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call ${exceptionNames} makes, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
         </ul>
