@@ -10867,3 +10867,105 @@ entries:
         CLAUDE.md), so this ships to `main` as code only, ready to serve
         once the owner's infra fix lands.
     mrr_end: null
+  - venture: carpet-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fourth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262) and `cabinet-refinishing-bid-calculator`
+        (#3265, merged as `8bae18000`) -- a carpet cleaner comparing a
+        takeoff with a homeowner, property manager, or GC had no way to
+        send a link that reopens the exact stop instead of the recipient
+        retyping a room list and every rate. This venture differs from the
+        three references in one structural way: `calc.mjs` prices a
+        variable-length list of rooms and upholstery pieces the visitor
+        grows or shrinks in the DOM (`data-pf-repeat`), not a fixed field
+        set, so the three references' plain "one query param per field"
+        pattern does not fit rooms/upholstery directly. Read `calc.mjs`
+        (14 fixed numeric cost fields, no flags, no top-level enums; rooms
+        keyed by a `ROOM_NAME_PRESETS`-restricted select plus free
+        `squareFeet`/`productionRate` numbers and a `petTreatment`
+        checkbox; upholstery keyed by a `UPHOLSTERY_PRESETS`-restricted
+        select, matching `readUpholstery()`'s own fallback to an empty
+        name for its "Other piece" option, plus free `minutes`),
+        `index.html`, and `proposal.mjs` fully before writing anything.
+        Built `share.mjs`/`share.test.mjs` (10 tests): the 14 fixed fields
+        as plain allowlisted query params exactly like the three
+        references, and rooms/upholstery each riding under one parameter
+        as colon-separated cells / comma-separated rows -- the same row
+        encoding `moving-bid-calculator` and `janitorial-bid-calculator`
+        already use on this site for a visitor-grown list, rather than
+        inventing a fourth encoding. Room and upholstery names are
+        validated against `calc.mjs`'s own `ROOM_NAME_PRESETS`/
+        `UPHOLSTERY_PRESETS` rather than a hand-duplicated list, the same
+        drift guard `FINISH_PRESETS`/`COLOR_PRESETS` give cabinet-
+        refinishing's enum fields; an unrecognised room name is dropped
+        from the cell and an unrecognised upholstery name normalises to
+        the same empty "other piece" name the form itself produces, never
+        leaking the crafted string. A row surviving with nothing usable in
+        it (every cell rejected) is dropped rather than restored as a
+        blank card. This venture's proposal panel carries `depositPercent`,
+        `validDays`, `paymentTerms`, `proposalNotes`, and
+        `proposalExclusions` -- `platform/proposal/terms.mjs`'s five-field
+        spec -- so vendored `proposal-terms.mjs`/`proposal-terms.test.mjs`
+        unmodified from `cabinet-refinishing-bid-calculator` (confirmed
+        byte-identical with `diff`) so all five terms ride in the link
+        instead of silently reverting to this venture's defaults on the
+        recipient's end. Added a "Copy share link" button and an on-load
+        `restoreShare()` to `index.html`: rooms and upholstery from a link
+        replace the page's static starting rows entirely (rather than
+        merging into them) when the link carries any, each decoded row
+        normalised with the same defaults `addRoomRow`'s own "+ Add a
+        room" handler already uses for a field a link left unset, and the
+        14 cost fields are written last, all before the page's first
+        `update()` call -- so a shared link's exact room list and rates
+        win over the page's own static HTML defaults. Fixed the "Is my
+        data uploaded anywhere?" FAQ entry (visible copy and FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan), the footer privacy paragraph, and the
+        SoftwareApplication `featureList` -- all three previously implied
+        or stated outright that no shareable link exists, which this
+        change makes false. Regenerated the served surface with `node
+        platform/marketing/regen.mjs` per #3263/#3264. `origin/main` did
+        not move during this session, so no rebase was needed. Verified:
+        venture's own suite 102/102; `platform/proposal/*.test.mjs` 97/97
+        (`term-ids.test.mjs`'s drift check now scanning 14 vendored
+        copies); full `platform/pages` suite 884/884 -- one pre-existing
+        test (`link.test.mjs`'s "the itemised calculators are offered the
+        control once they declare their rows") pinned this venture as one
+        of five taking the platform's own generic bid-link control by
+        count; updated it to four and added this venture to the named
+        exclusions, the same way #2699/#3048/#3052 already recorded pest-
+        control/snow-removal/gutter-cleaning shipping their own share
+        control -- `pageHasOwnShareLink` now correctly detects this
+        venture's new `share.mjs` import and "Copy share link" text and
+        excludes it from a second, conflicting control; full
+        `platform/marketing` suite 211/211 (4 failed before the regen, all
+        on the newly-stale mirror/kustomization/alias map, as expected);
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 686 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs carpet-cleaning-bid-calculator` --
+        no-warranty clause present on all 3 published pages. `git status`
+        after regen touched only this venture's own mirror shard, the
+        mirror kustomization (new `share.mjs.gz` entry), and the nginx
+        alias map. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly with a full-field sample bid (5 rooms including two pet
+        rooms, one sofa, 2 stair flights, a 50% deposit held 15 days with
+        custom terms text): encoded, decoded, and confirmed every room
+        (name, square footage, rate, pet flag), the upholstery piece, all
+        14 cost fields, and all 5 proposal terms matched the sender's
+        input exactly, and the recipient's recalculated quoted price and
+        break-even price matched the sender's to the cent ($464.31 both
+        sides) -- the exact failure this feature exists to prevent.
+        GitHub Actions is documented in this repo's CLAUDE.md as starved
+        and the Hetzner cluster as down -- both pre-diagnosed, owner-
+        blocked, not re-investigated here -- so all of the above is local
+        verification standing in for CI per CLAUDE.md's "absent CI is not
+        failed CI" rule. Not deployed: the public surface is down (see
+        CLAUDE.md), so this ships to `main` as code only, ready to serve
+        once the owner's infra fix lands.
+    mrr_end: null
