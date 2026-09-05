@@ -1376,7 +1376,7 @@
       "url": "https://marisstella.dev/tools/vendor-change-watch/",
       "category": "Compliance checks & evidence records",
       "description": "Paste a vendor's terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "vinyl-liner-bid-calculator",

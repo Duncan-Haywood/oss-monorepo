@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 106 files, 553740 bytes
 #   portfolio-front-tools-7: 120 files, 556196 bytes
 #   portfolio-front-tools-8: 99 files, 549901 bytes
-#   portfolio-front-tools-9: 89 files, 461397 bytes
+#   portfolio-front-tools-9: 90 files, 465763 bytes
 #   portfolio-front-tools-10: 54 files, 279353 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1263,6 +1263,7 @@ configMapGenerator:
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
+      - vendor-change-watch__vs-changedetection-io.html.gz=vendor-change-watch__vs-changedetection-io.html.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
