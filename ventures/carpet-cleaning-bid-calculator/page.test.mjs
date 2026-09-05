@@ -36,6 +36,21 @@ test('primary controls a technician can complete a bid with are present', () => 
   assert.match(html, /how-to-price-carpet-cleaning\.html/);
 });
 
+test('a room\'s soil select reads back as "Custom rate", not a specific preset, when the rate matches none', () => {
+  // A shared link always carries the real number (room.productionRate,
+  // via share.mjs) correctly -- this is about the "Soil / extraction rate"
+  // select's own label, which is a display convenience computed from that
+  // number. Snapping an unmatched rate to a fixed preset index silently
+  // relabels a custom (e.g. heavily soiled) room as "Normal household soil"
+  // on whichever screen re-renders it -- the recipient's, or the sender's
+  // own after a page reload -- which is the same "plausible, different
+  // answer" risk platform/pages/roundtrip.mjs exists to catch, applied here
+  // to a label rather than the carried value itself.
+  assert.match(html, /<option value="custom">Custom rate<\/option>/);
+  assert.doesNotMatch(html, /\|\|\s*SOIL_PRESETS\[1\]/,
+    'an unmatched rate must read back as "custom", not silently snap to a fixed preset index');
+});
+
 test('how-to page answers the niche question and links back to the tool', () => {
   assert.match(howTo, /How to price carpet cleaning/i);
   assert.match(howTo, /FAQPage/);
