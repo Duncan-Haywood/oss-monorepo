@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556784 bytes
 #   portfolio-front-tools-3: 116 files, 545769 bytes
 #   portfolio-front-tools-4: 127 files, 554431 bytes
-#   portfolio-front-tools-5: 114 files, 553153 bytes
+#   portfolio-front-tools-5: 115 files, 556190 bytes
 #   portfolio-front-tools-6: 107 files, 553483 bytes
 #   portfolio-front-tools-7: 116 files, 548408 bytes
 #   portfolio-front-tools-8: 95 files, 555266 bytes
@@ -781,6 +781,7 @@ configMapGenerator:
       - foundation-repair-bid-calculator__calc.mjs.gz=foundation-repair-bid-calculator__calc.mjs.gz
       - foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz=foundation-repair-bid-calculator__how-much-to-charge-for-foundation-repair.html.gz
       - foundation-repair-bid-calculator__index.html.gz=foundation-repair-bid-calculator__index.html.gz
+      - foundation-repair-bid-calculator__share.mjs.gz=foundation-repair-bid-calculator__share.mjs.gz
       - foundation-repair-bid-calculator__usage.mjs.gz=foundation-repair-bid-calculator__usage.mjs.gz
       - foundation-repair-bid-calculator__vs-jobber.html.gz=foundation-repair-bid-calculator__vs-jobber.html.gz
       - freelance-retainer-calculator__app.js.gz=freelance-retainer-calculator__app.js.gz
