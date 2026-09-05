@@ -779,12 +779,29 @@ test('the nginx config serves every shape of path the mirror produces', async ()
     path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', 'default.conf'),
     'utf8',
   );
-  assert.match(conf, /location ~ "\^\/tools\/\(\?<slug>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$"/);
+  // The trailing slash is required, not optional. `/?$` here served the entry
+  // page at `/tools/<slug>` too, and a browser then resolves that page's
+  // relative references against `/tools/` — one directory above the mirror —
+  // so every same-directory link, stylesheet and module on it 404s while the
+  // page itself renders with a 200. The slashless spelling gets its own
+  // redirect block, asserted below.
+  assert.match(conf, /location ~ "\^\/tools\/\(\?<slug>\[a-z0-9\]\[a-z0-9-\]\*\)\/\$"/);
   assert.match(conf, /rewrite \^ \/\$\{slug\}__index\.html break;/);
+  assert.match(
+    conf,
+    /location ~ "\^\/tools\/\(\?<rslug>\[a-z0-9\]\[a-z0-9-\]\*\)\$" \{\s*\n\s*return 301 \/tools\/\$rslug\/\$is_args\$args;/,
+    'the slashless /tools/<slug> spelling must redirect to the canonical trailing-slash form',
+  );
 
-  // The four properties a gz-only mirror needs from every `/tools/` location,
-  // each of which is a silent whole-mirror 404 if it is missing.
-  const toolBlocks = conf.match(/location ~ "\^\/tools\/[\s\S]*?\n  \}/g) ?? [];
+  // The four properties a gz-only mirror needs from every `/tools/` location
+  // that serves bytes, each of which is a silent whole-mirror 404 if it is
+  // missing. The redirect block above serves none, so it is separated out here
+  // rather than exempted by name — a block that stops redirecting and starts
+  // serving rejoins the checked set on the next run.
+  const allToolBlocks = conf.match(/location ~ "\^\/tools\/[\s\S]*?\n  \}/g) ?? [];
+  const redirectBlocks = allToolBlocks.filter((b) => /return 301/.test(b));
+  const toolBlocks = allToolBlocks.filter((b) => !/return 301/.test(b));
+  assert.equal(redirectBlocks.length, 1, 'exactly one /tools/ block is a redirect');
   // Eight since page subdirectories landed: four for a flat venture (root,
   // `.mjs`, `LICENSE`, anything else) and the same four one level down.
   assert.equal(toolBlocks.length, 8, 'the mirror is routed by eight location blocks');
