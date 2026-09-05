@@ -13303,3 +13303,67 @@ entries:
           refreshed via
           CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
     mrr_end: null
+  - venture: solar-pv-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the shareable private quote link this venture was missing. A
+        solar contractor could build a full bid -- module count and wattage,
+        roof and mount factor, the electrical adder, battery hours and
+        material, wage, burden, overhead and margin -- and then had no way
+        to hand it to the homeowner deciding, the office manager writing the
+        contract, or a second estimator checking the array. A screenshot
+        shows the headline number and none of the twenty inputs behind it.
+        Of the fifteen ventures that still show a proposal panel with no
+        share link, this one was taken first because the ticket is the
+        largest in the set (residential PV runs $15-40k), so a hand-off that
+        loses the deposit terms loses the most money.
+
+        Adds share.mjs (encodeInputs/decodeInputs) on the typed pattern
+        sump-pump and water-softener use: 20 number fields plus the three
+        selects, each validated against calc.mjs's own presets rather than a
+        hand-copied list. systemPreset is keyed by array *index* because
+        that is what fillSelect gives it, so its allowlist is derived from
+        SYSTEM_PRESETS.length and a stale link one past the end is refused
+        rather than silently applied.
+
+        Vendored proposal-terms.mjs from the start rather than adding it
+        later, which is the whole lesson of the water-softener fix earlier
+        in this session: #3354 copied sump-pump's share half and not its
+        terms half, and shipped a link that reopened at the recipient's
+        default deposit (fixed in #3355). The five terms ride in `pfterms`
+        here from the first commit.
+
+        Two deliberate exclusions, for different reasons, both tested:
+        company/customer details stay out (they persist per device, and a
+        customer's address has no business in a pasted URL); and
+        `usageOptOut` stays out because it is the *recipient's* privacy
+        choice -- a link carrying it would let a sender silently re-enable
+        counting in someone else's browser.
+
+        Restoring a link marks the fields a preset would suggest as already
+        "edited" (SHARED_SELECT_SUGGESTIONS), so the first roof or
+        electrical change after opening a shared bid cannot overwrite the
+        sender's own figures -- the same guard the form sets when an
+        installer types over a suggestion. Updated the footer privacy
+        sentence to say what a share link puts in the address bar; the old
+        wording ("every number stays on this device") was true before this
+        change and incomplete after it. Ran platform/marketing/regen.mjs and
+        committed the mirror shard, kustomization and alias map it rewrote.
+
+        Verified locally (CI starved -- ci_starvation.py --run 33971520164
+        reports runner_id: 0):
+        - node --test ventures/solar-pv-bid-calculator/*.test.mjs -> 103/103
+          (9 new share tests: full round trip of all 23 fields, the field
+          list held against index.html's own FIELD_IDS, enum values held
+          against calc.mjs, crafted-select rejection including the
+          off-by-one past the preset array, unknown-field and __proto__
+          rejection, the usageOptOut exclusion, negative/non-numeric
+          rejection both directions, zero carried rather than dropped,
+          hash/query prefix handling)
+        - node --test platform/proposal/*.test.mjs -> 101/101 (this venture
+          now enters specShareVentures and satisfies all four checks)
+        - python3 -m pytest gitops/tests -q -> 384 passed, 25 skipped
+        - 686 mirrored pages, 0 unresolved module imports
+    mrr_end: null
