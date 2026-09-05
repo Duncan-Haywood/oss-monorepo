@@ -194,7 +194,8 @@ jobs:
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
-            gitops/ci/runner-entrypoint.sh
+            gitops/ci/runner-entrypoint.sh \
+            platform/pages/publish-branch.sh
 
   hcloud-scope:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
