@@ -104,11 +104,38 @@ prompt: |
   confirm it is almost certainly already there. Pick a different gap
   instead.
 
-  Verify before you open anything: `python3 -m pytest gitops/tests -q`,
-  plus `kubeconform` or `kustomize build` on any manifest you touched if
-  the repo's own CI runs them. Record exactly what you ran and what it
-  said. A check that fails in 3-6 seconds with `runner_id: 0` is the known
-  Actions outage, not your regression.
+  Verify before you open anything. **The maintained list is the block in
+  CLAUDE.md under "Ship without review ceremony" -- read it there and run
+  it, rather than treating the lines below as the whole set.** This item
+  used to restate a two-command subset here, which is the same
+  restate-instead-of-import defect CLAUDE.md records twice against the
+  front-door mirror: a frozen copy cannot learn, and on 2026-09-05 that
+  list gained `platform/ci/`, `platform/proposal/`, `platform/privacy/`
+  and `platform/webcheck/` while this prompt went on naming two commands.
+
+  Two of those matter specifically to *this* item, because they guard the
+  code it is most likely to touch:
+
+    python3 -m pytest gitops/tests -q
+    (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
+
+  The second is the one this prompt was missing outright, and candidate 2
+  above sends every run straight at it: `platform/ci/` holds the 15
+  `unittest` modules guarding `ci_starvation.py`, `pages_state.py`,
+  `publish_surface.py`, `public_surface.py` and `validate_workflows.py` --
+  the tools this repo uses to decide whether a red check is real and
+  whether a route to a user exists. A run that edits one of those and
+  follows the old two-line list executed no guard on the thing it just
+  changed. Note the `cd`: those modules import each other by bare name, so
+  `pytest platform/ci` from the repo root fails collection.
+
+  Add `kubeconform` or `kustomize build` on any manifest you touched.
+  Record exactly what you ran and what it said. A check that fails in 3-6
+  seconds with `runner_id: 0` is the known Actions outage, not your
+  regression -- confirm with
+  `python3 platform/ci/ci_starvation.py --run <id>`. While runners are
+  starved, CI running these suites is the same as nothing running them,
+  which is why the local run is the real gate rather than a formality.
 
   Open the PR, note what you verified, and merge it yourself once sound,
   per this repo's no-review-gate rule. Make the smallest correct change.
