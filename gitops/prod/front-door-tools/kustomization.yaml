@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 126 files, 549764 bytes
 #   portfolio-front-tools-5: 117 files, 556920 bytes
 #   portfolio-front-tools-6: 106 files, 554166 bytes
-#   portfolio-front-tools-7: 118 files, 550459 bytes
+#   portfolio-front-tools-7: 119 files, 553166 bytes
 #   portfolio-front-tools-8: 98 files, 556456 bytes
 #   portfolio-front-tools-9: 71 files, 376551 bytes
 #   portfolio-front-tools-10: 52 files, 269842 bytes
@@ -1000,6 +1000,7 @@ configMapGenerator:
       - pergola-bid-calculator__calc.mjs.gz=pergola-bid-calculator__calc.mjs.gz
       - pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz=pergola-bid-calculator__how-much-to-charge-to-build-a-pergola.html.gz
       - pergola-bid-calculator__index.html.gz=pergola-bid-calculator__index.html.gz
+      - pergola-bid-calculator__share.mjs.gz=pergola-bid-calculator__share.mjs.gz
       - pergola-bid-calculator__usage.mjs.gz=pergola-bid-calculator__usage.mjs.gz
       - pergola-bid-calculator__vs-buildxact.html.gz=pergola-bid-calculator__vs-buildxact.html.gz
       - pest-control-bid-calculator__calc.mjs.gz=pest-control-bid-calculator__calc.mjs.gz
