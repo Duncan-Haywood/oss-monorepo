@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556784 bytes
 #   portfolio-front-tools-3: 116 files, 545769 bytes
 #   portfolio-front-tools-4: 126 files, 550140 bytes
-#   portfolio-front-tools-5: 112 files, 547627 bytes
+#   portfolio-front-tools-5: 113 files, 550262 bytes
 #   portfolio-front-tools-6: 107 files, 553483 bytes
 #   portfolio-front-tools-7: 116 files, 548408 bytes
 #   portfolio-front-tools-8: 95 files, 555266 bytes
@@ -738,6 +738,7 @@ configMapGenerator:
       - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-an-epoxy-garage-floor.html.gz
       - epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz=epoxy-garage-floor-bid-calculator__how-much-to-charge-for-polyaspartic-garage-floor.html.gz
       - epoxy-garage-floor-bid-calculator__index.html.gz=epoxy-garage-floor-bid-calculator__index.html.gz
+      - epoxy-garage-floor-bid-calculator__share.mjs.gz=epoxy-garage-floor-bid-calculator__share.mjs.gz
       - epoxy-garage-floor-bid-calculator__usage.mjs.gz=epoxy-garage-floor-bid-calculator__usage.mjs.gz
       - epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz=epoxy-garage-floor-bid-calculator__vs-coatingos.html.gz
       - equipment-rental-break-even__app.mjs.gz=equipment-rental-break-even__app.mjs.gz
