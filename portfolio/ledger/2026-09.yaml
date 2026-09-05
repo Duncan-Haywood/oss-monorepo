@@ -13367,3 +13367,46 @@ entries:
         - python3 -m pytest gitops/tests -q -> 384 passed, 25 skipped
         - 686 mirrored pages, 0 unresolved module imports
     mrr_end: null
+  - venture: tree-service-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a shareable bid link and a local draft save (PR #3366).
+        tree-service-bid-calculator prices an arbitrary number of trees per
+        stop, so its rows are built at runtime -- one of the eight
+        itemised-calculator ventures platform/pages/link.mjs's generic
+        build-time bid-link injection explicitly declines to cover, since a
+        recipient's blank form would have one tree row where the sender had
+        four. Five of the eight (pest-control, snow-removal,
+        gutter-cleaning, carpet-cleaning, hood-cleaning) had already closed
+        the gap with their own share.mjs; this venture's own featureList
+        schema already claimed "shareable bid link" as a feature, but
+        nothing on the page did it -- closing the tab lost the whole priced
+        stop, and only a screenshot of the headline price could be handed
+        to a second estimator or the office. Vendored the fleet's current
+        shared bid-link module (share.mjs, as carried by
+        janitorial-bid-calculator/moving-bid-calculator) rather than a
+        bespoke encoder, since it already supports a rows group with
+        text/number/choice cells -- exactly what a free-typed tree label
+        plus its species/access/haul presets and hazard flags need. Wired a
+        BID_SPEC, a "Copy bid link" and "Start a fresh bid" button, and a
+        document-level persist() so the stop autosaves between visits, the
+        same local-draft behaviour every fixed-form calculator here already
+        has. Updated the featureList and the "Is my bid data uploaded
+        anywhere?" FAQ answer (JSON-LD and visible copy) to match. Ran
+        platform/marketing/regen.mjs and committed the mirror shard,
+        kustomization and alias map it rewrote (share.mjs deduped as alias
+        #361 onto janitorial-bid-calculator's identical copy). Updated
+        platform/pages/link.test.mjs's pinned itemised-calculator count (3
+        -> 2 take the generic control now that this is the sixth of eight
+        to keep its own).
+
+        Verified locally (GitHub Actions runners starved as of today per
+        ci_starvation.py):
+        - node --test ventures/tree-service-bid-calculator/*.test.mjs -> 125/125
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+          -> 1124/1124 (rebased onto #3363, which fixed the one
+          pre-existing failure -- offline bundle size -- mid-session)
+        - node --test platform/proposal/*.test.mjs -> 101/101
+    mrr_end: null
