@@ -34,7 +34,7 @@ readings:
   github-actions-runners:
     verdict: down
     measured: "2026-09-05"
-    run: 33932676830
+    run: 33953052273
     how: >-
       Dispatch any workflow that needs no secret (`Public surface check` is
       the cheapest) and classify it:
@@ -65,6 +65,17 @@ readings:
       cheap habit is to wave them through — and the day assignment resumes,
       that habit is how a real failure gets merged. Run the classifier per
       PR rather than inheriting this verdict.
+      Re-measured 2026-09-05T07:37Z, from a scheduled autonomous session that
+      first drained the open-PR/branch queue (232 branches checked with
+      `supersede_check.py`; all either already landed on `main` or were stale
+      drafts main has since overtaken — nothing repairable remained). Dispatched
+      a fresh `Public surface check` (run 33953052273) rather than trusting the
+      prior reading: still `runner_id: 0`, 3s, no steps —
+      `ci_starvation.py --run 33953052273` exits 1. Still down, consistent with
+      the 2026-10-01 reset expectation above; this venture's own product change
+      (a comparison page) was verified with `node --test`, the portfolio
+      `build.mjs`/`check.mjs` pair, and `platform/marketing/regen.mjs`, then
+      merged on that local verification per this file's own guidance.
 
   k3s-cluster:
     verdict: down
