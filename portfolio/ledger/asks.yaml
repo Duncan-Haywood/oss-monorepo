@@ -77,6 +77,38 @@ decisions:
     KEY-----` through `-----END …-----`, pasted into Settings → Secrets and
     variables → Actions. Then dispatch `hetzner-gitops CI` with `preflight:
     true` to confirm; it is read-only and never installs k3s or runs tofu.
+    **Then dispatch it again with `restore: restore-cluster` — that is the
+    whole recovery, and as of 2026-09-05 it is one dispatch rather than a
+    hands-on session.** While you are in Settings → Secrets, paste a second
+    one: `ARGOCDREPOTOKEN`, a fine-grained PAT with **Contents: Read** on this
+    repository. This is not a second ask, it is the same sitting — but without
+    it the restore *succeeds and the site stays dark*, which is the worst
+    outcome available here. The GitOps repository is private and Argo CD
+    cannot clone it anonymously, so it would install, apply the root
+    Application, and then fail every sync on repository authentication with no
+    error anywhere except Argo's own Application status. It cannot be a sealed
+    secret, because sealed-secrets is itself deployed by Argo from `gitops/apps`
+    — the credential has to exist before the first sync it enables. The same
+    token works for the `portfolio-site-repo` seal, which needs exactly that
+    permission, so one PAT covers both. Until then this ask was necessary but *not
+    sufficient*: rotating the key bought a read-only reading, and the restore
+    it was supposed to enable still meant a human SSHing to two machines in
+    order and copy-pasting a node token between them, which nobody had
+    scheduled. `bootstrap/restore-cluster.sh` does it end to end (server,
+    agent join, Argo CD, then a Host-header curl for what the apex actually
+    returns), refuses to start without the typed confirmation, and never
+    overwrites a cluster that is already there. It touches no Hetzner API, so
+    the read-only token policy is untouched. It also fixes a trap nobody had
+    hit yet, because nobody had got far enough to hit it: the *documented*
+    order does not work today. `install-k3s-server.sh` defaults
+    `ADVERTISE_IP` to `10.10.0.10` and `install-k3s-agent.sh` defaults
+    `SERVER_URL` to `https://10.10.0.10:6443` — addresses on a private network
+    `infra/inventory.tf:53` records was **never applied** (`tofu` cannot
+    create it with a read-only token), so the server install would have burned
+    its 180-second readiness wait and exited 1 while the agent retried a join
+    against an address on no interface. The script probes for the NIC and
+    falls back to public addressing with `flannel-backend=wireguard-native`,
+    so node-to-node traffic is still encrypted.
     **Measured, not inferred:** that dispatch on 2026-09-04 (run 33884253173,
     job 101060068559) exits in under a second on the workflow's own format
     classifier — `HETZNERSSHKEY holds a public key, not a private key` — so
@@ -406,6 +438,14 @@ decisions:
   # token, so it is not downstream of the cluster and never was. The ranking
   # encoded the pre-#3199 belief that the portfolio had a single origin.
   outage: true
+  # The flip alone does not publish anything: `portfolio-pages.yml` has to
+  # build the artifact and run `deploy-pages`, and that needs an Actions
+  # runner. Runner assignment stopped again on 2026-09-04 (see
+  # `infra_state.yaml`), which is why this row is flagged as a route that
+  # restores a surface *and* as one that cannot be taken today. Before
+  # 2026-09-04 the queue could not express both at once and told the owner to
+  # do this one first because it was cheapest.
+  requires: [github-actions-runners]
   action: >-
     Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
     Actions", and set repository variable `PAGES_ENABLED=true`. (Not

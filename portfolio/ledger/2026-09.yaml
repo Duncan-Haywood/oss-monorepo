@@ -10529,3 +10529,41 @@ entries:
         full `platform/pages` suite 880/880; `front-door-tools.test.mjs`
         101/101 after regenerating the mirror.
     mrr_end: null
+  - venture: cleaning-dilution-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a `vs-janitorial-manager.html` SEO/AI-discovery comparison
+        page (this venture had no `vs-*` page; Janitorial Manager is a
+        real, identifiable janitorial business management platform with a
+        bidding module, confirmed via web search since janitorialmanager.com
+        is not reachable from this session's egress proxy). No invented
+        pricing or claims: only Janitorial Manager's well-documented
+        category/identity is stated, no dollar figure for it appears
+        anywhere on the page, matching the discipline the repo's other
+        `vs-*` pages use. Linked from `index.html`'s footer and added to the
+        venture's `sitemap.xml`. Wrote `vs-janitorial-manager.test.mjs`
+        mirroring the repo's `vs-*.test.mjs` pattern, plus a
+        verbatim-after-entity-decode check between the FAQPage JSON-LD and
+        the visible `<h3>`/`<p>` copy (CLAUDE.md flags FAQPage/visible-copy
+        drift as a recurring regression class). Regenerated both marketing
+        mirrors this venture's new file touches:
+        `front-door-tools.mjs --write` (new gzip shard for the page) and
+        `front-door.mjs --write` (sitemap.xml/catalog.json page count
+        2->3). Verified: venture's own suite 28/28; full `platform/pages`
+        suite 880/880; full `platform/marketing` suite 208/208 (2 failures
+        before the `front-door.mjs --write` regen, both stale-artifact
+        checks, both green after); `platform/pages/build.mjs` +
+        `check.mjs` on a full site build — "680 pages, no dead links",
+        page confirmed present in the built venture dir and in its
+        generated per-venture sitemap. `kustomize`/`kubeconform` not
+        available in this session to run `gitops/tests` directly (same gap
+        prior sessions noted). GitHub Actions confirmed starved this
+        session (`ci_starvation.py` exit 1 on the latest dispatch) and the
+        Hetzner cluster confirmed down (`:6443` refused) — both
+        pre-diagnosed, owner-blocked, not re-investigated here — so all of
+        the above is local verification standing in for CI per CLAUDE.md's
+        "absent CI is not failed CI" rule. Not deployed: the public surface
+        is down (see CLAUDE.md), so this ships to `main` as code only.
+    mrr_end: null

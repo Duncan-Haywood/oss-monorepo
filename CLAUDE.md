@@ -492,13 +492,33 @@ waiting in [`gitops/ci/`](gitops/ci/README.md) — all 218 workflows already rea
 still moves every one of them at once, and self-hosted runners are not metered,
 so they are what makes the next cycle a non-event.
 
-But **GitHub-hosted runners work again today**, so this is no longer the thing
-standing between the portfolio and a working pipeline. Do not write it up as
-though CI were down, and do not present it to the owner as urgent — it competes
-for attention with the seal that actually is blocking, which is
-`portfolio-site-repo` (the site itself; see the Argo surface above). If you
-are writing any of this up, the useful sentence is which seals remain, not a
-re-derivation of a signature that no longer fires.
+**Starvation recurred on 2026-09-04 and this paragraph used to say runners
+worked.** Measured, not inferred: run 33925827289 (`Portfolio validate`,
+22:30:52Z) took real runner 1000054728 and passed in 196s; by 22:39:33Z runs
+33926434774 and 33926436491 both came back `runner_id: 0` with no steps, and a
+third dispatch starved too. So the signature does fire again, and the advice
+to "read a red check as a real failure" now needs `ci_starvation.py` run
+first rather than assumed — which is what that tool is for.
+
+**The sharp part is what this does to the self-hosted fallback.** That stack
+runs as pods *in the k3s cluster*, and the cluster is dead (`:6443` refused,
+`Outage triage` run 33889983086). So flipping `CI_RUNNER` today schedules
+pods onto an API server that is not listening: the insurance against metered
+CI is downstream of the cluster whose repair needs CI. All three routes to a
+public surface now converge on infrastructure that is down —
+
+- GitHub Pages (`deploy-settings`) needs a runner to build and deploy it;
+- self-hosted runners need the cluster;
+- the cluster needs SSH, and `HETZNERSSHKEY` holds a public key.
+
+— which makes `hetzner-ssh-key-is-a-public-key` the only one of them that
+depends on neither a runner nor the cluster (port 22 answers on both boxes).
+The decision queue used to rank `deploy-settings` first as the cheapest; it
+now measures viability and sinks a route whose prerequisite is down. See
+`portfolio/ledger/infra_state.yaml` for the dated readings and how to
+re-measure each; prefer re-running them to trusting these sentences, and
+expect the Actions ceiling to lift on 2026-10-01 if it behaves as it did in
+August.
 
 **This tool matters more now, not less.** While every check was red it was a
 formality — the answer was always starvation. Now that runners are back, it is
