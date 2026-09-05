@@ -34,7 +34,7 @@
 #
 # Shards as generated:
 #   portfolio-front-tools-0: 132 files, 552303 bytes
-#   portfolio-front-tools-1: 111 files, 547982 bytes
+#   portfolio-front-tools-1: 112 files, 548882 bytes
 #   portfolio-front-tools-2: 149 files, 553583 bytes
 #   portfolio-front-tools-3: 120 files, 555450 bytes
 #   portfolio-front-tools-4: 120 files, 548096 bytes
@@ -305,6 +305,7 @@ configMapGenerator:
       - 3pl-quote-normalizer__return-fields.js.gz=3pl-quote-normalizer__return-fields.js.gz
       - 3pl-quote-normalizer__returns-sensitivity.html.gz=3pl-quote-normalizer__returns-sensitivity.html.gz
       - 3pl-quote-normalizer__sensitivity.html.gz=3pl-quote-normalizer__sensitivity.html.gz
+      - 3pl-quote-normalizer__share.mjs.gz=3pl-quote-normalizer__share.mjs.gz
       - 3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html.gz=3pl-quote-normalizer__should-i-pay-the-3pl-to-kit.html.gz
       - 3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html.gz=3pl-quote-normalizer__should-i-restock-or-let-the-customer-keep-a-3pl-return.html.gz
       - 3pl-quote-normalizer__usage.mjs.gz=3pl-quote-normalizer__usage.mjs.gz
