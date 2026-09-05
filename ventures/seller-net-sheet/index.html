@@ -166,7 +166,9 @@
       <div class="actions">
         <button type="button" id="copySheet">Copy Offer A worksheet</button>
         <button type="button" id="copyCompare">Copy comparison</button>
+        <button type="button" id="copyShareLink">Copy share link</button>
       </div>
+      <p class="note">The share link carries every number on this page in the part of the URL after the <code>#</code>, which browsers never send to a server. Anyone you send it to opens this worksheet already filled in — and can change the payoff or a rate to see their own figure.</p>
       <p id="copyStatus" class="status" role="status" aria-live="polite"></p>
       <p class="note">Transparent arithmetic from your inputs — not a closing disclosure, a tax opinion, or advice about which offer to accept. Confirm every line with title/escrow, the lender payoff, and your broker.</p>
     </section>
@@ -203,7 +205,7 @@
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or real-estate advice, and it does not replace a qualified professional, title company, escrow officer, or attorney. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your prices, loan balances, and addresses are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Everything runs in your browser. Your prices, loan balances, and addresses are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control. A share link is the one thing that carries your figures off this device — they ride in the part of the URL after the <code>#</code>, which browsers never send to any server, but anyone you send the link to can read them, so treat it like the worksheet itself.</p>
     <p>Free and open source. If it saved you from taking the wrong offer, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
@@ -216,6 +218,7 @@
       formatOfferComparison,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { encodeInputs, decodeInputs } from "./share.mjs";
 
     const SHARED_IDS = [
       "loanPayoff", "listingRate", "listingFlat", "titleFlat", "titleRate",
@@ -368,6 +371,46 @@
       count("tax_proration_estimated");
     }
 
+    // Every field the link carries, read straight off the page. `preset` is
+    // included so the recipient sees which commission arrangement the sender
+    // started from, not so it can be re-applied over their rates -- see
+    // applyShared below.
+    function readAll() {
+      const state = Object.fromEntries(
+        [...SHARED_IDS, ...A_IDS, ...B_IDS, "prorationAnnualTax", "prorationDays"]
+          .map((id) => [id, el(id).value]),
+      );
+      state.preset = el("preset").value;
+      return state;
+    }
+
+    // Write a decoded link back into the page.
+    //
+    // Deliberately does NOT call applyPreset(): that stamps listingRate,
+    // buyerBrokerRate and listingFlat from the preset table, which would
+    // discard the sender's own negotiated rates -- the numbers a second
+    // opinion is usually being asked about. The select is set for display
+    // only; the rates that arrive in the link win.
+    function applyShared(incoming) {
+      for (const [id, value] of Object.entries(incoming)) {
+        if (id === "preset") continue;
+        const field = el(id);
+        if (field) field.value = value;
+      }
+      if (incoming.preset) el("preset").value = incoming.preset;
+    }
+
+    function shareUrl() {
+      const { origin, pathname } = window.location;
+      return `${origin}${pathname}#${encodeInputs(readAll())}`;
+    }
+
+    async function copyShareLink() {
+      await copyText(shareUrl());
+      count("share_link_copied");
+      setCopyStatus("Link copied — the numbers travel in the link, not to a server");
+    }
+
     async function copySheet() {
       const text = formatNetSheetSummary(calculateNetSheet(readA()), { offerLabel: "Offer A" });
       await copyText(text);
@@ -402,7 +445,21 @@
     el("prorationDays").addEventListener("input", updateProrationPreview);
     el("taxProration").addEventListener("input", updateProrationPreview);
     el("prorationApply").addEventListener("click", applyProrationEstimate);
+    el("copyShareLink").addEventListener("click", () => {
+      copyShareLink().catch(() => setCopyStatus("Copy failed; copy the address bar instead."));
+    });
     el("usageOptOut").addEventListener("change", update);
+
+    // A shared worksheet arrives in the fragment, which browsers never send to
+    // a server. `search` is accepted too, so a link that lost its # on the way
+    // through a messaging app still opens on the sender's numbers.
+    const incoming = decodeInputs(window.location.hash || window.location.search);
+    if (Object.keys(incoming).length > 0) {
+      applyShared(incoming);
+      updateProrationPreview();
+      count("shared_link_opened");
+      setCopyStatus("Opened from a shared link — every figure is an estimate to check with title or escrow.");
+    }
     update();
   </script>
 </body>
