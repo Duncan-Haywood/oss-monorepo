@@ -13123,3 +13123,71 @@ entries:
           the pre-change commit via `git stash`, so it predates and is
           unrelated to this change -- left alone as out of scope.
     mrr_end: null
+  - venture: water-softener-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a money-affecting share-link defect introduced hours earlier by
+        #3354 and left red on `main`: the new share.mjs carried all 30
+        arithmetic fields but dropped the proposal panel's five terms
+        (depositPercent, validDays, paymentTerms, proposalNotes,
+        proposalExclusions), so a shop that priced a job at its own deposit
+        and hold-price window copied a link whose recipient reopened the bid
+        at this venture's 30%/30-day defaults -- beneath a headline price
+        matching to the cent, with nothing on either page saying the terms
+        had changed. This is the exact failure `platform/proposal/
+        term-ids.test.mjs` exists to catch, and its header documents the
+        same bug costing $1,094 of disagreement on a driven browser run
+        against artificial-turf-bid-calculator on 2026-08-29.
+
+        Root cause was a half-copied pattern rather than an oversight.
+        #3354 took its structure from sump-pump-bid-calculator, which
+        carries both share.mjs AND a vendored proposal-terms.mjs; only the
+        first half came across, and share.mjs's header then wrote the
+        omission up as deliberate -- "they persist per device via
+        proposal.mjs". That reasoning is true and is precisely backwards for
+        a *share* link: per-device persistence is what the recipient does
+        not have. Corrected that comment in place rather than deleting it,
+        since the wrong reason is what a future session would otherwise
+        re-derive.
+
+        Fix follows the established vendored-module path used by the other
+        47 adopting ventures: copied platform/proposal/terms.mjs to
+        proposal-terms.mjs and terms.test.mjs to proposal-terms.test.mjs
+        (byte-identical bar the import name, as platform/proposal/
+        sync.test.mjs requires), then wired withTerms/readTerms into
+        copyLink and splitTerms/decodeTerms/applyTerms into restoreShare,
+        mirroring sump-pump exactly. The copy button now also reports a term
+        too long to ride in the link (overlongTermsNote) instead of dropping
+        it silently. Ran platform/marketing/regen.mjs and committed the
+        mirror shard, kustomization and alias map it rewrote; the new module
+        deduped to the shared stored copy, so the mirror grew by no bytes.
+
+        A correction worth carrying forward: #3354's own ledger entry
+        recorded this failure as one that "reproduces identically on the
+        pre-change commit via `git stash`, so it predates and is unrelated
+        to this change". It did not -- that change introduced it. The stash
+        test cannot decide this question, because `flatShareVentures` only
+        selects ventures that *have* a share.mjs, so stashing the very file
+        under test drops the venture out of the subject list rather than
+        reproducing its failure. A red test naming your own venture is
+        yours until a check that can actually distinguish says otherwise.
+
+        Verified locally (CI starved -- `ci_starvation.py --run 33971520164`
+        reports runner_id: 0, 1 of 1 job never assigned):
+        - node --test platform/proposal/*.test.mjs -> 101/101 pass
+          (was 100/101 on `main`; this is the failure that turned green)
+        - node --test ventures/water-softener-bid-calculator/*.test.mjs ->
+          103/103 pass (82 existing + 21 from the vendored terms suite)
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+          -> 1124/1124 pass (same count as the pre-change baseline)
+        - python3 -m pytest gitops/tests -q -> 384 passed, 25 skipped
+        - Checked all 686 mirrored pages resolve every relative module
+          import through the stored shards plus the nginx alias map: 0
+          unresolvable. (An earlier pass of this check reported 105 broken
+          tools; that was a bug in the check -- it ignored the dedup alias
+          map and mis-derived the key prefix for nested pages. Recorded
+          because the false alarm was one step away from a large and
+          entirely unnecessary "fix" to a mirror that is sound.)
+    mrr_end: null
