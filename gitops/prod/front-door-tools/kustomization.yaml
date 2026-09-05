@@ -35,7 +35,7 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 132 files, 555221 bytes
 #   portfolio-front-tools-1: 117 files, 555818 bytes
-#   portfolio-front-tools-2: 148 files, 552679 bytes
+#   portfolio-front-tools-2: 149 files, 555936 bytes
 #   portfolio-front-tools-3: 116 files, 555271 bytes
 #   portfolio-front-tools-4: 124 files, 553109 bytes
 #   portfolio-front-tools-5: 112 files, 554247 bytes
@@ -397,6 +397,7 @@ configMapGenerator:
       - faire-wholesale-calculator__should-i-run-faire-promoted-listings.html.gz=faire-wholesale-calculator__should-i-run-faire-promoted-listings.html.gz
       - faire-wholesale-calculator__should-i-take-this-faire-return.html.gz=faire-wholesale-calculator__should-i-take-this-faire-return.html.gz
       - faire-wholesale-calculator__usage.mjs.gz=faire-wholesale-calculator__usage.mjs.gz
+      - faire-wholesale-calculator__vs-ankorstore.html.gz=faire-wholesale-calculator__vs-ankorstore.html.gz
       - invoice-payment-terms-calculator__calc.mjs.gz=invoice-payment-terms-calculator__calc.mjs.gz
       - invoice-payment-terms-calculator__chasing-a-late-invoice.html.gz=invoice-payment-terms-calculator__chasing-a-late-invoice.html.gz
       - invoice-payment-terms-calculator__index.html.gz=invoice-payment-terms-calculator__index.html.gz
