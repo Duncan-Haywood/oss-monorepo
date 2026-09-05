@@ -7,8 +7,8 @@
   <meta name="description" content="Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.">
   <meta property="og:title" content="Exterior Painting Bid Calculator">
   <meta property="og:description" content="A one-story ranch with 1,800 sf of sound paint is not the same job as a two-story colonial with peeling latex, 240 feet of trim, and hard second-story access. Bid the elevation and the stories.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Exterior Painting Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Two-coat repaint versus scrape-and-prime versus bare-wood versus elastomeric masonry, extra stories over the included first floor, extra elevation square footage over the included ranch, extra trim, shutters, scrape of failing paint, primer coat, occupied-home protection, hard second-story access, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this exterior paint estimate include?","acceptedAnswer":{"@type":"Answer","text":"Base setup, extra hours for elevation and stories beyond your included allowance, a scrape and prime pass if you flag them, trim beyond the included footage, shutters, occupied-home protection, hard-access time, paint, primer, and caulk from your coverage and coat count, travel and equipment, and overhead and margin on top."}},{"@type":"Question","name":"What’s the difference between this and a flat house-special price?","acceptedAnswer":{"@type":"Answer","text":"A flat price treats every house as the same job. This tool splits out a base allowance for elevation, stories, and trim from what goes beyond it, so a two-story colonial with extra trim, a scrape-and-prime pass, and hard second-story access prices differently than a one-story ranch with sound existing paint, instead of both landing on one number."}},{"@type":"Question","name":"Does changing the job type overwrite my own hourly rates?","acceptedAnswer":{"@type":"Answer","text":"No. Picking a job type only suggests a starting setup time, paint cost per gallon, and coat count, and it will not replace a rate you have already typed over that suggestion. Every hour and dollar figure stays something you can edit."}},{"@type":"Question","name":"Does this cover interior painting or cabinet refinishing?","acceptedAnswer":{"@type":"Answer","text":"No, this prices an exterior paint job specifically: elevation, stories, scrape and prime, and trim. Interior rooms and cabinet doors are a different scope with their own labor and material patterns and are not part of this calculation."}},{"@type":"Question","name":"Does it check for lead paint or the condition of the existing paint?","acceptedAnswer":{"@type":"Answer","text":"No. Scrape and prime are flags you set from your own inspection, and the tool does not test for lead paint, assess paint condition, or perform any building-code check. Confirm those separately before starting work, especially on an older home."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Only your business and contact details for the printed proposal are saved locally on this device; job numbers are not kept between visits."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Exterior Painting Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Two-coat repaint versus scrape-and-prime versus bare-wood versus elastomeric masonry, extra stories over the included first floor, extra elevation square footage over the included ranch, extra trim, shutters, scrape of failing paint, primer coat, occupied-home protection, hard second-story access, walk-away price, proposed-price margin check, copyable customer-facing bid summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this exterior paint estimate include?","acceptedAnswer":{"@type":"Answer","text":"Base setup, extra hours for elevation and stories beyond your included allowance, a scrape and prime pass if you flag them, trim beyond the included footage, shutters, occupied-home protection, hard-access time, paint, primer, and caulk from your coverage and coat count, travel and equipment, and overhead and margin on top."}},{"@type":"Question","name":"What’s the difference between this and a flat house-special price?","acceptedAnswer":{"@type":"Answer","text":"A flat price treats every house as the same job. This tool splits out a base allowance for elevation, stories, and trim from what goes beyond it, so a two-story colonial with extra trim, a scrape-and-prime pass, and hard second-story access prices differently than a one-story ranch with sound existing paint, instead of both landing on one number."}},{"@type":"Question","name":"Does changing the job type overwrite my own hourly rates?","acceptedAnswer":{"@type":"Answer","text":"No. Picking a job type only suggests a starting setup time, paint cost per gallon, and coat count, and it will not replace a rate you have already typed over that suggestion. Every hour and dollar figure stays something you can edit."}},{"@type":"Question","name":"Does this cover interior painting or cabinet refinishing?","acceptedAnswer":{"@type":"Answer","text":"No, this prices an exterior paint job specifically: elevation, stories, scrape and prime, and trim. Interior rooms and cabinet doors are a different scope with their own labor and material patterns and are not part of this calculation."}},{"@type":"Question","name":"Does it check for lead paint or the condition of the existing paint?","acceptedAnswer":{"@type":"Answer","text":"No. Scrape and prime are flags you set from your own inspection, and the tool does not test for lead paint, assess paint condition, or perform any building-code check. Confirm those separately before starting work, especially on an older home."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. A share link encodes only the inputs you choose into the address bar and is never sent to us; your business and contact details for the printed proposal are saved locally on this device, and job numbers are not otherwise kept between visits."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2418; background: #efe6d4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -234,6 +234,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -277,9 +278,10 @@
         separately before starting work, especially on an older home.</p>
 
       <h3>Is my data uploaded anywhere?</h3>
-      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Only
-        your business and contact details for the printed proposal are saved locally on this device;
-        job numbers are not kept between visits.</p>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. A share
+        link encodes only the inputs you choose into the address bar and is never sent to us; your
+        business and contact details for the printed proposal are saved locally on this device, and job
+        numbers are not otherwise kept between visits.</p>
     </section>
   </main>
 
@@ -290,9 +292,9 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, painting, lead-paint, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your elevation, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your elevation, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-to-paint-the-exterior-of-a-house.html">How much to charge to paint the exterior of a house</a> &middot; <a href="./vs-paintscout.html">this calculator vs. PaintScout</a>.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -303,6 +305,9 @@
       suggestedJobHours,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
     import {
       COMPANY_FIELDS,
       buildProposal,
@@ -479,6 +484,64 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied before the fields below: a link that carries only the terms
+      // is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of ['scrape', 'prime', 'occupied', 'hardAccess']) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A job-type change never overwrites a restored rate: mark the three
+      // rates a preset suggests as already "edited", the same guard the
+      // form itself sets when a shop types over the suggestion.
+      SUGGESTED_JOB_IDS.forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     presets.addEventListener('change', () => {
       const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
@@ -513,6 +576,9 @@
       } catch (error) {
         el('summaryStatus').textContent = error.message;
       }
+    });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Could not copy the link; copy the address bar.'; });
     });
 
 
@@ -647,6 +713,10 @@
     document.addEventListener('input', refreshProposal);
     document.addEventListener('change', refreshProposal);
 
+    // Restored last, so a shared link's own selections and rates win over the
+    // page's static HTML defaults -- the whole point of a link is to reopen
+    // the sender's exact numbers.
+    restoreShare();
     update();
     restoreCompany();
     refreshProposal();

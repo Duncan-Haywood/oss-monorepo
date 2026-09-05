@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const scriptSource = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
@@ -24,4 +24,18 @@ test('an invalid input clears the stale report instead of leaving it next to a s
 test('the page still ships its disclaimer and no-warranty text', () => {
   assert.match(html, /No warranty\./);
   assert.match(html, /id="error" class="error" role="alert"/);
+});
+
+// Regression: sitemap.xml was missing what-did-my-cookie-banner-actually-change.html,
+// a real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture root is reachable from the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
 });

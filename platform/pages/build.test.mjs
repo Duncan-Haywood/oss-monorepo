@@ -69,6 +69,16 @@ import {
   surfaceExternalFetchHosts,
   CARD_FOOTER,
   CARD_FOOTER_EXCEPTION,
+  COMPARE_PATH,
+  COMPARISON_FILE_PATTERN,
+  comparisonSubject,
+  comparisonSubjectKey,
+  comparisonProductGroups,
+  comparisonProductSlug,
+  discoverComparisons,
+  groupComparisons,
+  renderComparePage,
+  renderCompareProductPage,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -648,12 +658,13 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Four trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, catalog.json, the sitemap and the Atom feed
-  // — so the count is tools plus those. A fifth, "Source", used to point at
-  // this repository's GitHub URL; the repository is private, so that link
-  // 404s for every real visitor and was removed rather than left false.
-  assert.equal(bullets.length, surfaces.length + 4);
+  // Five trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the comparison index, catalog.json, the
+  // sitemap and the Atom feed — so the count is tools plus those. A sixth,
+  // "Source", used to point at this repository's GitHub URL; the repository is
+  // private, so that link 404s for every real visitor and was removed rather
+  // than left false.
+  assert.equal(bullets.length, surfaces.length + 5);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -3812,6 +3823,47 @@ test('the About page lede states the device-privacy claim honestly, with any doc
   }
 });
 
+test('the About page privacy panel counts its exceptions instead of assuming one', async () => {
+  // Regression target: the panel heading, the "Nothing you enter is
+  // transmitted" clause, and the "third-party scripts" clause each hardcoded
+  // "one documented exception" / a singular verb. That was silently correct
+  // while Sponsor Ready was the only externalCallExceptions entry, and went
+  // quietly false the day a second one (DNS Change Evidence) existed
+  // alongside it -- exactly the kind of drift this page exists to prevent
+  // everywhere else. This asserts the wording tracks the real count, not a
+  // number frozen at write time.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+  const exceptions = externalCallExceptions(surfaces);
+
+  if (exceptions.length === 0) {
+    assert.match(about, /Nothing\. There is no server that could receive it\./);
+    assert.ok(!about.includes('documented exception'));
+  } else if (exceptions.length === 1) {
+    assert.match(about, /Nothing, with one documented exception below\./);
+    assert.match(about, /Nothing you enter is transmitted, with one documented exception\./);
+  } else {
+    assert.match(
+      about,
+      new RegExp(`Nothing, with ${exceptions.length} documented exceptions below\\.`),
+      `panel heading should count all ${exceptions.length} exceptions, not say "one"`,
+    );
+    assert.match(
+      about,
+      new RegExp(`Nothing you enter is transmitted, with ${exceptions.length} documented exceptions\\.`),
+    );
+    assert.ok(
+      !about.includes('one documented exception'),
+      `About page has ${exceptions.length} exceptions but still says "one documented exception" somewhere`,
+    );
+    assert.match(
+      about,
+      /Besides the live API calls .+ make, above, the/,
+      'plural exceptions need "calls ... make", not the singular "call ... makes"',
+    );
+  }
+});
+
 test('the About page is reachable from the hub, the categories and every tool page', async () => {
   const { outDir, surfaces } = await site();
 
@@ -3867,12 +3919,18 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the categories and About, and nothing else', () => {
+test('the hub sitemap holds the hub, the categories, About and /compare/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  // About is a hub-level page and belongs to no venture, so this sitemap is the
-  // only one that can carry it.
-  assert.deepEqual(locs, [BASE, `${BASE}c/marketplace/`, `${BASE}c/trades/`, `${BASE}about/`]);
+  // About and the comparison index are hub-level pages belonging to no venture,
+  // so this sitemap is the only one that can carry either.
+  assert.deepEqual(locs, [
+    BASE,
+    `${BASE}c/marketplace/`,
+    `${BASE}c/trades/`,
+    `${BASE}about/`,
+    `${BASE}${COMPARE_PATH}`,
+  ]);
 
   // Called with no categories it still emits a valid urlset naming the hub —
   // the shape every caller before this change relied on.
@@ -3961,4 +4019,310 @@ test('no link to a published venture is repaired out to the private repository',
   }
 
   assert.deepEqual(offenders, [], `links sent off-site to a private repo: ${offenders.slice(0, 8).join(', ')}`);
+});
+
+// ---------------------------------------------------------------------------
+// The comparison index (`/compare/`)
+//
+// It exists because the catalogue's 167 `vs-<product>.html` pages were each
+// reachable from exactly one place — their own tool's entry page — with no
+// cross-venture link between any two of them and no page on either host
+// collecting them (measured 2026-09-05). These tests pin the three things that
+// would silently undo that: the index going empty, the index naming a product
+// no venture author wrote, and the index shipping unreachable.
+// ---------------------------------------------------------------------------
+
+test('comparisonSubject reads the product out of the page, not the filename', () => {
+  assert.equal(
+    comparisonSubject('<h1>This calculator vs. Jobber</h1>'),
+    'Jobber',
+    'the plain heading form',
+  );
+  assert.equal(
+    comparisonSubject('<h1>Cash Runway Planner vs. QuickBooks Online&#39;s Cash Flow Planner</h1>'),
+    "QuickBooks Online's Cash Flow Planner",
+    'entities decoded, multi-word product kept whole',
+  );
+  assert.equal(
+    comparisonSubject('<h1>\n  This calculator\n  vs.\n  LMN by Granum\n</h1>'),
+    'LMN by Granum',
+    'a heading broken across lines',
+  );
+  assert.equal(
+    comparisonSubject('<h1>An intro heading</h1><title>Tool vs. Widget Co | Site</title>'),
+    'Widget Co',
+    'falls back to the title, minus the site-name suffix',
+  );
+  assert.equal(
+    comparisonSubject('<h1>Nothing to see</h1>'),
+    null,
+    'a page naming no product yields null rather than a guess',
+  );
+});
+
+test('comparisonSubjectKey merges articles and casing but not possessives', () => {
+  assert.equal(
+    comparisonSubjectKey('the AWS Pricing Calculator'),
+    comparisonSubjectKey('AWS Pricing Calculator'),
+  );
+  assert.notEqual(
+    comparisonSubjectKey("Etsy's own Profit Calculator"),
+    comparisonSubjectKey('Etsy'),
+    "a possessive names a different product and must not be folded into the brand",
+  );
+});
+
+test('groupComparisons puts the most-compared product first', () => {
+  const entry = (subject, title) => ({
+    subject,
+    subjectKey: comparisonSubjectKey(subject),
+    title,
+    slug: title.toLowerCase().replaceAll(' ', '-'),
+    file: 'vs-x.html',
+    description: '',
+  });
+  const groups = groupComparisons([
+    entry('Zebra', 'A tool'),
+    entry('Jobber', 'C tool'),
+    entry('Jobber', 'B tool'),
+    entry('the Jobber', 'A tool'),
+  ]);
+  assert.deepEqual(
+    groups.map((g) => [g.subject, g.items.length]),
+    [['Jobber', 3], ['Zebra', 1]],
+  );
+  assert.deepEqual(
+    groups[0].items.map((i) => i.title),
+    ['A tool', 'B tool', 'C tool'],
+    'alphabetical inside a product',
+  );
+});
+
+test('COMPARISON_FILE_PATTERN matches the convention and nothing beside it', () => {
+  assert.ok(COMPARISON_FILE_PATTERN.test('vs-jobber.html'));
+  assert.ok(COMPARISON_FILE_PATTERN.test('vs-quickbooks-cash-flow-planner.html'));
+  assert.ok(!COMPARISON_FILE_PATTERN.test('vs-jobber.test.mjs'));
+  assert.ok(!COMPARISON_FILE_PATTERN.test('index.html'));
+  assert.ok(!COMPARISON_FILE_PATTERN.test('versus-jobber.html'));
+});
+
+test('the venture tree still has comparison pages, and every one names a product', async () => {
+  // The gap this guards is `discoverComparisons` going quiet: a change to the
+  // filename convention or to `sourceDir` resolution would render an index with
+  // a headline, a disclaimer and nothing in it — valid HTML that passes every
+  // structural check and is worthless. It also enforces the mandate's absolute
+  // limit at the source: every product name the index prints must be text the
+  // page it links to actually contains.
+  const surfaces = (await discoverSurfaces(path.join(REPO_ROOT, 'ventures'))).map((surface) => ({
+    ...surface,
+    title: surface.slug,
+    description: '',
+  }));
+  const entries = await discoverComparisons(surfaces);
+  assert.ok(entries.length > 100, `only ${entries.length} comparison pages discovered`);
+  for (const entry of entries) {
+    const surface = surfaces.find((s) => s.slug === entry.slug);
+    const html = await fs.readFile(path.join(surface.sourceDir, entry.file), 'utf8');
+    assert.ok(
+      html.includes(entry.subject),
+      `"${entry.subject}" is not text ${entry.slug}/${entry.file} contains`,
+    );
+  }
+});
+
+test('renderComparePage links every entry, disclaims, and counts itself honestly', () => {
+  const entry = (subject, slug, title) => ({
+    subject,
+    subjectKey: comparisonSubjectKey(subject),
+    slug,
+    file: `vs-${subject.toLowerCase()}.html`,
+    title,
+    description: 'Does the arithmetic for a job.',
+  });
+  const groups = groupComparisons([
+    entry('Jobber', 'a-calculator', 'A Calculator'),
+    entry('Jobber', 'b-calculator', 'B Calculator'),
+    entry('Widget', 'c-calculator', 'C Calculator'),
+  ]);
+  const surfaces = [
+    { slug: 'a-calculator', title: 'A Calculator' },
+    { slug: 'b-calculator', title: 'B Calculator' },
+    { slug: 'c-calculator', title: 'C Calculator' },
+  ];
+  const html = renderComparePage({
+    groups,
+    surfaces,
+    categoryGroups: [],
+    baseUrl: 'https://example.test/',
+  });
+
+  for (const group of groups) {
+    for (const item of group.items) {
+      assert.ok(
+        html.includes(`href="../${item.slug}/${item.file}"`),
+        `${item.slug}/${item.file} is not linked`,
+      );
+    }
+  }
+  // The multi-product band and the one-each band both render, and the counts in
+  // the copy are derived rather than written down.
+  assert.match(html, /3 comparison pages across 2 products/);
+  assert.match(html, /1 more products, each compared by a single tool here\./);
+  assert.match(html, /No warranty/);
+  assert.ok(html.includes('<link rel="canonical" href="https://example.test/compare/">'));
+  assert.ok(
+    html.includes('trademark of its owner'),
+    'a page naming other companies’ products must say so',
+  );
+  // Usage tracking, on the same terms as every other page here.
+  assert.ok(html.includes('data-pf-slug="compare"'));
+  // And no third-party anything: /about/ promises there are none.
+  assert.ok(!/src="https?:\/\//.test(html));
+  assert.ok(!/href="https?:\/\/fonts\./.test(html));
+  // The index links each product's own page. A spoke the hub does not link is
+  // reachable only from the sitemap: it renders, it deploys, it 200s, and no
+  // reader arrives.
+  assert.ok(html.includes('href="../compare/jobber/"'), 'Jobber’s own page is not linked');
+  // And only for the products that have one. `Widget` is compared by a single
+  // tool, so no page is generated for it and a link would be a 404.
+  assert.ok(!html.includes('compare/widget/'), 'a single-tool product must not be linked a page');
+});
+
+test('a product slug is URL-safe and matches what the apex nginx capture allows', () => {
+  // The two ends of one contract: `comparisonProductSlug` decides the URL on
+  // this host *and* (through `compareProductKey`) the ConfigMap key on the
+  // apex, whose `^/compare/(?<vs>[a-z0-9][a-z0-9-]*)/?$` location can only ask
+  // for keys of that shape. A slug outside it is a page nginx never requests.
+  const capture = /^[a-z0-9][a-z0-9-]*$/;
+  for (const subject of ['Jobber', 'Housecall Pro', "Amazon's own Revenue Calculator", 'GovWin IQ']) {
+    const slug = comparisonProductSlug(comparisonSubjectKey(subject));
+    assert.match(slug, capture, `"${subject}" produces a slug nginx cannot capture`);
+  }
+  // Injective: the key alphabet is lowercase alphanumerics and single spaces,
+  // so no key can already contain the hyphen that spaces become. Two products
+  // sharing a slug would silently overwrite each other's page.
+  const keys = ['housecall pro', 'housecall-pro'].map(comparisonSubjectKey);
+  assert.equal(new Set(keys.map(comparisonProductSlug)).size, new Set(keys).size);
+});
+
+test('renderCompareProductPage is about one product and claims nothing about it', () => {
+  const entry = (subject, slug, title) => ({
+    subject,
+    subjectKey: comparisonSubjectKey(subject),
+    slug,
+    file: `vs-${subject.toLowerCase()}.html`,
+    title,
+    description: 'Does the arithmetic for a job.',
+  });
+  const groups = groupComparisons([
+    entry('Jobber', 'a-calculator', 'A Calculator'),
+    entry('Jobber', 'b-calculator', 'B Calculator'),
+    entry('Aspire', 'c-calculator', 'C Calculator'),
+    entry('Aspire', 'd-calculator', 'D Calculator'),
+    entry('Widget', 'e-calculator', 'E Calculator'),
+  ]);
+  const products = comparisonProductGroups(groups);
+  // Two products, not three: `Widget` has a single comparison, so it stays in
+  // the index's one-each band and gets no page. See `COMPARE_PRODUCT_MIN_TOOLS`.
+  assert.deepEqual(products.map((g) => g.subject).sort(), ['Aspire', 'Jobber']);
+
+  const jobber = products.find((g) => g.subject === 'Jobber');
+  const html = renderCompareProductPage({
+    group: jobber,
+    groups,
+    surfaces: [
+      { slug: 'a-calculator', title: 'A Calculator' },
+      { slug: 'b-calculator', title: 'B Calculator' },
+    ],
+    categoryGroups: [],
+    baseUrl: 'https://example.test/',
+  });
+
+  for (const item of jobber.items) {
+    assert.ok(
+      html.includes(`href="../../${item.slug}/${item.file}"`),
+      `${item.slug}/${item.file} is not linked`,
+    );
+  }
+  assert.ok(html.includes('<link rel="canonical" href="https://example.test/compare/jobber/">'));
+  // Two segments deep, so every relative reference needs `../../` — a page
+  // built with the index's own `../` resolves its stylesheet and its crumbs
+  // one directory above where they live.
+  assert.ok(!/href="\.\.\/(?!\.\.\/)/.test(html), 'a spoke must resolve against ../../');
+  // The searcher's phrase is in the title, where it describes the question the
+  // page answers; the heading states only what the linked pages are.
+  assert.match(html, /<title>Jobber alternatives: 2 free tools/);
+  assert.ok(
+    !/better than/i.test(html),
+    'this page indexes comparisons; it does not make one',
+  );
+  // The notices every surface naming another company's product carries here.
+  assert.match(html, /No warranty/);
+  assert.ok(html.includes('trademark of its owner'));
+  assert.match(html, /not\s+affiliated with, endorsed by, or reviewed by/i);
+  // Cross-linked to its siblings, which is the internal linking the catalogue
+  // measured zero of on 2026-09-05 — and not to itself.
+  assert.ok(html.includes('href="../../compare/aspire/"'), 'the sibling spoke is not linked');
+  assert.ok(!html.includes('href="../../compare/jobber/"'), 'a spoke must not link itself');
+  // Its own usage row, so "did a product page earn what the index could not"
+  // stays answerable.
+  assert.ok(html.includes('data-pf-slug="compare/jobber"'));
+  assert.ok(!/src="https?:\/\//.test(html));
+});
+
+test('the hub sitemap lists every product page the build writes', () => {
+  const xml = renderHubSitemap('https://example.test/', ['trades'], ['jobber', 'housecall pro']);
+  assert.ok(xml.includes('<loc>https://example.test/compare/</loc>'));
+  assert.ok(xml.includes('<loc>https://example.test/compare/jobber/</loc>'));
+  // The space in the key becomes a hyphen in the URL, via `comparisonProductSlug`
+  // rather than a second normalisation written here.
+  assert.ok(xml.includes('<loc>https://example.test/compare/housecall-pro/</loc>'));
+});
+
+test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
+  const out = await fs.mkdtemp(path.join(os.tmpdir(), 'compare-'));
+  const ventures = path.join(out, 'ventures');
+  const mk = async (slug, files) => {
+    await fs.mkdir(path.join(ventures, slug), { recursive: true });
+    for (const [name, body] of Object.entries(files)) {
+      await fs.writeFile(path.join(ventures, slug, name), body);
+    }
+  };
+  const page = (title, body) =>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
+    `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
+    `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
+  await mk('alpha-calculator', {
+    'index.html': page('Alpha Calculator', '<h1>Alpha Calculator</h1>'),
+    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+  });
+  await mk('beta-calculator', {
+    'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
+    'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
+  });
+
+  const result = await buildSite({
+    venturesDir: ventures,
+    outDir: path.join(out, 'dist'),
+    baseUrl: 'https://example.test/',
+    log: () => {},
+    disableWorker: true,
+  });
+  assert.equal(result.comparisons.length, 1, 'both tools compare with one product');
+  assert.equal(result.comparisons[0].subject, 'Jobber');
+
+  const compare = await fs.readFile(path.join(out, 'dist', COMPARE_PATH, 'index.html'), 'utf8');
+  assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
+  assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
+
+  const hub = await fs.readFile(path.join(out, 'dist', 'index.html'), 'utf8');
+  assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
+
+  const hubSitemap = await fs.readFile(path.join(out, 'dist', 'sitemap-hub.xml'), 'utf8');
+  assert.ok(hubSitemap.includes(`<loc>https://example.test/${COMPARE_PATH}</loc>`));
+
+  const llms = await fs.readFile(path.join(out, 'dist', 'llms.txt'), 'utf8');
+  assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
+
+  await fs.rm(out, { recursive: true, force: true });
 });

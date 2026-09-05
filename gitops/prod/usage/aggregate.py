@@ -70,6 +70,12 @@ SINCE_SECONDS = 25 * 3600
 # collide with a venture directory.
 HUB_KEY = "_hub"
 
+# The path segment the comparison index and its per-product pages live under,
+# on both hosts. Matches `COMPARE_PATH` in `platform/pages/build.mjs`, which is
+# what generates them; this file cannot import from a JavaScript module, so the
+# agreement is pinned by `gitops/tests/test_site_usage.py` instead.
+COMPARE_DIR = "compare"
+
 # Only page-shaped requests count. An `.mjs`, `.css`, `.png` or `sitemap.xml`
 # fetch says nothing about a person deciding to use a tool, and counting them
 # would inflate every number by whatever each page happens to load.
@@ -164,6 +170,26 @@ MIRROR_SEPARATOR = "__"
 # never be called `c`), so this prefix cannot collide with a mirrored tool.
 FRONT_CATEGORY_PREFIX = f"c{MIRROR_SEPARATOR}"
 
+# How a per-product comparison page's logged `$uri` maps back to its product.
+#
+# Exactly the mechanism `FRONT_CATEGORY_PREFIX` documents, one page type later:
+# the apex's `^/compare/(?<vs>…)/?$` block resolves `/compare/jobber/` to the
+# flattened ConfigMap key `/vs__jobber.html`, because a ConfigMap key cannot
+# contain `/`.
+#
+# It needs a branch of its own for the reason the category one does, and the
+# failure it prevents is the same shape but louder. Without it `vs__jobber`
+# contains `MIRROR_SEPARATOR`, so the mirrored-tool branch below splits on it
+# and files the hit under `_front/vs` — a venture called `vs` that does not
+# exist, accumulating the traffic of all fourteen product pages in the stored
+# history under a name nothing in the tree explains.
+#
+# `vs` is safe as a prefix because a mirrored key is `<venture-slug>__<file>`
+# and no venture is called `vs`; `compareProductKey` in
+# `platform/marketing/front-door.mjs` picked the prefix and this is the reader
+# half of that choice.
+FRONT_COMPARE_PREFIX = f"vs{MIRROR_SEPARATOR}"
+
 # Which key a pod's counted lines belong to, chosen by its `app` label.
 #
 # `None` means "use `slug_for`'s own keys, unprefixed" — the tools site, whose
@@ -225,6 +251,16 @@ def slug_for(uri: str) -> str | None:
         return parts[0].removesuffix(".html")
     if parts[0] == "c":
         return f"c/{parts[1].removesuffix('.html')}"
+    if parts[0] == COMPARE_DIR and len(parts) > 2:
+        # `/compare/jobber/index.html` — one of the comparison index's
+        # per-product pages. Kept apart from the index itself, and from each
+        # other, for the reason the category pages are: whether a product page
+        # earns the search traffic the 167-entry index could not is the entire
+        # question those pages were written to answer, and folding them onto a
+        # single `compare` row would leave it unanswerable. `len(parts) > 2`
+        # rather than `== 3` so a future sub-page under a product still rolls
+        # onto its product rather than falling through to the bare index row.
+        return f"{COMPARE_DIR}/{parts[1]}"
     return parts[0]
 
 
@@ -298,6 +334,17 @@ def fold_for_app(counts: dict[str, int], app: str | None) -> dict[str, int]:
             # matches the `c/<id>` key `slug_for` already gives these pages on
             # the catalogue host — one page, one name, whichever host served it.
             row = f"{FRONT_TOOL_PREFIX}c/{slug[len(FRONT_CATEGORY_PREFIX):]}"
+        elif slug.startswith(FRONT_COMPARE_PREFIX):
+            # A per-product comparison page. Before the mirrored-tool branch
+            # for the same reason the category one is: `vs__jobber` carries
+            # `MIRROR_SEPARATOR`, so falling through would file it under a
+            # venture called `vs`. See `FRONT_COMPARE_PREFIX`.
+            #
+            # Spelled `_front/compare/<product>` so it sorts beside the index's
+            # own row and matches the `compare/<product>` key `slug_for` gives
+            # the same page on the catalogue host — one page, one name,
+            # whichever host served it.
+            row = f"{FRONT_TOOL_PREFIX}{COMPARE_DIR}/{slug[len(FRONT_COMPARE_PREFIX):]}"
         elif MIRROR_SEPARATOR in slug:
             # `slug_for` has already stripped `.html`, so a mirrored entry page
             # arrives as `<slug>__index` and a sub-page as `<slug>__<name>`.

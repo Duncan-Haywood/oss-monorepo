@@ -9104,6 +9104,42 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Fixed a real product-logic bug on the linear/1D cut-list tab:
+        `optimizeCutList` threw the instant any single required cut
+        couldn't fit a stock length or on-hand offcut, discarding every
+        already-placed bar with it. A single mistyped length on a 40-line
+        cut list nuked the whole plan and gave the user nothing but an
+        error, even though the other 39 lines packed fine. `sheet.mjs` (the
+        2D sheet-goods packer on the same page) already made the opposite,
+        documented call -- return unplaceable parts in `oversize`, keep
+        packing the rest -- so the two modes on one page were silently
+        inconsistent for the same class of input error.
+      - >-
+        `optimizeCutList` now matches sheet.mjs's behavior: an unfittable
+        cut is collected into a new `oversize` array instead of thrown, and
+        packing continues. totalCuts/waste/utilization now count only cuts
+        actually placed. `formatCutPlan` and a new `#linear-oversize`
+        element (mirroring `#sheet-oversize`) surface the unplaced cuts
+        instead of silently dropping them. Genuinely invalid input
+        (non-finite/non-positive lengths, negative stock cost, an empty
+        list) still throws -- only the "physically doesn't fit" case
+        changed.
+      - >-
+        Verified: `node --test ventures/cut-list-optimizer/*.test.mjs`,
+        114/114 passing (added 2 calc.test.mjs cases and 1 page.test.mjs
+        wiring check). Read the changed index.html script by hand end to
+        end; did not launch a real browser. Regenerated the committed
+        front-door mirror (`node platform/marketing/front-door-tools.mjs
+        --write`) after `validate` caught it as stale on the first CI run
+        -- a 3-file, comment-and-checksum-only diff. All 18 checks green
+        on real runners (job durations up to 4m23s, not the 3-6s
+        starvation signature) before merging PR #3097 (squash).
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Shipped CSV export for both plan types (sheet goods and linear
         stock). Both tabs previously offered only "Copy cut plan" (plain
         text for a job ticket) and Print; a shop that wanted the plan in a
@@ -9532,4 +9568,2919 @@ entries:
         --write`) so the page deploys on the Hetzner front door rather than
         only in the Pages artifact: new shard key present, listed in
         `kustomization.yaml` and in the front door's `sitemap.xml`.
+    mrr_end: null
+  - venture: freight-accessorial-auditor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-trax.html`, the venture's first competitor comparison
+        page, following the established vs-<competitor> pattern from
+        `cam-reconciliation-check/vs-yardi.html` and
+        `window-cleaning-bid-calculator/vs-servicemonster.html`. Picked
+        Trax Technologies as the competitor because it is the credible,
+        well-known named product in this exact niche -- enterprise
+        transportation spend management / freight audit and payment (FAP)
+        software that shippers with real freight volume actually run, as
+        opposed to a strawman.
+      - >-
+        Contrasts two different shapes with concrete mechanical claims, not
+        vague marketing language: Trax ingests carrier invoices (commonly
+        via EDI/TMS integration), audits at scale across a shipper's whole
+        carrier network under an ongoing enterprise account, and can
+        disburse carrier payment; this calculator imports one carrier's CSV
+        or hand-typed lines, prices them against a rate card typed once
+        (flat or per-unit with a free allowance and cap), flags duplicates
+        and overages, runs a detention-clock and fuel-surcharge check, and
+        never integrates, pays a carrier, or uploads anything -- no account,
+        free. No dollar figure is claimed for Trax since its pricing page is
+        not reachable from this session; only well-documented category facts
+        are stated.
+      - >-
+        FAQPage JSON-LD written to match the visible `<h3>`/`<p>` copy
+        exactly (verified with a bisecting divergence check in the new
+        `vs-trax.test.mjs`, mirroring `platform/pages/faq-visible.test.mjs`'s
+        own method). Linked from `index.html`'s existing extras line, added
+        to `sitemap.xml`, non-affiliation and no-warranty disclaimers
+        carried over from the venture's own footer, no third-party script,
+        font, stylesheet, or network call.
+      - >-
+        Regenerated the front-door mirror so the page actually deploys:
+        `node platform/marketing/front-door-tools.mjs --write` (new shard
+        key, `kustomization.yaml` updated) then `node
+        platform/marketing/front-door.mjs --write` (catalog.json,
+        sitemap.xml). Verified: venture's own `node --test` -> 128/128 (was
+        108, +20 new); `platform/pages/*.test.mjs` -> 880/880;
+        `platform/marketing/*.test.mjs` -> 208/208 (5 mirror-staleness
+        failures before the regen, 0 after); `node platform/pages/build.mjs`
+        -> 174 products, 665 pages; `node platform/pages/check.mjs
+        platform/pages/dist` -> "no dead links".
+    mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found the gap by parity, not by scanning: grant-deadline-tracker
+        (#3162, same day) had just fixed `addMonths` silently flooring a
+        fractional reporting interval (1.5 months) to 1, producing a
+        real-looking but wrong due date with no error. Checked the sibling
+        venture, grant-reporting-tracker, for the identical shape and found
+        the exact same bug in its own `addMonths` -- `Math.floor(months)`
+        with no `Number.isInteger` guard, despite the calculator otherwise
+        being careful about anchor dates, filed-report rollovers and
+        malformed localStorage rows.
+      - >-
+        The Add form's own `step="1" min="1"` already blocks entering a
+        fractional interval through the UI, so this is a defense-in-depth
+        fix rather than a UI-reachable one: the gap is a grant row loaded
+        from `localStorage` (an older save predating that constraint, or one
+        edited outside the page), which reaches `reviewGrant`/`addMonths`
+        with no gate at all. Verified the bug directly before fixing it:
+        `addMonths('2026-01-15', 1.5)` returned `'2026-02-15'` (the 1-month
+        answer) instead of refusing the input.
+      - >-
+        Fix: `addMonths` now refuses a non-integer month count the same way
+        it already refuses `months < 1`, returning `null`. `reviewGrant`
+        already had a `nextReport === null -> status: 'Check inputs'` path
+        (added for a different reason), so a corrupted-interval row now
+        correctly surfaces as "Check inputs" instead of a wrong Overdue/Due
+        soon/On track verdict.
+      - >-
+        Verified: added 2 tests (`addMonths` rejects 1.5 and 0.5;
+        `reviewGrant` on a 1.5-month-interval grant returns
+        `nextReport: null`, `status: 'Check inputs'`); venture's own `node
+        --test` -> 26/26 (was 24). `platform/pages/clauses.mjs
+        grant-reporting-tracker`, `check_input_bounds.py` and
+        `check_form_defaults.py` all still clean. Regenerated the front-door
+        mirror (`platform/marketing/front-door-tools.mjs --write`) since
+        `calc.mjs` changed: new shard bytes for
+        `grant-reporting-tracker__calc.mjs.gz`, `kustomization.yaml`
+        updated.
+    mrr_end: null
+  - venture: cra-evidence-desk
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: not applicable — `list_pull_requests` returned zero
+        open PRs. Checked the four closed unmerged the previous 45 minutes
+        (#3164, #3169, #3170, #3171) for discarded work rather than trusting
+        the closes: each cited a `supersede_check.py` proof, and the one that
+        would have mattered most (#3170, "unresolved conflict markers left on
+        main") was verified directly — a repo-wide scan for `<<<<<<<`,
+        `=======`, `>>>>>>>` across html/mjs/js/yaml/yml/md/py found none on
+        `main`. The queue is genuinely drained, not abandoned.
+      - >-
+        Closed the portfolio's last guide-coverage gap.
+        `guide-coverage.mjs` reported 173 of 174 published surfaces carrying
+        a secondary page, naming `cra-evidence-desk` as the only one left —
+        the venture #3168's session deliberately skipped, because a Cyber
+        Resilience Act explainer written to obligation dates would need
+        primary legislation this environment cannot reach (outbound HTTPS to
+        arbitrary hosts is refused by the egress proxy). That reasoning still
+        holds and is not worked around here: this page makes no claim about
+        deadlines, thresholds, or whether any obligation applies.
+      - >-
+        Shipped `sbom-and-advisory-package-names-dont-match.html` on a
+        different axis instead — the mechanical question a vendor hits before
+        they know a tool exists ("why don't my SBOM and advisory package
+        names match?"), answerable entirely from
+        `src/cra_evidence_desk/normalize.py` and therefore verifiable without
+        leaving the repo. Covers the five registries the two formats spell
+        differently (crates.io/cargo, Go/golang, Packagist/composer,
+        RubyGems/gem, SwiftURL/swift), Maven's `group:artifact` against a
+        purl's namespace + name split, OSV's `Alpine:v3.19` distribution
+        qualifier being dropped at the colon, purl qualifiers and subpath
+        being scoping rather than identity, and a malformed purl falling back
+        to the component's own fields rather than failing the file. Every
+        claim was read out of the source before writing, including the exact
+        alias table — the five that differ and the eight that are identity
+        entries.
+      - >-
+        Held the coverage boundary rather than overselling normalisation: the
+        page states plainly that folding two spellings of one registry is
+        reading what both files say, while ranges, aliases, reachability and
+        exploitability are inferences the tool does not make, and that a
+        range-only advisory contributes no match and is reported as not
+        evaluated. Upstream-of-the-tool framing so it does not cannibalise
+        the entry page's own queries; visible Q&A with matching FAQPage
+        JSON-LD, no-warranty clause, no form controls (it is a prose page),
+        no third-party script, font, or network call. Linked from
+        `index.html` and back.
+      - >-
+        Verified: `guide-coverage.mjs` 173/174 -> 174/174; `faq-coverage.mjs`
+        174/174; `clauses.mjs` 654 pages across 174 surfaces; `link.mjs` and
+        `invalid.mjs` silent; `platform/pages/*.test.mjs` 880/880;
+        `platform/marketing/*.test.mjs` 208/208; venture `node --test` 49/49;
+        venture `python3 -m unittest` 24/24; `pytest gitops/tests -q` 300
+        passed, 16 skipped; `publish_surface.py --check` matches snapshot;
+        router/usage/workflow/form-default/input-bound validators all pass.
+      - >-
+        Deployed rather than only built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`) so the
+        page is served from the Hetzner front door, not just the Pages
+        artifact. Confirmed the new shard key is present and listed in
+        `kustomization.yaml`, the gzipped copy decodes to the page with its
+        canonical rewritten to
+        `https://marisstella.dev/tools/cra-evidence-desk/sbom-and-advisory-package-names-dont-match.html`
+        and `robots: index,follow`, and that URL is in the front door's
+        `sitemap.xml`. Mirror still at 64.3% of ceiling, 10 shards, all
+        already mounted by `portfolio-front.yaml`.
+    mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a decision-flipping omission rather than adding a feature: the
+        calculator compared a W-2 commission check against self-employed booth
+        income as though a dollar of each were the same dollar. It is not.
+        Commission take-home carries the employee half of FICA (7.65%) because
+        the salon pays the other half; booth take-home carries both halves
+        (15.3% of 92.35% of net, an effective 14.1%). That ~6.5-point wedge
+        falls on the booth side only, and salons price chairs so the two deals
+        land within a few percent of each other -- exactly the range where the
+        omission decides the answer. The venture's own README had listed "no
+        tax handling" as a known limitation since it shipped.
+      - >-
+        Measured on the shipped example book: the wedge is $3,198/year, the
+        break-even client count rises 8.4 -> 9.4, and the most a stylist can
+        pay for a chair and still match her split falls $451.17 -> $405.67 a
+        week. At a $420/week rent -- an ordinary chair, not a contrived one --
+        the pre-tax model called it for booth rent by $31.17/week while the
+        after-tax answer is commission by $12.31/week. That case is pinned as
+        a test, so a regression shows up as a reversed verdict rather than a
+        drifted tolerance.
+      - >-
+        Scope held deliberately to payroll tax. Income tax is not modelled: it
+        lands on either deal much the same for the same net income and depends
+        on filing status and household detail the tool has no business asking
+        for. Its one appearance is an optional marginal-bracket input that
+        values the deductible half of SE tax, defaulting to 0 -- which
+        understates booth rent rather than overstating it. The Social Security
+        wage base is an editable input (2025 default, indexed annually,
+        labelled as such); Medicare is uncapped; additional Medicare is out of
+        scope and said so.
+      - >-
+        Two guards worth naming. A blank wage-base box reaches the calculator
+        as `''`, which `Number('')` turns into 0 -- silently removing the cap
+        and 12.4 points of the booth renter's tax, in the direction that
+        flatters booth rent; empty inputs now fall back to the default instead.
+        And the after-tax break-even and matching rent are solved by bisection
+        over the same function rather than by a second closed form, because the
+        92.35% base and the wage-base cap make the after-tax difference
+        piecewise-linear and a parallel derivation is what drifts.
+      - >-
+        Outcome measurement, not vanity: a new `tax_verdict_flipped` local
+        counter tallies settled books where the tax layer reversed the winner.
+        If it stays near zero on real use the section is decoration and should
+        shrink to a footnote; if it is common, the untaxed comparison was
+        sending stylists the wrong way. Bare count, no figures, opt-out and
+        DNT/GPC honoured like every other event here.
+      - >-
+        Verified: venture `node --test` 34/34 (was 23); `platform/pages/*.test.mjs`
+        21 suites, 0 failures; `platform/marketing/*.test.mjs` 4 suites, 0
+        failures; `clauses.mjs booth-rent-vs-commission` 2 pages; `build.mjs`
+        + `check.mjs` "looks publishable: 174 products, 666 pages, no dead
+        links"; `check_ledger_only.py` clean. Browser pass in Chromium over
+        HTTP (ES modules need it): defaults render, the $420 flip banner
+        fires, the copied summary carries the after-tax block, the share link
+        round-trips both new inputs, a blank wage base does not zero the cap,
+        and a bad input blanks every after-tax cell instead of leaving a stale
+        one under an error.
+      - >-
+        Deployed rather than only built: regenerated the apex mirror
+        (`front-door-tools.mjs --write`, then `front-door.mjs --write`), which
+        picked up the new `payroll.mjs` as its own shard entry -- without that
+        the served `calc.mjs` would import a module the front door does not
+        have and the live page would break. Confirmed
+        `booth-rent-vs-commission__payroll.mjs.gz` is listed in
+        `kustomization.yaml`. Mirror at 64.5% of ceiling, 10 shards, all
+        already mounted by `portfolio-front.yaml`.
+    mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked this venture by reading the live page rather than by usage
+        numbers -- `portfolio/usage/usage.yaml` records zero visitors across
+        every product this month, so it cannot rank one venture over
+        another. A deadline tracker whose only export was a CSV had no way
+        to get a due date into the calendar app a nonprofit actually checks
+        day to day; the README's own copy already named "a calendar
+        reminder you set yourself" as the thing this tool was supposed to
+        replace, and it didn't yet.
+      - >-
+        Added `icsCalendar(rows, now)` to `calc.mjs`: one all-day RFC 5545
+        VEVENT per obligation with a 3-day-ahead VALARM reminder, wired to
+        a new "Add reminders to calendar (.ics)" button beside the existing
+        CSV export. Implemented from the spec rather than a library --
+        RFC 5545 TEXT escaping (backslash, semicolon, comma, newline),
+        75-octet line folding on UTF-8 character boundaries (a plain
+        character-count fold can split a multi-byte funder name mid-byte),
+        and a stable per-grant UID (row position + slugified name + due
+        date) so re-exporting the same list updates existing calendar
+        entries instead of duplicating them.
+      - >-
+        Tests: 7 new cases in `calc.test.mjs` covering VEVENT/VALARM
+        structure, all-day DTSTART/DTEND (exclusive end = day after),
+        TEXT escaping of backslash/semicolon/comma, line folding past 75
+        octets without splitting a multi-byte character, UID stability
+        across two exports at different times, and an empty list producing
+        a structurally valid zero-event calendar. One `page.test.mjs` case
+        confirms the button, MIME type, filename, and usage event are
+        wired in `index.html`. Verified manually: piped `SAMPLE_GRANTS`
+        through `icsCalendar` and read the raw output -- correctly folded
+        PRODID/UID lines, escaped `$15,500` in DESCRIPTION, matching
+        BEGIN/END pairs.
+      - >-
+        Verified: venture `node --test` 26/26 -> 36/36;
+        `check_form_defaults.py` and `check_input_bounds.py` both clean on
+        this venture. Regenerated the front-door mirror
+        (`front-door-tools.mjs --write` then `front-door.mjs --write`)
+        since `calc.mjs`/`index.html` changed -- new shard bytes for
+        `grant-deadline-tracker__calc.mjs.gz` and
+        `grant-deadline-tracker__index.html.gz`, `kustomization.yaml`
+        updated. `platform/pages/*.test.mjs` 880/880;
+        `platform/marketing/*.test.mjs` 208/208.
+      - >-
+        Usage tracking: reused the venture's existing opt-out `countUsage`
+        (`usage.mjs`), adding one new event name (`ics-exported`) alongside
+        the existing `csv-exported`; no new tracking surface, no new
+        disclaimer needed since the export runs entirely client-side like
+        the CSV one it sits beside.
+    mrr_end: null
+  - venture: saas-seat-true-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed a gap the venture's own FAQ already admitted to but did
+        nothing about: the calculator compared purchased seats against used
+        seats and reported an "avoidable" renewal saving as though the
+        review could always be acted on. It cannot. Most SaaS contracts only
+        allow seat reductions at renewal, and many require written notice a
+        set number of days before that renewal or the agreement auto-renews
+        at the full purchased count regardless of usage -- a review run
+        after that deadline finds a number it cannot use. The FAQ said
+        exactly this ("many contracts allow additions any time and
+        reductions only at renewal") without the tool ever checking whether
+        the window was still open.
+      - >-
+        Added two optional fields -- renewal date and the notice period (in
+        days) the contract requires -- and a new `evaluateNoticeDeadline` /
+        `noticeMessage` pair in `calc.mjs`. Left blank, behaviour is
+        unchanged (matches the existing zero-default pattern for overage
+        premium and seat minimum). Filled in, the tool now says one of
+        three things: the deadline has already passed, so the saving above
+        is not avoidable this cycle and it is auto-renewing at the full
+        count (with an estimated next window, labelled as an annual-term
+        assumption to verify against the real agreement); the deadline is
+        within 14 days, so submit the reduction now or lose it; or the
+        deadline is further out, as a plain reminder of the date. A passed
+        deadline reframes the exact same droppable-seat figure from
+        "avoidable" to "locked in" rather than computing a second number,
+        so the two never drift apart.
+      - >-
+        The two new fields are deliberately excluded from the persisted
+        scenario (`usage.mjs`'s `SCENARIO_FIELDS`): a renewal date from last
+        quarter's review is stale next quarter, and `saveScenario`
+        Number()-converts every persisted field, which a date string is
+        not. Reset still clears them even though they are not saved. Added a
+        seventh FAQ question, matching visible copy to the hand-authored
+        FAQPage JSON-LD (a first draft used a straight apostrophe in the
+        JSON-LD against a curly one on the page and `faq-visible.test.mjs`
+        caught the divergence immediately -- fixed before it shipped).
+      - >-
+        Verified: venture `node --test` 25/25 -> 35/35 (10 new: notice-date
+        parsing/validation, the three message states, the reused-vs-persisted
+        field split); `check_form_defaults.py` and `check_input_bounds.py`
+        both clean on this venture. Regenerated the front-door mirror
+        (`front-door-tools.mjs --write` then `front-door.mjs --write`) since
+        `calc.mjs`/`index.html` changed -- new shard bytes for
+        `saas-seat-true-up__calc.mjs.gz` and
+        `saas-seat-true-up__index.html.gz`, `kustomization.yaml` updated.
+        `platform/pages/*.test.mjs` 880/880; `platform/marketing/*.test.mjs`
+        208/208.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met. `list_pull_requests` and
+        `search_pull_requests` both returned **zero open PRs** at the start
+        of the run, so there was nothing to review, repair or merge. Under
+        the "if none exist, start new work after the overlap check" rule the
+        phase completes empty.
+      - >-
+        Branch drain, done as a sweep rather than by sampling. Replayed all
+        86 branches carrying commits not on `main` with `git merge-tree
+        --write-tree -X ours` and compared the result to `main`'s tree -- the
+        identical-merge proof `supersede_check.py` documents, applied to the
+        whole set at once instead of to the handful a session usually has
+        time for. 66 produce `main`'s tree exactly and are superseded. Of
+        the 20 that do not, 18 have August merge-bases and delete thousands
+        of lines against today's `main` (the STALE DRAFT shape: an earlier
+        draft of files `main` has since moved past -- merging one reverts
+        live work). The two with merge-bases from the last two days were
+        read by hand: `claude/happy-wozniak-nl2ful` is one pinned test count
+        `main` has since moved, and
+        `ai-engineering-academy/rc-time-fully-charged` is a duplicate of the
+        capacitor-settling page `main` already carries via #3150/#3151, with
+        `main`'s copy the fuller one (446 lines and a target-percent solver
+        against the branch's 382). **No branch carries unshipped work.** No
+        PR opened from any of them, and none closed or deleted.
+      - >-
+        Dispatched `hetzner-gitops CI` with `preflight: true` -- something no
+        session appears to have done since the job was added -- to get ground
+        truth on the Hetzner deployment. It fails in under a second on the
+        workflow's own format classifier: `HETZNERSSHKEY holds a public key,
+        not a private key` (run 33884253173, job 101060068559, on a real
+        runner id 1000053402, so `ci_starvation.py`'s signature does not
+        apply). **The one mechanism this repo had for verifying its own
+        public surface has never produced a reading**, and three documents
+        (`infra/OWNER_CHECKLIST.md`, `bootstrap/README.md`,
+        `infra/README.md`) asserted the opposite. The owner was debugging
+        exactly this on 2026-08-24 via the one-shot `tmp/ssh-key-smoke`
+        branch; the diagnostic was folded into the preflight job afterwards
+        and nobody dispatched it again.
+      - >-
+        Shipped #3184, which makes the reading possible without that key.
+        `CLAUDE.md` said no session can verify the public surface -- true of
+        the *session sandbox*, whose egress proxy answers `CONNECT tunnel
+        failed, response 403`, and the repo had been reading it as a fact
+        about the portfolio. A GitHub runner is not in that sandbox.
+        `platform/ci/public_surface.py` asks every hostname the manifests
+        declare what it serves, over real DNS and real TLS, and compares the
+        answer to `publish_surface.py`'s classification -- so a run reports a
+        disagreement between what we ship and what we serve rather than a
+        bare status code, stays green while a Secret-gated host is correctly
+        dark, and flags a seal landing as news too. Hostnames come from
+        `gitops_survey()` and paths from the published
+        `gitops/prod/front-door/sitemap.xml`; neither list is restated, which
+        also makes it a dead-link check on the document crawlers read first.
+        26 unit tests, no socket opened.
+        `.github/workflows/public-surface-check.yml` runs it with no secret
+        of any kind; the daily schedule is gated behind
+        `PUBLIC_SURFACE_CHECK_ENABLED` so it costs nothing until the owner
+        opts in, the same pattern `claude-routine-trigger.yml` uses.
+      - >-
+        Corrected every document that claimed the SSH preflight was
+        available, and queued `hetzner-ssh-key-is-a-public-key` in
+        `asks.yaml`. Ranked below `portfolio-site-repo` and `codex-secrets`
+        on purpose: rotating the key buys diagnosis (pod state, k3s health,
+        disk), not delivery, and it is no longer how anyone answers "is the
+        site up".
+      - >-
+        Re-confirmed, for the standing owner brief, that the Codex-on-Hetzner
+        stack is built and owner-blocked rather than unfinished:
+        `gitops/agents/` carries the governor, the worker, the queue and the
+        RBAC, `worker.sh` already prefers `CODEX_AUTH_JSON` (the plan-quota
+        route the brief asks for) and `unset`s a metered `OPENAI_API_KEY` on
+        that path so a plan run cannot bill, and `workers/mandate.md` already
+        carries the current product-first mandate including the three-PR
+        drain floor. `pytest gitops/tests` 300 passed / 16 skipped. The only
+        remaining step is the `codex-secrets` seal, already queued. Nothing
+        to build; did not open a PR restating it.
+      - >-
+        Verified: `test_public_surface` 26/26; with `test_publish_surface`
+        and `test_validate_workflows` 112/112; `pytest gitops/tests` 300
+        passed / 16 skipped; `validate_workflows.py` all 224 valid;
+        `router/validate.py` 183 valid; `workflow-coverage.test.mjs` 4/4;
+        `front-door.test.mjs` 98/98 and `front-door-tools.test.mjs` 101/101
+        (so the committed apex mirror is current with `main`);
+        conflict-marker and duplicate-symbol sweeps clean;
+        `decision_queue.py --check` exit 0. Regenerated
+        `platform/ci/publish-surface.yaml` and updated the `runs-on` count in
+        `gitops/ci/README.md`; both have tests that failed before I did.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The public surface is down, and this is the first time anyone has
+        checked.** Merged #3184 (the credential-free `Public surface check`),
+        dispatched it, and got the portfolio's first measurement of what its
+        own hostnames return: run 33887885219, from a GitHub runner over real
+        DNS and real TLS. All three refuse connections on 443 --
+        `marisstella.dev`, `www.marisstella.dev`, `tools.marisstella.dev`, each
+        `[Errno 111] Connection refused` -- and 0 of 24 sampled URLs from the
+        apex's own published sitemap returned anything.
+      - >-
+        Read the error precisely, because it narrows the cause a long way.
+        `ECONNREFUSED` is not a timeout: DNS resolved, the packet reached a
+        host, and that host sent an RST. So it is not the Hetzner firewall (a
+        drop times out), not the TLS certificate (no handshake was reached),
+        and not an Ingress routing mistake (nginx would answer 404). Nothing is
+        listening on 443 at all -- ingress-nginx, k3s, or the node itself.
+        Which of those three cannot be told from outside, and that is the whole
+        argument for the SSH ask below.
+      - >-
+        What it means for the standing reading: **`CLAUDE.md` was wrong, and
+        wrong in a structural way worth naming.** It asserted the apex "serves
+        all 169 tools" and instructed sessions not to describe the catalogue as
+        dark. Every word of that came from the manifests -- and for
+        `gitops/prod` a merge to `main` *is* the Argo deploy, so the repo slid
+        from "shipped" to "served" with nothing able to contradict it. The one
+        tool that could (`bootstrap/preflight.sh`) needs `HETZNERSSHKEY`, which
+        holds a public key. So ~184 finished, tested, free products are
+        reachable by nobody, and have been for as long as the file has said
+        otherwise. Corrected at the top of that section, with the run id, and
+        the two superseded bullets kept rather than deleted so the reasoning
+        that produced them is visible.
+      - >-
+        Re-ranked `hetzner-ssh-key-is-a-public-key` from last to first, hours
+        after writing it, and said so in the row rather than quietly editing:
+        it was filed as "diagnosis, not delivery ... this one only lets us look
+        inside a cluster that is already serving", and the cluster is not
+        already serving. `portfolio-site-repo` now ranks below it -- sealing a
+        clone token for a cluster that serves nothing changes nothing a
+        stranger can see.
+      - >-
+        The queue could not express that, so gave it one narrow way to.
+        `decision_queue.py`'s sort is (blocked, gates, exposure, age), and
+        `GATES` puts `deployment` last on the reasoning that such a row "buys
+        deployment for products that already build" -- an assumption that
+        silently required the surface those products deploy *to* to be working.
+        Added an optional `outage: true` that lifts a row above the gates
+        ordering, plus an OUTAGE line in the header, since an outage row is the
+        one case where reading no further is correct behaviour. Deliberately
+        fenced: reserved for a measured, current loss of the public surface
+        evidenced by a run id, never a general priority flag -- a queue where
+        anything can jump the ordering is the cheapest-first #139 table again.
+        Blocked still beats outage: wanting a fix badly does not make it
+        actionable.
+      - >-
+        Verified: `test_decision_queue` 34/34 -> 43/43 (9 new, covering both
+        sort directions, the blocked-outage interaction, the non-boolean schema
+        rejection, and that omitting the field orders exactly as before);
+        `decision_queue.py --check` exit 0; `test_public_surface` 27/27;
+        `pytest gitops/tests` 300 passed / 16 skipped; `validate_workflows.py`
+        all 224 valid; `router/validate.py` 183 valid.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Narrowed the outage from "we cannot know without SSH" to a named
+        cause, without SSH.** #3185 recorded that the public surface is dark
+        and stated its limit honestly -- "the prober detects the outage; it
+        cannot explain it. That asymmetry is the ask." Merged it after
+        re-dispatching `Public surface check` on `main` (run 33888990022) and
+        reproducing the reading independently, then built the thing that
+        contradicts the limit: `platform/ci/outage_triage.py` and `Outage
+        triage`, whose first run (33889983086) answers most of "why".
+      - >-
+        The reading: both servers report `running` to the Hetzner read-only
+        API; all three hostnames resolve to `89.167.29.39`, which is ours;
+        port 22 is **open** on both boxes; ports 80, 443 and 6443 are all
+        **refused** on both. That rules out power, DNS, the firewall (a drop
+        times out, an RST does not) and TLS in one run. `6443` refused is the
+        sharp end -- the k3s API server itself is not listening, so this is a
+        dead or absent cluster rather than a crashed ingress, and no pods
+        exist to serve 80 or 443.
+      - >-
+        **The reason this was worth doing before anything else: the
+        top-ranked owner ask was unverified.** `hetzner-ssh-key-is-a-public-key`
+        asks the owner to rotate `HETZNERSSHKEY` so preflight can SSH in. That
+        is the right ask only if sshd is answering, and nothing had checked. A
+        correct private key is refused exactly as a wrong one is, so had port
+        22 been dead alongside 443, the queue would have sent the owner after
+        the wrong credential -- a lost day with the surface still down, the
+        queue still reading `[OUTAGE]`, and the next session no better placed
+        to tell. Port 22 is open, so the ask is **confirmed sufficient** and
+        the row now says so with the run id rather than assuming it.
+      - >-
+        Corrected `CLAUDE.md`'s "no credential-free check can tell you why",
+        added the same day by #3185 and too strong: a session believing it
+        would skip the diagnosis entirely. The general lesson recorded there
+        is that an outage row should name the action that ends it, and that
+        naming is a claim to measure rather than to reason to.
+      - >-
+        Design note worth keeping: neither the node addresses nor the hostname
+        list is restated in the tool -- the first is parsed from
+        `infra/inventory.tf`, the second read from
+        `publish_surface.gitops_survey()`. A test pins the parse against the
+        live file, because a triage tool that silently found zero nodes would
+        print a clean, empty, confident report. Read-only throughout: the only
+        verb issued is GET, and a test asserts the source contains no mutating
+        verb.
+      - >-
+        Also measured, and worth knowing before another session trusts a local
+        probe: **the port fingerprint cannot be taken from an agent sandbox.**
+        This session's egress proxy terminates TLS itself -- a raw socket to
+        `89.167.29.39:443` completes a TLS 1.3 handshake and returns
+        `x-deny-reason: host_not_allowed` -- while an unroutable control
+        address (`192.0.2.1`) is *refused* rather than timing out. So neither
+        `open` nor `refused` carries information there. Checked before
+        trusting any local result; it is why the tool ships as a workflow.
+      - >-
+        Verified: `test_outage_triage` 27/27 new; with `test_public_surface`,
+        `test_publish_surface` and `test_validate_workflows`, 140/140;
+        `validate_workflows.py` all 225 valid; pyflakes clean on both new
+        files; conflict-marker and duplicate-symbol sweeps clean;
+        `check_ledger_only.py` exit 0. Regenerated `publish-surface.yaml` and
+        updated the `runs-on` count in `gitops/ci/README.md`, both of which
+        have tests that fail when stale.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Three-PR quota: vacuously met again. `list_pull_requests` and
+        `search_pull_requests` both returned zero open PRs at this run's
+        start. Spot-checked the four largest ahead-of-main branches by
+        commit count with `supersede_check.py` (`agent/deploy-cicd-ledger-2868`,
+        `claude/toilet-replacement-vs-servicetitan`,
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`,
+        `pr/where-to-sell-rank-by-profit-per-day`) -- all four SUPERSEDED,
+        consistent with the prior session's full 86-branch sweep recorded
+        above. Started a fresh full re-sweep of the (now 83, excluding
+        `tmp/ssh-key-smoke`, a 936-commit unrelated-history outlier) branches
+        ahead of `main`; it was still running past this session's own budget
+        and is not reported as complete here -- do not treat its absence as
+        a finding either way.
+      - >-
+        Independently dispatched `Public surface check` twice more (this
+        session's own two runs, after the owner's run 33887885219 that #3185
+        above already used to declare the outage and re-rank the queue) --
+        same reading both times, `[Errno 111] Connection refused` on
+        `marisstella.dev` and `www.marisstella.dev`. Notified the owner
+        directly before seeing #3185 land, since a session cannot assume a
+        concurrent one is already handling a production outage. No new
+        diagnosis beyond #3185's: `HETZNERSSHKEY` is still a public key.
+      - >-
+        Re-verified the two owner-blocked deployment seals this file has
+        tracked since 2026-09-02 are unchanged: `codex-governor/policy.json`
+        still reads `"enabled": false`, the governor CronJob still
+        `suspend: true`, and `gitops/agents/kustomization.yaml` still lists
+        no `codex-secrets` resource -- so the Codex-CLI-on-Hetzner pipeline
+        (`CODEX_AUTH_JSON`, ChatGPT-plan-quota route) is exactly as built and
+        exactly as blocked as previously recorded. No code changes needed;
+        did not re-open a PR restating it.
+    mrr_end: null
+  - venture: equipment-rental-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-booqable.html` (+ `vs-booqable.test.mjs`, 13 new tests),
+        this venture's first competitor-comparison page -- it previously had
+        zero `vs-*.html` pages despite a complete, tested break-even
+        calculator. Booqable (rental & inventory management SaaS: online
+        booking storefront, barcode/QR checkout-in/out scanning, invoicing,
+        sold as an ongoing subscription account) is named only for its
+        well-documented category; no dollar figure for it appears anywhere
+        on the page, matching the discipline in
+        `freight-accessorial-auditor/vs-trax.html`. Linked from `index.html`
+        and added to `sitemap.xml`. Verified: `node --test
+        ventures/equipment-rental-break-even/site/*.test.mjs` 41/41;
+        `platform/pages/clauses.mjs equipment-rental-break-even` reports the
+        no-warranty clause on all 3 published pages; canonical
+        `platform/pages/build.mjs` build succeeds (174 tools) and `node
+        platform/pages/check.mjs dist` reports no dead links. First push to
+        this PR incorrectly assumed the venture sat outside the front-door
+        mirror's `STARTER_SET` (confusing it with the five ventures this
+        file already documents as excluded because `build.mjs` builds only
+        their `site/`) -- CI's `validate` job caught the drift: it is
+        mirrored, and the new page reached
+        `gitops/prod/front-door-tools/equipment-rental-break-even__vs-booqable.html.gz`
+        via `front-door-tools.mjs --write`, alongside the regenerated
+        `catalog.json`/`sitemap.xml` (`front-door.mjs --write`). So this page
+        ships to `marisstella.dev/tools/equipment-rental-break-even/` on
+        merge -- once the standing outage this file records elsewhere is
+        resolved -- not only once a further seal lands.
+    mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-vagaro.html` (+ `vs-vagaro.test.mjs`, 13 new tests),
+        this venture's first competitor-comparison page -- it previously had
+        zero `vs-*.html` pages despite a complete, tested commission/booth-rent
+        take-home calculator (`calc.mjs`, `payroll.mjs`, 35 existing tests).
+        Vagaro (salon/spa/barbershop business-management SaaS: online
+        booking storefront, POS/payment processing, staff scheduling,
+        marketing, sold as an ongoing subscription account to the business)
+        is named only for its well-documented category; no dollar figure
+        for it appears anywhere on the page, matching the discipline in
+        `freight-accessorial-auditor/vs-trax.html` and
+        `equipment-rental-break-even/site/vs-booqable.html`. Linked from
+        `index.html` and added to `sitemap.xml`. Checked `git branch -r` and
+        `list_pull_requests` first -- zero open PRs, and the four existing
+        `vs-*` branches (gutter-guard, toilet-replacement,
+        window-cleaning, moving-bid-calculator) all target other ventures,
+        so this is not a duplicate. Verified: `node --test
+        ventures/booth-rent-vs-commission/*.test.mjs` 48/48; canonical
+        `platform/pages/build.mjs` build succeeds (174 tools, 671 pages,
+        up from 670) and `node platform/pages/check.mjs dist` reports no
+        dead links; `platform/pages/clauses.mjs` reports the no-warranty
+        clause on all 660 published pages across 174 surfaces. This venture
+        is in the front-door mirror's `STARTER_SET`, so also regenerated
+        `gitops/prod/front-door-tools/` (`front-door-tools.mjs --write`,
+        174 tools / 10 shards, 64.8% mirror headroom) and
+        `gitops/prod/front-door/catalog.json` + `sitemap.xml`
+        (`front-door.mjs --write`); `node --test platform/marketing/*.test.mjs`
+        208/208. So this page ships to
+        `marisstella.dev/tools/booth-rent-vs-commission/` on merge -- once
+        the standing outage this file records elsewhere is resolved -- not
+        only once a further seal lands.
+    mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `vs-square-appointments.html` plus
+        `vs-square-appointments.test.mjs` (11 new assertions) -- this
+        venture's first competitor-comparison page despite a complete,
+        tested deposit calculator (`calc.mjs`, `app.mjs`, a net-revenue
+        "does the deposit pay for itself" panel, 38 existing tests).
+        Picked over 38 other vs-*-less ventures because it names a
+        well-known account-based competitor its own audience (salons,
+        trainers, tutors, photographers) already pays for -- Square
+        Appointments, from Block, Inc. -- and contrasts cleanly: an
+        account-based booking-and-payments platform vs. a free, static,
+        no-account worksheet for the one number (deposit percent, and
+        whether it pays off) that goes into that platform's deposit
+        setting. Only Square's well-documented identity (founders,
+        founding year, HQ, parent company, product category) is stated;
+        no dollar figure for it appears anywhere on the page, matching
+        the discipline already used by
+        `no-show-fee-calculator/vs-acuity-scheduling.html` (a sibling
+        venture) and `gutter-guard-bid-calculator/vs-jobnimbus.html`.
+        Linked from `index.html`'s header note and added to
+        `sitemap.xml`. Checked `git log origin/main -- ventures
+        /appointment-deposit-calculator/` first -- most recent commit
+        (#2719) only reworded an unrelated internal panel, no vs-* page
+        existed, not a duplicate. Verified: `node --test
+        ventures/appointment-deposit-calculator/*.test.mjs
+        ventures/appointment-deposit-calculator/test/*.test.mjs` 49/49;
+        canonical `platform/pages/build.mjs --out=dist` build succeeds
+        (174 tools, 673 pages) and `node platform/pages/check.mjs dist`
+        reports no dead links. CI's `validate` job then failed for real
+        (`ci_starvation.py` confirmed a live runner, not starvation):
+        `platform/marketing/front-door.test.mjs` correctly rejected the
+        now-stale committed `gitops/prod/front-door/catalog.json` and
+        `sitemap.xml` once this venture's own sitemap.xml and page count
+        changed. Regenerated with `front-door.mjs --write` and
+        `front-door-tools.mjs --write` (174 tools / 10 shards, 64.9%
+        mirror headroom) -- a small, contained diff (catalog.json's
+        `pages: 3` to `4`, one new sitemap `<url>`, the new page's gzip
+        shard, and shard-size rebalancing in `kustomization.yaml`), not a
+        deployment or cluster change. `node --test
+        platform/marketing/*.test.mjs` 208/208 after. So this page ships
+        to `marisstella.dev/tools/appointment-deposit-calculator/` on
+        merge, once the standing cluster outage this file records
+        elsewhere is resolved.
+    mrr_end: null
+  - venture: consent-change-record
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real correctness bug in the published trace comparator
+        (`calc.mjs`, the JSON-paste tool `index.html` imports and runs --
+        the sibling `tool/har-diff.mjs` HAR diff was unaffected and already
+        used correct, deliberate dedup logic). `diff()` matched requests
+        and storage entries by presence only (`Array.some`), so a request
+        that fired fewer times after consent -- three identical GETs to a
+        tracking pixel before, one after, the realistic case for a script-
+        captured trace -- read as fully "unchanged": every "before" copy
+        found *a* match somewhere in "after" and was never counted
+        removed, so the evidence record silently said nothing changed
+        when two of three firings actually stopped. The reverse (a
+        tracker starting to fire more often) was equally invisible. For a
+        tool whose whole purpose is a compliance evidence record of
+        request/storage changes around a consent choice, that is the
+        specific case worth getting right. Rewrote `diff()` to count
+        occurrences per key: the shared count is unchanged, any surplus on
+        either side is added or removed. Also grouped `reportAsText`'s
+        line list by key with a "(×N)" suffix so a duplicate-count change
+        reads as one clear line instead of N identical ones. Added three
+        regression tests (fewer firings after, more firings after, and the
+        report's ×N grouping) plus verified the fix by hand: pasting the
+        3-before/1-after example through `compareTraces`/`reportAsText`
+        now correctly prints "GET https://ads.example.com/pixel (×2)"
+        under REQUESTS REMOVED, where it previously printed nothing.
+        Regenerated the front-door mirror (`front-door-tools.mjs
+        --write`; `calc.mjs` ships to the mirror verbatim, same
+        requirement the cut-list-optimizer fix in #3197 established).
+        Verified: `node --test` in
+        `ventures/consent-change-record` 40/40 (was 37/40 -- the 3 new
+        tests -- all passing); `node --test platform/marketing/*.test.mjs`
+        208/208; `node platform/pages/clauses.mjs consent-change-record`
+        still finds the no-warranty clause on all 3 published pages. Could
+        not verify against a live URL -- the Hetzner cluster is fully down
+        (see CLAUDE.md) -- so this was verified by running the venture's
+        own test suite and the calculator logic directly in Node instead.
+    mrr_end: null
+  - venture: retainage-cashflow-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a correctness bug in the published retainage-release model
+        that told subcontractors a customer was over-withholding money
+        when the customer was holding exactly the modeled proper amount.
+        `releaseSchedule`'s `overheld` -- shown on the page as "Still held
+        above the reduced rate" -- was derived from
+        `computeAll().retainageStillUnpaid`, i.e.
+        `min(contractValue * rate, contractValue - paidToDate)`. Both
+        terms measure the *whole* contract, including work not yet
+        performed, so on any job where the unbuilt remainder exceeds the
+        full-contract retainage (most jobs before the final draw) the min
+        pinned to the first term and the figure became a constant,
+        completely insensitive to what had actually been paid. Measured on
+        the shipped defaults ($100k contract, 10% retainage, 80% complete,
+        5% reduced rate): paid-to-date of $67,500 / $70,000 / $72,000 /
+        $75,000 all reported the same $5,000 "still held above the reduced
+        rate" -- including the $75,000 case, where the customer holds
+        $5,000 against a proper hold of exactly $5,000 and is
+        over-withholding nothing. It also contradicted
+        `shouldHaveReleased`, computed correctly from progress billing two
+        lines above it in the same function. Now measured from what the
+        worksheet actually says was billed and received:
+        `retainageHeldToDate = min(progressRetainage, billed -
+        paidToDate)`, clamped at zero -- a customer behind on ordinary
+        progress payments is not thereby holding extra retainage, and one
+        who has already released some is holding less. Surfaced that
+        figure as its own result tile ("Retainage withheld to date") and
+        in the text report, so the corrected number is legible rather
+        than mysterious. Also corrected the shipped demo values: with the
+        bug fixed, the old defaults (paid-to-date $75,000 at 75% complete
+        = $75,000 billed) honestly showed $0 retainage withheld, leaving
+        the whole release section inert for a first-time visitor. Changed
+        the form default to $67,500 -- a customer withholding exactly the
+        stated 10% on 75%-complete work -- so the page now demonstrates
+        $7,500 withheld, $5,000 proper hold, $2,500 releasable, $2,500
+        held above the reduced rate. Added three regression tests (genuine
+        over-withholding, partial release, and an explicit assertion that
+        the figure moves as payment arrives, which is what it previously
+        failed to do) and corrected the one existing assertion that had
+        encoded the bug. Verified: `node --test` in
+        `ventures/retainage-cashflow-calculator` 66/66 (was 63, all
+        passing); `node --test platform/marketing/*.test.mjs` 208/208
+        after regenerating the front-door mirror with
+        `front-door-tools.mjs --write` (calc.mjs and index.html ship to
+        the mirror verbatim); `node platform/pages/clauses.mjs
+        retainage-cashflow-calculator` still finds the no-warranty clause
+        on all 3 published pages; canonical `platform/pages/build.mjs`
+        plus `check.mjs` reports 174 products, 675 pages, no dead links.
+        Manually ran the primary journey through
+        `parseInputs`/`releaseSchedule` on the shipped default form values
+        -- the four tiles the page renders are now internally consistent,
+        where previously two of them disagreed by 2x. Could not verify
+        against a live URL: the public surface is still down and both
+        restore routes are owner-blocked (see the decision queue).
+    mrr_end: null
+  - venture: shopify-a11y-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first vs-competitor marketing/SEO page:
+        vs-accessibe.html, contrasting the free, local, no-account
+        axe-core-scan-to-evidence-record tool against accessiBe's paid,
+        ongoing accessWidget subscription (an installed live-storefront
+        widget plus audits/monitoring) -- following the portfolio's
+        established vs-<competitor> pattern (canonical tag, FAQPage
+        JSON-LD matching visible headings word-for-word including the
+        em-dash entity/unicode-character distinction faq-visible.test.mjs
+        checks for, no-warranty and best-effort-hosting disclaimers,
+        explicit non-affiliation statement, and no invented accessiBe
+        pricing since current terms could not be verified from this
+        session). Chose accessiBe because it is a real, well-known,
+        publicly documented commercial product in the same problem space
+        (Shopify/web accessibility) with a genuinely different shape from
+        this tool (installed ongoing widget vs. free local one-off
+        evidence formatter), so the comparison is honest rather than
+        invented. Linked from index.html, listed in sitemap.xml,
+        regenerated the front-door mirror (front-door-tools.mjs --write)
+        and the front-door site (front-door.mjs --write) so the page
+        ships on merge (Argo CD deploys gitops/prod). Verified: `node
+        --test` in the venture 67/67 (was 66); `node --test
+        platform/marketing/*.test.mjs` 208/208; `node --test
+        platform/pages/faq-visible.test.mjs` 4/4; canonical
+        `platform/pages/build.mjs` plus `check.mjs` reports 174 products,
+        676 pages, no dead links. Could not verify against a live URL:
+        the public surface is still down (see the decision queue).
+    mrr_end: null
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first vs-competitor marketing/SEO page:
+        vs-sellerboard.html, contrasting this free, local, no-account
+        pre-listing comparison (one item ranked across eBay, Etsy,
+        Amazon, Walmart, TikTok Shop and an own store) against
+        Sellerboard's paid, account-connected, after-the-fact profit
+        analytics. Chose Sellerboard because the shape difference is
+        real and checkable rather than invented: it reports settled
+        orders that already happened, from a connected seller account,
+        while this page answers a listing decision not yet made on
+        channels the seller may have no account with -- a question no
+        order history can answer. Followed the portfolio's established
+        vs-<competitor> pattern (canonical tag, FAQPage JSON-LD whose
+        questions and answers both appear verbatim as visible copy,
+        no-warranty and best-effort-hosting disclaimers, explicit
+        non-affiliation statement, sponsors link). No Sellerboard
+        pricing or plan terms are stated, since they could not be
+        verified from this session; the page carries no currency amount
+        at all, which a test asserts, so "no invented pricing" is
+        checkable rather than promised. Added a "What this tool cannot
+        tell you" section stating plainly that the fee rates are
+        editable defaults rather than a live schedule, that the page
+        cannot see refunds, returns, ad spend or negotiated rates, and
+        that the own-store row tops the table on arithmetic precisely
+        because it sends no buyers -- so a reader cannot leave thinking
+        a static calculator substitutes for reconciled order data.
+        Linked from index.html, listed in sitemap.xml, regenerated the
+        front-door mirror (front-door-tools.mjs --write) and the
+        front-door site (front-door.mjs --write). Verified: `node
+        --test` in the venture 78/78 (was 66); `node --test
+        platform/marketing/*.test.mjs` 208/208; `node --test
+        platform/pages/faq-visible.test.mjs` 4/4; `node
+        platform/pages/clauses.mjs marketplace-fee-compare` finds the
+        no-warranty clause on all 3 published pages; canonical
+        `platform/pages/build.mjs` plus `check.mjs` reports 174
+        products, 677 pages (was 676), no dead links. Could not verify
+        against a live URL: the public surface is still down and both
+        restore routes are owner-blocked (re-measured this session,
+        runs 33920796410 and 33920798095).
+    mrr_end: null
+  - venture: fireplace-insert-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Sampled 9 branches with unique
+        commits and no open PR (`claude/nice-brown-mzo3ne`,
+        `claude/sweet-archimedes-icmubl`, `claude/dreamy-planck-vvaum5`,
+        `pipeline/dns-evidence-monitor`, `cursor/3pl-quote-normalizer-
+        compare-20260825`, `cursor/chargeback-evidence-packet-
+        launch-20260824`, `claude/festive-mccarthy-xrn3ua`, plus the two
+        already-flagged `session/decision-queue-stale-prs-777-731` and
+        `venture/vendor-change-watch`) against current `main`: every one
+        was already fully superseded by more-developed work on `main`
+        (`nice-brown-mzo3ne`'s vs-Yardi page landed as #3166 while this
+        session was reviewing it; the two pipeline-candidate branches
+        propose screening `shopify-permission-drift` and `dns-
+        configuration-evidence`, both already graduated and built as full
+        ventures; the three venture-scaffold branches (`3pl-quote-
+        normalizer`, `chargeback-evidence-packet`, `vendor-watch`)
+        propose ventures that already exist on `main`, more developed;
+        `sweet-archimedes-icmubl`'s Pages-workflow race fix and dead-link
+        check are already in `portfolio-pages.yml`, more developed).
+        Confirms the extensive prior-session findings already in this
+        ledger. This run's brief asked to prioritize CI/CD, Hetzner
+        deployment, marketing-material deployment, and Codex CLI on the
+        Hetzner VM; re-checked against `asks.yaml` rather than
+        re-deriving -- same three owner-blocked rows a dozen-plus prior
+        sessions already logged as fully built in code
+        (`actions-runners-unavailable`, `deploy-settings` /
+        `portfolio-site-hetzner-deploy`, `codex-governor-enable`, the
+        last of which already warns by name against exactly the "log
+        into a personal plan to use up its quota" shape this run's brief
+        described). Nothing new to re-verify or add.
+      - >-
+        Shipped #3209: a portfolio-wide survey (via a research subagent)
+        found `share.mjs` -- a "copy a link that reopens this exact bid"
+        feature -- already present in 65+ of the `*-bid-calculator`
+        ventures but missing from ~37, including
+        `fireplace-insert-bid-calculator`. Ported the pattern: `share.mjs`
+        / `share.test.mjs` (pure allowlisted encode/decode of the
+        calculator's ~30 numeric fields, 6 flags, and 4 enums, enums
+        validated against `calc.mjs`'s own preset ids); vendored
+        `proposal-terms.mjs` / `proposal-terms.test.mjs` unmodified from
+        `ev-charger-bid-calculator` so the deposit, price-hold window,
+        and the three proposal-panel prose fields ride in the link
+        instead of silently reverting to page defaults on the
+        recipient's end (the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29); a
+        "Copy share link" button and on-load decode in `index.html`.
+        Regenerated the front-door-tools mirror and resolved the
+        expected sequential-shard conflict against a concurrently-merged
+        page (`shopify-a11y-evidence` #3207) with
+        `resolve-mirror-merge.sh`. Verified: venture's own suite 103/103
+        (was 76); `platform/proposal/*.test.mjs` 97/97;
+        `term-ids.test.mjs` 4/4; full `platform/pages` suite 880/880;
+        `front-door-tools.test.mjs` 101/101; `front-door.test.mjs`
+        98/98. No `kustomize`/`kubeconform` available in this session to
+        run `gitops/tests` directly; relied on the mirror generator's own
+        committed-output test, which is what CI runs. Not manually
+        verified in a browser (no display in this session).
+      - >-
+        Shipped #3210 (follow-up on the same branch/theme as #3209): the
+        same `share.mjs`/`proposal-terms.mjs` pattern ported into
+        `garage-door-bid-calculator` (18 numeric fields plus the
+        `jobType` enum). Also fixed that venture's own FAQ answer, which
+        explicitly and now-incorrectly claimed "has no shareable bid
+        link". Verified: venture's own suite 100/100 (was 73);
+        `platform/proposal/*.test.mjs` 97/97; `term-ids.test.mjs` 4/4;
+        full `platform/pages` suite 880/880; `front-door-tools.test.mjs`
+        101/101 after regenerating the mirror.
+    mrr_end: null
+  - venture: cleaning-dilution-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a `vs-janitorial-manager.html` SEO/AI-discovery comparison
+        page (this venture had no `vs-*` page; Janitorial Manager is a
+        real, identifiable janitorial business management platform with a
+        bidding module, confirmed via web search since janitorialmanager.com
+        is not reachable from this session's egress proxy). No invented
+        pricing or claims: only Janitorial Manager's well-documented
+        category/identity is stated, no dollar figure for it appears
+        anywhere on the page, matching the discipline the repo's other
+        `vs-*` pages use. Linked from `index.html`'s footer and added to the
+        venture's `sitemap.xml`. Wrote `vs-janitorial-manager.test.mjs`
+        mirroring the repo's `vs-*.test.mjs` pattern, plus a
+        verbatim-after-entity-decode check between the FAQPage JSON-LD and
+        the visible `<h3>`/`<p>` copy (CLAUDE.md flags FAQPage/visible-copy
+        drift as a recurring regression class). Regenerated both marketing
+        mirrors this venture's new file touches:
+        `front-door-tools.mjs --write` (new gzip shard for the page) and
+        `front-door.mjs --write` (sitemap.xml/catalog.json page count
+        2->3). Verified: venture's own suite 28/28; full `platform/pages`
+        suite 880/880; full `platform/marketing` suite 208/208 (2 failures
+        before the `front-door.mjs --write` regen, both stale-artifact
+        checks, both green after); `platform/pages/build.mjs` +
+        `check.mjs` on a full site build — "680 pages, no dead links",
+        page confirmed present in the built venture dir and in its
+        generated per-venture sitemap. `kustomize`/`kubeconform` not
+        available in this session to run `gitops/tests` directly (same gap
+        prior sessions noted). GitHub Actions confirmed starved this
+        session (`ci_starvation.py` exit 1 on the latest dispatch) and the
+        Hetzner cluster confirmed down (`:6443` refused) — both
+        pre-diagnosed, owner-blocked, not re-investigated here — so all of
+        the above is local verification standing in for CI per CLAUDE.md's
+        "absent CI is not failed CI" rule. Not deployed: the public surface
+        is down (see CLAUDE.md), so this ships to `main` as code only.
+    mrr_end: null
+  - venture: well-pump-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, closing the gap a portfolio
+        survey (ledger'd against #3209/#3210) found in ~37 of the
+        `*-bid-calculator` ventures: `share.mjs` already existed in 65+
+        siblings so a shop could send a link that reopens the exact bid a
+        partner or office manager needs to see, but this one had no way to
+        do that -- a screenshot of the headline price was the only option,
+        and retyping thirty-plus numbers is how a comparison never happens.
+        Ported the pattern used by `fireplace-insert-bid-calculator`:
+        `share.mjs`/`share.test.mjs` (pure allowlisted encode/decode of the
+        calculator's 28 numeric fields, 2 flags, and the `type`/`work`/`hp`/
+        `pitless` enums, enums validated against `calc.mjs`'s own preset ids
+        rather than a hand-duplicated list); vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified so the deposit, price-hold
+        window, and the three proposal-panel prose fields ride in the link
+        instead of silently reverting to the venture's defaults on the
+        recipient's end (the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29); a "Copy
+        share link" button and on-load decode in `index.html`; a matching
+        FAQ entry (visible copy and FAQPage JSON-LD both) and footer/
+        featureList mentions so the privacy claim ("nothing leaves your
+        browser") stays honest about what a share link carries. Regenerated
+        the front-door-tools mirror (`front-door-tools.mjs --write`) since
+        the venture's file set changed -- new `share.mjs` shard, updated
+        `index.html` shard. Verified: venture's own suite 102/102 (was 92);
+        `platform/proposal/*.test.mjs` 97/97; `term-ids.test.mjs` 4/4 (both
+        the shared-spec and vendored-module drift checks); full
+        `platform/pages` suite 880/880; full `platform/marketing` suite
+        208/208; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "680 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs well-pump-bid-calculator` -- no-warranty
+        clause present on all 3 published pages; manually exercised the
+        primary journey end-to-end outside a browser (no display in this
+        session) by driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly: encoded a sender's bid (280 ft, seized pitless, stuck
+        pump, VFD, 50% deposit, 15-day hold, custom payment terms) into a
+        link, decoded it back, and confirmed the recipient's calculated
+        price matched the sender's to the cent with the deposit and terms
+        intact -- the exact failure this feature exists to prevent.
+        `kustomize`/`kubeconform` not available in this session to run
+        `gitops/tests` directly (same gap prior sessions noted); ran
+        `gitops/tests/test_front_door_serving.py` instead, which needs
+        neither (1 passed, 16 skipped on the missing binaries). GitHub
+        Actions confirmed starved this session and the Hetzner cluster is
+        confirmed down -- both pre-diagnosed, owner-blocked, not
+        re-investigated here -- so all of the above is local verification
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI"
+        rule. Not deployed: the public surface is down (see CLAUDE.md), so
+        this ships to `main` as code only, ready to serve once the owner's
+        infra fix lands.
+    mrr_end: null
+  - venture: spray-foam-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same gap `well-pump-bid-
+        calculator` closed earlier this month: 34 `*-bid-calculator`
+        ventures still had no way for a shop to send a link that reopens the
+        exact bid a distributor, GC, or office manager needs to see --
+        retyping thirty-plus board-foot, rim, and rate figures is how that
+        comparison never happens. Re-checked the 34-venture list against
+        `main` before starting (still accurate) and picked this venture for
+        having the least recent commit activity of the 34 (last touched by
+        #3049 on 2026-09-03, a vs-Jobber page, versus 2026-09-04 for the
+        other 33), to minimize collision with concurrent sessions working
+        the same backlog; no open PRs and no in-flight branch touched this
+        venture. Ported the pattern from `well-pump-bid-calculator`/
+        `fireplace-insert-bid-calculator`: `share.mjs`/`share.test.mjs`
+        (pure allowlisted encode/decode of the calculator's 31 numeric
+        fields, 1 flag, and the `area`/`cell`/`pitch`/`barrier`/`access`
+        enums, enums validated against `calc.mjs`'s own preset ids rather
+        than a hand-duplicated list); vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified (this venture's proposal panel
+        has `depositPercent`, `validDays`, `proposalExclusions`,
+        `paymentTerms`, and `proposalNotes`, so all five terms now ride in
+        the link instead of silently reverting to the venture's defaults on
+        the recipient's end -- the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29); a "Copy
+        share link" button and on-load decode in `index.html`, restored
+        after the page's own geometry/cell-kit auto-fill so a shared link's
+        board feet and waste win over freshly computed suggestions rather
+        than being overwritten by them; a matching FAQ entry ("Is my data
+        uploaded anywhere?", visible copy and FAQPage JSON-LD both, checked
+        against `platform/pages/faq-visible.test.mjs`'s divergence scan) and
+        footer/featureList mentions so the privacy claim ("nothing leaves
+        your browser") stays honest about what a share link carries.
+        Regenerated the front-door-tools mirror (`front-door-tools.mjs
+        --write`) since the venture's file set changed -- new `share.mjs`
+        shard, updated `index.html` shard. Verified: venture's own suite
+        102/102 (was 92); `platform/proposal/*.test.mjs` 97/97 (includes
+        `term-ids.test.mjs`'s drift check across both the shared-spec and
+        vendored-module mechanisms); full `platform/pages` suite 880/880;
+        full `platform/marketing` suite 208/208 (204/208 before the mirror
+        regen, as expected -- the four failures were exactly "committed
+        mirror/alias/kustomization does not match the generator", gone
+        after `--write`); `platform/pages/build.mjs` + `check.mjs` on a full
+        site build -- "174 products, 684 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs spray-foam-bid-calculator` -- no-warranty
+        clause present on all 3 published pages; manually exercised the
+        primary journey outside a browser by driving `share.mjs`/
+        `proposal-terms.mjs` directly with a full-field sample bid
+        (cathedral, hybrid cell, 12/12 pitch, intumescent barrier, occupied
+        access, a 40% deposit held 21 days with custom exclusions/payment/
+        notes text) -- encoded, decoded, and confirmed every one of the 31
+        numeric fields, the flag, the 5 enums, and the 5 proposal terms
+        matched the original to the cent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved and the Hetzner cluster as down --
+        both pre-diagnosed, owner-blocked, not re-investigated here -- so
+        all of the above is local verification standing in for CI per
+        CLAUDE.md's "absent CI is not failed CI" rule. Not deployed: the
+        public surface is down (see CLAUDE.md), so this ships to `main` as
+        code only, ready to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: basement-waterproofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same gap `spray-foam-bid-
+        calculator` and `well-pump-bid-calculator` closed earlier this month:
+        a waterproofing shop comparing a takeoff with a homeowner, GC, or
+        office manager had no way to send a link that reopens the exact job
+        -- system, perimeter, wall height, wells, cracks, pit, pump, backup,
+        discharge -- instead of the recipient retyping forty-plus numbers,
+        which is how that comparison never happens or how it happens wrong.
+        Assigned this single venture; confirmed first that no open PR or
+        branch touched it. Read `calc.mjs` (42 numeric fields, 3 flags --
+        `newSumpPit`, `freezeDischarge`, `includeDehumidifier` -- and 3 enums
+        -- `systemId`/`pumpId`/`backupId` sourced from `SYSTEM_PRESETS`/
+        `PUMP_PRESETS`/`BACKUP_PRESETS`), `index.html`, and `proposal.mjs`
+        fully before writing anything. Built `share.mjs`/`share.test.mjs`
+        (pure allowlisted encode/decode of all 42 numbers, 3 flags, and 3
+        enums, the enums validated against `calc.mjs`'s own preset ids rather
+        than a hand-duplicated list, matching the drift class CLAUDE.md's
+        "RENAME SUSPECTED" note and #2962 describe for a select field left
+        off an allowlist). This venture's proposal panel already carries
+        `depositPercent`, `validDays`, `paymentTerms`, `proposalNotes`, and
+        `proposalExclusions` -- exactly `platform/proposal/terms.mjs`'s
+        five-field spec -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from `spray-foam-bid-calculator`
+        (byte-identical, confirmed with `diff`) so all five terms ride in the
+        link instead of silently reverting to the venture's defaults on the
+        recipient's end (the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29). Added a
+        "Copy share link" button and on-load `restoreShare()` to
+        `index.html`, called last (after `restoreCompany`/`refreshProposal`
+        wiring is registered but before the page's first `update()`) so a
+        shared link's system/pump/backup selection and forty-plus rates win
+        over the page's own static HTML defaults. Updated the "Is my data
+        uploaded anywhere?" FAQ entry (both the visible copy and the FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan) -- it previously stated outright that this
+        calculator "does not... generate a shareable bid link", which this
+        change makes false, so the wording now matches `spray-foam-bid-
+        calculator`'s pattern instead. Also updated the footer privacy
+        paragraph and the SoftwareApplication `featureList` to mention the
+        share link, for the same honesty-about-what-a-link-carries reason.
+        Regenerated the front-door-tools mirror (`front-door-tools.mjs
+        --write` -- the correct path is `platform/marketing/`, not
+        `platform/pages/`) since the venture's file set changed -- new
+        `share.mjs` shard, updated `index.html` shard. `origin/main` moved
+        four times while this was in progress -- #3258 (a mirror-staleness
+        fix for `dryer-vent-bid-calculator`), #3256 (a new
+        `einvoice-preflight` page landing without its own mirror/sitemap/
+        catalog regen), #3260 (a `platform/pages/build.mjs` wording fix
+        that, because `front-door.mjs` shares code with `build.mjs`,
+        invalidated a mirror this session had already regenerated), and
+        #3261 (another session's own regen for `einvoice-preflight`,
+        landing while this session's rebase for #3260 was in flight).
+        Rebased onto each in turn rather than forcing a stale mirror
+        through -- taking `origin/main`'s side on any generated-file
+        conflict and re-running `front-door-tools.mjs --write` and
+        `front-door.mjs --write` fresh against the new base every time, so
+        the committed mirror, sitemap, and catalog always reflect current
+        `main` plus only this venture's addition, never a hand-merge of
+        two independently-generated artifacts. Verified against the final,
+        four-times-rebased state (the last rebase, onto #3261, produced a
+        byte-identical mirror with no further regen needed, confirming the
+        two sessions' fixes for `einvoice-preflight` had converged):
+        venture's own suite 105/105 (was 92); `platform/proposal/*.test.mjs`
+        97/97 (includes `term-ids.test.mjs`'s drift check across both the
+        shared-spec and vendored-module mechanisms); full `platform/pages`
+        suite 884/884; full `platform/marketing` suite 208/208;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 686 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs basement-waterproofing-bid-calculator` --
+        no-warranty clause present on all 3 published pages. Manually
+        exercised the round trip outside the test framework too, driving
+        `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample bid (120 lf seepage house, interior drain, new
+        sump, half-HP pump, battery backup, 3 window wells, floor and wall
+        crack repair, freeze-proof discharge, a 50% deposit held 15 days
+        with custom exclusions/payment/notes text): encoded, decoded, and
+        confirmed every one of the 42 numeric fields, the 3 flags, the 3
+        enums, and the 5 proposal terms matched the sender's input exactly,
+        and the recipient's recalculated price matched the sender's to the
+        cent ($23,377.50 both sides) -- the exact failure this feature
+        exists to prevent. GitHub Actions is documented in this repo's
+        CLAUDE.md as starved and the Hetzner cluster as down -- both
+        pre-diagnosed, owner-blocked, not re-investigated here -- so all of
+        the above is local verification standing in for CI per CLAUDE.md's
+        "absent CI is not failed CI" rule. Not deployed: the public surface
+        is down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: cabinet-refinishing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, closing the same gap #3262 closed for
+        `basement-waterproofing-bid-calculator` and `spray-foam-bid-
+        calculator` -- a cabinet refinisher comparing a takeoff with a
+        homeowner, GC, or kitchen designer had no way to send a link that
+        reopens the exact job instead of the recipient retyping twenty-plus
+        numbers. Read `calc.mjs` (24 numeric fields, 1 flag --
+        `replaceHardware` -- and 2 enums -- `finishId`/`colorId` sourced from
+        `FINISH_PRESETS`/`COLOR_PRESETS`), `index.html`, and `proposal.mjs`
+        fully before writing anything. Built `share.mjs`/`share.test.mjs`
+        (pure allowlisted encode/decode of all 24 numbers, 1 flag, and 2
+        enums, the enums validated against `calc.mjs`'s own preset ids
+        rather than a hand-duplicated list, matching the drift class
+        CLAUDE.md's "RENAME SUSPECTED" note and #2962 describe for a select
+        field left off an allowlist). This venture's proposal panel already
+        carries `depositPercent`, `validDays`, `paymentTerms`,
+        `proposalNotes`, and `proposalExclusions` -- exactly
+        `platform/proposal/terms.mjs`'s five-field spec -- so vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified from
+        `basement-waterproofing-bid-calculator` (byte-identical, confirmed
+        with `diff`) so all five terms ride in the link instead of silently
+        reverting to the venture's defaults on the recipient's end (the
+        "different money on acceptance" bug `platform/proposal/terms.mjs`
+        documents from 2026-08-29). Added a "Copy share link" button and
+        on-load `restoreShare()` to `index.html`, called last (after the
+        proposal panel's field ids exist but before the page's first
+        `update()`) so a shared link's finish/color selection and
+        twenty-plus rates win over the page's own static HTML defaults and
+        the finish/color-change auto-suggest logic. Updated the "Is my data
+        uploaded anywhere?" FAQ entry (both the visible copy and the FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan) -- it previously stated outright that this
+        calculator "does not... generate a shareable bid link", which this
+        change makes false, so the wording now matches the two just-shipped
+        ventures' pattern instead. Also updated the footer privacy
+        paragraph and the SoftwareApplication `featureList` for the same
+        honesty-about-what-a-link-carries reason. Regenerated the served
+        surface with `node platform/marketing/regen.mjs` -- the new unified
+        entry point #3263 added the same day this session started, which
+        runs both `front-door-tools.mjs --write` and `front-door.mjs
+        --write` and is now what every staleness hint in
+        `platform/marketing` names, replacing the single-generator command
+        the basement-waterproofing ledger entry recorded. `origin/main`
+        moved twice while this was in progress -- #3263 itself (the
+        regen.mjs unification, landing mid-session, which is why this
+        session used the new command rather than the two-command sequence
+        it started with) and #3264 (an AGENTS.md-only doc addition pointing
+        venture authors at the same tool, touching no code or generated
+        files). Rebased cleanly onto both; the AGENTS.md commit needed no
+        regen since it touched no venture or generator file. Verified
+        against the final state: venture's own suite 103/103 (was 92);
+        `platform/proposal/*.test.mjs` 97/97 (includes `term-ids.test.mjs`'s
+        drift check across both the shared-spec and vendored-module
+        mechanisms, now scanning 13 vendored copies); full `platform/pages`
+        suite 884/884; full `platform/marketing` suite 211/211 (6 failed
+        before the regen, all on the newly-stale mirror/kustomization/alias
+        map, as expected); `platform/pages/build.mjs` + `check.mjs` on a
+        full site build -- "174 products, 686 pages, no dead links", and
+        "Added a shareable bid link to 146 page(s)" (up from 145); `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs cabinet-refinishing-bid-calculator` --
+        no-warranty clause present on all 3 published pages. `git status`
+        after regen touched only this venture's own mirror shard, the
+        mirror kustomization, and the nginx alias map -- no unrelated
+        venture's shard changed, so no stale-mirror collateral to document
+        this time. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly with a full-field sample bid (30-door/24-drawer large
+        kitchen, on-site brush finish, dark-to-light color change, new
+        hardware, a 50% deposit held 15 days with custom exclusions/payment/
+        notes text): encoded, decoded, and confirmed every one of the 24
+        numeric fields, the 1 flag, the 2 enums, and the 5 proposal terms
+        matched the sender's input exactly, and the recipient's
+        recalculated price matched the sender's to the cent ($13,683.76
+        both sides) -- the exact failure this feature exists to prevent.
+        GitHub Actions is documented in this repo's CLAUDE.md as starved
+        and the Hetzner cluster as down -- both pre-diagnosed, owner-
+        blocked, not re-investigated here -- so all of the above is local
+        verification standing in for CI per CLAUDE.md's "absent CI is not
+        failed CI" rule. Not deployed: the public surface is down (see
+        CLAUDE.md), so this ships to `main` as code only, ready to serve
+        once the owner's infra fix lands.
+    mrr_end: null
+  - venture: carpet-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fourth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262) and `cabinet-refinishing-bid-calculator`
+        (#3265, merged as `8bae18000`) -- a carpet cleaner comparing a
+        takeoff with a homeowner, property manager, or GC had no way to
+        send a link that reopens the exact stop instead of the recipient
+        retyping a room list and every rate. This venture differs from the
+        three references in one structural way: `calc.mjs` prices a
+        variable-length list of rooms and upholstery pieces the visitor
+        grows or shrinks in the DOM (`data-pf-repeat`), not a fixed field
+        set, so the three references' plain "one query param per field"
+        pattern does not fit rooms/upholstery directly. Read `calc.mjs`
+        (14 fixed numeric cost fields, no flags, no top-level enums; rooms
+        keyed by a `ROOM_NAME_PRESETS`-restricted select plus free
+        `squareFeet`/`productionRate` numbers and a `petTreatment`
+        checkbox; upholstery keyed by a `UPHOLSTERY_PRESETS`-restricted
+        select, matching `readUpholstery()`'s own fallback to an empty
+        name for its "Other piece" option, plus free `minutes`),
+        `index.html`, and `proposal.mjs` fully before writing anything.
+        Built `share.mjs`/`share.test.mjs` (10 tests): the 14 fixed fields
+        as plain allowlisted query params exactly like the three
+        references, and rooms/upholstery each riding under one parameter
+        as colon-separated cells / comma-separated rows -- the same row
+        encoding `moving-bid-calculator` and `janitorial-bid-calculator`
+        already use on this site for a visitor-grown list, rather than
+        inventing a fourth encoding. Room and upholstery names are
+        validated against `calc.mjs`'s own `ROOM_NAME_PRESETS`/
+        `UPHOLSTERY_PRESETS` rather than a hand-duplicated list, the same
+        drift guard `FINISH_PRESETS`/`COLOR_PRESETS` give cabinet-
+        refinishing's enum fields; an unrecognised room name is dropped
+        from the cell and an unrecognised upholstery name normalises to
+        the same empty "other piece" name the form itself produces, never
+        leaking the crafted string. A row surviving with nothing usable in
+        it (every cell rejected) is dropped rather than restored as a
+        blank card. This venture's proposal panel carries `depositPercent`,
+        `validDays`, `paymentTerms`, `proposalNotes`, and
+        `proposalExclusions` -- `platform/proposal/terms.mjs`'s five-field
+        spec -- so vendored `proposal-terms.mjs`/`proposal-terms.test.mjs`
+        unmodified from `cabinet-refinishing-bid-calculator` (confirmed
+        byte-identical with `diff`) so all five terms ride in the link
+        instead of silently reverting to this venture's defaults on the
+        recipient's end. Added a "Copy share link" button and an on-load
+        `restoreShare()` to `index.html`: rooms and upholstery from a link
+        replace the page's static starting rows entirely (rather than
+        merging into them) when the link carries any, each decoded row
+        normalised with the same defaults `addRoomRow`'s own "+ Add a
+        room" handler already uses for a field a link left unset, and the
+        14 cost fields are written last, all before the page's first
+        `update()` call -- so a shared link's exact room list and rates
+        win over the page's own static HTML defaults. Fixed the "Is my
+        data uploaded anywhere?" FAQ entry (visible copy and FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan), the footer privacy paragraph, and the
+        SoftwareApplication `featureList` -- all three previously implied
+        or stated outright that no shareable link exists, which this
+        change makes false. Regenerated the served surface with `node
+        platform/marketing/regen.mjs` per #3263/#3264. `origin/main` did
+        not move during this session, so no rebase was needed. Verified:
+        venture's own suite 102/102; `platform/proposal/*.test.mjs` 97/97
+        (`term-ids.test.mjs`'s drift check now scanning 14 vendored
+        copies); full `platform/pages` suite 884/884 -- one pre-existing
+        test (`link.test.mjs`'s "the itemised calculators are offered the
+        control once they declare their rows") pinned this venture as one
+        of five taking the platform's own generic bid-link control by
+        count; updated it to four and added this venture to the named
+        exclusions, the same way #2699/#3048/#3052 already recorded pest-
+        control/snow-removal/gutter-cleaning shipping their own share
+        control -- `pageHasOwnShareLink` now correctly detects this
+        venture's new `share.mjs` import and "Copy share link" text and
+        excludes it from a second, conflicting control; full
+        `platform/marketing` suite 211/211 (4 failed before the regen, all
+        on the newly-stale mirror/kustomization/alias map, as expected);
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 686 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs carpet-cleaning-bid-calculator` --
+        no-warranty clause present on all 3 published pages. `git status`
+        after regen touched only this venture's own mirror shard, the
+        mirror kustomization (new `share.mjs.gz` entry), and the nginx
+        alias map. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly with a full-field sample bid (5 rooms including two pet
+        rooms, one sofa, 2 stair flights, a 50% deposit held 15 days with
+        custom terms text): encoded, decoded, and confirmed every room
+        (name, square footage, rate, pet flag), the upholstery piece, all
+        14 cost fields, and all 5 proposal terms matched the sender's
+        input exactly, and the recipient's recalculated quoted price and
+        break-even price matched the sender's to the cent ($464.31 both
+        sides) -- the exact failure this feature exists to prevent.
+        GitHub Actions is documented in this repo's CLAUDE.md as starved
+        and the Hetzner cluster as down -- both pre-diagnosed, owner-
+        blocked, not re-investigated here -- so all of the above is local
+        verification standing in for CI per CLAUDE.md's "absent CI is not
+        failed CI" rule. Not deployed: the public surface is down (see
+        CLAUDE.md), so this ships to `main` as code only, ready to serve
+        once the owner's infra fix lands.
+    mrr_end: null
+  - venture: concrete-lifting-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fifth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), and `carpet-cleaning-bid-calculator`
+        (#3266, merged as `effadfdbc`) -- a mudjacking/polyjacking crew
+        comparing a takeoff with a homeowner, GC, or property manager had
+        no way to send a link that reopens the exact job instead of the
+        recipient retyping method, access, void depth, extra holes, and
+        every rate. Read `calc.mjs` fully first to decide which of the two
+        shapes fit: unlike carpet-cleaning's rooms/upholstery, this
+        venture prices a fixed field set -- no visitor-grown list -- so
+        the plain "one query param per field" pattern from cabinet-
+        refinishing/basement-waterproofing/spray-foam applies directly
+        rather than needing carpet-cleaning's row encoding. Built
+        `share.mjs`/`share.test.mjs` (8 tests): 22 numeric cost/rate
+        fields as allowlisted query params, 1 boolean (`addSeal`), and 2
+        enums (`method`, `access`) validated against `calc.mjs`'s own
+        `METHOD_PRESETS`/`ACCESS_PRESETS` ids rather than a hand-
+        duplicated list -- the same drift guard `FINISH_PRESETS`/
+        `COLOR_PRESETS` give cabinet-refinishing's enum fields. A zero
+        void depth round-trips as zero rather than being dropped as
+        falsy, matching the calculator's own "zero void depth still
+        prices -- pump hours are the void, not an error" note. This
+        venture's proposal panel carries `depositPercent`, `validDays`,
+        `paymentTerms`, `proposalNotes`, and `proposalExclusions` --
+        `platform/proposal/terms.mjs`'s five-field spec -- so vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified from
+        `cabinet-refinishing-bid-calculator` (confirmed byte-identical
+        with `diff`) so all five terms ride in the link instead of
+        silently reverting to this venture's defaults on the recipient's
+        end. Added a "Copy share link" button and an on-load
+        `restoreShare()` to `index.html`: `readInput()` already returns
+        every FIELD_IDS/FLAG_IDS/SELECT_IDS value the encoder needs, so
+        `copyLink` calls it directly; `restoreShare()` writes `method`,
+        `access`, every FIELD_IDS value, and `addSeal` back onto the form,
+        called immediately before the page's first `update()` so a shared
+        link's exact numbers win over the page's static HTML defaults --
+        no method/access "kit" needs reapplying on restore, because the
+        rates a kit would set (`hoursLift`, `hoursPerCf`,
+        `materialPerCf`, `hoursAccess`) are themselves carried fields.
+        Fixed the "Is my data uploaded anywhere?" FAQ entry (visible copy
+        and FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan), the
+        footer privacy paragraph, and the SoftwareApplication
+        `featureList`: this venture's copy did not claim no link exists --
+        it already described the platform's own generic auto-injected
+        "Copy link to this bid" control (`pf-link.js`, confirmed present
+        in `platform/pages/dist/concrete-lifting-bid-calculator/index.html`
+        pre-change) -- so the fix retargets the wording at this venture's
+        own dedicated control instead, which is what actually serves the
+        page once `pageHasOwnShareLink` detects the new `share.mjs`
+        import and "Copy share link" text and stops offering the generic
+        one (`pageTakesBidLink` false). This venture is not one of
+        `link.test.mjs`'s eight named itemised calculators, so that
+        pinned count is untouched. Regenerated the served surface with
+        `node platform/marketing/regen.mjs`. `origin/main` did not move
+        during this session, so no rebase was needed. Verified: venture's
+        own suite 106/106; `platform/proposal/*.test.mjs` 97/97; full
+        `platform/pages` suite 884/884; full `platform/marketing` suite
+        211/211; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "174 products, 686 pages, no dead links" (build.mjs log
+        also shows the generic bid-link count dropping from before this
+        change, consistent with this venture leaving that bucket);
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml
+        valid; `node platform/pages/clauses.mjs
+        concrete-lifting-bid-calculator` -- no-warranty clause present on
+        all 3 published pages. `git status` after regen touched only this
+        venture's own mirror shard (new `share.mjs.gz` entry), the mirror
+        kustomization, and the nginx alias map -- no unrelated venture's
+        shard changed. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly with a full-field sample bid (poly method, interior
+        access, 200 sq ft slab, 2-inch void, 4 extra holes, joint seal, a
+        50% deposit held 15 days with custom terms text): encoded,
+        decoded, and confirmed all 22 numeric fields, the boolean, both
+        enums, and all 5 proposal terms matched the sender's input
+        exactly, and the recipient's recalculated price, walk-away price,
+        and profit matched the sender's to the cent ($5,361.15 price,
+        $3,752.80 walk-away, $1,608.34 profit, all three sides) -- the
+        exact failure this feature exists to prevent. Confirmed CI
+        starvation directly rather than citing it secondhand:
+        `platform/ci/ci_starvation.py --run 33941053248` (the most recent
+        `Portfolio validate` run at the time) reports the one job's
+        `runner_id: 0`, 3s runtime -- unassigned, not a real failure.
+        GitHub Actions is documented in this repo's CLAUDE.md as starved
+        and the Hetzner cluster as down -- both pre-diagnosed, owner-
+        blocked, not re-investigated further here -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Not deployed: the public surface is
+        down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: countertop-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the sixth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), and `concrete-lifting-bid-calculator`
+        (#3268, merged as `12e9812c0`) -- a stone fabricator comparing a
+        takeoff with a homeowner, GC, or kitchen designer had no way to
+        send a link that reopens the exact job instead of the recipient
+        retyping layout, material, slab size and cost, every cutout
+        count, edge profile, backsplash, waterfall ends, seams, and every
+        rate. Read `calc.mjs` fully first to decide which of the two
+        shapes fit: this venture prices a fixed field set -- no visitor-
+        grown list of countertop sections -- so the plain "one query
+        param per field" pattern from cabinet-refinishing/basement-
+        waterproofing/spray-foam/concrete-lifting applies directly rather
+        than carpet-cleaning's row encoding. Built `share.mjs`/
+        `share.test.mjs` (9 tests): 29 numeric cost/rate fields as
+        allowlisted query params and 4 enums (`layoutId`, `materialId`,
+        `sinkId`, `edgeId`) validated against `calc.mjs`'s own
+        `LAYOUT_PRESETS`/`MATERIAL_PRESETS`/`SINK_PRESETS`/`EDGE_PRESETS`
+        ids rather than a hand-duplicated list -- the same drift guard
+        concrete-lifting's `method`/`access` enums use, extended to four
+        fields since this venture's selects only ever suggest defaults
+        for other numeric fields and never reach `calculateBid` directly.
+        No boolean fields exist on this venture. A zero waterfall count
+        and zero seams round-trip as zero rather than being dropped as
+        falsy -- they are the job, not an error. Added a test asserting
+        each enum only accepts its own preset ids, not another field's
+        (a crafted link cannot swap a material id into the layout slot).
+        This venture's proposal panel already carried `depositPercent`,
+        `validDays`, `paymentTerms`, `proposalNotes`, and
+        `proposalExclusions` -- `platform/proposal/terms.mjs`'s
+        five-field spec -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `concrete-lifting-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end.
+        Added a "Copy share link" button and an on-load `restoreShare()`
+        to `index.html`: `readInput()` already returns every FIELD_IDS
+        value the encoder needs, so `copyLink` calls it directly;
+        `restoreShare()` writes the four selects and every FIELD_IDS
+        value back onto the form, moved to run immediately before the
+        page's first `update()` (previously `update()` ran unconditionally
+        at the very end, after the proposal panel's own `document`-level
+        input/change listeners were registered) so a shared link's exact
+        numbers win over the page's static HTML defaults and the restore
+        does not fire the proposal panel's listeners prematurely. Fixed
+        the "Is my data uploaded anywhere?" FAQ entry (visible copy and
+        FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan), the
+        footer privacy paragraph, and the SoftwareApplication
+        `featureList` to name the new link. This venture had no share
+        control and was not offered the platform's generic auto-injected
+        "Copy link to this bid" (confirmed via `pageTakesBidLink`/
+        `pageHasOwnShareLink` reasoning and by diffing `build.mjs`'s
+        "Added a shareable bid link to N page(s)" count and grepping the
+        built page for `pf-link-copy`, which is absent post-change while
+        `copyLink`/`share.mjs` are present) -- `pageHasOwnShareLink` now
+        detects the new `share.mjs` import and "Copy share link" text and
+        defers to it. This venture is not one of `link.test.mjs`'s eight
+        named itemised calculators, so that pinned count is untouched.
+        Regenerated the served surface with `node
+        platform/marketing/regen.mjs`, run twice: once before `build.mjs`
+        rebuilt `dist/countertop-bid-calculator/index.html` with the new
+        share wiring (which mirrored a stale copy and failed
+        `front-door-tools.test.mjs`'s "committed mirror matches the
+        generator" check), and once after -- the second run is what
+        shipped, and the lesson is `build.mjs` before `regen.mjs`, not
+        the reverse. `origin/main` advanced by one unrelated commit
+        (`shopify-permission-drift`) during this session; rebased
+        cleanly, no regenerated file needed a second pass since the
+        rebase touched no shared generated file. Verified: venture's own
+        suite 109/109; `platform/proposal/*.test.mjs` 97/97; full
+        `platform/pages` suite 884/884; full `platform/marketing` suite
+        211/211 (first pass 210/211 with the stale-mirror failure above,
+        second pass clean); `platform/pages/build.mjs` + `check.mjs` on a
+        full site build -- "174 products, 686 pages, no dead links";
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml
+        valid; `node platform/pages/clauses.mjs
+        countertop-bid-calculator` -- no-warranty clause present on all 3
+        published pages. `git status` after regen touched only this
+        venture's own mirror shard (new `share.mjs.gz` entry), the mirror
+        kustomization, and the nginx alias map -- no unrelated venture's
+        shard changed. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-
+        terms.mjs` directly with a full-field sample bid (run + island
+        layout, marble, farmhouse sink, mitered edge, 2 waterfall ends, 3
+        seams, a 40% deposit held 21 days with custom terms text):
+        encoded, decoded, and confirmed all 29 numeric fields, all 4
+        enums, and all 5 proposal terms matched the sender's input
+        exactly, and the recipient's recalculated price matched the
+        sender's to the cent ($10,682.63 both sides) -- the exact failure
+        this feature exists to prevent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved (cycling with the monthly Actions
+        minute allowance) and the Hetzner cluster as down (`:6443`
+        refused, no k3s API server) -- both pre-diagnosed, owner-blocked,
+        not re-diagnosed here per CLAUDE.md's explicit instruction to cite
+        rather than re-verify -- so all of the above is local verification
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI"
+        rule. Not deployed: the public surface is down (see CLAUDE.md), so
+        this ships to `main` as code only, ready to serve once the
+        owner's infra fix lands.
+    mrr_end: null
+  - venture: duct-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the seventh venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), `concrete-lifting-bid-calculator` (#3268,
+        merged as `12e9812c0`), and `countertop-bid-calculator` (#3271,
+        merged as `48b682306`) -- a duct-cleaning shop comparing a takeoff
+        with a homeowner, property manager, or GC had no way to send a
+        link that reopens the exact job instead of the recipient retyping
+        job type, systems, vents, returns, stories, crawl access,
+        occupied-home protection, coil clean, sanitizer, heavy debris, and
+        every hour and rate. Read `calc.mjs` fully first: this venture
+        prices a fixed field set -- no visitor-grown list of ducts, vents,
+        or registers -- so the plain "one query param per field" pattern
+        from cabinet-refinishing/basement-waterproofing/spray-foam/
+        concrete-lifting/countertop applies directly rather than carpet-
+        cleaning's row encoding. Built `share.mjs`/`share.test.mjs` (7
+        tests): 28 numeric cost/rate fields as allowlisted query params,
+        5 boolean checkboxes (`crawl`, `occupied`, `coil`, `sanitizer`,
+        `heavyDebris`) travelling as `'1'`/`'0'` the same way basement-
+        waterproofing's new-pit/freeze-discharge/dehumidifier checkboxes
+        do, and one enum (`jobType`) validated against `calc.mjs`'s own
+        `JOB_TYPE_PRESETS` ids rather than a hand-duplicated list -- the
+        same drift guard concrete-lifting's `method`/`access` enums use.
+        A returns count of zero and `heavyDebris: false` round-trip
+        as-is rather than being dropped as falsy -- they are the job, not
+        an error. This venture's proposal panel already carried
+        `depositPercent`, `validDays`, `paymentTerms`, `proposalNotes`,
+        and `proposalExclusions` -- `platform/proposal/terms.mjs`'s
+        five-field spec -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `countertop-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end.
+        Added a "Copy share link" button and an on-load `restoreShare()`
+        to `index.html`: `readInput()` already returns every FIELD_IDS,
+        FLAG_IDS, and `jobType` value the encoder needs (via its existing
+        `SELECT_IDS` loop), so `copyLink` calls it directly;
+        `restoreShare()` writes the job-type select, every FIELD_IDS
+        value, and every FLAG_IDS checkbox back onto the form, called
+        immediately before the page's first `update()` (previously
+        `update()` ran unconditionally right after the field/flag
+        listeners were wired, ahead of the proposal panel's own
+        `document`-level input/change listeners) so a shared link's exact
+        numbers win over the page's static HTML defaults and the restore
+        does not fire the proposal panel's listeners prematurely. Fixed
+        the "Is my data uploaded anywhere?" FAQ entry (visible copy and
+        FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan -- this
+        venture's old copy claimed outright "has no shareable bid link",
+        which was true until this change), the footer privacy paragraph,
+        and the SoftwareApplication `featureList` to name the new link.
+        This venture had no share control and was not offered the
+        platform's generic auto-injected "Copy link to this bid"
+        (confirmed via `pageTakesBidLink`/`pageHasOwnShareLink` reasoning
+        and by grepping the built page for `pf-link-copy`, which is
+        absent post-change while `copyLink`/`share.mjs` are present) --
+        `pageHasOwnShareLink` detects the new `share.mjs` import and
+        "Copy share link" text and defers to it; `build.mjs`'s own
+        `pageHasOwnShareControl` also matches the `id="copyLink"` button
+        via its `OWN_COPY_BUTTON` regex. This venture is not one of
+        `link.test.mjs`'s eight named itemised calculators, so that
+        pinned count is untouched and no opt-out was needed. Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the
+        countertop PR documented -- a first `regen.mjs` pass ahead of
+        `build.mjs` would have mirrored a stale `dist/duct-cleaning-bid-
+        calculator/index.html` and failed `front-door-tools.test.mjs`'s
+        "committed mirror matches the generator" check; running `build.mjs`
+        first avoided that failure entirely, so no second regen pass was
+        needed. `origin/main` did not move during this session (checked
+        immediately before appending this entry). Verified: venture's own
+        suite 102/102; `platform/proposal/*.test.mjs` 97/97; full
+        `platform/pages` suite 883/884 (the one failure,
+        `mcp-supply-chain-watch/vs-snyk.html`'s FAQ divergence, is
+        pre-existing on `main` before this branch's changes -- confirmed
+        by stashing this branch's diff and re-running, same failure);
+        full `platform/marketing` suite 211/211 (first pass 207/211 with
+        four stale-mirror failures before `build.mjs` had run, second
+        pass after `build.mjs`+`regen.mjs` clean); `platform/pages/
+        build.mjs` + `check.mjs` on a full site build -- "174 products,
+        688 pages, no dead links"; `python3 portfolio/router/validate.py`
+        -- all 183 VENTURE.yaml valid; `node platform/pages/clauses.mjs
+        duct-cleaning-bid-calculator` -- no-warranty clause present on all
+        3 published pages. `git status` after regen touched only this
+        venture's own mirror shard (new `share.mjs.gz` entry), the mirror
+        kustomization, and the nginx alias map -- no unrelated venture's
+        shard changed. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs` directly with a
+        full-field sample bid (heavy-debris two-system job, 22 vents, 3
+        returns, 2 stories, crawl + occupied + coil + sanitizer + heavy
+        debris all checked, a $1,450 proposed price to compare against):
+        encoded, decoded, and confirmed all 28 numeric fields, all 5
+        boolean flags, and the job-type enum matched the sender's input
+        exactly, and the recipient's recalculated price matched the
+        sender's to the cent ($1,060.26 both sides) -- the exact failure
+        this feature exists to prevent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved (cycling with the monthly Actions
+        minute allowance) and the Hetzner cluster as down (`:6443`
+        refused, no k3s API server) -- both pre-diagnosed, owner-blocked,
+        not re-diagnosed here per CLAUDE.md's explicit instruction to cite
+        rather than re-verify -- so all of the above is local verification
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI"
+        rule. Not deployed: the public surface is down (see CLAUDE.md), so
+        this ships to `main` as code only, ready to serve once the
+        owner's infra fix lands.
+    mrr_end: null
+  - venture: electrical-panel-upgrade-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the eighth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), `concrete-lifting-bid-calculator` (#3268,
+        merged as `12e9812c0`), `countertop-bid-calculator` (#3271, merged
+        as `48b682306`), and `duct-cleaning-bid-calculator` (#3272, merged
+        as `43cffd85b`) -- an electrician comparing a takeoff with a
+        homeowner, property manager, or GC had no way to send a link that
+        reopens the exact job instead of the recipient retyping existing
+        and new amps, service path, panel style, panel location, feeder
+        feet, circuit count, AFCI/GFCI count, meter socket / grounding /
+        temporary power, and every hour and rate. Read `calc.mjs` fully
+        first: this venture prices a fixed field set -- no visitor-grown
+        list of circuits or fixtures -- so the plain "one query param per
+        field" pattern from cabinet-refinishing/basement-waterproofing/
+        spray-foam/concrete-lifting/countertop/duct-cleaning applies
+        directly rather than carpet-cleaning's row encoding. Built
+        `share.mjs`/`share.test.mjs` (7 tests): 33 numeric cost/rate
+        fields as allowlisted query params, 3 boolean checkboxes
+        (`replaceMeterSocket`, `newGrounding`, `temporaryPower`)
+        travelling as `'1'`/`'0'` the same way basement-waterproofing's
+        new-pit/freeze-discharge/dehumidifier checkboxes do, and three
+        enums (`service`, `panelStyle`, `location` -- this venture has
+        three select fields where duct-cleaning and most siblings have
+        only one `jobType`) each validated against `calc.mjs`'s own
+        `SERVICE_PRESETS`/`PANEL_STYLE_PRESETS`/`LOCATION_PRESETS` ids
+        rather than a hand-duplicated list -- the same drift guard
+        concrete-lifting's `method`/`access` enums use, generalised from a
+        single `usableEnum` call to an `ENUM_FIELDS` map keyed by id. An
+        AFCI count of zero and `temporaryPower: false` round-trip as-is
+        rather than being dropped as falsy -- they are the job, not an
+        error. This venture's proposal panel already carried
+        `depositPercent`, `validDays`, `paymentTerms`, `proposalNotes`,
+        and `proposalExclusions` -- `platform/proposal/terms.mjs`'s
+        five-field spec, confirmed against `proposal.mjs`'s own
+        `TERM_FIELDS` constant -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `duct-cleaning-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end.
+        Added a "Copy share link" button and an on-load `restoreShare()`
+        to `index.html`: `readInput()` already returns every FIELD_IDS,
+        FLAG_IDS, and `SELECT_IDS` value the encoder needs, so `copyLink`
+        calls it directly; `restoreShare()` writes the three selects,
+        every FIELD_IDS value, and every FLAG_IDS checkbox back onto the
+        form, called immediately before the page's first `update()` so a
+        shared link's exact numbers win over the page's static HTML
+        defaults. Fixed the "Is my data uploaded anywhere?" FAQ entry
+        (visible copy and FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan -- this
+        venture's old copy claimed the bid was "saved in this browser's
+        local storage" with no mention of a link, which was true until
+        this change), the footer privacy paragraph, and the
+        SoftwareApplication `featureList` to name the new link. This
+        venture had no share control and was not offered the platform's
+        generic auto-injected bid link (confirmed by grepping the built
+        page for `pf-link`, which is absent post-build while
+        `copyLink`/`share.mjs` are present) -- `pageHasOwnShareLink`
+        detects the new `share.mjs` import and "Copy share link" text and
+        defers to it, and `build.mjs` is passed the venture's own
+        `share.mjs` on disk as `hasShareModule` so the generic injection
+        never runs regardless of markup detection. This venture is not
+        one of `link.test.mjs`'s named itemised calculators, so that
+        pinned count is untouched and no opt-out was needed. Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the
+        countertop/duct-cleaning PRs documented -- a first `regen.mjs`
+        pass ahead of `build.mjs` would have mirrored a stale
+        `dist/electrical-panel-upgrade-bid-calculator/index.html` and
+        failed `front-door-tools.test.mjs`'s "committed mirror matches
+        the generator" check; running `build.mjs` first avoided that
+        failure entirely. `origin/main` moved once mid-session (a
+        vs-Healthchecks.io comparison page for a different venture,
+        #3273); rebased cleanly onto it and re-ran `build.mjs` +
+        `regen.mjs` fresh against the new base before this final append
+        (checked immediately before appending this entry, and again
+        immediately before pushing). Verified: venture's own suite
+        106/106 (includes `calc.test.mjs`, `proposal.test.mjs`,
+        `proposal-terms.test.mjs`, `share.test.mjs`, `usage.test.mjs`,
+        `vs-servicetitan.test.mjs`, `page.test.mjs`);
+        `platform/proposal/*.test.mjs` 97/97; full `platform/pages` suite
+        883/884 (the one failure, `mcp-supply-chain-watch/vs-snyk.html`'s
+        FAQ divergence -- an em-dash-vs-double-hyphen mismatch -- is
+        pre-existing on `main`: that page is generated from
+        `ventures/mcp-supply-chain-watch/site/vs-snyk.html`, added by
+        PR #3270 before this session started and untouched by this
+        branch's `git status`); full `platform/marketing` suite 211/211;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 688 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid;
+        `node platform/pages/clauses.mjs
+        electrical-panel-upgrade-bid-calculator` -- no-warranty clause
+        present on all 3 published pages. `git status` after the fresh
+        regen touched only this venture's own mirror shard (new
+        `share.mjs.gz` and updated `index.html.gz` entries), the mirror
+        kustomization, the nginx alias map, and `portfolio-front.yaml`
+        gaining a tenth shard mount (the mirror was already at 97-100%
+        per-shard capacity before this change) -- no unrelated venture's
+        shard content changed. Manually exercised the round trip outside
+        the test framework too, driving `calc.mjs`/`share.mjs` directly
+        with a full-field sample bid (100A to 200A underground upgrade,
+        meter-main panel, finished-space location, 40 ft feeder, 20
+        circuits, 20 AFCI/GFCI, meter socket replacement + new grounding
+        + temporary power all checked, a $4,500 proposed price to compare
+        against): encoded, decoded, and confirmed all 33 numeric fields,
+        all 3 boolean flags, and all 3 enums matched the sender's input
+        exactly, and the recipient's recalculated price matched the
+        sender's to the cent ($11,252.61 both sides) -- the exact failure
+        this feature exists to prevent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved (cycling with the monthly
+        Actions minute allowance) and the Hetzner cluster as down
+        (`:6443` refused, no k3s API server) -- both pre-diagnosed,
+        owner-blocked, not re-diagnosed here per CLAUDE.md's explicit
+        instruction to cite rather than re-verify -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Not deployed: the public surface is
+        down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: entry-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the ninth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), `concrete-lifting-bid-calculator` (#3268,
+        merged as `12e9812c0`), `countertop-bid-calculator` (#3271, merged
+        as `48b682306`), `duct-cleaning-bid-calculator` (#3272, merged as
+        `43cffd85b`), and `electrical-panel-upgrade-bid-calculator`
+        (#3274, merged as `d06fb858d`) -- a door-and-carpentry shop
+        comparing a takeoff with a homeowner, property manager, or GC had
+        no way to send a link that reopens the exact job instead of the
+        recipient retyping configuration, material, hang style, access,
+        rot footage, every extra, and every hour and rate. Read `calc.mjs`
+        fully first: this venture prices one door opening as a fixed
+        field set -- no visitor-grown list of doors or openings, unlike
+        `carpet-cleaning-bid-calculator`'s rooms/upholstery -- so the
+        plain "one query param per field" pattern from electrical-panel-
+        upgrade/duct-cleaning/countertop/concrete-lifting/cabinet-
+        refinishing/basement-waterproofing/spray-foam applies directly.
+        Built `share.mjs`/`share.test.mjs` (7 tests): 31 numeric cost/rate
+        fields as allowlisted query params, 7 boolean checkboxes
+        (`outOfSquare`, `addTransom`, `addBrickmold`, `addStormDoor`,
+        `addSmartLock`, `addPaint`, `tearOut`) travelling as `'1'`/`'0'`
+        the same way electrical-panel-upgrade's replace-meter-socket/new-
+        grounding/temporary-power checkboxes do, and four enums (`config`,
+        `material`, `hangStyle`, `stories`) each validated against
+        `calc.mjs`'s own `CONFIG_PRESETS`/`MATERIAL_PRESETS`/
+        `HANG_PRESETS`/`STORY_PRESETS` ids via the generalized
+        `ENUM_FIELDS` map electrical-panel-upgrade's PR introduced, rather
+        than a hand-duplicated list. A rot footage of zero and
+        `tearOut: false` round-trip as-is rather than being dropped as
+        falsy -- they are the job, not an error. This venture's proposal
+        panel already carried `depositPercent`, `validDays`,
+        `paymentTerms`, `proposalNotes`, and `proposalExclusions` --
+        `platform/proposal/terms.mjs`'s five-field spec, confirmed against
+        `proposal.mjs`'s own `TERM_FIELDS` constant -- so vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified from
+        `electrical-panel-upgrade-bid-calculator` (confirmed byte-
+        identical with `diff`) so all five terms ride in the link instead
+        of silently reverting to this venture's defaults on the
+        recipient's end. Added a "Copy share link" button and an on-load
+        `restoreShare()` to `index.html`: `readInput()` already returns
+        every `FIELD_IDS`, `FLAG_IDS`, and `SELECT_IDS` value the encoder
+        needs, so `copyLink` calls it directly; `restoreShare()` writes
+        the four selects, every `FIELD_IDS` value, and every `FLAG_IDS`
+        checkbox back onto the form, called immediately before the page's
+        first `update()` so a shared link's exact numbers win over the
+        page's static HTML defaults. Fixed the "Is my data uploaded
+        anywhere?" FAQ entry (visible copy and FAQPage JSON-LD, byte-
+        identical per `platform/pages/faq-visible.test.mjs`'s divergence
+        scan -- this venture's old copy claimed the bid was "saved in this
+        browser's local storage," which was never true for this venture
+        (only the proposal's business-details block and the usage counter
+        touch `localStorage`; grepped the pre-change `index.html` to
+        confirm no bid-persistence call existed) and made no mention of a
+        link), the footer privacy paragraph, and the SoftwareApplication
+        `featureList` to name the new link. This venture had no share
+        control and was not offered the platform's generic auto-injected
+        bid link (`pageHasOwnShareLink` detects the new `share.mjs`
+        import and the "Copy share link" text and defers to it, and
+        `build.mjs` is passed the venture's own `share.mjs` on disk as
+        `hasShareModule` so the generic injection never runs regardless of
+        markup detection). This venture is not one of `link.test.mjs`'s
+        named itemised calculators, so that pinned count is untouched and
+        no opt-out was needed. Ran `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the
+        countertop/duct-cleaning/electrical-panel-upgrade PRs documented --
+        a first `regen.mjs` pass ahead of `build.mjs` would have mirrored
+        a stale `dist/entry-door-bid-calculator/index.html` and failed
+        `front-door-tools.test.mjs`'s "committed mirror matches the
+        generator" check; running `build.mjs` first avoided that failure
+        entirely. `origin/main` did not move during this session (checked
+        immediately before appending this entry). Verified: venture's own
+        suite 105/105 (includes `calc.test.mjs`, `proposal.test.mjs`,
+        `proposal-terms.test.mjs`, `share.test.mjs`, `usage.test.mjs`,
+        `vs-jobber.test.mjs`, `page.test.mjs`); `platform/proposal/*.test.mjs`
+        97/97; full `platform/pages` suite 884/884; full
+        `platform/marketing` suite 211/211; `platform/pages/build.mjs` +
+        `check.mjs` on a full site build -- "174 products, 689 pages, no
+        dead links"; `python3 portfolio/router/validate.py` -- all 183
+        VENTURE.yaml valid; `node platform/pages/clauses.mjs
+        entry-door-bid-calculator` -- no-warranty clause present on all 3
+        published pages. `git status` after regen touched only this
+        venture's own mirror shard (new `share.mjs.gz` entry and updated
+        `index.html.gz`), the mirror kustomization, and the nginx alias
+        map -- no unrelated venture's shard changed, and
+        `portfolio-front.yaml` needed no new shard mount (still 11).
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs` directly with a full-field sample
+        bid (fiberglass, two sidelights, second-story access, 8 ft of
+        rot, out-of-square, transom, brickmold, storm door, smart lock,
+        and paint all checked, a $4,500 proposed price to compare
+        against): encoded, decoded, and confirmed all 31 numeric fields,
+        all 7 boolean flags, and all 4 enums matched the sender's input
+        exactly, and the recipient's recalculated price matched the
+        sender's to the cent ($7,310.80 both sides) -- the exact failure
+        this feature exists to prevent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved (cycling with the monthly
+        Actions minute allowance) and the Hetzner cluster as down
+        (`:6443` refused, no k3s API server) -- both pre-diagnosed,
+        owner-blocked, not re-diagnosed here per CLAUDE.md's explicit
+        instruction to cite rather than re-verify -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Not deployed: the public surface is
+        down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: epoxy-garage-floor-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the tenth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), `concrete-lifting-bid-calculator` (#3268,
+        merged as `12e9812c0`), `countertop-bid-calculator` (#3271, merged
+        as `48b682306`), `duct-cleaning-bid-calculator` (#3272, merged as
+        `43cffd85b`), `electrical-panel-upgrade-bid-calculator` (#3274,
+        merged as `d06fb858d`), and `entry-door-bid-calculator` (#3277,
+        merged as `f5d42a9da`) -- a coating contractor comparing a takeoff
+        with a homeowner, property manager, or GC had no way to send a
+        link that reopens the exact job instead of the recipient retyping
+        the slab size, coating system, prep method, crack/pit repair,
+        moisture barrier, and every hour and rate, and a silently dropped
+        field meant the recipient computed a different price than the
+        sender saw. Read `calc.mjs` fully first: this venture prices one
+        garage floor as a fixed field set -- no visitor-grown list of
+        bays or rooms, unlike `carpet-cleaning-bid-calculator`'s
+        rooms/upholstery -- so the plain "one query param per field"
+        pattern from entry-door/electrical-panel-upgrade/duct-cleaning/
+        countertop/concrete-lifting/cabinet-refinishing/basement-
+        waterproofing/spray-foam applies directly. Built `share.mjs`/
+        `share.test.mjs` (7 tests): 21 numeric cost/rate/dimension fields
+        (`width`, `length`, `crackLinearFeet`, `pitSquareFeet`, kit and
+        production rates, wages, travel, overhead, margin, proposed
+        price) as allowlisted query params, one boolean checkbox
+        (`moistureBarrier`) travelling as `'1'`/`'0'` the same way
+        electrical-panel-upgrade's replace-meter-socket/new-grounding/
+        temporary-power checkboxes do, and three enums (`garageId`,
+        `systemId`, `prepId`) each validated against calc.mjs's own
+        `GARAGE_PRESETS`/`COATING_SYSTEMS`/`PREP_METHODS` ids via the
+        `ENUM_FIELDS` map, rather than a hand-duplicated list -- so a
+        crafted or stale link can only set them to a value the form could
+        have produced. A pit area of zero and `moistureBarrier: false`
+        round-trip as-is rather than being dropped as falsy -- they are
+        the job, not an error. This venture's proposal panel already
+        carried `depositPercent`, `validDays`, `paymentTerms`,
+        `proposalNotes`, and `proposalExclusions` -- `platform/proposal/
+        terms.mjs`'s five-field spec -- confirmed by reading `index.html`'s
+        `TERM_IDS` constant, so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `electrical-panel-upgrade-bid-calculator` (confirmed byte-
+        identical with `diff` against both that venture's copy and
+        `countertop-bid-calculator`'s) so all five terms ride in the link
+        instead of silently reverting to this venture's defaults on the
+        recipient's end. Added a "Copy share link" button beside "Copy
+        bid summary" and an on-load `restoreShare()` to `index.html`:
+        `readInput()` already returns every `FIELD_IDS` value (which
+        includes the three enum selects and `width`/`length`) plus
+        `moistureBarrier`, so `copyLink` calls it directly; `restoreShare()`
+        writes every `FIELD_IDS` value and the `moistureBarrier` checkbox
+        back onto the form and marks the size/kit/rate fields "edited" so
+        a later preset change does not silently overwrite a restored
+        share value, called immediately before the page's first `update()`
+        so a shared link's exact numbers win over the page's static HTML
+        defaults and the `applyGarage`/`applySystem`/`applyPrep` preset
+        defaults applied earlier in the same script. Fixed the "Is my
+        data uploaded anywhere?" FAQ entry (visible copy and FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan -- this venture's old copy claimed the bid "is
+        saved in this browser's local storage," which was never true for
+        this venture: grepped the pre-change `index.html` and found only
+        the proposal's business-details block and the usage counter touch
+        `localStorage`, no per-bid persistence call), the footer privacy
+        paragraph, and the SoftwareApplication `featureList` to name the
+        new link. This venture had no share control and was not offered
+        the platform's generic auto-injected bid link (confirmed by
+        grepping the built page for `pf-link`, which is absent post-build
+        while `copyLink`/`share.mjs` are present) -- `pageHasOwnShareLink`
+        detects the new `share.mjs` import and the "Copy share link" text
+        and defers to it, and `build.mjs` is passed the venture's own
+        `share.mjs` on disk as `hasShareModule` so the generic injection
+        never runs regardless of markup detection. This venture is not
+        one of `link.test.mjs`'s named itemised calculators, so that
+        pinned count is untouched and no opt-out was needed. Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the
+        countertop/duct-cleaning/electrical-panel-upgrade/entry-door PRs
+        documented -- a first `regen.mjs` pass ahead of `build.mjs` would
+        have mirrored a stale `dist/epoxy-garage-floor-bid-calculator/
+        index.html` and failed `front-door-tools.test.mjs`'s "committed
+        mirror matches the generator" check; running `build.mjs` first
+        avoided that failure entirely. `origin/main` did not move during
+        this session (checked immediately before appending this entry).
+        Verified: venture's own suite 99/99 (`calc.test.mjs`,
+        `page.test.mjs`, `proposal-terms.test.mjs`, `proposal.test.mjs`,
+        `share.test.mjs`, `usage.test.mjs`, `vs-coatingos.test.mjs`);
+        `platform/proposal/*.test.mjs` 97/97; full `platform/pages` suite
+        884/884; full `platform/marketing` suite 211/211;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 7 category pages, 690 pages, no dead links";
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml
+        valid; `node platform/pages/clauses.mjs
+        epoxy-garage-floor-bid-calculator` -- no-warranty clause present
+        on all 4 published pages. `git status` after regen touched only
+        this venture's own mirror shard (new `share.mjs.gz` entry,
+        updated `index.html.gz`, and a new dedupe alias for
+        `proposal-terms.mjs` onto `asphalt-sealcoat-bid-calculator`'s
+        already-stored byte-identical copy), the mirror kustomization,
+        and the nginx alias map -- no unrelated venture's shard changed,
+        and `portfolio-front.yaml` needed no new shard mount (still 11).
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs` directly with a full-field sample
+        bid (3-car garage, metallic system, shot-blast prep, 55 linear
+        feet of crack, 12 sq ft of pits, moisture barrier checked, a
+        $6,200 proposed price to compare against): encoded, decoded, and
+        confirmed all 21 numeric fields, the one boolean flag, and all 3
+        enums matched the sender's input exactly, and the recipient's
+        recalculated price matched the sender's to the cent ($9,728.68
+        both sides, proposed profit $168.22 both sides) -- the exact
+        failure this feature exists to prevent. GitHub Actions is
+        documented in this repo's CLAUDE.md as starved (cycling with the
+        monthly Actions minute allowance) and the Hetzner cluster as down
+        (`:6443` refused, no k3s API server) -- both pre-diagnosed,
+        owner-blocked, not re-diagnosed here per CLAUDE.md's explicit
+        instruction to cite rather than re-verify -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Ran `platform/ci/ci_starvation.py
+        --run <run_id>` against this PR's own checks before merging to
+        confirm any red or absent check reflects the documented
+        starvation rather than a real regression. Not deployed: the
+        public surface is down (see CLAUDE.md), so this ships to `main`
+        as code only, ready to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: exterior-painting-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the eleventh venture closing this gap
+        after `spray-foam-`, `basement-waterproofing-` (#3262),
+        `cabinet-refinishing-` (#3265, merged as `8bae18000`),
+        `carpet-cleaning-` (#3266, merged as `effadfdbc`),
+        `concrete-lifting-` (#3268, merged as `12e9812c0`),
+        `countertop-` (#3271, merged as `48b682306`),
+        `duct-cleaning-` (#3272, merged as `43cffd85b`),
+        `electrical-panel-upgrade-` (#3274, merged as `d06fb858d`),
+        `entry-door-` (#3277, merged as `f5d42a9da`), and
+        `epoxy-garage-floor-bid-calculator` (#3279, merged as `099d78ac3`)
+        -- a painting contractor comparing a takeoff with a homeowner,
+        spouse, or GC had no way to send a link that reopens the exact
+        job instead of the recipient retyping the elevation square
+        footage, stories, trim, shutters, scrape/prime/occupied/hard-access
+        flags, and every hour, coverage, and rate figure, and a silently
+        dropped field meant the recipient computed a different price than
+        the sender saw. Read `calc.mjs` fully first: this venture prices
+        one exterior job as a fixed field set -- `elevationSf`, `stories`,
+        `trimFeet`, and `shutters` are each a single number the contractor
+        types or a preset sets, not a visitor-grown list of elevations or
+        sides the way `carpet-cleaning-bid-calculator`'s rooms/upholstery
+        or a possible per-side painting shape would be -- so the plain
+        "one query param per field" pattern from the other ten ventures
+        applies directly. Built `share.mjs`/`share.test.mjs` (7 tests): 28
+        numeric dimension/hour/rate/coverage/cost fields (`elevationSf`,
+        `stories`, `trimFeet`, `shutters`, the three "included in the base
+        setup" allowances, every `hoursXxx` rate, `siteHours`,
+        `finishCoats`, `paintCoverage`, `paintCostPerGallon`,
+        `primerCostPerGallon`, `caulkPer10TrimFeet`, wages, burden, travel,
+        overhead, margin, and `proposedPrice`) as allowlisted query
+        params, four boolean checkboxes (`scrape`, `prime`, `occupied`,
+        `hardAccess`) travelling as `'1'`/`'0'` the same way
+        `electrical-panel-upgrade-bid-calculator`'s checkboxes do, and one
+        enum (`jobType`) validated against `calc.mjs`'s own
+        `JOB_TYPE_PRESETS` ids via the `ENUM_FIELDS` map rather than a
+        hand-duplicated list, so a crafted or stale link can only set it
+        to a value the form could have produced. Shutters of zero and
+        every flag false round-trip as-is rather than being dropped as
+        falsy -- they are the job, not an error. This venture's proposal
+        panel already carried `depositPercent`, `validDays`,
+        `paymentTerms`, `proposalNotes`, and `proposalExclusions` --
+        `platform/proposal/terms.mjs`'s five-field spec -- confirmed by
+        reading `index.html`'s `TERM_IDS` constant, so vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified from
+        `epoxy-garage-floor-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end.
+        Added a "Copy share link" button beside "Copy bid summary" and an
+        on-load `restoreShare()` to `index.html`: `readInput()` combines
+        `FIELD_IDS` (28 numeric fields including `jobType`'s siblings but
+        not `jobType` itself), `FLAG_IDS`, and `SELECT_IDS` (`jobType`),
+        so `restoreShare()` writes back each of those three groups
+        separately and marks the three job-type-suggested rates
+        (`hoursBaseSetup`, `paintCostPerGallon`, `finishCoats`) "edited" so
+        a later job-type change does not silently overwrite a restored
+        share value -- called after every listener is attached but before
+        the page's first `update()`, so a shared link's exact numbers win
+        over the page's static HTML defaults. Fixed the "Is my data
+        uploaded anywhere?" FAQ entry (visible copy and FAQPage JSON-LD,
+        matched per `platform/pages/faq-visible.test.mjs`'s divergence
+        scan), the footer privacy paragraph, and the SoftwareApplication
+        `featureList` to name the new link. This venture had no share
+        control before this change; `pageHasOwnShareControl` in
+        `build.mjs` detects the new `id="copyLink"` button plus the
+        same-directory `share.mjs` import and defers to it, confirmed by
+        grepping the built page for `copyLink` post-build (exactly one
+        button, no second injected control). Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the prior
+        ten PRs documented. `origin/main` moved once during this session
+        (`7151cb60b`, an unrelated `codex-governor.service` fix) --
+        rebased cleanly with `git reset` (no path overlap) and re-ran
+        `build.mjs` + `regen.mjs` fresh against the new base, confirming
+        an identical diff. That same rebase picked up a second, unrelated
+        staleness: `dns-configuration-evidence`'s prior PR (#3278, merged
+        as `9009f6b30`) had added `vs-whatsmydns.html` without running
+        `regen.mjs`, so this session's regen also mirrored that venture's
+        missing shard -- left in, since it is a generated artifact
+        reflecting `main`'s own state and excluding it would have restored
+        a stale mirror. Verified: venture's own suite 109/109
+        (`calc.test.mjs`, `page.test.mjs`, `proposal-terms.test.mjs`,
+        `proposal.test.mjs`, `share.test.mjs`, `usage.test.mjs`,
+        `vs-paintscout.test.mjs`); `platform/proposal/*.test.mjs` 97/97;
+        full `platform/pages` suite 884/884; full `platform/marketing`
+        suite 211/211; `platform/pages/build.mjs` + `check.mjs` on a full
+        site build -- "174 products, 7 category pages, 691 pages, no dead
+        links" (691, not 690, because of the `dns-configuration-evidence`
+        page picked up in the same regen); `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid;
+        `node platform/pages/clauses.mjs exterior-painting-bid-calculator`
+        -- no-warranty clause present on all 3 published pages. `git
+        status` after regen touched this venture's own mirror shard (new
+        `share.mjs.gz` entry, updated `index.html.gz`), the
+        `dns-configuration-evidence` shard described above, the mirror
+        kustomization, and the nginx alias map (a new dedupe alias for
+        `proposal-terms.mjs` onto `asphalt-sealcoat-bid-calculator`'s
+        already-stored byte-identical copy) -- no other venture's shard
+        changed, and `portfolio-front.yaml` needed no new shard mount.
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with
+        a full-field sample bid (2-story colonial, 2,800 sf elevation, 240
+        lf trim, 12 shutters, occupied and hard-access flagged, an $8,500
+        proposed price, plus deposit/validity/payment-terms/notes/
+        exclusions terms): encoded, decoded, and confirmed all 28 numeric
+        fields, all 4 boolean flags, the one enum, and all 5 proposal
+        terms matched the sender's input exactly, and the recipient's
+        recalculated price and profit matched the sender's to the cent
+        ($6,286.96 price, $1,760.35 profit, both sides) -- the exact
+        failure this feature exists to prevent. GitHub Actions is
+        documented in this repo's CLAUDE.md as starved (cycling with the
+        monthly Actions minute allowance) and the Hetzner cluster as down
+        (`:6443` refused, no k3s API server) -- both pre-diagnosed,
+        owner-blocked, not re-diagnosed here per CLAUDE.md's explicit
+        instruction to cite rather than re-verify -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Ran `platform/ci/ci_starvation.py
+        --run <run_id>` against this PR's own checks before merging to
+        confirm any red or absent check reflects the documented
+        starvation rather than a real regression. Not deployed: the
+        public surface is down (see CLAUDE.md), so this ships to `main`
+        as code only, ready to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: foundation-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the twelfth venture closing this gap
+        after `spray-foam-`, `basement-waterproofing-` (#3262),
+        `cabinet-refinishing-` (#3265, merged as `8bae18000`),
+        `carpet-cleaning-` (#3266, merged as `effadfdbc`),
+        `concrete-lifting-` (#3268, merged as `12e9812c0`),
+        `countertop-` (#3271, merged as `48b682306`),
+        `duct-cleaning-` (#3272, merged as `43cffd85b`),
+        `electrical-panel-upgrade-` (#3274, merged as `d06fb858d`),
+        `entry-door-` (#3277, merged as `f5d42a9da`),
+        `epoxy-garage-floor-` (#3279, merged as `099d78ac3`), and
+        `exterior-painting-bid-calculator` (#3283, merged as `ca5ea4402`)
+        -- a foundation-repair contractor comparing a takeoff with a
+        homeowner, spouse, or GC had no way to send a link that reopens
+        the exact job instead of the recipient retyping the pier count,
+        installed depth, interior-versus-exterior access, engineering
+        stamp, carbon-fiber straps, steel I-beams, grade beam, slab
+        jacking, and every hour and dollar figure, and a silently
+        dropped field meant the recipient computed a different price
+        than the sender saw. Read `calc.mjs` fully first: this venture
+        prices one job as a fixed field set -- pier count, straps,
+        I-beams, grade beam, and slab jacking are each a single number
+        the contractor types or a preset sets, not a visitor-grown list
+        of rows the way `carpet-cleaning-bid-calculator`'s
+        rooms/upholstery is -- so the plain "one query param per field"
+        pattern from `exterior-painting-bid-calculator` and the other ten
+        ventures applies directly, no row-encoding needed. Built
+        `share.mjs`/`share.test.mjs` (7 tests): 34 numeric fields (pier
+        count, average and included depth, straps, I-beams, grade beam,
+        slab jacking, every `hoursXxx` rate, every cost-each/per-ft/fee
+        rate, wages, burden, travel, overhead, margin, and
+        `proposedPrice`) as allowlisted query params, four boolean
+        checkboxes (`interiorAccess`, `poorAccess`, `engineeringStamp`,
+        `plumbingReroute`) travelling as `'1'`/`'0'` the same way
+        `electrical-panel-upgrade-bid-calculator`'s checkboxes do, and
+        one enum (`methodId`) validated against `calc.mjs`'s own
+        `METHOD_PRESETS` ids via the `ENUM_FIELDS` map rather than a
+        hand-duplicated list, so a crafted or stale link can only set it
+        to a value the form could have produced. A wall-only job (zero
+        piers, straps only) and every flag false round-trip as-is rather
+        than being dropped as falsy -- they are the job, not an error.
+        This venture's proposal panel already carried `depositPercent`,
+        `validDays`, `paymentTerms`, `proposalNotes`, and
+        `proposalExclusions` -- `platform/proposal/terms.mjs`'s
+        five-field spec -- confirmed by reading `index.html`'s `TERM_IDS`
+        constant, so vendored `proposal-terms.mjs`/`proposal-terms.test.mjs`
+        unmodified from `epoxy-garage-floor-bid-calculator` (confirmed
+        byte-identical with `diff`) so all five terms ride in the link
+        instead of silently reverting to this venture's defaults on the
+        recipient's end. Added a "Copy share link" button beside "Copy
+        bid summary" and an on-load `restoreShare()` to `index.html`:
+        `readInput()` combines `FIELD_IDS` (34 numeric fields) and
+        `FLAG_IDS`; `methodId` is not in either array (it is read
+        directly off the `<select>` for `copySummary`), so
+        `restoreShare()` sets it explicitly before walking
+        `FIELD_IDS`/`FLAG_IDS`, and marks the four method-suggested rates
+        (`hoursPerPier`, `pierCostEach`, `hoursPerDepthFt`,
+        `depthIncludedFt`, pulled into a new shared `SUGGESTED_JOB_IDS`
+        constant replacing two duplicated inline arrays) "edited" so a
+        later method change does not silently overwrite a restored share
+        value -- called after every listener is attached but before the
+        page's first `update()`, so a shared link's exact numbers win
+        over the page's static HTML defaults. Fixed the "Is my data
+        uploaded anywhere?" FAQ entry (visible copy and FAQPage JSON-LD,
+        matched per `platform/pages/faq-visible.test.mjs`'s divergence
+        scan), the footer privacy paragraph, and the SoftwareApplication
+        `featureList` to name the new link. This venture had no share
+        control before this change; `build.mjs`'s `pageHasOwnShareLink`
+        detects the new `id="copyLink"` button plus the same-directory
+        `share.mjs` import and defers to it, confirmed by grepping the
+        built page for `copyLink` post-build (exactly one button, no
+        second injected `BID_LINK_PREFIX` control). Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the prior
+        eleven PRs documented -- confirmed by running the full
+        `platform/marketing` suite before the build (4 failures: stale
+        committed mirror, alias map, and kustomization) and again after
+        (211/211). `origin/main` did not move during this session.
+        Verified: venture's own suite 108/108 (`calc.test.mjs`,
+        `page.test.mjs`, `proposal-terms.test.mjs`, `proposal.test.mjs`,
+        `share.test.mjs`, `usage.test.mjs`, `vs-jobber.test.mjs`);
+        `platform/proposal/*.test.mjs` 97/97; full `platform/pages` suite
+        884/884; full `platform/marketing` suite 211/211;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 7 category pages, 691 pages, no dead links";
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml
+        valid; `node platform/pages/clauses.mjs
+        foundation-repair-bid-calculator` -- no-warranty clause present
+        on all 3 published pages. `git status` after regen touched this
+        venture's own mirror shard (new `share.mjs.gz` entry, updated
+        `index.html.gz`), the mirror kustomization, and the nginx alias
+        map (a new dedupe alias for `proposal-terms.mjs` onto
+        `asphalt-sealcoat-bid-calculator`'s already-stored byte-identical
+        copy) -- no other venture's shard changed, and
+        `portfolio-front.yaml` needed no new shard mount. Manually
+        exercised the round trip outside the test framework too, driving
+        `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample bid (6 interior helical piers at 14 ft against
+        a 10 ft included depth, 4 carbon-fiber straps, 2 steel I-beams,
+        20 lf grade beam, 150 sq ft slab jacking, engineering stamp and
+        plumbing reroute flagged, an $11,800 proposed price, plus
+        deposit/validity/payment-terms/notes/exclusions terms): encoded,
+        decoded, and confirmed all 34 numeric fields, all 4 boolean
+        flags, the one enum, and all 5 proposal terms matched the
+        sender's input exactly, and the recipient's recalculated price
+        and profit matched the sender's to the cent ($20,813.95 price,
+        -$3,186.05 proposed profit, both sides) -- the exact failure this
+        feature exists to prevent. GitHub Actions is documented in this
+        repo's CLAUDE.md as starved (cycling with the monthly Actions
+        minute allowance) and the Hetzner cluster as down (`:6443`
+        refused, no k3s API server) -- both pre-diagnosed, owner-blocked,
+        not re-diagnosed here per CLAUDE.md's explicit instruction to
+        cite rather than re-verify -- so all of the above is local
+        verification standing in for CI per CLAUDE.md's "absent CI is
+        not failed CI" rule. Ran `platform/ci/ci_starvation.py --run
+        <run_id>` against this PR's own checks before merging to confirm
+        any red or absent check reflects the documented starvation
+        rather than a real regression. Not deployed: the public surface
+        is down (see CLAUDE.md), so this ships to `main` as code only,
+        ready to serve once the owner's infra fix lands.
+    mrr_end: null
+  - venture: furnace-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the thirteenth venture closing this gap
+        after `spray-foam-`, `basement-waterproofing-` (#3262),
+        `cabinet-refinishing-` (#3265, merged as `8bae18000`),
+        `carpet-cleaning-` (#3266, merged as `effadfdbc`),
+        `concrete-lifting-` (#3268, merged as `12e9812c0`),
+        `countertop-` (#3271, merged as `48b682306`),
+        `duct-cleaning-` (#3272, merged as `43cffd85b`),
+        `electrical-panel-upgrade-` (#3274, merged as `d06fb858d`),
+        `entry-door-` (#3277, merged as `f5d42a9da`),
+        `epoxy-garage-floor-` (#3279, merged as `099d78ac3`),
+        `exterior-painting-` (#3283, merged as `ca5ea4402`), and
+        `foundation-repair-bid-calculator` (#3284, merged as `1423165e9`)
+        -- an HVAC shop comparing a furnace or heat-pump takeoff with a
+        homeowner, spouse, or GC had no way to send a link that reopens the
+        exact job instead of the recipient retyping capacity, equipment,
+        install location, extra duct past the included run, matching coil,
+        gas upsize, haul-away, thermostat, and every hour and dollar figure
+        -- a silently dropped field meant the recipient computed a
+        different price than the sender saw. Read `calc.mjs` first: capacity,
+        equipment, install location, matching coil, gas upsize, haul-away,
+        and a thermostat are each a single select or checkbox the shop picks,
+        not a visitor-grown list of rows the way
+        `carpet-cleaning-bid-calculator`'s rooms/upholstery is -- so the
+        plain "one query param per field" pattern from
+        `exterior-painting-bid-calculator` and the other eleven ventures
+        applies directly, no row-encoding needed. Built
+        `share.mjs`/`share.test.mjs` (28 tests): 25 numeric fields (duct
+        run, included duct footage, every `hoursXxx` rate, every cost-each/
+        per-foot/fee rate, wages, burden, travel, overhead, margin, and
+        `proposedPrice`) as allowlisted query params, four boolean
+        checkboxes (`addCoil`, `addGas`, `haulAway`, `addThermostat`)
+        travelling as `'1'`/`'0'` the same way
+        `electrical-panel-upgrade-bid-calculator`'s checkboxes do, and three
+        enums (`capacity`, `equipment`, `location` -- this venture has three
+        `<select>` fields where most of the eleven prior ventures had one)
+        each validated against `calc.mjs`'s own `CAPACITY_PRESETS`,
+        `EQUIPMENT_PRESETS`, and `LOCATION_PRESETS` ids via the `ENUM_FIELDS`
+        map rather than a hand-duplicated list, so a crafted or stale link
+        can only set any of the three to a value the form could have
+        produced. A brochure basement swap (zero extra duct) and every flag
+        false round-trip as-is rather than being dropped as falsy -- they
+        are the job, not an error. This venture's proposal panel already
+        carried `depositPercent`, `validDays`, `paymentTerms`,
+        `proposalNotes`, and `proposalExclusions` -- `platform/proposal/
+        terms.mjs`'s five-field spec -- confirmed by reading `index.html`'s
+        `TERM_IDS` constant, so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `foundation-repair-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end. Added a
+        "Copy share link" button beside "Copy bid summary" and an on-load
+        `restoreShare()` to `index.html`: unlike the eleven prior ventures,
+        `readInput()` here already folds `capacity`/`equipment`/`location`
+        in alongside `FIELD_IDS` and `FLAG_IDS` (via a pre-existing
+        `SELECT_IDS` array), so `copyLink()` needed no special-casing for an
+        enum read off a `<select>` outside the normal field list --
+        `restoreShare()` walks `SELECT_IDS`, then `FIELD_IDS`, then
+        `FLAG_IDS` off the decoded payload, and marks the four
+        method-suggested rates (`furnaceCost`, `hoursFurnaceBase`,
+        `furnacePremium`, `hoursLocation`, pulled into a new shared
+        `SUGGESTED_JOB_IDS` constant replacing three duplicated inline
+        spreads of `SUGGESTED_CAPACITY_IDS`/`SUGGESTED_EQUIPMENT_IDS`/
+        `SUGGESTED_LOCATION_IDS`) "edited" so a later capacity, equipment, or
+        location change does not silently overwrite a restored share value
+        -- called after every listener is attached but before the page's
+        first `update()`, so a shared link's exact numbers win over the
+        page's static HTML defaults. Fixed the "Is my pricing data uploaded
+        anywhere?" FAQ entry (visible copy and FAQPage JSON-LD, matched per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan), the
+        footer privacy paragraph, and the SoftwareApplication `featureList`
+        to name the new link. This venture had no share control before this
+        change; `build.mjs`'s `pageHasOwnShareLink` detects the new
+        `id="copyLink"` button plus the same-directory `share.mjs` import
+        and defers to it, confirmed by grepping the built page for
+        `copyLink` post-build (exactly one button, no second injected
+        `BID_LINK_PREFIX` control). Ran `platform/pages/build.mjs` before
+        `node platform/marketing/regen.mjs`, per the ordering gotcha the
+        prior twelve PRs documented. `origin/main` did not move during this
+        session. Verified: venture's own suite 107/107 (`calc.test.mjs`,
+        `page.test.mjs`, `proposal-terms.test.mjs`, `proposal.test.mjs`,
+        `share.test.mjs`, `usage.test.mjs`, `vs-servicetitan.test.mjs`);
+        `platform/proposal/*.test.mjs` 97/97; full `platform/pages` suite
+        884/884; full `platform/marketing` suite 211/211;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 7 category pages, 691 pages, no dead links";
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml
+        valid; `node platform/pages/clauses.mjs furnace-bid-calculator` --
+        no-warranty clause present on all 3 published pages. `git status`
+        after regen touched this venture's own mirror shard (new
+        `share.mjs.gz` entry, updated `index.html.gz`), the mirror
+        kustomization, and the nginx alias map (a new dedupe alias for
+        `proposal-terms.mjs` onto `asphalt-sealcoat-bid-calculator`'s
+        already-stored byte-identical copy) -- no other venture's shard
+        changed, and `portfolio-front.yaml` needed no new shard mount.
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample bid (100k condensing furnace, attic, 40 ft duct
+        against a 15 ft included run, matching coil, gas upsize,
+        haul-away, and a thermostat all flagged, an $11,800 proposed price,
+        plus deposit/validity/payment-terms/notes/exclusions terms):
+        encoded, decoded, and confirmed all 25 numeric fields, all 4
+        boolean flags, all 3 enums, and all 5 proposal terms matched the
+        sender's input exactly, and the recipient's recalculated price and
+        profit matched the sender's to the cent ($10,940.47 price, $4,688.70
+        proposed profit, both sides) -- the exact failure this feature
+        exists to prevent. GitHub Actions is documented in this repo's
+        CLAUDE.md as starved (cycling with the monthly Actions minute
+        allowance) and the Hetzner cluster as down (`:6443` refused, no k3s
+        API server) -- both pre-diagnosed, owner-blocked, not re-diagnosed
+        here per CLAUDE.md's explicit instruction to cite rather than
+        re-verify -- so all of the above is local verification standing in
+        for CI per CLAUDE.md's "absent CI is not failed CI" rule. Ran
+        `platform/ci/ci_starvation.py --run <run_id>` against this PR's own
+        checks before merging to confirm any red or absent check reflects
+        the documented starvation rather than a real regression. Not
+        deployed: the public surface is down (see CLAUDE.md), so this ships
+        to `main` as code only, ready to serve once the owner's infra fix
+        lands.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `/compare/` -- one page indexing every `vs-<product>.html`
+        comparison page in the catalogue, grouped by the product each one
+        names -- on both the apex (`gitops/prod/front-door/compare.html`,
+        the host that actually serves) and the catalogue build
+        (`platform/pages/dist/compare/`). Ran the marketing-distribution
+        queue item's brief by hand and measured before picking rather than
+        re-checking its four standard candidates: the embed widget is at
+        174/174 entry pages, the seven `/c/` hubs read as written, the
+        `/about/` press kit's numbers are still computed live, and
+        `find ventures -maxdepth 2 -iname "vs-*.html"` has gone from the
+        78 that file records on 2026-09-02 to 168 as this landed (the page is
+        generated, so the number tracks the tree). The gap that opened
+        with that growth is not another comparison page: all of them were
+        reachable from exactly one place each -- their own tool's entry
+        page -- with zero cross-venture `../<slug>/vs-` hrefs in the whole
+        tree and the word "alternative" appearing nowhere in anything the
+        apex serves. Thirty-two tools compare themselves with Jobber and
+        thirteen with ServiceTitan, so a reader arriving on "Jobber
+        alternatives" and landing on the artificial-turf calculator had no
+        route to the other thirty-one, and no single URL was about that
+        query for a crawler to rank. The page adds no claim of its own:
+        every product name is lifted from the linked page's own `<h1>`
+        (`comparisonSubject`), every tool name and blurb from the mirror's
+        own record, and a test asserts each printed name is text the page
+        it links to actually contains -- every page passes, zero fell back to a
+        filename.
+        Ordering is its one editorial act (most-compared first). Wired
+        into both sitemaps, both `llms.txt` files, the hub/category/About
+        footers, and the apex's nginx (`^/compare/?$` -> `compare.html`)
+        and ConfigMap. Carries the standard no-warranty/no-SLA/privacy
+        block, a trademark notice, and `data-pf-slug="compare"` usage
+        tracking; the header's privacy line is derived from
+        `externalCallExceptions` rather than asserted, so it names DNS
+        Change Evidence and Sponsor Ready instead of claiming "nothing you
+        type is uploaded" for all 174. No new script, font, CDN or network
+        call. Also fixed a claim this change would otherwise have
+        inherited: the front-door ConfigMap ceiling test named seven files
+        by hand while the generator wrote sixteen, so the seven category
+        pages (~136 KB) and About sat outside the 1 MiB guard the
+        kustomization said covered them; it now parses the
+        `portfolio-front-html` file list out of the kustomization and
+        measures all 20 keys (578,688 bytes, 55% of the ceiling).
+        Verified locally: `node --test platform/pages/*.test.mjs` 897/897
+        (13 new), `node --test platform/marketing/*.test.mjs` 218/218 (6
+        new), `python3 -m pytest gitops/tests -q` 390 passed 1 skipped,
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs` + `node platform/pages/check.mjs
+        --dist=platform/pages/dist` -- 174 products, 691 pages, no dead
+        links -- `node platform/marketing/regen.mjs` leaving the tree
+        clean, and `python3 platform/ci/run_workflow_locally.py
+        --for-changes` (6 workflows selected; `conflict-markers` 2/2,
+        `duplicate-symbols` 2/2, `gitops` 8/10 with `kustomize build` and
+        `kubeconform` green -- its two failures are this sandbox, a bare
+        `pytest` on an interpreter without pyyaml and no `tofu` binary,
+        both of which pass under `python3 -m pytest`). CLAUDE.md records
+        Actions as cycling-starved and the cluster as down (`:6443`
+        refused), both owner-blocked and cited rather than re-diagnosed,
+        so the above is local verification standing in for CI. Not
+        deployed: this ships to `main` ready to serve the moment a
+        hostname answers.
+    mrr_end: null
+  - venture: gutter-install-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fourteenth venture closing this gap
+        after `spray-foam-`, `basement-waterproofing-` (#3262),
+        `cabinet-refinishing-` (#3265, merged as `8bae18000`),
+        `carpet-cleaning-` (#3266, merged as `effadfdbc`),
+        `concrete-lifting-` (#3268, merged as `12e9812c0`),
+        `countertop-` (#3271, merged as `48b682306`),
+        `duct-cleaning-` (#3272, merged as `43cffd85b`),
+        `electrical-panel-upgrade-` (#3274, merged as `d06fb858d`),
+        `entry-door-` (#3277, merged as `f5d42a9da`),
+        `epoxy-garage-floor-` (#3279, merged as `099d78ac3`),
+        `exterior-painting-` (#3283, merged as `ca5ea4402`),
+        `foundation-repair-` (#3284, merged as `1423165e9`), and
+        `furnace-bid-calculator` (#3286, merged as `dd0cfddba`) -- a gutter
+        shop comparing a takeoff with a homeowner, spouse, or GC had no way to
+        send a link that reopens the exact job instead of the recipient
+        retyping profile, stories, gutter footage, inside and outside miters,
+        downspouts and downspout footage past the included allowance, fascia,
+        tear-off, steep access, hidden hangers, and every hour and dollar
+        figure -- a silently dropped field meant the recipient computed a
+        different price than the sender saw. Read `calc.mjs` first: this
+        prices a new hang as a fixed field set -- gutter footage, miter
+        counts, downspout counts and footage, and fascia footage are each a
+        single number the shop types, not a visitor-grown list of rows the
+        way `carpet-cleaning-bid-calculator`'s rooms/upholstery is -- so the
+        plain "one query param per field" pattern from
+        `exterior-painting-bid-calculator` and the other thirteen ventures
+        that already closed this gap applied directly, with no row-encoded
+        shape needed.
+      - >-
+        Added `share.mjs`/`share.test.mjs`: 34 numeric fields (footage,
+        miters, downspouts, fascia, every hour and cost rate, and
+        `proposedPrice`), 3 boolean checkboxes (`tearOff`, `steepAccess`,
+        `addHiddenHangers`), and 2 enums (`profile`, `stories`) each
+        validated against `calc.mjs`'s own `PROFILE_PRESETS`/`STORY_PRESETS`
+        ids rather than a hand-duplicated allowlist -- the drift class
+        CLAUDE.md's "RENAME SUSPECTED" note describes for a select field left
+        off an allowlist. Six tests: full-field round trip, a field-count
+        floor plus exact flag/enum id lists so a future field added to
+        `calc.mjs`/`index.html` and never wired into `share.mjs` fails loudly
+        rather than silently dropping, unknown-query-key rejection, per-enum
+        unknown-value rejection, a negative/non-numeric drop matching the
+        form's own `min="0"`, hash/query-prefix handling and an empty
+        `proposedPrice` not breaking the codec, and the $4.50/ft brochure job
+        (every optional field at its included default, every flag false)
+        round-tripping intact -- zero is the job, not an error. Vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified (byte-
+        identical, `diff` confirmed) from `foundation-repair-bid-calculator`
+        so the deposit, validity window, and the three prose terms
+        (`proposalExclusions`, `paymentTerms`, `proposalNotes`) ride along in
+        `pfterms=` beside this venture's own payload, matching its existing
+        five-field `TERM_IDS` proposal panel exactly -- no field invented,
+        none dropped.
+      - >-
+        Added a "Copy share link" button beside "Copy bid summary" and an
+        on-load `restoreShare()` to `index.html`. This venture already
+        carried `SELECT_IDS = ['profile','stories']` for its own `readInput`,
+        so `encodeInputs(readInput())` needed no special-casing to fold the
+        two selects in. Pulled the pre-existing `SUGGESTED_PROFILE_IDS`/
+        `SUGGESTED_STORY_IDS` (the profile- and story-suggested rate fields a
+        preset never overwrites once edited) into a new `SUGGESTED_JOB_IDS`
+        constant, matching the shape `furnace-bid-calculator` used for its
+        three suggestion lists; `restoreShare()` marks those rates "edited"
+        on restore so a later profile or story change never overwrites a
+        rate a shared link just set -- called after every listener is
+        attached but before the page's first `update()`, so a shared link's
+        exact numbers win over the page's static HTML defaults. Fixed the
+        footer privacy paragraph and the SoftwareApplication `featureList` to
+        name the new link; unlike the last two ventures, this one carried no
+        pre-existing "Is my data uploaded anywhere?" FAQ entry to correct --
+        confirmed by grepping the page for "uploaded"/"network request"/"No
+        account" before editing -- so none was invented; `faq-visible.test.mjs`
+        needs no new pair to match since none was added. This venture had no
+        share control before this change; `build.mjs`'s `pageHasOwnShareLink`
+        detects the new `id="copyLink"` button plus the same-directory
+        `share.mjs` import and defers to it, confirmed by grepping the built
+        page for `copyLink` post-build (exactly one button, no second
+        injected `BID_LINK_PREFIX` control).
+      - >-
+        Ran `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the prior
+        thirteen PRs documented. `origin/main` moved once during this session
+        (#3285, a `/compare/` cross-venture index unrelated to this venture);
+        rebased cleanly with no conflicts and re-ran `build.mjs` +
+        `regen.mjs` fresh against the new base before committing, per the
+        instruction to redo generated output rather than trust a stale
+        build -- the fresh regen produced byte-identical output to the
+        pre-rebase run (`git status` showed no diff after re-running),
+        confirming this venture's change did not collide with #3285's
+        generated files. Verified: venture's own suite 104/104
+        (`calc.test.mjs`, `page.test.mjs`, `proposal-terms.test.mjs`,
+        `proposal.test.mjs`, `share.test.mjs`, `usage.test.mjs`,
+        `vs-jobnimbus.test.mjs`); `platform/proposal/*.test.mjs` 97/97; full
+        `platform/pages` suite 884/884; full `platform/marketing` suite
+        211/211; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "174 products, 7 category pages, 692 pages, no dead links";
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml valid;
+        `node platform/pages/clauses.mjs gutter-install-bid-calculator` --
+        no-warranty clause present on all 3 published pages. `git status`
+        after regen touched this venture's own mirror shard (new
+        `share.mjs.gz` entry, updated `index.html.gz`) and the mirror
+        kustomization -- no other venture's shard changed, and
+        `portfolio-front.yaml` needed no new shard mount.
+      - >-
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample bid (220 ft of 6" aluminum, two stories, 2 inside
+        and 6 outside miters, 4 downspouts at 48 ft against the included 2
+        drops/10 ft-per-drop allowance, 40 ft of fascia, tear-off, steep
+        access, and hidden hangers all flagged, a $9,800 proposed price, plus
+        deposit/validity/payment-terms/notes/exclusions terms): encoded,
+        decoded, and confirmed all 34 numeric fields, all 3 boolean flags,
+        both enums, and all 5 proposal terms matched the sender's input
+        exactly, and the recipient's recalculated price and profit matched
+        the sender's to the cent ($7,136.02 price, $2,283.53 profit, 50.4848%
+        proposed margin, all three identical on both sides) -- the exact
+        failure this feature exists to prevent. GitHub Actions is documented
+        in this repo's CLAUDE.md as starved (cycling with the monthly Actions
+        minute allowance) and the Hetzner cluster as down (`:6443` refused,
+        no k3s API server) -- both pre-diagnosed, owner-blocked, not
+        re-diagnosed here per CLAUDE.md's explicit instruction to cite rather
+        than re-verify -- so all of the above is local verification standing
+        in for CI per CLAUDE.md's "absent CI is not failed CI" rule. Ran
+        `platform/ci/ci_starvation.py --run <run_id>` against this PR's own
+        checks before merging to confirm any red or absent check reflects
+        the documented starvation rather than a real regression. Not
+        deployed: the public surface is down (see CLAUDE.md), so this ships
+        to `main` as code only, ready to serve once the owner's infra fix
+        lands.
+    mrr_end: null
+  - venture: public-record-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a broken sitemap.xml that made the whole product undiscoverable.
+        `sitemap.xml` still read `<url><loc>./README.md</loc></url>` only --
+        a leftover from before this venture had any HTML at all -- even
+        though #2201 shipped a full browser front end (index.html) and
+        #2039/#2043 later added an FAQ landing page
+        (how-do-i-track-changes-to-a-public-register.html). robots.txt
+        points crawlers straight at this sitemap, so every search engine and
+        AI assistant following it since 2026-08 found a markdown file and
+        never learned the tool itself existed -- a direct miss on
+        PRODUCT_PLAYBOOK.md's discoverability checklist ("a sitemap... that
+        lets assistants crawl" is part of v0's definition of done, not a
+        later step). Replaced the two stale entries with the real product
+        pages (`./` and the FAQ page) and added two regression tests to
+        page.test.mjs: one asserting the sitemap never again points at
+        README.md and does list both real pages, and one that walks every
+        .html file in the venture directory asserting it is reachable from
+        the sitemap, so a future added page fails CI here if its author
+        forgets this file the way #2201 did. Verified: `node --test` in the
+        venture (25/25 passing, up from 23, both new tests exercised and
+        green), `python3 -m unittest discover -s tests -v` for the untouched
+        Python CLI side (7/7 passing), `node platform/webcheck/check_pages.mjs`
+        across the whole repo (692/692 pages sound, no regression), and the
+        sitemap.xml parses as well-formed XML. GitHub Actions is starved per
+        CLAUDE.md (cross-checked against the documented starvation signature
+        rather than re-diagnosed), so all verification above is local,
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI" rule.
+        While scoped to this one venture per this session's brief, the same
+        pattern (a real page shipped, sitemap never updated to list it) was
+        found by grep across roughly 15-18 other ventures during triage
+        (e.g. vendor-change-evidence and real-estate-agent-photo-app both
+        carry the identical "README.md only" sitemap; several bid-calculator
+        ventures are missing just their newest vs-*.html comparison page) --
+        left for a future session rather than expanded here to keep this PR
+        to one focused, reviewable fix.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Sitemap-discoverability sweep, the follow-up #3289 (public-record-watch)
+        flagged: 167 ventures ship a hand-authored sitemap.xml (the rest rely
+        on platform/pages/build.mjs's generated one, which is unaffected by
+        this class of bug since it always overwrites the venture's file from
+        the pages actually published). Audited all 167 by diffing every real
+        .html file in each venture directory against its sitemap.xml. Found
+        16 with a genuine gap, not the 15-18 estimated by grep triage --
+        close, one turned out to be a false positive (vendor-watch, a
+        single-page Next.js app with no static .html pages, whose sitemap
+        already correctly lists just "./"). Two carried the identical
+        README.md-only defect as public-record-watch (a stale leftover from
+        before the venture had real HTML): vendor-change-evidence (fixed to
+        list `./` and how-do-i-track-vendor-policy-changes.html) and
+        real-estate-agent-photo-app (fixed to list its real pages under
+        site/, not the venture root, since that venture's product moved
+        there in #3075/#3121 and the root sitemap was never updated). One
+        (einvoice-preflight) carried a stale README.md entry alongside
+        otherwise-correct entries -- removed it and strengthened its
+        existing sitemap test. The remaining 13 were each missing exactly
+        one or two real, linked pages the sitemap was never updated for
+        after they shipped (amazon-fba-calculator: vs-amazon-revenue-calculator.html;
+        cash-runway-planner: when-will-i-run-out-of-cash.html;
+        cleaning-dilution-calculator: how-much-does-diluted-cleaning-solution-cost.html;
+        consent-change-record: what-did-my-cookie-banner-actually-change.html;
+        etsy-profit-calculator: vs-etsys-listing-form-calculator.html;
+        medical-courier-route-margin: is-this-medical-courier-route-worth-it.html;
+        music-lesson-break-even: how-to-price-music-lessons.html;
+        notary-trip-quote: how-much-to-charge-for-a-mobile-notary-appointment.html;
+        npm-deployment-evidence: vs-npm-audit.html and
+        which-npm-vulnerabilities-actually-reach-production.html;
+        repository-branch-hygiene: is-it-safe-to-delete-this-branch.html;
+        saas-seat-true-up: how-many-unused-saas-seats-am-i-paying-for.html and
+        vs-zylo.html; translator-project-quote: how-to-quote-a-translation-project.html;
+        which-job-first: how-do-i-decide-which-job-to-take-first.html).
+        Verified each is a real page linked from its venture's index.html
+        (not an orphan draft) before adding it. Added a regression test to
+        every touched venture's page.test.mjs (or site/page.test.mjs for
+        real-estate-agent-photo-app, whose test file lives there) modelled
+        on #3289's: assert every .html file in the venture is reachable
+        from its sitemap, so a future added page without a sitemap update
+        fails locally the way #2201's did. Verified: `node --test` in each
+        of the 15 touched ventures with a root-level suite (all green, e.g.
+        amazon-fba-calculator 308/308, etsy-profit-calculator 170/170,
+        einvoice-preflight 242/242) plus real-estate-agent-photo-app/site
+        (47/47), and `node platform/webcheck/check_pages.mjs` across the
+        whole repo (693/693 pages sound, no regression). GitHub Actions is
+        starved per CLAUDE.md, so all verification above is local per the
+        "absent CI is not failed CI" rule. Batched into one PR since all 16
+        fixes are the same mechanical class (a stale or incomplete
+        hand-authored sitemap.xml) rather than opening 16 separate ones.
+    mrr_end: null
+  - venture: hood-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fifteenth venture closing this gap
+        after `spray-foam-`, `basement-waterproofing-` (#3262),
+        `cabinet-refinishing-` (#3265, merged as `8bae18000`),
+        `carpet-cleaning-` (#3266, merged as `effadfdbc`),
+        `concrete-lifting-` (#3268, merged as `12e9812c0`),
+        `countertop-` (#3271, merged as `48b682306`),
+        `duct-cleaning-` (#3272, merged as `43cffd85b`),
+        `electrical-panel-upgrade-` (#3274, merged as `d06fb858d`),
+        `entry-door-` (#3277, merged as `f5d42a9da`),
+        `epoxy-garage-floor-` (#3279, merged as `099d78ac3`),
+        `exterior-painting-` (#3283, merged as `ca5ea4402`),
+        `foundation-repair-` (#3284, merged as `1423165e9`),
+        `furnace-bid-calculator` (#3286, merged as `dd0cfddba`), and
+        `gutter-install-bid-calculator` (#3287, merged as `03736c9a6`) -- a
+        hood cleaner comparing a takeoff with an operator, GM, or a second
+        tech had no way to send a link that reopens the exact job instead of
+        the recipient retyping the whole exhaust system -- every canopy,
+        filter, duct run, and fan the contractor added, each one's quantity,
+        minutes-per-unit, and access -- plus the grease load and every hour
+        and dollar figure -- a silently dropped component meant the
+        recipient priced a different system than the sender saw. Read
+        `calc.mjs` first: unlike `gutter-install-bid-calculator`'s fixed
+        field set, this venture prices the exhaust system as a
+        visitor-grown list of rows -- canopy, filters, horizontal duct,
+        vertical duct, and fans are each a row the contractor adds and
+        removes with "+ Add a component", the same shape
+        `carpet-cleaning-bid-calculator`'s rooms/upholstery is -- so the
+        row-encoded pattern applied, not the plain fixed-field one; grease
+        load, travel, wage, and margin are still a fixed field set riding
+        one query param each.
+      - >-
+        Added `share.mjs`/`share.test.mjs`: 14 numeric cost/schedule fields
+        (wage, burden, crew, travel, after-hours, consumables, disposal,
+        overhead, margin, cleans/year, `proposedPrice`), 1 enum
+        (`greaseLoad`, validated against `calc.mjs`'s own `GREASE_LOADS`
+        ids), and the `components` list row-encoded one row per
+        canopy/filter/duct/fan -- name and access each validated against
+        `calc.mjs`'s own `COMPONENT_PRESETS`/`ACCESS_PRESETS` rather than a
+        hand-duplicated allowlist, the drift class CLAUDE.md's "RENAME
+        SUSPECTED" note describes for a select field left off an allowlist.
+        A component with no matching preset (the "Other component" option)
+        carries no name at all, matching what `readComponents()` already
+        does for that case. Twelve tests: full-field round trip across all
+        14 numbers, the enum, and 5 components; an exact field-id list plus
+        preset-count floors so a future field added to
+        `calc.mjs`/`index.html` and never wired into `share.mjs` fails
+        loudly rather than silently dropping; unknown-query-key rejection;
+        unknown component-name and unknown-access enum rejection (each
+        dropped from its own cell, not the whole row); unrecognised
+        grease-load rejection; a negative/non-numeric drop matching the
+        form's own `min="0"`; a fully-blank row dropped rather than restored
+        as an empty card; multi-row ordering; hash/query-prefix and
+        empty-`proposedPrice` handling; and a component missing only its
+        access still restoring the rest, matching `addRow`'s own
+        `'kitchen_floor'` fallback for that cell. Vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified
+        (byte-identical, `diff` against `platform/proposal/terms.mjs`
+        confirmed, and the mirror's own dedup pass aliased it onto
+        `asphalt-sealcoat-bid-calculator`'s copy) so the deposit, validity
+        window, and the three prose terms (`proposalExclusions`,
+        `paymentTerms`, `proposalNotes`) ride along in `pfterms=` beside
+        this venture's own payload, matching its existing five-field
+        `TERM_IDS` proposal panel exactly -- no field invented, none
+        dropped.
+      - >-
+        Added a "Copy share link" button beside "Copy bid summary" and an
+        on-load `restoreShare()` to `index.html`. `readInput()` did not
+        previously expose the `greaseLoad` select's own id (only the
+        derived `greaseMultiplier` it feeds `calculateBid`), so it now
+        carries both -- `calculateBid` ignores the extra key, and
+        `share.mjs` needs the id itself to restore the right `<option>` on
+        a shared link. `restoreShare()` replaces the page's five static
+        starting components with the link's own list when one is present,
+        rather than merging into them, matching
+        `carpet-cleaning-bid-calculator`'s precedent, and marks a restored
+        `cleansPerYear` as "edited" so a later grease-load change on the
+        page never silently overwrites a cadence the sender chose with that
+        load's suggested default. Fixed the footer privacy paragraph and
+        the SoftwareApplication `featureList` to name the new link; this
+        venture carried no pre-existing "Is my data uploaded anywhere?" FAQ
+        entry to correct -- confirmed by grepping the page for
+        "upload"/"leaves your browser"/"share" before editing -- so none was
+        invented. This venture had no share control before this change and
+        was one of the eight itemised calculators `platform/pages/
+        link.test.mjs` already tracked by name (it declares its row group
+        via `data-pf-repeat="c"` on "+ Add a component"): updated that
+        test's pinned exclusion list and count (4 -> 3 of the eight still
+        taking the platform's generic bid-link control) now that this
+        venture keeps its own, per the file's own instruction to re-read
+        the count rather than let it drift silently. `build.mjs`'s
+        `pageHasOwnShareControl`/`pageHasOwnShareLink` need no code change:
+        both detect the new `id="copyLink"` button plus the same-directory
+        `share.mjs` import structurally, with no hardcoded venture list to
+        extend.
+      - >-
+        Ran `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the prior
+        fourteen PRs documented. `origin/main` moved four times during this
+        session (#3289 a sitemap fix, #3288 a vs-Crest-Capital comparison
+        page, #3291 countertop-bid-calculator extending its own share link,
+        #3292 a 16-venture sitemap-discoverability sweep) -- none touching
+        this venture or `platform/pages/link.test.mjs`, and only the last
+        one touching the ledger (a same-position append, resolved by
+        rebasing this commit without its own ledger change and re-appending
+        that change fresh at the new end of file rather than resolving a
+        content conflict inside one YAML block) -- rebased and re-ran
+        `build.mjs` + `regen.mjs` fresh against each new base before
+        committing, per the instruction to redo generated output rather
+        than trust a stale build; each fresh regen left this venture's own
+        mirror shard byte-identical to the pre-rebase run while picking up
+        two unrelated ventures' own stale mirror gaps (their PRs had not
+        run `regen.mjs` themselves) as a side effect, which is allowed under
+        this task's "generated artifacts reflecting all of `main`" carve-out.
+        Verified: venture's own suite 108/108 (`calc.test.mjs`,
+        `page.test.mjs`, `proposal-terms.test.mjs`, `proposal.test.mjs`,
+        `share.test.mjs`, `usage.test.mjs`, `vs-hoodcleaningdispatch.test.mjs`,
+        `vs-hoodcleanpro.test.mjs`); `platform/proposal/*.test.mjs` 97/97;
+        full `platform/pages` suite 897/897; full `platform/marketing` suite
+        218/218; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "174 products, 7 category pages, 693 pages, no dead
+        links"; `python3 portfolio/router/validate.py` -- all 183
+        VENTURE.yaml valid; `node platform/pages/clauses.mjs
+        hood-cleaning-bid-calculator` -- no-warranty clause present on all
+        4 published pages. `git status` after each regen touched only this
+        venture's own mirror shard plus the unrelated ventures' own stale
+        gaps described above -- no other venture's shard changed for a
+        reason connected to this change, and `portfolio-front.yaml` needed
+        no new shard mount.
+      - >-
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample system (55 sq ft canopy, 8 filters, 18 ft
+        horizontal duct above a ceiling, 32 ft vertical duct on a rooftop
+        hard climb, a rooftop fan, and a rooftop-easy makeup-air unit, extra
+        heavy grease load, a $2,650 proposed price, plus
+        deposit/validity/payment-terms/notes/exclusions terms): encoded,
+        decoded, and confirmed all 6 components, the grease load, all 14
+        numeric fields, and all 5 proposal terms matched the sender's input
+        exactly, and the recipient's recalculated price and profit matched
+        the sender's to the cent ($4,764.53 price, -$780.46 proposed
+        profit, both identical on both sides) -- the exact failure this
+        feature exists to prevent. GitHub Actions is documented in this
+        repo's CLAUDE.md as starved (cycling with the monthly Actions minute
+        allowance) and the Hetzner cluster as down (`:6443` refused, no k3s
+        API server) -- both pre-diagnosed, owner-blocked, not re-diagnosed
+        here per CLAUDE.md's explicit instruction to cite rather than
+        re-verify -- so all of the above is local verification standing in
+        for CI per CLAUDE.md's "absent CI is not failed CI" rule. Ran
+        `platform/ci/ci_starvation.py --run <run_id>` against this PR's own
+        checks before merging to confirm any red or absent check reflects
+        the documented starvation rather than a real regression. Not
+        deployed: the public surface is down (see CLAUDE.md), so this ships
+        to `main` as code only, ready to serve once the owner's infra fix
+        lands.
     mrr_end: null

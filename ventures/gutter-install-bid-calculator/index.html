@@ -7,7 +7,7 @@
   <meta name="description" content="Price a new gutter hang from inside and outside miters, extra downspouts past the included first two, extra downspout footage, second-story hours, fascia repair, and tear-off — not a published $4.50-a-foot special. See the walk-away number before you match a cheaper quote.">
   <meta property="og:title" content="Gutter Install Bid Calculator">
   <meta property="og:description" content="A 140-foot one-story ranch with two included downspouts is not the same job as a 220-foot two-story colonial with six-inch trough, extra drops, inside miters, and fascia. Bid the corners and the drops.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"5-inch versus 6-inch versus copper, inside and outside miters, extra downspouts past the included first two, extra downspout footage past ten feet per drop, second-story hours, fascia repair, tear-off, hidden hangers, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"5-inch versus 6-inch versus copper, inside and outside miters, extra downspouts past the included first two, extra downspout footage past ten feet per drop, second-story hours, fascia repair, tear-off, hidden hangers, walk-away price, proposed-price margin check, copyable customer-facing bid summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator only charge for downspouts past the first two?","acceptedAnswer":{"@type":"Answer","text":"Because a per-foot special is usually built around a brochure job that already includes a couple of drops and ten feet of downspout each — so those defaults are subtracted out before anything is billed. Extra downspouts and extra downspout footage past that included allowance are the only ones that add their own labor and material lines, which is why two houses with the same gutter footage but different drop counts can price very differently."}},{"@type":"Question","name":"Why does a two-story house cost more per foot of gutter than a one-story of the same length?","acceptedAnswer":{"@type":"Answer","text":"Story hours scale with gutter footage, not with a flat add-on — one story adds nothing, two stories add 0.018 hours per gutter foot, and three stories add 0.032, on top of steep-access hours if that's checked too. A 220-foot run on a two-story colonial carries real ladder and staging time that the same 220 feet on a one-story ranch never needs."}},{"@type":"Question","name":"Why does copper cost so much more than aluminum for the same run?","acceptedAnswer":{"@type":"Answer","text":"Mostly material, not labor: half-round copper starts at $18 per foot of trough versus $3.40 for 5-inch aluminum, while the hang labor only runs modestly higher at 0.055 hours per foot versus 0.035. Six-inch aluminum sits in between on labor (0.04 hours per foot) but adds its own $1.20-per-foot profile premium on top of the base aluminum rate, which a straight per-foot comparison to 5-inch aluminum would miss entirely."}},{"@type":"Question","name":"Why are inside miters priced differently from outside miters?","acceptedAnswer":{"@type":"Answer","text":"They're two separate line items with their own hours and their own material cost per corner, because an inside corner and an outside corner are cut and sealed differently — the calculator doesn't assume a fixed inside-to-outside ratio the way a flat per-foot special implicitly does. A run with mostly outside corners and one with the same corner count split evenly between inside and outside can price differently."}},{"@type":"Question","name":"Does tear-off of the old gutters only add a dump fee?","acceptedAnswer":{"@type":"Answer","text":"No — it's a toggle that adds its own labor hours (per foot of gutter) as well as its own dump-fee material line, and both scale with the length of the run being torn off, not a flat charge regardless of size. Left unchecked, tear-off contributes nothing to either the hours total or the material total, which is the difference between a fresh-fascia install and a strip-and-replace."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2a34; background: #dce6ee; }
@@ -211,6 +211,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -280,9 +281,9 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footage, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footage, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-to-install-gutters.html">How much to charge to install gutters</a> &middot; <a href="vs-jobnimbus.html">This calculator vs. JobNimbus</a>.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -294,6 +295,9 @@
       suggestedStoryKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -316,6 +320,7 @@
     const SELECT_IDS = ['profile','stories'];
     const SUGGESTED_PROFILE_IDS = ['gutterPerFoot','hoursPerGutterFoot','profilePremiumPerFoot'];
     const SUGGESTED_STORY_IDS = ['hoursPerStoryFoot'];
+    const SUGGESTED_JOB_IDS = [...SUGGESTED_PROFILE_IDS, ...SUGGESTED_STORY_IDS];
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
@@ -483,6 +488,64 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied before the fields below: a link that carries only the terms
+      // is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FLAG_IDS) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A profile/stories change never overwrites a restored rate: mark the
+      // rates a preset suggests as already "edited", the same guard the form
+      // itself sets when a shop types over the suggestion.
+      SUGGESTED_JOB_IDS.forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     presets.addEventListener('change', () => {
       const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
@@ -523,7 +586,11 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Could not copy the link; copy the address bar.'; });
+    });
 
+    restoreShare();
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

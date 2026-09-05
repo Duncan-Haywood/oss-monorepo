@@ -152,7 +152,7 @@ spec:
           # is resident in each replica and counts against this limit. nginx
           # itself serving static files is ~10 MiB.
           #
-          # The mirror is 5.4 MB today — 159 tools, 64% of the 8 MiB
+          # The mirror is 5.4 MB today — 174 tools, 65% of the 8 MiB
           # `MIRROR_BYTE_CEILING` (raised from 5 MiB by #2886, which also grew
           # the mirror from 53 tools) — so the 192Mi limit is 24x the ceiling
           # even once the mirror grows to fill it, well past the 2x floor
@@ -251,6 +251,8 @@ spec:
                   name: portfolio-front-tools-8
               - configMap:
                   name: portfolio-front-tools-9
+              - configMap:
+                  name: portfolio-front-tools-10
         - name: conf
           configMap:
             name: portfolio-front-nginx

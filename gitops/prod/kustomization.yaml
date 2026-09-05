@@ -160,6 +160,73 @@ configMapGenerator:
       # conditional on any category having mirrored tools, so it is always
       # present.
       - about.html=front-door/about.html
+      # The comparison index, served from the document root by the
+      # `^/compare/?$` block in `front-door/default.conf`. Same ConfigMap for
+      # the same reason as everything above it. ~95 KB on 2026-09-05 — the
+      # second-largest key here after `c__trades.html`, because it lists every
+      # `vs-<product>` page the mirror carries and so grows with the catalogue.
+      # The ceiling test in `front-door.test.mjs` reads this file's own
+      # `portfolio-front-html` list and measures all of it, so no key here can
+      # grow past 1 MiB unnoticed.
+      - compare.html=front-door/compare.html
+      # One page per product compared by more than one tool, served from the
+      # document root by the `^/compare/(?<vs>…)/?$` block in
+      # `front-door/default.conf`. Same ConfigMap for the same reason as
+      # everything above it.
+      #
+      # These exist because `compare.html` above is one URL carrying every
+      # comparison in the catalogue: its title has to be true of ~120 products
+      # at once, so it competes for "Jobber alternatives" against pages that
+      # are about nothing else, and the thirty-two Jobber comparisons were an
+      # anchor part-way down a 95 KB document. Each of these is about one
+      # product and nothing else.
+      #
+      # Listed one line per file rather than generated, matching the seven
+      # `c__<id>.html` pages above, and with the same guard: `front-door.mjs`
+      # sweeps a `vs__*.html` whose product drops below two comparisons, and
+      # `front-door.test.mjs` asserts this list against what the generator
+      # writes — so a product page added without a line here fails CI instead
+      # of going dark, and one removed without deleting its line fails here
+      # instead of leaving kustomize pointing at a file that is gone.
+      #
+      # ~226 KB together on 2026-09-05, the largest being `vs__jobber.html` at
+      # ~30 KB for 32 tools. The ceiling test in `front-door.test.mjs` reads
+      # this file's own `portfolio-front-html` list and measures all of it, and
+      # `gitops/tests/test_manifests.py` measures the built object against 90%
+      # of etcd's 1 MiB cap, so this set cannot grow past either unnoticed.
+      #
+      # **Read this before adding another key here.** Measured rather than
+      # estimated: with these fourteen, `portfolio-front-html` serialises to
+      # 852,432 bytes — 81.3% of the 1 MiB ceiling, against a test budget of
+      # 943,718. That is ~91 KB of headroom, and it is the tightest this
+      # ConfigMap has ever been. It is spent by roughly six more product pages,
+      # or by `compare.html`'s own growth (~570 bytes per new `vs-` page in the
+      # catalogue) over a couple of months, whichever comes first.
+      #
+      # The lever to pull when it does is compression, not deletion: 80 KB of
+      # the 226 KB above is one identical copy of `STYLE` per page, and the
+      # tool mirror already solved the same problem the same way (3.13x, gz-only
+      # keys served by `gzip_static always` — see the compression note in
+      # `platform/marketing/front-door-tools.mjs`). Doing it here needs the
+      # `rewrite`-not-`try_files` treatment the mirror's blocks document, since
+      # a `try_files` on a gz-only key stats a name that does not exist. That
+      # was left undone deliberately: it is a mechanism change worth its own
+      # commit and its own test, and it should not ride along with the pages
+      # that made it necessary.
+      - vs__jobber.html=front-door/vs__jobber.html
+      - vs__servicetitan.html=front-door/vs__servicetitan.html
+      - vs__aspire.html=front-door/vs__aspire.html
+      - vs__buildxact.html=front-door/vs__buildxact.html
+      - vs__jobnimbus.html=front-door/vs__jobnimbus.html
+      - vs__quoteiq.html=front-door/vs__quoteiq.html
+      - vs__acculynx.html=front-door/vs__acculynx.html
+      - vs__housecall-pro.html=front-door/vs__housecall-pro.html
+      - vs__bonsai.html=front-door/vs__bonsai.html
+      - vs__govwin-iq.html=front-door/vs__govwin-iq.html
+      - vs__jobtread.html=front-door/vs__jobtread.html
+      - vs__paintscout.html=front-door/vs__paintscout.html
+      - vs__servicecore.html=front-door/vs__servicecore.html
+      - vs__servicemonster.html=front-door/vs__servicemonster.html
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

@@ -122,8 +122,10 @@
       <div class="actions">
         <button id="sample" class="secondary" type="button">Load sample grants</button>
         <button id="export" class="secondary" type="button">Export private CSV</button>
+        <button id="exportIcs" class="secondary" type="button">Add reminders to calendar (.ics)</button>
         <button id="clear" class="secondary" type="button">Clear list</button>
       </div>
+      <p class="hint">The .ics file has one all-day reminder per obligation above, three days ahead, for Google Calendar, Outlook, or Apple Calendar. Built entirely in this browser; nothing is uploaded to import it.</p>
     </section>
   </div>
   <section class="card risk" id="lateReport">
@@ -232,7 +234,7 @@
   </footer>
 </main>
 <script type="module">
-  import { SAMPLE_GRANTS, compareLateReport, csvReport, lateReportNote, loadGrants, nextDueFromInterval, removeGrant, summarize } from "./calc.mjs";
+  import { SAMPLE_GRANTS, compareLateReport, csvReport, icsCalendar, lateReportNote, loadGrants, nextDueFromInterval, removeGrant, summarize } from "./calc.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -335,6 +337,26 @@
     a.click();
     URL.revokeObjectURL(a.href);
     countUsage("csv-exported");
+  });
+  $("exportIcs").addEventListener("click", () => {
+    let rows = [];
+    try {
+      rows = summarize(grants);
+    } catch (error) {
+      $("message").textContent = error.message;
+      return;
+    }
+    if (!rows.length) {
+      $("message").textContent = "Add a grant first, then export calendar reminders.";
+      return;
+    }
+    const blob = new Blob([icsCalendar(rows)], { type: "text/calendar;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "grant-deadlines.ics";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    countUsage("ics-exported");
   });
   $("clear").addEventListener("click", () => {
     grants = [];

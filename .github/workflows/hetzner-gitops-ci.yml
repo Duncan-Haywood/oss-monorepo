@@ -50,6 +50,12 @@ on:
         description: SSH to the two hel1 boxes (read-only). Uses HETZNERSSHKEY.
         type: boolean
         default: false
+      restore:
+        description: >-
+          INSTALLS k3s + Argo CD on the two boxes. Owner-run only, after
+          HETZNERSSHKEY holds a private key. Type restore-cluster to confirm.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -178,13 +184,18 @@ jobs:
             bootstrap/install-k3s-agent.sh \
             bootstrap/install-argocd.sh \
             bootstrap/preflight.sh \
+            bootstrap/restore-cluster.sh \
             bootstrap/label-existing.sh \
+            bootstrap/scripts/load-ssh-key.sh \
             bootstrap/scripts/gen-age-key.sh \
             bootstrap/scripts/seal-owner-secrets.sh \
+            bootstrap/scripts/enable-codex-governor.sh \
+            bootstrap/scripts/install-codex-host.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
-            gitops/ci/runner-entrypoint.sh
+            gitops/ci/runner-entrypoint.sh \
+            platform/pages/publish-branch.sh
 
   hcloud-scope:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -221,45 +232,66 @@ jobs:
             echo "HETZNERSSHKEY is unset." >&2
             exit 1
           fi
-          mkdir -p "${HOME}/.ssh"
-          printf '%s\n' "${KEY}" > "${HOME}/.ssh/id_hetzner"
-          chmod 600 "${HOME}/.ssh/id_hetzner"
-          # A malformed secret (a public key pasted by mistake, literal \n
-          # escapes from a JSON paste, or CRLF line endings) used to fail
-          # here with a bare, unhelpful ssh-keygen error. Classify the
-          # format first and normalize escaped newlines, so a bad rotation
-          # of HETZNERSSHKEY says exactly what is wrong instead of just
-          # "invalid format".
-          # printf above always appends one trailing real newline, so a
-          # secret pasted as a single JSON-escaped line still shows one
-          # newline here. More than that means it already has real line
-          # breaks and escaping it further would corrupt a valid key.
-          if grep -qF '\n' "${HOME}/.ssh/id_hetzner" && [ "$(grep -c '' "${HOME}/.ssh/id_hetzner")" -le 1 ]; then
-            sed -i 's/\\r\\n/\n/g; s/\\n/\n/g' "${HOME}/.ssh/id_hetzner"
-            echo "normalized literal \n escapes in the secret"
-          fi
-          # Real CR bytes are the other half of the case the comment above
-          # names. A key pasted from a Windows editor arrives with genuine
-          # CRLF endings, never reaches the escape branch (its \r is a byte,
-          # not the two characters that branch greps for), and ssh-keygen
-          # rejects it with the same unhelpful error this block replaces.
-          CR="$(printf '\r')"
-          if grep -q "${CR}" "${HOME}/.ssh/id_hetzner"; then
-            sed -i "s/${CR}\$//" "${HOME}/.ssh/id_hetzner"
-            echo "normalized CRLF line endings in the secret"
-          fi
-          if grep -Eq "^ssh-(ed25519|rsa)|ecdsa-sha2" "${HOME}/.ssh/id_hetzner"; then
-            echo "HETZNERSSHKEY holds a public key, not a private key." >&2
-            echo "A public key cannot open an SSH session — store the matching private key instead." >&2
-            exit 1
-          fi
-          if ! grep -q "BEGIN .*PRIVATE KEY" "${HOME}/.ssh/id_hetzner"; then
-            echo "HETZNERSSHKEY is not an OpenSSH/PEM private key after normalization." >&2
-            exit 1
-          fi
-          ssh-keygen -y -f "${HOME}/.ssh/id_hetzner" >/dev/null
+          # The format classifier and its reasoning now live in
+          # bootstrap/scripts/load-ssh-key.sh, so the restore job below shares
+          # exactly this one rather than carrying a second copy that can drift.
+          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
           eval "$(ssh-agent -s)"
           ssh-add "${HOME}/.ssh/id_hetzner"
           ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
           export CP=root@89.167.29.39 AG=root@157.180.80.188
           bootstrap/preflight.sh
+
+  # The only thing in this repository that changes the two boxes. Everything
+  # else here reads: `tofu` never applies, HETZNERREADAPIKEY is asserted
+  # read-only, and `preflight` above is read-only by construction.
+  #
+  # It exists because rotating HETZNERSSHKEY was necessary but not sufficient:
+  # the recovery it unlocks was a human SSHing to two machines in order and
+  # copy-pasting a node token between them, which is not something an outage
+  # should be waiting on. See bootstrap/restore-cluster.sh for what it does and
+  # for why following the *documented* order fails today (the private network
+  # in infra/inventory.tf was never applied).
+  #
+  # Deliberately not reachable from push, schedule, or any agent Job: it is a
+  # workflow_dispatch that additionally requires the operator to type the
+  # confirmation string, so a mis-click on the Run workflow button does nothing.
+  restore:
+    if: github.event_name == 'workflow_dispatch' && inputs.restore == 'restore-cluster'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Longer than preflight's 10: this one waits on two k3s installs, a
+    # 180-second node-readiness wait and an Argo CD rollout. Still bounded, so
+    # a stalled join cannot ride the runner to the 360-minute default.
+    timeout-minutes: 45
+    concurrency:
+      # Two of these at once would race two k3s installs onto one box.
+      group: hetzner-restore
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore the k3s cluster
+        env:
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+          CONFIRM: restore-cluster
+          # Optional but load-bearing: the GitOps repository is private, so
+          # without a credential Argo installs, applies the root Application
+          # and then fails every sync on repository authentication — a cluster
+          # that is up and a site that serves nothing. The script says so
+          # loudly rather than reporting success. A fine-grained PAT with
+          # Contents: Read on this repository is enough; it is the same
+          # permission the site's clone token needs, so one token can do both.
+          ARGOCD_REPO_TOKEN: ${{ secrets.ARGOCDREPOTOKEN }}
+        run: |
+          set -euo pipefail
+          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
+          eval "$(ssh-agent -s)"
+          ssh-add "${HOME}/.ssh/id_hetzner"
+          ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
+          export CP=root@89.167.29.39 AG=root@157.180.80.188
+          bootstrap/restore-cluster.sh
+      - name: What to do next
+        if: always()
+        run: |
+          echo "Dispatch 'Public surface check' — it needs no secret and is the"
+          echo "only reading a stranger's view agrees with. Record the result in"
+          echo "portfolio/ledger/infra_state.yaml with this run id."

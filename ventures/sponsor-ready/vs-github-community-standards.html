@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sponsor Ready vs. GitHub's Community Standards</title>
+<meta name="description" content="GitHub's Community Standards page checks whether a repo has the community-health files. Sponsor Ready reads that same data, then scores the signals that matter for attracting GitHub Sponsors — FUNDING.yml, a visible ask, activity, discoverability — and ranks what to fix first. Free, client-side, works on any public repo. Not affiliated with GitHub.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-github-community-standards.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Sponsor Ready vs. GitHub's Community Standards">
+<meta property="og:description" content="Same community-health data, different question. Community Standards asks whether the files exist; this asks what is stopping the repo attracting sponsors, and in what order to fix it.">
+<meta property="og:url" content="./vs-github-community-standards.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use Sponsor Ready or GitHub's Community Standards page?","acceptedAnswer":{"@type":"Answer","text":"Use both — they answer different questions, and this tool is built on top of the other one rather than against it. GitHub's Community Standards page, under a repository's Insights tab, checks whether the recognised community-health files are present: a description, a README, a code of conduct, contributing guidelines, a license, issue and pull-request templates, and a security policy. It is a completeness checklist for a healthy open-source project. Sponsor Ready calls GitHub's own community profile API — the same data behind that page — and then asks a narrower question: what is stopping this repository attracting GitHub Sponsors? That adds signals Community Standards does not look at, weights them by how much they matter for sponsorship rather than treating every item equally, and returns a ranked fix-this-first list instead of a flat set of ticks."}},{"@type":"Question","name":"What does Sponsor Ready check that Community Standards does not?","acceptedAnswer":{"@type":"Answer","text":"Five things, and together they are 64 of the 100 points. A valid FUNDING.yml is worth 30 on its own — it is what puts the Sponsor button on the repository, and Community Standards does not look for it at all. Recent activity is worth 12, because a repository that looks abandoned does not attract recurring funding. A visible sponsorship ask in the README is worth 10, since a funding file nobody is pointed at converts poorly. Repository topics are worth 8, because they are how the project gets found in the first place. A homepage or live-demo link is worth 4. The remaining 36 points cover ground that overlaps with Community Standards — a substantial README, a description, a license, a contributing guide, and a code of conduct — but scores them by weight rather than presence alone."}},{"@type":"Question","name":"What does Community Standards cover that Sponsor Ready does not score?","acceptedAnswer":{"@type":"Answer","text":"Issue templates, a pull-request template, and a security policy. Sponsor Ready reads whether some of these exist, because they come back in the same community profile response, but it does not award points for them: they matter for contributor experience and for triage load, which is a real thing to care about and simply not the question this tool answers. If you want a complete community-health pass, read the Community Standards page too — it is free, built in, and nothing here replaces it."}},{"@type":"Question","name":"Can I run this on a repository I do not own?","acceptedAnswer":{"@type":"Answer","text":"Yes, and that is one practical difference. GitHub's Community Standards page lives inside a repository's own Insights tab, so it is oriented around a project you are already looking at as its maintainer. Sponsor Ready runs entirely in your browser against the public GitHub API, so you can point it at any public repository — including a project you admire, to see how a well-funded one is actually set up before copying the pattern into your own. The requests are unauthenticated, which is what keeps the tool account-free, and GitHub caps those at 60 an hour per visitor IP; the page says so plainly when you hit that ceiling rather than reporting the missing data as a failing check."}},{"@type":"Question","name":"Is this page affiliated with GitHub?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by GitHub or Microsoft. GitHub, GitHub Sponsors, and the Community Standards page are named here only to describe what this checklist is and is not, and no claim is made about them beyond their publicly documented behaviour."}}]}</script>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#1a1a1a;--muted:#5f6368;--border:#e2e2e2;--accent:#2563eb;--card:#f8f9fa;font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#14161a;--fg:#e8eaed;--muted:#9aa0a6;--border:#2c3036;--accent:#8ab4f8;--card:#1c1f24}}
+body{max-width:920px;margin:auto;padding:28px;background:var(--bg);color:var(--fg)}
+a{color:var(--accent);overflow-wrap:anywhere}
+h1{font-size:clamp(1.8rem,5vw,2.7rem);line-height:1.08;margin:.3rem 0;max-width:24ch}
+h2{margin-top:0}
+p,li{line-height:1.55}
+.eyebrow{font-weight:700;letter-spacing:.04em;font-size:.85rem}
+.lede{font-size:1.05rem;max-width:66ch;color:var(--muted)}
+section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin:18px 0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin:12px 0}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+td.w{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.note,footer{font-size:.87rem;color:var(--muted)}
+footer{margin-top:28px;border-top:1px solid var(--border);padding-top:16px}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Sponsor Ready</a></p>
+<header>
+  <h1>Sponsor Ready vs. GitHub's Community Standards</h1>
+  <p class="lede">The same community-health data, asked a different question. GitHub's page checks whether the recognised files exist. This one asks what is stopping the repository attracting sponsors — and which fix is worth the most.</p>
+</header>
+
+<section>
+  <h2>They are not rivals — one is built on the other</h2>
+  <p>
+    GitHub's <strong>Community Standards</strong> page, on a repository's
+    Insights tab, is a completeness checklist for a healthy open-source
+    project: description, README, code of conduct, contributing guidelines,
+    license, issue and pull-request templates, security policy. Every item is
+    a tick or a gap, and every item counts the same.
+  </p>
+  <p>
+    <strong>Sponsor Ready</strong> calls GitHub's own community profile API —
+    the same endpoint behind that page — and then asks something narrower:
+    <em>what is stopping this repository attracting GitHub Sponsors?</em> It
+    adds the funding-specific signals Community Standards does not look at,
+    weights everything by how much it actually moves sponsorship rather than
+    treating a code of conduct as equal to a missing Sponsor button, and
+    returns a ranked <em>fix this first</em> list rather than a flat set of
+    ticks.
+  </p>
+  <p class="note">
+    Nothing here replaces the Community Standards page. It is free, built in,
+    and covers ground this tool deliberately does not score.
+  </p>
+</section>
+
+<section>
+  <h2>What each one looks at</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th scope="col">Signal</th><th scope="col">Community Standards</th><th scope="col">Sponsor Ready</th><th scope="col" class="w">Weight</th></tr></thead>
+    <tbody>
+      <tr><td>A valid <code>FUNDING.yml</code> — what puts the Sponsor button on the repo</td><td>not checked</td><td>checked</td><td class="w">30</td></tr>
+      <tr><td>Recent activity — a project that looks abandoned does not attract recurring funding</td><td>not checked</td><td>checked</td><td class="w">12</td></tr>
+      <tr><td>README makes a visible sponsorship ask</td><td>not checked</td><td>checked</td><td class="w">10</td></tr>
+      <tr><td>README is a real onboarding doc, not a stub</td><td>presence only</td><td>checked</td><td class="w">10</td></tr>
+      <tr><td>Repository description</td><td>checked</td><td>checked</td><td class="w">8</td></tr>
+      <tr><td>Topics set — how the project gets found at all</td><td>not checked</td><td>checked</td><td class="w">8</td></tr>
+      <tr><td>License file</td><td>checked</td><td>checked</td><td class="w">8</td></tr>
+      <tr><td>CONTRIBUTING guide</td><td>checked</td><td>checked</td><td class="w">6</td></tr>
+      <tr><td>Homepage / live demo link</td><td>not checked</td><td>checked</td><td class="w">4</td></tr>
+      <tr><td>CODE_OF_CONDUCT</td><td>checked</td><td>checked</td><td class="w">4</td></tr>
+      <tr><td>Issue templates, PR template, security policy</td><td>checked</td><td>not scored</td><td class="w">&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>
+    The five signals Community Standards does not look at are
+    <strong>64 of the 100 points</strong>, and the largest single one is the
+    funding file itself. That is the shape of the gap: a repository can pass
+    Community Standards completely and still have nothing anywhere that lets
+    a willing person give it money.
+  </p>
+</section>
+
+<section>
+  <h2>Two practical differences</h2>
+  <p>
+    <strong>It ranks rather than lists.</strong> A flat checklist tells you
+    six things are missing; it does not tell you that one of them is worth
+    thirty points and another is worth four. The ordered output is the actual
+    product here — the point is to know which single change to make this
+    afternoon.
+  </p>
+  <p>
+    <strong>It runs on repositories you do not own.</strong> Community
+    Standards lives inside a repository's own Insights tab. This runs
+    client-side against the public API, so you can point it at a
+    well-funded project you admire and see how it is set up before copying
+    the pattern. Requests are unauthenticated — which is what keeps the tool
+    account-free — and GitHub caps those at 60 an hour per visitor IP. When
+    you hit that ceiling the page says so, rather than reporting the data it
+    could not fetch as a failing check.
+  </p>
+  <p class="note">
+    Nothing you enter is uploaded and no account is created: the checks run
+    in your own browser, calling <code>api.github.com</code> directly.
+  </p>
+</section>
+
+<section>
+  <h2>Common questions</h2>
+
+  <h3>Should I use Sponsor Ready or GitHub's Community Standards page?</h3>
+  <p>Use both — they answer different questions, and this tool is built on top of the other one rather than against it. GitHub's Community Standards page, under a repository's Insights tab, checks whether the recognised community-health files are present: a description, a README, a code of conduct, contributing guidelines, a license, issue and pull-request templates, and a security policy. It is a completeness checklist for a healthy open-source project. Sponsor Ready calls GitHub's own community profile API — the same data behind that page — and then asks a narrower question: what is stopping this repository attracting GitHub Sponsors? That adds signals Community Standards does not look at, weights them by how much they matter for sponsorship rather than treating every item equally, and returns a ranked fix-this-first list instead of a flat set of ticks.</p>
+
+  <h3>What does Sponsor Ready check that Community Standards does not?</h3>
+  <p>Five things, and together they are 64 of the 100 points. A valid FUNDING.yml is worth 30 on its own — it is what puts the Sponsor button on the repository, and Community Standards does not look for it at all. Recent activity is worth 12, because a repository that looks abandoned does not attract recurring funding. A visible sponsorship ask in the README is worth 10, since a funding file nobody is pointed at converts poorly. Repository topics are worth 8, because they are how the project gets found in the first place. A homepage or live-demo link is worth 4. The remaining 36 points cover ground that overlaps with Community Standards — a substantial README, a description, a license, a contributing guide, and a code of conduct — but scores them by weight rather than presence alone.</p>
+
+  <h3>What does Community Standards cover that Sponsor Ready does not score?</h3>
+  <p>Issue templates, a pull-request template, and a security policy. Sponsor Ready reads whether some of these exist, because they come back in the same community profile response, but it does not award points for them: they matter for contributor experience and for triage load, which is a real thing to care about and simply not the question this tool answers. If you want a complete community-health pass, read the Community Standards page too — it is free, built in, and nothing here replaces it.</p>
+
+  <h3>Can I run this on a repository I do not own?</h3>
+  <p>Yes, and that is one practical difference. GitHub's Community Standards page lives inside a repository's own Insights tab, so it is oriented around a project you are already looking at as its maintainer. Sponsor Ready runs entirely in your browser against the public GitHub API, so you can point it at any public repository — including a project you admire, to see how a well-funded one is actually set up before copying the pattern into your own. The requests are unauthenticated, which is what keeps the tool account-free, and GitHub caps those at 60 an hour per visitor IP; the page says so plainly when you hit that ceiling rather than reporting the missing data as a failing check.</p>
+
+  <h3>Is this page affiliated with GitHub?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by GitHub or Microsoft. GitHub, GitHub Sponsors, and the Community Standards page are named here only to describe what this checklist is and is not, and no claim is made about them beyond their publicly documented behaviour.</p>
+
+  <p class="note">Open the <a href="./">Sponsor Ready checklist</a> to score a repository, or read the <a href="github-sponsors-readiness-checklist.html">checklist writeup</a> for what each signal means.</p>
+</section>
+
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>A score is not a forecast.</strong> These signals correlate with repositories that attract sponsorship; scoring 100 does not mean anyone will sponsor you, and scoring low does not mean nobody will. The weights are this tool's own judgement, not GitHub's, and no dollar outcome is promised or implied.</p>
+  <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a>. Refusing does not change the checklist. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a>.</p>
+</footer>
+</main>
+</body>
+</html>

@@ -393,6 +393,24 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
 
+      # The other half of that pair. `publish_surface.py` reads what a merge
+      # *ships*; `public_surface.py` reads what the hostnames actually
+      # *serve*, and only the second can contradict a stale claim. These tests
+      # open no socket -- the probe itself runs in `public-surface-check.yml`,
+      # which needs a runner's unrestricted egress and no credential at all.
+      - name: Public-surface prober unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_public_surface
+
+      # The third of the set. The prober above detects an outage; this one
+      # decides *which owner action would end it*, which is the question the
+      # decision queue ranks on. Its verdict branches are the tested surface:
+      # one of them invalidates the currently top-ranked ask, so a regression
+      # here would send the owner after the wrong credential.
+      - name: Outage-triage decision-tree tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_outage_triage
+
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci
         run: python3 -m unittest test_branch_cleanup

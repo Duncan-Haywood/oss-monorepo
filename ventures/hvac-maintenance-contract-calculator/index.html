@@ -35,6 +35,7 @@
   </main>
   <p class="disclaimer"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <footer>Everything runs in your browser. Your figures are never uploaded. We count only anonymous feature events in local storage, never your equipment, customer, or pricing data. Usage counting can be disabled by your browser's Do Not Track or Global Privacy Control signal.</footer>
+  <p class="disclaimer support">Free and open source. If it helped you price the next maintenance contract, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   <script type="module">
     import { calculatePlan, formatPlanSummary } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeShare, decodeShare } from './share.mjs';
     const ids = ['visits','hours','rate','travel','parts','callbacks','callbackHours','callbackCost','overhead','margin','proposed']; const $ = id => document.getElementById(id); let latest;

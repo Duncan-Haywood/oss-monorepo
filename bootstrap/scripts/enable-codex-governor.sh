@@ -213,10 +213,16 @@ PY
 case "$MODE" in
   check)
     step "Codex governor"
-    cronjob_running && ok "CronJob:  running (suspend: false)" \
-                    || say "  - CronJob:  suspended (suspend: true)"
-    policy_enabled  && ok "policy:   enabled" \
-                    || say "  - policy:   disabled (\"enabled\": false)"
+    if cronjob_running; then
+      ok "CronJob:  running (suspend: false)"
+    else
+      say "  - CronJob:  suspended (suspend: true)"
+    fi
+    if policy_enabled; then
+      ok "policy:   enabled"
+    else
+      say "  - policy:   disabled (\"enabled\": false)"
+    fi
     if [[ -f "$SEALED" ]]; then
       require_seal || true
     else
