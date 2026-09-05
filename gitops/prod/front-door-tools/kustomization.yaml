@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 126 files, 549764 bytes
 #   portfolio-front-tools-5: 115 files, 544496 bytes
 #   portfolio-front-tools-6: 106 files, 554577 bytes
-#   portfolio-front-tools-7: 118 files, 548023 bytes
+#   portfolio-front-tools-7: 119 files, 552322 bytes
 #   portfolio-front-tools-8: 97 files, 553591 bytes
 #   portfolio-front-tools-9: 80 files, 420689 bytes
 #   portfolio-front-tools-10: 54 files, 279301 bytes
@@ -1040,6 +1040,7 @@ configMapGenerator:
       - print-atelier__index.html.gz=print-atelier__index.html.gz
       - print-atelier__preflight.mjs.gz=print-atelier__preflight.mjs.gz
       - print-atelier__usage.mjs.gz=print-atelier__usage.mjs.gz
+      - print-atelier__vs-printful.html.gz=print-atelier__vs-printful.html.gz
       - print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz=print-atelier__what-resolution-do-i-need-to-print-my-artwork.html.gz
       - quote-margin-check__calc.mjs.gz=quote-margin-check__calc.mjs.gz
       - quote-margin-check__draft.mjs.gz=quote-margin-check__draft.mjs.gz
