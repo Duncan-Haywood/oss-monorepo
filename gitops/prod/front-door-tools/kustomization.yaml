@@ -35,8 +35,8 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 552213 bytes
 #   portfolio-front-tools-1: 113 files, 555332 bytes
-#   portfolio-front-tools-2: 151 files, 556668 bytes
-#   portfolio-front-tools-3: 118 files, 551570 bytes
+#   portfolio-front-tools-2: 150 files, 553762 bytes
+#   portfolio-front-tools-3: 119 files, 555548 bytes
 #   portfolio-front-tools-4: 126 files, 549764 bytes
 #   portfolio-front-tools-5: 115 files, 544496 bytes
 #   portfolio-front-tools-6: 106 files, 554577 bytes
@@ -469,12 +469,12 @@ configMapGenerator:
       - roofing-bid-calculator__share.mjs.gz=roofing-bid-calculator__share.mjs.gz
       - roofing-bid-calculator__usage.mjs.gz=roofing-bid-calculator__usage.mjs.gz
       - roofing-bid-calculator__vs-acculynx.html.gz=roofing-bid-calculator__vs-acculynx.html.gz
-      - painting-bid-calculator__calc.mjs.gz=painting-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - painting-bid-calculator__calc.mjs.gz=painting-bid-calculator__calc.mjs.gz
       - painting-bid-calculator__index.html.gz=painting-bid-calculator__index.html.gz
       - painting-bid-calculator__interior-painting-price-per-square-foot.html.gz=painting-bid-calculator__interior-painting-price-per-square-foot.html.gz
       - painting-bid-calculator__share.mjs.gz=painting-bid-calculator__share.mjs.gz
