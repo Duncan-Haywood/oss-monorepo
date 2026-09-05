@@ -12760,5 +12760,81 @@ entries:
         Ran the seven Playwright browser checks that no workflow covers,
         which this container can do because Chromium is pre-installed here
         and the starved CI cannot. This is the layer standing between a
-        merge and a page that renders perfectly and does nothing.
+        merge and a page that renders perfectly and does nothing. sweep
+        (180/180 tools answer), journey, sideways, presets and highlight all
+        passed; contrast skipped on a missing dependency; roundtrip FAILED on
+        four tools and those failures were real. Fixed in the same run --
+        see the four venture entries below.
+    mrr_end: null
+  - venture: hood-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a share link that quietly repriced the bid. `readComponents()`
+        converted each component row's access level into `accessMultiplier`
+        and dropped the raw `access` id, but share.mjs encodes the id against
+        ACCESS_PRESETS -- so the link carried no access at all and the
+        recipient's rows fell back to "kitchen floor" (x1.0) on rows the
+        sender had set to "above ceiling" (x1.2). The recipient saw a
+        complete, plausible, cheaper bid: $164.69 left as $159.85. Found by
+        platform/pages/roundtrip.mjs, which exists for exactly this class and
+        which no workflow runs. Verified: the link now round-trips 50 fields
+        with the headline intact at $164.69.
+    mrr_end: null
+  - venture: mold-remediation-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Wired proposal-terms.mjs into the share link. The share feature
+        shipped days ago carried the arithmetic but not the proposal panel's
+        five terms -- deposit percentage, validity window, exclusions,
+        payment terms, notes -- so a bid sent at a 65% deposit held for 37
+        days reopened at this venture's defaults (30/30, three empty prose
+        blocks) under a headline matching to the cent. Those are the terms of
+        the offer, and the customer proposal the recipient prints asks for a
+        different amount on acceptance than the sender's did. The module
+        already existed and is used by 40 other ventures; this one and
+        sump-pump-bid-calculator had the proposal panel without it, which is
+        why roundtrip.mjs reported the same five fields dropped by two tools
+        and named it one cause rather than two. Verified: 54 fields
+        round-trip, headline $1,037.75 intact.
+    mrr_end: null
+  - venture: sump-pump-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same fix, same cause as mold-remediation-bid-calculator above: the
+        proposal panel's five terms were not carried by the share link, so a
+        shared bid reopened at the venture's default deposit and validity
+        window with the prose terms blank. Wired proposal-terms.mjs
+        (`withTerms`/`splitTerms`), the mechanism 40 other ventures already
+        use, rather than extending this venture's hand-written allowlist --
+        so the five ids cannot drift per venture. Verified: 50 fields
+        round-trip, headline $1,695.31 intact.
+    mrr_end: null
+  - venture: garage-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Carried the three kit selectors (doorSize, construction, opener) in
+        the share link. They had been omitted deliberately, on the reasoning
+        that they only pre-fill numeric fields so "their effect already rides
+        in those fields". The headline price does survive that way, which is
+        why it went unnoticed, but the recipient's form was still wrong twice
+        over: a sender who picked "Custom size" because they hand-priced the
+        door handed over a bid labelled `double_16x7`, and touching any of
+        the three selects then fires applySuggestions and overwrites the
+        sender's hand-entered costs with that kit's defaults; and
+        `proposalScope` is generated from the construction label, so the
+        customer-facing scope on the recipient's copy named a different door
+        than the sender's proposal did. Safe to carry because index.html runs
+        applySuggestions({force:true}) before restoreShare(), and restore
+        assigns `.value` without dispatching a change event. Values are
+        validated against calc.mjs's own preset ids, so a crafted link can
+        still only set what the form's selects offer. Verified: 37 fields
+        round-trip, headline $281.44 intact.
     mrr_end: null

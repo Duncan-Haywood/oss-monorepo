@@ -372,6 +372,16 @@
           quantity: row.querySelector('.c-qty').value,
           minutesPerUnit: row.querySelector('.c-min').value,
           accessMultiplier: access ? access.multiplier : 1,
+          // The multiplier is what calc.mjs prices from, but it is a lossy
+          // form of the answer: share.mjs encodes the access *id* against
+          // ACCESS_PRESETS, and a row that carries only the multiplier
+          // encodes no access at all. The recipient then fell back to
+          // "kitchen floor" (x1.0) on a row the sender had set to, say,
+          // "above ceiling" (x1.2) -- a complete, plausible, cheaper bid
+          // under a headline that did not match the sender's.
+          // Caught by platform/pages/roundtrip.mjs, which exists for
+          // exactly this: $164.69 arrived as $159.85.
+          access: access ? access.id : '',
         };
       });
     }
