@@ -13497,3 +13497,54 @@ entries:
         entry above for the full account -- this was one of 5 ventures fixed
         together in the same PR.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the owner's Hetzner-CI/CD-and-marketing/Codex-CLI mandate for
+        this run: zero open PRs and no repairable branches (a same-day
+        earlier session had already drained 232), so the quota was met
+        trivially and the run moved to product work. Confirmed the same
+        finding an earlier session recorded today -- Hetzner deployment and
+        the Codex host-mode governor (gitops/agents/host/) are already built,
+        tested (384 gitops tests green) and merged, blocked only on the
+        owner running bootstrap/restore-cluster.sh from their own machine
+        with a real private key (HETZNERSSHKEY currently holds a public
+        key) -- rather than re-litigating it.
+        Found the actual product work instead by running the full
+        platform/marketing + platform/pages suite (1124 tests) rather than
+        trusting the last green reading: one real failure, "the offline
+        bundle stays small enough to fetch on mobile data" (16.8 MB against
+        a 16 MB ceiling). Root cause was worse than the threshold: the hub's
+        "Save all tools for offline" button told every visitor the download
+        was "about 3 MB", text written at ~30 tools and never updated as the
+        catalog grew to 174 -- a visitor on limited mobile data, exactly who
+        the feature is for, was told to expect a sixth of the real cost.
+        Fixed by computing the size at build time (after the offline
+        head-injection pass, so it matches actual bytes served, and gzipped
+        to match what GitHub Pages/Fastly and the front door's nginx
+        actually transfer -- 16.8 MB raw is 5.2 MB over the wire) and
+        patching it into the hub page in place of a marker, so it cannot
+        drift from reality again. While pushing, hit a real merge conflict
+        with a concurrent session that had independently fixed the same
+        failing test by switching the ceiling itself to gzipped bytes
+        (8 MB budget, same 5.2 MB measurement) -- kept their version verbatim
+        for the ceiling and rebased my copy-accuracy fix onto it rather than
+        re-deriving either, and updated my own bundle-byte computation to
+        gzip too so the displayed size and the ceiling test agree.
+        Also noticed (not yet acted on): a separate concurrent session's
+        merge added a self-hosted-runner-on-bare-host path
+        (bootstrap/scripts/install-github-runner-host.sh,
+        gitops/ci/host/) as a second answer to the CI-starvation problem,
+        alongside the existing Codex host-mode governor -- both need the
+        same owner SSH-key action to install.
+        Verified locally (CI starved -- ci_starvation.py --run 33974063600
+        reports runner_id: 0):
+        - node --test platform/pages/build.test.mjs -> 262/262
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+          platform/proposal/*.test.mjs -> 1226/1226
+        - python3 -m pytest gitops/tests -q -> 406 passed, 25 skipped
+        - node platform/marketing/regen.mjs -> served surface already
+          current, no diff
+    mrr_end: null
