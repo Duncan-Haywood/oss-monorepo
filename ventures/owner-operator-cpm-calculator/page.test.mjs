@@ -149,3 +149,33 @@ test('the ATBS incumbent-comparison page links back, names the incumbent honestl
   assert.match(vsAtbs, /Best-effort hosting, no SLA/);
   assert.match(vsAtbs, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+test('the tax reserve is wired end to end and disclaims what it is not', () => {
+  // Every one of these is a place the field has to appear for the reserve to
+  // work: the input, the read loop, the two output rows, and the clear path
+  // that blanks them on an invalid input. Missing the last one leaves a stale
+  // take-home on screen next to an error message.
+  assert.match(markup, /id="taxReservePercent"/);
+  assert.match(scriptSource, /'taxReservePercent'/);
+  assert.match(markup, /id="taxReserve"/);
+  assert.match(markup, /id="weeklyTakeHome"/);
+  assert.match(scriptSource, /'taxReserve', 'weeklyTakeHome'/);
+
+  // The page must not appear to know the operator's rate. It asks for a
+  // percentage and says whose job it is to supply it.
+  assert.match(markup, /Nothing withholds tax for you/);
+  assert.match(markup, /Ask your tax preparer/i);
+});
+
+test('the reserve input defaults to zero so the page opens on its old behaviour', () => {
+  // A non-zero default would be a claim about what the operator owes, and it
+  // would silently change every figure for a returning visitor.
+  assert.match(markup, /id="taxReservePercent"[^>]*value="0"/);
+});
+
+test('"you keep" in the verdict means take-home once a reserve is set', () => {
+  // The bug this feature fixes was a pre-tax number labelled as kept money.
+  // Reintroducing it in the verdict line would undo the fix in the one place
+  // the operator actually reads.
+  assert.match(scriptSource, /weeklyTakeHome\)\}<\/strong> this week after setting aside/);
+});

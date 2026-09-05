@@ -54,10 +54,21 @@ truck and has to decide whether to take the load.
 6. **Break-even loaded rate.** Weekly cost ÷ loaded miles. That is the number
    that belongs next to a broker's quote.
 7. **Optional offer.** Posted loaded rate minus factoring, scored against the
-   same cost base. Optional target take-home solves for the loaded rate that
-   leaves that much after costs and factoring. The result also shows how many
-   loaded miles that offer must pay to cover this week's cost; it uses the
-   settled rate after factoring, not the posted rate.
+   same cost base. The result also shows how many loaded miles that offer
+   must pay to cover this week's cost; it uses the settled rate after
+   factoring, not the posted rate.
+8. **Optional tax reserve.** Nobody withholds for a self-employed operator,
+   so the profit above is pre-tax. Enter the share of profit you set aside
+   for self-employment and income tax and the page shows the reserve and what
+   is left. **The percentage is yours** — it depends on filing status, state,
+   deductions, and the per-diem election, so entering one for you would be a
+   claim about what you owe. Leave it at 0 and every figure behaves as it did
+   before this existed.
+9. **Optional target take-home.** Solves for the loaded rate that leaves that
+   much after costs, factoring, *and* the reserve. With a reserve set, the
+   target is what you keep, so the rate is grossed up to reach it: at a 25%
+   reserve, wanting $800 means clearing $1,067 pre-tax, which is $2.51/mi
+   rather than the $2.35/mi that clears $800 before tax.
 8. **Detention, layover, and lumper.** Same week twice: miles and the note
    only versus those settlement lines. Detention and layover can take the
    same factor as the miles. Unreimbursed lumper is extra weekly cost. On
@@ -86,11 +97,19 @@ Control. See [`usage.mjs`](usage.mjs) and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `week_calculated`, `offer_compared`, `summary_copied`,
-`accessorials_compared`.
+`accessorials_compared`, `tax_reserve_set`. The last one records only that a
+reserve or take-home target was edited — never the percentage, which would
+say something about the operator's tax position.
 
 ## Limitations
 
-- Single currency and no tax handling; the operator enters their own numbers.
+- Single currency.
+- **The tax reserve is arithmetic on a percentage you supply, not a tax
+  calculation.** It does not know your filing status, state, deductions,
+  per-diem election, quarterly-estimate schedule, or any other income, and it
+  does not tell you what to reserve. A loss reserves nothing rather than
+  implying a refund — whether a loss offsets other income is exactly the
+  judgement this page does not make. Ask a tax preparer for your number.
 - One week at a time. Multi-stop trips, detention, layover, and lumper fees
   are not modeled as their own lines — fold them into "other" if they matter
   this week.

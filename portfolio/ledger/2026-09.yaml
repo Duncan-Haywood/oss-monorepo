@@ -1,5 +1,55 @@
 period: 2026-09
 entries:
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped an optional tax reserve, fixing a wrong number in the one
+        figure this tool exists to produce. An owner-operator is
+        self-employed, so nothing withholds for them, but "target weekly
+        take-home" solved for the loaded rate that clears the target
+        *pre-tax*. Measured on the page's own default week: asking for $800
+        take-home quoted $2.3534/mi, which leaves $600 once a 25% reserve
+        comes out -- a $200/week shortfall, $10,400/year, in a rate the
+        operator posts to a broker. With the reserve set the same request
+        quotes $2.5061/mi and keeps exactly $800.
+      - >-
+        The percentage is the operator's, never ours, and defaults to 0:
+        rates depend on filing status, state, deductions and the per-diem
+        election, none of which this page asks for, and a default would read
+        as a claim about what they owe. 0 makes every figure identical to
+        before, so saved links and prior behaviour are unchanged. A losing
+        week reserves nothing rather than implying a refund -- whether a
+        loss offsets other income is exactly the judgement the page does not
+        make. A reserve >= 100% is refused rather than dividing by zero and
+        printing an infinite rate to quote. The verdict line's "you keep"
+        now means take-home when a reserve is set, naming the pre-tax figure
+        beside it, because a pre-tax number labelled as kept money was the
+        original bug.
+      - >-
+        Verified locally (GitHub Actions starved again on 2026-09-05 --
+        `platform/ci/ci_starvation.py --run 33952423560` reports runner_id 0,
+        no steps, so red or absent checks here are not this change):
+        venture suite 44/44 (7 new: reserve-is-inert-at-0, reserve comes out
+        of profit not cost, target grossed up and quoted back lands on the
+        target, losing week floors at 0, >=100% refused, reserve rides
+        through the accessorial comparison, plus 3 page-wiring tests),
+        gitops 378 passed / 25 skipped, and a real Chromium pass over the
+        served page (http, not file://, so the ES modules load): reserve 0
+        reproduces the old output exactly, 25% shows $220.36 reserved and
+        $661.08 kept, an invalid 100% surfaces "Tax reserve must be less
+        than 100%" instead of crashing, and no console or page errors.
+        Usage adds one local-only aggregate event, `tax_reserve_set`, which
+        records that a reserve was edited and never the percentage.
+      - >-
+        Ran `node platform/marketing/regen.mjs` per AGENTS.md, so the apex's
+        committed artifact carries the change rather than going dark: the
+        venture's two mirror shards and `kustomization.yaml` are in the same
+        commit. Not deployed and not publicly verified -- all three routes
+        to a public surface are owner-blocked (Actions starved, k3s `:6443`
+        refused, `HETZNERSSHKEY` holds a public key), so this ships to
+        `main` as code that serves the moment the owner's restore lands.
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
