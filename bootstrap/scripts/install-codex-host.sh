@@ -99,6 +99,112 @@ systemd_available() {
   return 0
 }
 
+# ------------------------------------------------------------- prerequisites
+#
+# The cluster path never had to ask this question. `governor.py` schedules the
+# worker as a Job on `node:22-bookworm` (governor.py:766), an image that ships
+# node, npm, git, curl and tar -- which is exactly why `worker.sh` *asserts*
+# those are present instead of installing them, and says so in its own comments
+# ("node:22-bookworm builds on buildpack-deps:bookworm-scm and already ships
+# all three").
+#
+# Host mode runs that same `worker.sh` as a plain subprocess on the box. No
+# image supplies anything, and a Hetzner `ubuntu-24.04` server -- which is what
+# `infra/servers.tf:23` builds both boxes from -- ships no node and no npm at
+# all. So the first thing the worker does once the governor lets it run,
+# `npm install -g "@openai/codex@${CODEX_VERSION}"`, dies on
+# `npm: command not found`.
+#
+# The failure is silent in the way that costs the most:
+#
+#   - `policy.json` ships `"enabled": false`, so nothing runs at install time
+#     and the install reports clean;
+#   - the breakage therefore surfaces only after the owner flips the switch and
+#     walks away believing dev capacity is running;
+#   - and it surfaces as a *worker* failure, which `host_governor.py` records
+#     against the queue item's damped score rather than against the box, so the
+#     visible symptom is "that item keeps failing", not "this host cannot run
+#     the worker at all".
+#
+# That is the same shape of error CLAUDE.md already records paying for twice
+# ("168 became 169"): a rule that was true in one execution context, carried
+# into another where it is not. Ask it here instead, while the answer is cheap
+# and the operator is still holding the SSH session.
+
+# Binary this host must already have, and why the worker needs it.
+PREREQS=(
+  "node|runs the codex CLI"
+  "npm|installs @openai/codex"
+  "git|clones the repository the worker edits"
+  "curl|downloads the pinned gh release"
+  "tar|unpacks it"
+)
+
+# Binary name -> Debian/Ubuntu package that provides it, where they differ.
+prereq_package() {
+  case "$1" in
+    node) echo "nodejs" ;;
+    *)    echo "$1" ;;
+  esac
+}
+
+# `@openai/codex@0.153.1` -- the version `worker.sh` pins -- declares
+# `engines.node >= 16`, read from registry.npmjs.org rather than assumed.
+# Ubuntu 24.04's `nodejs` package is 18.x, so the distro package clears it and
+# host mode needs no separately-built Node. Overridable so a box deliberately
+# running something newer can be checked against its own floor.
+NODE_MIN_MAJOR="${CODEX_HOST_NODE_MIN_MAJOR:-16}"
+
+# Major version of the `node` on PATH, or empty if it cannot be determined.
+# Deliberately tolerant: an unparseable `--version` is reported as unknown and
+# does not by itself fail the check, because refusing to install over a version
+# string we merely failed to parse is worse than letting the worker try.
+node_major() {
+  local v
+  v="$(node --version 2>/dev/null || true)"   # e.g. v18.19.1
+  v="${v#v}"
+  v="${v%%.*}"
+  [[ "$v" =~ ^[0-9]+$ ]] && printf '%s' "$v"
+}
+
+# Reports every prerequisite; returns 1 if any is missing or too old.
+# Changes nothing, so both --check and the install can call it.
+host_prereqs() {
+  local absent=() entry tool reason major
+  for entry in "${PREREQS[@]}"; do
+    tool="${entry%%|*}"
+    reason="${entry#*|}"
+    if command -v "$tool" >/dev/null 2>&1; then
+      ok "$tool — $reason"
+    else
+      warn "missing: $tool — $reason"
+      absent+=("$(prereq_package "$tool")")
+    fi
+  done
+
+  # Only meaningful when node is actually here; absence is already reported.
+  if command -v node >/dev/null 2>&1; then
+    major="$(node_major)"
+    if [[ -z "$major" ]]; then
+      warn "could not read a major version from \`node --version\` — continuing"
+    elif (( major < NODE_MIN_MAJOR )); then
+      warn "node is v${major}; @openai/codex needs >= ${NODE_MIN_MAJOR}"
+      absent+=("nodejs")
+    fi
+  fi
+
+  [[ "${#absent[@]}" == "0" ]] && return 0
+
+  say ""
+  say "  The worker runs on this host directly, not in a container, so it needs"
+  say "  these already on PATH. On Ubuntu 24.04 (infra/servers.tf builds both"
+  say "  boxes from it):"
+  say ""
+  say "      apt-get update && apt-get install -y --no-install-recommends ${absent[*]}"
+  say ""
+  return 1
+}
+
 # ------------------------------------------------------------------ reporting
 
 report() {
@@ -118,6 +224,12 @@ report() {
     if [[ -f "$SRC_HOST/$unit" ]]; then ok "$unit"; else warn "missing: $unit"; missing=1; fi
   done
   [[ "$missing" == "0" ]] || fail "the checkout is incomplete; nothing was changed."
+
+  # Reported, never fatal: --check exists to say what the box looks like, and
+  # exiting early here would hide the installed state below it, which is the
+  # thing an operator most often runs --check to see.
+  step "host prerequisites"
+  host_prereqs || true
 
   step "installed state"
   if [[ -d "$PREFIX" ]]; then ok "$PREFIX exists"; else say "  - $PREFIX not installed"; fi
@@ -177,6 +289,20 @@ do_install() {
   require_root
   [[ "${CONFIRM:-}" == "install-codex-host" ]] || \
     fail "refusing to install without CONFIRM=install-codex-host (or use --check)."
+
+  # Fail closed, and fail *first*: an install that completes on a box which
+  # cannot run the worker is the outcome this check exists to prevent, and
+  # stopping before anything is written leaves the box exactly as it was.
+  #
+  # ALLOW_MISSING_PREREQS=1 is for preparing a box whose packages arrive by
+  # another route (an image build, a config-management run) after this. It
+  # deliberately does not silence the report -- the warnings still print.
+  step "host prerequisites"
+  if ! host_prereqs; then
+    [[ "${ALLOW_MISSING_PREREQS:-0}" == "1" ]] || fail \
+      "this host cannot run the worker yet; install the packages above and re-run. Nothing was changed. (ALLOW_MISSING_PREREQS=1 overrides.)"
+    warn "ALLOW_MISSING_PREREQS=1 — installing anyway; the worker will fail until they are present."
+  fi
 
   step "directories"
   install -d -m 0755 "$PREFIX" "$PREFIX/governor" "$PREFIX/host" "$PREFIX/workers"

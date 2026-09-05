@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -271,3 +272,172 @@ def test_installed_governor_picks_a_real_item_once_enabled(box):
     assert "decision: start" in result.stdout
     # --check must still not have started anything or written the budget.
     assert not (Path(box["CODEX_HOST_STATEDIR"]) / "state.json").exists()
+
+
+# ----------------------------------------------------------- prerequisites
+#
+# The cluster runs `worker.sh` in `node:22-bookworm` (governor.py), so it never
+# had to ask whether node, npm, git, curl and tar were present -- the image
+# guarantees them, and `worker.sh` says so in its own comments. Host mode runs
+# the same script as a subprocess on a Hetzner `ubuntu-24.04` box, which ships
+# neither node nor npm, so the worker's `npm install -g @openai/codex` dies on
+# `npm: command not found`.
+#
+# That failure is invisible at install time (`policy.json` ships
+# `"enabled": false`, so nothing runs) and, once enabled, is recorded by
+# `host_governor.py` against the queue item's score rather than against the
+# box. These tests hold the installer to catching it up front instead.
+
+# Everything the installer itself shells out to. A test that wants to hide
+# `npm` from `command -v` cannot simply prepend a directory -- PATH is a search
+# list -- so it builds a PATH containing only these, plus whichever
+# prerequisites the case under test means the box to have.
+_INSTALLER_TOOLS = (
+    "bash", "sh",
+    "basename", "cat", "chmod", "dirname", "grep",
+    "id", "install", "mktemp", "mv", "rm", "sed", "stat",
+)
+
+
+def _restricted_path(tmp_path, provide=()):
+    """A PATH holding the installer's own tools plus exactly `provide`.
+
+    Returns None when the host running the tests is itself missing one of the
+    prerequisites, so a case cannot claim to have hidden something that was
+    never there.
+    """
+    bindir = tmp_path / "restricted-bin"
+    bindir.mkdir(exist_ok=True)
+    for tool in (*_INSTALLER_TOOLS, *provide):
+        found = shutil.which(tool)
+        if found is None:
+            return None
+        link = bindir / tool
+        if not link.exists():
+            link.symlink_to(found)
+    return str(bindir)
+
+
+def test_check_reports_a_missing_prerequisite(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "--check"],
+        env=dict(os.environ, **box, PATH=path),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    # --check reports; it never exits non-zero over the box's own packages,
+    # because the installed-state section below it is what it is usually run
+    # for and hiding that would make the report less useful, not more.
+    assert result.returncode == 0, result.stderr
+    combined = result.stdout + result.stderr
+    assert "missing: npm" in combined
+    # The remediation names the *package*, not the binary, and node's differ.
+    assert "apt-get install" in combined
+    assert "npm" in combined
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+
+
+def test_install_refuses_and_changes_nothing_when_a_prerequisite_is_missing(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("node", "npm", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(os.environ, **box, PATH=path, CONFIRM="install-codex-host"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 1, result.stdout
+    assert "missing: git" in result.stdout + result.stderr
+    # "Nothing was changed" has to be true, not just printed: the check runs
+    # before the first `install -d`, so the box is untouched.
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+    assert not Path(box["CODEX_HOST_UNITDIR"]).exists()
+
+
+def test_missing_prerequisite_names_the_debian_package_not_the_binary(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("npm", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "--check"],
+        env=dict(os.environ, **box, PATH=path),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    combined = result.stdout + result.stderr
+    assert "missing: node" in combined
+    # `apt-get install node` installs a completely unrelated package on
+    # Debian and Ubuntu; the binary is called node and the package is nodejs.
+    assert "nodejs" in combined
+
+
+def test_override_installs_anyway_and_still_warns(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(
+            os.environ, **box, PATH=path,
+            CONFIRM="install-codex-host", ALLOW_MISSING_PREREQS="1",
+        ),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+    combined = result.stdout + result.stderr
+    # The override suppresses the refusal, never the report.
+    assert "missing: npm" in combined
+    assert "ALLOW_MISSING_PREREQS=1" in combined
+    assert (Path(box["CODEX_HOST_PREFIX"]) / "workers" / "worker.sh").exists()
+
+
+def test_a_too_old_node_is_refused_like_a_missing_one(box, tmp_path):
+    """`@openai/codex` declares engines.node >= 16; a v12 box cannot run it.
+
+    Ubuntu 22.04 shipped nodejs 12.22, so this is the state a box one release
+    behind the one `infra/servers.tf` builds would actually be in -- and
+    `command -v node` succeeds there, which is why presence alone is not the
+    question.
+    """
+    path = _restricted_path(tmp_path, provide=("npm", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+
+    stub = Path(path) / "node"
+    stub.write_text("#!/bin/sh\necho v12.22.9\n")
+    stub.chmod(0o755)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(os.environ, **box, PATH=path, CONFIRM="install-codex-host"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 1, result.stdout
+    combined = result.stdout + result.stderr
+    assert "node is v12" in combined
+    assert ">= 16" in combined
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+
+
+def test_a_complete_box_passes_the_check_and_installs(box):
+    """The ordinary path: nothing here should make a healthy box harder to set up."""
+    result = run(box)
+    combined = result.stdout + result.stderr
+    assert "host prerequisites" in combined
+    assert "missing:" not in combined
+    assert (Path(box["CODEX_HOST_PREFIX"]) / "workers" / "worker.sh").exists()

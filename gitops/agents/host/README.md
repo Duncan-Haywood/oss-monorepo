@@ -54,6 +54,42 @@ it fails if `host_governor.py` ever defines `pick_item`, `decide`, `rollover`,
 twice paid for a copied rule going stale rather than being imported — see
 CLAUDE.md, "168 became 169" — and this is the cheap version of that guard.
 
+## Prerequisites on the box
+
+The worker needs `node`, `npm`, `git`, `curl` and `tar` **on the host**, and a
+Hetzner `ubuntu-24.04` server (`infra/servers.tf`) ships no node and no npm.
+
+This is the one thing host mode does not inherit from the cluster path. There,
+`governor.py` schedules the worker as a Job on `node:22-bookworm`, so the image
+supplies all five — which is why [`worker.sh`](../workers/worker.sh) *asserts*
+they are present rather than installing them, and says so in its own comments.
+Run the same script as a subprocess on a bare box and its first real step,
+`npm install -g "@openai/codex@${CODEX_VERSION}"`, dies on `npm: command not
+found`.
+
+That failure used to be invisible until the worst possible moment. `policy.json`
+ships `"enabled": false`, so nothing runs at install time and the install
+reported clean; the breakage surfaced only after the owner flipped the switch
+and walked away, and it surfaced as a *worker* failure, which `host_governor.py`
+records against the queue item's damped score rather than against the box. The
+visible symptom was "that item keeps failing", not "this host cannot run the
+worker at all".
+
+The installer now refuses up front instead, before it writes anything:
+
+```bash
+apt-get update && apt-get install -y --no-install-recommends nodejs npm git curl tar
+```
+
+`@openai/codex` declares `engines.node >= 16`, so Ubuntu 24.04's own `nodejs`
+package (18.x) clears it and no separately-built Node is needed. A `node` that
+is present but older is refused the same way a missing one is — Ubuntu 22.04
+shipped 12.22, and `command -v node` succeeds there.
+
+`--check` reports the same thing without changing anything, and
+`ALLOW_MISSING_PREREQS=1` overrides the refusal for a box whose packages arrive
+by another route. The override silences the refusal, never the report.
+
 ## Install
 
 Run it on the box, as root, from a checkout of this repository.
