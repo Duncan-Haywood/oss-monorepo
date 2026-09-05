@@ -514,5 +514,64 @@ class ShippedInfraState(unittest.TestCase):
         self.assertEqual(check(load(), load_infra()), [])
 
 
+class DispatchNeedsARunner(unittest.TestCase):
+    """See DISPATCH_MARKERS in decision_queue.py.
+
+    A row's action prose and its `requires` list could disagree in silence,
+    and on 2026-09-05 the top-ranked outage row did: it told the owner to
+    dispatch two workflows while declaring no prerequisites, so it rendered
+    `up` and the banner called it the one grantable row. Both dispatches
+    would have returned `runner_id: 0`.
+    """
+
+    def test_dispatch_without_a_declared_runner_is_a_problem(self):
+        d = decision(action="Then dispatch `hetzner-gitops CI` with preflight.")
+        problems = check([d], {})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("github-actions-runners", problems[0])
+
+    def test_declaring_the_runner_dependency_clears_it(self):
+        d = decision(
+            action="Then dispatch `hetzner-gitops CI` with preflight.",
+            requires=["github-actions-runners"],
+        )
+        self.assertEqual(
+            check([d], {"github-actions-runners": {"verdict": "down"}}), []
+        )
+
+    def test_naming_a_runner_free_route_clears_it(self):
+        # The escape hatch the real ssh-key row uses: the workflow is
+        # mentioned, but a route that needs no runner is spelled out.
+        d = decision(
+            action="Run it locally. Or dispatch `hetzner-gitops CI` later.",
+            runner_free="bootstrap/restore-cluster.sh from the owner's machine.",
+        )
+        self.assertEqual(check([d], {}), [])
+
+    def test_an_empty_runner_free_does_not_count_as_an_explanation(self):
+        d = decision(
+            action="Then dispatch `hetzner-gitops CI`.", runner_free="   "
+        )
+        problems = check([d], {})
+        self.assertEqual(len(problems), 2)
+        self.assertTrue(any("is present but empty" in p for p in problems))
+
+    def test_an_action_that_only_pastes_a_secret_is_not_flagged(self):
+        # Pasting a secret works fine while runners are starved; it is
+        # running a workflow that does not. The marker set is deliberately
+        # narrow so this stays clean.
+        d = decision(action="Paste the key into Settings -> Secrets.")
+        self.assertEqual(check([d], {}), [])
+
+    def test_the_shipped_ssh_key_row_names_a_runner_free_route(self):
+        rows = {d["id"]: d for d in load()}
+        row = rows["hetzner-ssh-key-is-a-public-key"]
+        self.assertTrue(
+            str(row.get("runner_free", "")).strip(),
+            "the one outage route that works without a runner must say so",
+        )
+        self.assertIn("restore-cluster.sh", row["action"])
+
+
 if __name__ == "__main__":
     unittest.main()

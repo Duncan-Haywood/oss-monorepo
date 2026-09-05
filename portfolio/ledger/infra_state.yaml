@@ -33,8 +33,8 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-04"
-    run: 33926434774
+    measured: "2026-09-05"
+    run: 33932676830
     how: >-
       Dispatch any workflow that needs no secret (`Public surface check` is
       the cheapest) and classify it:
@@ -56,6 +56,15 @@ readings:
       back `runner_id: 0`, 3s, no steps — `ci_starvation.py --run 33929166450`
       exits 1. So the window that opened at 22:39Z on 2026-09-04 is still open
       and `k3s-cluster` below still cannot be re-measured.
+      Re-measured again 2026-09-05 00:20Z against ordinary PR traffic rather
+      than a dispatch: all nine checks on #3244 came back red in ~4s, and
+      `ci_starvation.py --run 33932676830` exits 1 on `runner_id: 0`. That PR
+      was merged on locally-verified tests for exactly that reason. Worth
+      noting which way the risk runs now: while runners are starved every PR
+      here arrives with a wall of red checks that mean nothing, so the
+      cheap habit is to wave them through — and the day assignment resumes,
+      that habit is how a real failure gets merged. Run the classifier per
+      PR rather than inheriting this verdict.
 
   k3s-cluster:
     verdict: down
