@@ -92,6 +92,20 @@ test('every trade names a price field the calculator actually returns', () => {
   assert.deepEqual(wrong, []);
 });
 
+test('a one-line return is read from the entry function, not the next one', () => {
+  // `appliance-repair-quote-calculator` returns its result on a single line and
+  // declares `compareServiceCallVsReplace` — which returns over many lines —
+  // below it. The multi-line matcher is greedy, so before the region was
+  // bounded it ran past the entry and reported the *comparison's* keys: the
+  // price field `target` looked absent, and `proposed` detection would have
+  // been decided by the wrong function's shape.
+  const keys = resultKeysOf('appliance-repair-quote-calculator');
+  assert.ok(keys.includes('target'), `entry function's own keys, got ${JSON.stringify(keys)}`);
+  assert.ok(keys.includes('walkAway'), 'a shorthand key after a `key: value` one is still a key');
+  assert.ok(keys.includes('effectiveRate'), 'a value carrying its own comma must not split the key list');
+  assert.ok(!keys.includes('replacementPrice'), 'read past the entry function into the next declaration');
+});
+
 test('storage keys are unique across ventures', () => {
   // Two calculators sharing a key would show one contractor's business block
   // under another trade — and, worse, overwrite it.

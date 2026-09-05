@@ -57,17 +57,21 @@ test("an invalid input clears every stale field in both result panels, not just 
   const catchMatch = html.match(/\} catch \(error\) \{([\s\S]*?)\n {6}\}\n {4}\}/);
   assert.ok(catchMatch, "update() catch block not found");
   const body = catchMatch[1];
-  assert.match(body, /\$\('target'\)\.textContent = error\.message/, "the error message is never shown in #target");
-  assert.match(body, /\$\('replaceVerdict'\)\.textContent = error\.message/, "the error message is never shown in #replaceVerdict");
+  // `el(` rather than the page's original `$(`: the helper was renamed when
+  // this venture adopted the shared customer proposal, whose generated wiring
+  // calls `el()`. Two names for `getElementById` on one page is how the two
+  // halves drift.
+  assert.match(body, /el\('target'\)\.textContent = error\.message/, "the error message is never shown in #target");
+  assert.match(body, /el\('replaceVerdict'\)\.textContent = error\.message/, "the error message is never shown in #replaceVerdict");
   for (const id of ["floor", "cost", "hours", "rate", "parts", "callback"]) {
     assert.match(
       body,
-      new RegExp(`\\$\\('${id}'\\)\\.textContent = ''`),
+      new RegExp(`el\\('${id}'\\)\\.textContent = ''`),
       `#${id} keeps its stale value instead of being cleared on a rejected input`,
     );
   }
-  assert.match(body, /\$\('scenarios'\)\.replaceChildren\(\)/, "the stale price-sensitivity rows are not cleared");
-  assert.match(body, /\$\('replaceRows'\)\.replaceChildren\(\)/, "the stale repair-vs-replace rows are not cleared");
+  assert.match(body, /el\('scenarios'\)\.replaceChildren\(\)/, "the stale price-sensitivity rows are not cleared");
+  assert.match(body, /el\('replaceRows'\)\.replaceChildren\(\)/, "the stale repair-vs-replace rows are not cleared");
 });
 
 test("the result panel is announced to screen readers when it updates", () => {
