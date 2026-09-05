@@ -37,12 +37,12 @@
 #   portfolio-front-tools-1: 117 files, 555818 bytes
 #   portfolio-front-tools-2: 148 files, 552679 bytes
 #   portfolio-front-tools-3: 116 files, 555271 bytes
-#   portfolio-front-tools-4: 124 files, 552704 bytes
+#   portfolio-front-tools-4: 125 files, 556614 bytes
 #   portfolio-front-tools-5: 112 files, 556224 bytes
 #   portfolio-front-tools-6: 107 files, 555856 bytes
 #   portfolio-front-tools-7: 116 files, 553629 bytes
 #   portfolio-front-tools-8: 96 files, 544269 bytes
-#   portfolio-front-tools-9: 95 files, 504694 bytes
+#   portfolio-front-tools-9: 96 files, 510026 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -655,6 +655,7 @@ configMapGenerator:
       - delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz=delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz
       - delivery-app-margin-calculator__index.html.gz=delivery-app-margin-calculator__index.html.gz
       - delivery-app-margin-calculator__usage.mjs.gz=delivery-app-margin-calculator__usage.mjs.gz
+      - delivery-app-margin-calculator__vs-toast.html.gz=delivery-app-margin-calculator__vs-toast.html.gz
       - dns-configuration-evidence__dns-evidence.mjs.gz=dns-configuration-evidence__dns-evidence.mjs.gz
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
@@ -1259,6 +1260,7 @@ configMapGenerator:
       - where-to-sell-calculator__returns-change-the-ranking.html.gz=where-to-sell-calculator__returns-change-the-ranking.html.gz
       - where-to-sell-calculator__share.mjs.gz=where-to-sell-calculator__share.mjs.gz
       - where-to-sell-calculator__usage.mjs.gz=where-to-sell-calculator__usage.mjs.gz
+      - where-to-sell-calculator__vs-vendoo.html.gz=where-to-sell-calculator__vs-vendoo.html.gz
       - which-job-first__how-do-i-decide-which-job-to-take-first.html.gz=which-job-first__how-do-i-decide-which-job-to-take-first.html.gz
       - which-job-first__index.html.gz=which-job-first__index.html.gz
       - which-job-first__rank.mjs.gz=which-job-first__rank.mjs.gz
