@@ -192,11 +192,36 @@ python3 platform/ci/build_pages_site.py          # build into _site/
 python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
-The remaining owner flip is still `deploy-settings` — enable GitHub Pages
-(`PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
-second platform ask. Until that variable is set, the build still runs on
-every push and the artifact is still uploaded; only the publish step is
-skipped. Flipping it publishes everything at once.
+The remaining owner flip is still `deploy-settings` — enable GitHub Pages.
+Do not open a second platform ask. Until it is flipped, the build still runs
+on every push and the artifact is still uploaded; only the publish step is
+skipped.
+
+**Amended 2026-09-05: take the branch route first, not the Actions one.**
+This section used to say the flip was `PAGES_ENABLED=true` with Pages source
+"GitHub Actions", full stop. That is still the better route *when Actions
+minutes are healthy* — it republishes on every merge, so the site cannot
+drift from the repository — but this account's minutes are metered and the
+allowance has run out twice in one week (2026-08-26, 2026-09-04; see
+`platform/ci/ci_starvation.py`). While that holds, `portfolio-pages.yml`'s
+`deploy` job cannot run regardless of the variable, so pointing the owner at
+it is pointing them at a route that currently does nothing.
+
+`platform/pages/publish-branch.sh` is the route that is not downstream of a
+runner: it builds the same artifact here and commits it to the orphan
+`gh-pages` branch (`python3 platform/ci/pages_state.py` reports whether that
+snapshot is still current against the tip of `main`). The flip for it is
+Settings → Pages → Source **"Deploy from a branch"** → `gh-pages` / `(root)`
+— no `PAGES_ENABLED` variable, no workflow run, no cluster. Its one real
+cost is that a committed snapshot does not rebuild itself: refresh it with
+`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+after a change lands, or before trusting it as current.
+
+Both routes serve the same artifact and are gated on the same private-repo
+plan question above; neither is a prerequisite for the other, and switching
+the Pages source later (once Actions minutes are healthy again) costs
+nothing already spent. See `portfolio/ledger/decision_queue.py`'s
+`deploy-settings` row for the fuller, dated version of this trade-off.
 
 **Not `GITHUB_PAGES_ENABLED`, which this section named until it was found
 to be unsettable.** GitHub rejects any Actions configuration-variable name
