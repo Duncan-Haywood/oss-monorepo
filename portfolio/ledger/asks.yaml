@@ -493,17 +493,53 @@ decisions:
   # token, so it is not downstream of the cluster and never was. The ranking
   # encoded the pre-#3199 belief that the portfolio had a single origin.
   outage: true
-  # The flip alone does not publish anything: `portfolio-pages.yml` has to
-  # build the artifact and run `deploy-pages`, and that needs an Actions
-  # runner. Runner assignment stopped again on 2026-09-04 (see
-  # `infra_state.yaml`), which is why this row is flagged as a route that
-  # restores a surface *and* as one that cannot be taken today. Before
-  # 2026-09-04 the queue could not express both at once and told the owner to
-  # do this one first because it was cheapest.
-  requires: [github-actions-runners]
+  # Until 2026-09-05 this read `requires: [github-actions-runners]`, and that
+  # was correct for the only route that existed: `portfolio-pages.yml` had to
+  # build the artifact and run `deploy-pages`, and that needs a runner.
+  #
+  # `platform/pages/publish-branch.sh` (added 2026-09-05) removes that
+  # prerequisite rather than waiting on it. It builds the site in a session,
+  # checks the artifact, and commits it to an orphan `gh-pages` branch, so the
+  # owner's flip becomes Source "Deploy from a branch" — no workflow run, no
+  # runner, no k3s cluster. Every one of this repository's three execution
+  # routes was down on 2026-09-04 at once; this is the delivery path that is
+  # downstream of none of them.
+  #
+  # What is left is not CI. It is that **this repository is private, and Pages
+  # does not serve a private repository's site on the Free tier** — which
+  # applies to the branch source exactly as it did to the workflow source.
+  # Nothing here can read the account's plan, so it is `unknown`, not `up`:
+  # see `github-pages-plan` in `infra_state.yaml`. Swapping one prerequisite
+  # for none would have rendered this row `up` and floated it back to the top
+  # of the queue on the strength of a measurement nobody took.
+  requires: [github-pages-plan]
+  runner_free: >-
+    `platform/pages/publish-branch.sh` builds and commits the site to the
+    `gh-pages` branch from a session; serving it is Settings → Pages →
+    Source "Deploy from a branch". No workflow is dispatched at any point,
+    so runner starvation does not block this route.
   action: >-
-    Enable GitHub Pages for this repo: Settings → Pages → Source "GitHub
-    Actions", and set repository variable `PAGES_ENABLED=true`. (Not
+    **Check the plan first — thirty seconds, and it decides whether the rest
+    of this row is worth anything.** Settings → Billing names it. Pages will
+    not serve a *private* repository's site on the Free tier, and this
+    repository is private, so on Free this row publishes nothing to a
+    stranger no matter what else is done. On Pro or above, continue.
+    **Then, the runner-free route (new 2026-09-05, and the one to take):**
+    the built site is already committed to the `gh-pages` branch by
+    `platform/pages/publish-branch.sh` — 174 products, 690 pages, verified
+    by `check.mjs` before the commit was written. Serve it with Settings →
+    Pages → Source **"Deploy from a branch"** → `gh-pages` / (root). That
+    is the whole flip. It needs no Actions runner, no `PAGES_ENABLED`
+    variable and no k3s cluster, which is what makes it survivable on a day
+    like 2026-09-04 when all three were down at once. Re-run the script
+    (`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`)
+    to refresh the snapshot; a committed artifact does not rebuild itself,
+    and that is this route's one real cost.
+    **The original route, for when runners are reliable again:** Settings →
+    Pages → Source "GitHub Actions", and set repository variable
+    `PAGES_ENABLED=true`. Prefer it once Actions minutes are healthy — it
+    republishes on every merge to `main`, so the site cannot drift from the
+    repository the way a committed snapshot can. (Not
     `GITHUB_PAGES_ENABLED` — that name is unsettable, and until this row
     was corrected this ask could never actually have been completed as
     written: GitHub rejects any Actions configuration-variable name

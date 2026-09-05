@@ -32,6 +32,11 @@ CHECKED_DIRS = (
     REPO / "infra" / "scripts",
     REPO / "gitops" / "agents" / "workers",
     REPO / "gitops" / "ci",
+    # `platform/pages` holds one script rather than a suite of them, and it is
+    # here for the same reason the bootstrap ones are: `publish-branch.sh`
+    # writes a branch that GitHub can serve directly to strangers, so a shell
+    # bug in it is a publishing bug, not a local inconvenience.
+    REPO / "platform" / "pages",
 )
 
 

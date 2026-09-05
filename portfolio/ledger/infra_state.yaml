@@ -162,3 +162,30 @@ readings:
       (`infra/firewall.tf`, `expose_k3s_api_publicly`). Closing it is what
       `infra/network.tf` is already written for, and needs a write-scoped
       token — so it is a follow-up to this row, not a blocker on restore.
+
+  github-pages-plan:
+    verdict: unknown
+    measured: "2026-09-05"
+    run: null
+    how: >-
+      Owner-only, and deliberately so: nothing in this repository can read
+      the account's GitHub plan. Settings → Billing names it in one line.
+      Set `up` if it is Pro, Team or Enterprise; `down` if it is Free.
+      There is no API call an agent session can make here — the repository
+      token cannot see billing, and guessing is what this file exists to
+      stop.
+    note: >-
+      GitHub Pages will not serve a **private** repository's site on the
+      Free tier. This repository is private, so the whole `deploy-settings`
+      route — both the workflow source and the branch source — is gated on
+      a plan nobody in this repo can observe.
+      This reading was added 2026-09-05 alongside
+      `platform/pages/publish-branch.sh`. That script removed the *other*
+      prerequisite: it builds the site here and commits it to `gh-pages`,
+      so serving it needs no Actions runner and no k3s cluster. Dropping
+      `github-actions-runners` from that row without naming what is left
+      would have rendered it `up` and put it back at the top of the queue —
+      the precise failure `decision_queue.py`'s `runner_free` check was
+      written to stop, and it would have been this file's own turn to make
+      it. `unknown`, not `up`: the route may well work, and thirty seconds
+      in Settings → Billing is what turns this into a real verdict.
