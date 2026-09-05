@@ -236,7 +236,15 @@ export function pageTakesSavedBids(html) {
  * later correction to one cannot leave a saved bid showing a different number
  * than the printed proposal does.
  */
-export const HEADLINE_AMOUNT_OVERRIDES = { 'lawn-care-bid-calculator': '#monthly' };
+export const HEADLINE_AMOUNT_OVERRIDES = {
+  'lawn-care-bid-calculator': '#monthly',
+  // This page leads with the quote, but marks it `class="hero"` rather than
+  // this site's `hero-number`, so the rule below finds nothing and the tool
+  // saved no figure at all. `#target` is the price it quotes and the price its
+  // printed proposal carries — `trades.json` names the same element, and
+  // `jobs.test.mjs` holds the two to each other.
+  'appliance-repair-quote-calculator': '#target',
+};
 
 const HERO_NUMBER_TAG_RE = /<[^>]*\bclass="[^"]*\bhero-number\b[^"]*"[^>]*>/i;
 

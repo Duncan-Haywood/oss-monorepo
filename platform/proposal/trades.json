@@ -1,4 +1,51 @@
 {
+  "appliance-repair-quote-calculator": {
+    "priceField": "target",
+    "screenPriceSelector": "#target",
+    "depositPercent": 0,
+    "jobTitle": "Appliance repair service call",
+    "fields": {
+      "diagnosticHours": {
+        "number": "diagnosticHours"
+      },
+      "repairHours": {
+        "number": "repairHours"
+      },
+      "travelHours": {
+        "number": "travelHours"
+      },
+      "partsSupplied": {
+        "number": "partsCost"
+      }
+    },
+    "scope": [
+      {
+        "line": "Diagnose the fault on site — {diagnosticHours~2} hour{diagnosticHours+s} of diagnostic time",
+        "when": "diagnosticHours"
+      },
+      {
+        "line": "{repairHours~2} hour{repairHours+s} of repair labor on the appliance",
+        "when": "repairHours"
+      },
+      {
+        "line": "Supply and fit the replacement parts the repair requires",
+        "when": "partsSupplied"
+      },
+      {
+        "line": "Travel to and from the property",
+        "when": "travelHours"
+      },
+      "Test the appliance on completion and confirm the reported fault is cleared"
+    ],
+    "placeholders": {
+      "companyName": "Redfern Appliance Service LLC",
+      "scope": "Diagnose the fault on site\nReplace the drain pump and run a test cycle",
+      "exclusions": "Repair of unrelated faults found during the visit\nRemoval or refitting of built-in cabinetry or worktops",
+      "paymentTerms": "Due in full on completion of the repair.",
+      "notes": "Parts are ordered once the quote is accepted; lead time is confirmed on ordering."
+    },
+    "disclaimerTail": "It quotes the fault diagnosed at the time of the visit; a further fault found once the appliance is opened, and any change in parts price, are not included unless listed above. It is not an appliance safety inspection and it is not a manufacturer warranty claim."
+  },
   "artificial-turf-bid-calculator": {
     "jobTitle": "Artificial turf installation — {lawnSqFt~0} sq ft",
     "fields": {

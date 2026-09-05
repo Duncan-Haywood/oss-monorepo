@@ -658,9 +658,53 @@ function resultKeysOf(slug) {
   const entry = /export function (calculateBid|priceJob|priceBid)\s*\(/.exec(source)
     ?? /export function (calculate[A-Za-z]*|priceJob|priceBid)\s*\(/.exec(source);
   if (!entry) return [];
-  const returned = /\n {2}return \{\n([\s\S]*?)\n {2}\};/.exec(source.slice(entry.index));
-  if (!returned) return [];
-  return [...returned[1].matchAll(/^ {4}([A-Za-z0-9_]+)\s*[:,]/gm)].map((m) => m[1]);
+
+  // Only the entry function's *own* body. The matcher below is greedy across
+  // whatever it is given, and these modules declare more functions after the
+  // entry — so on a calculator whose entry returns on one line, it ran past
+  // the end of that function and matched the next multi-line `return {` in the
+  // file. `appliance-repair-quote-calculator` is the first such adopter: the
+  // keys came back as `compareServiceCallVsReplace`'s, so `target` read as a
+  // field the calculator does not return, when it is the field it quotes.
+  // Bounding the region is the same "looked at the wrong function" mistake the
+  // entry selection above was already fixed for, one step later in the parse.
+  const after = source.slice(entry.index);
+  const nextDeclaration = after.slice(1).search(/\n(?:export )?function /);
+  const region = nextDeclaration === -1 ? after : after.slice(0, nextDeclaration + 1);
+
+  const returned = /\n {2}return \{\n([\s\S]*?)\n {2}\};/.exec(region);
+  if (returned) {
+    return [...returned[1].matchAll(/^ {4}([A-Za-z0-9_]+)\s*[:,]/gm)].map((m) => m[1]);
+  }
+
+  // A single-line `return { ... };`, which no adopter wrote until this one.
+  const inline = /\n {2}return \{([^\n]*?)\};/.exec(region);
+  return inline ? topLevelKeys(inline[1]) : [];
+}
+
+/**
+ * Keys of a one-line object literal body, split at bracket depth zero.
+ *
+ * Splitting on every comma would break on a value that carries its own —
+ * `effectiveRate: target / Math.max(laborHours, 0.01)` is one line of a real
+ * calculator — and would then report `0.01` as a field name.
+ */
+function topLevelKeys(body) {
+  const keys = [];
+  let depth = 0;
+  let start = 0;
+  const take = (chunk) => {
+    const match = /^\s*([A-Za-z0-9_$]+)\s*(?::|$)/.exec(chunk);
+    if (match) keys.push(match[1]);
+  };
+  for (let i = 0; i < body.length; i += 1) {
+    const char = body[i];
+    if (char === '(' || char === '[' || char === '{') depth += 1;
+    else if (char === ')' || char === ']' || char === '}') depth -= 1;
+    else if (char === ',' && depth === 0) { take(body.slice(start, i)); start = i + 1; }
+  }
+  take(body.slice(start));
+  return keys;
 }
 
 /**
