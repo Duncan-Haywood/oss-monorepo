@@ -1213,7 +1213,15 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # surface. Same shape as the three ventures above: its Python CLI stays
     # canonical and an `index.html` beside it made the venture mirrorable, so
     # the mirror and the total moved together and parity held.
-    total = 174  # `infra/OWNER_CHECKLIST.md`'s own "N of the 174 tools" wording.
+    # 175 since 2026-09-05, when `vendor-change-watch` gained a browser surface.
+    # The same shape as the four above and the fifth instance of it: a Python
+    # CLI that stays canonical, with an `index.html` beside it that makes the
+    # venture mirrorable, so the mirror and the total move together.
+    # That this keeps happening is the point — a CLI acquiring a page is a
+    # routine event here, not an exception, which is also why
+    # `platform/pages/clauses.test.mjs` stopped using a CLI as its fixture for
+    # "a venture with no browser surface" in the same change.
+    total = 175  # `infra/OWNER_CHECKLIST.md`'s own "N of the 175 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

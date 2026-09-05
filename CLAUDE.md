@@ -79,7 +79,7 @@ node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
-python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
+python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
 ```
 
@@ -87,6 +87,19 @@ python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platfo
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
+
+**The `gitops/tests` condition was widened on 2026-09-05, because "only if you
+touched `gitops/`" reads as "only if you meant to".** Giving a venture a public
+page touches nothing under `gitops/` by hand — but `regen.mjs` then rewrites
+several hundred files there, and `test_manifests.py` carries the mirrored-tool
+count typed out in four places (`infra/OWNER_CHECKLIST.md`,
+`gitops/prod/usage/aggregate.py`, and twice in
+`gitops/prod/front-door/default.conf`). So **every venture that gains a browser
+surface fails that suite until those four are updated**, and #3407 merged red
+on it: the two traps compounded, the condition read as not-applicable and the
+missing pytest made the check look clean. Fixed forward in #3408. If you ship a
+venture page, run this line — the condition is about what your commit contains,
+never about what you edited on purpose.
 
 **The `platform/ci` line was added 2026-09-05, and it is the same defect as
 `platform/proposal/`, arrived at from a third direction.** The line above it
