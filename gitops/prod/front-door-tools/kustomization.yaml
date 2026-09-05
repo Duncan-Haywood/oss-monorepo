@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 115 files, 544496 bytes
 #   portfolio-front-tools-6: 106 files, 554577 bytes
 #   portfolio-front-tools-7: 120 files, 556764 bytes
-#   portfolio-front-tools-8: 97 files, 542893 bytes
+#   portfolio-front-tools-8: 98 files, 545941 bytes
 #   portfolio-front-tools-9: 84 files, 444116 bytes
 #   portfolio-front-tools-10: 54 files, 279301 bytes
 #
@@ -1094,6 +1094,7 @@ configMapGenerator:
       - screened-porch-bid-calculator__calc.mjs.gz=screened-porch-bid-calculator__calc.mjs.gz
       - screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz=screened-porch-bid-calculator__how-much-to-charge-to-screen-a-porch.html.gz
       - screened-porch-bid-calculator__index.html.gz=screened-porch-bid-calculator__index.html.gz
+      - screened-porch-bid-calculator__share.mjs.gz=screened-porch-bid-calculator__share.mjs.gz
       - screened-porch-bid-calculator__usage.mjs.gz=screened-porch-bid-calculator__usage.mjs.gz
       - screened-porch-bid-calculator__vs-buildxact.html.gz=screened-porch-bid-calculator__vs-buildxact.html.gz
       - security-camera-bid-calculator__calc.mjs.gz=security-camera-bid-calculator__calc.mjs.gz
