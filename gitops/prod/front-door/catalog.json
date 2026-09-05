@@ -688,7 +688,7 @@
       "url": "https://marisstella.dev/tools/dns-configuration-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "dryer-vent-bid-calculator",
