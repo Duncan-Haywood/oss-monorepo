@@ -76,6 +76,29 @@ readings:
       (a comparison page) was verified with `node --test`, the portfolio
       `build.mjs`/`check.mjs` pair, and `platform/marketing/regen.mjs`, then
       merged on that local verification per this file's own guidance.
+      Re-measured 2026-09-05T17:27Z (run 33981018935, a fresh `Public surface
+      check` dispatch): still `runner_id: 0`, 4s, no steps —
+      `ci_starvation.py --run 33981018935` exits 1. That holds the window open
+      for ten hours across three independent dispatches today, so treat the
+      2026-10-01 reset as the expectation and stop re-dispatching to confirm
+      it within a session; one classification per session is enough.
+      Two things were settled the same run and are recorded so they are not
+      re-derived. The open-PR queue is empty and the branch backlog is spent,
+      independently reaching the 07:37Z session's conclusion above by a
+      different method (blob-identity comparison against `main` rather than
+      `supersede_check.py`) on the four freshest non-ledger branches —
+      `fix/governor-rbac-narrow-jobs-pods-verbs`,
+      `ci/hetzner-ssh-key-diagnostic`, `claude/sweet-archimedes-icmubl` and
+      `claude/nice-brown-ukg2ky` — each of which `main` already carries, in
+      three cases in a strictly better form (the RBAC verbs and their test
+      verbatim; the SSH-key classifier refactored into the shared
+      `bootstrap/scripts/load-ssh-key.sh`; `renderCatalog` plus an `llms.txt`
+      the branch never had). And the Pages *source* remains unreadable from
+      any agent session: `/pages` and `/environments` are refused by the agent
+      egress proxy, `/deployments` 403s from GitHub itself on token scope, and
+      no `pages build and deployment` run appeared after a `gh-pages` push.
+      See `platform/ci/pages_state.py`'s docstring for why that third one is
+      the interesting failure.
 
   k3s-cluster:
     verdict: down
