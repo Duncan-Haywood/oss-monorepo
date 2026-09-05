@@ -91,11 +91,30 @@ matters most on the branch-drain item, where the oldest branches are the ones
 A finished tool nobody can reach has not shipped. Work that moves the portfolio
 toward *running in public* ranks with feature work here, not below it:
 
-- **Deployment.** The portfolio's own delivery path is GitOps: Argo CD on the
-  hel1 cluster syncs `gitops/` from `main`, so a correct manifest merged to
-  `main` *is* the deploy. `gitops/README.md` is the map and
+- **Deployment.** The portfolio's *intended* delivery path is GitOps: Argo CD
+  on the hel1 cluster syncs `gitops/` from `main`, so a correct manifest merged
+  to `main` *is* the deploy. `gitops/README.md` is the map and
   `gitops/prod/portfolio-site.yaml` is the live product site. You cannot reach
   the cluster and must not try; you change what it syncs.
+
+  **Read that as conditional, not as today's state.** As of 2026-09-05 the
+  cluster is down — `:6443` refused on both boxes — so a manifest merged to
+  `main` syncs nothing and "the deploy" deploys nothing. A run that treats the
+  paragraph above as current spends itself on a path that is inert. There is a
+  second route that is downstream of neither the cluster nor an Actions runner:
+  `platform/pages/publish-branch.sh` builds the site here and commits it to an
+  orphan `gh-pages` branch, ready for a branch-source Pages flip the owner has
+  not yet made. Both routes, and how stale the staged artifact is, are reported
+  by `python3 platform/ci/publish_surface.py` — read that rather than either
+  this file or `CLAUDE.md`, both of which are prose about a live configuration
+  and go stale silently. `portfolio/ledger/infra_state.yaml` carries the dated
+  readings and the command to re-measure each; a reading older than its
+  staleness window is *unknown*, never "up".
+
+  If you land product code while every route is down, restage the artifact
+  (`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`) so
+  what is staged matches what you shipped. Nothing about that publishes: it
+  stages a branch, and enabling Pages stays the owner's decision.
 - **CI/CD.** The checks are the only thing standing between a stale branch and
   a silent revert. Repairing a broken workflow, or the self-hosted runner stack
   in `gitops/ci/`, protects every future merge.
