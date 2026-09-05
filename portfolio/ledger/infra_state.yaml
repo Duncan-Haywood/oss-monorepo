@@ -34,7 +34,7 @@ readings:
   github-actions-runners:
     verdict: down
     measured: "2026-09-05"
-    run: 33953052273
+    run: 33977467110
     how: >-
       Dispatch any workflow that needs no secret (`Public surface check` is
       the cheapest) and classify it:
@@ -76,6 +76,22 @@ readings:
       (a comparison page) was verified with `node --test`, the portfolio
       `build.mjs`/`check.mjs` pair, and `platform/marketing/regen.mjs`, then
       merged on that local verification per this file's own guidance.
+      Re-measured 2026-09-05T16:18Z, from the owner's Hetzner-CI/CD-and-
+      marketing/Codex-CLI scheduled mandate. `pages_state.py` reported
+      `has_pages: true, plan: likely-up` — first evidence GitHub Pages may
+      already be flipped on for this repo — but the gh-pages snapshot is
+      stale (built from ef177ad0, main now past 6318b5f4) and neither
+      `WebFetch` nor `curl` can reach `duncan-haywood.github.io` from this
+      sandbox (egress proxy blocks the domain outright, not just the
+      `/pages` API path noted above), so it cannot be confirmed live from
+      here. Dispatched a fresh `Public surface check` (run 33977467110)
+      instead of trusting the last reading: still `runner_id: 0`, 2s, no
+      steps — `ci_starvation.py --run 33977467110` exits 1. Still down.
+      **Next session with a real runner should treat confirming
+      `https://duncan-haywood.github.io/monorepo-projects/` as cheap and
+      high-value** — if it serves, `deploy-settings` is already granted and
+      only `publish-branch.sh` stands between here and a live catalogue,
+      independent of the Hetzner cluster entirely.
 
   k3s-cluster:
     verdict: down
