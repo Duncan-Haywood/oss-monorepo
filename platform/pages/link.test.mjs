@@ -544,9 +544,9 @@ test('the itemised calculators are offered the control once they declare their r
     assert.equal(pageTakesBidLink(html, { hasShareModule: true }), false, `${slug} defers to a share module`);
   }
 
-  // Five of the eight take the platform control today; all eight declare their
-  // rows. Pinned as counts so a venture growing or dropping its own share
-  // control shows up here as a number to re-read rather than silently.
+  // Four of the eight take the platform control today; all eight declare
+  // their rows. Pinned as counts so a venture growing or dropping its own
+  // share control shows up here as a number to re-read rather than silently.
   const takes = [];
   for (const slug of itemised) {
     const html = await fsp.readFile(nodePath.join(root, slug, 'index.html'), 'utf8');
@@ -559,7 +559,9 @@ test('the itemised calculators are offered the control once they declare their r
     'snow-removal keeps the share control it shipped in #3048');
   assert.equal(takes.includes('gutter-cleaning-bid-calculator'), false,
     'gutter-cleaning keeps the share control it shipped in #3052');
-  assert.equal(takes.length, 5);
+  assert.equal(takes.includes('carpet-cleaning-bid-calculator'), false,
+    'carpet-cleaning keeps the share control it shipped alongside its rooms and upholstery rows');
+  assert.equal(takes.length, 4);
 
   // And the exclusion is intact for a runtime-built page that declares nothing,
   // which is what stops this widening past the eight pages above.
