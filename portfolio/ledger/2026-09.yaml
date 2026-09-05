@@ -1,5 +1,45 @@
 period: 2026-09
 entries:
+  - venture: real-estate-agent-photo-app
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a vs-BoxBrownie marketing/SEO comparison page
+        (ventures/real-estate-agent-photo-app/site/vs-boxbrownie.html) for
+        the free MLS listing photo preflight checker (product_lines slug
+        mls-photo-spec-preflight), following the established vs-*.html
+        template used across the portfolio (structure/voice matched against
+        freelance-retainer-calculator/vs-harvest.html and
+        mcp-supply-chain-watch/site/vs-snyk.html). This venture had a real,
+        tested, working free tool (site/index.html, photo-spec.mjs,
+        report.mjs) and a rejection-explainer marketing page but zero
+        vs-competitor pages -- confirmed the only remaining static-page
+        venture with that gap by scanning every ventures/*/ for an
+        index.html or site/index.html with no vs-*.html sibling. BoxBrownie
+        is a real, well-known paid real-estate photo
+        editing/virtual-staging/floor-plan service; the page states only
+        its well-documented category (no invented pricing, matching the
+        no-$-figure discipline every prior vs-*.html page in this ledger
+        uses for an unverifiable competitor price) and frames the honest
+        distinction: BoxBrownie edits/enhances photos for pay, this tool is
+        a free, local, header-and-filename preflight check for mechanical
+        rejection risk before any editing happens. Linked from
+        site/index.html, added to the venture-root sitemap.xml, and added a
+        new vs-boxbrownie.test.mjs (58 assertions total across the site/
+        suite) checking the disclaimer, no-affiliation statement, no
+        unverifiable price, FAQPage schema/visible-heading parity, no
+        third-party origins, and that it is linked from index.html and the
+        sitemap rather than orphaned. Ran
+        node platform/marketing/regen.mjs (updated the tool mirror and
+        front-door sitemap/catalog/compare page to include the new page)
+        and verified locally since GitHub Actions runners were starved
+        (ci_starvation.py signature) at merge time: venture site/ suite
+        58/58, platform/marketing+platform/pages 1126/1126,
+        platform/proposal 101/101, platform/privacy+platform/webcheck
+        50/50, and all 15 platform/ci unittest modules (run from inside
+        platform/ci per CLAUDE.md) OK.
+    mrr_end: null
   - venture: consent-change-record
     agent_spend_usd: null
     human_hours: 0

@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 126 files, 549764 bytes
 #   portfolio-front-tools-5: 115 files, 544496 bytes
 #   portfolio-front-tools-6: 106 files, 554577 bytes
-#   portfolio-front-tools-7: 119 files, 552322 bytes
+#   portfolio-front-tools-7: 120 files, 556781 bytes
 #   portfolio-front-tools-8: 98 files, 556713 bytes
 #   portfolio-front-tools-9: 81 files, 423789 bytes
 #   portfolio-front-tools-10: 54 files, 279301 bytes
@@ -1070,6 +1070,7 @@ configMapGenerator:
       - real-estate-agent-photo-app__photo-spec.mjs.gz=real-estate-agent-photo-app__photo-spec.mjs.gz
       - real-estate-agent-photo-app__report.mjs.gz=real-estate-agent-photo-app__report.mjs.gz
       - real-estate-agent-photo-app__usage.mjs.gz=real-estate-agent-photo-app__usage.mjs.gz
+      - real-estate-agent-photo-app__vs-boxbrownie.html.gz=real-estate-agent-photo-app__vs-boxbrownie.html.gz
       - real-estate-agent-photo-app__why-was-my-listing-photo-rejected.html.gz=real-estate-agent-photo-app__why-was-my-listing-photo-rejected.html.gz
       - retainage-cashflow-calculator__calc.mjs.gz=retainage-cashflow-calculator__calc.mjs.gz
       - retainage-cashflow-calculator__index.html.gz=retainage-cashflow-calculator__index.html.gz

@@ -1152,7 +1152,7 @@
       "url": "https://marisstella.dev/tools/real-estate-agent-photo-app/",
       "category": "Compliance checks & evidence records",
       "description": "Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "retainage-cashflow-calculator",
