@@ -17,6 +17,7 @@ const sample = {
   item2Amount: 900,
   item2Week: 5,
   item2Kind: 'in',
+  item1Repeat: 13,
 };
 
 test('round-trips the forecast inputs and one-off rows', () => {
@@ -29,12 +30,19 @@ test('field lists cover every item row app.mjs reads, and no more', () => {
   for (let index = 1; index <= MAX_ITEMS; index += 1) {
     assert.ok(NUMBER_FIELD_IDS.includes(`item${index}Amount`), `item${index}Amount missing`);
     assert.ok(NUMBER_FIELD_IDS.includes(`item${index}Week`), `item${index}Week missing`);
+    assert.ok(NUMBER_FIELD_IDS.includes(`item${index}Repeat`), `item${index}Repeat missing`);
     assert.ok(TEXT_FIELD_IDS.includes(`item${index}Name`), `item${index}Name missing`);
     assert.ok(KIND_FIELD_IDS.includes(`item${index}Kind`), `item${index}Kind missing`);
   }
   assert.equal(NUMBER_FIELD_IDS.filter((id) => /^item\d+Amount$/.test(id)).length, MAX_ITEMS);
+  assert.equal(NUMBER_FIELD_IDS.filter((id) => /^item\d+Repeat$/.test(id)).length, MAX_ITEMS);
   assert.equal(KIND_FIELD_IDS.filter((id) => /^item\d+Kind$/.test(id)).length, MAX_ITEMS);
   assert.doesNotMatch(NUMBER_FIELD_IDS.join(','), new RegExp(`item${MAX_ITEMS + 1}`));
+});
+
+test('a repeat interval survives a share link round trip', () => {
+  const decoded = decodeInputs(encodeInputs({ item1Repeat: 13 }));
+  assert.equal(decoded.item1Repeat, 13);
 });
 
 test('drops unknown fields, negative numbers, and an invalid kind rather than guessing', () => {

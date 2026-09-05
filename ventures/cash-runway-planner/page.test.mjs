@@ -23,7 +23,7 @@ test('the page carries every one-off row the module reads', () => {
   // type into and that the forecast would silently ignore.
   for (let index = 1; index <= MAX_ITEMS; index += 1) {
     assert.match(html, new RegExp(`id="item-row-${index}"`), `row ${index} missing`);
-    for (const field of ['Name', 'Amount', 'Week', 'Kind']) {
+    for (const field of ['Name', 'Amount', 'Week', 'Kind', 'Repeat']) {
       assert.match(html, new RegExp(`name="item${index}${field}"`), `item${index}${field} missing`);
     }
   }

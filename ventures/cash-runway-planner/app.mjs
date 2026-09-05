@@ -51,7 +51,11 @@ function checkItems(items, span) {
 }
 
 // Reads the one-off rows out of the flat form data. Returns only the rows the
-// visitor actually filled in.
+// visitor actually filled in -- one entry per occurrence, so a row that
+// repeats (a quarterly tax bill, a monthly van payment) already appears once
+// per landing week by the time `forecast` and `shortfallPlans` see it. Both of
+// those only ever asked "which items land in week N", so expanding here means
+// neither had to learn a new field.
 export function parseItems(data, weeks = 12) {
   const span = Number(weeks);
   // A forecast length that is itself invalid is `forecast`'s error to report,
@@ -64,7 +68,8 @@ export function parseItems(data, weeks = 12) {
     const rawAmount = String(data[`item${index}Amount`] ?? '').trim();
     const rawWeek = String(data[`item${index}Week`] ?? '').trim();
     const kind = String(data[`item${index}Kind`] ?? 'out').trim() || 'out';
-    if (!name && !rawAmount && !rawWeek) continue;
+    const rawRepeat = String(data[`item${index}Repeat`] ?? '').trim();
+    if (!name && !rawAmount && !rawWeek && !rawRepeat) continue;
     // A half-filled row is a figure the visitor meant to include. Dropping it
     // silently would forecast a business they do not have, and they would never
     // learn the row was ignored -- the same failure the fractional collection
@@ -85,7 +90,29 @@ export function parseItems(data, weeks = 12) {
     if (kind !== 'in' && kind !== 'out') {
       throw new Error(`One-off row ${index}: choose money in or money out.`);
     }
-    items.push({ name: name || (kind === 'in' ? 'Money in' : 'Money out'), amount, week, kind });
+    // Blank or 0 means "does not repeat" -- the common case, and the same
+    // value a browser sends for an untouched number input with min="0".
+    let repeatWeeks = 0;
+    if (rawRepeat) {
+      repeatWeeks = Number(rawRepeat);
+      if (!Number.isInteger(repeatWeeks) || repeatWeeks < 0) {
+        throw new Error(`One-off row ${index}: repeat interval must be a whole number of weeks, or left blank.`);
+      }
+    }
+    const label = name || (kind === 'in' ? 'Money in' : 'Money out');
+    if (repeatWeeks > 0 && bounded) {
+      // One entry per occurrence inside the window that is actually being
+      // forecast. A quarterly tax bill entered once no longer costs three more
+      // of the eight precious rows to represent the rest of the year.
+      for (let landing = week; landing <= span; landing += repeatWeeks) {
+        items.push({ name: label, amount, week: landing, kind });
+      }
+    } else {
+      // With no forecast length to repeat inside yet (a blank or invalid
+      // `weeks` field), only the first landing is knowable -- `forecast` will
+      // reject the length itself, in its own words.
+      items.push({ name: label, amount, week, kind });
+    }
   }
   return items;
 }
@@ -254,7 +281,7 @@ if (typeof document !== 'undefined') {
     output.innerHTML = `<strong>Check the figures</strong><p>${escapeText(error.message)}</p>`;
   };
   const rowNode = (index) => document.querySelector(`#item-row-${index}`);
-  const rowFilled = (index) => [`item${index}Name`, `item${index}Amount`, `item${index}Week`]
+  const rowFilled = (index) => [`item${index}Name`, `item${index}Amount`, `item${index}Week`, `item${index}Repeat`]
     .some((name) => String(form.elements[name]?.value ?? '').trim() !== '');
   const revealRow = (index) => { const node = rowNode(index); if (node) node.hidden = false; };
   const shown = () => {
