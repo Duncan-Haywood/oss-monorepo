@@ -39,8 +39,10 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {number} input.otherVariablePerMile Tolls, scales, DEF, parking, per total mile.
  * @param {number} input.factoringRate      Percent taken off the settlement (0 if paid direct).
  * @param {number|null} input.offeredLoadedRate Optional broker / shipper rate per loaded mile.
+ * @param {number} input.taxReservePercent Share of profit the operator sets aside for
+ *   self-employment and income tax. Their number, not ours — see taxReserve below.
  * @param {number|null} input.targetWeeklyTakeHome Optional: solve for the loaded rate that
- *   leaves this much after costs and factoring.
+ *   leaves this much after costs, factoring, and the tax reserve.
  */
 export function calculateWeek(input) {
   const loadedMiles = number(input.loadedMiles ?? 0, "Loaded miles");
@@ -59,6 +61,21 @@ export function calculateWeek(input) {
   );
   const factoringRate = number(input.factoringRate ?? 0, "Factoring rate");
   if (factoringRate >= 100) throw new Error("Factoring rate must be less than 100%");
+
+  // An owner-operator is self-employed, so nothing withholds for them: the
+  // profit this page computes is pre-tax, and the operator owes
+  // self-employment tax plus income tax out of it. Left implicit, "target
+  // weekly take-home" solved for a rate that hits the target *before* any of
+  // that -- the one number on the page an operator actually quotes from,
+  // short by their whole tax bill.
+  //
+  // The percentage is theirs, never ours. Rates depend on filing status,
+  // state, deductions and the per-diem election, none of which this page
+  // asks for or should; and a default here would read as a claim about what
+  // they owe. 0 keeps the old behaviour exactly, which is what every caller
+  // that predates this gets.
+  const taxReservePercent = number(input.taxReservePercent ?? 0, "Tax reserve");
+  if (taxReservePercent >= 100) throw new Error("Tax reserve must be less than 100%");
 
   const detentionHours = number(input.detentionHours ?? 0, "Detention hours");
   const detentionPayPerHour = number(input.detentionPayPerHour ?? 0, "Detention pay per hour");
@@ -114,6 +131,7 @@ export function calculateWeek(input) {
       weeklyCost,
       breakEvenLoadedRate,
       accessorialNet,
+      taxReservePercent,
     });
 
   const hasTarget =
@@ -139,7 +157,14 @@ export function calculateWeek(input) {
       // it were a quote to post, not the "you already cleared the target
       // without a single loaded mile" result it actually is. Floor at 0:
       // any non-negative rate already meets the target in that case.
-      rateForTarget = Math.max(0, weeklyCost - accessorialNet + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
+      //
+      // The target is what the operator wants to *keep*, so it is grossed up
+      // through the tax reserve before it becomes profit the rate has to
+      // earn: keeping $1,000 at a 25% reserve means clearing $1,333 pre-tax,
+      // not $1,000. With no reserve set the divisor is 1 and this is the
+      // arithmetic it always was.
+      const profitNeeded = targetWeeklyTakeHome / (1 - taxReservePercent / 100);
+      rateForTarget = Math.max(0, weeklyCost - accessorialNet + profitNeeded) / loadedMiles / factoringMultiplier;
     }
   }
 
@@ -165,6 +190,7 @@ export function calculateWeek(input) {
     breakEvenLoadedRate,
     factoringRate,
     offered,
+    taxReservePercent,
     targetWeeklyTakeHome,
     rateForTarget,
     detentionHours,
@@ -235,6 +261,7 @@ function scoreOffer({
   weeklyCost,
   breakEvenLoadedRate,
   accessorialNet = 0,
+  taxReservePercent = 0,
 }) {
   const grossRevenue = loadedMiles * offeredLoadedRate;
   const factoringFee = grossRevenue * (1 - factoringMultiplier);
@@ -242,6 +269,13 @@ function scoreOffer({
   const netRevenue = mileNetRevenue + accessorialNet;
   const profit = netRevenue - weeklyCost;
   const effectiveLoadedRate = offeredLoadedRate * factoringMultiplier;
+  // Only a profitable week owes anything. A losing week is floored at zero
+  // rather than generating a negative reserve that would read as a refund
+  // this page is in no position to promise -- a loss may carry back or
+  // forward or offset other income, which is exactly the judgement the page
+  // does not make. So takeHome equals weeklyProfit on a losing week.
+  const taxReserve = Math.max(0, profit) * (taxReservePercent / 100);
+  const takeHome = profit - taxReserve;
   return {
     offeredLoadedRate,
     effectiveLoadedRate,
@@ -250,6 +284,10 @@ function scoreOffer({
     netRevenue,
     weeklyProfit: profit,
     annualProfit: profit * 52,
+    taxReservePercent,
+    taxReserve,
+    weeklyTakeHome: takeHome,
+    annualTakeHome: takeHome * 52,
     profitPerTotalMile: totalMiles === 0 ? null : profit / totalMiles,
     profitPerLoadedMile: loadedMiles === 0 ? null : profit / loadedMiles,
     // A rate at or above break-even before factoring can still lose money
