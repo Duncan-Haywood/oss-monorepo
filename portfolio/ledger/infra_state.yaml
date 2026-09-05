@@ -88,6 +88,40 @@ readings:
       what changed is that it is no longer downstream of a *person* being
       available to SSH to two boxes in order.
 
+  codex-host-mode:
+    # `up` here means the route is installable and runnable, not that it is
+    # installed. Nothing in this repository can install it — that needs SSH,
+    # which is `hetzner-ssh-key-is-a-public-key`. What it is *not* downstream
+    # of is the two rows that have blocked everything else all week.
+    verdict: up
+    measured: "2026-09-05"
+    # No run id: verified in a session sandbox, not from a dispatch, because
+    # a dispatch is precisely what this route does not need. The commands
+    # below reproduce it anywhere with bash, python3 and systemd-analyze.
+    how: >-
+      `python3 -m pytest gitops/tests/test_host_governor.py
+      gitops/tests/test_install_codex_host.py` exercises the scheduler and the
+      installer end to end, including running the *installed* copy from a
+      scratch prefix with a scrubbed environment. `systemd-analyze verify` on
+      `gitops/agents/host/codex-governor.{service,timer}` checks the units.
+      Neither needs a runner, a cluster or a credential.
+    note: >-
+      Added 2026-09-05. The Codex worker's dev capacity had exactly two
+      schedulers and both are down: the k3s CronJob (`k3s-cluster` below) and,
+      as a fallback, GitHub Actions (`github-actions-runners` above). The
+      self-hosted runner stack built as insurance against the second runs as
+      pods inside the first, so it went down with it — the insurance was
+      downstream of the outage it insured. `gitops/agents/host/` is a third
+      scheduler that is downstream of neither: a systemd timer on the box,
+      reusing `governor.py`'s decision functions unchanged. The boxes are up
+      (`:22` open on both, run 33889983086), and the worker spends the owner's
+      ChatGPT quota rather than the exhausted Actions allowance.
+      What this changes for the queue: it does not add an owner ask. It makes
+      the existing one worth more — rotating the SSH key now buys working dev
+      capacity in one `install-codex-host.sh` run, not only the cluster
+      diagnosis it bought before. Do not rank it as a route to the *public
+      surface*; it schedules agents, it serves no traffic.
+
   hetzner-private-network:
     # `down` rather than a truer-sounding "absent": the schema's three verdicts
     # are about whether a route can run on this today, and for that purpose a
