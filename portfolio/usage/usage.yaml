@@ -3380,6 +3380,24 @@ products:
           Repair-and-merge of unique #1256 mobile notary trip quote
           calculator onto current main. Public URL remains owner-gated;
           usage is opt-out and honors DNT/GPC. Baseline row.
+      - as_of: 2026-09-05
+        signals:
+          live_url_visitors: null
+          quote_calculated: 0
+          summary_copied: 0
+          offer_tested: 0
+          draft_cleared: 0
+          proposal_printed: 0
+        note: >-
+          Adopted platform/proposal, so the tool now produces the document the
+          signer or hiring title company receives rather than stopping at a
+          number: what the appointment covers, the price, how long it is held,
+          and a signature line. Second venture outside the bid calculators to
+          adopt it, after translator-project-quote. `proposal_printed` is the
+          new signal and the one that matters most here — a print is a notary
+          about to send a real quote for a real appointment, which is nearer an
+          outcome than a page view or a recalculation. Public URL remains
+          owner-gated; counting is unchanged, opt-out and DNT/GPC-honouring.
 
   - slug: subscription-price-impact
     surface: static-page-in-repo

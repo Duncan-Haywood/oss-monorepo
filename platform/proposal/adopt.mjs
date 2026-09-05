@@ -554,10 +554,45 @@ ${fields}
  * is that the reader is callable with *no* arguments, and that is checked
  * directly by `readerTakesNoArguments` rather than inferred from a call site.
  */
-function detectFunctions(html) {
+/**
+ * The reader and the pricing function the generated proposal calls.
+ *
+ * `calcFn` is normally inferred from the page pricing the job inline —
+ * `calculateBid(readInput())` — which every bid calculator does because its
+ * render loop has nothing to catch. A page whose calculator *throws* on a bad
+ * figure does not: `notary-trip-quote` renders through `quoteResult()`, a
+ * non-throwing wrapper, so the throwing `calculateQuote` appears nowhere in a
+ * call of that shape and the inference finds nothing.
+ *
+ * The throwing one is nevertheless the right function for the proposal, and
+ * the two callers are not in conflict: on screen a bad figure must leave the
+ * page rendering, and on a printed sheet it must retire the sheet, which is
+ * exactly what `refreshProposal`'s `catch` does with a throw. So the trade may
+ * name the function with `"calcFn"` when the page does not call it inline.
+ * `inspect()` then checks the page really has it, because a name that resolves
+ * to nothing would generate a proposal that throws `ReferenceError` at the
+ * moment a user presses print.
+ */
+function detectFunctions(html, named) {
   const reader = /function\s+(readInputs?)\s*\(/.exec(html)?.[1];
-  const calcFn = /\b(calculate[A-Za-z]*|priceJob|priceBid)\s*\(\s*(readInputs?)\s*\(/.exec(html)?.[1];
-  return { reader, calcFn };
+  const inferred = /\b(calculate[A-Za-z]*|priceJob|priceBid)\s*\(\s*(readInputs?)\s*\(/.exec(html)?.[1];
+  return { reader, calcFn: named ?? inferred };
+}
+
+/** Whether the page defines or imports `name`, so a call to it will resolve. */
+function pageProvides(html, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (new RegExp(`function\\s+${escaped}\\s*\\(`).test(html)) return true;
+  if (new RegExp(`(?:const|let|var)\\s+${escaped}\\s*=`).test(html)) return true;
+  // `import { a, calculateQuote as price } from './calc.mjs'` — the binding the
+  // page ends up with is what has to match, so check the local name.
+  for (const spec of html.matchAll(/import\s*\{([^}]*)\}\s*from/g)) {
+    for (const part of spec[1].split(',')) {
+      const local = part.trim().split(/\s+as\s+/).pop()?.trim();
+      if (local === name) return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -735,7 +770,7 @@ export function derivePalette(html) {
 }
 
 /** Preconditions. A page that fails any of these is reported, not edited. */
-function inspect(slug) {
+function inspect(slug, trade = {}) {
   const dir = path.join(VENTURES, slug);
   const file = path.join(dir, 'index.html');
   const problems = [];
@@ -760,12 +795,19 @@ function inspect(slug) {
   // trips over the `@media print` block and the `#proposalSection` it wrote
   // itself last time.
   const html = generated ? stripGenerated(raw) : raw;
-  const { reader, calcFn } = detectFunctions(html);
+  const { reader, calcFn } = detectFunctions(html, trade.calcFn);
   if (!reader) problems.push('no readInput()/readInputs() to read the job from');
   else if (!readerTakesNoArguments(html, reader)) {
     problems.push(`${reader}() has a parameter with no default, so the proposal would price the job without it`);
   }
   if (!calcFn) problems.push('no calculate*(readInput()) call to price it with');
+  else if (trade.calcFn && !pageProvides(html, trade.calcFn)) {
+    // Caught here rather than at print time: a trade naming a function the page
+    // never imports generates a proposal that looks adopted, passes every
+    // text-level test, and throws ReferenceError the first time a user presses
+    // print -- in front of the client the sheet exists for.
+    problems.push(`trades.json names calcFn "${trade.calcFn}", which the page neither defines nor imports`);
+  }
   if (!/const el = id => document\.getElementById\(id\)|function el\(/.test(html)) problems.push('no el() helper');
   if (!/function count\(/.test(html)) problems.push('no count() helper');
   if (!html.includes('</style>')) problems.push('no </style> to add the print rules before');
@@ -789,7 +831,7 @@ function adopt(slug, trades, { dry = false } = {}) {
   const trade = trades[slug];
   if (!trade) return { slug, ok: false, why: 'no entry in trades.json' };
 
-  const found = inspect(slug);
+  const found = inspect(slug, trade);
   if (found.problems.length) return { slug, ok: false, why: found.problems.join('; ') };
 
   const { file, reader, calcFn } = found;
@@ -825,7 +867,16 @@ function adopt(slug, trades, { dry = false } = {}) {
   // import") that reads as if the import were missing when it is right there.
   // The quote character is captured so the emitted import matches the page it
   // is inserted into rather than switching styles mid-module.
-  const usageImport = /import \{[^}]*\} from (['"])\.\/usage\.mjs\1;\n/.exec(next);
+  //
+  // The same argument reaches two more pieces of spacing this pattern used to
+  // insist on, and `notary-trip-quote` fails all three: it writes
+  // `import{recordUsage}from './usage.mjs';const ids=[…]`, with no spaces
+  // around the braces and the next statement on the same line. Neither is
+  // load-bearing. The emitted region opens with a newline and closes with one,
+  // so inserting it directly after the `;` puts the generated import on its own
+  // line either way, and `stripGenerated` takes that trailing newline back out
+  // — which is what keeps a re-run idempotent on a page whose import had none.
+  const usageImport = /import\s*\{[^}]*\}\s*from\s*(['"])\.\/usage\.mjs\1;\n?/.exec(next);
   if (!usageImport) return { slug, ok: false, why: 'no usage.mjs import to anchor the proposal import to' };
   const quote = usageImport[1];
   // The trailing newline lives inside the markers: outside them, `strip` leaves
@@ -1003,7 +1054,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.a
     const trades = loadTrades();
     for (const slug of adoptableVentures(trades)) {
       const adopted = fs.existsSync(path.join(VENTURES, slug, 'proposal.mjs'));
-      const found = adopted ? { problems: ['already adopted'] } : inspect(slug);
+      const found = adopted ? { problems: ['already adopted'] } : inspect(slug, trades[slug]);
       const state = adopted ? 'adopted'
         : found.problems.length ? `blocked: ${found.problems.join('; ')}`
           : trades[slug] ? 'ready' : 'needs trades.json copy';

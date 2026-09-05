@@ -12,14 +12,22 @@
 <meta property="og:description" content="UpGuard continuously monitors and scores a whole vendor portfolio for security risk. This page diffs two policy snapshots you already have, for free, entirely in your browser.">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or UpGuard?","acceptedAnswer":{"@type":"Answer","text":"They cover different scopes. UpGuard is third-party and vendor risk management software: it continuously scans vendors' external attack surfaces, maintains security ratings, runs security assessment questionnaires (including frameworks such as NIST, ISO, and SIG), and detects data exposures across an organization's whole vendor portfolio, with alerting and board-level reporting built in. It is sold as an ongoing subscription platform aimed at security and procurement teams managing many vendor relationships at once. This tool does one narrower thing: you paste two dated snapshots you already captured of a single vendor's privacy, terms, subprocessor, or security page, and it reports what changed between them, entirely in your browser. It does not scan, score, rate, or continuously monitor anything, and it has no concept of a vendor portfolio. A team that needs ongoing, automated coverage across dozens or hundreds of vendors is the case UpGuard is built for; a team that already has two snapshots of one page and wants a fast, free, private diff and a dated record of that one review is the case this tool is built for."}},{"@type":"Question","name":"Is this page affiliated with UpGuard?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by UpGuard. UpGuard is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
 <style>
-  :root { color-scheme: light dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1a1a1a; background: #ffffff; }
-  @media (prefers-color-scheme: dark) { :root { color: #f1f2f4; background: #14161a; } }
+  /* Two WCAG AA failures this page shipped with, both on its links.
+     Light only, like this venture's other two pages: the dark variant put
+     #2563eb on #14161a at 3.5:1, and no single colour fixes that, because
+     clearing 4.5:1 on #ffffff caps a colour's relative luminance at .183
+     while clearing it on #14161a needs at least .209. A re-add of dark mode
+     therefore has to bring a per-scheme link colour with it.
+     And #2563eb was under AA in light mode too once footer{opacity:.8}
+     composited it -- 3.63:1 -- so the link blue is a shade darker than the
+     Tailwind blue-600 it was: #1e40af holds 8.72:1 at full strength and
+     5.30:1 faded in the footer. */
+  :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1a1a1a; background: #ffffff; }
   body { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; line-height: 1.55; }
-  a { color: #2563eb; overflow-wrap: anywhere; }
+  a { color: #1e40af; overflow-wrap: anywhere; }
   h1 { font-size: clamp(1.6rem, 4.6vw, 2.3rem); line-height: 1.1; margin: .4rem 0; }
   .lede { font-size: 1.05rem; max-width: 62ch; opacity: .82; }
   section { border: 1px solid #e2e2e2; border-radius: 12px; padding: 1.1rem 1.3rem; margin: 1.25rem 0; }
-  @media (prefers-color-scheme: dark) { section { border-color: #2c2f34; } }
   h2 { margin-top: 0; font-size: 1.15rem; }
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .92rem; }
