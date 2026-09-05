@@ -13839,3 +13839,35 @@ entries:
         merges, which is expected at this fleet velocity and not chased
         further per session.
     mrr_end: null
+  - venture: pool-plaster-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same share-link template
+        already on water-softener-bid-calculator, stucco-repair-bid-calculator
+        and sewer-hydrojet-bid-calculator, adapted to this venture's own
+        shape/finish/chip-out preset ids and 33 rate/geometry fields. Added
+        share.mjs/share.test.mjs (enum fields checked against calc.mjs's own
+        SHAPE_PRESETS/FINISH_PRESETS/CHIPOUT_PRESETS rather than a
+        hand-duplicated list) and vendored proposal-terms.mjs/
+        proposal-terms.test.mjs unchanged (confirmed byte-identical across
+        the three prior ventures before vendoring). Wired a "Copy share link"
+        button into the existing summary-actions row beside "Copy bid
+        summary", following the venture's own layout conventions, plus a
+        privacy-footer line disclosing that a share link encodes only chosen
+        inputs into the address bar. Usage tracking
+        (count('share_link_copied')) and every existing disclaimer/usage
+        line were left in place, only extended.
+        Verified: venture suite 107/107 (28 new in share.test.mjs, 20 in
+        proposal-terms.test.mjs), platform/marketing+pages 1126/1126,
+        platform/proposal 101/101 (incl. term-ids.test.mjs confirming this
+        venture now carries all five proposal terms through its link),
+        platform/privacy+webcheck 50/50. A scripted round-trip (encode the
+        "loss job" freeform/pebble/full-chip-out preset with custom rates,
+        deposit 50%/15-day terms, decode fresh) reproduced an identical
+        $52,632.39 price and all five terms on the recipient side.
+        ci_starvation.py --run 33990434278 confirms the fleet is mid a
+        starvation window (runner_id: 0) at push time, so the above is what
+        gates the merge per CLAUDE.md's "absent CI is not failed CI."
+    mrr_end: null
