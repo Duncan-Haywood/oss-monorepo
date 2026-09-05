@@ -335,14 +335,14 @@ test('the committed embed runtime and stylesheet match what embed.mjs renders', 
   assert.equal(
     committedModule,
     renderEmbedModule(),
-    'gitops/prod/front-door/pf-embed.js is stale — run `node platform/marketing/front-door.mjs --write`',
+    'gitops/prod/front-door/pf-embed.js is stale — run `node platform/marketing/regen.mjs`',
   );
 
   const committedStyle = await fs.readFile(EMBED_STYLE_OUTPUT_FILE, 'utf8');
   assert.equal(
     committedStyle,
     renderEmbedStyle(),
-    'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/front-door.mjs --write`',
+    'gitops/prod/front-door/pf-embed.css is stale — run `node platform/marketing/regen.mjs`',
   );
 
   // The resizer matters more here than either file above, not less: nothing on
@@ -352,7 +352,7 @@ test('the committed embed runtime and stylesheet match what embed.mjs renders', 
   assert.equal(
     committedHost,
     renderEmbedHostModule(),
-    'gitops/prod/front-door/pf-embed-host.js is stale — run `node platform/marketing/front-door.mjs --write`',
+    'gitops/prod/front-door/pf-embed-host.js is stale — run `node platform/marketing/regen.mjs`',
   );
 });
 
@@ -667,7 +667,7 @@ test('the committed page matches what this generator produces', async () => {
   assert.equal(
     committed,
     fresh,
-    'gitops/prod/front-door/index.html is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/index.html is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -711,7 +711,7 @@ test('the committed share card matches what the encoder produces, at the declare
   assert.deepEqual(
     committed,
     renderSocialCard(),
-    'gitops/prod/front-door/social-card.png is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/social-card.png is stale — run: node platform/marketing/regen.mjs',
   );
   // A PNG signature, then the IHDR width/height as big-endian uint32s. Read
   // from the bytes rather than trusted from the constants, because the
@@ -778,7 +778,7 @@ test('the committed tab mark matches what the generator holds', async () => {
   assert.equal(
     onDisk,
     FAVICON_SVG,
-    'gitops/prod/front-door/favicon.svg is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/favicon.svg is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -847,7 +847,7 @@ test('the committed robots.txt and sitemap match what this generator produces', 
   assert.equal(
     await fs.readFile(ROBOTS_OUTPUT_FILE, 'utf8'),
     ROBOTS_TXT,
-    'gitops/prod/front-door/robots.txt is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/robots.txt is stale — run: node platform/marketing/regen.mjs',
   );
   // Through `buildFrontDoor` rather than a bare `renderSitemap()`, because the
   // sitemap's contents now depend on the mirror build — the same source that
@@ -857,7 +857,7 @@ test('the committed robots.txt and sitemap match what this generator produces', 
   assert.equal(
     await fs.readFile(SITEMAP_OUTPUT_FILE, 'utf8'),
     sitemap,
-    'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/sitemap.xml is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -877,7 +877,7 @@ test('the committed category pages match what this generator produces', async ()
     assert.equal(
       await fs.readFile(categoryOutputFile(page.id), 'utf8'),
       page.html,
-      `gitops/prod/front-door/${categoryPageKey(page.id)} is stale — run: node platform/marketing/front-door.mjs --write`,
+      `gitops/prod/front-door/${categoryPageKey(page.id)} is stale — run: node platform/marketing/regen.mjs`,
     );
   }
 
@@ -893,7 +893,7 @@ test('the committed category pages match what this generator produces', async ()
   assert.deepEqual(
     onDisk.sort(),
     categoryPages.map((page) => categoryPageKey(page.id)).sort(),
-    'a category page on disk is no longer rendered — run: node platform/marketing/front-door.mjs --write',
+    'a category page on disk is no longer rendered — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1096,7 +1096,7 @@ test('the committed feed matches what this generator produces', async () => {
   assert.equal(
     await fs.readFile(FEED_OUTPUT_FILE, 'utf8'),
     feed,
-    'gitops/prod/front-door/feed.xml is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/feed.xml is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1304,7 +1304,7 @@ test('the committed llms.txt matches what this generator produces', async () => 
   assert.equal(
     await fs.readFile(LLMS_OUTPUT_FILE, 'utf8'),
     llms,
-    'gitops/prod/front-door/llms.txt is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/llms.txt is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
@@ -1518,7 +1518,7 @@ test('the committed catalog.json matches what this generator produces', async ()
   assert.equal(
     await fs.readFile(CATALOG_OUTPUT_FILE, 'utf8'),
     catalog,
-    'gitops/prod/front-door/catalog.json is stale — run: node platform/marketing/front-door.mjs --write',
+    'gitops/prod/front-door/catalog.json is stale — run: node platform/marketing/regen.mjs',
   );
 });
 
