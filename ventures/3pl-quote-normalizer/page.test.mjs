@@ -83,6 +83,16 @@ test('comparison page exposes a local CSV export', async () => {
   assert.match(page, /3pl-quote-comparison\.csv/);
 });
 
+test('comparison page offers a shareable link that restores from the URL fragment', async () => {
+  const page = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
+  assert.match(page, /from "\.\/share\.mjs"/);
+  assert.match(page, /id="copyLink"/);
+  assert.match(page, /Copy comparison link/);
+  assert.match(page, /decodeShare\(location\.hash\)/);
+  assert.match(page, /encodeShare\(values\(\)\)/);
+  assert.match(page, /comparison_link_copied/);
+});
+
 test('calculator keeps input warnings in the copied report path', async () => {
   const script = await readFile(new URL('./calc.mjs', import.meta.url), 'utf8');
   assert.match(script, /Input warnings/);
