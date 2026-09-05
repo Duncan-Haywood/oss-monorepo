@@ -226,9 +226,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates &mdash; wage, burden, overhead, and target margin &mdash; so the page reopens exactly as you left it. Send it to yourself, your crew, or a second estimator. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
       <ul class="split" id="split"></ul>
@@ -272,7 +276,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a load calculation, permit approval, or refrigerant-handling determination. Verify every figure against your own payroll, invoices, AHJ requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your head count, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your head count, wages, costs, or prices.</p>
     <p>See also: <a href="./how-much-to-charge-to-install-a-mini-split.html">how much to charge to install a mini split</a> &middot; <a href="./vs-servicetitan.html">this calculator vs. ServiceTitan</a>.</p>
     <p class="support">Free and open source. If it keeps you from matching a losing per-head quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -291,6 +295,10 @@
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
+    import {
+      encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote,
+    } from './share.mjs';
 
     const FIELD_IDS = [
       'headCount','btuPerHead','outdoorUnitCost','indoorHeadCostEach','branchBoxCost',
@@ -324,12 +332,36 @@
     el('electricalPreset').value = 'existing';
     el('condensatePreset').value = 'gravity';
 
+    // Derived from FIELD_IDS and the options the preset selects actually
+    // offer, so a field added to the form is saved and shareable without
+    // touching this. The alternative -- a second field list kept by hand --
+    // is how a shared link ends up quietly dropping a field and pricing a
+    // different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['systemPreset', 'headTypePreset', 'storyPreset', 'electricalPreset', 'condensatePreset'];
+    const BID_SPEC = {
+      key: 'mini-split-bid',
+      numbers: FIELD_IDS,
+      flags: [],
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
     }
 
     function readInput() {
       return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    // readInput() above feeds calculateBid(), which takes head-type/story/
+    // electrical/condensate as already-resolved factors and hour/material
+    // numbers -- it has no use for which preset produced them. A shared link
+    // is for the *person*, though, and should reopen with the same preset
+    // selected, not just the same derived numbers with the dropdown back at
+    // its default. So the share spec's values are this plus the five preset
+    // ids, read separately rather than folded into FIELD_IDS.
+    function readShareInput() {
+      return { ...readInput(), ...Object.fromEntries(CHOICE_IDS.map(id => [id, el(id).value])) };
     }
 
     function clearOutputs(message, isError) {
@@ -481,6 +513,86 @@
       }
     });
 
+    // ---- Shareable bid link ---------------------------------------------------
+    //
+    // A restored field counts as hand-entered. Without this the preset-driven
+    // suggestions above would overwrite it on the next apply, so a setter who
+    // tuned their own factor or line-set feet and copied the link would watch
+    // the recipient's page reset it to the preset's ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readShareInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readShareInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
 
     // ---- Customer-facing proposal -------------------------------------------
 
@@ -620,6 +732,7 @@
     });
 
     update();
+    persist();
     restoreCompany();
     refreshProposal();
   </script>
