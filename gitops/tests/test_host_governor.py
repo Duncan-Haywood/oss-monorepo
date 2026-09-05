@@ -198,6 +198,47 @@ def test_env_matches_the_cluster_job(box):
     assert not missing, f"the Job sets {sorted(missing)} and host mode does not"
 
 
+def test_protecthome_does_not_leave_worker_home_inaccessible():
+    """`ProtectHome=true` makes /home, /root and /run/user inaccessible and
+    *empty* for the unit's processes -- not merely read-only. worker.sh does
+    not write to $HOME directly, but things it shells out to fall back to it
+    when not told otherwise: `npm install -g` (install_codex) defaults its
+    package cache to ~/.npm, and `gh` defaults its config to ~/.config/gh.
+
+    This unit runs as root with no `User=`, so its real $HOME is /root --
+    exactly the directory ProtectHome=true hides. Left unredirected, the
+    first tick that actually reaches `install_codex` (a held tick, with no
+    credentials yet, never does -- which is why this went unnoticed) fails
+    outright on a write nobody sees coming.
+
+    So: if ProtectHome is on, HOME must be pointed at a path this unit has
+    *actually* declared writable -- one of ReadWritePaths -- rather than left
+    to default to a directory ProtectHome hides.
+    """
+    unit = (HOST.parent / "codex-governor.service").read_text()
+    settings: dict[str, str] = {}
+    read_write_paths: list[str] = []
+    for line in unit.splitlines():
+        line = line.strip()
+        if line.startswith("Environment="):
+            name, _, value = line[len("Environment=") :].partition("=")
+            settings[name] = value
+        elif line.startswith("ProtectHome="):
+            settings["ProtectHome"] = line.partition("=")[2]
+        elif line.startswith("ReadWritePaths="):
+            read_write_paths = line.partition("=")[2].split()
+
+    if settings.get("ProtectHome", "").lower() not in ("1", "true", "yes"):
+        pytest.skip("ProtectHome is not on; this unit's HOME is whatever the host gives it")
+
+    home = settings.get("HOME")
+    assert home, "ProtectHome=true hides /root, and no Environment=HOME= redirects it"
+    assert any(home == p or home.startswith(p.rstrip("/") + "/") for p in read_write_paths), (
+        f"HOME={home} is not inside any of ReadWritePaths={read_write_paths}; "
+        "ProtectHome=true would make it inaccessible and empty"
+    )
+
+
 # ------------------------------------------------------- outcomes and limits
 
 
