@@ -59,6 +59,33 @@ owner as little as possible. Product PRs are the work — merge them.
 Before merge: run or read CI; scope stays in-bounds; new user-facing surfaces
 have disclaimers and usage tracking.
 
+**While runners are starved, "run or read CI" means run it here, and this is
+the set.** Measured 2026-09-05: `main` was red on four tests across #3324,
+#3325 and #3326 — three sibling comparison-page PRs that each merged the same
+afternoon. Three failures were `front-door-tools.test.mjs` reporting a page
+`missing from the commit` (the venture page landed, `regen.mjs` never ran, so
+the apex would have 404'd on a page the sitemap advertises — the same defect
+CLAUDE.md already records costing live product in #3256–#3258), and the fourth
+was `ink.test.mjs` on links below WCAG AA. Nobody was careless: every check on
+those PRs came back red in ~3 seconds with `runner_id: 0`, which is
+indistinguishable at a glance from the failure it was hiding.
+
+So when `ci_starvation.py` says starvation, run these before merging, and say
+in the PR what they said:
+
+```
+node platform/marketing/regen.mjs        # then commit whatever it rewrites
+node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+node --test ventures/<slug>/*.test.mjs
+python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
+```
+
+The first line is the one that keeps being skipped, and it is the one that
+decides whether a page you shipped is reachable. A red check you have
+classified as starvation still leaves the repo's own tests unrun — that is
+what "absent CI is not failed CI" asks you to make up for, not a reason to
+merge unverified.
+
 **Merge yourself after CI is green:**
 
 - `platform/`, `portfolio/`, docs, tests, CI
