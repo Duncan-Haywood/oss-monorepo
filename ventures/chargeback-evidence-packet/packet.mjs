@@ -66,6 +66,24 @@ export const DISPUTE_REASONS = {
     focus:
       'The question is whether the cardholder authorized the purchase. Verification results and delivery to the verified address carry the response.',
   },
+  'Duplicate transaction': {
+    required: ['order', 'payment'],
+    recommended: ['contact', 'history'],
+    focus:
+      'The question is whether the cardholder was legitimately charged twice for two separate purchases, not once for one. Order and payment records tying each charge to its own distinct order carry the response.',
+  },
+  'Subscription canceled': {
+    required: ['terms', 'contact', 'payment'],
+    recommended: ['refund', 'history'],
+    focus:
+      'The question is whether the recurring charge was still authorized when it posted, and whether the buyer canceled through the agreed process. The subscription terms accepted at signup and any cancellation contact carry the response.',
+  },
+  'Incorrect amount': {
+    required: ['order', 'payment', 'terms'],
+    recommended: ['contact'],
+    focus:
+      'The question is whether the amount charged matches what the buyer agreed to pay. The order total as originally agreed and the terms accepted at checkout carry the response.',
+  },
 };
 
 export const REASONS = Object.keys(DISPUTE_REASONS);
@@ -74,7 +92,7 @@ const FALLBACK_RULE = {
   required: ['order', 'payment'],
   recommended: ['contact', 'terms'],
   focus:
-    'This reason is not one of the four the checklist knows. Confirm the records your processor asks for on this reason code.',
+    `This reason is not one of the ${REASONS.length} the checklist knows. Confirm the records your processor asks for on this reason code.`,
 };
 
 export function rulesFor(reason) {

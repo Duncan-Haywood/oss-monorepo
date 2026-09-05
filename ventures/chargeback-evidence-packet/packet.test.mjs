@@ -30,13 +30,24 @@ test('every reason names required and recommended evidence that exists', () => {
   }
 });
 
-test('the four reasons ask for genuinely different records', () => {
+test('every modeled reason asks for genuinely different records', () => {
   // The bug this replaces: "not as described" and "fraudulent" shared one
   // generic list, so a seller fighting a fraud claim was never told to pull
   // AVS/CVV and a seller fighting a description claim was never told to keep
   // the listing. Two reasons with identical required sets is that regression.
   const signatures = REASONS.map((reason) => rulesFor(reason).required.join('|'));
   assert.equal(new Set(signatures).size, REASONS.length, 'two reasons share a required set');
+});
+
+test('duplicate, subscription, and incorrect-amount disputes each get their own core set', () => {
+  // These three were added after the original four shipped, to cover reason
+  // codes that are common but were previously falling back to the generic
+  // order+payment minimum with no reason-specific guidance at all.
+  assert.deepEqual(rulesFor('Duplicate transaction').required, ['order', 'payment']);
+  assert.ok(rulesFor('Subscription canceled').required.includes('terms'));
+  assert.ok(rulesFor('Subscription canceled').required.includes('contact'));
+  assert.ok(rulesFor('Incorrect amount').required.includes('terms'));
+  assert.ok(!rulesFor('Duplicate transaction').required.includes('terms'));
 });
 
 test('fraud responses turn on verification, description responses on the listing', () => {
@@ -71,7 +82,7 @@ test('unknown evidence keys from an older saved draft are ignored, not counted',
 test('an unrecognised reason still yields a usable, honest rule', () => {
   const review = evidenceReview('Some new reason code', []);
   assert.deepEqual(review.required, ['order', 'payment']);
-  assert.match(review.focus, /not one of the four/);
+  assert.match(review.focus, new RegExp(`not one of the ${REASONS.length}`));
 });
 
 test('deadline arithmetic counts calendar days, not elapsed hours', () => {
