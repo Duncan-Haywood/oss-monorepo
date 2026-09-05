@@ -131,12 +131,40 @@ prompt: |
   or network call -- `/about/` promises there are none and that promise is
   load-bearing.
 
-  Verify before you open anything: the venture's own `node --test` if it has
-  one, plus a full `build.mjs` and `check.mjs` run (dead links, stale
-  origins, MIME coverage), plus `python3 -m pytest gitops/tests -q` if you
-  touched anything under `gitops/`. Record exactly what you ran and what it
-  said. A check that fails in 3-6 seconds with `runner_id: 0` is the known
-  Actions outage, not your regression -- confirm with
+  Verify before you open anything. **The maintained list is the block in
+  CLAUDE.md under "Ship without review ceremony" -- read it there and run
+  it.** The lines below are this item's additions to that list, not a
+  replacement for it; an earlier revision of this prompt restated a subset
+  inline and it went stale, which is the restate-instead-of-import defect
+  CLAUDE.md records twice against the front-door mirror.
+
+  Two things this prompt used to omit, both of which bite a run that ships
+  a page:
+
+    node platform/marketing/regen.mjs   # then commit whatever it rewrites
+    node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+
+  `front-door-tools.test.mjs` is the guard that fails with a page `missing
+  from the commit` -- the venture page lands, `regen.mjs` never runs, and
+  the apex 404s on a page its own sitemap advertises. CLAUDE.md records
+  that exact defect costing live product twice (#3256-#3258, and again
+  across #3324-#3326). A distribution asset is precisely the shape that
+  trips it, so run the generator first and commit what it rewrites.
+
+  And run `python3 -m pytest gitops/tests -q` **whenever your commit
+  contains changes under `gitops/`, including ones `regen.mjs` made for
+  you** -- not only when you edited that tree on purpose. That condition
+  was widened in CLAUDE.md on 2026-09-05 because "only if you touched
+  `gitops/`" reads as "only if you meant to": giving a venture a browser
+  surface touches nothing there by hand, yet the generator rewrites
+  several hundred files and `test_manifests.py` carries a mirrored-tool
+  count typed out in four places. #3407 merged red on exactly that.
+
+  Add the venture's own `node --test` if it has one, plus a full
+  `build.mjs` and `check.mjs` run (dead links, stale origins, MIME
+  coverage). Record exactly what you ran and what it said. A check that
+  fails in 3-6 seconds with `runner_id: 0` is the known Actions outage,
+  not your regression -- confirm with
   `python3 platform/ci/ci_starvation.py --run <id>`.
 
   Before starting, check open PRs and recent commits for work on the same

@@ -476,6 +476,66 @@ def test_the_mandate_does_not_teach_the_retired_absent_ci_excuse() -> None:
     assert "check-runs" in mandate, "the endpoint that actually answers must be named"
 
 
+def test_queue_prompts_point_at_the_maintained_verification_list() -> None:
+    # Same defect as the test above, one level up. CLAUDE.md's "Ship without
+    # review ceremony" block is the maintained set of local checks -- the one
+    # that gets widened when a guard is found to be going unrun. Three queue
+    # prompts each restated a *subset* of it inline and then went stale
+    # against it, which is the restate-instead-of-import failure CLAUDE.md
+    # records twice against the front-door mirror ("168 became 169").
+    #
+    # Measured 2026-09-05, the same day that block gained four directories:
+    #   - deploy-cicd-readiness named `pytest gitops/tests` and kubeconform,
+    #     and never `platform/ci` -- although its own candidate 2 sends every
+    #     run at `.github/workflows/`, and `platform/ci/` holds the 15
+    #     unittest modules guarding ci_starvation/pages_state/publish_surface/
+    #     public_surface/validate_workflows. A run could edit the tool this
+    #     repo uses to decide whether a red check is real and execute no
+    #     guard on it.
+    #   - marketing-distribution and seo-discoverability-audit both ship page
+    #     surfaces and named neither `regen.mjs` nor
+    #     `platform/marketing/*.test.mjs` -- the generator and the guard whose
+    #     `missing from the commit` failure CLAUDE.md records costing live
+    #     product twice (#3256-#3258, #3324-#3326).
+    #
+    # This asserts the pointer rather than the contents, deliberately: pinning
+    # the command list here would create a fourth copy to go stale, which is
+    # the thing being fixed.
+    claude_md = (REPO / "CLAUDE.md").read_text()
+    assert "Ship without review ceremony" in claude_md, (
+        "the queue prompts point at this heading; renaming it orphans them"
+    )
+
+    # The guards each item is most likely to need, given what its own prompt
+    # sends a run at. Keyed by item id so a renamed file fails loudly.
+    required: dict[str, tuple[str, ...]] = {
+        "deploy-cicd-readiness": ("platform/ci",),
+        "marketing-distribution": ("regen.mjs", "platform/marketing"),
+        "seo-discoverability-audit": ("regen.mjs", "platform/marketing"),
+    }
+    seen: set[str] = set()
+
+    for path in sorted((AGENTS / "queue").glob("*.yaml")):
+        if path.name == "example.item.yaml":
+            continue
+        data = yaml.safe_load(path.read_text())
+        if not data.get("enabled"):
+            continue
+        prompt = data.get("prompt") or ""
+        if "erify" not in prompt:  # says nothing about verifying
+            continue
+        assert "CLAUDE.md" in prompt, (
+            f"{path.name} tells a run to verify without pointing at the "
+            "maintained list in CLAUDE.md, so its inline list can go stale"
+        )
+        for needle in required.get(data["id"], ()):
+            assert needle in prompt, f"{path.name} never names {needle}"
+        seen.add(data["id"])
+
+    missing = set(required) - seen
+    assert not missing, f"queue items disappeared or were disabled: {sorted(missing)}"
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
