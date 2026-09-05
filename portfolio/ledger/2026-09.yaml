@@ -12563,3 +12563,79 @@ entries:
         to `main` as code only, ready to serve once the owner's infra fix
         lands.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Deploy-first pass on a scheduled autonomous run. Open-PR queue was
+        already empty (a same-day earlier session had drained all 232
+        branches via supersede_check.py; confirmed with a fresh
+        list_pull_requests call, 0 open), so the three-PR merge quota was
+        satisfied trivially and this run moved straight to deploy/product
+        work per CLAUDE.md's "if none exist, start new work" clause.
+        Confirmed GitHub Actions runners are still starved (re-dispatched
+        Public surface check, run 33953052273, ci_starvation.py exits 1 on
+        runner_id 0) and the Hetzner k3s cluster is still down and blocked
+        on the owner-only HETZNERSSHKEY rotation (#3184) -- both
+        pre-diagnosed in infra_state.yaml, not re-diagnosed further here.
+        Found the one deploy route that needs neither a runner nor the
+        cluster -- platform/pages/publish-branch.sh, which builds the Pages
+        site here and commits it to gh-pages -- was stale: last published
+        2026-09-05T08:10Z from commit a72b58c, 10 commits and 21 files of
+        real product changes behind current main (new comparison pages,
+        a share-link feature, a proposal builder, a CSV export). Ran
+        `node --test platform/pages/*.test.mjs` (902/902 pass), then
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`,
+        which rebuilt (174 products, 710 pages, check.mjs: no dead links)
+        and force-pushed the refreshed gh-pages branch. Also re-ran
+        `node platform/marketing/regen.mjs` to check the separate
+        gitops/prod front-door mirror for drift (relevant once the cluster
+        is restored) -- no diff, a concurrent session had already kept it
+        current. Serving the refreshed gh-pages snapshot still needs the
+        owner's Settings -> Pages -> Source "Deploy from a branch" flip
+        (already queued as `deploy-settings`/#3184's second half; not a new
+        ask), and is separately gated on this being a paid GitHub plan
+        (Pages does not serve a private repo's site on Free) -- also
+        already queued as `github-pages-plan`, unknown, owner-only to
+        check. Did not install the Codex host governor
+        (`gitops/agents/host/`) the user asked about: it is already built
+        and tested (`codex-host-mode` reading in infra_state.yaml, verdict
+        up) but installing it needs SSH to the Hetzner boxes, which is the
+        same owner-blocked #3184 rotation -- no new work available there
+        until that lands.
+    mrr_end: null
+  - venture: music-lesson-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "Copy share link" feature, the one common pattern (already
+        shipped on equipment-rental-break-even, sump-pump-bid-calculator,
+        commercial-photo-license-calculator, and others) this venture was
+        missing: encodeShare/decodeShare in a new share.mjs round-trip all 8
+        teaching-week fields (lessonPrice, lessonsPerWeek, weeksPerYear,
+        cancelRate, prepMinutes, travelMinutes, monthlyCosts, targetPay)
+        through a URL fragment -- never sent to a server, rejects a crafted
+        fragment's negative or non-finite fields rather than carrying them
+        into the form. Lets a teacher hand a live, editable priced week to
+        another teacher, a bookkeeper, or a studio partner, instead of only
+        reading numbers out loud (the venture's only prior sharing option).
+        Wired a "Copy share link" button into index.html (with a
+        clipboard-API-with-textarea-fallback copy, matching the existing
+        portfolio convention), updated the FAQ answer and its FAQPage JSON-LD
+        to describe it, and recorded a local, optional `share_copied` usage
+        event via the venture's existing usage.mjs -- no new tracking
+        mechanism. Verified: `node --test ventures/music-lesson-break-even/*.test.mjs`
+        (32/32, including 7 new share.mjs tests), then rebuilt the whole
+        portfolio Pages site and ran `node platform/pages/check.mjs`
+        (174 products, 710 pages, no dead links -- no regression from this
+        venture's change). GitHub Actions is starved per CLAUDE.md
+        (re-confirmed this run, see the portfolio entry above), so this
+        local verification stands in for CI per "absent CI is not failed
+        CI". `links.production` is null in this venture's VENTURE.yaml, but
+        the tool is reachable today via the apex front-door mirror at
+        https://marisstella.dev/tools/music-lesson-break-even/ once the
+        public surface itself is restored (currently down, see CLAUDE.md),
+        and via the refreshed gh-pages branch once GitHub Pages is enabled.
+    mrr_end: null
