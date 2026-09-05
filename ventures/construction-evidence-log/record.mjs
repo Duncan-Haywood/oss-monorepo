@@ -68,6 +68,42 @@ export function buildEvidencePack(entries, generatedAt = new Date().toISOString(
   };
 }
 
+// One row per saved daily-log entry, every field the page collects and
+// computes -- not just what the history list shows on screen. A CSV opened
+// in a spreadsheet is how this evidence gets sorted, filtered, or handed to
+// someone who was not there, and grant-reporting-tracker's toCsv already
+// establishes the rule this file follows: a field the page keeps quietly
+// missing from the export is a defect, not a smaller CSV. `findings` is
+// joined rather than dropped, because "no crew listed" is itself part of
+// the evidence a reviewer needs to see per day, not just in the moment the
+// entry was created.
+export function entriesToCsv(entries) {
+  const fields = [
+    'date', 'project', 'crew', 'conditions', 'work',
+    'changeType', 'requestedBy', 'impact', 'changeDetails',
+    'findings', 'savedAt',
+  ];
+  const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+  const rows = entries.map((e) => {
+    const log = e.record?.log || {};
+    const change = e.record?.change || {};
+    return {
+      date: log.date,
+      project: log.project,
+      crew: log.crew,
+      conditions: log.conditions,
+      work: log.work,
+      changeType: change.type || 'none',
+      requestedBy: change.requestedBy,
+      impact: change.impact,
+      changeDetails: change.details,
+      findings: (e.findings || []).join(' | '),
+      savedAt: e.savedAt,
+    };
+  });
+  return [fields.join(','), ...rows.map((row) => fields.map((f) => quote(row[f])).join(','))].join('\n');
+}
+
 export function packSummary(pack) {
   const range = pack.dateRange ? `${pack.dateRange.from} to ${pack.dateRange.to}` : 'no dated entries';
   const projectLine = pack.projects.length ? pack.projects.join(', ') : '(no project named)';

@@ -1,4 +1,4 @@
-import { makeRecord, summary, buildEvidencePack, packSummary } from './record.mjs';
+import { makeRecord, summary, buildEvidencePack, packSummary, entriesToCsv } from './record.mjs';
 
 const $ = (id) => document.getElementById(id);
 const today = new Date().toISOString().slice(0, 10);
@@ -93,6 +93,10 @@ function renderEntries() {
   $('download-pack').textContent = projectFilter()
     ? `Download combined pack for this project (${count})`
     : `Download combined pack, all saved entries (${count})`;
+  $('download-csv').disabled = count === 0;
+  $('download-csv').textContent = projectFilter()
+    ? `Download CSV for this project (${count})`
+    : `Download CSV, all saved entries (${count})`;
 }
 
 function formInput() {
@@ -158,6 +162,21 @@ $('download-pack').addEventListener('click', () => {
   URL.revokeObjectURL(link.href);
   event('combined_pack_downloaded');
   $('history-action-status').textContent = `Downloaded a combined pack. ${packSummary(pack).split('\n')[0]}`;
+});
+
+$('download-csv').addEventListener('click', () => {
+  const entries = filteredEntries();
+  if (!entries.length) return;
+  const csv = entriesToCsv(entries);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  const scope = projectFilter() ? projectFilter().replace(/[^a-z0-9]+/g, '-') : 'all-projects';
+  link.download = `construction-evidence-log-${scope}.csv`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  event('csv_downloaded');
+  $('history-action-status').textContent = `Downloaded ${entries.length} saved ${entries.length === 1 ? 'entry' : 'entries'} as a CSV.`;
 });
 
 $('clear-entries').addEventListener('click', () => {
