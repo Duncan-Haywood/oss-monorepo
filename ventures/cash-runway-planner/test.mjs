@@ -100,6 +100,65 @@ test('parseItems refuses a half-filled row instead of silently ignoring it', () 
   assert.throws(() => parseItems({ item1Amount: '600', item1Week: '30' }, 12), /past this 12-week forecast/);
 });
 
+test('parseItems expands a repeating row into one entry per occurrence in the window', () => {
+  // A quarterly tax bill inside a 52-week forecast used to cost 4 of the 8
+  // precious rows. One row and a repeat interval now produces the same
+  // landings `forecast` and `shortfallPlans` already knew how to read.
+  const items = parseItems({
+    item1Name: 'Quarterly tax', item1Amount: '6000', item1Week: '2', item1Kind: 'out', item1Repeat: '13',
+  }, 52);
+  assert.deepEqual(items, [
+    { name: 'Quarterly tax', amount: 6000, week: 2, kind: 'out' },
+    { name: 'Quarterly tax', amount: 6000, week: 15, kind: 'out' },
+    { name: 'Quarterly tax', amount: 6000, week: 28, kind: 'out' },
+    { name: 'Quarterly tax', amount: 6000, week: 41, kind: 'out' },
+  ]);
+});
+
+test('a repeat interval of 0 or blank means the row does not repeat', () => {
+  const blank = parseItems({ item1Amount: '100', item1Week: '1', item1Kind: 'out' }, 12);
+  const zero = parseItems({ item1Amount: '100', item1Week: '1', item1Kind: 'out', item1Repeat: '0' }, 12);
+  assert.equal(blank.length, 1);
+  assert.deepEqual(blank, zero);
+});
+
+test('parseItems rejects a repeat interval that is not a non-negative whole number', () => {
+  assert.throws(
+    () => parseItems({ item1Amount: '100', item1Week: '1', item1Repeat: '2.5' }, 12),
+    /repeat interval must be a whole number/,
+  );
+  assert.throws(
+    () => parseItems({ item1Amount: '100', item1Week: '1', item1Repeat: '-1' }, 12),
+    /repeat interval must be a whole number/,
+  );
+});
+
+test('a repeating row filled in only with a repeat interval is still a half-filled row', () => {
+  assert.throws(
+    () => parseItems({ item1Repeat: '4' }, 12),
+    /row 1 needs an amount/,
+  );
+});
+
+test('a repeating bill can be the lever a later shortfall reaches for, without touching the first', () => {
+  // The same bill lands in week 2 and again in week 7 (repeat: 5). Cash
+  // recovers between the two hits, so this is two separate shortfall runs --
+  // and each occurrence is its own, independent lever: the week-2 landing
+  // fixes run 1, and the week-7 landing is still free to fix run 2 rather
+  // than being treated as the same item already spent.
+  const items = parseItems({
+    item1Name: 'Bill', item1Amount: '80', item1Week: '2', item1Kind: 'out', item1Repeat: '5',
+  }, 10);
+  const rows = forecast({ cash: 50, weeklyIncome: 60, collectionWeeks: 0, weeklyCosts: 50, weeks: 10, items });
+  assert.deepEqual(rows.map((row) => row.balance), [60, -10, 0, 10, 20, 30, -40, -30, -20, -10]);
+  const plans = shortfallPlans(rows, { items, weeklyIncome: 60, weeklyCosts: 50 });
+  assert.equal(plans.length, 2);
+  assert.equal(plans[0].delay.name, 'Bill');
+  assert.equal(plans[0].delay.week, 2);
+  assert.equal(plans[1].delay.name, 'Bill');
+  assert.equal(plans[1].delay.week, 7);
+});
+
 test('parseItems leaves an invalid forecast length for forecast to explain', () => {
   // Otherwise a blank "forecast length" field is reported to the visitor as a
   // problem with row 1, which is not where they would go to fix it.

@@ -13664,3 +13664,37 @@ entries:
         would either duplicate the existing governor or ship the one shape
         the repo's own checklist says not to.
     mrr_end: null
+  - venture: cash-runway-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "Repeats every (weeks)" field to the one-off row form
+        (ventures/cash-runway-planner/app.mjs, index.html, share.mjs).
+        Previously a genuinely recurring-but-not-weekly payment -- a
+        quarterly tax bill, a monthly van payment -- had to be typed as a
+        separate one-off row per occurrence, and the form only carries 8
+        rows total, so a quarterly bill alone could burn half the budget
+        across a 52-week forecast and a monthly one could not be modelled
+        at all. `parseItems` now expands a repeating row into one entry
+        per occurrence inside the forecast window before handing them to
+        `forecast`/`shortfallPlans`, so neither of those needed to change:
+        each occurrence still lands in its own week, still shows on its
+        own line in the results list and the CSV, and is independently
+        eligible to be the payment a shortfall plan suggests moving --
+        the specific occurrence inside that shortfall, not always the
+        first one (covered by a new test asserting two separate shortfall
+        runs each reach for their own occurrence of the same named bill).
+        Added the field to share.mjs's NUMBER_FIELD_IDS so a shared link
+        does not silently drop the interval, the drift class CLAUDE.md
+        already flags from #2962. Ran
+        `node platform/marketing/regen.mjs` after editing index.html and
+        committed the rewritten front-door mirror shards for this
+        venture. Tests: venture suite 40/40 (was 33, +7 new: parseItems
+        expansion/validation, a two-run repeat-lever scenario, two wire
+        tests, one share round-trip); platform/marketing + platform/pages
+        1126/1126; platform/proposal 101/101; platform/privacy +
+        platform/webcheck 132/132. All local -- GitHub Actions runners
+        are starved this session (ci_starvation.py signature, see
+        CLAUDE.md).
+    mrr_end: null

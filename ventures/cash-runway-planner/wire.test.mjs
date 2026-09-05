@@ -24,6 +24,7 @@ function itemFields(overrides = {}) {
     fields[`item${index}Amount`] = '';
     fields[`item${index}Week`] = '';
     fields[`item${index}Kind`] = 'out';
+    fields[`item${index}Repeat`] = '';
   }
   return { ...fields, ...overrides };
 }
@@ -220,6 +221,27 @@ test('a negative balance puts the minus outside the dollar sign', async () => {
   dom.handlers.get('submit')({ preventDefault() {} });
   assert.match(dom.output.innerHTML, /-\$100\.00/);
   assert.doesNotMatch(dom.output.innerHTML, /\$-/);
+});
+
+test('a repeating row lands more than once and each landing shows in the week list', async () => {
+  const dom = await loadApp(fakeDom({
+    values: {
+      ...GOOD, cash: '3000', weeklyIncome: '1000', weeklyCosts: '1000', collectionWeeks: '0', weeks: '8',
+      item1Name: 'Rent', item1Amount: '600', item1Week: '2', item1Kind: 'out', item1Repeat: '3',
+    },
+  }));
+  dom.handlers.get('submit')({ preventDefault() {} });
+  // Weeks 2, 5, and 8 each carry their own landing of the same named row.
+  assert.equal((dom.output.innerHTML.match(/Rent -600\.00/g) || []).length, 3);
+});
+
+test('a repeat interval that is not a whole number is reported rather than silently ignored', async () => {
+  const dom = await loadApp(fakeDom({
+    values: { ...GOOD, item1Name: 'Rent', item1Amount: '600', item1Week: '2', item1Kind: 'out', item1Repeat: '2.5' },
+  }));
+  dom.handlers.get('submit')({ preventDefault() {} });
+  assert.match(dom.output.innerHTML, /Check the figures/);
+  assert.match(dom.output.innerHTML, /repeat interval must be a whole number/);
 });
 
 test('a half-filled one-off row is reported rather than silently dropped', async () => {
