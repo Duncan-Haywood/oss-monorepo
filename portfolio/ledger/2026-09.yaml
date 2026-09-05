@@ -13725,3 +13725,50 @@ entries:
         are starved this session (ci_starvation.py signature, see
         CLAUDE.md).
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-checked this session's own mandate steps rather than trusting the
+        entry above (from an earlier session the same day): 0 open PRs at
+        start (confirmed via list_pull_requests), and the 232-branch
+        supersede_check.py sweep recorded in infra_state.yaml at 07:37Z was
+        not re-run since nothing suggested it was stale. Re-dispatched
+        `Public surface check` fresh (run 33983327678, 18:12Z) rather than
+        trusting the 17:27Z reading -- still `runner_id: 0` in 4s,
+        `ci_starvation.py` exits 1. Confirms Actions is still starved and
+        the three deployment/CI-CD/Codex-on-Hetzner asks are still blocked
+        on the same owner action (`hetzner-ssh-key-is-a-public-key`); did
+        not duplicate that ask or re-implement anything already built.
+      - >-
+        Found and fixed a real gap instead: `platform/privacy/browser-
+        signals.mjs` is the portfolio-wide behavioural check proving every
+        usage tracker honours Do Not Track / Global Privacy Control -- the
+        central "your data never leaves your device, and counting is off-
+        switchable" promise every tool's footer makes. Its `findUsageModules()`
+        walk matched only the literal filename `usage.mjs`, so 5 ventures
+        that load a classic (non-module) `<script src="usage.js">` paired
+        with a require()-based CommonJS test suite --
+        vendor-change-evidence, sponsor-ready, public-record-watch,
+        npm-deployment-evidence, fifo-pick-evidence -- were permanently
+        invisible to the check: "N usage module(s) honour ..." never
+        counted them, in either direction. All 5 already implement the
+        DNT/GPC guard correctly today (read each source directly to
+        confirm), so this was a coverage blind spot, not a live privacy
+        violation -- but an undetected regression in any of the 5 would
+        have shipped silently, on the exact promise CLAUDE.md already
+        flags as the portfolio's least-visible-to-break claim.
+        Widened the match to `usage.mjs` or `usage.js`, updated the
+        existing discovery test's assertion, and added a second test
+        pinning that the 5 known CommonJS trackers are found. Verified:
+        `node platform/privacy/browser-signals.mjs` now reports 169 passing
+        (164 -> 169, 0 failed/errored/undrivable); `node --test
+        platform/privacy/*.test.mjs platform/webcheck/*.test.mjs` 32/32;
+        each of the 5 ventures' own suites still green (29, 52, 25, 22, 34
+        tests). Also re-ran the full CLAUDE.md pre-merge set as a
+        precaution even though this change touches neither marketing nor
+        gitops: regen clean (no diff), platform/marketing+pages 1126/1126,
+        platform/proposal 101/101, all 15 platform/ci unittest modules OK,
+        gitops 407 passed/25 skipped.
+    mrr_end: null

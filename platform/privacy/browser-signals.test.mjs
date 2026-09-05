@@ -126,8 +126,17 @@ test("a module gated on window being defined is still driven", async () => {
 test("discovery finds every venture usage module", () => {
   const found = findUsageModules();
   assert.ok(found.length > 100, `expected the whole portfolio, found ${found.length}`);
-  assert.ok(found.every((p) => p.endsWith("usage.mjs")));
+  assert.ok(found.every((p) => /usage\.m?js$/.test(p)));
   assert.equal(new Set(found).size, found.length, "no duplicates");
+});
+
+test("discovery also finds the classic-script usage.js trackers, not only usage.mjs", () => {
+  const found = findUsageModules();
+  const commonJsTrackers = found.filter((p) => p.endsWith("usage.js"));
+  assert.ok(
+    commonJsTrackers.length >= 5,
+    `expected at least the 5 known CommonJS trackers, found ${commonJsTrackers.length}`,
+  );
 });
 
 test("the driver leaves no globals behind", async () => {
