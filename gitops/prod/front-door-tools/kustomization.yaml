@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 131 files, 552560 bytes
+#   portfolio-front-tools-0: 132 files, 556077 bytes
 #   portfolio-front-tools-1: 111 files, 553739 bytes
 #   portfolio-front-tools-2: 150 files, 546644 bytes
 #   portfolio-front-tools-3: 120 files, 555628 bytes
@@ -111,6 +111,7 @@ configMapGenerator:
       - saas-seat-true-up__how-many-unused-saas-seats-am-i-paying-for.html.gz=saas-seat-true-up__how-many-unused-saas-seats-am-i-paying-for.html.gz
       - saas-seat-true-up__index.html.gz=saas-seat-true-up__index.html.gz
       - saas-seat-true-up__usage.mjs.gz=saas-seat-true-up__usage.mjs.gz
+      - saas-seat-true-up__vs-vendr.html.gz=saas-seat-true-up__vs-vendr.html.gz
       - saas-seat-true-up__vs-zylo.html.gz=saas-seat-true-up__vs-zylo.html.gz
       - cam-reconciliation-check__calc.mjs.gz=cam-reconciliation-check__calc.mjs.gz
       - cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz=cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz
