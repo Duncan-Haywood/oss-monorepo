@@ -151,6 +151,9 @@ libraries included — before running an import or offload. To the maximum
 extent permitted by law, the authors accept no liability for any loss or
 damage arising from its use. See [`LICENSE`](LICENSE) for the full terms.
 
+Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) never
+changes what these tools do.
+
 ## Privacy
 
 Everything here runs locally on your own machine. These tools make no network
