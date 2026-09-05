@@ -148,6 +148,7 @@
   .history-list li:first-child { border-top: 0; }
   .history-meta { color: var(--muted); font-size: 0.85rem; }
   .history-list button { padding: 0.25rem 0.5rem; font-size: 0.85rem; }
+  .history-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
   button { font: inherit; padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--fg); cursor: pointer; }
   button:hover { border-color: var(--accent); }
   footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
@@ -380,7 +381,7 @@
 
   <section aria-labelledby="history-heading">
     <h2 id="history-heading">Saved reviews</h2>
-    <p class="hint">Keep up to 12 reviews in this browser to compare recurring proposals. Nothing is uploaded.</p>
+    <p class="hint">Keep up to 12 reviews in this browser to compare recurring proposals. Load one back into the form above, or delete it. Nothing is uploaded.</p>
     <ul class="history-list" id="history-list"></ul>
     <p class="hint" id="history-empty">No saved reviews yet.</p>
     <div class="actions"><button type="button" id="clear-history">Clear saved reviews</button><span id="history-status" class="hint" role="status" aria-live="polite"></span></div>
@@ -1141,7 +1142,8 @@
     historyList.innerHTML = entries.map((entry) => {
       const date = new Date(entry.savedAt).toLocaleString();
       const currency = escapeHtml(entry.quote.currency);
-      return `<li><span><strong>${currency} ${fmt(entry.quote.price)}</strong> <span class="history-meta">${date} · ${fmt(entry.report.effective_hourly_rate)}/hour · gap ${currency} ${fmt(entry.report.gap_to_target)}</span></span><button type="button" data-history-id="${escapeHtml(entry.id)}">Delete</button></li>`;
+      const id = escapeHtml(entry.id);
+      return `<li><span><strong>${currency} ${fmt(entry.quote.price)}</strong> <span class="history-meta">${date} · ${fmt(entry.report.effective_hourly_rate)}/hour · gap ${currency} ${fmt(entry.report.gap_to_target)}</span></span><span class="history-actions"><button type="button" data-history-load="${id}">Load</button><button type="button" data-history-id="${id}">Delete</button></span></li>`;
     }).join("");
   }
   document.getElementById("save-history").addEventListener("click", () => {
@@ -1151,9 +1153,23 @@
     renderHistory();
   });
   historyList.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-history-id]");
-    if (!button) return;
-    deleteHistory(button.dataset.historyId);
+    const loadButton = event.target.closest("[data-history-load]");
+    if (loadButton) {
+      const entry = listHistory().find((item) => item.id === loadButton.dataset.historyLoad);
+      if (!entry) { historyStatus.textContent = "That saved review is gone."; renderHistory(); return; }
+      for (const id of ids) {
+        if (entry.quote[id] !== undefined) el[id].value = String(entry.quote[id]);
+      }
+      if (preset) preset.value = "custom";
+      dismissExampleNote();
+      update();
+      recordEvent("history_loaded");
+      historyStatus.textContent = "Loaded into the form above.";
+      return;
+    }
+    const deleteButton = event.target.closest("[data-history-id]");
+    if (!deleteButton) return;
+    deleteHistory(deleteButton.dataset.historyId);
     recordEvent("history_deleted");
     historyStatus.textContent = "Saved review deleted.";
     renderHistory();

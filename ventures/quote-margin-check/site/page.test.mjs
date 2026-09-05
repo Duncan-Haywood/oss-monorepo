@@ -365,6 +365,22 @@ test("a rejected quote clears the stale overrun-sensitivity table along with its
   assert.match(body, /sensitivity\.querySelector\("tbody"\)\.innerHTML = ""/, "#sensitivity keeps its stale overrun rows instead of being cleared");
 });
 
+test("a saved review can be loaded back into the form, not only deleted", async () => {
+  // history.mjs could save and delete a review but never restore one, so the
+  // "compare recurring proposals" saved-reviews list was write-only: a
+  // freelancer with 12 saved quotes had no way to bring an old one back into
+  // the form to re-check or re-send it without retyping every field.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /data-history-load/, "no load control is rendered per saved review");
+  assert.match(page, /recordEvent\("history_loaded"\)/, "loading a saved review is not counted");
+  const loadHandler = page.match(/const loadButton = event\.target\.closest\("\[data-history-load\]"\);([\s\S]*?)\n {4}\}\n {4}const deleteButton/);
+  assert.ok(loadHandler, "the history click handler has no load branch");
+  const body = loadHandler[1];
+  assert.match(body, /for \(const id of ids\)/, "load does not restore every quote field");
+  assert.match(body, /el\[id\]\.value = String\(entry\.quote\[id\]\)/, "load does not write the saved values into the inputs");
+  assert.match(body, /update\(\)/, "load does not recompute the report after restoring the fields");
+});
+
 test("every scenario panel on the page reports a usage signal of its own", async () => {
   // The overrun table shipped without one, so nothing recorded whether the
   // time-overrun view was ever read while every panel beside it was counted.

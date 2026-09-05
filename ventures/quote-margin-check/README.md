@@ -221,7 +221,10 @@ CLI. After the review, the page offers three user-controlled workflow
 choices (send, revise, or hold) and counts the selected `quote_decision_*`
 event locally when the visitor clicks one. The
 browser also counts `history_saved`, `history_deleted`, and `history_cleared`
-when local review snapshots are stored or removed. A `report_downloaded`
+when local review snapshots are stored or removed, and `history_loaded` when a
+saved review's figures are restored into the form (each saved review has its
+own **Load** control alongside **Delete**, so a recurring proposal can be
+brought back for a re-check without retyping every field). A `report_downloaded`
 event is counted when the JSON report is saved locally. CSV copy
 and download events happen only when the user invokes those actions. Copying
 the review summary records `review_summary_copied` the same way. That
