@@ -73,9 +73,12 @@ import {
   COMPARISON_FILE_PATTERN,
   comparisonSubject,
   comparisonSubjectKey,
+  comparisonProductGroups,
+  comparisonProductSlug,
   discoverComparisons,
   groupComparisons,
   renderComparePage,
+  renderCompareProductPage,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -4176,6 +4179,104 @@ test('renderComparePage links every entry, disclaims, and counts itself honestly
   // And no third-party anything: /about/ promises there are none.
   assert.ok(!/src="https?:\/\//.test(html));
   assert.ok(!/href="https?:\/\/fonts\./.test(html));
+  // The index links each product's own page. A spoke the hub does not link is
+  // reachable only from the sitemap: it renders, it deploys, it 200s, and no
+  // reader arrives.
+  assert.ok(html.includes('href="../compare/jobber/"'), 'Jobber’s own page is not linked');
+  // And only for the products that have one. `Widget` is compared by a single
+  // tool, so no page is generated for it and a link would be a 404.
+  assert.ok(!html.includes('compare/widget/'), 'a single-tool product must not be linked a page');
+});
+
+test('a product slug is URL-safe and matches what the apex nginx capture allows', () => {
+  // The two ends of one contract: `comparisonProductSlug` decides the URL on
+  // this host *and* (through `compareProductKey`) the ConfigMap key on the
+  // apex, whose `^/compare/(?<vs>[a-z0-9][a-z0-9-]*)/?$` location can only ask
+  // for keys of that shape. A slug outside it is a page nginx never requests.
+  const capture = /^[a-z0-9][a-z0-9-]*$/;
+  for (const subject of ['Jobber', 'Housecall Pro', "Amazon's own Revenue Calculator", 'GovWin IQ']) {
+    const slug = comparisonProductSlug(comparisonSubjectKey(subject));
+    assert.match(slug, capture, `"${subject}" produces a slug nginx cannot capture`);
+  }
+  // Injective: the key alphabet is lowercase alphanumerics and single spaces,
+  // so no key can already contain the hyphen that spaces become. Two products
+  // sharing a slug would silently overwrite each other's page.
+  const keys = ['housecall pro', 'housecall-pro'].map(comparisonSubjectKey);
+  assert.equal(new Set(keys.map(comparisonProductSlug)).size, new Set(keys).size);
+});
+
+test('renderCompareProductPage is about one product and claims nothing about it', () => {
+  const entry = (subject, slug, title) => ({
+    subject,
+    subjectKey: comparisonSubjectKey(subject),
+    slug,
+    file: `vs-${subject.toLowerCase()}.html`,
+    title,
+    description: 'Does the arithmetic for a job.',
+  });
+  const groups = groupComparisons([
+    entry('Jobber', 'a-calculator', 'A Calculator'),
+    entry('Jobber', 'b-calculator', 'B Calculator'),
+    entry('Aspire', 'c-calculator', 'C Calculator'),
+    entry('Aspire', 'd-calculator', 'D Calculator'),
+    entry('Widget', 'e-calculator', 'E Calculator'),
+  ]);
+  const products = comparisonProductGroups(groups);
+  // Two products, not three: `Widget` has a single comparison, so it stays in
+  // the index's one-each band and gets no page. See `COMPARE_PRODUCT_MIN_TOOLS`.
+  assert.deepEqual(products.map((g) => g.subject).sort(), ['Aspire', 'Jobber']);
+
+  const jobber = products.find((g) => g.subject === 'Jobber');
+  const html = renderCompareProductPage({
+    group: jobber,
+    groups,
+    surfaces: [
+      { slug: 'a-calculator', title: 'A Calculator' },
+      { slug: 'b-calculator', title: 'B Calculator' },
+    ],
+    categoryGroups: [],
+    baseUrl: 'https://example.test/',
+  });
+
+  for (const item of jobber.items) {
+    assert.ok(
+      html.includes(`href="../../${item.slug}/${item.file}"`),
+      `${item.slug}/${item.file} is not linked`,
+    );
+  }
+  assert.ok(html.includes('<link rel="canonical" href="https://example.test/compare/jobber/">'));
+  // Two segments deep, so every relative reference needs `../../` — a page
+  // built with the index's own `../` resolves its stylesheet and its crumbs
+  // one directory above where they live.
+  assert.ok(!/href="\.\.\/(?!\.\.\/)/.test(html), 'a spoke must resolve against ../../');
+  // The searcher's phrase is in the title, where it describes the question the
+  // page answers; the heading states only what the linked pages are.
+  assert.match(html, /<title>Jobber alternatives: 2 free tools/);
+  assert.ok(
+    !/better than/i.test(html),
+    'this page indexes comparisons; it does not make one',
+  );
+  // The notices every surface naming another company's product carries here.
+  assert.match(html, /No warranty/);
+  assert.ok(html.includes('trademark of its owner'));
+  assert.match(html, /not\s+affiliated with, endorsed by, or reviewed by/i);
+  // Cross-linked to its siblings, which is the internal linking the catalogue
+  // measured zero of on 2026-09-05 — and not to itself.
+  assert.ok(html.includes('href="../../compare/aspire/"'), 'the sibling spoke is not linked');
+  assert.ok(!html.includes('href="../../compare/jobber/"'), 'a spoke must not link itself');
+  // Its own usage row, so "did a product page earn what the index could not"
+  // stays answerable.
+  assert.ok(html.includes('data-pf-slug="compare/jobber"'));
+  assert.ok(!/src="https?:\/\//.test(html));
+});
+
+test('the hub sitemap lists every product page the build writes', () => {
+  const xml = renderHubSitemap('https://example.test/', ['trades'], ['jobber', 'housecall pro']);
+  assert.ok(xml.includes('<loc>https://example.test/compare/</loc>'));
+  assert.ok(xml.includes('<loc>https://example.test/compare/jobber/</loc>'));
+  // The space in the key becomes a hyphen in the URL, via `comparisonProductSlug`
+  // rather than a second normalisation written here.
+  assert.ok(xml.includes('<loc>https://example.test/compare/housecall-pro/</loc>'));
 });
 
 test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {

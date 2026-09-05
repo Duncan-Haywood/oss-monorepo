@@ -704,8 +704,17 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // and nothing else in the artifact would show it: every page still resolves.
   const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
   if (llms !== null) {
+    // The parent segment is captured as well as the leaf, because a leaf alone
+    // cannot tell a product from a page filed *under* a site-own directory.
+    // `/compare/jobber/` is one of the comparison index's per-product pages,
+    // and reading its leaf in isolation says a product called `jobber` shipped
+    // — which is both false and, worse, the reading that would make a real
+    // missing product look fine. Only URLs whose parent is the site root are
+    // product claims.
     const listed = new Set(
-      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/\)/g)].map((m) => m[1]),
+      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/([^/)]+)\/\)/g)]
+        .filter((m) => !SITE_OWN_DIRS.has(m[1]))
+        .map((m) => m[2]),
     );
     for (const product of productDirs) {
       if (!listed.has(product)) {
