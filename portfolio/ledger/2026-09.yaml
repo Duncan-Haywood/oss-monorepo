@@ -12723,3 +12723,32 @@ entries:
         (gitops/agents/host/) is already built and tested but not yet
         installed on the boxes, which needs SSH.
     mrr_end: null
+  - venture: hot-tub-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "Copy share link" feature (PR #3343), continuing the rollout
+        started on pergola-bid-calculator (#3341): a new share.mjs with
+        encodeInputs/decodeInputs round-trips every hour, cost, and rate
+        field (28 numeric fields, 5 boolean add-on toggles, and the
+        size/access/power enum selects validated against calc.mjs's own
+        preset ids -- these are direct calculateBid inputs via
+        billCircuit/billCrane/unitCostMultiplier, not suggestion-only like
+        retaining-wall's wallTypePreset) through a URL fragment, never sent
+        to a server. Wired a "Copy share link" button into index.html with
+        the established copyLink()/restoreShare() pair, marking the
+        size/access/power "suggested" fields (hoursSet, unitCostMultiplier,
+        hoursAccess, hoursPower) as already-edited on restore so a later
+        preset change never clobbers a shared value. Picked this venture for
+        the same reason as pergola: identical file shape (calc.mjs +
+        proposal.mjs, no share.mjs) to calculators that already have this
+        feature; re-checked origin/main immediately before starting, no
+        collision. Verified: `node --test
+        ventures/hot-tub-bid-calculator/*.test.mjs` (84/84, including 8 new
+        share tests), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1124/1124), and `node
+        platform/marketing/regen.mjs`. GitHub Actions runners are starved
+        today (ci_starvation.py exits 1 on a fresh dispatch), so this stands
+        in for CI per "absent CI is not failed CI".
+    mrr_end: null
