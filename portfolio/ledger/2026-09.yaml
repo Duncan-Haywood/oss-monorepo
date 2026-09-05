@@ -10687,3 +10687,96 @@ entries:
         public surface is down (see CLAUDE.md), so this ships to `main` as
         code only, ready to serve once the owner's infra fix lands.
     mrr_end: null
+  - venture: basement-waterproofing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same gap `spray-foam-bid-
+        calculator` and `well-pump-bid-calculator` closed earlier this month:
+        a waterproofing shop comparing a takeoff with a homeowner, GC, or
+        office manager had no way to send a link that reopens the exact job
+        -- system, perimeter, wall height, wells, cracks, pit, pump, backup,
+        discharge -- instead of the recipient retyping forty-plus numbers,
+        which is how that comparison never happens or how it happens wrong.
+        Assigned this single venture; confirmed first that no open PR or
+        branch touched it. Read `calc.mjs` (42 numeric fields, 3 flags --
+        `newSumpPit`, `freezeDischarge`, `includeDehumidifier` -- and 3 enums
+        -- `systemId`/`pumpId`/`backupId` sourced from `SYSTEM_PRESETS`/
+        `PUMP_PRESETS`/`BACKUP_PRESETS`), `index.html`, and `proposal.mjs`
+        fully before writing anything. Built `share.mjs`/`share.test.mjs`
+        (pure allowlisted encode/decode of all 42 numbers, 3 flags, and 3
+        enums, the enums validated against `calc.mjs`'s own preset ids rather
+        than a hand-duplicated list, matching the drift class CLAUDE.md's
+        "RENAME SUSPECTED" note and #2962 describe for a select field left
+        off an allowlist). This venture's proposal panel already carries
+        `depositPercent`, `validDays`, `paymentTerms`, `proposalNotes`, and
+        `proposalExclusions` -- exactly `platform/proposal/terms.mjs`'s
+        five-field spec -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from `spray-foam-bid-calculator`
+        (byte-identical, confirmed with `diff`) so all five terms ride in the
+        link instead of silently reverting to the venture's defaults on the
+        recipient's end (the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29). Added a
+        "Copy share link" button and on-load `restoreShare()` to
+        `index.html`, called last (after `restoreCompany`/`refreshProposal`
+        wiring is registered but before the page's first `update()`) so a
+        shared link's system/pump/backup selection and forty-plus rates win
+        over the page's own static HTML defaults. Updated the "Is my data
+        uploaded anywhere?" FAQ entry (both the visible copy and the FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan) -- it previously stated outright that this
+        calculator "does not... generate a shareable bid link", which this
+        change makes false, so the wording now matches `spray-foam-bid-
+        calculator`'s pattern instead. Also updated the footer privacy
+        paragraph and the SoftwareApplication `featureList` to mention the
+        share link, for the same honesty-about-what-a-link-carries reason.
+        Regenerated the front-door-tools mirror (`front-door-tools.mjs
+        --write` -- the correct path is `platform/marketing/`, not
+        `platform/pages/`) since the venture's file set changed -- new
+        `share.mjs` shard, updated `index.html` shard. `origin/main` moved
+        four times while this was in progress -- #3258 (a mirror-staleness
+        fix for `dryer-vent-bid-calculator`), #3256 (a new
+        `einvoice-preflight` page landing without its own mirror/sitemap/
+        catalog regen), #3260 (a `platform/pages/build.mjs` wording fix
+        that, because `front-door.mjs` shares code with `build.mjs`,
+        invalidated a mirror this session had already regenerated), and
+        #3261 (another session's own regen for `einvoice-preflight`,
+        landing while this session's rebase for #3260 was in flight).
+        Rebased onto each in turn rather than forcing a stale mirror
+        through -- taking `origin/main`'s side on any generated-file
+        conflict and re-running `front-door-tools.mjs --write` and
+        `front-door.mjs --write` fresh against the new base every time, so
+        the committed mirror, sitemap, and catalog always reflect current
+        `main` plus only this venture's addition, never a hand-merge of
+        two independently-generated artifacts. Verified against the final,
+        four-times-rebased state (the last rebase, onto #3261, produced a
+        byte-identical mirror with no further regen needed, confirming the
+        two sessions' fixes for `einvoice-preflight` had converged):
+        venture's own suite 105/105 (was 92); `platform/proposal/*.test.mjs`
+        97/97 (includes `term-ids.test.mjs`'s drift check across both the
+        shared-spec and vendored-module mechanisms); full `platform/pages`
+        suite 884/884; full `platform/marketing` suite 208/208;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 686 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs basement-waterproofing-bid-calculator` --
+        no-warranty clause present on all 3 published pages. Manually
+        exercised the round trip outside the test framework too, driving
+        `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample bid (120 lf seepage house, interior drain, new
+        sump, half-HP pump, battery backup, 3 window wells, floor and wall
+        crack repair, freeze-proof discharge, a 50% deposit held 15 days
+        with custom exclusions/payment/notes text): encoded, decoded, and
+        confirmed every one of the 42 numeric fields, the 3 flags, the 3
+        enums, and the 5 proposal terms matched the sender's input exactly,
+        and the recipient's recalculated price matched the sender's to the
+        cent ($23,377.50 both sides) -- the exact failure this feature
+        exists to prevent. GitHub Actions is documented in this repo's
+        CLAUDE.md as starved and the Hetzner cluster as down -- both
+        pre-diagnosed, owner-blocked, not re-investigated here -- so all of
+        the above is local verification standing in for CI per CLAUDE.md's
+        "absent CI is not failed CI" rule. Not deployed: the public surface
+        is down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
