@@ -189,6 +189,7 @@ jobs:
             bootstrap/scripts/load-ssh-key.sh \
             bootstrap/scripts/gen-age-key.sh \
             bootstrap/scripts/seal-owner-secrets.sh \
+            bootstrap/scripts/enable-codex-governor.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
