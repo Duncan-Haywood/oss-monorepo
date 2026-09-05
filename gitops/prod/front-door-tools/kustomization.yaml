@@ -35,7 +35,7 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 552226 bytes
 #   portfolio-front-tools-1: 113 files, 555330 bytes
-#   portfolio-front-tools-2: 150 files, 553745 bytes
+#   portfolio-front-tools-2: 151 files, 556566 bytes
 #   portfolio-front-tools-3: 119 files, 555750 bytes
 #   portfolio-front-tools-4: 127 files, 553889 bytes
 #   portfolio-front-tools-5: 115 files, 544487 bytes
@@ -448,6 +448,7 @@ configMapGenerator:
       - notary-trip-quote__calc.mjs.gz=notary-trip-quote__calc.mjs.gz
       - notary-trip-quote__how-much-to-charge-for-a-mobile-notary-appointment.html.gz=notary-trip-quote__how-much-to-charge-for-a-mobile-notary-appointment.html.gz
       - notary-trip-quote__index.html.gz=notary-trip-quote__index.html.gz
+      - notary-trip-quote__share.mjs.gz=notary-trip-quote__share.mjs.gz
       - notary-trip-quote__usage.mjs.gz=notary-trip-quote__usage.mjs.gz
       - notary-trip-quote__vs-notarygadget.html.gz=notary-trip-quote__vs-notarygadget.html.gz
       - booth-rent-vs-commission__calc.mjs.gz=booth-rent-vs-commission__calc.mjs.gz

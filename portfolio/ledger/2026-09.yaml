@@ -14065,3 +14065,60 @@ entries:
         verification per CLAUDE.md's "ship without review ceremony", CI
         currently metered/starved fleet-wide.
     mrr_end: null
+  - venture: notary-trip-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same share-link template
+        already on mobile-detailing-bid-calculator, vinyl-liner-bid-calculator
+        and sewer-hydrojet-bid-calculator, on the venture from the assigned
+        24-candidate list that most cleanly matched: a single-page quote (19
+        plain number fields, no presets, no checkboxes, no secondary
+        comparison panel) already carrying the proposal.mjs customer-quote
+        panel with the standard TERM_IDS. Checked and ruled out the weaker
+        fits first: grant-deadline-tracker and grant-reporting-tracker are
+        internal deadline trackers with no client-facing price to share;
+        consent-change-record is a compliance log, not a quote;
+        appliance-repair-quote-calculator and portable-restroom-event-quote
+        also had proposal.mjs but carry a second input panel (repair-vs-
+        replace comparison; unit-count fleet suggestion) that would have
+        complicated the field-derivation guarantee for no benefit. No
+        concurrent branch or PR touched notary-trip-quote (checked git log
+        origin/main and git branch -r for the slug).
+        calc.mjs had no `defaults` export (unlike the three precedent
+        ventures), so index.html's own 19-field `ids` array and the `value=`
+        attributes on the form were the only record of the worked example.
+        Added `export const defaults` to calc.mjs, verified against
+        calc.test.mjs's own `base`/`signing` fixtures and the HTML's `value=`
+        attributes field-by-field, then pointed both index.html's `ids`
+        (`Object.keys(defaults)`) and the new share.mjs's `NUMBER_FIELD_IDS`
+        at it, so a field cannot be added to one and silently missed by the
+        other -- the exact drift class CLAUDE.md's rename-drift note
+        describes. Vendored proposal-terms.mjs/proposal-terms.test.mjs
+        unchanged (confirmed byte-identical to mobile-detailing-bid-
+        calculator's copy before vendoring). Wired a "Copy share link" button
+        beside "Copy booking summary", restoreShare() running after the
+        device's own localStorage draft restore so an explicitly shared link
+        wins, and a "Nothing leaves your browser" privacy-footer line
+        matching the sibling ventures. page.test.mjs had no stale
+        share-forbidding assertion to replace (this venture never had an
+        inline share button before); replaced its literal-array `ids` check
+        with one against `Object.keys(defaults)` and added the standard
+        share-wiring assertions used on the three precedent ventures.
+        Confirmed via platform/pages/link.mjs's pageHasOwnShareLink that the
+        page is correctly detected as carrying its own share module (this
+        venture has no saved-bids/jobs.mjs band, so the generic build-time
+        bid-link injector was never a factor either way).
+        Verified: venture suite 105/105 (23 new in share.test.mjs incl. a
+        round-trip against calc.mjs's own `defaults`, 21 in
+        proposal-terms.test.mjs, both new page.test.mjs assertions),
+        platform/marketing+platform/pages 1126/1126, platform/proposal
+        101/101 (incl. term-ids.test.mjs), platform/privacy+platform/webcheck
+        50/50, python3 -m pytest gitops/tests (408 passed, 25 skipped,
+        unchanged from baseline) after node platform/marketing/regen.mjs
+        rewrote gitops/prod/front-door* and the notary-trip-quote mirror
+        shard, and all 15 platform/ci unittest modules (run from inside
+        platform/ci, per CLAUDE.md's note that pytest cannot collect them
+        from the repo root).
+    mrr_end: null
