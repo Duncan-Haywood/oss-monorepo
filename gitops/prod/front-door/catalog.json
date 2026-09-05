@@ -320,7 +320,7 @@
       "url": "https://marisstella.dev/tools/public-record-watch/",
       "category": "Compliance checks & evidence records",
       "description": "Free, no-signup, no-upload tool that compares two dated public-register snapshots (licenses, permits, registrations) in your browser and reports what changed. Runs entirely client-side.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "fifo-pick-evidence",
