@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 174 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 175 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-03T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.</summary>
+  </entry>
+  <entry>
+    <title>Vendor Change Watch — See What Changed in a Vendor&#39;s Terms</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vendor-change-watch/"/>
+    <id>tag:marisstella.dev,2026:tool/vendor-change-watch</id>
+    <published>2026-08-29T00:00:00Z</published>
+    <updated>2026-08-29T00:00:00Z</updated>
+    <category term="Compliance checks &amp; evidence records"/>
+    <summary type="text">Paste a vendor&#39;s terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.</summary>
   </entry>
   <entry>
     <title>Security Camera Installation Bid Calculator — CCTV Storage</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a dryer vent cleaning from extra stories, extra feet of duct, extra dryers, a rooftop termination, camera inspection, crushed-flex replacement, and a nest — not a published $99 special. See the walk-away number before you match a cheaper wall-cap quote.</summary>
-  </entry>
-  <entry>
-    <title>Drywall Bid Calculator — Price the Finish Level, Not Sheets</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/drywall-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/drywall-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a hang-and-finish drywall job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels 0–5 — not a flat price per square foot. See labor hours, walk-away price, and the margin a $1.50-a-foot special actually leaves.</summary>
   </entry>
 </feed>

@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 174,
-  "collection_total": 174,
+  "served_here": 175,
+  "collection_total": 175,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -32,7 +32,7 @@
       "id": "evidence",
       "name": "Compliance checks & evidence records",
       "url": "https://marisstella.dev/c/evidence/",
-      "tool_count": 18
+      "tool_count": 19
     },
     {
       "id": "marketplace",
@@ -1369,6 +1369,14 @@
       "category": "Trade & contractor bids",
       "description": "Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away price an $8 / sq ft special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "vendor-change-watch",
+      "name": "Vendor Change Watch — See What Changed in a Vendor's Terms",
+      "url": "https://marisstella.dev/tools/vendor-change-watch/",
+      "category": "Compliance checks & evidence records",
+      "description": "Paste a vendor's terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.",
+      "pages": 1
     },
     {
       "slug": "vinyl-liner-bid-calculator",
