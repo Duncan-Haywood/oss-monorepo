@@ -13913,3 +13913,56 @@ entries:
         A fresh build.mjs/check.mjs run after regen still reports 716 pages,
         no dead links.
     mrr_end: null
+  - venture: screened-porch-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private bid link (#3406), the same share-link
+        template used across the portfolio (pool-plaster-bid-calculator,
+        vinyl-liner-bid-calculator, and others), adapted to this venture's
+        own attachment/roof/ceiling/mesh/height preset ids and 39
+        rate/geometry fields plus three boolean flags (includeFan,
+        includePermit, demoExisting). Added share.mjs/share.test.mjs (enum
+        fields checked against calc.mjs's own ATTACHMENT_PRESETS/
+        ROOF_PRESETS/CEILING_PRESETS/MESH_PRESETS/HEIGHT_PRESETS rather than
+        a hand-duplicated list) and vendored proposal-terms.mjs/
+        proposal-terms.test.mjs unchanged. Wired a "Copy share link" button
+        into the existing summary-actions row and restoreShare() marks every
+        restored KIT_ID field as edited before the page's own startup
+        applyMeshKit()/applyRoofKit()/applyCeilingKit()/applyHeightKit()/
+        applyGeometryKits() sequence runs, so a shared link's numbers are not
+        silently overwritten by a freshly computed suggestion.
+      - >-
+        This session found 5 of ~184 ventures still missing a share link and
+        attempted all three of the remaining fixed-field ones
+        (pool-plaster-bid-calculator, vinyl-liner-bid-calculator,
+        screened-porch-bid-calculator). The first two were each
+        independently duplicated and merged by concurrent sessions (#3401,
+        #3405) before this session's PR could land -- both reconciled
+        cleanly via portfolio/ledger/supersede_check.py (confirmed
+        superseded, no unique content lost) rather than shipping a
+        duplicate; see the closed #3403. Only screened-porch-bid-calculator
+        (#3406) was not simultaneously claimed by another session, checked
+        via a fresh `git fetch origin main` immediately before each commit
+        and again immediately before merge.
+      - >-
+        Verified: venture suite 106/106, platform/marketing+pages 1126/1126,
+        platform/proposal 101/101 (incl. term-ids.test.mjs), platform/privacy
+        +webcheck 50/50. platform/pages/roundtrip.mjs against a real
+        Chromium instance round-tripped all 65 fields and the $5,671.38
+        headline figure exactly. ci_starvation.py confirmed all 19 check
+        runs on #3406 were runner_id: 0 (starved, not a real failure) before
+        merging on local verification per CLAUDE.md's "absent CI is not
+        failed CI."
+      - >-
+        Also: refreshed the gh-pages snapshot after merging
+        (platform/ci/pages_state.py reported stale at 9302a730 vs main's
+        87021fd1; ran CONFIRM=publish-pages-branch PUSH=1
+        platform/pages/publish-branch.sh, now current). Confirmed via
+        Public surface check (run 33992439383, 2026-09-05) and Outage
+        triage that the Hetzner k3s cluster and HETZNERSSHKEY rotation
+        remain owner-blocked, unchanged since the ledger's existing
+        infra_state.yaml readings -- no new finding there, only
+        re-verification before reporting it to the owner.
+    mrr_end: null
