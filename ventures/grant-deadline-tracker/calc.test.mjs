@@ -5,6 +5,7 @@ import {
   addMonths,
   compareLateReport,
   csvReport,
+  icsCalendar,
   lateReportNote,
   loadGrants,
   nextDueFromInterval,
@@ -245,6 +246,75 @@ test("lateReportNote names the default food-grant arithmetic a board can paste",
   assert.match(note, /\$680\.00/);
   assert.match(note, /\$20,820\.00/);
   assert.match(note, /\$20,912\.00/);
+});
+
+test("icsCalendar produces a well-formed RFC 5545 calendar with one all-day VEVENT per row", () => {
+  const rows = summarize([food], "2026-08-25");
+  const ics = icsCalendar(rows, new Date("2026-08-25T12:00:00Z"));
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /\r\nEND:VCALENDAR\r\n$/);
+  assert.match(ics, /VERSION:2\.0\r\n/);
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 1);
+  assert.equal((ics.match(/END:VEVENT/g) || []).length, 1);
+  // All-day: DTSTART is the due date itself, DTEND is the day after (the
+  // ICS all-day convention -- an all-day event's end date is exclusive).
+  assert.match(ics, /DTSTART;VALUE=DATE:20260915\r\n/);
+  assert.match(ics, /DTEND;VALUE=DATE:20260916\r\n/);
+  assert.match(ics, /SUMMARY:Food\\, Inc\. — Report due\r\n/);
+});
+
+test("icsCalendar sets a reminder alarm three days ahead of each obligation", () => {
+  const rows = summarize([food], "2026-08-25");
+  const ics = icsCalendar(rows, new Date("2026-08-25T12:00:00Z"));
+  assert.match(ics, /BEGIN:VALARM\r\nACTION:DISPLAY\r\n/);
+  assert.match(ics, /TRIGGER:-P3D\r\n/);
+  assert.match(ics, /END:VALARM\r\n/);
+});
+
+test("icsCalendar escapes commas, semicolons, and backslashes in free text so a calendar app parses the file correctly", () => {
+  // Reuses the same "Food, Inc." name and quoted funder that the CSV escape
+  // test above locks, so both export formats are held to the same input.
+  const rows = summarize([{ ...food, name: 'Ross; Building\\Co, LLC' }], "2026-08-25");
+  const ics = icsCalendar(rows, new Date("2026-08-25T12:00:00Z"));
+  assert.match(ics, /SUMMARY:Ross\\; Building\\\\Co\\, LLC — Report due\r\n/);
+  // The raw delimiter characters must never appear unescaped in the property value.
+  const summaryLine = ics.split("\r\n").find((line) => line.startsWith("SUMMARY:"));
+  assert.doesNotMatch(summaryLine, /[^\\];/);
+  assert.doesNotMatch(summaryLine, /[^\\],/);
+});
+
+test("icsCalendar folds a content line longer than 75 octets on a UTF-8 character boundary", () => {
+  const longName = "É".repeat(40) + " Community Development Fund and Neighborhood Partnership";
+  const rows = summarize([{ ...food, name: longName }], "2026-08-25");
+  const ics = icsCalendar(rows, new Date("2026-08-25T12:00:00Z"));
+  const summaryBlock = ics.split("BEGIN:VEVENT")[1].split("DESCRIPTION")[0];
+  // A folded property is spread across a CRLF + single-space continuation.
+  assert.match(summaryBlock, /SUMMARY:[\s\S]*\r\n [\s\S]*due\r\n/);
+  // Every physical line (before the trailing property terminator) must stay
+  // within the 75-octet limit, and no multi-byte character is split.
+  for (const line of ics.split("\r\n")) {
+    if (!line) continue;
+    assert.ok(new TextEncoder().encode(line).length <= 75, `line exceeds 75 octets: ${line}`);
+    assert.doesNotMatch(line, /�/, "a folded line split a multi-byte character");
+  }
+});
+
+test("icsCalendar gives each grant a stable UID that is unchanged across exports and unique per row", () => {
+  const rows = summarize([food, { ...food, name: "Second Grant" }], "2026-08-25");
+  const first = icsCalendar(rows, new Date("2026-08-25T12:00:00Z"));
+  const second = icsCalendar(rows, new Date("2026-09-01T09:00:00Z"));
+  const uidsOf = (ics) => [...ics.matchAll(/UID:([^\r\n]+(?:\r\n [^\r\n]+)*)/g)].map((m) => m[1].replace(/\r\n /g, ""));
+  const uidsFirst = uidsOf(first);
+  const uidsSecond = uidsOf(second);
+  assert.equal(uidsFirst.length, 2);
+  assert.deepEqual(uidsFirst, uidsSecond); // stable across a different DTSTAMP/export time
+  assert.notEqual(uidsFirst[0], uidsFirst[1]); // unique within one export
+});
+
+test("icsCalendar returns a structurally valid empty calendar when there is nothing to export", () => {
+  const ics = icsCalendar([], new Date("2026-08-25T12:00:00Z"));
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n[\s\S]*END:VCALENDAR\r\n$/);
+  assert.equal(ics.includes("BEGIN:VEVENT"), false);
 });
 
 test("summarize keeps the original row index after sorting by due date", () => {

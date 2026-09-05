@@ -46,6 +46,23 @@ import yaml
 
 REPO = Path(__file__).resolve().parents[2]
 ASKS = REPO / "portfolio" / "ledger" / "asks.yaml"
+INFRA = REPO / "portfolio" / "ledger" / "infra_state.yaml"
+
+# A reading older than this stops counting. It does not become "up" -- it
+# becomes `unknown`, and an outage route whose prerequisite is unknown is
+# reported as unverified rather than as working. The whole
+# 2026-08-30..09-04 "nothing is served" episode was a stale claim being read
+# as a current one, so the failure direction here is deliberate: silence
+# about a prerequisite must never look like a healthy prerequisite.
+#
+# Three days, because both readings below are dispatch-a-workflow cheap and
+# the states they track (a metered allowance, a dead cluster) can change on
+# their own -- the 2026-08-26 starvation window lifted unattended at
+# 00:00:53Z on the first of the month.
+STALE_AFTER_DAYS = 3
+
+UP, DOWN, UNKNOWN = "up", "down", "unknown"
+VERDICTS = [UP, DOWN, UNKNOWN]
 
 # What an item gates, most consequential first. This is `break-even.md`'s own
 # "sorted instead by what each ask gates" ranking, not a new one: gates all
@@ -63,14 +80,129 @@ REQUIRED = {
     "opened", "action", "unlocks", "blocked_by", "note",
 }
 
+# Optional. `outage: true` lifts a row above the `GATES` ordering entirely.
+#
+# It exists because the ordering above encodes an assumption that held until
+# 2026-09-04: that a `deployment` row "buys deployment for products that
+# already build", i.e. that the surface those products would deploy *to* is
+# working. On that date `Public surface check` (run 33887885219) measured all
+# three hostnames refusing connections on 443 and 0 of 24 sampled sitemap URLs
+# returning anything. With nothing served, a `revenue` row cannot earn and a
+# `distribution` row cannot distribute — every other ranking in this file is
+# downstream of a host answering at all, so the row that restores one outranks
+# them by construction rather than by urgency.
+#
+# **Reserved for a measured, current loss of the public surface**, evidenced by
+# a run id in the row's own text. It is not a priority flag: "this feels
+# important" is what `gates` is for, and a queue where anything can jump the
+# ordering is the cheapest-first #139 table again with extra steps. `check()`
+# enforces the type; the narrowness is a convention this comment is the whole
+# statement of.
+#
+# **More than one row can hold it, and on 2026-09-04 two do.** The paragraph
+# above was written the same day and says "the row that restores one outranks
+# them" — singular, because the repo still carried a one-surface model. #3199
+# had just established there are two independent public origins: the k3s
+# cluster behind `marisstella.dev`, and GitHub Pages at
+# `duncan-haywood.github.io/monorepo-projects/`, which needs no cluster, no SSH
+# key and no sealed Secret. `Public surface check` run 33912053750 measured
+# both dark in the same sweep — the three cluster hostnames refusing
+# connections on 443, and the Pages origin returning 404.
+#
+# The criterion is unchanged and both rows meet it on their own terms: each is
+# a row that *restores a public surface*, evidenced by that run. What the
+# singular phrasing hid is that they are alternatives rather than a queue. So
+# the flag ranks a row against the non-outage rows; it deliberately does not
+# rank the outage rows against each other, and `render()` says so rather than
+# implying the first is the one to do.
+OUTAGE = "outage"
+
+# Optional. `requires: [<reading>, ...]` names shared infrastructure a restore
+# route needs to be *working* before granting it changes anything.
+#
+# It exists because `outage: true` answers "does this row restore a public
+# surface?" and nothing answered "can it, today?". Those came apart on
+# 2026-09-04: `deploy-settings` reaches an origin no other row reaches, so it
+# is genuinely an independent route, and it was simultaneously un-grantable,
+# because the workflow that builds and publishes Pages needs a runner and
+# runner assignment had stopped that evening. The banner said "do the cheapest
+# first" and the cheapest bought nothing.
+#
+# The names must exist in `infra_state.yaml`, which holds a measured verdict
+# and the run id it came from for each. `check()` enforces both the shape and
+# the cross-reference, so a typo cannot silently make a route look fine.
+REQUIRES = "requires"
+
 
 def load(path: Path = ASKS) -> list[dict]:
     doc = yaml.safe_load(path.read_text())
     return doc["decisions"]
 
 
-def check(decisions: list[dict]) -> list[str]:
+def load_infra(path: Path = INFRA) -> dict:
+    """Measured readings of shared infrastructure. Missing file -> no readings."""
+    if not path.exists():
+        return {}
+    doc = yaml.safe_load(path.read_text()) or {}
+    return doc.get("readings") or {}
+
+
+def reading(name: str, infra: dict, today: dt.date) -> tuple[str, str]:
+    """(verdict, why) for one prerequisite, aging stale readings out to unknown.
+
+    Returns `unknown` rather than `up` for anything it cannot vouch for: an
+    absent entry, an unparseable date, or a measurement past
+    `STALE_AFTER_DAYS`. A route is never reported as viable on the strength of
+    a reading nobody took.
+    """
+    entry = infra.get(name)
+    if not isinstance(entry, dict):
+        return UNKNOWN, f"{name}: never measured"
+
+    verdict = entry.get("verdict")
+    if verdict not in VERDICTS:
+        return UNKNOWN, f"{name}: verdict {verdict!r} is not one of {VERDICTS}"
+
+    try:
+        age = (today - dt.date.fromisoformat(str(entry.get("measured")))).days
+    except (TypeError, ValueError):
+        return UNKNOWN, f"{name}: measured={entry.get('measured')!r} is not YYYY-MM-DD"
+
+    if age > STALE_AFTER_DAYS:
+        return UNKNOWN, f"{name}: last measured {age}d ago, too stale to rely on"
+    if age < 0:
+        return UNKNOWN, f"{name}: measured {-age}d in the future"
+
+    run = entry.get("run")
+    stamp = f"measured {age}d ago" + (f", run {run}" if run else "")
+    return verdict, f"{name}: {verdict} ({stamp})"
+
+
+def viability(d: dict, infra: dict, today: dt.date) -> tuple[str, list[str]]:
+    """Can granting this row actually change anything today?
+
+    `up` only when every declared prerequisite reads up. One `down` makes the
+    route `down`; otherwise any `unknown` makes it `unknown`. A row that
+    declares no prerequisites is `up` -- it depends on nothing this file
+    tracks, which is the honest answer rather than an optimistic one.
+    """
+    whys = [reading(n, infra, today) for n in d.get(REQUIRES, [])]
+    verdicts = [v for v, _ in whys]
+    reasons = [w for _, w in whys]
+    if DOWN in verdicts:
+        return DOWN, reasons
+    if UNKNOWN in verdicts:
+        return UNKNOWN, reasons
+    return UP, reasons
+
+
+def check(decisions: list[dict], infra: dict | None = None) -> list[str]:
     """Schema and referential integrity. Returns a list of problems."""
+    # Omitting `infra` means "use the committed readings", not "there are
+    # none". The distinction matters: `check(load())` is how CI and the
+    # existing tests call this, and defaulting to an empty mapping would make
+    # every legitimate `requires` look like a dangling reference.
+    infra = load_infra() if infra is None else infra
     problems: list[str] = []
     ids = [d.get("id") for d in decisions]
 
@@ -105,6 +237,21 @@ def check(decisions: list[dict]) -> list[str]:
         if not d["asks"] and not d["prs"]:
             problems.append(f"{where}: covers neither an ask nor a pull request")
 
+        if OUTAGE in d and not isinstance(d[OUTAGE], bool):
+            problems.append(f"{where}: {OUTAGE}={d[OUTAGE]!r} is not true or false")
+
+        if REQUIRES in d:
+            names = d[REQUIRES]
+            if not isinstance(names, list) or not all(isinstance(n, str) for n in names):
+                problems.append(f"{where}: {REQUIRES}={names!r} is not a list of names")
+            else:
+                for n in names:
+                    if n not in infra:
+                        problems.append(
+                            f"{where}: {REQUIRES} names {n!r}, which has no "
+                            f"reading in infra_state.yaml"
+                        )
+
         for blocker in d["blocked_by"]:
             if blocker not in ids:
                 problems.append(f"{where}: blocked_by names unknown id {blocker!r}")
@@ -125,11 +272,31 @@ def check(decisions: list[dict]) -> list[str]:
     return problems
 
 
-def sort_key(d: dict) -> tuple:
+VIABILITY_RANK = {UP: 0, UNKNOWN: 1, DOWN: 2}
+
+
+def sort_key(d: dict, infra: dict | None = None, today: dt.date | None = None) -> tuple:
     # Blocked items sink below actionable ones: granting them today buys
-    # nothing, so they should not sit above something that would.
+    # nothing, so they should not sit above something that would. That test
+    # stays first even for an outage row — an unblockable fix is still
+    # unblockable, however badly it is wanted.
+    #
+    # Viability sorts *within* the outage group rather than above it, so the
+    # routes stay listed together as the alternatives they are while the one
+    # that can actually be taken today leads. `blocked_by` is the same
+    # argument one level up: an outage route whose own infrastructure is down
+    # is unblockable in precisely the sense that test already encodes, and on
+    # 2026-09-04 the queue printed the un-takeable one at position 1.
+    #
+    # With no readings supplied every row scores `up` and the order is
+    # exactly what it was before this parameter existed.
+    rank = VIABILITY_RANK[UP]
+    if infra and today is not None:
+        rank = VIABILITY_RANK[viability(d, infra, today)[0]]
     return (
         bool(d["blocked_by"]),
+        not d.get(OUTAGE, False),
+        rank,
         GATES.index(d["gates"]),
         EXPOSURES.index(d["exposure"]),
         d["opened"],
@@ -162,12 +329,14 @@ def wrap(text: str, width: int, indent: str) -> list[str]:
     return lines
 
 
-def render(decisions: list[dict], today: dt.date) -> str:
-    ordered = sorted(decisions, key=sort_key)
+def render(decisions: list[dict], today: dt.date, infra: dict | None = None) -> str:
+    infra = {} if infra is None else infra
+    ordered = sorted(decisions, key=lambda d: sort_key(d, infra, today))
     n_asks = sum(len(d["asks"]) for d in decisions)
     n_prs = sum(len(d["prs"]) for d in decisions)
     blocked = [d for d in ordered if d["blocked_by"]]
     revenue = [d for d in ordered if d["gates"] == "revenue"]
+    outage = [d for d in ordered if d.get(OUTAGE) and not d["blocked_by"]]
     oldest = max(age_days(d["opened"], today) for d in decisions)
 
     out = ["The account owner's decision queue", ""]
@@ -188,10 +357,90 @@ def render(decisions: list[dict], today: dt.date) -> str:
         f"  {len(revenue)} of {len(decisions)} moves the revenue ceiling off $0; "
         f"{len(blocked)} cannot be acted on yet."
     )
+    # Said in the header rather than only in the row, because an outage row is
+    # the one case where reading no further is the correct behaviour, and the
+    # header is what a hurried owner reads.
+    #
+    # The wording splits on how many rows are flagged, and the plural case is
+    # not cosmetic. The singular sentence used to be unconditional and said
+    # "every other row here is downstream of a host answering at all" — true
+    # when the repo believed there was one public surface, and wrong the moment
+    # #3199 established there are two independent origins (the k3s cluster and
+    # GitHub Pages). Two outage rows are alternative routes back, not a queue:
+    # neither is downstream of the other, either one alone puts the catalogue
+    # in front of a stranger, and an owner who reads "start with the first one"
+    # may spend a day on the expensive route while the cheap one stays unflipped.
+    # Viability is a second question the banner used to skip. "Does this row
+    # restore a surface?" is `outage`; "can it, today?" is this. They came
+    # apart on 2026-09-04 and the banner asserted the answer to the second
+    # without ever asking it -- see REQUIRES above.
+    live = [d for d in outage if viability(d, infra, today)[0] == UP]
+    unusable = [d for d in outage if viability(d, infra, today)[0] != UP]
+
+    if outage:
+        ids = [d["id"] for d in outage]
+        out.append("")
+        if len(ids) == 1:
+            body = (
+                f"OUTAGE: the public surface is down. {ids[0]} comes first; "
+                "every other row here is downstream of a host answering at all."
+            )
+        else:
+            body = (
+                "OUTAGE: the public surface is down. "
+                + str(len(ids))
+                + " routes restore one: "
+                + ", ".join(ids)
+                + ". They are not downstream of each other — each reaches a "
+                "different origin. Every other row here is downstream of "
+                "something answering at all."
+            )
+        out += wrap(body, 72, "  ")
+
+        # The old banner ended "Do the cheapest first." That is right only
+        # while every route can actually be taken, so it is now said only in
+        # that case, and the other cases say what is in the way instead.
+        if unusable and live:
+            names = ", ".join(d["id"] for d in live)
+            out.append("")
+            out += wrap(
+                "Not all of them work today. "
+                + str(len(live))
+                + " can be granted now and will change something: "
+                + names
+                + ". Do the cheapest of those. The rest are listed below with "
+                "what is blocking them — granting one of those today buys "
+                "nothing, however cheap it looks.",
+                72, "  ",
+            )
+        elif unusable and not live:
+            out.append("")
+            out += wrap(
+                "None of them works today: every route's own infrastructure "
+                "is down or unmeasured (below). The queue cannot rank its way "
+                "out of this — something has to be re-measured or repaired "
+                "before any of these flips changes what a stranger sees.",
+                72, "  ",
+            )
+        elif len(ids) > 1:
+            out.append("")
+            out += wrap(
+                "Granting any one of them alone puts the catalogue in front "
+                "of a stranger. Do the cheapest first.",
+                72, "  ",
+            )
+
+        for d in unusable:
+            verdict, reasons = viability(d, infra, today)
+            out.append("")
+            out += wrap(
+                f"{d['id']} — {verdict}: " + "; ".join(reasons),
+                70, "    ",
+            )
     out.append("")
 
     for i, d in enumerate(ordered, 1):
-        flag = "  [blocked]" if d["blocked_by"] else ""
+        flag = "  [blocked]" if d["blocked_by"] else ("  [OUTAGE]" if d.get(OUTAGE) else "")
         out.append(
             f"{i}. {d['id']}  ({covers(d)})  gates {d['gates']}, "
             f"exposure {d['exposure']}, {age_days(d['opened'], today)}d{flag}"
@@ -224,7 +473,8 @@ def main() -> int:
     args = ap.parse_args()
 
     decisions = load()
-    problems = check(decisions)
+    infra = load_infra()
+    problems = check(decisions, infra)
 
     for p in problems:
         print(f"asks.yaml: {p}", file=sys.stderr)
@@ -255,12 +505,13 @@ def main() -> int:
     try:
         if args.json:
             print(json.dumps(
-                [dict(d, age_days=age_days(d["opened"], today))
-                 for d in sorted(decisions, key=sort_key)],
+                [dict(d, age_days=age_days(d["opened"], today),
+                      viability=viability(d, infra, today)[0])
+                 for d in sorted(decisions, key=lambda d: sort_key(d, infra, today))],
                 indent=2,
             ))
         else:
-            print(render(decisions, today))
+            print(render(decisions, today, infra))
     except (KeyError, TypeError, ValueError) as exc:
         if not problems:
             raise

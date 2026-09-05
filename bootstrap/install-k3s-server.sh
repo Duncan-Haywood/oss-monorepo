@@ -8,6 +8,24 @@ ADVERTISE_IP="${ADVERTISE_IP:-10.10.0.10}"
 PUBLIC_IP="${PUBLIC_IP:-89.167.29.39}"
 VOLUME_MOUNT="${VOLUME_MOUNT:-/var/lib/rancher}"
 
+# Empty keeps k3s's default (vxlan), which is what a private-network install
+# wants: join traffic never leaves the Hetzner fabric, so there is nothing to
+# encrypt and vxlan is cheaper.
+#
+# `restore-cluster.sh` sets this to `wireguard-native` when it has to bring the
+# cluster up on *public* addressing, which is the case that actually exists
+# today: `infra/inventory.tf` records that the private network was never
+# applied (`create_private_network` defaults to true, but `infra/Makefile`
+# refuses to apply and the only Hetzner token here is read-only), so there is
+# no 10.10.0.x fabric to carry the join. Without this flag a public-mode
+# cluster would run flannel's vxlan across the open internet: pod-to-pod
+# traffic between the two nodes, unauthenticated and in the clear, over a link
+# anyone can sit on. wireguard-native encrypts that node-to-node link with no
+# infrastructure change, which matters because the fix that would remove the
+# need for it -- creating the private network -- needs a write-scoped Hetzner
+# token this repo deliberately does not have.
+FLANNEL_BACKEND="${FLANNEL_BACKEND:-}"
+
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "run as root (sudo $0)" >&2
   exit 1
@@ -50,17 +68,36 @@ fi
 # CIDR kubeadm's own reference flannel manifest has defaulted to for years.
 CLUSTER_CIDR="${CLUSTER_CIDR:-10.244.0.0/16}"
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL="$K3S_CHANNEL" sh -s - \
-  --disable traefik \
-  --write-kubeconfig-mode 644 \
-  --tls-san "$ADVERTISE_IP" \
-  --tls-san "$PUBLIC_IP" \
-  --tls-san 127.0.0.1 \
-  --node-ip "$ADVERTISE_IP" \
-  --advertise-address "$ADVERTISE_IP" \
-  --cluster-cidr "$CLUSTER_CIDR" \
-  --node-label "hcloud/node-role=control-plane" \
+k3s_args=(
+  --disable traefik
+  --write-kubeconfig-mode 644
+  --tls-san "$ADVERTISE_IP"
+  --tls-san "$PUBLIC_IP"
+  --tls-san 127.0.0.1
+  --node-ip "$ADVERTISE_IP"
+  --advertise-address "$ADVERTISE_IP"
+  --cluster-cidr "$CLUSTER_CIDR"
+  --node-label "hcloud/node-role=control-plane"
   --node-label "hcloud/instance=ubuntu-24gb-hel1-1"
+)
+
+# Only passed when asked for, so the private-network install keeps k3s's own
+# default rather than inheriting a flag it does not need. See FLANNEL_BACKEND.
+if [[ -n "$FLANNEL_BACKEND" ]]; then
+  k3s_args+=(--flannel-backend "$FLANNEL_BACKEND")
+  # wireguard-native needs the kernel module; Ubuntu 24.04 ships it, but a
+  # kernel that does not would otherwise fail deep inside the k3s install with
+  # a flannel CrashLoop rather than here, where the cause is still legible.
+  if [[ "$FLANNEL_BACKEND" == wireguard-native ]] \
+    && ! modprobe wireguard 2>/dev/null \
+    && [[ ! -d /sys/module/wireguard ]]; then
+    echo "FLANNEL_BACKEND=wireguard-native but the wireguard kernel module is unavailable." >&2
+    echo "Install it (apt-get install -y wireguard-tools) or pick another backend." >&2
+    exit 1
+  fi
+fi
+
+curl -sfL https://get.k3s.io | INSTALL_K3S_CHANNEL="$K3S_CHANNEL" sh -s - "${k3s_args[@]}"
 
 # Wait until the API answers. advertise-address may fail if the private
 # NIC is not up yet — fall back to the public IP once, then stop.

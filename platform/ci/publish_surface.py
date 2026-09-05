@@ -667,7 +667,18 @@ def render_gitops(rows) -> str:
         for row in group:
             out.append(f"    {row['application']}  ({row['path']})")
             for host in row["hosts"]:
-                note = "301 redirect at the ingress" if host["serves"] == "redirect" else "serves content"
+                # "would serve", not "serves". This tool reads manifests; it
+                # never makes a request, so it cannot know whether anything is
+                # listening. Saying "serves content" here is how CLAUDE.md came
+                # to assert the apex was serving 169 tools while every hostname
+                # refused connections on 443 (measured 2026-09-04, run
+                # 33887885219). `platform/ci/public_surface.py` is the tool that
+                # can answer the other question; this wording sends you there.
+                note = (
+                    "301 redirect at the ingress"
+                    if host["serves"] == "redirect"
+                    else "would serve content once synced"
+                )
                 if host["unmet_secrets"]:
                     note += f", waiting on Secret {', '.join(host['unmet_secrets'])}"
                     mark = "-"
@@ -990,9 +1001,16 @@ def main() -> int:
         )
         summary = (
             f"Publish surface matches the snapshot ({len(rows)} workflows, {live} live; "
-            f"{len(gitops_rows)} Argo Applications, {serving} hostname(s) serving content)."
+            f"{len(gitops_rows)} Argo Applications, {serving} hostname(s) configured to serve)."
         )
         print(summary)
+        # Said on every clean run, because the failure this guards against is
+        # a reader taking the line above as a statement about the live site.
+        # It is not one: nothing here opens a socket.
+        print(
+            "  (Read from the manifests. For what the hostnames actually "
+            "return, dispatch `Public surface check`.)"
+        )
         for problem in dead_ends:
             print(f"  note: {problem}")
         return 0

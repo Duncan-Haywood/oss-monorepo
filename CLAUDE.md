@@ -95,11 +95,80 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
+> **MEASURED 2026-09-04: nothing is served. Read this before anything below.**
+>
+> Every claim in this section was derived from the manifests. On 2026-09-04 the
+> hostnames were asked directly, from a GitHub runner, over real DNS and real
+> TLS — the first time in this repository's life that anything did
+> ([`Public surface check`](.github/workflows/public-surface-check.yml), run
+> 33887885219):
+>
+> ```
+> https://marisstella.dev/         unreachable: [Errno 111] Connection refused
+> https://www.marisstella.dev/     unreachable: [Errno 111] Connection refused
+> https://tools.marisstella.dev/   unreachable: [Errno 111] Connection refused
+> Sitemap sample: 0/24 served
+> ```
+>
+> **Connection refused, not a timeout.** DNS resolves, the IP answers, and
+> nothing is listening on 443. That rules out the firewall (a drop times out),
+> the TLS certificate (no handshake was reached) and a routing mistake in the
+> Ingress (nginx would answer 404). Something upstream of all three is not
+> running: ingress-nginx, k3s, or the node.
+>
+> So **the catalogue is dark, and every sentence below saying otherwise is
+> wrong.** Not one of the ~184 finished products is reachable by anybody. The
+> error was structural rather than careless: `gitops/prod` deploys through Argo
+> CD, so a merge to `main` *is* the deploy, and the repo slid from "shipped" to
+> "served" with nothing able to contradict it —
+> `bootstrap/preflight.sh` needs `HETZNERSSHKEY`, and that secret holds a
+> public key (run 33884253173).
+>
+> **What this changes for you.** Deploy-first is not one priority among
+> several; it is the only one that matters until a hostname answers. Do not
+> ship a 185th tool into a catalogue nobody can open, and do not rank the
+> `portfolio-site-repo` seal first — sealing a clone token for a cluster that
+> is not serving changes nothing. The blocking ask is now
+> `hetzner-ssh-key-is-a-public-key`. Re-run `Public surface check` (it needs
+> no secret) before trusting any statement here; it is cheap and it is the
+> only ground truth about whether a hostname answers.
+>
+> **Corrected the same day (#3188): "no credential-free check can tell you
+> why" was too strong, and believing it would have cost the next session the
+> whole diagnosis.** That is what this paragraph said, and `Outage triage`
+> (`.github/workflows/outage-triage.yml`, run 33889983086) then answered most
+> of "why" without shell on anything. Dispatch it before escalating:
+>
+> ```
+>   both servers                       running   (Hetzner read-only API)
+>   marisstella.dev / www / tools  →  89.167.29.39   (ours)
+>   :22    open      on both boxes
+>   :80    refused   on both boxes
+>   :443   refused   on both boxes
+>   :6443  refused   on both boxes
+> ```
+>
+> So it is **not** power, **not** DNS, **not** the firewall (a drop times out;
+> an RST means the host is up and nothing is bound), and **not** TLS. `:6443`
+> refused is the sharp end: the k3s API server itself is not listening, so
+> this is a dead or absent cluster rather than a crashed ingress, and no pods
+> exist to serve 80 or 443.
+>
+> Two lessons, and the second is the reusable one. First, the SSH ask is
+> **confirmed rather than assumed**: sshd is up, so a rotated key will get in.
+> Second, nobody had checked whether it was — and had port 22 been refused
+> alongside 443, the top-ranked ask would have been the *wrong credential*,
+> costing the owner a day while the surface stayed down. An outage row should
+> say which action ends it, and that is a claim to measure, not to reason to.
+
 (1) comes first while a product on `main` still has no public route at all. As
 of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
 one still waiting on `portfolio-site-repo` — but the apex serves all 169
 tools itself, so "the catalogue is dark" is not the right reading. See the
 correction below before ranking the seal against shipping.
+**(Superseded by the measurement above: `publish_surface.py` reports what the
+manifests would publish, never what a host returns. Both halves of that
+sentence are manifest-derived and the second is now known false.)**
 
 **That tool now reads `gitops/` as well as `.github/workflows/`** (changed
 2026-08-31). It used to answer "what does a merge to `main` publish?" from the
@@ -112,10 +181,11 @@ that reads:
 
 ```
     prod  (gitops/prod)
-      + https://marisstella.dev/            (serves content)
-      - https://tools.marisstella.dev/      (serves content, waiting on Secret
+      + https://marisstella.dev/            (would serve content once synced)
+      - https://tools.marisstella.dev/      (would serve content once synced,
+                                             waiting on Secret
                                              portfolio-site-repo)
-      + https://www.marisstella.dev/        (serves content)
+      + https://www.marisstella.dev/        (would serve content once synced)
 ```
 
 **Changed 2026-09-02 (#2723): "nothing live" is no longer true.** The apex and
@@ -133,6 +203,18 @@ So the standing reading has two halves now, and they differ:
 - **1 of the 169 tools, and the canonical host, are one seal away**:
   `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
   It is queued.
+
+**Both bullets are false as of the 2026-09-04 measurement at the top of this
+section.** A stranger typing the domain gets a refused connection, not
+positioning; and the distance to a working catalogue is not one seal but
+whatever is stopping :443 from being served at all. They are kept rather than
+deleted because the reasoning that produced them is the thing to avoid
+repeating: each is a correct statement about `gitops/prod/portfolio-front.yaml`
+— the manifest really does mount a front-door page needing no clone token —
+restated as a statement about what a visitor receives. Argo CD makes those two
+look identical right up until the cluster is not running, at which point every
+manifest-derived claim in this file goes quietly wrong at once and no amount of
+re-reading the manifests can notice.
 
 **Corrected 2026-09-02.** This section used to say the tools were *all* one
 seal away and that "every category card on the front door links into that
@@ -188,6 +270,24 @@ outbound HTTPS to arbitrary hosts is refused by the agent egress proxy
 with `CONNECT tunnel failed, response 403`, so no session running under it
 can verify the public surface directly. That limit is why this line went
 stale unchallenged for as long as it did.)
+
+**Corrected 2026-09-04: you cannot fetch it, but you can have it fetched.**
+The sentence above is true of a *session sandbox* and the repo had been
+reading it as true of the *portfolio* — which is how "nothing is live" stood
+for five days with nothing able to contradict it. A GitHub Actions runner is
+not behind that proxy. Dispatch `Public surface check`
+(`.github/workflows/public-surface-check.yml`) and read its step summary:
+`platform/ci/public_surface.py` asks every hostname in the manifests what it
+serves, over real DNS and real TLS, and compares the answer to what
+`publish_surface.py` says we shipped. It uses **no secret** — every request is
+one a stranger could make — and it samples the published sitemap too, so a
+`<loc>` that 404s shows up as the SEO defect it is.
+
+Prefer that reading to anything this file asserts. And do not reach for
+`bootstrap/preflight.sh` instead: it needs `HETZNERSSHKEY`, which holds a
+public key and so has never once opened a session (measured 2026-09-04, run
+33884253173). Rotating it is queued as an owner ask; it gates cluster-level
+diagnosis, not the public surface.
 
 Neither half is a reason to build a twelfth calculator.
 
@@ -392,13 +492,33 @@ waiting in [`gitops/ci/`](gitops/ci/README.md) — all 218 workflows already rea
 still moves every one of them at once, and self-hosted runners are not metered,
 so they are what makes the next cycle a non-event.
 
-But **GitHub-hosted runners work again today**, so this is no longer the thing
-standing between the portfolio and a working pipeline. Do not write it up as
-though CI were down, and do not present it to the owner as urgent — it competes
-for attention with the seal that actually is blocking, which is
-`portfolio-site-repo` (the site itself; see the Argo surface above). If you
-are writing any of this up, the useful sentence is which seals remain, not a
-re-derivation of a signature that no longer fires.
+**Starvation recurred on 2026-09-04 and this paragraph used to say runners
+worked.** Measured, not inferred: run 33925827289 (`Portfolio validate`,
+22:30:52Z) took real runner 1000054728 and passed in 196s; by 22:39:33Z runs
+33926434774 and 33926436491 both came back `runner_id: 0` with no steps, and a
+third dispatch starved too. So the signature does fire again, and the advice
+to "read a red check as a real failure" now needs `ci_starvation.py` run
+first rather than assumed — which is what that tool is for.
+
+**The sharp part is what this does to the self-hosted fallback.** That stack
+runs as pods *in the k3s cluster*, and the cluster is dead (`:6443` refused,
+`Outage triage` run 33889983086). So flipping `CI_RUNNER` today schedules
+pods onto an API server that is not listening: the insurance against metered
+CI is downstream of the cluster whose repair needs CI. All three routes to a
+public surface now converge on infrastructure that is down —
+
+- GitHub Pages (`deploy-settings`) needs a runner to build and deploy it;
+- self-hosted runners need the cluster;
+- the cluster needs SSH, and `HETZNERSSHKEY` holds a public key.
+
+— which makes `hetzner-ssh-key-is-a-public-key` the only one of them that
+depends on neither a runner nor the cluster (port 22 answers on both boxes).
+The decision queue used to rank `deploy-settings` first as the cheapest; it
+now measures viability and sinks a route whose prerequisite is down. See
+`portfolio/ledger/infra_state.yaml` for the dated readings and how to
+re-measure each; prefer re-running them to trusting these sentences, and
+expect the Actions ceiling to lift on 2026-10-01 if it behaves as it did in
+August.
 
 **This tool matters more now, not less.** While every check was red it was a
 formality — the answer was always starvation. Now that runners are back, it is
