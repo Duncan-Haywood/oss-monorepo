@@ -17,7 +17,12 @@ npm run dev
 ```
 
 Open http://localhost:3000. There is no scheduled monitor in this version —
-every check is triggered by a visitor.
+every check is triggered by a visitor. A watched page 30+ days past its last
+snapshot is flagged "Recheck due" and sorted to the top of the watch list, so
+a returning visitor with several watches sees which ones are stale without
+having to read every timestamp (`src/lib/recheck.ts`). It is a prompt, not a
+notification — nothing runs in the background, and closing the tab does not
+schedule anything.
 
 ## Where snapshots live
 
