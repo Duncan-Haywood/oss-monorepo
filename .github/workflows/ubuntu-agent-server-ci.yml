@@ -28,6 +28,7 @@ defaults:
 jobs:
   ansible:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -44,13 +45,28 @@ jobs:
 
   shellcheck:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      # Same gap the `yaml-sanity` job below already carries a comment about,
+      # one tool over: bare `shellcheck` exists on GitHub-hosted ubuntu-latest
+      # and nowhere on the self-hosted runner image (curl, jq, unzip and git
+      # only -- see gitops/ci/README.md), so flipping CI_RUNNER would turn
+      # this job red on its own single step. shellcheck-py ships the real
+      # shellcheck binary as a wheel, which is how hetzner-gitops-ci.yml's
+      # `scripts` job installs it on either runner; apt-get would need sudo
+      # and a package index, and the self-hosted image has neither.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - name: shellcheck
-        run: shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh
+        run: |
+          pip install shellcheck-py
+          shellcheck roles/agent_runner/files/runners/*.sh bootstrap.sh
 
   python:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -69,6 +85,7 @@ jobs:
 
   yaml-sanity:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       # The self-hosted runner image ships no Python (curl, jq, unzip and git
@@ -83,6 +100,14 @@ jobs:
           python-version: "3.12"
       - name: config/repos.yml parses and has the expected shape
         run: |
+          # `setup-python` above installs a *clean* interpreter from the tool
+          # cache, which has no PyYAML. GitHub's system python3 does, so the
+          # fix that made this job survive a CI_RUNNER flip simultaneously
+          # broke it under the interpreter it had just installed -- and
+          # nothing noticed, because this workflow only triggers on
+          # `ventures/ubuntu-agent-server/**` or its own file and neither had
+          # changed since. Install what the script imports.
+          pip install pyyaml
           python3 -c "
           import yaml
           data = yaml.safe_load(open('config/repos.yml'))

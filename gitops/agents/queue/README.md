@@ -131,10 +131,17 @@ already queued. (A fourth step, an ACME contact, stopped being one on
 without one instead of with a placeholder.) That item covers only the code
 half, and says so. Enabling an item here does
 not spend anything by itself: the governor stays a no-op until an owner
-seals `codex-secrets` and flips `governor/policy.json` `enabled: true` and
-`governor/cronjob.yaml` `suspend: false` (decision-queue item
-`agent-runner-subscription-login`, #2000). These files are what run the
-moment that flip happens.
+seals `codex-secrets` and then runs
+`./bootstrap/scripts/enable-codex-governor.sh`, which flips
+`governor/policy.json` `enabled: true` and `governor/cronjob.yaml`
+`suspend: false` together and refuses to do either until that seal is in
+the tree. These files are what run the moment that flip happens.
+
+The decision-queue item is `codex-governor-enable` (#1996). This paragraph
+named `agent-runner-subscription-login` (#2000) until 2026-09-04, which is
+a different ask: that row is the separate LAN/Tailscale single-box runner
+in `ventures/ubuntu-agent-server`, and granting it would not start
+anything in this directory.
 
 A file is skipped when `enabled: false`, or when it is missing `id` /
 `repo` / `prompt`.

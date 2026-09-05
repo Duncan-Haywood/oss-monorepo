@@ -265,7 +265,17 @@ test("an invalid input clears the stale per-option totals, not just the verdict 
   // #difference showing the last valid comparison. A visitor who missed
   // the one-line message in #verdict could read those stale totals as the
   // answer for the invalid inputs now in the form.
-  const catchMatch = scriptSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}/);
+  // Scoped to calculate() rather than to the first `catch` in the file: other
+  // helpers have their own (tiersFor re-labels a rate-sheet parse error), and
+  // matching the first one would silently start asserting about the wrong
+  // function instead of failing.
+  const calculateStart = scriptSource.indexOf("function calculate(");
+  assert.ok(calculateStart !== -1, "calculate() was not found");
+  const rest = scriptSource.slice(calculateStart);
+  const nextFunction = rest.slice(1).search(/\n  (?:async )?function /);
+  const calculateSource = nextFunction === -1 ? rest : rest.slice(0, nextFunction + 1);
+
+  const catchMatch = calculateSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}/);
   assert.ok(catchMatch, "calculate()'s catch block was not found");
   const body = catchMatch[1];
   assert.match(body, /\$\("verdict"\)\.textContent = error\.message/, "the error message is never shown");
@@ -275,6 +285,45 @@ test("an invalid input clears the stale per-option totals, not just the verdict 
       new RegExp(`\\$\\("${id}"\\)\\.textContent = ""`),
       `#${id} keeps its stale value instead of being cleared on a rejected input`,
     );
+  }
+});
+
+test("free-egress inputs exist for both options and are wired into every calculation path", () => {
+  assert.match(html, /id="aFree"/);
+  assert.match(html, /id="bFree"/);
+  assert.match(scriptSource, /freeEgressGb:\s*\+\$\("aFree"\)\.value/);
+  assert.match(scriptSource, /freeEgressGb:\s*\+\$\("bFree"\)\.value/);
+  // Every place the page builds a first/second scenario object must read the
+  // free-tier field, not just the on-screen recalculation -- otherwise the
+  // copied summary or the exported review would silently drop it.
+  const scenarioBuilders = scriptSource.match(/(?:first|second):\s*\{[^}]*\}/g) || [];
+  assert.ok(scenarioBuilders.length >= 6, "expected first/second scenario objects in calculate, copySummary, and export");
+  for (const builder of scenarioBuilders) {
+    assert.match(builder, /freeEgressGb/, `scenario object missing freeEgressGb: ${builder}`);
+  }
+});
+
+test("graduated rate sheets exist for both options and are wired into every calculation path", () => {
+  assert.match(html, /id="aTiers"/);
+  assert.match(html, /id="bTiers"/);
+  // Both textareas must be labelled and reachable, not just present: a bare
+  // textarea in a <details> is invisible to a screen reader browsing by form
+  // control, and the placeholder is not a label.
+  for (const letter of ["a", "b"]) {
+    assert.match(html, new RegExp(`<label for="${letter}Tiers">`), `#${letter}Tiers has no associated label`);
+  }
+  // Editing a sheet must recalculate, exactly as editing a rate does.
+  assert.match(scriptSource, /"aTiers"/);
+  assert.match(scriptSource, /"bTiers"/);
+  const idsLine = scriptSource.match(/const ids = \[[^\]]*\]/);
+  assert.ok(idsLine, "the recalculating input list was not found");
+  assert.match(idsLine[0], /aTiers/, "editing Option A's rate sheet would not recalculate");
+  assert.match(idsLine[0], /bTiers/, "editing Option B's rate sheet would not recalculate");
+  // And the sheet must reach the copied summary and the exported record too,
+  // not only the on-screen totals.
+  const scenarioBuilders = scriptSource.match(/(?:first|second):\s*\{[^}]*\}/g) || [];
+  for (const builder of scenarioBuilders) {
+    assert.match(builder, /egressTiers/, `scenario object missing egressTiers: ${builder}`);
   }
 });
 

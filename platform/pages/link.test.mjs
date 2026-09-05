@@ -148,6 +148,35 @@ test('isLinkableId refuses this build own ids and the standing preference', () =
   assert.equal(isLinkableId(null), false);
 });
 
+/**
+ * The proposal header's customer name and home address, and the contractor's
+ * own business identity fields, must never ride in a "Copy link to this bid"
+ * URL: that link is built to be pasted into email or text to the customer
+ * (or forwarded on from there), and neither of these is a number the tool
+ * priced.
+ */
+test('the proposal header is never linkable, even though the job it prices still is', () => {
+  for (const id of [
+    'clientName', 'clientAddress', 'companyName', 'companyAddress',
+    'companyPhone', 'companyEmail', 'companyLicense',
+  ]) {
+    assert.equal(isLinkableId(id), false, id);
+  }
+
+  const fragment = encodeBidLink({
+    fields: {
+      clientName: 'Mrs Reid', clientAddress: '14 Oak St',
+      companyName: 'Acme Roofing', companyAddress: '2 Main St',
+      companyPhone: '555-0100', companyEmail: 'a@example.com', companyLicense: 'RC-1',
+      lengthFt: '40', pitch: '6/12',
+    },
+    amount: '$1,800.00',
+  });
+  const decoded = decodeBidLink('#' + fragment);
+  assert.deepEqual(decoded.fields, { lengthFt: '40', pitch: '6/12' });
+  assert.equal(decoded.amount, '$1,800.00');
+});
+
 // ---------------------------------------------------------------------------
 // Atomic or refused
 // ---------------------------------------------------------------------------
@@ -515,9 +544,9 @@ test('the itemised calculators are offered the control once they declare their r
     assert.equal(pageTakesBidLink(html, { hasShareModule: true }), false, `${slug} defers to a share module`);
   }
 
-  // Seven of the eight take the platform control today; all eight declare their
-  // rows. Pinned as counts so a venture growing or dropping its own share
-  // control shows up here as a number to re-read rather than silently.
+  // Four of the eight take the platform control today; all eight declare
+  // their rows. Pinned as counts so a venture growing or dropping its own
+  // share control shows up here as a number to re-read rather than silently.
   const takes = [];
   for (const slug of itemised) {
     const html = await fsp.readFile(nodePath.join(root, slug, 'index.html'), 'utf8');
@@ -526,7 +555,13 @@ test('the itemised calculators are offered the control once they declare their r
   assert.equal(itemised.length, 8);
   assert.equal(takes.includes('pest-control-bid-calculator'), false,
     'pest-control keeps the share control it shipped in #2699');
-  assert.equal(takes.length, 7);
+  assert.equal(takes.includes('snow-removal-bid-calculator'), false,
+    'snow-removal keeps the share control it shipped in #3048');
+  assert.equal(takes.includes('gutter-cleaning-bid-calculator'), false,
+    'gutter-cleaning keeps the share control it shipped in #3052');
+  assert.equal(takes.includes('carpet-cleaning-bid-calculator'), false,
+    'carpet-cleaning keeps the share control it shipped alongside its rooms and upholstery rows');
+  assert.equal(takes.length, 4);
 
   // And the exclusion is intact for a runtime-built page that declares nothing,
   // which is what stops this widening past the eight pages above.

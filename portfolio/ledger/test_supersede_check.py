@@ -32,9 +32,31 @@ def write(cwd, path, content):
     target.write_text(content)
 
 
+def write_bytes(cwd, path, content):
+    target = Path(cwd) / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(content)
+
+
 def commit(cwd, message):
     git(cwd, "add", "-A")
     git(cwd, "commit", "-q", "-m", message)
+
+
+def commit_at(cwd, message, when):
+    """Commit with an explicit committer date, for the recency signal.
+
+    `last_touched` compares committer dates across the two sides, and two
+    commits made in the same test run land in the same second -- which reads
+    as "neither is newer" and would make the stale-draft tests pass or fail on
+    timing rather than on what they assert. `when` is any format git accepts.
+    """
+    git(cwd, "add", "-A")
+    env = dict(os.environ, GIT_COMMITTER_DATE=when, GIT_AUTHOR_DATE=when)
+    subprocess.run(
+        ["git", "commit", "-q", "-m", message],
+        cwd=cwd, check=True, capture_output=True, text=True, env=env,
+    )
 
 
 class RepoFixture(unittest.TestCase):
@@ -84,6 +106,26 @@ class TestNotSuperseded(RepoFixture):
         self.assertEqual(
             supersede_check.main(["feature", "--base", "main", "--no-fetch"]), 1
         )
+
+    def test_a_binary_file_change_does_not_crash_the_scan(self):
+        """The #2922/#2926 shape: a PR regenerates a `.gz` mirror shard
+        alongside its text change. `git show` on a binary blob is not valid
+        UTF-8, and `base_tree_lines` used to decode every changed path
+        unconditionally -- crashing before the (real, droppable) text
+        feature below it was ever compared."""
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "share.mjs", "export function encodeInputs(input) {}\n")
+        write_bytes(self.repo, "mirror.gz", bytes([0x1F, 0x8B, 0x08, 0x00, 0x01]))
+        commit(self.repo, "add sharing, regenerate mirror")
+
+        git(self.repo, "checkout", "-q", "main")
+        write_bytes(self.repo, "mirror.gz", bytes([0x1F, 0x8B, 0x08, 0x00, 0x02]))
+        commit(self.repo, "unrelated mirror regeneration")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.superseded)
+        self.assertTrue(any(f.path == "share.mjs" for f in verdict.files))
+        self.assertFalse(any(f.path == "mirror.gz" for f in verdict.files))
 
     def test_an_edit_to_an_existing_file_still_counts(self):
         """Not every dropped feature arrives as a new file."""
@@ -469,6 +511,189 @@ class TestRenameSuspected(RepoFixture):
         verdict = evaluate("feature", "main", fetch=False)
         self.assertFalse(verdict.superseded)
         self.assertFalse(verdict.rename_suspected)
+
+
+class TestStaleDraft(RepoFixture):
+    """A branch that is an older draft of what the base already says.
+
+    The shape neither existing proof catches, taken from
+    `marketing/vs-smartmoving-moving-bid-calculator`: the branch wrote a
+    comparison page, a sibling session rewrote the same page on `main` five
+    minutes later, and the branch's now-thinner wording is genuinely absent
+    from the base -- so the line scan says NOT SUPERSEDED and the merge replay
+    cannot produce the base's tree. Both are right, and merging it anyway
+    reverts the better copy.
+    """
+
+    PAGE = "ventures/mover/vs-smartmoving.html"
+
+    SHARD = "gitops/prod/front-door-tools/mover__vs-smartmoving.html"
+
+    def draft_then_rewrite(self, *, rewrite=True):
+        """Branch drafts the page on day 2; `main` rewrites it on day 3.
+
+        The branch also publishes a mirror shard, because without it the
+        identical-merge proof answers first and answers correctly: a branch
+        whose *every* file the base rewrote replays into the base's own tree,
+        which is already reported as SUPERSEDED. The real branch escaped that
+        proof by adding one shard at a path the base has since renamed to
+        `.gz` -- a clean add, so the replayed tree differs -- and it is that
+        shape, a stale redraft riding along with one file the replay keeps,
+        that reaches the verdict this report exists to annotate.
+        """
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            self.PAGE,
+            "<p>SmartMoving is all-in-one CRM software for moving firms.</p>\n"
+            "<p>This calculator prices one local move before you quote.</p>\n"
+            "<p>It runs free in any browser and keeps no account at all.</p>\n"
+            "<p>Not affiliated with SmartMoving, whose trademark it is.</p>\n",
+        )
+        write(self.repo, self.SHARD, "<p>A mirrored copy of the page above.</p>\n")
+        commit_at(self.repo, "draft the comparison page", "2026-09-02T12:00:00")
+
+        git(self.repo, "checkout", "-q", "main")
+        if not rewrite:
+            return
+        write(self.repo, self.SHARD, "<p>A mirrored copy, uncompressed.</p>\n")
+        commit_at(self.repo, "mirror the page", "2026-09-02T12:03:00")
+
+        write(
+            self.repo,
+            self.PAGE,
+            "<p>SmartMoving is all-in-one CRM software for moving companies.</p>\n"
+            "<p>This calculator prices one local move before you quote it.</p>\n"
+            "<p>It runs free in any browser and keeps no account at all, ever.</p>\n"
+            "<p>Not affiliated with SmartMoving, whose trademark that is.</p>\n",
+        )
+        # The rename that leaves the base with history for the shard path but
+        # no file there -- exactly what gzipping the mirror did on `main`.
+        os.remove(Path(self.repo) / self.SHARD)
+        write(self.repo, self.SHARD + ".gz", "<p>A mirrored copy, compressed.</p>\n")
+        commit_at(self.repo, "rewrite the page, gzip the mirror", "2026-09-02T12:05:00")
+
+    def test_an_older_draft_of_a_page_the_base_rewrote_is_flagged(self):
+        self.draft_then_rewrite()
+        verdict = evaluate("feature", "main", fetch=False)
+
+        self.assertFalse(verdict.superseded)
+        self.assertTrue(verdict.stale_draft_suspected)
+
+    def test_it_is_reported_as_a_redraft_rather_than_a_rename(self):
+        """The twin is in the same file, which is not what a rename means.
+
+        `nearest_in_base` searches a whole venture directory because a renamed
+        feature lives in a *different* file. Counting a same-file twin as a
+        rename would tell the reader to go and find work that is not there.
+        """
+        self.draft_then_rewrite()
+        verdict = evaluate("feature", "main", fetch=False)
+
+        self.assertFalse(verdict.rename_suspected)
+        page = next(f for f in verdict.files if f.path == self.PAGE)
+        self.assertEqual(page.renamed_twins, [])
+        self.assertGreaterEqual(len(page.redraft_twins), 3)
+
+    def test_a_suspected_stale_draft_still_exits_nonzero(self):
+        """Advisory, exactly like the rename report.
+
+        An older draft can still carry the one fix the branch exists to make,
+        so this reports evidence and leaves the gate shut.
+        """
+        self.draft_then_rewrite()
+        self.assertEqual(
+            supersede_check.main(["feature", "--base", "main", "--no-fetch"]), 1
+        )
+
+    def test_the_report_pairs_each_line_with_the_base_wording(self):
+        """A reader must be able to compare; a verdict alone is not evidence."""
+        self.draft_then_rewrite()
+        text = render(evaluate("feature", "main", fetch=False), "feature", "main")
+
+        self.assertIn("STALE DRAFT SUSPECTED", text)
+        # Both halves of one pair, so the reader can see what changed and
+        # judge which reading is the better one.
+        self.assertIn("before you quote.", text)     # the branch's wording
+        self.assertIn("before you quote it.", text)  # the base's, beside it
+
+    def test_genuinely_new_work_is_not_called_a_stale_draft(self):
+        """The direction that matters: a real feature must still read as work.
+
+        The base has never had this file, so there is nothing it could be a
+        later draft of, however recently the base committed elsewhere.
+        """
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            "ventures/mover/share.mjs",
+            "export function encodeInputs(input) {\n"
+            "  const params = new URLSearchParams();\n"
+            "  for (const [key, value] of Object.entries(input)) {\n"
+            "    if (Number.isFinite(value)) params.set(key, String(value));\n"
+            "  }\n"
+            "  return params.toString();\n"
+            "}\n",
+        )
+        commit_at(self.repo, "add sharing", "2026-09-02T12:00:00")
+
+        git(self.repo, "checkout", "-q", "main")
+        write(self.repo, "ventures/mover/index.html", "<p>An unrelated edit here.</p>\n")
+        commit_at(self.repo, "unrelated later commit", "2026-09-03T12:00:00")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.stale_draft_suspected)
+        self.assertNotIn(
+            "STALE DRAFT SUSPECTED", render(verdict, "feature", "main")
+        )
+
+    def test_recency_alone_is_not_enough(self):
+        """`main` moves constantly here, so "it moved later" is true of almost
+        every branch. Without twins in the same file it is not evidence."""
+        self.draft_then_rewrite(rewrite=False)
+        write(
+            self.repo,
+            self.PAGE,
+            "<p>SmartMoving is all-in-one CRM software for moving firms.</p>\n"
+            "<p>This calculator prices one local move before you quote.</p>\n"
+            "<p>It runs free in any browser and keeps no account at all.</p>\n"
+            "<p>Not affiliated with SmartMoving, whose trademark it is.</p>\n"
+            "<p>A wholly separate paragraph about something else entirely.</p>\n",
+        )
+        commit_at(self.repo, "append, do not rewrite", "2026-09-03T12:00:00")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        # The base absorbed the branch's own lines, so nothing is unmatched and
+        # the branch reads as superseded outright -- never as a stale draft.
+        self.assertFalse(verdict.stale_draft_suspected)
+
+    def test_a_branch_newer_than_the_base_is_not_a_stale_draft(self):
+        """Same twins, opposite order: here the branch is the later wording."""
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        git(self.repo, "checkout", "-q", "main")
+        write(
+            self.repo,
+            self.PAGE,
+            "<p>SmartMoving is all-in-one CRM software for moving companies.</p>\n"
+            "<p>This calculator prices one local move before you quote it.</p>\n"
+            "<p>It runs free in any browser and keeps no account at all, ever.</p>\n"
+            "<p>Not affiliated with SmartMoving, whose trademark that is.</p>\n",
+        )
+        commit_at(self.repo, "base writes the page first", "2026-09-02T12:00:00")
+
+        git(self.repo, "checkout", "-q", "feature")
+        write(
+            self.repo,
+            self.PAGE,
+            "<p>SmartMoving is all-in-one CRM software for moving firms.</p>\n"
+            "<p>This calculator prices one local move before you quote.</p>\n"
+            "<p>It runs free in any browser and keeps no account at all.</p>\n"
+            "<p>Not affiliated with SmartMoving, whose trademark it is.</p>\n",
+        )
+        commit_at(self.repo, "branch revises it later", "2026-09-03T12:00:00")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.stale_draft_suspected)
 
 
 class TestNeighbourhood(unittest.TestCase):

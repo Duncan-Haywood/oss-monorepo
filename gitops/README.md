@@ -43,6 +43,12 @@ quota. It is not a second copy of every product.
   the `codex-home` PVC because Codex rotates it on use. Which one to seal
   is the owner's call — `agents/secrets/README.md` lays out the
   trade-off, and `infra/OWNER_CHECKLIST.md` is the procedure.
+- A second PVC, `codex-tools`, caches the two pinned binaries a worker
+  needs — `gh` and the Codex CLI, ~332 MB between them — so a five-minute
+  CronJob does not re-fetch them before every Job. It is a cache, not
+  state: losing it costs one slow run. A pin bump still lands, because
+  `install_tools` checks a cached binary's version against the pin rather
+  than merely finding it on PATH.
 - Every queue item's prompt is prefixed with `agents/workers/mandate.md`,
   the standing product-first brief and the floor a run may not cross. An
   item sets `delivery: agent` when its own prompt opens the PR, or leaves
@@ -56,7 +62,7 @@ quota. It is not a second copy of every product.
 
 ## The public product site
 
-`prod/portfolio-site.yaml` serves the portfolio's 169 finished static
+`prod/portfolio-site.yaml` serves the portfolio's 174 finished static
 tools on **`tools.marisstella.dev`**. It is the first thing in this
 cluster on a public name.
 
@@ -103,7 +109,7 @@ Argo syncs the manifests and the pods crash-loop on the missing secret,
 which is the intended fail-closed state.
 
 Note what this section is and is not about since 2026-09-02: it is the step
-that makes the **169 tools** reachable. The portfolio's apex is already
+that makes the **174 tools** reachable. The portfolio's apex is already
 serving (`prod/portfolio-front.yaml`, above), and every category card on
 that page links in here — so this seal is what turns a live front door into
 a live catalogue, not what turns the domain on.
@@ -142,6 +148,16 @@ Re-verified again on 2026-09-02 against a later `main` still: 524 pages,
 not a regression. Re-verified once more the same day, at `main`'s
 d8e27a884: 544 pages, 169 products still unchanged, no dead links — the
 same drift, not a second regression.
+
+Re-verified 2026-09-04: 646 pages, 174 products, no dead links
+(`node platform/pages/build.mjs --out=<dir> && node platform/pages/check.mjs
+--dist=<dir>`). The product
+count moved (three ventures gained a `site/index.html` entry point,
+`which-job-first` shipped with one from its first commit, and
+`dns-configuration-evidence` gained a browser surface beside its Python CLI —
+see `CLAUDE.md`),
+still the drift this paragraph predicted rather than a regression, and the
+build+check pair still exits 0.
 
 This says the seal will land on a working build; it does not confirm
 anything about the cluster. Certificate issuance and public reachability

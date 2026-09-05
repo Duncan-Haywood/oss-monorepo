@@ -28,13 +28,14 @@ function itemFields(overrides = {}) {
   return { ...fields, ...overrides };
 }
 
-function fakeDom({ values, storageThrows = false } = {}) {
+function fakeDom({ values, storageThrows = false, hash = '', search = '', clipboardFails = false } = {}) {
   const all = { weeks: '12', ...itemFields(), ...values };
   const fields = Object.fromEntries(Object.entries(all).map(([name, value]) => [name, { name, value }]));
   const handlers = new Map();
   const output = { innerHTML: '', textContent: '' };
   const usage = { checked: false };
-  const buttons = { '#download': {}, '#reset': {}, '#add-item': { hidden: false } };
+  const shareStatus = { textContent: '' };
+  const buttons = { '#download': {}, '#reset': {}, '#share': {}, '#add-item': { hidden: false } };
   for (const button of Object.values(buttons)) {
     button.addEventListener = (type, fn) => { button[type] = fn; };
   }
@@ -47,7 +48,7 @@ function fakeDom({ values, storageThrows = false } = {}) {
     addEventListener: (type, fn) => handlers.set(type, fn),
     reset: () => { form.wasReset = true; },
   };
-  const nodes = { '#forecast': form, '#output': output, '#usage': usage, ...buttons, ...rows };
+  const nodes = { '#forecast': form, '#output': output, '#usage': usage, '#shareStatus': shareStatus, ...buttons, ...rows };
 
   const store = new Map();
   const storage = {
@@ -61,13 +62,23 @@ function fakeDom({ values, storageThrows = false } = {}) {
     createElement: () => ({ click() {}, set href(_v) {}, get href() { return ''; } }),
   };
   globalThis.localStorage = storage;
+  const clipboard = { writeText: async () => { if (clipboardFails) throw new Error('denied'); } };
   // Node ships a read-only `navigator`, so the browser one has to be defined
   // over it rather than assigned.
   Object.defineProperty(globalThis, 'navigator', {
-    value: { doNotTrack: null, globalPrivacyControl: false },
+    value: { doNotTrack: null, globalPrivacyControl: false, clipboard },
     configurable: true,
     writable: true,
   });
+  const location = { hash, search, pathname: '/index.html', href: `https://example.test/index.html${search}${hash}` };
+  globalThis.location = location;
+  globalThis.history = {
+    replaceState: (_state, _title, url) => {
+      const hashIndex = url.indexOf('#');
+      location.hash = hashIndex >= 0 ? url.slice(hashIndex) : '';
+      location.href = `https://example.test${url}`;
+    },
+  };
   globalThis.FormData = class {
     constructor() { return Object.entries(fields).map(([name, field]) => [name, field.value])[Symbol.iterator](); }
   };
@@ -75,7 +86,7 @@ function fakeDom({ values, storageThrows = false } = {}) {
   globalThis.URL.revokeObjectURL = () => {};
   globalThis.Blob = class { constructor(parts) { this.parts = parts; } };
 
-  return { form, output, buttons, handlers, store, rows: nodes };
+  return { form, output, buttons, handlers, store, rows: nodes, shareStatus, location };
 }
 
 // Each import needs its own module instance, so the specifier is varied.
@@ -177,6 +188,29 @@ test('a business spending more than it collects is told so instead of sold a dat
   assert.match(dom.output.innerHTML, /Moving <strong>Van<\/strong> \(\$1000\.00, week 3\) out of this window covers \$1000\.00 of it\./);
 });
 
+test('a forecast that dips, recovers, and dips again renders a plan for both shortfalls', async () => {
+  const dom = await loadApp(fakeDom({
+    values: {
+      ...GOOD, cash: '15', weeklyIncome: '90', weeklyCosts: '105', collectionWeeks: '0', weeks: '8',
+      item1Name: 'Bill', item1Amount: '20', item1Week: '2', item1Kind: 'out',
+      item2Name: 'FixIt', item2Amount: '70', item2Week: '4', item2Kind: 'in',
+    },
+  }));
+  dom.handlers.get('submit')({ preventDefault() {} });
+  assert.match(dom.output.innerHTML, /Cash shortfall/);
+  // The headline low point (the actual global minimum) falls in the second
+  // run, at week 8 -- not the first run this page used to stop reporting at.
+  assert.match(dom.output.innerHTML, /Lowest projected balance: -\$55\.00 in week 8/);
+  assert.match(dom.output.innerHTML, /First projected shortfall: <strong>week 2<\/strong>/);
+  assert.match(dom.output.innerHTML, /Shortfall 2: <strong>week 5<\/strong>.*low point \(week 8\)/);
+  // "Bill" already fixed the first shortfall and must not be reoffered for
+  // the second -- nothing else dated is available there.
+  const [, afterShortfall2] = dom.output.innerHTML.split('Shortfall 2:');
+  assert.match(afterShortfall2, /Nothing dated is available to move/);
+  // The structural note is shared across both runs, said only once.
+  assert.equal((dom.output.innerHTML.match(/not a timing problem/g) || []).length, 1);
+});
+
 test('a negative balance puts the minus outside the dollar sign', async () => {
   // `platform/ci/check_money_sign.py` is the site-wide rule; this pins the
   // rendered string, which is what a visitor actually reads.
@@ -216,6 +250,45 @@ test('Add another row reveals one hidden row at a time and stops at the last', a
   for (let press = 0; press < 10; press += 1) dom.buttons['#add-item'].click({});
   assert.equal(dom.rows[`#item-row-${MAX_ITEMS}`].hidden, false);
   assert.equal(dom.buttons['#add-item'].hidden, true);
+});
+
+test('Copy share link puts the current figures in the address bar and copies it', async () => {
+  const dom = await loadApp(fakeDom({ values: { ...GOOD, item1Name: 'Tax', item1Amount: '600', item1Week: '3', item1Kind: 'out' } }));
+  await dom.buttons['#share'].click({});
+  assert.match(dom.location.hash, /cash=5000/);
+  assert.match(dom.location.hash, /item1Amount=600/);
+  assert.match(dom.location.hash, /item1Kind=out/);
+  assert.match(dom.shareStatus.textContent, /Link copied/);
+});
+
+test('Copy share link still puts the figures in the address bar when the clipboard is denied', async () => {
+  const dom = await loadApp(fakeDom({ values: GOOD, clipboardFails: true }));
+  await dom.buttons['#share'].click({});
+  assert.match(dom.location.hash, /cash=5000/);
+  assert.match(dom.shareStatus.textContent, /copy it to share/);
+});
+
+test('opening a shared link runs the forecast immediately, including its one-off row', async () => {
+  const hash = '#cash=3000&weeklyIncome=1000&collectionWeeks=0&weeklyCosts=1000&weeks=8'
+    + '&item1Name=Quarterly+tax&item1Amount=6000&item1Week=2&item1Kind=out';
+  const dom = await loadApp(fakeDom({ values: GOOD, hash }));
+  // No submit event fired -- the forecast should already be on screen.
+  assert.match(dom.output.innerHTML, /Cash shortfall/);
+  assert.match(dom.output.innerHTML, /Quarterly tax/);
+  assert.equal(dom.form.elements.cash.value, 3000);
+  assert.equal(dom.rows['#item-row-1'].hidden, false);
+});
+
+test('a shared link overrides a saved local draft rather than mixing the two', async () => {
+  const dom = fakeDom({ values: { ...GOOD, cash: '9999' } });
+  const first = await loadApp(dom);
+  first.handlers.get('submit')({ preventDefault() {} });
+  assert.equal(JSON.parse(dom.store.get('cash-runway-draft')).cash, '9999');
+
+  const second = fakeDom({ values: GOOD, hash: '#cash=250&weeklyIncome=1800&collectionWeeks=2&weeklyCosts=1400' });
+  second.store.set('cash-runway-draft', dom.store.get('cash-runway-draft'));
+  await loadApp(second);
+  assert.equal(second.form.elements.cash.value, 250);
 });
 
 test('a restored draft reveals the hidden row it used', async () => {

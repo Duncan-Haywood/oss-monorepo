@@ -148,6 +148,14 @@ permissions:
 jobs:
   validate:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # This job runs on every PR that touches any of the paths above and chains
+    # roughly fifty checks and unit-test modules in sequence; it has taken
+    # 3-4 minutes in recent runs. Uncapped, a hung pip install or a stalled
+    # step anywhere in that chain would ride GitHub's default 360-minute
+    # ceiling instead of failing fast -- see hetzner-gitops-ci.yml's own
+    # timeout-minutes addition for why that matters on a metered-minutes
+    # account (CLAUDE.md's CI-starvation history, 2026-08-26 to 2026-09-01).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -176,6 +184,24 @@ jobs:
       # edit touches, which is the gap this step closes.
       - name: Check the apex tool mirror is not stale
         run: node --test "platform/marketing/*.test.mjs"
+
+      # `MIRROR_BYTE_CEILING` is a wall with no approach lights: `buildMirror`
+      # throws on it, and that throw lands in the step above -- which this
+      # workflow runs on every PR touching a venture page. So the first session
+      # to cross it does not learn that the mirror is full, it learns that
+      # *nothing in the catalogue can publish* until someone frees room, in the
+      # middle of shipping something unrelated. The apex is the portfolio's
+      # entire public surface and the fleet adds tools daily.
+      #
+      # This step fails at `MIRROR_HEADROOM_WARN_RATIO` (85%) instead, leaving
+      # roughly a third of the runway to land the remedy as an ordinary
+      # reviewed change. It was at 76.3% when the step was added -- 173 tools,
+      # ~53 from the wall -- so it passes today and exists for the day it does
+      # not. Its output also names the 18.5% of the mirror that is byte-
+      # identical duplication, which is the remedy the constant's comment
+      # spells out; raising the ceiling is not the first answer.
+      - name: Check the apex tool mirror has room left
+        run: node platform/marketing/front-door-tools.mjs --headroom
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py
@@ -255,6 +281,10 @@ jobs:
       - name: Workflow-validator unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
+
+      - name: Agent cross-review unit tests
+        working-directory: platform/ci/agent_review
+        run: python3 -m unittest test_review
 
       # The local workflow runner is what sessions verify with while no
       # runner picks up a job here, so its own tests have to run somewhere.
@@ -362,6 +392,24 @@ jobs:
       - name: Publish-surface unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
+
+      # The other half of that pair. `publish_surface.py` reads what a merge
+      # *ships*; `public_surface.py` reads what the hostnames actually
+      # *serve*, and only the second can contradict a stale claim. These tests
+      # open no socket -- the probe itself runs in `public-surface-check.yml`,
+      # which needs a runner's unrestricted egress and no credential at all.
+      - name: Public-surface prober unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_public_surface
+
+      # The third of the set. The prober above detects an outage; this one
+      # decides *which owner action would end it*, which is the question the
+      # decision queue ranks on. Its verdict branches are the tested surface:
+      # one of them invalidates the currently top-ranked ask, so a regression
+      # here would send the owner after the wrong credential.
+      - name: Outage-triage decision-tree tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_outage_triage
 
       - name: Branch-cleanup decision-rule tests
         working-directory: platform/ci

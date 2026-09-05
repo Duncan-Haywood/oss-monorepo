@@ -88,9 +88,38 @@ Hold the PAT until the cluster can seal it. Do not put it in the `agents`
 namespace as plaintext, and do not mount it into a workflow that does not
 need it.
 
-**SSH — `HETZNERSSHKEY` is already in Actions.** Dispatch
-`hetzner-gitops CI` with `preflight: true`. Read-only: it never
-installs k3s or runs tofu.
+**SSH — `HETZNERSSHKEY` is set but holds the wrong half of the keypair.**
+This paragraph used to say the secret "is already in Actions", and it is —
+that was never the question. Measured 2026-09-04 by dispatching
+`hetzner-gitops CI` with `preflight: true` (run 33884253173, job
+101060068559): the job exits in under a second on
+
+```
+HETZNERSSHKEY holds a public key, not a private key.
+```
+
+which is the workflow's own format classifier, not an SSH error. So the
+preflight has **never produced a reading**, and every "SSH to the boxes and
+see" instruction in this repository — here, in `bootstrap/README.md`, in
+`infra/README.md` — has been unfollowable since it was written. That is why
+`bootstrap/preflight.sh`'s "what the apex actually serves" section, the one
+check no agent session can run for itself, has never once been run.
+
+**The fix is yours and takes a minute:** put the *private* key matching the
+public key already on `root@89.167.29.39` and `root@157.180.80.188` into
+Settings → Secrets and variables → Actions → `HETZNERSSHKEY` (the whole file,
+`-----BEGIN OPENSSH PRIVATE KEY-----` through `-----END …-----`). Then
+dispatch `hetzner-gitops CI` with `preflight: true` again; it is read-only and
+never installs k3s or runs tofu. The workflow already normalises the two ways
+a pasted key usually breaks (literal `\n` escapes and CRLF), so a plain paste
+is fine.
+
+**Nothing else waits on this.** `Public surface check`
+(`.github/workflows/public-surface-check.yml`) answers the question the
+preflight was wanted for — what each hostname actually serves — from a
+runner's ordinary internet, with no credential at all. Rotate the key for
+cluster-level diagnosis (pod state, k3s health, disk); the public surface is
+already observable without it.
 
 **Hetzner Read token — `HETZNERREADAPIKEY` is already in Actions.** CI
 probes `POST /servers` with an empty body (cannot create a server).
@@ -190,9 +219,23 @@ codes as exit 42 and a rejected credential as exit 43.
 
    Seal both and the subscription wins — it is the one that does not
    bill, and the worker logs which mode it used on every run. Either way,
-   seal in a follow-up PR, and only then flip
-   `gitops/agents/governor/cronjob.yaml` `suspend: false` and
-   `policy.json` `"enabled": true`.
+   seal in a follow-up PR, and only then turn the governor on:
+
+   ```
+   ./bootstrap/scripts/enable-codex-governor.sh          # flip both switches
+   ./bootstrap/scripts/enable-codex-governor.sh --check  # report, write nothing
+   ```
+
+   That is one command in place of the two hand-edits this step used to
+   ask for (`cronjob.yaml` `suspend: false` and `policy.json` `"enabled":
+   true`). Doing one and not the other is silent in both directions — the
+   CronJob alone wakes every five minutes to read a disabled policy, the
+   policy alone is never read by anything. The script also refuses to
+   enable until the Secret you sealed above is committed *and* listed in
+   `gitops/agents/kustomization.yaml`, so the "only then" in the sentence
+   above is now enforced rather than merely written down. It edits two
+   files in your checkout and nothing else; commit and push as usual, and
+   `--disable` reverses it.
 
    What that flip then runs is `gitops/agents/queue/*.yaml`, and since
    2026-09-01 those are ordered to match the rest of that same standing
@@ -266,7 +309,7 @@ codes as exit 42 and a rejected credential as exit 43.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 
-This is the shortest path from "169 finished tools nobody can reach" to a
+This is the shortest path from "174 finished tools nobody can reach" to a
 public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
@@ -274,10 +317,38 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 159 of the 169 tools directly. Step 1
-below is what turns that front door into a working funnel for the other
-10 — every category card on it links into `tools.marisstella.dev`, which
-still serves nothing until the token is sealed.
+"You decide" below), and it mirrors 174 of the 174 tools directly. Step 1
+below no longer publishes any tool a stranger cannot already reach; what it
+buys is the canonical hostname and indexability.
+
+**Changed 2026-09-03, twice.** That read "162 ... the remaining 7" until the
+mirror learned the same entry-point rule `platform/pages/build.mjs` already
+used (`index.html`, then `site/index.html`). Five ventures keeping a flat
+static site in `site/` were being reported as apps with a build step, and a
+sixth dropped as collateral for linking to one of them.
+
+Then it read "168 ... the remaining 1", and **that last tool was never
+waiting on the seal at all.** `build.mjs` resolves an entry point through
+`ENTRY_CANDIDATES` *and* `ENTRY_OVERRIDES`, and copying only the first list
+into the mirror left `ai-engineering-academy` — a hub page and six working
+electronics calculators, all tested, all carrying disclaimers and usage
+tracking — filed as "not a static page the mirror can serve". The canonical
+build published all seven; the canonical host serves nothing until Step 1;
+so those seven pages were public nowhere, and the checklist recorded that as
+one tool the seal would deliver. The mirror now imports both lists from
+`build.mjs` rather than restating either, and serves them today. Step 1 is
+still worth doing — it is what makes `tools.marisstella.dev` itself resolve
+and lets these pages be indexed — but it is now worth the canonical hostname
+and search, not any tool's reachability.
+
+**Corrected 2026-09-02.** This paragraph used to end "every category card on
+it links into `tools.marisstella.dev`, which still serves nothing until the
+token is sealed" — the same wrong reading `CLAUDE.md` corrects at length.
+The front door's category cards link to same-page anchors, its primary
+call to action opens a mirrored tool on this domain, and its single
+reference to the tools host is fine print honestly labelled as not yet
+live. So the seal is worth doing and is not the difference between a dead
+end and a working product.
 
 That ratio moved a long way on 2026-09-02, and it changes what Step 1 is
 worth. The mirror used to hold 53 tools because a ConfigMap-delivered
@@ -287,7 +358,19 @@ whole catalogue itself. Sealing the token is still the right end state —
 it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
-169. It is now the difference between 159 and 169, plus search.
+169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
+at all: the apex serves all 174. What Step 1 buys is the canonical host and
+search.
+
+**Updated 2026-09-03, twice.** This paragraph said 159 until #2948
+(2026-09-02) raised the mirror to 162 — it updated the bullet two
+paragraphs up but missed this one, so the two counts on this page
+disagreed for a day. It went 162 → 168 the same day, when the mirror
+learned `site/index.html` entry points and stopped filing six flat static
+ventures as apps with a build step. The
+number moves whenever a venture's flat page count or link shape changes;
+`node platform/marketing/front-door-tools.mjs --check` (no `--write`)
+prints the current total without touching anything, if it drifts again.
 
 The build half is done and was rehearsed with the exact commands the pod
 runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
@@ -396,7 +479,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 159 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 174 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
@@ -406,3 +489,22 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise
   from the dashboard, not from a key the cluster holds).
+- **Cross-agent PR review + auto-merge, added 2026-09-04.** #3024
+  (2026-09-03) merged `platform/ci/agent_review/` and
+  `.github/workflows/agent-cross-review.yml` /
+  `agent-pr-auto-merge.yml` to `main` — four reviewer GitHub-App
+  identities (GH, Kilo, Cursor, Claude) that review each other's PRs and
+  squash-merge an internal (non-`ventures/*`) PR once two approve and CI
+  is green. It ships fail-closed: every review job checks its own
+  `AGENT_REVIEWER_*_APP_ID`/`_PRIVATE_KEY` secrets first and skips in a
+  few seconds when they are unset, so today it runs, does nothing, and
+  approves nothing. Nothing here is blocking, and nothing about the
+  scaffold needs it. If you want it live, `platform/ci/agent_review/
+  README.md`'s "One-time owner setup" is the whole procedure: create 4
+  GitHub Apps (Pull requests: Read & write; Contents: Read; Metadata:
+  Read; installed on this repo only), add the 8 `AGENT_REVIEWER_*`
+  secrets it names, and set `required_approving_review_count: 2` plus
+  required status checks on the `main` branch ruleset. The
+  `agent-cross-review-automerge` row in `portfolio/ledger/asks.yaml`
+  used to say this shape was abandoned (#870, closed 2026-08-24) and
+  never mention #3024 — corrected the same day this bullet was added.

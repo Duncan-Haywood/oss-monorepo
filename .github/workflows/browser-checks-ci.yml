@@ -23,9 +23,8 @@ name: Browser checks
 # `PLAYWRIGHT` and `AXE` as explicit paths. Nothing is added to the tree.
 #
 # Why nightly and not on every pull request. A full run is the whole site --
-# 510 pages, no per-page or per-venture subsetting knob exists in any of the
-# seven -- and takes on the order of 20-30 minutes. `platform/pages/` took 123
-# commits in the seven days to 2026-09-01, about 18 a day; gating those on a
+# 510 pages -- and takes on the order of 20-30 minutes. `platform/pages/` took
+# 123 commits in the seven days to 2026-09-01, about 18 a day; gating those on a
 # 20-minute browser run is roughly six hours of Actions minutes a day for a
 # suite whose findings are nearly always the same as yesterday's. Minutes here
 # are metered: this repository is private and user-owned, and on 2026-08-26 the
@@ -41,6 +40,30 @@ name: Browser checks
 # `workflow_dispatch` is there so anyone touching the shared layer can run it
 # against a branch before merging, which is the case where waiting a day is
 # actually too slow.
+#
+# The `only` input is what makes that escape hatch usable. This header used to
+# say the reason no smaller run was possible was that "no per-page or
+# per-venture subsetting knob exists in any of the seven". That was true end to
+# end and wrong in detail -- `presets`, `roundtrip` and `highlight` had each
+# taken slugs as positional argv since they were written; the harness runs each
+# check as `node <path>` with no arguments, so nothing could reach them. As of
+# `platform/pages/only-slugs.mjs` all six per-venture checks read one filter
+# from `ONLY_SLUGS`, and `--only` sets it. Measured on 2026-09-04 against a
+# freshly built site, `roundtrip`: whole site 6m15s, scoped to
+# `ebay-fee-calculator` 27s -- most of which is the build the check shares.
+#
+# What this deliberately does NOT do is add a `pull_request` trigger. A scoped
+# run is cheap enough that one is now arguable, but the cost that has actually
+# hurt this repository is the metered account allowance, whose remaining
+# headroom is not observable from a session (see `gitops/ci/README.md`), and
+# the nightly's cost argument was never the only reason to be careful. Adding a
+# trigger is a spend decision on top of a capability decision; this commit
+# makes the capability, and leaves the trigger to be argued on its own with the
+# numbers above.
+#
+# The scheduled run passes no `only` and must not: the nightly is the
+# whole-site sweep, and a scoped nightly would be a gate that quietly stopped
+# covering the site.
 #
 # A skip is reported as a skip, and it still fails the job. Every check
 # reserves exit 2 for "nothing was verified", distinct from the 1 it exits when
@@ -81,6 +104,10 @@ on:
         description: "Comma-separated subset to run (default: all seven)"
         required: false
         default: "sideways,presets,roundtrip,highlight,contrast,sweep,journey"
+      only:
+        description: "Comma-separated venture slugs to scope to (default: the whole site)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -184,10 +211,21 @@ jobs:
           # the build's default. This is a string in the artifact, not a
           # network call: nothing here fetches the live site.
           CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,sweep,journey' }}
+          # Empty on the nightly, which is the whole point: the scheduled run
+          # is the whole-site sweep and must never be scoped by accident. The
+          # input exists for the case the header calls out -- "anyone touching
+          # the shared layer can run it against a branch before merging" --
+          # where waiting a day is too slow and a whole-site run is 20-30
+          # minutes for a change that touched one venture.
+          ONLY: ${{ inputs.only || '' }}
         run: |
           set -euo pipefail
+          # An unquoted empty --only would consume the next flag as its value.
+          only_args=()
+          if [ -n "$ONLY" ]; then only_args=(--only "$ONLY"); fi
           python3 platform/ci/browser_checks.py \
             --checks "$CHECKS" \
+            "${only_args[@]}" \
             --stamp-base-url https://tools.marisstella.dev/ \
             && rc=0 || rc=$?
           # 0 = all seven answered and passed. 1 = a real defect in the site

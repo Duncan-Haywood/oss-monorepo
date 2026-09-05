@@ -45,6 +45,7 @@ jobs:
     # this job on Docker-capable GitHub-hosted runners regardless of the
     # switch. gitops/tests/test_ci_runner.py pins this as a named exception.
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     # The official image rather than swift-actions/setup-swift@v2, which 404s fetching the
     # 5.9 toolchain and so failed this job before a single file was compiled.
     container: swift:5.9

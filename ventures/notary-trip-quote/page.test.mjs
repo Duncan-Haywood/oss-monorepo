@@ -12,6 +12,11 @@ test('landing page carries the disclaimer, structured data, and app script', () 
   assert.match(html, /calc\.mjs/);
 });
 
+test('the page carries the standard sponsor link', () => {
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /href="LICENSE"/);
+});
+
 test('the page imports the non-throwing wrapper, not the raw calculator', () => {
   // calculateQuote() throws on a negative or non-numeric figure. Importing it
   // directly into an input listener with no try/catch is exactly how a stray
@@ -77,4 +82,22 @@ test('the offer test has somewhere to render and a heading that says which fee i
   assert.match(html, /id="hourly"/);
   assert.match(html, /id="worthHeading"/);
   assert.match(html, /q\.offerEvaluated\?'What the offer is worth per hour'/);
+});
+
+// The result panel (the quote total, the breakdown, the minimum-fee note, the
+// error text, and the per-hour offer test) rewrites its own content on every
+// keystroke via update(), but the section itself carried no aria-live
+// region, and neither status span announced itself either -- a screen-reader
+// user who tabs away after typing a number was never told the quote changed,
+// or that a bad input flipped the panel into an error message. Every other
+// finished venture's `.result` section in this repo marks itself
+// aria-live="polite" for exactly this reason (see seller-net-sheet,
+// painting-bid-calculator). This pins the same convention here.
+test('the result panel is an aria-live region so screen readers hear updates and errors', () => {
+  assert.match(html, /<section class="result" aria-live="polite">/);
+});
+
+test('the draft-cleared and copy status messages are announced, matching the role="status" aria-live="polite" convention used elsewhere', () => {
+  assert.match(html, /id="draftStatus"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /id="status"[^>]*role="status"[^>]*aria-live="polite"/);
 });

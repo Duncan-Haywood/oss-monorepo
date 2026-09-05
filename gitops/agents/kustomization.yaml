@@ -6,6 +6,7 @@ resources:
   - networkpolicy.yaml
   - quota.yaml
   - codex-home.yaml
+  - codex-tools.yaml
   - governor/rbac.yaml
   - governor/cronjob.yaml
   - governor/state.yaml

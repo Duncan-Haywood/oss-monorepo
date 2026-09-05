@@ -16,7 +16,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any browser",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, compare 8ft vs 10ft vs 12ft boards, material cost estimate for sheets and linear stock, printable job ticket",
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, compare 8ft vs 10ft vs 12ft boards, material cost estimate for sheets and linear stock, printable job ticket, CSV export of the cut plan",
     "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet and board sizes by the material you would actually buy. Runs entirely on the visitor's device."
   }
   </script>
@@ -217,6 +217,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         <div class="compare" id="sheet-compare"></div>
         <div class="actions">
           <button type="button" id="sheet-copy" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="sheet-csv" disabled>Download CSV</button>
           <button type="button" class="secondary" id="sheet-print">Print</button>
           <span class="muted" id="sheet-copy-status" role="status" aria-live="polite"></span>
         </div>
@@ -282,9 +283,11 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
         </dl>
+        <div class="warn" id="linear-oversize"></div>
         <div id="plan"></div>
         <div class="actions">
           <button type="button" id="copy-plan" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="linear-csv" disabled>Download CSV</button>
           <button type="button" class="secondary" id="linear-print">Print</button>
           <span class="muted" id="copy-status" role="status" aria-live="polite"></span>
         </div>
@@ -349,8 +352,8 @@ Top: 31.5 x 11.25 x 2</textarea>
   </footer>
 
   <script type="module">
-    import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison } from './calc.mjs';
-    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
+    import { parseCuts, parseStock, optimizeCutList, formatCutPlan, formatCutPlanCSV, compareStockLengths, formatStockComparison } from './calc.mjs';
+    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, formatSheetPlanCSV, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
     import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
 
@@ -359,6 +362,22 @@ Top: 31.5 x 11.25 x 2</textarea>
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => (
       { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     ));
+
+    // A plain-text plan is for pasting into a job ticket; a CSV is for a
+    // spreadsheet, a CNC nesting import, or another cut-list app. Both stay
+    // on-device — this creates and revokes a local object URL and never
+    // touches the network.
+    function downloadCSV(filename, text) {
+      const blob = new Blob([text], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
 
     // Re-rendering is cheap and runs on every keystroke, but a usage count that
     // ticks per keystroke measures typing, not cut plans. `ready` lets the
@@ -517,6 +536,8 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('sheet-copy').dataset.plan = comparison
           ? `${planText}\n${formatSheetComparison(comparison, { unit })}`
           : planText;
+        $('sheet-csv').disabled = false;
+        $('sheet-csv').dataset.csv = formatSheetPlanCSV(result, { unit });
         ready.sheet = true;
       } catch (error) {
         // Every message thrown by sheet.mjs is written for the user, so it is
@@ -529,6 +550,8 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('sheet-diagrams').innerHTML = '<p class="empty">The layout for each sheet appears here.</p>';
         $('sheet-copy').disabled = true;
         $('sheet-copy').dataset.plan = '';
+        $('sheet-csv').disabled = true;
+        $('sheet-csv').dataset.csv = '';
         ready.sheet = false;
         ready.sheetCompare = false;
       }
@@ -645,16 +668,25 @@ Top: 31.5 x 11.25 x 2</textarea>
           onHand: parseStock($('onhand').value),
           stockCost,
         });
-        $('headline').textContent = result.purchased === 0
-          ? 'Nothing to buy'
-          : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
-        $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.';
+        $('headline').textContent = !result.bars.length
+          ? 'No cut fits this stock size'
+          : result.purchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+        $('message').textContent = result.bars.length
+          ? 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.'
+          : 'No cut on this list fits your stock length or on-hand offcuts.';
         $('bars').textContent = result.bars.length;
         $('purchased').textContent = result.purchased;
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
         $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
+        $('linear-oversize').innerHTML = result.oversize.length
+          ? `<strong>${result.oversize.length} cut${result.oversize.length === 1 ? ' does' : 's do'} not fit any stock length on hand or to buy:</strong> `
+            + result.oversize.map((cut) => format(cut)).join(', ')
+            + '. Check the length, or use a longer stock size.'
+          : '';
 
         const saved = $('saved');
         if (result.purchasesAvoided > 0) {
@@ -688,6 +720,8 @@ Top: 31.5 x 11.25 x 2</textarea>
           kerf: $('kerf').value,
           currency,
         });
+        $('linear-csv').disabled = false;
+        $('linear-csv').dataset.csv = formatCutPlanCSV(result, { stockUnit: unit });
         renderLinearComparison(parseCuts($('cuts').value));
         ready.linear = true;
       } catch (error) {
@@ -695,9 +729,12 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('message').textContent = error.message;
         $('saved').hidden = true;
         LINEAR_STATS.forEach((id) => { $(id).textContent = '—'; });
+        $('linear-oversize').innerHTML = '';
         $('plan').textContent = '';
         $('copy-plan').disabled = true;
         $('copy-plan').dataset.plan = '';
+        $('linear-csv').disabled = true;
+        $('linear-csv').dataset.csv = '';
         ready.linear = false;
         try {
           renderLinearComparison(parseCuts($('cuts').value));
@@ -794,6 +831,20 @@ Top: 31.5 x 11.25 x 2</textarea>
     wireCopy('linear-compare-copy', 'linear-compare-status', 'compares');
     $('sheet-print').addEventListener('click', () => window.print());
     $('linear-print').addEventListener('click', () => window.print());
+
+    function wireCSV(buttonId, statusId, filename, downloadEvent) {
+      $(buttonId).addEventListener('click', () => {
+        const csv = $(buttonId).dataset.csv;
+        if (!csv) return;
+        downloadCSV(filename, csv);
+        recordUsage(localStorage, optedOut(), downloadEvent);
+        const status = $(statusId);
+        status.textContent = 'CSV downloaded.';
+        setTimeout(() => { status.textContent = ''; }, 4000);
+      });
+    }
+    wireCSV('sheet-csv', 'sheet-copy-status', 'cut-list-optimizer-sheet-plan.csv', 'sheet-csv-downloads');
+    wireCSV('linear-csv', 'copy-status', 'cut-list-optimizer-linear-plan.csv', 'csv-downloads');
 
     function closestFromEvent(event, selector) {
       const start = event.target instanceof Element ? event.target : event.target.parentElement;

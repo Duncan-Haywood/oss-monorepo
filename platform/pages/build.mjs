@@ -74,10 +74,12 @@ import {
 } from './link.mjs';
 import {
   DEFAULT_EMBED_HEIGHT,
+  EMBED_HOST_FILE,
   EMBED_MODULE_FILE,
   EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
+  renderEmbedHostModule,
   renderEmbedModule,
   renderEmbedStyle,
 } from './embed.mjs';
@@ -104,10 +106,24 @@ export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/monorepo-proje
 const PLACEHOLDER_ORIGIN = 'https://example.invalid/';
 
 // Where a venture's public entry point may live, in preference order.
-const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
+//
+// Exported because this build is not the only thing that has to answer "is
+// this venture a static page, and where does it start?". The apex tool mirror
+// (`platform/marketing/front-door-tools.mjs`) answers the same question for
+// the front door, and every time the two have disagreed the apex has silently
+// dropped ventures this build publishes — six of them on 2026-09-03, when the
+// mirror knew only the flat `index.html`. Importing the rule is what keeps a
+// third divergence from being possible.
+export const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 
 // Ventures whose public surface is not at one of the standard paths.
-const ENTRY_OVERRIDES = {
+//
+// Exported for the same reason as ENTRY_CANDIDATES, and it is the half that
+// actually went wrong: the mirror grew the `site/` candidate but never learned
+// that overrides exist at all, so `ai-engineering-academy`'s hub and its six
+// calculators were reported as "not a static page the mirror can serve" while
+// this build was publishing all seven.
+export const ENTRY_OVERRIDES = {
   // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
@@ -368,9 +384,17 @@ const CATEGORY_RULES = [
     title: 'Compliance checks & evidence records',
     accent: '#5c2a1f',
     blurb: 'Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.',
+    // `real-estate-agent-photo-app` and `print-atelier` are both preflights
+    // that export a dated record and refuse to call themselves an acceptance
+    // decision — this section's exact job, and its exact disclaimer posture.
+    // Both slugs name the venture (an iPhone photography app; an art
+    // marketplace) rather than the surface, so neither the `preflight$` suffix
+    // nor any prefix above catches them, and both landed in the catch-all
+    // where the readers of "Compliance checks & evidence records" never saw
+    // them.
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
-      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch)/.test(slug),
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch|real-estate-agent-photo|print-atelier)/.test(slug),
   },
   {
     id: 'backoffice',
@@ -1078,14 +1102,24 @@ async function countPages(sourceDir) {
  * already guard against.
  *
  * Heuristic, not a JS parser: it recognises a `const NAME = "https://...";`
- * style declaration and a `fetch()` call whose target is a literal URL or
- * one of those constants — every shape this codebase currently uses. A
- * fetch target built some other way (concatenation, a computed URL) would
- * not be caught, which is why callers should read an empty result as "none
- * found", not as a verified guarantee that none exist.
+ * style declaration, a `fetch()`/`fetchImpl()`-shaped call whose target is a
+ * literal URL or one of those constants, and — for `.js`/`.mjs` files only,
+ * to avoid flagging a page's own canonical/share-card links — any
+ * `https://` literal at all in a file that makes a fetch-shaped call
+ * somewhere, to catch a target built by indirection (a record's own
+ * `endpoint` field, say) that the precise checks can't trace. That last rule
+ * trades precision for recall on purpose: naming a URL that turns out not to
+ * be requested is a harmless over-disclosure, missing one that is requested
+ * is a false privacy claim. It still cannot see a target assembled from
+ * string concatenation with no literal `https://` substring anywhere in the
+ * file, which is why callers should read an empty result as "none found",
+ * not as a verified guarantee that none exist.
  */
 export async function surfaceExternalFetchHosts(dir) {
-  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.html'));
+  // `.mjs` too, not just `.js`: ventures overwhelmingly ship ES modules
+  // (`calc.mjs`, `share.mjs`, …), and a scanner that only reads `.js` never
+  // opens most of a venture's own logic.
+  const files = (await listFiles(dir)).filter((f) => f.endsWith('.js') || f.endsWith('.mjs') || f.endsWith('.html'));
   const hosts = new Set();
 
   for (const file of files) {
@@ -1095,14 +1129,30 @@ export async function surfaceExternalFetchHosts(dir) {
       urlConsts.set(m[1], m[2]);
     }
     const targets = [
-      ...[...src.matchAll(/fetch\(\s*[`'"](https?:\/\/[^`'"]+)[`'"]/g)].map((m) => m[1]),
-      ...[...src.matchAll(/fetch\(\s*`\$\{([A-Za-z_$][\w$]*)\}/g)]
+      ...[...src.matchAll(/fetch\w*\(\s*[`'"](https?:\/\/[^`'"]+)[`'"]/g)].map((m) => m[1]),
+      ...[...src.matchAll(/fetch\w*\(\s*`\$\{([A-Za-z_$][\w$]*)\}/g)]
         .map((m) => urlConsts.get(m[1]))
         .filter(Boolean),
-      ...[...src.matchAll(/fetch\(\s*([A-Za-z_$][\w$]*)\s*[+,)]/g)]
+      ...[...src.matchAll(/fetch\w*\(\s*([A-Za-z_$][\w$]*)\s*[+,)]/g)]
         .map((m) => urlConsts.get(m[1]))
         .filter(Boolean),
     ];
+    // A fetch-shaped call (`fetch(`, `fetchImpl(`, …) whose URL is built from
+    // something other than a literal or a top-level const -- a record's own
+    // `endpoint` field read inside a template literal, say -- is invisible to
+    // the three precise checks above, and the gap was not hypothetical: it is
+    // exactly how dns-configuration-evidence queries three public DoH
+    // resolvers (`` fetchImpl(`${resolver.endpoint}?name=...`) ``), and it
+    // went undisclosed on /about/ until this was added. Rather than trace
+    // every such indirection, treat any `https://` literal in a `.js`/`.mjs`
+    // file that also makes a fetch-shaped call as a target. This is safe to
+    // over-disclose (a URL named in the source but never actually requested
+    // still just adds a mention) and unsafe to under-disclose (a false "stays
+    // in your browser" claim) -- and checked against the whole built site on
+    // 2026-09-04, it adds no host beyond the one it exists to catch.
+    if (!file.endsWith('.html') && /\bfetch\w*\(/.test(src)) {
+      targets.push(...[...src.matchAll(/["'`](https?:\/\/[^"'`\s]+)["'`]/g)].map((m) => m[1]));
+    }
     // HTML-only: a browser fetches these on page load without any `fetch()`
     // call ever appearing in a `.js` file, so the checks above miss them
     // entirely. `rel="canonical"` / `rel="alternate"` are metadata a crawler
@@ -1498,10 +1548,10 @@ export function renderCategoryPage({ category, items, groups, baseUrl }) {
   const toRoot = '../../';
   const subgroups = groupBySubcategory(category.id, items);
   // Computed the same way the About page proves its own privacy claim, so a
-  // category that happens to hold the one tool with a documented external
-  // call (Sponsor Ready, filed under "more") does not have this page say
-  // "nothing you type is uploaded" for all of its tools when that is false
-  // for one of them.
+  // category that happens to hold a tool with a documented external call
+  // (Sponsor Ready under "more", DNS Change Evidence under "evidence") does
+  // not have this page say "nothing you type is uploaded" for all of its
+  // tools when that is false for one of them.
   const categoryExceptions = externalCallExceptions(items);
   const countPrivacyClaim = categoryExceptions.length
     ? `nothing you type is uploaded, except on ${listProse(categoryExceptions.map((x) => x.title))}`
@@ -1798,7 +1848,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
 
       <h2>What happens to what you type</h2>
       <div class="panel">
-        <h3>${exceptions.length ? `Nothing, with one documented exception below.` : 'Nothing. There is no server that could receive it.'}</h3>
+        <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
           Every tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read with your browser's own
@@ -1807,8 +1857,8 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? 'Nothing you enter is transmitted, with one documented exception.' : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
-          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call ${exceptionNames} makes, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${exceptions.length ? ` — except ${exceptionNames}, each of which checks a live public API as its whole job. What you paste there to look up goes to ${exceptionHosts} and nowhere else on this site; that page explains exactly what is sent` : ''}.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionNames} make${exceptions.length === 1 ? 's' : ''}, above, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
           <li><strong>No cookies and no cross-site identifiers.</strong></li>
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionNames}, whose whole point is a live lookup, so it needs the connection back to check anything new` : ''}.</li>
         </ul>
@@ -4490,6 +4540,10 @@ export async function collectOfflineBundle(outDir, surfaces) {
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
     INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
+    // Not loaded by any page on this site — it runs on the embedder's — but
+    // precached all the same so the snippet's second line is served from the
+    // same revision as the first.
+    EMBED_HOST_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -4718,9 +4772,13 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
   await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
-  // The embed-widget runtime and its stylesheet, on the same terms.
+  // The embed-widget runtime and its stylesheet, on the same terms. The
+  // resizer joins them because the snippet every entry page offers names it
+  // absolutely: a build that wrote the snippet without the file would hand
+  // embedders a `<script src>` that 404s.
   await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
   await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
+  await fs.writeFile(path.join(outDir, EMBED_HOST_FILE), renderEmbedHostModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 

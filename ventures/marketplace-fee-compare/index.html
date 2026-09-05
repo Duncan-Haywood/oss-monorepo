@@ -176,10 +176,10 @@
           <input id="monthlyOrders" type="number" min="1" step="1" value="50">
         </div>
       </div>
-      <p id="errors" class="errors" role="status"></p>
+      <p id="errors" class="errors" role="status" aria-live="polite"></p>
     </section>
 
-    <section id="resultSection">
+    <section id="resultSection" aria-live="polite">
       <h2>What each channel leaves you</h2>
       <p id="verdict" class="verdict"></p>
       <div class="scroll">
@@ -201,7 +201,7 @@
       <div class="actions">
         <button id="copy" type="button">Copy this comparison</button>
         <button id="copyShare" type="button">Copy share link</button>
-        <span id="copyStatus" class="fine" role="status"></span>
+        <span id="copyStatus" class="fine" role="status" aria-live="polite"></span>
       </div>
 
       <details>
@@ -247,6 +247,7 @@
         myself", and put the cost of bringing it against the difference.
       </p>
       <p class="fine seo-link"><a href="./which-marketplace-has-the-lowest-fees.html">Which marketplace has the lowest fees? A worked comparison</a> walks one item through all six channels above step by step, including why the cheapest fee rate is not always the highest payout.</p>
+      <p class="fine seo-link">Already selling and wondering whether you want connected analytics instead? <a href="./vs-sellerboard.html">This tool vs. Sellerboard</a> sets a free pre-listing comparison against a paid, account-connected profit report, and says plainly what this page cannot tell you.</p>
     </section>
 
     <section>
@@ -283,6 +284,12 @@
         experimental, and may be slow, broken, moved, or taken offline without
         notice. We do not promise uptime, backups of anything you type, or that
         a URL will keep working. Do not use this as a system of record.
+      </p>
+      <p class="fine support">
+        Free and open source. If it helped you pick the right channel for an
+        item, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>
+        &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a>
+        is entirely optional and never changes what the tool does.
       </p>
     </section>
   </main>

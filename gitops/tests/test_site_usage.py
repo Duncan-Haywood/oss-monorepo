@@ -534,13 +534,47 @@ def test_the_front_door_is_counted_apart_from_the_catalogue_hub() -> None:
 
 
 def test_the_front_doors_own_pages_still_collapse_to_one_row() -> None:
-    # Anything from that pod that is *not* a mirrored tool is the front page:
-    # its fallback is `try_files /index.html =404`, so `$uri` resolves to the
-    # same page whatever was requested. The mirror is the one exception and it
-    # is keyed by `__`; these three slugs carry none, so they fold as before.
+    # Anything from that pod that is not a mirrored tool, a category page, or
+    # the About page is the front page: its fallback is `try_files
+    # /index.html =404`, so `$uri` resolves to the same page whatever was
+    # requested. The mirror and category pages are keyed by `__`, and About is
+    # its own explicit slug (see `test_the_about_page_gets_its_own_row`
+    # below); these three slugs carry none of that, so they fold as before.
     module = _load_aggregate()
     counts = {"a": 2, "b": 5, module.HUB_KEY: 1}
     assert module.fold_for_app(counts, "portfolio-front") == {module.FRONT_KEY: 8}
+
+
+def test_the_about_page_gets_its_own_row_rather_than_folding_into_the_front_page() -> None:
+    """`about.html` has its own `location` block, not the catch-all's.
+
+    `default.conf`'s `^/about/?$` resolves through `try_files /about.html`, a
+    distinct `location` from the bare `location /` the front page falls
+    through to -- so, unlike "a", "b" and `HUB_KEY` above, this slug is not an
+    accident of the catch-all and deserves its own row for the same reason a
+    category page does: "did anyone read the page that explains what this
+    host does and does not log" is a different question from "did anyone land
+    on the front page", and folding the two into one row would make both
+    unanswerable.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-09-03T10:00:00+00:00 200 /index.html",
+        "2026-09-03T10:01:00+00:00 200 /about.html",
+        "2026-09-03T10:02:00+00:00 200 /about.html",
+        "2026-09-03T10:03:00+00:00 200 /job-margin-variance__index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-03")
+    assert module.fold_for_app(counts, "portfolio-front") == {
+        module.FRONT_KEY: 1,
+        module.FRONT_ABOUT_KEY: 2,
+        f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 1,
+    }
+    assert module.FRONT_ABOUT_KEY == "_front/about"
+    # The tools host's own About page (`build.mjs`'s) is a different page on a
+    # different host and must not share this row: `APP_KEYS["portfolio-site"]`
+    # is `None`, so its lines keep `slug_for`'s bare "about" key untouched.
+    assert module.fold_for_app({"about": 4}, "portfolio-site") == {"about": 4}
 
 
 def test_each_mirrored_tool_gets_its_own_row_rather_than_vanishing_into_the_front_key() -> None:
@@ -569,6 +603,39 @@ def test_each_mirrored_tool_gets_its_own_row_rather_than_vanishing_into_the_fron
         f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 3,
         f"{module.FRONT_TOOL_PREFIX}seller-net-sheet": 1,
     }
+
+
+def test_each_category_page_keeps_its_own_row_rather_than_folding_into_one() -> None:
+    """`/c/trades/` and `/c/logistics/` are different pages and must count apart.
+
+    A category page's logged `$uri` carries `MIRROR_SEPARATOR` exactly as a
+    mirrored tool's does, because `try_files` resolves `/c/trades/` onto the
+    flattened ConfigMap key `/c__trades.html`. Split on the separator like a
+    tool, all seven collapse onto a single `_front/c` row — which reads in the
+    stored history as a venture called `c` that does not exist, and loses the
+    signal the pages were published for: which category a visitor browses is
+    the same question as which tool they open.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-09-02T10:00:00+00:00 200 /index.html",
+        "2026-09-02T10:01:00+00:00 200 /c__trades.html",
+        "2026-09-02T10:02:00+00:00 200 /c__trades.html",
+        "2026-09-02T10:03:00+00:00 200 /c__logistics.html",
+        # A real mirrored tool alongside them, so the two branches are shown
+        # not to capture each other's lines.
+        "2026-09-02T10:04:00+00:00 200 /job-margin-variance__index.html",
+    ]
+    counts = module.count_lines(lines, "2026-09-02")
+    assert module.fold_for_app(counts, "portfolio-front") == {
+        module.FRONT_KEY: 1,
+        f"{module.FRONT_TOOL_PREFIX}c/trades": 2,
+        f"{module.FRONT_TOOL_PREFIX}c/logistics": 1,
+        f"{module.FRONT_TOOL_PREFIX}job-margin-variance": 1,
+    }
+    # And the name matches what the catalogue host calls the same page, so one
+    # page is one name whichever host served it.
+    assert module.slug_for("/c/trades/index.html") == "c/trades"
 
 
 def test_a_mirrored_tools_row_cannot_be_confused_with_the_catalogues() -> None:

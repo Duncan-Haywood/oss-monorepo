@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison, sameStockLength } from './calc.mjs';
+import { parseCuts, parseStock, optimizeCutList, formatCutPlan, formatCutPlanCSV, compareStockLengths, formatStockComparison, sameStockLength } from './calc.mjs';
 
 test('expands quantities and sorts cuts', () => assert.deepEqual(parseCuts('24 x 3\n30'), [30, 24, 24, 24]));
 test('rejects malformed lines', () => assert.throws(() => parseCuts('twelve'), /Line 1/));
@@ -10,7 +10,27 @@ test('packs cuts with kerf and reports waste', () => {
   assert.deepEqual(result.bars[0].cuts, [36, 20]);
   assert.equal(result.totalCuts, 66);
 });
-test('rejects a cut longer than stock', () => assert.throws(() => optimizeCutList({ stockLength: 10, kerf: 0, cuts: [12] }), /fit inside one stock length/));
+// A cut longer than any stock this plan could buy or has on the rack cannot
+// be placed by any packing order — but it must not take the rest of an
+// otherwise valid list down with it (see the doc comment on
+// optimizeCutList). It is reported in `oversize`, not thrown.
+test('a cut longer than stock is reported as oversize, not thrown', () => {
+  const result = optimizeCutList({ stockLength: 10, kerf: 0, cuts: [12] });
+  assert.deepEqual(result.oversize, [12]);
+  assert.equal(result.bars.length, 0);
+  assert.equal(result.purchased, 0);
+});
+test('an oversize line does not erase the plan for the rest of the list', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 0, cuts: [200, 36, 20] });
+  assert.deepEqual(result.oversize, [200]);
+  assert.equal(result.bars.length, 1);
+  assert.deepEqual(result.bars[0].cuts, [36, 20]);
+  assert.equal(result.totalCuts, 56, 'the oversize line is not counted as required material');
+  assert.match(
+    formatCutPlan(result, { stockUnit: 'in' }),
+    /Does not fit any stock length on hand or to buy — check the length:\n {2}200\.00 in/,
+  );
+});
 test('rejects an empty cut list', () => assert.throws(() => optimizeCutList({ stockLength: 10, kerf: 0, cuts: [] }), /at least one/));
 test('rejects non-finite stock and kerf values', () => {
   assert.throws(() => optimizeCutList({ stockLength: NaN, kerf: 0, cuts: [24] }), /Stock length.*positive/);
@@ -18,9 +38,11 @@ test('rejects non-finite stock and kerf values', () => {
   assert.throws(() => optimizeCutList({ stockLength: 60, kerf: NaN, cuts: [24] }), /kerf.*finite/);
   assert.throws(() => optimizeCutList({ stockLength: 60, kerf: Infinity, cuts: [24] }), /kerf.*finite/);
 });
-test('rejects non-finite required cuts', () => {
-  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [NaN] }), /fit/);
-  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [Infinity] }), /fit/);
+test('rejects non-finite or non-positive required cuts', () => {
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [NaN] }), /positive, finite/);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [Infinity] }), /positive, finite/);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [0] }), /positive, finite/);
+  assert.throws(() => optimizeCutList({ stockLength: 60, kerf: 0, cuts: [-5] }), /positive, finite/);
 });
 test('formats a plan for copying into a job ticket', () => {
   const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10] });
@@ -74,11 +96,18 @@ test('cost and savings price the plan when a stock price is given', () => {
   assert.equal(result.savings, 36);
 });
 
-test('a cut only an offcut can hold is placed there, and is refused once they are gone', () => {
+test('a cut only an offcut can hold is placed there, and is reported oversize once they are gone', () => {
   const fits = optimizeCutList({ stockLength: 40, kerf: 0, cuts: [50], onHand: [60] });
   assert.equal(fits.bars[0].source, 'on-hand');
   assert.equal(fits.purchasesAvoided, 0, 'no all-new baseline exists to compare against');
-  assert.throws(() => optimizeCutList({ stockLength: 40, kerf: 0, cuts: [50, 50], onHand: [60] }), /No on-hand piece is long enough/);
+
+  // A second 50 needs another on-hand piece just as long, and new stock (40)
+  // is too short to help — it is unplaceable, but the first 50 still cut
+  // cleanly and must stay in the plan rather than being thrown away with it.
+  const short = optimizeCutList({ stockLength: 40, kerf: 0, cuts: [50, 50], onHand: [60] });
+  assert.equal(short.bars.length, 1);
+  assert.equal(short.bars[0].source, 'on-hand');
+  assert.deepEqual(short.oversize, [50]);
 });
 
 test('the ticket export names the on-hand pieces, the buy count, and the money', () => {
@@ -149,6 +178,32 @@ test('a length that cannot take the longest cut loses to one that can', () => {
   assert.equal(comparison.winner.id, '10ft');
 });
 
+// The longest-cut test above happens to make every candidate either fully
+// fit or fully fail (both 110in cuts miss 8ft together), which let `fits:
+// bars.length > 0` pass by accident. A list with one over-length outlier
+// among cuts that DO fit is the case that actually exposed the bug: the
+// short cuts filled a bar (bars.length > 0) while the long one landed in
+// `oversize`, so this candidate reported `fits: true` and could win the
+// "buy this" recommendation for a stock length that cannot produce every
+// piece on the list.
+test('a candidate that packs some cuts but strands one oversize cut does not fit', () => {
+  const comparison = compareStockLengths({
+    cuts: parseCuts('200\n10 x 3'),
+    kerf: 0,
+    unit: 'in',
+  });
+  // 200in exceeds every catalog length (up to 192in/16ft), so none of them
+  // can produce the full list even though the three 10in cuts pack easily.
+  for (const row of comparison.rows) {
+    assert.equal(row.fits, false, `${row.label} should not report fits: true with a 200in cut stranded`);
+    assert.equal(row.oversizeCount, 1);
+  }
+  assert.equal(comparison.winner, null);
+  const text = formatStockComparison(comparison);
+  assert.match(text, /at least one cut does not fit/);
+  assert.doesNotMatch(text, /buy this/);
+});
+
 test('includes a custom current length that is not in the catalog', () => {
   const comparison = compareStockLengths({
     cuts: parseCuts('20 x 2'),
@@ -161,6 +216,31 @@ test('includes a custom current length that is not in the catalog', () => {
   assert.equal(custom.length, 72);
   assert.equal(custom.current, true);
   assert.equal(custom.fits, true);
+});
+
+test('CSV export has one row per cut, tagged with its bar and source', () => {
+  const result = optimizeCutList({ stockLength: 60, kerf: 1, cuts: [36, 20, 10], onHand: [15] });
+  const csv = formatCutPlanCSV(result, { stockUnit: 'in' });
+  const [header, ...rows] = csv.trim().split('\r\n');
+  assert.equal(header, 'bar,source,stock_length,cut_length,unit');
+  // 3 required cuts placed onto 2 bars (one from the rack, one bought) = 3 rows.
+  assert.equal(rows.length, 3);
+  assert.ok(rows.some((row) => row === '1,on-hand,15.00,10.00,in'));
+  assert.ok(rows.every((row) => row.endsWith(',in')));
+});
+
+test('CSV export lists an oversize cut as unplaced with no bar', () => {
+  const result = optimizeCutList({ stockLength: 10, kerf: 0, cuts: [12, 4] });
+  const csv = formatCutPlanCSV(result, { stockUnit: 'ft' });
+  assert.match(csv, /^bar,source,stock_length,cut_length,unit\r\n/);
+  assert.match(csv, /,unplaced,,12\.00,ft\r\n/);
+  assert.match(csv, /^1,purchase,10\.00,4\.00,ft\r\n/m);
+});
+
+test('a comma or quote in nothing this module writes needs quoting, but a defensive unit still round-trips', () => {
+  const result = optimizeCutList({ stockLength: 24, kerf: 0, cuts: [10] });
+  const csv = formatCutPlanCSV(result, { stockUnit: 'in, nominal' });
+  assert.match(csv, /"in, nominal"/);
 });
 
 test('formats a stock comparison for a shop note', () => {

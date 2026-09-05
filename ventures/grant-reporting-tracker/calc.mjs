@@ -36,9 +36,18 @@ function shiftMonths(value, months) {
   return date.toISOString().slice(0, 10);
 }
 
+// A fractional interval (1.5) used to be silently floored to 1, so a grant
+// saved with one -- the "Add" form's own step=1 blocks it, but a row loaded
+// from localStorage that predates that constraint, or one edited outside the
+// page, has no such gate -- got the due date a straight 1-month interval
+// would produce: a wrong deadline with total confidence and no error, on a
+// tool whose entire job is not missing one. Refusing it here instead of
+// flooring it means `reviewGrant` gets `nextReport: null` for that row and
+// reports it as "Check inputs" rather than a plausible-looking wrong date.
+// Mirrors the same fix in grant-deadline-tracker's addMonths (#3162).
 export function addMonths(value, months) {
-  if (!Number.isFinite(months) || months < 1) return null;
-  return shiftMonths(value, Math.floor(months));
+  if (!Number.isFinite(months) || !Number.isInteger(months) || months < 1) return null;
+  return shiftMonths(value, months);
 }
 
 /**
@@ -69,8 +78,32 @@ export function sampleGrants(today = localToday()) {
   ];
 }
 
+// The report due date rolls forward from the last one actually filed, not
+// always from the award date. Before this, an award's `nextReport` was
+// permanently `awardDate + intervalMonths` -- correct for the first cycle of
+// a multi-year award, then stuck. A grant awarded three years ago that
+// reports quarterly, filed on schedule every time, showed the same
+// three-year-old due date and "Overdue" forever, because nothing here could
+// tell the tool a report had already gone out. `lastReportFiled` is optional
+// (older saved awards and the sample rows have none) so the anchor falls
+// back to `awardDate` when it is absent, invalid, or not yet reached --
+// which reproduces the original behavior exactly for a first-cycle award.
+function reportAnchor(grant, today) {
+  const filed = grant.lastReportFiled ? parseDate(grant.lastReportFiled) : null;
+  if (!filed) return grant.awardDate;
+  const award = parseDate(grant.awardDate);
+  const asOf = parseDate(today);
+  // A filed date has to actually be a step forward from the award date, and
+  // not in the future relative to "today" -- either would move the schedule
+  // backward or ahead of the visitor's own clock rather than rolling it
+  // forward, so treat it the same as no filed date at all.
+  if (award && filed < award) return grant.awardDate;
+  if (asOf && filed > asOf) return grant.awardDate;
+  return grant.lastReportFiled;
+}
+
 export function reviewGrant(grant, today = localToday()) {
-  const nextReport = addMonths(grant.awardDate, Number(grant.intervalMonths));
+  const nextReport = addMonths(reportAnchor(grant, today), Number(grant.intervalMonths));
   const days = nextReport ? Math.ceil((parseDate(nextReport) - parseDate(today)) / 86400000) : null;
   const restrictedBalance = Number(grant.awardAmount) - Number(grant.spentAmount);
   return {
@@ -83,7 +116,45 @@ export function reviewGrant(grant, today = localToday()) {
 }
 
 export function reviewAll(grants, today) {
-  return grants.map((grant) => reviewGrant(grant, today)).sort((a, b) => (a.daysUntilReport ?? Infinity) - (b.daysUntilReport ?? Infinity));
+  return grants
+    .map((grant, sourceIndex) => ({ ...reviewGrant(grant, today), sourceIndex }))
+    .sort((a, b) => (a.daysUntilReport ?? Infinity) - (b.daysUntilReport ?? Infinity) || a.sourceIndex - b.sourceIndex);
+}
+
+// The review queue is sorted, so a row's position in `rows` is not its
+// position in the saved `grants` array -- removing "row 2 on screen" by
+// that index would delete whatever award happens to occupy slot 2 in
+// storage, not the one the user is looking at. `reviewAll` attaches
+// `sourceIndex` before sorting so the page can pass it straight back here.
+// Before this existed the only way to correct one mistyped award, or drop
+// a grant whose reporting obligation ended, was "Clear all saved awards" --
+// destroying every other tracked award along with it.
+export function removeGrant(grants, index) {
+  if (!Array.isArray(grants)) return [];
+  if (!Number.isInteger(index) || index < 0 || index >= grants.length) {
+    return grants.slice();
+  }
+  return grants.filter((_, i) => i !== index);
+}
+
+// Recording a filing has to work on an award that is *already saved*, which
+// is the only state a returning user is ever in. `lastReportFiled` on the add
+// form only helps someone typing a multi-year award in for the first time;
+// without this the way to roll a tracked award forward after actually sending
+// its report was to remove it and re-key every field, which is exactly the
+// hand-maintained-spreadsheet work the tracker exists to replace -- and the
+// row most likely to be re-keyed wrong is the one whose numbers a board sees.
+// Index semantics match `removeGrant`: `sourceIndex` from `reviewAll`, not the
+// row's sorted position.
+export function markReportFiled(grants, index, filedOn = localToday()) {
+  if (!Array.isArray(grants)) return [];
+  if (!Number.isInteger(index) || index < 0 || index >= grants.length) {
+    return grants.slice();
+  }
+  // A filing date that does not parse would silently become the anchor for
+  // every future due date, so refuse it rather than writing it to storage.
+  if (!parseDate(filedOn)) return grants.slice();
+  return grants.map((grant, i) => (i === index ? { ...grant, lastReportFiled: filedOn } : grant));
 }
 
 // Every field the queue reads, not just the ones the table renders. A CSV
@@ -101,7 +172,7 @@ export function reviewAll(grants, today) {
 // person reads.
 export function toCsv(rows) {
   const fields = [
-    'name', 'funder', 'awardDate', 'intervalMonths', 'nextReport',
+    'name', 'funder', 'awardDate', 'intervalMonths', 'lastReportFiled', 'nextReport',
     'daysUntilReport', 'status', 'awardAmount', 'spentAmount', 'restrictedBalance',
   ];
   const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;

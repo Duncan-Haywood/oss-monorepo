@@ -40,11 +40,54 @@ AI-wrap by default.
 ## Ship fast
 
 - **Merge when CI is green.** No human code review gate. Fix forward.
+- **Touched a venture page? Regenerate the served surface before you push:**
+
+  ```
+  node platform/marketing/regen.mjs
+  ```
+
+  The apex is the only host serving anything, and what it serves is a
+  *committed* artifact under `gitops/prod/front-door*` built from the venture
+  tree by two generators. Editing a venture page does not update it. Nothing
+  else you run will tell you: `platform/pages/build.mjs` and `check.mjs` build
+  `tools.marisstella.dev`, a different host, and both pass happily while the
+  apex is stale.
+
+  On 2026-09-05 #3256 added a comparison page and skipped this. The page was
+  mirrored nowhere and missing from the apex's sitemap — built, deployed, and
+  findable by nobody — and `main` went red on six tests. #3257 and #3258 then
+  each ran *one* of the two generators, because that is what the failing test
+  named, and each reported success. Three sessions, three hours, one page
+  still dark. The hints now name `regen.mjs`, which runs every generator, but
+  that only reaches you once a test is already failing; this bullet is for the
+  case where you never run those tests at all, which is what #3256 did.
 - **Do not re-verify** PRs recorded in `portfolio/ledger/verifications.yaml`
   unless `python3 portfolio/ledger/verification_status.py` says drift
   invalidated them.
-- **Do not open ledger-only PRs** that re-state known blockers. Build the
-  unblocked parts instead.
+- **Never land a change that is only ledger prose.** Not "avoid" — never.
+  Gate it mechanically before you push:
+
+  ```
+  python3 portfolio/ledger/check_ledger_only.py
+  ```
+
+  Exit 1 means every file in your branch is `portfolio/ledger/` data, and the
+  branch is not a deliverable. This bullet used to read "do not open
+  ledger-only PRs *that re-state known blockers*", and that escape hatch ate
+  the rule: in the seven days to 2026-09-02 the fleet landed **381 commits on
+  `main` touching nothing but ledger YAML — 34.6% of 1,102** — because every
+  session read its own entry as the new one. A third of the fleet's output
+  went into describing the other two thirds.
+
+  Recording an outcome is still right, and still cheap. It just **rides with
+  the work it describes** — same commit, or same PR. The ledger is a footnote
+  to a shipped thing, not a thing that ships.
+
+  If a session genuinely found a blocker instead of shipping: say so in the
+  reply and leave `main` alone. An unshipped session is a real outcome and
+  does not need a commit to be true. The ledger *tooling* (`.py` under
+  `portfolio/ledger/`) is exempt and passes the check — it is ordinary
+  platform code.
 - **Do not close a PR as "already on main"** until
   `python3 portfolio/ledger/supersede_check.py <n>` exits 0. Exit 1 prints the
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been

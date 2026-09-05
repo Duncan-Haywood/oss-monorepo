@@ -46,17 +46,40 @@ allowance whose exhaustion caused the window above. A job skipped by a false
 credential-blocked schedule — cheaper than the self-hosted runners below, and
 available today. The decision itself is untouched and still the owner's.
 
-Nothing here is currently blocking, so this stack is insurance, not a
-repair. It is
-still worth deploying: the recovery arrived at midnight on the first of the
-month, which is what a metered allowance resetting looks like, so the ceiling
-appears to cycle rather than to be gone. Deploy it *after* the two seals that
-do block (`portfolio-site-repo` and `codex-secrets`), per
-`infra/OWNER_CHECKLIST.md`.
+**Starvation recurred on 2026-09-04, and the paragraph that stood here said
+it was not currently blocking.** That sentence was written on 2026-09-02 and
+was true then; it is what a session reads before deciding how urgent this
+stack is, so the correction matters more than the history. The cliff is
+pinned to a nine-minute window: run 33925827289 (`Portfolio validate`,
+22:30:52Z) took real runner 1000054728 and passed in 196s, and by 22:39:33Z
+runs 33926434774 and 33926436491 both came back `runner_id: 0` with no steps.
+Re-dispatched once more to rule out a momentary queue; it starved a third
+time. `portfolio/ledger/infra_state.yaml` carries this as a dated reading.
+
+The prediction the old paragraph made was right, and worth keeping: the
+ceiling **cycles**. The 2026-08-26 window lifted unattended at 00:00:53Z on
+the first of the month, which is what a metered allowance resetting looks
+like, so the reasonable expectation is that this one lifts on 2026-10-01
+unless the owner raises the ceiling sooner.
+
+**What is new, and is the reason this is not simply "insurance" any more:
+this stack cannot be the answer to the outage it was built for.** The runner
+pods run *in the k3s cluster*, Argo syncs them from `main`, and the cluster
+is dead — `:6443` refused on both boxes (`Outage triage` run 33889983086).
+So the fallback for metered CI is downstream of the very cluster whose
+repair needs CI. Turning `CI_RUNNER` on today would schedule pods onto an
+API server that is not listening.
+
+That makes the ordering concrete rather than a preference: **the SSH key
+rotation comes first**, because it is the only step in this chain that
+depends on neither a runner nor the cluster (port 22 answers on both boxes).
+Cluster back, then this stack, then the seals. `infra/OWNER_CHECKLIST.md`
+still lists `portfolio-site-repo` and `codex-secrets` ahead of it; both are
+sealed *into* the cluster and so are downstream of the same repair.
 
 ## The switch
 
-246 of the 248 `runs-on` lines across 221 workflows now read this. The other
+258 of the 260 `runs-on` lines across 225 workflows now read this. The other
 two are the Docker-dependent jobs `gitops/tests/test_ci_runner.py`'s
 `DOCKER_DEPENDENT_JOBS` names and pins to `ubuntu-latest` instead (they need a
 Docker daemon the self-hosted pod does not have):

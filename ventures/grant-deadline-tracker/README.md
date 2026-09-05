@@ -2,7 +2,7 @@
 
 Small nonprofits can track grant applications, reporting dates, and remaining award funds without rebuilding a fragile spreadsheet every month. Open `index.html` in a browser, add your grants, and export a private CSV for a board or finance meeting.
 
-**After using this, you can now** see which report or application is overdue, how much of each award remains, whether a contract grant writer still costs less than the cash a late report puts at risk, and hand finance a CSV — which used to take a hand-maintained spreadsheet and a calendar reminder.
+**After using this, you can now** see which report or application is overdue, how much of each award remains, whether a contract grant writer still costs less than the cash a late report puts at risk, hand finance a CSV, and drop a calendar file with a reminder for every obligation into Google Calendar, Outlook, or Apple Calendar — which used to take a hand-maintained spreadsheet and a calendar reminder you set yourself, one grant at a time.
 
 The tracker is free, browser-only, and works without an account, API key, or network connection. It highlights overdue and next-30-day obligations. It is a planning record, not a filing system or grant compliance determination.
 
@@ -36,4 +36,4 @@ Everything runs in your browser. Your grant data is never uploaded, and there ar
 node --test
 ```
 
-Future paid options could add maintained funder templates, team history, or reminders, but this launch has no payment collection and no paid dependency.
+Future paid options could add maintained funder templates or team history, but this launch has no payment collection and no paid dependency.

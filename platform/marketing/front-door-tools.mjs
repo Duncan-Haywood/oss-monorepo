@@ -49,23 +49,24 @@
  * `portfolio-apex.yaml` argues at length that two hostnames must not serve the
  * same bytes: `build.mjs` stamps one canonical host into all 524 pages, and a
  * second copy in front of a crawler undoes that consolidation. That argument is
- * about *crawlers*, and it is correct, so this mirror is built to be invisible
- * to them and visible only to people:
+ * about *crawlers*, and it is correct — but it binds only while two hosts
+ * actually serve. `TOOLS_HOST_SERVES` is the switch that says whether they do,
+ * and today they do not: the apex is the only host answering for these tools,
+ * so it is their canonical and they are indexable there.
  *
- * - every mirrored page carries `<meta name="robots" content="noindex,follow">`
- *   and *only* that one — `injectMirrorTags` strips whatever the venture
- *   source already declared, so no page ships two directives that disagree;
- *   so no copy here is eligible to be indexed at all; and
- * - every mirrored page carries a `<link rel="canonical">` pointing at its own
- *   `tools.marisstella.dev/<slug>/` URL, so any signal that does reach a
- *   crawler consolidates exactly where the existing design intends.
+ * - every mirrored page carries one `<meta name="robots">` and *only* one —
+ *   `injectMirrorTags` strips whatever the venture source already declared, so
+ *   no page ships two directives that disagree — reading
+ *   `MIRROR_ROBOTS_CONTENT`; and
+ * - every mirrored page carries a `<link rel="canonical">` from
+ *   `mirrorCanonicalUrl`, naming the host that actually serves it.
  *
- * `front-door/default.conf` adds `X-Robots-Tag: noindex` on these paths too, so
- * the claim holds for a crawler that never parses the HTML.
+ * Flip `TOOLS_HOST_SERVES` when `portfolio-site-repo` is sealed and both move
+ * back to the tools host together, which is the state the paragraph above
+ * describes. `front-door/default.conf` keeps its `X-Robots-Tag` in step by
+ * hand; a test pins the two together so they cannot drift.
  *
- * The consequence worth stating plainly: these pages are a fallback for humans,
- * not a second front in search. They win nothing in rankings and are not meant
- * to. When `portfolio-site-repo` is sealed, the mirror becomes redundant and
+ * When `portfolio-site-repo` is sealed, the mirror becomes redundant and
  * can be deleted in one commit — `STARTER_SET` is the only thing to remove.
  *
  * ## Usage
@@ -80,10 +81,31 @@
  * commit with the command that fixes it.
  */
 
+import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+// The canonical site build's own entry-point rules, imported rather than
+// restated. `venturePageRoot` is the only consumer; see its comment for why a
+// copy here has twice gone stale against the original.
+import { ABOUT_PATH, ENTRY_CANDIDATES, ENTRY_OVERRIDES, relatedTools } from '../pages/build.mjs';
+
+// The embed offer, imported whole rather than reproduced for this host.
+//
+// `injectEmbedWidget` writes the box, the copyable `<iframe>` snippet, the
+// stylesheet link and the runtime's script tag. Every one of those is a rule
+// that already exists, and `CLAUDE.md` records two separate occasions where
+// restating a rule from a sibling module instead of importing it cost live
+// product. So `injectMirrorEmbed` below contributes exactly one thing the
+// original cannot know — where the box attaches on a mirrored page — and
+// borrows the rest.
+import {
+  EMBED_HOST_FILE,
+  EMBED_MODULE_FILE,
+  EMBED_STYLE_FILE,
+  injectEmbedWidget,
+} from '../pages/embed.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -93,8 +115,30 @@ export const VENTURES_DIR = path.join(REPO_ROOT, 'ventures');
 /** Where `--write` puts the mirror; a kustomization in the same directory reads it. */
 export const OUTPUT_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door-tools');
 
+/**
+ * The front door's own directory — `default.conf` and the pages `front-door.mjs`
+ * writes. `writeMirror` puts the generated alias map here rather than in
+ * `OUTPUT_DIR` because it is nginx configuration, not mirrored content, and it
+ * has to land in the `portfolio-front-nginx` ConfigMap beside the config that
+ * reads it.
+ */
+export const FRONT_DOOR_DIR = path.join(REPO_ROOT, 'gitops', 'prod', 'front-door');
+
 /** The canonical host every tool page belongs to; see `build.mjs`. */
 export const TOOLS_URL = 'https://tools.marisstella.dev/';
+
+/**
+ * The host this mirror is actually served from — `front-door.mjs`'s
+ * `FRONT_DOOR_URL`, restated rather than imported because these two generators
+ * share no module and the front door's own constant is about its page, not
+ * about the mirror mounted beside it.
+ *
+ * Distinct from `TOOLS_URL` on purpose, and the two are not interchangeable:
+ * `TOOLS_URL` is where a page *belongs* (what a crawler should consolidate on),
+ * this is where a page *is* (what a person who follows a link today reaches).
+ * See `injectMirrorTags` for the one tag that wants the second answer.
+ */
+export const APEX_URL = 'https://marisstella.dev/';
 
 /** The apex path the mirror is served under. Matches `front-door/default.conf`. */
 export const MIRROR_PREFIX = 'tools/';
@@ -296,6 +340,79 @@ export const SHARD_BYTE_CEILING = 544 * 1024;
  */
 export const MIRROR_BYTE_CEILING = 8 * 1024 * 1024;
 
+/**
+ * The share of `MIRROR_BYTE_CEILING` above which the mirror is reported as
+ * running out of room, rather than merely measured.
+ *
+ * ## Why a second, lower number
+ *
+ * `MIRROR_BYTE_CEILING` is a wall, not a warning: `buildMirror` throws on it,
+ * and the throw lands in `portfolio-validate` — which every PR that touches a
+ * venture page runs. So the first session to cross it does not discover a
+ * capacity problem, it discovers that *no tool can be published at all* until
+ * someone resolves one, in the middle of whatever else it was shipping. The
+ * catalogue is the portfolio's entire public surface and the fleet adds tools
+ * daily, so that is a stop-the-world failure arriving with no notice.
+ *
+ * Measured 2026-09-03, before deduplication: 173 tools, 6,416,254 stored bytes,
+ * 76.5% of the ceiling, ~37,088 stored bytes per tool. At that rate the wall
+ * was ~53 tools out, which at the fleet's rate of four or so a day was about a
+ * fortnight. Nothing in the tree was tracking the number, which is how it got
+ * to three quarters unremarked.
+ *
+ * 85% is chosen so the report fires with roughly a third of the runway still
+ * unspent. That is enough room for a remedy to land as an ordinary reviewed
+ * change rather than an emergency.
+ *
+ * ## The remedy has since been implemented, and this is what it bought
+ *
+ * Not "drop a venture", which is what the wall's message used to say. That
+ * advice predates the mirror covering the whole catalogue: dropping a tool to
+ * publish a tool is a wash, and `STARTER_SET` is no longer where the bulk is.
+ *
+ * The measured answer was `duplicateBytes` below: **18.5% of the mirror
+ * (1,186,041 stored bytes) was byte-identical duplicate content.** Ventures
+ * here are deliberately self-contained — each ships its own copy of the shared
+ * helpers — so `proposal.mjs` was stored 104 times identically (760,552
+ * redundant bytes), `share.mjs` 37 times (224,964), `LICENSE` 161 times
+ * (104,960) and `proposal-terms.mjs` 21 times (82,940). Every one of those
+ * files is genuinely referenced by the pages that ship beside it, so none
+ * could simply be dropped.
+ *
+ * `dedupeMirror` now stores one copy of each and `renderMirrorAliases` writes
+ * an nginx `map` that points the other names at it, with an identity default so
+ * only duplicated keys are affected. **Result, same day: 5,230,213 stored bytes,
+ * 62.3% of the ceiling, ~104 tools of runway rather than ~53, and 12 shards
+ * down to 10.** All 1,439 mirrored URLs were served from the real `default.conf`
+ * before and after and compared byte-for-byte: identical status, content type
+ * and sha256 on every one.
+ *
+ * The other mechanism considered was **projecting one ConfigMap key to many
+ * paths** (`items: [{key, path}]` in the projected volume). It was not chosen:
+ * it recovers the repository and ConfigMap bytes but not the pod's memory,
+ * because the kubelet still materialises every path into the tmpfs the mirror
+ * is charged against — so the two costs would have had to be split and
+ * separately bounded first — and it spends ~670 lines of generated YAML inside
+ * the Deployment spec. The `map` recovers both costs at once and keeps the
+ * generated bulk in a config file.
+ *
+ * An earlier revision of this comment ruled the `map` out because it "wants an
+ * environment that can actually run nginx against the built mirror. This one
+ * cannot: no nginx binary and no Docker daemon, verified 2026-09-03." That was
+ * true of the session that wrote it and false of the repository:
+ * `apt-get install nginx-light` supplies nginx 1.24 built
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`, which is
+ * everything this config uses. `gitops/tests/test_front_door_serving.py` had in
+ * fact been carrying a full nginx harness the whole time — it was *skipping*
+ * for want of the binary, so eleven serving tests silently did not run. Check
+ * what the tree already has before recording a limit as a property of it.
+ *
+ * Do not raise `MIRROR_BYTE_CEILING` to clear this report: both costs its
+ * comment names are real, and the duplicate bytes are now recovered
+ * automatically, so a future breach is genuine growth rather than waste.
+ */
+export const MIRROR_HEADROOM_WARN_RATIO = 0.85;
+
 /** The name prefix every mirror shard's ConfigMap takes; `-0`, `-1`, ... follow. */
 export const SHARD_PREFIX = 'portfolio-front-tools';
 
@@ -349,11 +466,57 @@ export const SYNC_OPTIONS = 'ServerSideApply=true';
  * links to it, so leaving it out would fail `validateLinks`.
  *
  * `sitemap.xml` and `robots.txt` are deliberately absent. They are written for
- * the tools host and describe URLs this mirror does not serve; nothing on any
- * page links to them, which `validateLinks` confirms rather than assumes.
+ * the tools host and describe URLs this mirror does not serve.
+ *
+ * **Corrected 2026-09-02.** This paragraph used to end "nothing on any page
+ * links to them, which `validateLinks` confirms rather than assumes". The
+ * confirming was real; the claim was not. `einvoice-preflight/index.html`
+ * carries `<link rel="sitemap" type="application/xml" href="sitemap.xml">`,
+ * so `validateLinks` reported a dead link and `discoverEligible` dropped the
+ * whole venture — a finished, tested static tool held off the apex by a
+ * `<link>` element no visitor can follow. It is the only such link in
+ * `ventures/` today, which is how the wrong claim survived. See
+ * `STRIPPED_LINK_RELS` for the fix.
  */
-const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
-const SERVABLE_NAMES = new Set(['LICENSE']);
+/*
+ * Exported so `workflow-coverage.test.mjs` can hold the CI path filters to
+ * these two sets rather than restating them. A venture file this mirror
+ * serves but no workflow watches is edited, merged, and never regenerated —
+ * see that file's header for the two times it happened.
+ */
+export const SERVABLE_EXTENSIONS = new Set(['.html', '.mjs', '.css', '.js']);
+export const SERVABLE_NAMES = new Set(['LICENSE']);
+
+/**
+ * `<link rel="...">` values `injectMirrorTags` removes from every mirrored
+ * page, and which `validateLinks` therefore must not hold a venture to.
+ *
+ * These three are the mirror's own to set, not the venture's:
+ *
+ * - `canonical` — the mirror points every page at its `tools.marisstella.dev`
+ *   URL, which is the whole basis of the "invisible to crawlers" argument in
+ *   this module's header.
+ * - `icon` — replaced with the apex's own `/favicon.svg`, so a mirrored page
+ *   wears the mark of the host actually serving it.
+ * - `sitemap` — dropped outright. The document it names is written for the
+ *   tools host and is not mirrored (see `SERVABLE_EXTENSIONS`), so on a
+ *   mirrored page the link is dead; and pointing a crawler at another host's
+ *   sitemap from a page this mirror deliberately marks `noindex` argues
+ *   against itself.
+ *
+ * Both call sites derive from this one set. They were independent before, and
+ * the drift was not cosmetic: `injectMirrorTags` stripped a tag `validateLinks`
+ * still policed, so a venture could be dropped from the mirror over an href
+ * that would never have reached a browser. A `<link>` whose target the mirror
+ * removes is not a broken link — it is a link that does not exist.
+ */
+export const STRIPPED_LINK_RELS = ['canonical', 'icon', 'sitemap'];
+
+/** One `<link>` element carrying any rel in `STRIPPED_LINK_RELS`. */
+const STRIPPED_LINK = new RegExp(
+  `<link\\b[^>]*\\brel=["'](?:${STRIPPED_LINK_RELS.join('|')})["'][^>]*>`,
+  'gi',
+);
 
 /**
  * The tools the apex serves itself.
@@ -659,7 +822,7 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
   for (const entry of await fs.readdir(venturesDir, { withFileTypes: true })) {
     if (!entry.isDirectory() || named.has(entry.name) || !ROUTABLE_SLUG.test(entry.name)) continue;
     const names = await ventureFiles(entry.name, venturesDir);
-    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_FILE.test(n))) continue;
+    if (!names.includes('index.html') || !names.every((n) => ROUTABLE_SUBPATH.test(n))) continue;
     candidates.push({ slug: entry.name, names });
   }
   candidates.sort((a, b) => a.slug.localeCompare(b.slug));
@@ -671,7 +834,7 @@ export async function discoverEligible({ set = STARTER_SET, venturesDir = VENTUR
       names.map(async (file) => ({
         slug,
         file,
-        contents: await fs.readFile(path.join(venturesDir, slug, file), 'utf8'),
+        contents: await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8'),
       })),
     );
   const namedFiles = (
@@ -746,33 +909,51 @@ export async function mirrorSet(venturesDir = VENTURES_DIR) {
  *
  * Measured 2026-09-02 over 28 excluded ventures:
  *
- * - **21 have no flat `index.html`** — `tender-radar`, `print-atelier`,
- *   `ubuntu-agent-server`, `local-site-studio`, `quote-margin-check` and the
- *   rest are CLIs, servers, watch faces, or apps with a build step and a
- *   nested `site/` or `src/`. Not static pages, so not a gap the mirror can
- *   close, and no future session should try. If one grows a flat browser
- *   entry point it becomes eligible on its own — which is why this is
- *   reported rather than written down as a list.
- * - **The interesting case is one venture costing three.**
- *   `no-show-fee-calculator/index.html` loads `src/app.mjs`, a subdirectory
- *   the flat `<slug>__<file>` key encoding cannot represent, so it drops on
- *   pass 1. `appointment-deposit-calculator` links to it and drops as
- *   collateral, and `delivery-app-margin-calculator` links to both it and
- *   `quote-margin-check`. Three finished calculators are off the front door
- *   for one subdirectory reference. Fixing it means either teaching the key
- *   encoding about subdirectories (and `front-door/default.conf` with it) or
- *   flattening that one file in the venture; both are real options and
- *   neither is a one-line change, which is why this says so instead of
- *   guessing.
+ * - **16 have no `index.html` anywhere the mirror looks** — `print-atelier`,
+ *   `ubuntu-agent-server`, `local-site-studio` and the rest are CLIs,
+ *   servers, watch faces, or apps with a build step. Not static pages, so not
+ *   a gap the mirror can close. If one grows a browser entry point it becomes
+ *   eligible on its own — which is why this is reported rather than written
+ *   down as a list.
  *
- * One entry is a false exclusion worth knowing about before someone "fixes"
- * it: `marketplace-fee-compare` is held out because `validateLinks` scans the
- * whole document, including `<script>`, and its channel list builds hrefs from
- * JS template strings — so the checker reads a literal
- * `href="../${escapeHtml(channel.deepTool)}/"`. The page is not broken. The
- * check is conservative in the safe direction, and narrowing it to skip script
- * bodies would trade one missing tool for a class of genuinely dead link it
- * currently catches. Left as is deliberately.
+ * **Corrected 2026-09-03: that bullet used to read "21", name
+ * `quote-margin-check` and `tender-radar` among them, and tell future
+ * sessions not to try.** Five of those 21 were not apps with a build step at
+ * all. `quote-margin-check`, `tender-radar`, `equipment-rental-break-even`,
+ * `mcp-supply-chain-watch` and `shopify-permission-drift` each keep a
+ * completely flat static site in `site/`, and `platform/pages/build.mjs` — the
+ * canonical build, the thing that decides what `tools.marisstella.dev` serves
+ * — had resolved entry points as `ENTRY_CANDIDATES = ['index.html',
+ * path.join('site', 'index.html')]` the whole time. So the apex and the
+ * canonical host disagreed about which ventures are static pages, this module
+ * was the one that was wrong, and the note said the disagreement was a fact
+ * about the ventures. `venturePageRoot` now applies the same two candidates in
+ * the same order.
+ *
+ * That was six tools, not five: `delivery-app-margin-calculator` is a flat,
+ * eligible calculator that links to `../quote-margin-check/` and dropped as
+ * collateral on pass 2 for as long as the target was unmirrorable. It came
+ * back for free, which is the fixpoint working as designed.
+ *
+ * The earlier "one venture costing three" case — `no-show-fee-calculator`
+ * loading `src/app.mjs` — is fixed and gone; all three of those tools are
+ * served. There are no dead-link or collateral exclusions left at all.
+ *
+ * **Fixed 2026-09-02.** This paragraph used to name a fourth entry —
+ * `marketplace-fee-compare`, held out because `validateLinks` scanned the whole
+ * document including `<script>`, so its channel list's JS template strings read
+ * as a literal `href="../${escapeHtml(channel.deepTool)}/"`. It argued the
+ * check was "conservative in the safe direction" and that narrowing it "would
+ * trade one missing tool for a class of genuinely dead link it currently
+ * catches".
+ *
+ * That trade was never on offer. On an interpolated href the old scan compared
+ * unexpanded template source against the mirror, which cannot match whatever
+ * the expression evaluates to — so it failed every such link unconditionally
+ * rather than detecting anything. `validateLinks` now scans script bodies as
+ * JavaScript: fully literal hrefs in a script are resolved exactly as markup
+ * ones are (that is the real detection, and it is kept and tested), and
+ * interpolated ones go to `dynamicLinks` as advisory. The tool is served.
  */
 export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
   const discovered = await discoverEligible({ venturesDir });
@@ -788,7 +969,11 @@ export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
     }
     const names = await ventureFiles(slug, venturesDir).catch(() => null);
     if (!names?.includes('index.html')) {
-      excluded.push({ slug, kind: 'not-a-page', reason: 'no flat index.html — not a static page the mirror can serve' });
+      excluded.push({
+        slug,
+        kind: 'not-a-page',
+        reason: `no index.html at the venture root, in ${NESTED_PAGE_ROOT}/, or at its ENTRY_OVERRIDES path — not a static page the mirror can serve`,
+      });
       continue;
     }
     const unroutable = names.filter((name) => !ROUTABLE_FILE.test(name));
@@ -826,8 +1011,18 @@ export async function explainIneligible({ venturesDir = VENTURES_DIR } = {}) {
  * directory tree at mount time — would put ~90 lines of hand-maintained YAML in
  * `portfolio-front.yaml` that must stay in step with this set. A rewrite rule
  * in nginx does the same job in two lines and cannot drift.
+ *
+ * A file inside a page subdirectory (`tool/index.html`, see `ventureFiles`)
+ * has its separator encoded the same way, so `consent-change-record` +
+ * `tool/index.html` becomes `consent-change-record__tool__index.html`. That is
+ * unambiguous to decode because `ROUTABLE_SLUG` forbids `_` in both the slug
+ * and the directory name, so the nginx captures cannot swallow a separator —
+ * but a *filename* may contain `__`, which is why `assertUniqueKeys` still has
+ * to run: a venture holding both `tool/index.html` and a flat file literally
+ * named `tool__index.html` would encode to one key, and the projected volume
+ * would refuse to mount rather than serve the wrong bytes.
  */
-export const mirrorKey = (slug, file) => `${slug}__${file}`;
+export const mirrorKey = (slug, file) => `${slug}__${file.replaceAll('/', '__')}`;
 
 /**
  * The ConfigMap key the *stored* bytes get — the mirror key plus `.gz`.
@@ -854,6 +1049,20 @@ export const storedKey = (slug, file) => `${mirrorKey(slug, file)}.gz`;
 export const ROUTABLE_SLUG = /^[a-z0-9][a-z0-9-]*$/;
 export const ROUTABLE_FILE = /^[A-Za-z0-9._-]+$/;
 
+/**
+ * A path inside a venture that `front-door/default.conf` can route: a flat
+ * filename, or one page subdirectory then a filename.
+ *
+ * Two levels and no more. `ventureFiles` only ever walks one level down, and
+ * the `location` blocks only decode one separator — so a deeper path would be
+ * generated, stored and mounted, and then 404 with nothing failing. That is
+ * the exact silent-mismatch failure the comment above this pair describes, so
+ * the depth limit lives in the pattern rather than in a reader's memory.
+ */
+export const ROUTABLE_SUBPATH = new RegExp(
+  `^(?:${ROUTABLE_SLUG.source.slice(1, -1)}/)?${ROUTABLE_FILE.source.slice(1, -1)}$`,
+);
+
 /** The apex URL a mirrored file is served at. */
 export const mirrorUrl = (slug, file) =>
   `/${MIRROR_PREFIX}${slug}/${file === 'index.html' ? '' : file}`;
@@ -861,6 +1070,79 @@ export const mirrorUrl = (slug, file) =>
 /** The `tools.marisstella.dev` URL the same page has (or will have) — its canonical. */
 export const canonicalUrl = (slug, file) =>
   `${TOOLS_URL}${slug}/${file === 'index.html' ? '' : file}`;
+
+/** The absolute URL a mirrored file answers on today. `mirrorUrl`, with an origin. */
+export const apexUrl = (slug, file) => `${APEX_URL.replace(/\/$/, '')}${mirrorUrl(slug, file)}`;
+
+/**
+ * Whether `tools.marisstella.dev` serves anything yet.
+ *
+ * This is the premise the mirror's whole search posture rests on, and until
+ * 2026-09-03 it was stated nowhere and assumed everywhere. Flip it to `true`
+ * in the same commit that seals `portfolio-site-repo`, and the canonical, the
+ * robots meta and the apex sitemap all move back together.
+ *
+ * ## Why this exists
+ *
+ * The mirror was built as a stopgap for a host that was about to go live, and
+ * every SEO decision in this module was made for the world one commit after
+ * the seal: mark the copies `noindex`, canonicalise them to the tools host,
+ * and the crawler consolidates on the real home the moment it appears. That is
+ * the correct design *if the seal is imminent*, and `portfolio-apex.yaml` is
+ * right that two hosts serving the same bytes undoes the consolidation
+ * `build.mjs` stamps in.
+ *
+ * The seal was not imminent. It is owner-only (decision-queue
+ * `portfolio-site-hetzner-deploy`, #1999), has been queued for weeks, and no
+ * session can perform it. Meanwhile the apex serves 168 of the 169 tools
+ * itself, and the standing posture pointed every one of their canonicals at a
+ * hostname that answers nothing while telling crawlers, twice — a `noindex`
+ * meta and an `X-Robots-Tag` header — not to index the copies that do answer.
+ *
+ * The net effect was that the portfolio's entire public catalogue was
+ * deliberately excluded from search, on behalf of a host that does not exist
+ * yet. `PRODUCT_PLAYBOOK.md` names organic search and AI discovery as the
+ * acquisition channel, and `portfolio/usage/usage.yaml` has recorded zero
+ * observed users across all 184 products. Those two facts are the same fact:
+ * a catalogue nothing may index earns no organic visit, however good it is.
+ *
+ * ## Why flipping is safe, and cheaper to reverse than to leave
+ *
+ * The duplicate-content risk this guarded against needs two hosts serving the
+ * same bytes *at the same time*, and that state never arrives. The mirror is a
+ * stopgap that `MIRROR_BYTE_CEILING`'s comment expects to be "deletable in one
+ * commit" the day the seal lands — so the tools host replaces the mirror
+ * rather than competing with it.
+ *
+ * A canonical pointing at a URL that does not resolve is not a neutral
+ * placeholder either: it is a hint a crawler discards, leaving the `noindex`
+ * to decide alone. So the pre-flip state bought no consolidation and paid the
+ * full cost of exclusion.
+ *
+ * Reversing costs one boolean and a regeneration. Leaving it costs every
+ * organic visit the catalogue would have earned in the meantime.
+ */
+export const TOOLS_HOST_SERVES = false;
+
+/**
+ * What `injectMirrorTags` writes into every mirrored page's robots meta.
+ *
+ * `follow` in both directions: the mirrored pages link to each other and back
+ * to the front door, and a crawler that will not follow them cannot discover
+ * the catalogue even when it is allowed to index it.
+ */
+export const MIRROR_ROBOTS_CONTENT = TOOLS_HOST_SERVES ? 'noindex,follow' : 'index,follow';
+
+/**
+ * The canonical a mirrored page claims: the address that actually serves it.
+ *
+ * A canonical naming a host that answers nothing is worse than none — see
+ * `TOOLS_HOST_SERVES`. While the tools host is dark the apex *is* the tool's
+ * home, so it says so; once sealed, `canonicalUrl` names the long-run home
+ * again and consolidation happens against a host that responds.
+ */
+export const mirrorCanonicalUrl = (slug, file) =>
+  TOOLS_HOST_SERVES ? canonicalUrl(slug, file) : apexUrl(slug, file);
 
 /**
  * A test file, by either convention this repository uses to name one.
@@ -897,21 +1179,225 @@ export const canonicalUrl = (slug, file) =>
  * tag this module itself injects.
  */
 export const FAVICON_FILE = 'favicon.svg';
-export const APEX_ROOT_PATHS = new Set(['/', `/${FAVICON_FILE}`, '/social-card.png', '/healthz']);
+
+/**
+ * The share card the apex already serves, and the dimensions and alt text that
+ * describe it.
+ *
+ * Declared here rather than imported for the same reason `FAVICON_FILE` is —
+ * this module builds a mirror that must survive the front door's own generator
+ * being absent — and pinned against `front-door.mjs` and `pages/offline.mjs`
+ * by a test, for the same reason again: if they drift, every mirrored page
+ * points at a file the apex does not serve, or lies about its shape.
+ */
+export const SOCIAL_CARD_FILE = 'social-card.png';
+export const SOCIAL_CARD_WIDTH = 1200;
+export const SOCIAL_CARD_HEIGHT = 630;
+export const SOCIAL_CARD_ALT =
+  'The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.';
+
+export const APEX_ROOT_PATHS = new Set([
+  '/',
+  `/${FAVICON_FILE}`,
+  `/${SOCIAL_CARD_FILE}`,
+  '/healthz',
+  // The embed runtime and its stylesheet, written to the apex document root by
+  // `front-door.mjs --write` and linked absolutely from every mirrored entry
+  // page. Named from `embed.mjs`'s own constants so this allowlist cannot
+  // drift from the filenames the injector writes.
+  `/${EMBED_MODULE_FILE}`,
+  `/${EMBED_STYLE_FILE}`,
+  // The resizer. Not linked from any page here — the embed snippet names it,
+  // and the page that runs it is somebody else's — but it is served from this
+  // document root and so belongs in the same allowlist.
+  `/${EMBED_HOST_FILE}`,
+  // The About and press-kit page, `renderFrontDoorAbout` in `front-door.mjs`,
+  // served from the document root by `default.conf`'s `^/about/?$` block. In
+  // the allowlist so a mirrored page may link to it — the injected chrome does
+  // not today, but `validateLinks` rejects any absolute link this root does not
+  // serve, and a page that *can* be linked to belongs here rather than being
+  // discovered as a build failure by whoever first adds the link.
+  `/${ABOUT_PATH}`,
+]);
 
 const isTestFile = (name) => name.includes('.test.') || /^test\.(m?js)$/.test(name);
 
 const isServable = (name) =>
   (SERVABLE_EXTENSIONS.has(path.extname(name)) || SERVABLE_NAMES.has(name)) && !isTestFile(name);
 
-/** The servable files of one venture, sorted so the output is deterministic. */
+/**
+ * Is this subdirectory a page of the venture, or part of how it is built?
+ *
+ * The mirror walks exactly one level down, and only into directories that
+ * carry their own `index.html`. That single condition is what separates the
+ * two kinds of subdirectory `ventures/` actually contains:
+ *
+ * - `consent-change-record/tool/` is a second tool — its own page, its own
+ *   modules, linked from the venture's front page as "HAR before/after diff".
+ * - `src/`, `tests/`, `examples/`, `scripts/`, `docs/` are how a venture is
+ *   built or checked. None of them holds an `index.html`, and mirroring one
+ *   would put a Node source tree behind a public URL and spend the mirror's
+ *   byte ceiling on files no visitor can use.
+ *
+ * Measured across all 184 ventures on 2026-09-02: exactly one subdirectory
+ * anywhere in `ventures/` satisfies this, and it is `consent-change-record/
+ * tool/`. So the rule admits the page it was written for and nothing else,
+ * and it stays that way by construction rather than by a hand-kept list — a
+ * future venture that grows a genuine sub-page is picked up, and one that
+ * grows a `src/` is not.
+ *
+ * The directory name must also pass `ROUTABLE_SLUG`, because
+ * `front-door/default.conf` routes it with the same character class it routes
+ * a venture slug with. A `.cursor/` or `.github/` could never be reached even
+ * if it somehow held a page, so it is refused here rather than shipped dark.
+ */
+async function isPageDirectory(pageRoot, name) {
+  if (!ROUTABLE_SLUG.test(name)) return false;
+  return fs
+    .access(path.join(pageRoot, name, 'index.html'))
+    .then(() => true)
+    .catch(() => false);
+}
+
+/**
+ * The subdirectory a venture may keep its browser entry point in, when it does
+ * not keep one at its root.
+ *
+ * This is not a rule invented here. `platform/pages/build.mjs` — the canonical
+ * site build, the thing that decides what `tools.marisstella.dev` publishes —
+ * has resolved a venture's entry point as `ENTRY_CANDIDATES = ['index.html',
+ * path.join('site', 'index.html')]` for as long as this mirror has existed.
+ * The mirror knowing only the first of the two is what made the apex disagree
+ * with the canonical host about which ventures are static pages at all.
+ *
+ * **That disagreement recurred on 2026-09-03, and this constant is now a label
+ * rather than the rule.** Restating `build.mjs`'s resolution here fixed the
+ * `site/` half and froze the mistake in place: `build.mjs` also carries
+ * `ENTRY_OVERRIDES`, for ventures whose surface is at neither standard path,
+ * and a copied constant could not know that. `ai-engineering-academy` declares
+ * `tools`, so the canonical build published its hub and six working
+ * electronics calculators while this module reported the venture as "not a
+ * static page the mirror can serve" — and since the canonical host serves
+ * nothing until `portfolio-site-repo` is sealed, those seven pages were public
+ * nowhere.
+ *
+ * `venturePageRoot` therefore imports both `ENTRY_CANDIDATES` and
+ * `ENTRY_OVERRIDES` from `build.mjs` instead of restating either. This name is
+ * kept only because the prose and the exclusion message read better with a
+ * word for the `site/` case; nothing resolves a path through it.
+ */
+const NESTED_PAGE_ROOT = 'site';
+
+/**
+ * Where a venture's servable files actually live.
+ *
+ * `ventures/<slug>` for almost every venture. `ventures/<slug>/site` for one
+ * that keeps its pages there and its Node sources beside them — the shape
+ * `build.mjs` already publishes and this module used to read as "no flat
+ * index.html, therefore not a static page".
+ *
+ * Root wins when both exist, matching `ENTRY_CANDIDATES`' order, so a venture
+ * cannot be served from two roots depending on which file you asked about.
+ *
+ * The nested root is *only* consulted for the entry point. Everything the
+ * mirror does afterwards — flatness, `ROUTABLE_SUBPATH`, link resolution, the
+ * `<slug>__<file>` key encoding, `/tools/<slug>/` — is unchanged and still
+ * measured relative to whatever this returns. So a `site/` venture whose pages
+ * are not flat, or link outside the set, is dropped by exactly the checks that
+ * would drop a root-level one; nothing here weakens them.
+ */
+async function venturePageRoot(slug, venturesDir = VENTURES_DIR) {
+  const root = path.join(venturesDir, slug);
+  // An override replaces the candidate list rather than extending it, exactly
+  // as `discoverSurfaces` does — a venture that declares where its surface
+  // lives is not also searched at the standard paths, so it cannot be served
+  // from two roots depending on which file you asked about.
+  const override = ENTRY_OVERRIDES[slug];
+  const candidates = override ? [path.join(override, 'index.html')] : ENTRY_CANDIDATES;
+  for (const candidate of candidates) {
+    const dir = path.join(root, path.dirname(candidate));
+    if (await fs.access(path.join(root, candidate)).then(() => true, () => false)) return dir;
+  }
+  // No entry point anywhere. Return the venture root so callers report "no
+  // index.html" against the directory a reader would go looking in, rather
+  // than against a `site/` that may not exist.
+  return root;
+}
+
+/**
+ * Files a `site/`-rooted venture keeps at its root, one level above its pages,
+ * and which its pages nonetheless link to as if they were siblings.
+ *
+ * Only `LICENSE`, and it is not a special case invented here either.
+ * `build.mjs` copies exactly this file into exactly these ventures' published
+ * trees, for exactly this reason — its comment names the six of them: their
+ * pages carry an `<a href="LICENSE">` footer, the file lives one level up, and
+ * without the copy that link resolves to nothing. The mirror has the same
+ * footer to satisfy and needs the same answer.
+ *
+ * README.md is deliberately not here, matching `build.mjs`: it is repo
+ * bookkeeping and no published tree carries one.
+ */
+const ROOT_FALLBACK_FILES = new Set(['LICENSE']);
+
+/**
+ * The on-disk path of one file `ventureFiles` returned.
+ *
+ * Every read of a mirrored file goes through this rather than joining
+ * `venturesDir`, `slug` and `file` directly, because the middle term is the
+ * page root and not always the venture directory — and because a `LICENSE`
+ * the page root does not hold is read from the venture root instead.
+ */
+export async function ventureFilePath(slug, file, venturesDir = VENTURES_DIR) {
+  const pageRoot = await venturePageRoot(slug, venturesDir);
+  const atPageRoot = path.join(pageRoot, file);
+  if (!ROOT_FALLBACK_FILES.has(file)) return atPageRoot;
+  if (await fs.access(atPageRoot).then(() => true, () => false)) return atPageRoot;
+  return path.join(venturesDir, slug, file);
+}
+
+/**
+ * The servable files of one venture, sorted so the output is deterministic.
+ *
+ * Returns flat filenames (`index.html`, `calc.mjs`) plus, for any subdirectory
+ * `isPageDirectory` admits, that directory's own servable files as posix paths
+ * one level deep (`tool/index.html`). Everything downstream — `mirrorKey`,
+ * `mirrorUrl`, `validateLinks` — treats the result as an opaque path relative
+ * to the venture root, so a `/` inside one needs no special case beyond the
+ * key encoding and the two `location` blocks that decode it.
+ *
+ * Paths are relative to `venturePageRoot`, not to `ventures/<slug>`. For a
+ * `site/`-rooted venture that means `index.html`, not `site/index.html` — the
+ * mirror serves it at `/tools/<slug>/` exactly as the canonical site does, and
+ * the venture's own relative links resolve against the same base they were
+ * written for.
+ */
 export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
-  const dir = path.join(venturesDir, slug);
+  const dir = await venturePageRoot(slug, venturesDir);
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  return entries
+  const files = entries
     .filter((entry) => entry.isFile() && isServable(entry.name))
-    .map((entry) => entry.name)
-    .sort();
+    .map((entry) => entry.name);
+  // A `site/`-rooted venture's LICENSE is one level up. Offer it at the page
+  // root so the footer link every one of these pages carries resolves inside
+  // the mirror, exactly as `build.mjs` does for the published site.
+  if (dir !== path.join(venturesDir, slug)) {
+    for (const name of ROOT_FALLBACK_FILES) {
+      if (files.includes(name)) continue;
+      if (await fs.access(path.join(venturesDir, slug, name)).then(() => true, () => false)) {
+        files.push(name);
+      }
+    }
+  }
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    if (!(await isPageDirectory(dir, entry.name))) continue;
+    const nested = await fs.readdir(path.join(dir, entry.name), { withFileTypes: true });
+    for (const child of nested) {
+      if (child.isFile() && isServable(child.name)) files.push(`${entry.name}/${child.name}`);
+    }
+  }
+  return files.sort();
 }
 
 /**
@@ -945,17 +1431,112 @@ export async function ventureFiles(slug, venturesDir = VENTURES_DIR) {
  * documents is not structural. Bing and the AI crawlers do not all publish a
  * conflict rule, and "most restrictive wins" is not the only plausible one;
  * "last tag wins" would have indexed all 24.
+ *
+ * ## `og:url` is the third tag with the same story, fixed 2026-09-03
+ *
+ * The two paragraphs above are each about a tag the venture source already
+ * carried, which the mirror had to reconcile rather than merely prepend. The
+ * argument was never carried to `og:url` either, and there it was not a
+ * hardening: 52 mirrored pages went out declaring
+ * `<meta property="og:url" content="https://example.invalid/...">`.
+ *
+ * That placeholder is deliberate in the sources — it predates the portfolio
+ * having any origin at all, and `build.mjs` overwrites it with the real one
+ * when it publishes to the canonical host (`PLACEHOLDER_ORIGIN` there names
+ * it). This mirror is the *other* publisher, and it never learned that step.
+ *
+ * Unlike the robots conflict, nothing downstream rescues this. A share card is
+ * built from `og:url` alone: paste a mirrored tool's link into Slack, LinkedIn,
+ * Facebook or WhatsApp and the scraper keys the card to `example.invalid`, a
+ * reserved-by-RFC-2606 domain that resolves nowhere. `X-Robots-Tag` does not
+ * apply — this is not a crawler path — and the `rel="canonical"` two lines
+ * above does not either, because a scraper reads `og:url` in preference to it.
+ * `build.mjs`'s own comment calls organic sharing into trade groups a named
+ * acquisition channel here, so this is that channel broken on the only surface
+ * the portfolio actually serves.
+ *
+ * ## Why the apex URL and not the canonical
+ *
+ * `canonicalUrl` is `tools.marisstella.dev`, which serves nothing until
+ * `portfolio-site-repo` is sealed. `renderFrontDoorFeed` faced this exact
+ * choice and its comment settles it: a link a reader follows must work, and "a
+ * feed whose every entry is a dead link is worse than no feed". A share card is
+ * the same object — a human clicks it — so it gets `apexUrl`, the address that
+ * answers today, while `rel="canonical"` keeps naming the long-run home. The
+ * SEO cost is nil for the reason the feed gives: these pages are `noindex` in
+ * markup and in the header, so nothing here competes for consolidation.
+ *
+ * ## Repair, never insert
+ *
+ * Only a page that already has the tag gets one. A page with no `og:url` lets
+ * the scraper key the card to the pasted URL, which is the working apex URL
+ * already — strictly better than what the 52 had, and free. Injecting the tag
+ * everywhere would spend mirror bytes (`MIRROR_BYTE_CEILING` is the binding
+ * constraint) to buy nothing.
+ *
+ * The matcher is `build.mjs`'s whole-tag form rather than `[^>]*`: a
+ * hand-written `og:description` may contain a bare `>` ("net > 0"), and a
+ * matcher that stops at it would mangle the tag it lands on.
+ *
+ * ## `og:image`, added the same day
+ *
+ * Fixing `og:url` makes a mirrored tool's share card resolve; it does not make
+ * it worth looking at. No venture source declares an `og:image` — `build.mjs`
+ * found "no page had one" across all 442 it publishes — so every mirrored tool
+ * pasted anywhere renders as a bare text row. That module calls the image "the
+ * single largest determinant of whether anyone clicks", and it is the half of
+ * the share card this mirror could fix for almost nothing.
+ *
+ * Almost nothing, because the card is already served. `/social-card.png` sits
+ * at the apex document root in `portfolio-front-html` beside `/favicon.svg`,
+ * which these pages already reference the same way — so the mirror carries the
+ * tag and not the image, and `MIRROR_BYTE_CEILING` barely moves. The URL is
+ * absolute because a scraper fetching a card off a pasted link does not
+ * reliably resolve a relative one, and `twitter:card` is what upgrades the row
+ * to `summary_large_image` on the readers that honour it.
+ *
+ * This is an insert rather than a repair — the opposite of `og:url` above, and
+ * for the opposite reason. There is nothing here to reconcile, and the
+ * fallback if we skipped it is not "the scraper works it out" but "no image".
+ * The card is the site's generic mark rather than one drawn per tool: that is
+ * `build.mjs`'s own documented fallback when a page has no card of its own
+ * (`cardFile || SOCIAL_CARD_FILE`), and a per-tool card would cost ~6 KB
+ * apiece against a mirror that is the one place in this repo where bytes are
+ * the binding constraint. `SOCIAL_CARD_ALT` says the card carries no text,
+ * which stays true of a generic card on a specific tool's page — the reason
+ * that alt text is worded the way it is.
  */
 export function injectMirrorTags(html, { slug, file }) {
   const tags =
-    `<meta name="robots" content="noindex,follow">` +
-    `<link rel="canonical" href="${canonicalUrl(slug, file)}">` +
+    `<meta name="robots" content="${MIRROR_ROBOTS_CONTENT}">` +
+    `<link rel="canonical" href="${mirrorCanonicalUrl(slug, file)}">` +
     `<link rel="icon" href="/${FAVICON_FILE}" type="image/svg+xml">` +
-    NAV_STYLE;
+    `<meta property="og:image" content="${APEX_URL.replace(/\/$/, '')}/${SOCIAL_CARD_FILE}">` +
+    `<meta property="og:image:width" content="${SOCIAL_CARD_WIDTH}">` +
+    `<meta property="og:image:height" content="${SOCIAL_CARD_HEIGHT}">` +
+    `<meta property="og:image:alt" content="${SOCIAL_CARD_ALT}">` +
+    `<meta name="twitter:card" content="summary_large_image">` +
+    NAV_STYLE +
+    // Only entry pages carry the cross-link block, so only they need its rule.
+    // Shipping it on all 544 mirrored pages would spend bytes on 375 that have
+    // no element to match.
+    (file === 'index.html' ? RELATED_STYLE : '');
   const stripped = html
-    .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi, '')
-    .replace(/<link\b[^>]*\brel=["']icon["'][^>]*>/gi, '')
-    .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '');
+    .replace(STRIPPED_LINK, '')
+    .replace(/<meta\b[^>]*\bname=["']robots["'][^>]*>/gi, '')
+    .replace(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, (tag) => {
+      if (/\bproperty=["']og:url["']/i.test(tag)) {
+        return `<meta property="og:url" content="${apexUrl(slug, file)}">`;
+      }
+      // No venture declares these today, so this drops nothing. It is here so
+      // that one which later does gets its tag reconciled rather than
+      // duplicated — the same rule the canonical and robots strips above keep,
+      // and the reason `og:url` was a live defect is that this rule had a gap.
+      if (/\b(?:property=["']og:image(?::\w+)?["']|name=["']twitter:card["'])/i.test(tag)) {
+        return '';
+      }
+      return tag;
+    });
   const charset = stripped.match(/<meta\s+charset=["'][^"']*["']\s*\/?>/i);
   if (charset) {
     const at = stripped.indexOf(charset[0]) + charset[0].length;
@@ -994,7 +1575,15 @@ export const NAV_CLASS = 'fd-back';
 export const NAV_STYLE =
   `<style>.${NAV_CLASS}{display:block;margin:0 0 1rem;padding:.55rem 1rem;background:#12506b;` +
   `color:#fff;font:600 14px system-ui,sans-serif;text-decoration:none}` +
-  `@media print{.${NAV_CLASS}{display:none!important}}</style>`;
+  `@media print{.${NAV_CLASS}{display:none!important}}` +
+  // Hidden when this page is the one inside someone else's iframe. The embed
+  // runtime puts `.pf-embed` on <html> and replaces the site nav with a single
+  // "open the full tool" bar; `renderEmbedStyle` does this for the chrome
+  // `build.mjs` writes, and cannot know about a class that belongs to the
+  // mirror. Kept here, beside the rule it overrides, rather than appended to
+  // the shared stylesheet — this is the mirror's own nav, so its visibility
+  // rules stay in one place.
+  `.pf-embed .${NAV_CLASS}{display:none}</style>`;
 
 /**
  * Give every mirrored page a way back to the front door.
@@ -1017,12 +1606,20 @@ export const NAV_STYLE =
  * category. The link is what makes that grouping reachable from where people
  * actually land.
  *
- * ## Why one link, at the top, rather than a related-tools block
+ * ## Why one link, at the top
  *
- * Bytes are the mirror's binding constraint — see `MIRROR_BYTE_CEILING` — and
- * a per-page block of siblings would cost several times this and go stale
- * against `STARTER_SET`. One link to the front door reaches all of them,
- * because the front door is already the catalogue.
+ * It reaches every tool, because the front door is already the catalogue, and
+ * it costs one anchor on a page where bytes are the binding constraint — see
+ * `MIRROR_BYTE_CEILING`.
+ *
+ * This comment used to end "rather than a related-tools block", on the grounds
+ * that a per-page list of siblings "would cost several times this and go stale
+ * against `STARTER_SET`". `injectMirrorRelated` is that block, and its own
+ * comment records why both halves of that argument expired: there is no
+ * `STARTER_SET` left to drift against, and the measured cost of the block is
+ * 48 KB against ~2 MB of headroom. The two are complements now — this one is
+ * the hop back to the catalogue, that one is the hop sideways to the three or
+ * four tools the same visitor actually sells.
  *
  * It goes immediately after `<body>` rather than in the footer because a
  * calculator page is long: a footer link is below a form nobody scrolls past
@@ -1051,6 +1648,164 @@ export function injectMirrorNav(html, { toolCount }) {
 }
 
 /**
+ * The class the cross-link block takes. Same reasoning as `NAV_CLASS`: an
+ * `fd-` prefix no venture uses, asserted by a test over the mirrored sources.
+ */
+export const RELATED_CLASS = 'fd-related';
+
+/** How many sibling tools an entry page offers. `relatedTools`' own default. */
+export const RELATED_LIMIT = 4;
+
+/**
+ * The rule for the cross-link block. Injected into the head beside
+ * `NAV_STYLE`, and for the same three reasons: a `@media print` rule the
+ * venture stylesheets would otherwise not apply (a contractor's printed bid
+ * must not carry a list of other calculators), a `.pf-embed` rule so the block
+ * disappears when this page is the one inside someone else's iframe, and
+ * literal colours because the venture pages do not define the front door's
+ * custom properties.
+ *
+ * Deliberately quiet: a bordered-top list in the page's own text colour at
+ * inherited size, not a second call-to-action competing with the tool. The
+ * visitor came for a number; this is what they see after they have it.
+ */
+export const RELATED_STYLE =
+  // `display` is declared on all three elements, and that is not padding.
+  // These rules are injected ahead of the venture's own <style>, so on a tie
+  // the venture wins; a class selector outranks a bare element one, so we win
+  // — but only for properties we actually state. Three mirrored ventures set
+  // `display` on a bare `nav`, `ul` or `p` (`nav{display:flex}` in
+  // faire-wholesale-calculator lays the heading beside the list;
+  // `p{display:none}` would delete the heading outright), and every one of
+  // those would have reached the block through a property this rule left
+  // unmentioned. Stating the layout is what makes the block's appearance a
+  // property of the block rather than of whichever venture it lands in.
+  `<style>.${RELATED_CLASS}{display:block;margin:2.5rem 0 0;padding:1rem 0 0;` +
+  `border-top:1px solid #c9d4da;font:400 14px system-ui,sans-serif}` +
+  `.${RELATED_CLASS} p{display:block;margin:0 0 .5rem;font-weight:600}` +
+  `.${RELATED_CLASS} ul{display:block;margin:0;padding:0 0 0 1.1rem;list-style:disc}` +
+  `.${RELATED_CLASS} li{display:list-item;margin:.25rem 0}` +
+  `.${RELATED_CLASS} a{color:#12506b}` +
+  `@media print{.${RELATED_CLASS}{display:none!important}}` +
+  `.pf-embed .${RELATED_CLASS}{display:none}</style>`;
+
+/**
+ * Offer four sibling tools at the foot of a mirrored entry page.
+ *
+ * ## Why this exists, and why the old answer stopped being right
+ *
+ * `injectMirrorNav`'s comment argues for one link to the front door "rather
+ * than a related-tools block", on two grounds: that a block "would cost
+ * several times this" against `MIRROR_BYTE_CEILING`, and that it would "go
+ * stale against `STARTER_SET`". Both were true when written and neither is
+ * now.
+ *
+ * `STARTER_SET` is gone — the mirror covers every eligible venture, so there
+ * is no curated subset for a per-page list to drift out of step with. And the
+ * ceiling stopped binding at this scale when the mirror went gzip-only: the
+ * committed mirror is ~6.0 MB against 8 MiB, and four anchors on 169 entry
+ * pages is a fraction of the ~2.0 MB spare. The byte argument was sound
+ * arithmetic against a 5 MiB ceiling holding 53 uncompressed tools; it is not
+ * arithmetic about the mirror that exists.
+ *
+ * What the one link cannot do is the part that matters. It reaches the
+ * catalogue, but it asks a visitor who has just got their number to go back to
+ * a page of 169 tools and work out which of them also applies to them. A
+ * contractor on the fence calculator is one click from the concrete, deck and
+ * retaining-wall bids — *if* something names them. Internal links between
+ * related pages are also the single largest on-site lever a static catalogue
+ * has for search, and these are the pages that carry it: while
+ * `TOOLS_HOST_SERVES` is false the apex is each tool's canonical and the only
+ * indexable copy.
+ *
+ * ## Why it imports `relatedTools` rather than choosing its own four
+ *
+ * `build.mjs` already ranks siblings — same sub-group first, then the rest of
+ * the category, then the rest of the site, rotated by the tool's own position
+ * so neighbouring tools do not all advertise the same four. That ranking is
+ * the reason a metal-roof page offers another roof and not a music-lesson
+ * break-even, and it is tested where it lives. `CLAUDE.md` records two
+ * occasions where restating a `build.mjs` rule here instead of importing it
+ * cost live product; this module already imports `ENTRY_CANDIDATES` and
+ * `injectEmbedWidget` for exactly that reason.
+ *
+ * The links are root-absolute `/tools/<slug>/` rather than `../<slug>/`
+ * because a mirrored page can be served from `/tools/<slug>/` or from a
+ * subdirectory below it, so a relative hop would resolve differently by depth.
+ * `validateLinks` checks them against the mirror's own file list, so a link
+ * here can no more go dead than a venture's own can.
+ */
+export function injectMirrorRelated(html, { file, related }) {
+  if (file !== 'index.html' || !related?.length) return html;
+  const items = related
+    .map(({ slug, title }) => `<li><a href="${mirrorUrl(slug, 'index.html')}">${title}</a></li>`)
+    .join('');
+  const block =
+    `<nav class="${RELATED_CLASS}" aria-label="Other free tools">` +
+    `<p>Other free tools for the same work</p><ul>${items}</ul></nav>`;
+  if (!/<\/body>/i.test(html)) {
+    throw new Error('a mirrored entry page has no </body>, so the related tools have nowhere to go');
+  }
+  return html.replace(/<\/body>/i, `${block}</body>`);
+}
+
+/**
+ * Offer the embed on a mirrored entry page.
+ *
+ * ## Why the mirror needs its own entry point into `embed.mjs`
+ *
+ * `injectEmbedWidget` attaches the offer inside the `<aside class="pf-chrome
+ * pf-chrome-foot">` that `build.mjs`'s `injectChrome` writes, and returns the
+ * page untouched when there is none. The mirror does not run `injectChrome` —
+ * it writes one anchor (`injectMirrorNav`) and nothing else, on purpose — so
+ * every mirrored page hit that guard and the offer appeared on none of them.
+ *
+ * The fix is to give the page the footer the offer expects rather than to
+ * reimplement the offer. An empty `pf-chrome-foot` immediately before
+ * `</body>` is that footer, and passing it through the real
+ * `injectEmbedWidget` means the box, the snippet, the stylesheet link and the
+ * script tag all stay defined in exactly one place. The alternative — a second
+ * copy of `offerMarkup` shaped for this host — is the mistake `CLAUDE.md`
+ * documents twice.
+ *
+ * It also buys the framed-view behaviour for free: `renderEmbedStyle` hides
+ * `.pf-chrome-foot` under `.pf-embed`, so the box disappears when this page is
+ * itself the one inside someone's iframe. An embedded calculator does not need
+ * instructions for embedding a calculator.
+ *
+ * ## Which URL the snippet points at
+ *
+ * `mirrorCanonicalUrl`, which is "the address that actually serves" — the apex
+ * while `TOOLS_HOST_SERVES` is false, the tools host after the seal. Not
+ * `canonicalUrl`: a snippet is copied once into a stranger's page and then
+ * outlives every deploy here, so pointing it at a host that answers nothing
+ * would hand out iframes that render blank and stay blank. This is the same
+ * defect `portfolio-site.yaml`'s framing map exists to prevent, one layer out.
+ *
+ * Entry pages only. The deep subpages inside a tool are articles, not the
+ * calculator, and `injectEmbedWidget` gates on `isEntry` for that reason.
+ */
+export function injectMirrorEmbed(html, { slug, file, title } = {}) {
+  if (file !== 'index.html') return html;
+  const body = html.match(/<\/body>/i);
+  if (!body) {
+    throw new Error('a mirrored entry page has no </body>, so the embed offer has nowhere to go');
+  }
+  const withFoot = html.replace(/<\/body>/i, '<aside class="pf-chrome pf-chrome-foot"></aside></body>');
+  return injectEmbedWidget(withFoot, {
+    slug,
+    // Absolute, not `./`: the runtime and its stylesheet are one copy at the
+    // apex document root, and a mirrored page can be served from either
+    // `/tools/<slug>/` or `/tools/<slug>/<dir>/`, so a relative path would
+    // resolve to a different (missing) file depending on the page's depth.
+    toRoot: '/',
+    canonical: mirrorCanonicalUrl(slug, file),
+    title,
+    isEntry: true,
+  });
+}
+
+/**
  * Every relative link in the mirror has to resolve inside the mirror.
  *
  * This is the check that makes "complete venture" mean something. A venture
@@ -1061,13 +1816,113 @@ export function injectMirrorNav(html, { toolCount }) {
  * Absolute URLs, fragments, `mailto:` and `data:` are external by definition and
  * are not this function's business. A bare `.` or `./` is the venture's own
  * entry page, which is `index.html` by nginx's `try_files`.
+ *
+ * ## Script bodies are scanned, but as JavaScript rather than as markup
+ *
+ * This function used to run one regex over the whole document, `<script>`
+ * included. That is not what a browser does — text inside a script element is
+ * program source, not markup — and it cost the mirror a finished tool:
+ * `marketplace-fee-compare` builds its channel list from template strings, so
+ * the scan read the literal source text `href="../${escapeHtml(channel.deepTool)}/"`
+ * and reported a missing directory named `${escapeHtml(channel.deepTool)}`.
+ * The page is fine; the checker was reading the wrong language.
+ *
+ * The previous revision knew this and left it, on the argument that narrowing
+ * the scan "would trade one missing tool for a class of genuinely dead link it
+ * currently catches". That trade is not the one on offer, because the scan
+ * never detected anything in the interpolated case: it compared unexpanded
+ * template source against the mirror, which cannot match whatever the
+ * expression evaluates to. It failed every such link unconditionally, which is
+ * not detection.
+ *
+ * So the markup scan now runs over the document with script and style bodies
+ * blanked, and script bodies are scanned separately under the rule that
+ * actually applies to them:
+ *
+ * - a **fully literal** href/src in a script (no `${`) is a real path the page
+ *   will hand the browser, and is resolved exactly as a markup one is — this
+ *   is the genuine detection the old comment was protecting, and it is kept;
+ * - an **interpolated** one cannot be resolved statically, so it is not judged
+ *   here at all. `dynamicLinks` reports those separately: advisory, never a
+ *   reason to drop a venture, but surfaced so a page whose runtime links go
+ *   somewhere the mirror lacks is a thing a human can see rather than a thing
+ *   that vanished. It is a separate function rather than a property on the
+ *   returned array because `validateLinks` is compared with `deepStrictEqual`
+ *   in several tests, and an array carrying an extra own property is not
+ *   deep-equal to the plain `[]` those assertions expect.
+ *
+ * `marketplace-fee-compare`'s seven `deepTool` targets are all mirrored, which
+ * is what makes admitting it correct and not merely quieter.
+ *
+ * Blanking preserves byte offsets so nothing downstream that indexes into the
+ * document shifts; only the characters inside the element change.
  */
+const SCRIPT_OR_STYLE = /<(script|style)\b[^>]*>([\s\S]*?)<\/\1\s*>/gi;
+
+/**
+ * Blank out the `<link>` elements `injectMirrorTags` will delete, so their
+ * hrefs are not held against a venture that is otherwise perfectly mirrorable.
+ *
+ * Blanked to spaces rather than removed, matching `blankScriptBodies`: byte
+ * offsets stay put, so a problem string this function's caller builds still
+ * points where a human reading the source would look.
+ */
+export function blankStrippedLinks(html) {
+  return html.replace(STRIPPED_LINK, (match) => ' '.repeat(match.length));
+}
+
+export function blankScriptBodies(html) {
+  return html.replace(SCRIPT_OR_STYLE, (match, tag, body) => {
+    const open = match.length - body.length - `</${tag}>`.length;
+    return match.slice(0, open) + ' '.repeat(body.length) + match.slice(open + body.length);
+  });
+}
+
+export function scriptBodies(html) {
+  return [...html.matchAll(SCRIPT_OR_STYLE)]
+    .filter(([, tag]) => tag.toLowerCase() === 'script')
+    .map(([, , body]) => body);
+}
+
+/**
+ * Relative href/src literals a page builds at runtime inside a `<script>`.
+ *
+ * Advisory only — these cannot be resolved without evaluating the page, so
+ * nothing is dropped for appearing here. Reported so the interpolated case is
+ * visible rather than merely un-judged.
+ */
+export function dynamicLinks(files) {
+  const found = [];
+  for (const { slug, file, contents } of files) {
+    if (!file.endsWith('.html')) continue;
+    for (const body of scriptBodies(contents)) {
+      for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
+        // `${` is the only interpolation form that reaches here: these are
+        // HTML fragments inside JS template literals, and a fragment built by
+        // concatenation would not carry a quoted attribute this regex matches.
+        if (href.includes('${')) found.push(`${slug}/${file} → "${href}"`);
+      }
+    }
+  }
+  return found;
+}
+
 export function validateLinks(files) {
   const present = new Set(files.map((f) => `${f.slug}/${f.file}`));
   const problems = [];
   for (const { slug, file, contents } of files) {
     if (!file.endsWith('.html')) continue;
-    for (const [, href] of contents.matchAll(/(?:href|src)="([^"]*)"/g)) {
+    const markup = blankStrippedLinks(blankScriptBodies(contents));
+    const hrefs = [...markup.matchAll(/(?:href|src)="([^"]*)"/g)].map(([, href]) => href);
+    for (const body of scriptBodies(contents)) {
+      for (const [, href] of body.matchAll(/(?:href|src)="([^"]*)"/g)) {
+        // A fully literal href in a script is a real path the page will hand
+        // the browser, so it is checked exactly as a markup one is. The
+        // interpolated ones are `dynamicLinks`' business.
+        if (!href.includes('${')) hrefs.push(href);
+      }
+    }
+    for (const href of hrefs) {
       if (/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(href) || href === '') continue;
       const target = href.split(/[?#]/)[0];
       if (target === '' || target === '.' || target === './') continue;
@@ -1075,6 +1930,20 @@ export function validateLinks(files) {
       // root, not by this mirror, so it is checked against what that root
       // actually holds rather than resolved against the venture directory.
       if (target.startsWith('/')) {
+        // `/tools/<slug>/` is this mirror's own address space, not the front
+        // door's document root, so it is checked against the file list rather
+        // than the root allowlist. `injectMirrorRelated` is the only injector
+        // that writes one, and this is what stops it offering a tool the
+        // mirror does not serve — the same guarantee a venture's own relative
+        // links get below.
+        if (target.startsWith(`/${MIRROR_PREFIX}`)) {
+          const within = target.slice(`/${MIRROR_PREFIX}`.length);
+          const candidate = within.endsWith('/') ? `${within}index.html` : within;
+          if (!present.has(candidate)) {
+            problems.push(`${slug}/${file} → "${href}" (no ${candidate} in the mirror)`);
+          }
+          continue;
+        }
         if (!APEX_ROOT_PATHS.has(target)) {
           problems.push(
             `${slug}/${file} → "${href}" (the apex document root serves only ` +
@@ -1083,7 +1952,16 @@ export function validateLinks(files) {
         }
         continue;
       }
-      const resolved = path.posix.normalize(path.posix.join(slug, target));
+      // Resolved against the linking file's own directory, not the venture
+      // root. The two are the same thing for every flat page — which is why
+      // this read `join(slug, target)` until page subdirectories existed — but
+      // for `tool/index.html` they differ, and getting it wrong is silent in
+      // both directions: `../LICENSE` would resolve to a path outside the
+      // venture and be reported as dead, while a sibling `har-diff.mjs` would
+      // resolve to the venture root and be judged present when the file the
+      // browser actually asks for is one level down.
+      const base = path.posix.dirname(path.posix.join(slug, file));
+      const resolved = path.posix.normalize(path.posix.join(base, target));
       const candidate = resolved.endsWith('/') ? `${resolved}index.html` : resolved;
       if (!present.has(candidate)) {
         problems.push(`${slug}/${file} → "${href}" (no ${candidate} in the mirror)`);
@@ -1104,8 +1982,16 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // filesystem; a caller passing an explicit `set` (every test that exercises
   // packing or a deliberate failure) must not pay for a scan of `ventures/`.
   set ??= await mirrorSet(venturesDir);
-  const files = [];
-  const tools = [];
+
+  // Read every venture first, inject afterwards.
+  //
+  // The passes used to be one loop, and could be until `injectMirrorRelated`
+  // arrived: what a page needs to name its siblings is *their* titles, and a
+  // single pass has only read the ventures before it. Reading first is the
+  // cheap fix — the raw contents were already all held in `files` by the end
+  // of the old loop, so this costs no memory the function did not spend
+  // anyway, and the filesystem reads are unchanged in number and order.
+  const sources = [];
   for (const { slug, why } of set) {
     // Before the filesystem read, so an unroutable slug reports why it is
     // unroutable rather than an ENOENT from a directory nobody should add.
@@ -1119,15 +2005,48 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
     if (!names.includes('index.html')) {
       throw new Error(`${slug} has no index.html — it cannot be an entry in STARTER_SET`);
     }
+    const raws = new Map();
     for (const file of names) {
-      if (!ROUTABLE_FILE.test(file)) {
+      if (!ROUTABLE_SUBPATH.test(file)) {
         throw new Error(
           `${slug}/${file} does not match the filename pattern in front-door/default.conf`,
         );
       }
-      const raw = await fs.readFile(path.join(venturesDir, slug, file), 'utf8');
+      raws.set(file, await fs.readFile(await ventureFilePath(slug, file, venturesDir), 'utf8'));
+    }
+    sources.push({ slug, why, names, raws });
+  }
+
+  // What `relatedTools` ranks over, and the titles the block displays. The
+  // title is the venture's own `<title>` taken from `raw`, which is what a
+  // link to that page should say — the same source `tools` below uses.
+  const surfaces = sources.map(({ slug, raws }) => ({
+    slug,
+    title: pageTitle(raws.get('index.html')),
+  }));
+  const bySlug = new Map(surfaces.map((surface) => [surface.slug, surface]));
+
+  const files = [];
+  const tools = [];
+  for (const { slug, why, names, raws } of sources) {
+    // Resolved once per venture rather than per file: only `index.html`
+    // carries the block, and `relatedTools` is a ranking over all 169.
+    const related = relatedTools(surfaces, slug, RELATED_LIMIT).map(({ slug: id }) => bySlug.get(id));
+    for (const file of names) {
+      const raw = raws.get(file);
+      // The title is read from the venture's own markup before any pass runs.
+      // `pageTitle` is applied to the *injected* contents further down for the
+      // feed, and either would do here — but taking it from `raw` keeps the
+      // snippet's title independent of what the mirror's own passes add, which
+      // is what a stranger's page ends up displaying.
       const contents = file.endsWith('.html')
-        ? injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length })
+        ? injectMirrorEmbed(
+            injectMirrorRelated(
+              injectMirrorNav(injectMirrorTags(raw, { slug, file }), { toolCount: set.length }),
+              { file, related },
+            ),
+            { slug, file, title: file === 'index.html' ? pageTitle(raw) : undefined },
+          )
         : raw;
       files.push({
         slug,
@@ -1158,11 +2077,36 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
     throw new Error(`the mirror would serve dead links:\n  ${problems.join('\n  ')}`);
   }
 
-  const bytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
+  // Before the size and packing checks: a page with a conflict marker in it is
+  // not a page worth measuring, and this is the last point where it is still a
+  // candidate rather than something the apex serves.
+  assertNoConflictMarkers(files);
+
+  // Deduplication happens before every measurement below, because after it the
+  // aliased copies are not written anywhere: not to `gitops/prod/front-door-tools/`,
+  // not into a shard, and not into either replica's tmpfs. `bytes` is therefore
+  // what the mirror actually costs, which is what `MIRROR_BYTE_CEILING` bounds.
+  const { stored, aliases } = dedupeMirror(files);
+  const bytes = stored.reduce((sum, f) => sum + f.bytes.length, 0);
+  // What the same catalogue would have cost stored one-copy-per-name. Reported
+  // rather than checked: it is the number that says whether the alias map is
+  // still earning its place, and nothing stores it.
+  const undedupedBytes = files.reduce((sum, f) => sum + f.bytes.length, 0);
   if (bytes > MIRROR_BYTE_CEILING) {
+    // Name the measured remedy, not a guess. This message used to say "drop a
+    // venture from STARTER_SET", which stopped being the answer when the
+    // mirror grew to cover the whole catalogue: dropping a tool to publish a
+    // tool is a wash, and the bulk is no longer in `STARTER_SET`. It then named
+    // byte-identical duplication, which `dedupeMirror` above now recovers
+    // automatically — so by the time this throws, that remedy is already spent
+    // and quoting it again would send a session after bytes that are gone.
+    const dup = duplicateBytes(stored);
     throw new Error(
-      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling — ` +
-        `drop a venture from STARTER_SET rather than raising it without reading its comment`,
+      `the mirror is ${bytes} stored bytes, over the ${MIRROR_BYTE_CEILING}-byte ceiling.\n` +
+        `Aliasing has already recovered ${undedupedBytes - bytes} bytes across ${aliases.length} ` +
+        `duplicate name(s); ${dup.redundant} bytes in ${dup.groups} group(s) remain duplicated and ` +
+        `are content the alias map deliberately does not touch (see dedupeMirror).\n` +
+        `Do not raise MIRROR_BYTE_CEILING without reading its comment: both costs it names are real.`,
     );
   }
   // What the mirror would have cost uncompressed, reported rather than
@@ -1170,7 +2114,308 @@ export async function buildMirror({ set, venturesDir = VENTURES_DIR } = {}) {
   // place, and it has no ceiling of its own because nothing stores it.
   const sourceBytes = files.reduce((sum, f) => sum + Buffer.byteLength(f.contents), 0);
 
-  return { files, tools, bytes, sourceBytes, shards: packShards(files) };
+  return {
+    files,
+    stored,
+    aliases,
+    tools,
+    bytes,
+    undedupedBytes,
+    sourceBytes,
+    shards: packShards(stored),
+  };
+}
+
+/**
+ * The mirror's byte-identical duplication, by content.
+ *
+ * Ventures here are self-contained on purpose — `platform/pages/build.mjs`
+ * publishes each one as a standalone directory, so a venture that needs
+ * `proposal.mjs` ships its own copy rather than importing a shared one. That
+ * is the right call for the product and it is invisible on the canonical host,
+ * where each venture is served from its own tree. The mirror is where it costs
+ * something: it flattens every venture into one key space under a single
+ * ceiling, so the 104th identical copy of `proposal.mjs` spends 7,384 bytes of
+ * a budget the other 172 tools share.
+ *
+ * Grouped by the *stored* (compressed) bytes rather than the source, because
+ * stored bytes are what every ceiling in this file measures. gzip is
+ * deterministic at a fixed level, so identical source compresses to identical
+ * output and the two groupings agree — hashing the stored form just means the
+ * number reported is the number recoverable.
+ *
+ * `redundant` is what deduplication would return: every group's size times one
+ * fewer than its member count, since one copy always has to stay.
+ *
+ * Reported, never enforced. There is no ceiling on duplication itself — it is
+ * a property of how the ventures are built, not a defect in any one of them,
+ * and the day a venture stops sharing a helper byte-for-byte is not a day
+ * anything should fail.
+ */
+export function duplicateBytes(files) {
+  const byHash = new Map();
+  for (const file of files) {
+    const digest = createHash('sha256').update(file.bytes).digest('hex');
+    const group = byHash.get(digest) ?? { size: file.bytes.length, keys: [] };
+    group.keys.push(file.key);
+    byHash.set(digest, group);
+  }
+  const duplicated = [...byHash.values()]
+    .filter((group) => group.keys.length > 1)
+    .map((group) => ({
+      size: group.size,
+      copies: group.keys.length,
+      redundant: group.size * (group.keys.length - 1),
+      // The shared filename when every copy has one — `proposal.mjs` for the
+      // 104-way group. Falls back to a key so a group of unrelated files that
+      // happen to be identical still names something findable.
+      file: sharedFileName(group.keys),
+    }))
+    .sort((a, b) => b.redundant - a.redundant);
+  return {
+    groups: duplicated.length,
+    redundant: duplicated.reduce((sum, group) => sum + group.redundant, 0),
+    largest: duplicated,
+  };
+}
+
+/**
+ * Split the mirror into the bytes actually stored and the aliases that point
+ * at them.
+ *
+ * ## What this recovers, and why it is worth a mechanism
+ *
+ * `duplicateBytes` above measures the problem: ventures here are deliberately
+ * self-contained, so `proposal.mjs` is stored 104 times identically, `LICENSE`
+ * 161 times, `share.mjs` 37. On 2026-09-03 that was 1,186,041 stored bytes —
+ * 18.5% of the whole mirror — spent on content the mirror already had.
+ *
+ * Every one of those files is genuinely referenced by the pages beside it, so
+ * none can be dropped. What can change is how many times the *same* bytes are
+ * stored: keep one copy, and have nginx resolve the other 103 names to it.
+ * `renderMirrorAliases` writes that resolution as a `map`, and the six asset
+ * `location` blocks in `front-door/default.conf` route through it.
+ *
+ * ## Why the alias goes in nginx rather than the projected volume
+ *
+ * A projected volume's `items: [{key, path}]` can also present one key under
+ * many paths, and `MIRROR_HEADROOM_WARN_RATIO` named it first. It recovers the
+ * repository and ConfigMap bytes and *not* the pod's memory, because the
+ * kubelet still materialises every path into the tmpfs the mirror is charged
+ * against — so the two costs would have to be split and separately bounded
+ * before it helped. It also spends ~670 lines of generated YAML inside the
+ * Deployment spec.
+ *
+ * The `map` recovers both costs at once: an aliased file is not written to the
+ * volume at all, so it is absent from git, from etcd and from both replicas'
+ * tmpfs. That is why this is the mechanism chosen.
+ *
+ * `MIRROR_HEADROOM_WARN_RATIO` recorded that the `map` "wants an environment
+ * that can actually run nginx against the built mirror. This one cannot: no
+ * nginx binary and no Docker daemon, verified 2026-09-03." That was true of the
+ * session that wrote it and is not a property of the repository:
+ * `apt-get install nginx-light` supplies nginx 1.24 with both
+ * `--with-http_gzip_static_module` and `--with-http_gunzip_module`, which is
+ * everything the front door's config uses. `mirror-nginx.test.mjs` now serves
+ * the real `default.conf` over the real generated mirror and asserts every
+ * mirrored URL byte-for-byte, which is a stronger check than either mechanism
+ * had before.
+ *
+ * ## Why `index.html` is never aliased
+ *
+ * Entry and subpage documents carry slug-specific injected content — the
+ * canonical link, `og:url`, the return nav — so two of them cannot be
+ * byte-identical, and today none are. The guard below makes that structural
+ * rather than incidental: the two `index.html` `location` blocks in
+ * `default.conf` are deliberately left routing straight to their stored key,
+ * so a future injection change that somehow made two entry pages identical
+ * would cost duplicate bytes rather than 404 a tool's front page.
+ *
+ * The canonical copy is the member whose key sorts first, so the choice is
+ * stable across runs and independent of venture discovery order — a mirror
+ * regenerated on an unchanged tree produces an identical alias file.
+ */
+export function dedupeMirror(files) {
+  const hashes = new Map();
+  const byHash = new Map();
+  for (const file of files) {
+    if (file.file === 'index.html' || file.file.endsWith('/index.html')) continue;
+    const hash = createHash('sha256').update(file.bytes).digest('hex');
+    hashes.set(file, hash);
+    const group = byHash.get(hash);
+    if (group) group.push(file);
+    else byHash.set(hash, [file]);
+  }
+
+  const canonical = new Map();
+  for (const [hash, group] of byHash) {
+    canonical.set(
+      hash,
+      group.reduce((best, file) => (file.key < best.key ? file : best)),
+    );
+  }
+
+  const stored = [];
+  const aliases = [];
+  for (const file of files) {
+    const head = hashes.has(file) ? canonical.get(hashes.get(file)) : null;
+    if (!head || head === file) {
+      stored.push(file);
+    } else {
+      aliases.push({ key: file.key, canonical: head.key, bytes: file.bytes.length });
+    }
+  }
+  return { stored, aliases };
+}
+
+/**
+ * The generated nginx `map` that resolves an aliased mirror key to its stored one.
+ *
+ * ## Why the name starts with `00-`
+ *
+ * This file sets `map_hash_bucket_size`, and nginx accepts that directive only
+ * *before* the first `map` block it parses — afterwards the value is already
+ * fixed and setting it again is rejected as `"map_hash_bucket_size" directive
+ * is duplicate`, which is a refusal to start, not a warning. `default.conf`
+ * opens with three `map` blocks of its own (`$portfolio_embed_view` and the two
+ * framing maps), and nginx's `include /etc/nginx/conf.d/*.conf` expands the
+ * glob in sorted order — so a file named `mirror-alias.conf` is parsed after
+ * `default.conf` and the front door does not boot.
+ *
+ * The `00-` prefix is what orders this ahead of it. It is load-bearing, not
+ * decoration: `front-door-tools.test.mjs` asserts the name still sorts before
+ * `default.conf`, because renaming it to something tidier is a change that
+ * looks cosmetic and takes the apex down.
+ */
+export const MIRROR_ALIAS_FILE = '00-mirror-alias.conf';
+
+/**
+ * The nginx variable the asset `location` blocks set, and the one they rewrite
+ * to. Named here so `default.conf`, the generated map and the tests cannot
+ * drift apart.
+ */
+export const ALIAS_SOURCE_VAR = 'fd_flat';
+export const ALIAS_TARGET_VAR = 'fd_stored';
+
+/**
+ * Render the alias map.
+ *
+ * Always emitted, even with no aliases at all: `default.conf` references
+ * `$fd_stored` unconditionally, and nginx refuses to start on an unknown
+ * variable. A map carrying only its `default` is the correct empty state, not
+ * a missing file.
+ *
+ * `default $fd_flat` is what makes this safe to route *every* asset request
+ * through: a key with no alias resolves to itself, so the map can only ever
+ * redirect the names it explicitly lists.
+ */
+export function renderMirrorAliases(aliases) {
+  const entries = [...aliases]
+    .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0))
+    .map((a) => `  "${a.key}"  "${a.canonical}";`)
+    .join('\n');
+  const recovered = aliases.reduce((sum, a) => sum + a.bytes, 0);
+  // nginx sizes a map's hash buckets at startup and *refuses to start* if a key
+  // does not fit — `could not build map_hash, you should increase
+  // map_hash_bucket_size`. The default is one cache line (64 bytes on x86-64)
+  // and these keys are `<slug>__<file>`, already 59 bytes at their longest, so
+  // the default is not enough and the failure mode is the front door not
+  // booting at all. Computed from the longest key actually emitted, rounded up
+  // to the next power of two and floored at the default, so it tracks the
+  // catalogue instead of being a constant someone has to remember to raise.
+  // The headroom is not slack: nginx stores each key in an `ngx_hash_elt_t`
+  // alongside its length and a value pointer, and pads the entry, so a bucket
+  // has to hold rather more than the key's own bytes. 16 is comfortably past
+  // that overhead on 64-bit, and rounding to a power of two keeps the value one
+  // of the sizes nginx's own documentation uses. Measured: 59-byte keys need
+  // 128; 64 is what nginx refuses.
+  const longest = aliases.reduce((max, a) => Math.max(max, a.key.length), 0);
+  const bucket = Math.max(64, 2 ** Math.ceil(Math.log2(longest + 16)));
+  return `# Generated by \`node platform/marketing/front-door-tools.mjs --write\`.
+# Do not hand-edit: \`platform/marketing/front-door-tools.test.mjs\` regenerates
+# this file beside the mirror and fails if the commit is stale.
+#
+# Ventures in this repository are self-contained by design — each ships its own
+# copy of the shared helpers — which is right for the product and free on the
+# canonical host, where every venture is served from its own tree. The mirror
+# flattens them all into one key space under one ceiling, so the 104th
+# identical copy of \`proposal.mjs\` spends bytes the other tools share.
+#
+# This map is how the mirror stores one copy and serves it under every name.
+# The six asset \`location\` blocks in \`default.conf\` set \`$${ALIAS_SOURCE_VAR}\`
+# to the \`<slug>__<file>\` key the request resolves to, then rewrite to
+# \`$${ALIAS_TARGET_VAR}\` — this map — instead of to the key directly. The
+# \`default\` below is the identity, so a key that is not listed here resolves to
+# itself and routing is unchanged for it.
+#
+# \`index.html\` keys never appear here. Entry pages carry slug-specific injected
+# content and cannot be byte-identical; \`dedupeMirror\` refuses to alias them so
+# that a tool's front page can never depend on this file being right.
+#
+# ${aliases.length} alias(es), ${recovered} stored bytes recovered.
+#
+# Sized for the longest key above (${longest} bytes). nginx refuses to start if a
+# map key does not fit its bucket, so this tracks the catalogue rather than
+# being a constant to remember.
+map_hash_bucket_size ${bucket};
+map $${ALIAS_SOURCE_VAR} $${ALIAS_TARGET_VAR} {
+  default $${ALIAS_SOURCE_VAR};
+${entries}
+}
+`;
+}
+
+/** The file name every one of these `<slug>__<file>` keys shares, or the first key. */
+function sharedFileName(keys) {
+  const names = new Set(keys.map((key) => key.slice(key.lastIndexOf('__') + 2)));
+  return names.size === 1 ? [...names][0] : keys[0];
+}
+
+/**
+ * How much room the mirror has left, and what it would cost to make more.
+ *
+ * Exists because `MIRROR_BYTE_CEILING` is a wall with no approach lights: it
+ * throws inside `buildMirror`, which `portfolio-validate` runs on every PR
+ * touching a venture page, so crossing it stops the whole catalogue from
+ * publishing with no warning to the session that happens to be holding the
+ * pen. See `MIRROR_HEADROOM_WARN_RATIO` for why 85% and what to do when it
+ * trips.
+ *
+ * `toolsRemaining` divides by the *mean* tool, which is the honest estimate
+ * available here and not a promise — tools range from a single page to
+ * `ebay-fee-calculator`'s 818,849 bytes, so the next one could spend a
+ * twentieth of the remaining room or half of it. It answers "roughly how many
+ * more" well enough to tell a comfortable margin from a tight one, which is
+ * the decision it exists to inform.
+ */
+export function mirrorHeadroom({ files, stored, aliases, tools, bytes, undedupedBytes }) {
+  const remaining = MIRROR_BYTE_CEILING - bytes;
+  const perTool = tools.length ? bytes / tools.length : 0;
+  // `stored`/`aliases` are what `buildMirror` returns today. The fallbacks keep
+  // this callable with a bare `{ files, tools, bytes }` — which several tests
+  // and `--headroom`'s own error paths still build by hand — rather than making
+  // every caller construct a deduped mirror to ask a question about size.
+  const kept = stored ?? files;
+  const aliased = aliases ?? [];
+  return {
+    bytes,
+    ceiling: MIRROR_BYTE_CEILING,
+    ratio: bytes / MIRROR_BYTE_CEILING,
+    remaining,
+    perTool: Math.round(perTool),
+    toolsRemaining: perTool > 0 ? Math.floor(remaining / perTool) : Infinity,
+    // Below the warn ratio the mirror is merely large; at or above it, the
+    // runway is short enough that the remedy has to start now to land before
+    // the wall.
+    tight: bytes / MIRROR_BYTE_CEILING >= MIRROR_HEADROOM_WARN_RATIO,
+    // Residual duplication only — what aliasing has *not* recovered. Measured
+    // over `stored` rather than `files` on purpose: reporting the raw catalogue
+    // duplication here would keep advertising 18.5% of recoverable bytes that
+    // `dedupeMirror` has already recovered, and send a session after them.
+    duplicates: duplicateBytes(kept),
+    aliases: aliased.length,
+    recovered: (undedupedBytes ?? bytes) - bytes,
+  };
 }
 
 /**
@@ -1272,6 +2517,44 @@ export function assertUniqueKeys(files) {
       );
     }
     seen.add(key);
+  }
+}
+
+/**
+ * Refuse to mirror a page carrying an unresolved merge-conflict marker.
+ *
+ * WHY THIS IS HERE AND NOT ONLY IN CI
+ *
+ * On 2026-09-02 the boiler calculator's `index.html` was committed to `main`
+ * with a conflict hunk still in its footer, and the next regeneration packed
+ * it into `boiler-replacement-bid-calculator__index.html.gz` — so the apex
+ * served `<<<<<<< HEAD`, the paragraph twice, and `>>>>>>> origin/main` to
+ * every visitor of that tool.
+ *
+ * Nothing caught it before the bytes shipped. The venture's own suite passed,
+ * because its assertions were `assert.match` against links that were present
+ * on both sides of the hunk. The repo-wide `Conflict markers` workflow does
+ * catch it, but it runs on a pull request, and the mirror is generated and
+ * committed by hand before one exists.
+ *
+ * So the check belongs in the generator too: this is the last point at which
+ * a page is still a candidate rather than a deployed artifact, and `--write`
+ * is the step that turns one into the other. A marker here is never
+ * legitimate content — these are static tool pages, not documentation about
+ * merge conflicts.
+ */
+export function assertNoConflictMarkers(files) {
+  // Anchored to the line start, which is where git writes them; a `>>>>>>>`
+  // mid-sentence in prose is not a conflict and must not fail the build.
+  const marker = /^(<{7}|={7}|>{7})(\s|$)/m;
+  for (const { key, contents } of files) {
+    if (typeof contents === 'string' && marker.test(contents)) {
+      const line = contents.split('\n').find((l) => marker.test(l));
+      throw new Error(
+        `${key} carries an unresolved merge-conflict marker (${line.trim()}) — ` +
+          `resolve it before regenerating, or the apex will serve it to visitors`,
+      );
+    }
   }
 }
 
@@ -1432,14 +2715,86 @@ ${generators}
 `;
 }
 
+/**
+ * The Deployment that mounts the mirror, whose `projected` volume has to name
+ * every shard this generator writes.
+ */
+export const FRONT_DOOR_DEPLOYMENT = path.join(REPO_ROOT, 'gitops', 'prod', 'portfolio-front.yaml');
+
+/**
+ * The `sources:` entries of the `tools` volume, at the indentation
+ * `portfolio-front.yaml` uses. Kept in one place so the writer below and the
+ * expectation in `front-door-tools.test.mjs` cannot drift apart.
+ */
+export const renderMountSources = (shards) =>
+  shards.map((s) => `              - configMap:\n                  name: ${s.name}\n`).join('');
+
+/**
+ * Rewrite the mirror's mount list in `portfolio-front.yaml` to match `shards`.
+ *
+ * WHY THIS IS AUTOMATED
+ *
+ * The shard count is a function of the catalogue: adding one comparison page
+ * to a mirrored venture can push the packer over `SHARD_BYTE_CEILING` and open
+ * a new shard. Until this function existed, `--write` regenerated the shards
+ * and left this file naming the old set, so the two disagreed in whichever
+ * direction the mirror had moved — and both directions are silent in the
+ * cluster:
+ *
+ *   generated but not mounted -> those tools are missing from the apex with
+ *       every manifest valid and every pod Ready;
+ *   mounted but not generated -> pods never leave ContainerCreating and
+ *       `maxUnavailable: 0` keeps serving the previous, stale mirror.
+ *
+ * `test_portfolio_front_mounts_every_generated_mirror_shard` catches both, but
+ * only in CI and only as a failure whose remedy was a hand-edit its own message
+ * had to spell out. The generator already knows the answer, so it writes it.
+ *
+ * Deliberately surgical: it replaces only the `- configMap:` entries of the
+ * `tools` volume's `projected.sources`, leaving the long comment above them —
+ * which explains why the volume is projected at all — untouched. A structural
+ * YAML round-trip would reflow that comment away.
+ */
+export async function writeMountList(shards, file = FRONT_DOOR_DEPLOYMENT) {
+  const original = await fs.readFile(file, 'utf8');
+  // Anchored on `projected:`/`sources:` so this can only ever match the tools
+  // volume; the trailing group is the run of shard entries to replace.
+  const block = /( {10}projected:\n {12}sources:\n)((?: {14}- configMap:\n {18}name: [^\n]*\n)+)/;
+  const match = original.match(block);
+  if (!match) {
+    throw new Error(
+      `could not find the tools volume's projected sources in ${path.relative(REPO_ROOT, file)} — ` +
+        `if the volume was restructured, update writeMountList in front-door-tools.mjs to match`,
+    );
+  }
+  const updated = original.replace(block, `$1${renderMountSources(shards)}`);
+  if (updated === original) return { file, changed: false };
+  await fs.writeFile(file, updated);
+  return { file, changed: true };
+}
+
 export async function writeMirror(outputDir = OUTPUT_DIR) {
   const built = await buildMirror();
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
-  for (const file of built.files) {
+  // `built.stored`, not `built.files`: an aliased copy is deliberately never
+  // written, which is the whole saving. `renderMirrorAliases` below is what
+  // keeps its URL working.
+  for (const file of built.stored) {
     await fs.writeFile(path.join(outputDir, file.stored), file.bytes);
   }
+  // The alias map rides in the nginx ConfigMap beside `default.conf`, not in
+  // this directory: it is configuration for the server, not content for it to
+  // serve, and `gitops/prod/kustomization.yaml` generates the two together.
+  await fs.writeFile(
+    path.join(FRONT_DOOR_DIR, MIRROR_ALIAS_FILE),
+    renderMirrorAliases(built.aliases),
+  );
   await fs.writeFile(path.join(outputDir, 'kustomization.yaml'), renderKustomization(built.shards));
+  // Same call, same commit: the shards and the Deployment that mounts them are
+  // one artifact, and a tree where only half of it was regenerated is exactly
+  // the state the pinning test exists to reject.
+  built.mountList = await writeMountList(built.shards);
   return built;
 }
 
@@ -1455,19 +2810,86 @@ const shardSummary = (shards) =>
     )
     .join('\n');
 
+/**
+ * The headroom report `--headroom` prints and every other mode appends.
+ *
+ * Always printed, not only when tight: the number nobody was looking at is how
+ * the mirror reached three quarters of its ceiling unremarked, and a figure
+ * that appears only once it is already a problem trains no one to watch it.
+ */
+const headroomSummary = (headroom) => {
+  const { bytes, ceiling, ratio, remaining, perTool, toolsRemaining, tight, duplicates } = headroom;
+  const lines = [
+    `mirror headroom: ${bytes} of ${ceiling} stored bytes (${(100 * ratio).toFixed(1)}%), ` +
+      `${remaining} left — roughly ${toolsRemaining} more tools at ${perTool} bytes each`,
+  ];
+  if (headroom.recovered) {
+    lines.push(
+      `  ${headroom.recovered} bytes already recovered by aliasing ${headroom.aliases} duplicate ` +
+        `name(s) onto stored copies — see dedupeMirror and front-door/${MIRROR_ALIAS_FILE}`,
+    );
+  }
+  if (duplicates.groups) {
+    lines.push(
+      `  ${duplicates.redundant} of those bytes (${(100 * (duplicates.redundant / bytes)).toFixed(1)}%) ` +
+        `are byte-identical duplicates still stored in ${duplicates.groups} group(s):`,
+    );
+    for (const group of duplicates.largest.slice(0, 5)) {
+      lines.push(
+        `    ${String(group.copies).padStart(4)}x ${String(group.size).padStart(7)} bytes ` +
+          `→ ${String(group.redundant).padStart(8)} recoverable  ${group.file}`,
+      );
+    }
+  }
+  if (tight) {
+    lines.push(
+      '',
+      `  WARNING: at or above ${(100 * MIRROR_HEADROOM_WARN_RATIO).toFixed(0)}% of the ceiling.`,
+      '  Crossing the ceiling itself throws inside buildMirror, which portfolio-validate runs on',
+      '  every PR touching a venture page — so it stops the whole catalogue publishing, not just',
+      '  the tool that crossed it. Start the remedy now: read MIRROR_HEADROOM_WARN_RATIO in',
+      '  platform/marketing/front-door-tools.mjs for the two mechanisms that recover the',
+      '  duplicate bytes above, and why raising MIRROR_BYTE_CEILING is not the first answer.',
+    );
+  }
+  return lines.join('\n');
+};
+
 if (isMain) {
   const totals = ({ files, tools, bytes, sourceBytes, shards }) =>
     `${tools.length} tools, ${files.length} files, ${bytes} stored bytes ` +
     `(${Math.round((bytes / MIRROR_BYTE_CEILING) * 100)}% of the mirror ceiling; ` +
     `${sourceBytes} uncompressed, ${(sourceBytes / bytes).toFixed(2)}x) ` +
     `in ${shards.length} shards\n${shardSummary(shards)}`;
-  if (process.argv.includes('--write')) {
+  if (process.argv.includes('--headroom')) {
+    // The CI mode. Prints the same report the other modes append and exits
+    // non-zero once the mirror is tight, so `portfolio-validate` fails while
+    // there is still room to act rather than when the ceiling has already
+    // stopped every venture PR in the repository. Deliberately skips the
+    // per-tool listing and the ineligibility report: this answers one
+    // question, and a check whose output has to be scrolled past is a check
+    // people stop reading.
+    const headroom = mirrorHeadroom(await buildMirror());
+    console.log(headroomSummary(headroom));
+    if (headroom.tight) process.exitCode = 1;
+  } else if (process.argv.includes('--write')) {
     const built = await writeMirror();
     console.log(`wrote ${path.relative(REPO_ROOT, OUTPUT_DIR)}: ${totals(built)}`);
+    console.log(headroomSummary(mirrorHeadroom(built)));
+    // Say so out loud: a changed mount list means the shard count moved, which
+    // is the one outcome of a regeneration that alters a file outside the
+    // mirror directory and so is easy to leave out of a commit.
+    console.log(
+      built.mountList.changed
+        ? `updated ${path.relative(REPO_ROOT, built.mountList.file)}: the shard count moved, ` +
+            `so its projected volume now mounts ${built.shards.length} shard(s) — commit it with the mirror`
+        : `${path.relative(REPO_ROOT, built.mountList.file)} already mounts these ${built.shards.length} shard(s)`,
+    );
   } else {
     const built = await buildMirror();
     for (const tool of built.tools) console.log(`${tool.url.padEnd(46)} ${tool.title}`);
     console.log(`\n${totals(built)}`);
+    console.log(`\n${headroomSummary(mirrorHeadroom(built))}`);
     // The other half of the answer, and the half that used to need a
     // throwaway script: which ventures are *not* here, and why each one is
     // not. See `explainIneligible` for what the reasons mean and which of

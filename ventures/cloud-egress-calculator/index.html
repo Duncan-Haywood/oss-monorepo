@@ -20,7 +20,9 @@
     .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0;box-shadow:0 5px 20px #18315a0b}
     label{display:block;color:var(--muted);font-size:.88rem;margin:11px 0}
     input{display:block;width:100%;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:inherit;color:var(--ink);margin-top:4px}
-    input:focus,button:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    input:focus,button:focus,textarea:focus{outline:3px solid #9db6ff;outline-offset:2px}
+    textarea{display:block;width:100%;padding:10px;border:1px solid #b9c5d7;border-radius:7px;font:inherit;color:var(--ink);margin-top:4px;resize:vertical}
+    details.tiers{margin:11px 0}details.tiers summary{color:var(--muted);font-size:.88rem;cursor:pointer}
     button{border:0;border-radius:8px;background:var(--accent);color:white;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
     .results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .metric{border-top:4px solid var(--accent);padding:14px;background:#f4f7ff;border-radius:8px}
@@ -60,6 +62,14 @@
       <label>Storage $/GB-month<input id="aStorage" type="number" min="0" step="any" value="0.023"></label>
       <label>Requests $/million<input id="aRequests" type="number" min="0" step="any" value="0.40"></label>
       <label>Egress $/GB<input id="aEgress" type="number" min="0" step="any" value="0.09"></label>
+      <label>Free egress (GB/month)<input id="aFree" type="number" min="0" step="any" value="0"></label>
+      <details class="tiers">
+        <summary>Graduated rates (optional)</summary>
+        <label for="aTiers">One band per line: size in GB, then the rate that band bills at. A bare rate on the last line covers everything beyond. Bands count from the end of the free allowance, the way price sheets are published.
+          <textarea id="aTiers" rows="3" placeholder="10240 0.09&#10;40960 0.085&#10;0.05"></textarea>
+        </label>
+      </details>
+      <p id="aFreeNote" class="small"></p>
     </div>
     <div class="panel">
       <h2>Option B</h2>
@@ -67,6 +77,14 @@
       <label>Storage $/GB-month<input id="bStorage" type="number" min="0" step="any" value="0.006"></label>
       <label>Requests $/million<input id="bRequests" type="number" min="0" step="any" value="0.36"></label>
       <label>Egress $/GB<input id="bEgress" type="number" min="0" step="any" value="0"></label>
+      <label>Free egress (GB/month)<input id="bFree" type="number" min="0" step="any" value="0"></label>
+      <details class="tiers">
+        <summary>Graduated rates (optional)</summary>
+        <label for="bTiers">One band per line: size in GB, then the rate that band bills at. A bare rate on the last line covers everything beyond. Bands count from the end of the free allowance, the way price sheets are published.
+          <textarea id="bTiers" rows="3" placeholder="10240 0.09&#10;40960 0.085&#10;0.05"></textarea>
+        </label>
+      </details>
+      <p id="bFreeNote" class="small"></p>
     </div>
   </section>
 
@@ -106,12 +124,46 @@
   </footer>
 </main>
 <script type="module">
-  import { compareScenarios, decisionSummary, reviewRecord } from "./calc.mjs";
+  import { compareScenarios, decisionSummary, reviewRecord, parseEgressTiers } from "./calc.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
-  const ids = ["storage", "requests", "egress", "aStorage", "aRequests", "aEgress", "bStorage", "bRequests", "bEgress"];
+  const ids = ["storage", "requests", "egress", "aStorage", "aRequests", "aEgress", "aFree", "aTiers", "bStorage", "bRequests", "bEgress", "bFree", "bTiers"];
   let usageTimer;
+
+  // Reads each option's egress charge back to the user in the terms they
+  // entered it: what the allowance absorbed, and — when a graduated sheet is
+  // in play — how many gigabytes landed in each band. The band split is the
+  // whole reason to type a sheet rather than an average rate, so showing it is
+  // what makes the number checkable against an invoice.
+  function freeNote(option) {
+    const parts = [];
+    if (option.freeEgressGb > 0) {
+      if (option.billableEgressGb <= 0) {
+        return `Entire ${option.egressGb} GB outbound is inside the ${option.freeEgressGb} GB free allowance — $0.00 egress.`;
+      }
+      parts.push(`${option.freeEgressGb} GB free, ${option.billableEgressGb} GB billed`);
+    }
+    if (option.egressTiers.length > 1 && option.egressBreakdown.length > 0) {
+      const bands = option.egressBreakdown
+        .map((band) => `${band.gb} GB at ${money(band.rate)}/GB`)
+        .join(", ");
+      parts.push(`across ${option.egressBreakdown.length} band${option.egressBreakdown.length === 1 ? "" : "s"}: ${bands}`);
+    } else if (parts.length > 0) {
+      parts.push("at the entered rate");
+    }
+    return parts.length === 0 ? "" : `${parts.join(" ")}.`;
+  }
+
+  // A rate sheet is free text, so a typo is a user error rather than a bug.
+  // Naming the option keeps the message actionable when only one panel is bad.
+  function tiersFor(letter, label) {
+    try {
+      return parseEgressTiers($(`${letter}Tiers`).value);
+    } catch (error) {
+      throw new Error(`${label} graduated rates: ${error.message}`);
+    }
+  }
 
   function money(value) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
@@ -129,8 +181,8 @@
     try {
       const load = workload();
       const result = compareScenarios({
-        first: { ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
-        second: { ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+        first: { ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value, egressTiers: tiersFor("a", "Option A") },
+        second: { ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value, egressTiers: tiersFor("b", "Option B") },
       });
       const firstName = $("aName").value || "Option A";
       const secondName = $("bName").value || "Option B";
@@ -138,6 +190,8 @@
       $("bLabel").textContent = secondName;
       $("aTotal").textContent = money(result.first.total);
       $("bTotal").textContent = money(result.second.total);
+      $("aFreeNote").textContent = freeNote(result.first);
+      $("bFreeNote").textContent = freeNote(result.second);
       $("difference").textContent = money(result.savings);
       $("verdict").textContent = result.cheaper === "tie"
         ? "Same monthly total"
@@ -165,6 +219,8 @@
       $("verdict").className = "small";
       $("annualImpact").textContent = "";
       $("breakEven").textContent = "";
+      $("aFreeNote").textContent = "";
+      $("bFreeNote").textContent = "";
     }
   }
 
@@ -200,8 +256,8 @@
     try {
       const load = workload();
       const text = decisionSummary({
-        first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
-        second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+        first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value, egressTiers: tiersFor("a", "Option A") },
+        second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value, egressTiers: tiersFor("b", "Option B") },
       });
       await copyText(text);
       $("exportStatus").textContent = "Copied";
@@ -216,8 +272,8 @@
       const load = workload();
       const record = reviewRecord({
         ...load,
-        first: { name: $("aName").value, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
-        second: { name: $("bName").value, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+        first: { name: $("aName").value, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value, freeEgressGb: +$("aFree").value, egressTiers: tiersFor("a", "Option A") },
+        second: { name: $("bName").value, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value, freeEgressGb: +$("bFree").value, egressTiers: tiersFor("b", "Option B") },
       });
       const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
       const link = document.createElement("a");

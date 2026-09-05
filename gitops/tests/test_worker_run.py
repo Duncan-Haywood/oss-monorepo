@@ -85,10 +85,17 @@ def world(tmp_path: Path):
     )
     (bin_dir / "gh").chmod(0o755)
 
+    # A pristine copy, because several tests delete `bin/gh` to force the
+    # installer to run and then still need its source to build a release
+    # tarball out of.
+    gh_src = tmp_path / "gh.src"
+    gh_src.write_text((bin_dir / "gh").read_text())
+
     yield {
         "tmp": tmp_path,
         "origin": origin,
         "bin": bin_dir,
+        "gh_src": gh_src,
         "log": log,
         "pr": tmp_path / "pr.txt",
         "existing_pr": tmp_path / "existing-pr",
@@ -111,6 +118,11 @@ def _invoke(world, *, item: dict, env_extra: dict[str, str] | None = None):
     env["PATH"] = f"{world['bin']}:{env['PATH']}"
     env["HOME"] = str(world["tmp"] / "home")
     env["CODEX_STATE_DIR"] = str(world["tmp"] / "codexstate")
+    # Per-test, for the same reason CODEX_STATE_DIR is. The default is the
+    # cluster's PVC path, /var/lib/codex-tools, which these tests run as a user
+    # that may well be able to create -- and then every test in the suite would
+    # share one tool cache and leak installed binaries into each other.
+    env["CODEX_TOOLS_DIR"] = str(world["tmp"] / "codextools")
     env["QUEUE_ITEM_JSON"] = json.dumps(item)
     env["GH_TOKEN"] = "stub-token"
     env["OPENAI_API_KEY"] = "sk-stub"
@@ -785,11 +797,27 @@ def _release_tarball(world, *, arch: str, version: str) -> tuple[Path, str]:
 
     Returns the tarball and its real sha256, so the test drives the same
     download → verify → extract → install path the cluster does.
+
+    The packaged copy answers `--version`, which the bare fixture stub does not.
+    That is not decoration: since the tool cache landed, `install_tools` asks a
+    *cached* binary for its version and reinstalls on a mismatch, so a stub that
+    reported nothing could never be reused and no test could tell a working
+    cache apart from a broken one. The real `gh` prints this line; so does this.
+
+    Read from `gh_src` rather than `bin/gh` because the tests that exercise the
+    installer delete the latter first.
     """
     root = world["tmp"] / "ghsrc"
     stage = root / f"gh_{version}_linux_{arch}" / "bin"
     stage.mkdir(parents=True, exist_ok=True)
-    (stage / "gh").write_text((world["bin"] / "gh").read_text())
+    source = world["gh_src"].read_text()
+    source = source.replace(
+        "set -euo pipefail\n",
+        "set -euo pipefail\n"
+        f'if [[ "${{1:-}}" == "--version" ]]; then echo "gh version {version} (2026-01-01)"; exit 0; fi\n',
+        1,
+    )
+    (stage / "gh").write_text(source)
     (stage / "gh").chmod(0o755)
 
     tgz = world["tmp"] / "gh-release.tar.gz"
@@ -895,7 +923,9 @@ def test_install_tools_puts_a_working_gh_on_path_without_apt(world) -> None:
     # one sitting where install_gh puts it. Without these the test would go
     # quietly green again the day some other `gh` reappears on PATH.
     assert "curl" in calls, f"install_gh never downloaded anything:\n{calls}"
-    installed = world["tmp"] / "home" / ".local" / "bin" / "gh"
+    # Under the tool cache, not $HOME/.local/bin, since the cache landed: the
+    # point of the volume is that this file outlives the pod.
+    installed = world["tmp"] / "codextools" / "bin" / "gh"
     assert installed.is_file() and os.access(installed, os.X_OK), (
         f"no executable gh at {installed}"
     )
@@ -926,3 +956,238 @@ def test_a_tampered_gh_tarball_is_refused_rather_than_installed(world) -> None:
     assert proc.returncode != 0, proc.stdout + proc.stderr
     assert "checksum mismatch" in (proc.stdout + proc.stderr)
     assert not world["pr"].exists(), "a PR was opened with an unverified gh"
+
+
+# ---------------------------------------------------------------------------
+# install_codex()
+#
+# The same blind spot that hid the apt bug for `gh`, on the other half of
+# install_tools. Every test above puts a stub `codex` on PATH, so
+# `command -v codex` short-circuits and the install branch had never executed
+# under test — which is how it went on saying `@latest` while the comment
+# directly above it explained why pinning was mandatory. These remove `codex`
+# from PATH so the branch has to run.
+# ---------------------------------------------------------------------------
+
+CODEX_PIN = "0.153.1"
+
+
+def _path_without_codex(world) -> str:
+    """PATH carrying every tool the worker needs except `codex`.
+
+    Same construction as `_path_without_gh`, and for the same reason: a real
+    `codex` anywhere on PATH would satisfy `command -v` and hide the installer.
+    """
+    farm = world["tmp"] / "codexpathfarm"
+    farm.mkdir(exist_ok=True)
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        source = Path(directory)
+        if not source.is_dir():
+            continue
+        for entry in source.iterdir():
+            link = farm / entry.name
+            if entry.name == "codex" or link.exists() or link.is_symlink():
+                continue
+            try:
+                link.symlink_to(entry)
+            except OSError:
+                pass
+    assert not (farm / "codex").exists(), "the PATH farm still resolves codex"
+    return f"{world['bin']}{os.pathsep}{farm}"
+
+
+def _stub_npm(world, *, installs: str, version: str) -> Path:
+    """An `npm` that "installs" a codex reporting `version`.
+
+    `installs` is the version string npm is told to fetch; `version` is what
+    the resulting binary reports. Passing different values is how the
+    mismatch test simulates npm resolving a pin to something else.
+
+    Returned rather than found on PATH, and pointed at with `CODEX_NPM`,
+    because worker.sh forces /usr/local/bin to the front of PATH before
+    install_tools runs. A stub npm on PATH is shadowed by the real one there —
+    which is not a hypothetical: written that way, these tests went to the live
+    registry and installed Codex for real, then hung in `codex exec`.
+    """
+    farm = world["tmp"] / "codexpathfarm"
+    npm = world["bin"] / "npm-stub"
+    npm.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        f'echo "npm $*" >> "{world["log"]}"\n'
+        # Only a global codex install produces a binary; anything else is a
+        # no-op, so an unrelated npm call cannot accidentally satisfy the test.
+        f'if [[ "$*" == *"@openai/codex@{installs}"* ]]; then\n'
+        f'  printf \'#!/usr/bin/env bash\\necho "codex-cli {version}"\\n\' > "{farm}/codex"\n'
+        f'  chmod 755 "{farm}/codex"\n'
+        "fi\n"
+        "exit 0\n"
+    )
+    npm.chmod(0o755)
+    return npm
+
+
+def test_the_worker_pins_the_codex_version_rather_than_tracking_latest() -> None:
+    # The static half. `@latest` on the binary that holds both this Job's
+    # GH_TOKEN and the owner's ChatGPT auth.json is a supply-chain change
+    # arriving without review, and @openai/codex is pre-1.0 and ships often
+    # enough that "latest" moves inside a single quota window.
+    code = _worker_code()
+    assert "@openai/codex@${CODEX_VERSION}" in code, (
+        "install_codex no longer installs exactly the pinned version"
+    )
+    assert "codex@latest" not in code and ":-latest}" not in code, (
+        "worker.sh is back to tracking a floating codex release"
+    )
+    assert re.search(r'CODEX_VERSION="\$\{CODEX_VERSION:-\d+\.\d+\.\d+\}"', code), (
+        "CODEX_VERSION is not pinned to a concrete release"
+    )
+
+
+def test_install_codex_installs_the_pinned_version_and_runs_it(world) -> None:
+    # The end-to-end proof, mirroring the gh test above: `codex` is absent from
+    # PATH, so the run can only reach `codex exec` if install_codex genuinely
+    # installed one. A PR at the end means the installed binary did the work.
+    _path = _path_without_codex(world)
+    npm = _stub_npm(world, installs=CODEX_PIN, version=CODEX_PIN)
+    (world["bin"] / "codex").unlink(missing_ok=True)
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "codex-install-ok"},
+        env_extra={"PATH": _path, "CODEX_NPM": str(npm)},
+    )
+
+    calls = world["log"].read_text()
+    assert f"@openai/codex@{CODEX_PIN}" in calls, (
+        f"install_codex did not install the pinned version:\n{calls}"
+    )
+    assert "codex@latest" not in calls, f"a floating version was installed:\n{calls}"
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_a_codex_that_reports_the_wrong_version_stops_the_run(world) -> None:
+    # The pin is only worth having if a mismatch stops the run. npm can exit 0
+    # having left a different binary in front -- a cached platform-specific
+    # optional dependency, or an existing global whose bin symlink survives --
+    # and everything downstream only checks that `codex` is on PATH. A run that
+    # continued would spend the window on an unreviewed Codex, silently.
+    _path = _path_without_codex(world)
+    npm = _stub_npm(world, installs=CODEX_PIN, version="0.99.0")
+    (world["bin"] / "codex").unlink(missing_ok=True)
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "codex-install-mismatch"},
+        env_extra={"PATH": _path, "CODEX_NPM": str(npm)},
+    )
+
+    assert proc.returncode != 0, proc.stdout + proc.stderr
+    assert "version mismatch" in (proc.stdout + proc.stderr), proc.stdout + proc.stderr
+    assert not world["pr"].exists(), "a PR was opened by an unpinned codex"
+
+
+# ---------------------------------------------------------------------------
+# The tool cache (gitops/agents/codex-tools.yaml)
+#
+# `gh` and the Codex CLI used to land on the pod's ephemeral filesystem, so
+# every Job re-fetched 320 MB of npm and an 11 MB release tarball before it
+# could spend a token. They now land on a PVC. These tests pin the two
+# properties that makes safe: a second Job reuses what the first downloaded,
+# and a cached binary left behind by a pin bump is replaced rather than run.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.skipif(_ARCH is None, reason=f"no pinned gh build for {platform.machine()}")
+def test_a_second_run_reuses_the_cached_gh_instead_of_downloading_again(world) -> None:
+    # The bandwidth-and-reliability claim the volume exists for. Without the
+    # cache both runs download; with it, only the first does.
+    version = "9.9.9"
+    tarball, digest = _release_tarball(world, arch=_ARCH, version=version)
+    _stub_download(world, tarball)
+    (world["bin"] / "gh").unlink()
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+
+    env_extra = {
+        "GH_VERSION": version,
+        f"GH_SHA256_{_ARCH.upper()}": digest,
+        "PATH": _path_without_gh(world),
+    }
+
+    first = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "cache-warm"}, env_extra=env_extra)
+    assert first.returncode == 0, first.stdout + first.stderr
+    downloads_after_first = world["log"].read_text().count("curl ")
+    assert downloads_after_first >= 1, "the first run never downloaded gh"
+
+    second = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "cache-hit"}, env_extra=env_extra)
+    assert second.returncode == 0, second.stdout + second.stderr
+
+    assert world["log"].read_text().count("curl ") == downloads_after_first, (
+        "the second run downloaded gh again — the tool cache is not being reused:\n"
+        + second.stdout + second.stderr
+    )
+    assert "gh 9.9.9 already present" in second.stdout, second.stdout + second.stderr
+
+
+@pytest.mark.skipif(_ARCH is None, reason=f"no pinned gh build for {platform.machine()}")
+def test_a_cached_gh_left_behind_by_a_version_bump_is_replaced(world) -> None:
+    # The failure the cache would otherwise introduce, and the reason
+    # `install_tools` checks a version rather than mere presence. Bumping
+    # GH_VERSION in git has to reach the cluster; a cache that kept serving the
+    # superseded binary would make the pin decorative, and silently, because
+    # everything downstream only asks whether `gh` is on PATH.
+    old, new = "9.9.9", "9.9.10"
+    old_tarball, old_digest = _release_tarball(world, arch=_ARCH, version=old)
+    _stub_download(world, old_tarball)
+    (world["bin"] / "gh").unlink()
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+
+    warm = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "bump-warm"},
+        env_extra={
+            "GH_VERSION": old,
+            f"GH_SHA256_{_ARCH.upper()}": old_digest,
+            "PATH": _path_without_gh(world),
+        },
+    )
+    assert warm.returncode == 0, warm.stdout + warm.stderr
+
+    # The cache now holds a gh reporting 9.9.9 while the pin says 9.9.10 —
+    # exactly the state a reviewed version bump leaves behind on every node.
+    new_tarball, new_digest = _release_tarball(world, arch=_ARCH, version=new)
+    _stub_download(world, new_tarball)
+    before = world["log"].read_text().count("curl ")
+
+    bumped = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "bump-apply"},
+        env_extra={
+            "GH_VERSION": new,
+            f"GH_SHA256_{_ARCH.upper()}": new_digest,
+            "PATH": _path_without_gh(world),
+        },
+    )
+
+    assert bumped.returncode == 0, bumped.stdout + bumped.stderr
+    assert world["log"].read_text().count("curl ") > before, (
+        "the pin moved and the cached gh was used anyway:\n" + bumped.stdout + bumped.stderr
+    )
+    assert f"cached gh is not {new}" in bumped.stdout, bumped.stdout + bumped.stderr
+
+
+def test_a_binary_outside_the_cache_is_never_second_guessed(world) -> None:
+    # The other half of `cached`. The fixture's stub `gh` and `codex` sit on
+    # PATH outside the tool cache and report no version at all, so a check that
+    # version-gated everything would send every test in this file to the live
+    # npm registry. More to the point in the cluster: a binary the image or an
+    # operator put there is not this script's to replace, which is how
+    # install_tools behaved before the cache existed.
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+
+    proc = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "outside-cache"})
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    calls = world["log"].read_text()
+    assert "curl " not in calls, f"a PATH-provided gh was reinstalled anyway:\n{calls}"
+    assert "npm " not in calls, f"a PATH-provided codex was reinstalled anyway:\n{calls}"

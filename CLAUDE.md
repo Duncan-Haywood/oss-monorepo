@@ -12,6 +12,14 @@ Usage — the metric while everything is free — is specified in
 
 `README.md` covers repo layout.
 
+Four agent families (GitHub Actions, Kilo, Cursor, Claude) also run an
+automated cross-review layer — see `.github/prompts/review-open-prs-first.md`
+and `platform/ci/agent_review/README.md`. It posts APPROVE/REQUEST_CHANGES
+reviews via dedicated reviewer GitHub Apps and can auto-merge internal
+(non-`ventures/*`) PRs once two of them approve and CI is green. It assists
+the "Duplicate PRs" workflow below; it does not replace the judgment calls in
+"Ship without review ceremony".
+
 ## Product-first default
 
 Every session should move a venture closer to something strangers can use for
@@ -87,9 +95,80 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
-(1) comes first while `publish_surface.py` reports the tools host dark. As of
-2026-09-02 it reports two hostnames serving content and one still waiting on
-`portfolio-site-repo` — the front door is up, the catalogue behind it is not.
+> **MEASURED 2026-09-04: nothing is served. Read this before anything below.**
+>
+> Every claim in this section was derived from the manifests. On 2026-09-04 the
+> hostnames were asked directly, from a GitHub runner, over real DNS and real
+> TLS — the first time in this repository's life that anything did
+> ([`Public surface check`](.github/workflows/public-surface-check.yml), run
+> 33887885219):
+>
+> ```
+> https://marisstella.dev/         unreachable: [Errno 111] Connection refused
+> https://www.marisstella.dev/     unreachable: [Errno 111] Connection refused
+> https://tools.marisstella.dev/   unreachable: [Errno 111] Connection refused
+> Sitemap sample: 0/24 served
+> ```
+>
+> **Connection refused, not a timeout.** DNS resolves, the IP answers, and
+> nothing is listening on 443. That rules out the firewall (a drop times out),
+> the TLS certificate (no handshake was reached) and a routing mistake in the
+> Ingress (nginx would answer 404). Something upstream of all three is not
+> running: ingress-nginx, k3s, or the node.
+>
+> So **the catalogue is dark, and every sentence below saying otherwise is
+> wrong.** Not one of the ~184 finished products is reachable by anybody. The
+> error was structural rather than careless: `gitops/prod` deploys through Argo
+> CD, so a merge to `main` *is* the deploy, and the repo slid from "shipped" to
+> "served" with nothing able to contradict it —
+> `bootstrap/preflight.sh` needs `HETZNERSSHKEY`, and that secret holds a
+> public key (run 33884253173).
+>
+> **What this changes for you.** Deploy-first is not one priority among
+> several; it is the only one that matters until a hostname answers. Do not
+> ship a 185th tool into a catalogue nobody can open, and do not rank the
+> `portfolio-site-repo` seal first — sealing a clone token for a cluster that
+> is not serving changes nothing. The blocking ask is now
+> `hetzner-ssh-key-is-a-public-key`. Re-run `Public surface check` (it needs
+> no secret) before trusting any statement here; it is cheap and it is the
+> only ground truth about whether a hostname answers.
+>
+> **Corrected the same day (#3188): "no credential-free check can tell you
+> why" was too strong, and believing it would have cost the next session the
+> whole diagnosis.** That is what this paragraph said, and `Outage triage`
+> (`.github/workflows/outage-triage.yml`, run 33889983086) then answered most
+> of "why" without shell on anything. Dispatch it before escalating:
+>
+> ```
+>   both servers                       running   (Hetzner read-only API)
+>   marisstella.dev / www / tools  →  89.167.29.39   (ours)
+>   :22    open      on both boxes
+>   :80    refused   on both boxes
+>   :443   refused   on both boxes
+>   :6443  refused   on both boxes
+> ```
+>
+> So it is **not** power, **not** DNS, **not** the firewall (a drop times out;
+> an RST means the host is up and nothing is bound), and **not** TLS. `:6443`
+> refused is the sharp end: the k3s API server itself is not listening, so
+> this is a dead or absent cluster rather than a crashed ingress, and no pods
+> exist to serve 80 or 443.
+>
+> Two lessons, and the second is the reusable one. First, the SSH ask is
+> **confirmed rather than assumed**: sshd is up, so a rotated key will get in.
+> Second, nobody had checked whether it was — and had port 22 been refused
+> alongside 443, the top-ranked ask would have been the *wrong credential*,
+> costing the owner a day while the surface stayed down. An outage row should
+> say which action ends it, and that is a claim to measure, not to reason to.
+
+(1) comes first while a product on `main` still has no public route at all. As
+of 2026-09-02 `publish_surface.py` reports two hostnames serving content and
+one still waiting on `portfolio-site-repo` — but the apex serves all 169
+tools itself, so "the catalogue is dark" is not the right reading. See the
+correction below before ranking the seal against shipping.
+**(Superseded by the measurement above: `publish_surface.py` reports what the
+manifests would publish, never what a host returns. Both halves of that
+sentence are manifest-derived and the second is now known false.)**
 
 **That tool now reads `gitops/` as well as `.github/workflows/`** (changed
 2026-08-31). It used to answer "what does a merge to `main` publish?" from the
@@ -102,10 +181,11 @@ that reads:
 
 ```
     prod  (gitops/prod)
-      + https://marisstella.dev/            (serves content)
-      - https://tools.marisstella.dev/      (serves content, waiting on Secret
+      + https://marisstella.dev/            (would serve content once synced)
+      - https://tools.marisstella.dev/      (would serve content once synced,
+                                             waiting on Secret
                                              portfolio-site-repo)
-      + https://www.marisstella.dev/        (serves content)
+      + https://www.marisstella.dev/        (would serve content once synced)
 ```
 
 **Changed 2026-09-02 (#2723): "nothing live" is no longer true.** The apex and
@@ -120,11 +200,94 @@ So the standing reading has two halves now, and they differ:
 
 - **The portfolio has a public surface.** A stranger typing the domain gets
   positioning, one card per category, and the §5b clauses.
-- **The 169 tools are still one seal away**: `portfolio-site-repo`, via
-  `./bootstrap/scripts/seal-owner-secrets.sh site`. Every category card on
-  the front door links into that host, so the seal is what turns the front
-  door into a working funnel. It remains the single highest-value owner
-  action, and it is queued.
+- **1 of the 169 tools, and the canonical host, are one seal away**:
+  `portfolio-site-repo`, via `./bootstrap/scripts/seal-owner-secrets.sh site`.
+  It is queued.
+
+**Both bullets are false as of the 2026-09-04 measurement at the top of this
+section.** A stranger typing the domain gets a refused connection, not
+positioning; and the distance to a working catalogue is not one seal but
+whatever is stopping :443 from being served at all. They are kept rather than
+deleted because the reasoning that produced them is the thing to avoid
+repeating: each is a correct statement about `gitops/prod/portfolio-front.yaml`
+— the manifest really does mount a front-door page needing no clone token —
+restated as a statement about what a visitor receives. Argo CD makes those two
+look identical right up until the cluster is not running, at which point every
+manifest-derived claim in this file goes quietly wrong at once and no amount of
+re-reading the manifests can notice.
+
+**Corrected 2026-09-02.** This section used to say the tools were *all* one
+seal away and that "every category card on the front door links into that
+host, so the seal is what turns the front door into a working funnel." That
+is not what the manifests do, and a session reading it mis-ranks its whole
+run. What is actually served today:
+
+- `portfolio-front.yaml` mounts the tool mirror into the apex pods as a
+  projected volume of eleven ConfigMap shards, and
+  `gitops/prod/front-door/default.conf` routes `^/tools/<slug>/` at it. So
+  `https://marisstella.dev/tools/<slug>/` serves the tool itself.
+- `front-door/index.html` carries **169 user-facing `/tools/…` links** and
+  exactly **one** href to `tools.marisstella.dev` — in fine print, honestly
+  labelled "goes live when its access token is sealed". Its primary CTA is
+  "Open one of the 169 tools running here now". The category cards link to
+  same-page anchors, not to the dark host.
+
+So the front door is already a working funnel, and the seal now buys **no
+tool a stranger cannot already reach** — only the canonical hostname and
+indexability. Worth doing, and further than ever from being the difference
+between a dead end and a product. Do not describe the catalogue as dark, and
+do not rank the seal above shipping.
+
+**Changed 2026-09-03, twice: 162 became 168, then 169.** The mirror generator resolved a
+venture's entry point as a root `index.html` only, while
+`platform/pages/build.mjs` — the canonical build — had always tried
+`site/index.html` too. Five ventures keeping a flat static site in `site/`
+(`quote-margin-check`, `tender-radar`, `equipment-rental-break-even`,
+`mcp-supply-chain-watch`, `shopify-permission-drift`) were therefore filed as
+"apps with a build step, not a gap the mirror can close", and
+`delivery-app-margin-calculator` dropped as collateral for linking to one of
+them. `venturePageRoot` now applies the same two candidates in the same
+order.
+
+**168 became 169 the same day, and the second half is the lesson.** Fixing
+the first half by *copying* `build.mjs`'s candidate list into the mirror
+froze the other half of the rule in place: `build.mjs` also carries
+`ENTRY_OVERRIDES`, for ventures whose surface is at neither standard path,
+and a copied constant cannot know that. `ai-engineering-academy` declares
+`tools`, so the canonical build published its hub page and six complete,
+tested electronics calculators while the mirror filed the venture as "not a
+static page". Since the canonical host serves nothing, those seven pages
+were public nowhere — and this file recorded that as the one tool the seal
+would deliver. `venturePageRoot` now **imports** both lists from `build.mjs`
+rather than restating either, and a test walks the venture tree asserting
+the two agree. If you are ever tempted to restate a rule that lives in
+`build.mjs`, this is the second time that cost live product.
+
+The remaining 15 exclusions really are CLIs, servers and apps.
+
+(Read from the manifests and the generated page, not from a live fetch:
+outbound HTTPS to arbitrary hosts is refused by the agent egress proxy
+with `CONNECT tunnel failed, response 403`, so no session running under it
+can verify the public surface directly. That limit is why this line went
+stale unchallenged for as long as it did.)
+
+**Corrected 2026-09-04: you cannot fetch it, but you can have it fetched.**
+The sentence above is true of a *session sandbox* and the repo had been
+reading it as true of the *portfolio* — which is how "nothing is live" stood
+for five days with nothing able to contradict it. A GitHub Actions runner is
+not behind that proxy. Dispatch `Public surface check`
+(`.github/workflows/public-surface-check.yml`) and read its step summary:
+`platform/ci/public_surface.py` asks every hostname in the manifests what it
+serves, over real DNS and real TLS, and compares the answer to what
+`publish_surface.py` says we shipped. It uses **no secret** — every request is
+one a stranger could make — and it samples the published sitemap too, so a
+`<loc>` that 404s shows up as the SEO defect it is.
+
+Prefer that reading to anything this file asserts. And do not reach for
+`bootstrap/preflight.sh` instead: it needs `HETZNERSSHKEY`, which holds a
+public key and so has never once opened a session (measured 2026-09-04, run
+33884253173). Rotating it is queued as an owner ask; it gates cluster-level
+diagnosis, not the public surface.
 
 Neither half is a reason to build a twelfth calculator.
 
@@ -195,6 +358,40 @@ evidence to read, not a verdict: the one word that differs between two
 If they are the same feature, close naming the *twin's file* — the rename
 report is what you looked at, not what decided it. If the branch changes
 what the twin does, that difference is the work and it still has to merge.
+
+A verdict may also carry a **STALE DRAFT SUSPECTED** section (added
+2026-09-04). It fires when `main` has committed to effectively every file the
+branch carries *more recently than the branch did*, and the unmatched lines
+have close twins **in those same files** on `main`. It prints each pair:
+
+```
+  ventures/moving-bid-calculator/vs-smartmoving.html — 38 unmatched, 10 with a later twin
+  branch  <tr><td>How does the math behind a per-job moving price actually work?
+  base    <tr><td>How does the math behind a local moving bid actually work?
+          ↳ 95% alike
+```
+
+This is the third shape, and it is the opposite of the rename above: there
+the work shipped *elsewhere* under another name; here `main` has a **later
+draft of these very lines, in these very files**. The branch is not ahead of
+`main`, it is behind it. Both existing proofs read it as unshipped work — an
+earlier draft's wording is genuinely absent from `main`, and a branch
+carrying one file `main` has since renamed does not replay into `main`'s
+tree — so it lands as a clean NOT SUPERSEDED and invites a merge that
+*reverts* the better copy. The revert then looks like a feature in the diff.
+
+Measured on `marketing/vs-smartmoving-moving-bid-calculator`: 67 lines
+"nowhere in `main`", every one an older wording `main` has replaced,
+including a mirror comment that would have put all 169 mirrored tools back
+to `noindex` and a shard filename from before the mirror was gzipped.
+
+**It does not license a close either, and the exit code stays 1.** Read the
+pairs and decide which wording is better. If `main`'s is later and fuller
+throughout, the branch is spent — close it naming the file. If any branch
+line says something `main`'s does not, that difference is the work. And note
+the direction it protects: a branch whose files `main` has *not* moved past,
+or whose lines have no twin, is not flagged — genuinely new work still reads
+as work.
 
 **Your clone is shallow.** `git fetch --unshallow` before any of this.
 Without it there is no merge base with `main`, so `git merge` refuses with
@@ -295,13 +492,33 @@ waiting in [`gitops/ci/`](gitops/ci/README.md) — all 218 workflows already rea
 still moves every one of them at once, and self-hosted runners are not metered,
 so they are what makes the next cycle a non-event.
 
-But **GitHub-hosted runners work again today**, so this is no longer the thing
-standing between the portfolio and a working pipeline. Do not write it up as
-though CI were down, and do not present it to the owner as urgent — it competes
-for attention with the seal that actually is blocking, which is
-`portfolio-site-repo` (the site itself; see the Argo surface above). If you
-are writing any of this up, the useful sentence is which seals remain, not a
-re-derivation of a signature that no longer fires.
+**Starvation recurred on 2026-09-04 and this paragraph used to say runners
+worked.** Measured, not inferred: run 33925827289 (`Portfolio validate`,
+22:30:52Z) took real runner 1000054728 and passed in 196s; by 22:39:33Z runs
+33926434774 and 33926436491 both came back `runner_id: 0` with no steps, and a
+third dispatch starved too. So the signature does fire again, and the advice
+to "read a red check as a real failure" now needs `ci_starvation.py` run
+first rather than assumed — which is what that tool is for.
+
+**The sharp part is what this does to the self-hosted fallback.** That stack
+runs as pods *in the k3s cluster*, and the cluster is dead (`:6443` refused,
+`Outage triage` run 33889983086). So flipping `CI_RUNNER` today schedules
+pods onto an API server that is not listening: the insurance against metered
+CI is downstream of the cluster whose repair needs CI. All three routes to a
+public surface now converge on infrastructure that is down —
+
+- GitHub Pages (`deploy-settings`) needs a runner to build and deploy it;
+- self-hosted runners need the cluster;
+- the cluster needs SSH, and `HETZNERSSHKEY` holds a public key.
+
+— which makes `hetzner-ssh-key-is-a-public-key` the only one of them that
+depends on neither a runner nor the cluster (port 22 answers on both boxes).
+The decision queue used to rank `deploy-settings` first as the cheapest; it
+now measures viability and sinks a route whose prerequisite is down. See
+`portfolio/ledger/infra_state.yaml` for the dated readings and how to
+re-measure each; prefer re-running them to trusting these sentences, and
+expect the Actions ceiling to lift on 2026-10-01 if it behaves as it did in
+August.
 
 **This tool matters more now, not less.** While every check was red it was a
 formality — the answer was always starvation. Now that runners are back, it is
@@ -354,12 +571,29 @@ checks tab — never the bare status call.
 
 ## Ledger (minimal)
 
-Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
-something new** — not when you looked and confirmed the same blockers. Never
-bundle a ledger entry into a PR waiting on the owner.
+**A ledger entry is never a deliverable on its own.** Run this before pushing:
+
+```
+python3 portfolio/ledger/check_ledger_only.py
+```
+
+Exit 1 means your branch is ledger prose and nothing else. That is not a
+session's output — it is a footnote to output that does not exist. In the
+seven days to 2026-09-02 the fleet landed **381 such commits, 34.6% of the
+1,102 that reached `main`**, while `portfolio/usage/usage.yaml` still recorded
+zero observed users across all 184 products. The rule that was supposed to
+prevent that ("do not open ledger-only PRs that re-state known blockers") had
+an escape hatch, and every session used it.
+
+So: record outcomes per `portfolio/ledger/README.md` when you **shipped
+something**, in the same commit or PR as the thing you shipped. If you found a
+blocker instead, say so in your reply and leave `main` alone — an unshipped
+session is a real outcome and does not need a commit to be true. Never bundle
+a ledger entry into a PR waiting on the owner.
 
 `git fetch origin main` before appending; skip if the latest entry already
-covers your finding.
+covers your finding. The ledger *tooling* (`.py` under `portfolio/ledger/`) is
+ordinary platform code, exempt from the check and mergeable on its own.
 
 ## Automation
 

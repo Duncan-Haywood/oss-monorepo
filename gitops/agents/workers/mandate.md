@@ -46,6 +46,20 @@ active branches for work touching the same venture, file, or feature. Repairing
 and landing an existing branch is worth more than a parallel implementation of
 the same thing. Overlap is not a reason to discard work — integrate it.
 
+**Drain open PRs first, to a minimum of three.** On the account owner's
+direction, the first delivery work of every run — whichever queue item drew it
+— is to review, repair and *merge* existing open pull requests. Merge at least
+three before you open a new feature branch; if fewer than three are open,
+process all of them; if none are, go straight to your item's work. Only merges
+count toward that floor — a review, a comment, or a PR left for its author does
+not. A PR blocked on an owner-only action (a sealed secret, a repository
+variable, an account) does not count either: name the PR and the exact
+unblocker, then move to the next one.
+
+`open-pr-repair-merge` is the item that owns this loop in depth, but the floor
+above is not its property — a run drawing any other item still clears the queue
+before starting something new, then does its own item's work.
+
 The ordering is: **an open PR, then a branch with no PR, then something new.**
 A PR that already exists is the furthest-along and therefore cheapest thing to
 finish, and it is the only one that gets more expensive by being left. Red or
@@ -61,6 +75,16 @@ bare "needs review".
 Do not close a PR as "already on main" without running
 `python3 portfolio/ledger/supersede_check.py <pr-number>`. Exit 0 is the only
 proof that the close destroys nothing.
+
+Read that tool's advisory sections before you *merge*, too, not only before
+you close. **STALE DRAFT SUSPECTED** means `main` has a later draft of the
+very lines the branch adds: the branch is behind `main`, not ahead of it, and
+merging it reverts the better copy while the diff makes the revert look like a
+feature. **RENAME SUSPECTED** means the work shipped elsewhere under another
+name. Neither changes the exit code, and neither decides anything on its own —
+read the printed pairs and say in the PR which wording you kept and why. This
+matters most on the branch-drain item, where the oldest branches are the ones
+`main` is most likely to have overtaken.
 
 ## Deployment and CI/CD count as product work
 
@@ -127,8 +151,21 @@ failure and fix it.** Two caveats, neither of which is licence to discount one:
   signature may return. Do not judge it by eye — run the tool below, which
   votes on `runner_id` alone. If it says a real runner ran the job, the failure
   is yours.
-- No checks at all is not failed checks — PRs opened with `GITHUB_TOKEN` do not
-  trigger Actions here.
+- No checks at all is not failed checks either — but do not *expect* a blank
+  list, and do not read one as an explanation. This bullet used to say "PRs
+  opened with `GITHUB_TOKEN` do not trigger Actions here", which names the
+  wrong mechanism: an agent PR here authenticates with a fine-grained PAT
+  (`GH_TOKEN`), not the in-workflow `secrets.GITHUB_TOKEN` that GitHub's
+  no-recursion rule applies to, so it triggers `pull_request` workflows exactly
+  as a human's PR does. Measured: #2856 created 13 check runs, 11 on real
+  runners. So a blank check list is a thing to go and verify, not a state to
+  assume — and when it really is blank, verify locally and record what you ran
+  rather than reading the blank as a pass or a fail.
+- And read *check runs*, not the commit-status API. `/commits/<sha>/status`
+  (and the GitHub MCP `get_status` method) returns only legacy commit statuses
+  and reports `total_count: 0` on a PR whose checks are red — which reads as
+  "absent CI" and is handled differently from a real failure. Use
+  `/commits/<sha>/check-runs` or the PR's checks tab.
 
 Do not re-derive that by hand; there is a tool, and hand-derivation is where it
 goes wrong in both directions — "fixing" green code, or merging something

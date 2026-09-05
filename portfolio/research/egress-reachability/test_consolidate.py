@@ -246,13 +246,27 @@ class PublicationHostsAreNotEgress(unittest.TestCase):
     def test_every_exempt_host_is_one_this_repository_publishes_on(self):
         """Guards against the list growing into an escape hatch: each entry
         must be justified by something committed, not by prose in an ask."""
-        ingress = open(os.path.join(
-            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
-        build = open(os.path.join(
-            check_ask_hosts.REPO, "platform", "pages", "build.mjs")).read()
-        infra = open(os.path.join(
-            check_ask_hosts.REPO, "infra", "README.md")).read()
-        haystack = ingress + build + infra
+        # The haystack is every committed place a publication host can be
+        # declared. `portfolio-apex.yaml` and `portfolio-front.yaml` joined it
+        # on 2026-09-04: the apex and `www` moved off annotation-only 301s and
+        # onto a served front door in #2723, so those two manifests -- not
+        # `portfolio-site.yaml`, which only ever named the tools host -- are
+        # where `www.marisstella.dev` is declared. Exempting it while the guard
+        # could not see its manifest is what failed this test, and widening the
+        # haystack keeps the guard's actual rule ("justified by something
+        # committed") rather than weakening it: a host still has to appear in a
+        # manifest this repository deploys.
+        names = [
+            ("gitops", "prod", "portfolio-site.yaml"),
+            ("gitops", "prod", "portfolio-apex.yaml"),
+            ("gitops", "prod", "portfolio-front.yaml"),
+            ("platform", "pages", "build.mjs"),
+            ("infra", "README.md"),
+        ]
+        haystack = ""
+        for parts in names:
+            with open(os.path.join(check_ask_hosts.REPO, *parts)) as fh:
+                haystack += fh.read()
         for host in check_ask_hosts.PUBLICATION_HOSTS:
             self.assertIn(host, haystack, f"{host} is exempt but unpublished")
 

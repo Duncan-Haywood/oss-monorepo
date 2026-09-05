@@ -99,6 +99,8 @@ if (!chromium) {
   process.exit(2);
 }
 
+import { onlySlugs, keepSlug, describeFilter, requireNonEmpty } from './only-slugs.mjs';
+
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');
 // `CHROME_PATH` is the spelling `journey.mjs` and the README use; `CHROMIUM_PATH`
 // was this file's own and is still honoured so an existing invocation keeps
@@ -106,6 +108,12 @@ const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, ''
 // it needed and dies on a browser download it cannot do.
 const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
 const LAUNCH = chromePath ? { executablePath: chromePath } : {};
+
+// Read once at module scope. `sweep` is the one check that discovers its slugs
+// from the *rendered* hub rather than the built tree, so the filter is applied
+// to what the catalogue reported rather than to a directory listing -- see
+// only-slugs.mjs.
+const only = onlySlugs();
 
 // Buttons that produce a file, the clipboard, or an empty form rather than a
 // result. Clicking one proves nothing about whether the tool computes, and
@@ -133,14 +141,17 @@ const browser = await chromium.launch(LAUNCH);
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 
 await page.goto(`${BASE}/`, { waitUntil: 'load' });
-const slugs = await page.$$eval('[data-tool]', (links) => [
+const advertised = await page.$$eval('[data-tool]', (links) => [
   ...new Set(links.map((link) => link.dataset.tool)),
 ]);
 
-if (slugs.length === 0) {
+if (advertised.length === 0) {
   console.error('No tools found on the hub — is the site built and served at BASE_URL?');
-  process.exit(1);
+  process.exit(2);
 }
+const slugs = advertised.filter((slug) => keepSlug(slug, only));
+if (only) console.log(describeFilter(only));
+requireNonEmpty(slugs, only, 'tools on the hub');
 console.log(`Sweeping ${slugs.length} tools at ${BASE}\n`);
 
 // Plausible text for a field the visitor would have to fill before the tool

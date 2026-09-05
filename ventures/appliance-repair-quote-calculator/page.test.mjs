@@ -69,3 +69,17 @@ test("an invalid input clears every stale field in both result panels, not just 
   assert.match(body, /\$\('scenarios'\)\.replaceChildren\(\)/, "the stale price-sensitivity rows are not cleared");
   assert.match(body, /\$\('replaceRows'\)\.replaceChildren\(\)/, "the stale repair-vs-replace rows are not cleared");
 });
+
+test("the result panel is announced to screen readers when it updates", () => {
+  // The result section re-renders the target price, the dl breakdown, and
+  // the price-sensitivity table in place on every keystroke, with no page
+  // reload. Before this fix the only aria-live element on the page was
+  // #status (a copy-quote message the render code never writes the result
+  // figures into), so a screen-reader user changing an input got no
+  // announcement that the readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    "the result section is not a live region, so updates are never announced",
+  );
+});

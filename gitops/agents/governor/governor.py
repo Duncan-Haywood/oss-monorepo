@@ -525,6 +525,62 @@ def parse_rfc3339(value: str | None) -> float | None:
         return None
 
 
+@dataclass(frozen=True)
+class Outcome:
+    """What a finished worker run means for the budget and for its queue item.
+
+    Derived from the exit code and the termination message, which are the only
+    two channels `worker.sh` has. Kept as its own type because there are now
+    two callers that need the same verdict from the same two signals — the
+    in-cluster path reads them off a terminated container, and the host path
+    (`agents/host/host_governor.py`) reads them off a subprocess — and the
+    precedence between the three flags is subtle enough that a second
+    implementation of it would drift. See `classify_outcome`.
+    """
+
+    limit_hit: bool = False
+    noop: bool = False
+    auth_failed: bool = False
+
+
+def classify_outcome(terminations: Iterable[tuple[int, str]]) -> Outcome:
+    """Settle one run's flags from its `(exit_code, message)` terminations.
+
+    Takes an iterable because a Job's pod can carry more than one terminated
+    container; the flags are OR-ed across all of them and the precedence below
+    is applied once, at the end. A host run passes a single pair.
+    """
+    limit_hit = False
+    noop = False
+    auth_failed = False
+    for exit_code, message in terminations:
+        message = message or ""
+        if exit_code == EXIT_LIMIT:
+            limit_hit = True
+        if parse_limit_error(message):
+            limit_hit = True
+        if exit_code == EXIT_NOOP or NOOP_MARKER in message:
+            noop = True
+        if exit_code == EXIT_AUTH or AUTH_MARKER in message:
+            auth_failed = True
+    # A run that hit a quota limit did not "produce nothing" for any reason the
+    # queue can act on — it was cut off. Damping the item for that would punish
+    # it for the fleet's budget, and the limit cooldown already handles it.
+    #
+    # A rejected credential is the same shape of non-answer, and additionally
+    # must not be mistaken for a limit: `parse_limit_error` scans the
+    # termination message, and "401 unauthorized" is a substring away from
+    # phrases it matches. Whichever signal the run carried, the credential
+    # verdict wins — an hour's limit cooldown is the wrong remedy for a login
+    # that expired, which is the whole reason worker.sh spends a separate exit
+    # code on it.
+    if limit_hit or auth_failed:
+        noop = False
+    if auth_failed:
+        limit_hit = False
+    return Outcome(limit_hit=limit_hit, noop=noop, auth_failed=auth_failed)
+
+
 def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) -> JobView:
     meta = job.get("metadata") or {}
     status = job.get("status") or {}
@@ -539,50 +595,30 @@ def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) 
         duration = end - start
     job_name = str(meta.get("name") or "")
     item = str((meta.get("labels") or {}).get("governor.item") or "")
-    limit_hit = False
-    noop = False
-    auth_failed = False
+    terminations: list[tuple[int, str]] = []
     for pod in pods:
         labels = (pod.get("metadata") or {}).get("labels") or {}
         if labels.get("job-name") != job_name:
             continue
         for container in (pod.get("status") or {}).get("containerStatuses") or []:
             terminated = ((container.get("state") or {}).get("terminated")) or {}
-            exit_code = int(terminated.get("exitCode") or 0)
-            message = str(terminated.get("message") or "")
-            if exit_code == EXIT_LIMIT:
-                limit_hit = True
-            if parse_limit_error(message):
-                limit_hit = True
-            if exit_code == EXIT_NOOP or NOOP_MARKER in message:
-                noop = True
-            if exit_code == EXIT_AUTH or AUTH_MARKER in message:
-                auth_failed = True
-    # A run that hit a quota limit did not "produce nothing" for any reason the
-    # queue can act on — it was cut off. Damping the item for that would punish
-    # it for the fleet's budget, and the limit cooldown already handles it.
-    #
-    # A rejected credential is the same shape of non-answer, and additionally
-    # must not be mistaken for a limit: `parse_limit_error` scans the
-    # termination message, and "401 unauthorized" is a substring away from
-    # phrases it matches. Whichever signal the pod carried, the credential
-    # verdict wins — an hour's limit cooldown is the wrong remedy for a login
-    # that expired, which is the whole reason worker.sh spends a separate exit
-    # code on it.
-    if limit_hit or auth_failed:
-        noop = False
-    if auth_failed:
-        limit_hit = False
+            terminations.append(
+                (
+                    int(terminated.get("exitCode") or 0),
+                    str(terminated.get("message") or ""),
+                )
+            )
+    outcome = classify_outcome(terminations)
     return JobView(
         uid=uid,
         active=active,
         succeeded=succeeded,
         failed=failed,
         duration_seconds=duration,
-        limit_hit=limit_hit,
+        limit_hit=outcome.limit_hit,
         item=item,
-        noop=noop,
-        auth_failed=auth_failed,
+        noop=outcome.noop,
+        auth_failed=outcome.auth_failed,
     )
 
 
@@ -751,6 +787,15 @@ def build_job_manifest(
                                 # the sealed Secret goes stale after the first
                                 # Job and every later run fails to authenticate.
                                 {"name": "codex-home", "mountPath": "/var/lib/codex"},
+                                # gh and the Codex CLI, kept between Jobs. Both
+                                # are pinned and re-fetched from the network
+                                # otherwise -- 320 MB of npm plus an 11 MB
+                                # tarball, on a CronJob that ticks every five
+                                # minutes. With maxConcurrent 1 a registry blip
+                                # during the download costs the whole tick, so
+                                # this is a reliability mount at least as much
+                                # as a bandwidth one. See codex-tools.yaml.
+                                {"name": "codex-tools", "mountPath": "/var/lib/codex-tools"},
                             ],
                             "securityContext": {
                                 "allowPrivilegeEscalation": False,
@@ -765,6 +810,7 @@ def build_job_manifest(
                     "volumes": [
                         {"name": "worker", "configMap": {"name": "codex-worker-script", "defaultMode": 0o555}},
                         {"name": "codex-home", "persistentVolumeClaim": {"claimName": "codex-home"}},
+                        {"name": "codex-tools", "persistentVolumeClaim": {"claimName": "codex-tools"}},
                     ],
                 },
             },

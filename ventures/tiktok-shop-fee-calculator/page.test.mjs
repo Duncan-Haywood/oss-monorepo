@@ -110,6 +110,32 @@ test("null figures are rendered defensively", () => {
   );
 });
 
+test("the verdict banner never calls .toFixed on expectedMargin directly", () => {
+  // expectedMargin is null on a 100% return rate, which does not imply
+  // belowBreakEven (a SKU with no per-order costs to lose breaks exactly
+  // even). The verdict banner used to interpolate
+  // result.expectedMargin.toFixed(1) straight into that branch and threw
+  // an uncaught TypeError -- every occurrence must instead route through a
+  // null-checked local.
+  const verdictBlock = scriptSource.match(/const verdict = el\("verdict"\);[\s\S]*?\n      \}\n/);
+  assert.ok(verdictBlock, "verdict banner block not found");
+  // The one legitimate use is the null-checked local itself
+  // (`expectedMargin === null ? "n/a" : ...expectedMargin.toFixed...`);
+  // strip that assignment before checking the three innerHTML branches below
+  // it never call .toFixed on the raw field.
+  const afterGuard = verdictBlock[0].replace(/const marginText = result\.expectedMargin === null[^\n]*\n/, "");
+  assert.doesNotMatch(
+    afterGuard,
+    /result\.expectedMargin\.toFixed/,
+    "expectedMargin.toFixed is called without a null check in the verdict banner",
+  );
+  assert.match(
+    verdictBlock[0],
+    /marginText = result\.expectedMargin === null/,
+    "expected the verdict banner to render expectedMargin through a null-checked marginText local",
+  );
+});
+
 test("the landing copy names the affiliate-return problem in the first screen", () => {
   assert.match(markup, /The 6% is not what you keep/);
   assert.match(markup, /affiliate-commission-on-returns\.html/);
@@ -168,6 +194,20 @@ test("an invalid input clears the stale order economics, comparison tables, and 
 // PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
 // affiliate-commission-on-returns.html was linked from index.html and in the
 // sitemap, but shipped with no og:* tags at all.
+test('the result panel is announced to screen readers when it updates', () => {
+  // paint() rewrites the hero number, the <dl> breakdown, and the
+  // affiliate/fee-schedule tables in place on every keystroke, with no page
+  // reload. Before this fix the only aria-live element on the page was
+  // #copyStatus (a share-link message render() never touches), so a
+  // screen-reader user changing an input got no announcement that the
+  // readout had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
 test("every published page carries Open Graph tags", () => {
   const dir = new URL("./", import.meta.url);
   const pages = readdirSync(dir).filter((name) => name.endsWith(".html"));

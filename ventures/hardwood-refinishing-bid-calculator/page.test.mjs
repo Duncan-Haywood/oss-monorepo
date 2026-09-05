@@ -65,10 +65,45 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'floorSqFt', 'treads', 'closets', 'methodId', 'stainId',
     'hoursPer100', 'staining', 'hourlyWage', 'targetMargin',
-    'proposedPrice', 'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'proposedPrice', 'price', 'breakEven', 'copySummary', 'copyShare', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
+});
+
+test('the module script wires up the shareable-link encoder and decoder', () => {
+  assert.match(scriptSource, /encodeInputs/, 'share-link encoder is missing from the executable script');
+  assert.match(scriptSource, /decodeInputs/, 'share-link decoder is missing from the executable script');
+});
+
+// The proposal feature (customer name, address, business details) and the
+// share-link feature touch the same page from opposite directions: the
+// identity fields below must persist per device and the share link must not
+// carry them, or a shared link would leak a customer's name and address to
+// whoever it was pasted to. share.mjs's own field lists are the source of
+// truth (see share.test.mjs); this just double-checks none of the PII ids
+// ever appear there.
+//
+// The deposit, validity window and the three proposal-term textareas are
+// deliberately not in this list: they describe the job's money terms, not
+// the customer's identity, and `platform/proposal/term-ids.test.mjs` checks
+// the opposite property for those five -- that every venture with the
+// proposal panel *does* carry them, so a recipient does not open a shared
+// link under this venture's own default deposit and validity window. They
+// used to be listed here too, which is why they were missing from the link.
+test('a shared bid link carries no customer or business details', () => {
+  const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
+  for (const field of [
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'clientName', 'clientAddress', 'proposalScope',
+  ]) {
+    assert.doesNotMatch(share, new RegExp(`'${field}'`), `${field} would be written into the shareable link`);
+  }
+});
+
+test('a share link is offered and the privacy claim names it', () => {
+  assert.match(html, /Copy share link/);
+  assert.match(markup, /share link encodes only the bid fields/i);
 });
 
 test('the landing page names the problem in the contractor\'s words', () => {

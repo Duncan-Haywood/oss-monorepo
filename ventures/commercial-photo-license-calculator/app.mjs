@@ -1,3 +1,5 @@
+import { encodeShare, decodeShare } from './share.mjs';
+
 const $ = (id) => document.getElementById(id);
 const money = (value, currency) => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value);
 const labels = { web: 'website, email, and organic social', paid: 'paid social or display advertising', print: 'print, packaging, or point-of-sale', outdoor: 'outdoor, signage, or broadcast' };
@@ -65,6 +67,34 @@ $('save-draft').addEventListener('click', () => {
   }
 });
 $('copy-draft').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('draft').value); $('copy-status').textContent = 'Draft copied.'; event('draft_copied'); } catch { $('copy-status').textContent = 'Select the draft text and copy it manually.'; } });
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand('copy');
+    fallback.remove();
+  }
+}
+async function copyShare() {
+  const input = read();
+  const hash = encodeShare({ ...input, channels: input.channels.map((channel) => channel.name) });
+  const url = `${location.origin}${location.pathname}#${hash}`;
+  await writeClipboard(url);
+  history.replaceState(null, '', `#${hash}`);
+  event('share_copied');
+  $('share-status').textContent = 'Share link copied.';
+  setTimeout(() => { $('share-status').textContent = ''; }, 2500);
+}
+$('copy-share').addEventListener('click', () => {
+  copyShare().catch(() => { $('share-status').textContent = 'Copy failed; copy the address bar instead.'; });
+});
 $('usage-opt-out').addEventListener('change', (eventObject) => {
   try {
     localStorage.setItem('photo-license-usage-opt-out', String(eventObject.target.checked));
@@ -81,24 +111,44 @@ $('clear-usage').addEventListener('click', () => {
   }
   updateUsage();
 });
-try {
-  const saved = JSON.parse(localStorage.getItem('photo-license-draft') || 'null');
-  if (saved) {
-    $('currency').value = saved.currency;
-    $('creativeFee').value = saved.creative;
-    $('images').value = saved.images;
-    $('term').value = saved.term;
-    $('territory').value = saved.territory;
-    $('exclusivity').value = saved.exclusivity;
-    $('rush').value = saved.rush;
-    $('client').value = saved.client;
-    $('photographer').value = saved.photographer;
+// A restored value (from a share link or a saved draft) always replaces the
+// built-in defaults field by field -- only fields present in `values` are
+// touched, so a share link that omits, say, `rush` leaves the default 0%
+// rather than blanking the field.
+function applyValues(values) {
+  if (typeof values.currency !== 'undefined') $('currency').value = values.currency;
+  if (typeof values.creative !== 'undefined') $('creativeFee').value = values.creative;
+  if (typeof values.images !== 'undefined') $('images').value = values.images;
+  if (typeof values.term !== 'undefined') $('term').value = values.term;
+  if (typeof values.territory !== 'undefined') $('territory').value = values.territory;
+  if (typeof values.exclusivity !== 'undefined') $('exclusivity').value = values.exclusivity;
+  if (typeof values.rush !== 'undefined') $('rush').value = values.rush;
+  if (typeof values.client !== 'undefined') $('client').value = values.client;
+  if (typeof values.photographer !== 'undefined') $('photographer').value = values.photographer;
+  if (Array.isArray(values.channels) && values.channels.length > 0) {
+    // A saved draft stores channels as `{name, factor}` objects (the shape
+    // `read()` produces); a decoded share link stores plain name strings
+    // (the shape `share.mjs` validates). Both are accepted here so this one
+    // function can serve both callers.
+    const names = values.channels.map((channel) => (typeof channel === 'string' ? channel : channel.name));
     document.querySelectorAll('[name=channel]').forEach((input) => {
-      input.checked = Array.isArray(saved.channels) && saved.channels.some((channel) => channel.name === input.value);
+      input.checked = names.includes(input.value);
     });
   }
-} catch {
-  // A torn draft must not hide the empty form.
 }
+function restoreDraft() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('photo-license-draft') || 'null');
+    if (saved) applyValues(saved);
+  } catch {
+    // A torn draft must not hide the empty form.
+  }
+}
+
+// A share link takes priority over a saved draft: opening a link someone
+// sent means seeing the scope they sent, not the visitor's own last draft.
+const shared = decodeShare(location.hash);
+if (shared) applyValues(shared);
+else restoreDraft();
 updateUsage();
 }

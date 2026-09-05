@@ -103,6 +103,7 @@ defaults:
 jobs:
   test:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:

@@ -227,6 +227,19 @@ test('every published page carries Open Graph tags', () => {
   }
 });
 
+test('the result panel is announced to screen readers when it updates', () => {
+  // paint() rewrites the hero number, the <dl> breakdown, and the #paths
+  // table body in place on every keystroke, with no page reload. Before
+  // this fix the only aria-live element on the page was #status (the
+  // copy-link message render() never touches), so a screen-reader user
+  // changing an input got no announcement that the offer had changed.
+  assert.match(
+    html,
+    /<section class="result" aria-live="polite">/,
+    'the result section is not a live region, so updates are never announced',
+  );
+});
+
 test('every worked-example sub-page carries a robots meta and a matching canonical link', () => {
   // index.html is the app shell and does not follow this convention; every
   // "should-i-..." doc page does, and should-i-take-this-reverb-offer.html

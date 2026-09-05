@@ -41,9 +41,32 @@ report_noop() {
   report_marker "$NOOP_MARKER" "$1"
 }
 
-export PATH="/usr/local/bin:$HOME/.npm-global/bin:$PATH"
-export npm_config_prefix="$HOME/.npm-global"
-mkdir -p "$HOME/.npm-global"
+# Where `gh` and the Codex CLI live between Jobs. The governor mounts a PVC
+# here; if it is missing or read-only we fall back to a throwaway directory and
+# the run still works, it just pays for both downloads again.
+#
+# It is worth a volume because the payload is not small and the cadence is not
+# slow. `@openai/codex` resolves to one platform package —
+# `@openai/codex-linux-x64` — that is **320 MB unpacked**, and `gh` adds an
+# 11 MB release tarball. `governor/cronjob.yaml` ticks every five minutes, so
+# an uncached fleet re-fetches a third of a gigabyte from the npm registry
+# before every Job is in a position to spend a single token of the owner's
+# ChatGPT quota.
+#
+# The reliability half matters more than the bytes. With `maxConcurrent: 1`
+# there is exactly one Codex Job in flight at a time, and `set -euo pipefail`
+# means a registry blip during `install_codex` kills the tick outright — a slot
+# spent on a download that failed, on a queue item that never ran. Caching
+# turns the npm registry and github.com from a dependency of *every* tick into
+# a dependency of the first tick after a version bump.
+CODEX_TOOLS_DIR="${CODEX_TOOLS_DIR:-/var/lib/codex-tools}"
+if ! mkdir -p "$CODEX_TOOLS_DIR" 2>/dev/null || [[ ! -w "$CODEX_TOOLS_DIR" ]]; then
+  CODEX_TOOLS_DIR="$(mktemp -d)"
+  echo "worker: no writable tool cache — downloading gh and codex for this run only" >&2
+fi
+export npm_config_prefix="$CODEX_TOOLS_DIR/npm-global"
+mkdir -p "$npm_config_prefix"
+export PATH="/usr/local/bin:$npm_config_prefix/bin:$PATH"
 
 MANDATE_FILE="${CODEX_MANDATE_FILE:-/opt/worker/mandate.md}"
 
@@ -121,7 +144,7 @@ hit_auth_failure() {
 # these three lines together, not silently on whichever Tuesday a Job runs.
 # Checksums are the ones cli/cli publishes in `gh_<version>_checksums.txt`.
 #
-# All three are `${VAR:-pin}` so the test suite can point the installer at a
+# All four are `${VAR:-pin}` so the test suite can point the installer at a
 # tarball it built itself and still exercise the real verify-then-install path.
 # Nothing sets them in the cluster: governor.py passes a fixed env list, and
 # `codex-secrets` holds credentials. Anything able to set them here already
@@ -130,12 +153,62 @@ GH_VERSION="${GH_VERSION:-2.63.2}"
 GH_SHA256_AMD64="${GH_SHA256_AMD64:-912fdb1ca29cb005fb746fc5d2b787a289078923a29d0f9ec19a0b00272ded00}"
 GH_SHA256_ARM64="${GH_SHA256_ARM64:-0f31e2a8549c64b5c1679f0b99ce5e0dac7c91da9e86f6246adb8805b0f0b4bb}"
 
+# Codex is pinned for the same reason, and it matters more here than for `gh`.
+# This line read `@${CODEX_VERSION:-latest}` until 2026-09-03, which made the
+# paragraph above false about the one binary that receives *both* this Job's
+# `GH_TOKEN` and the owner's ChatGPT `auth.json`: gh arrived at a reviewed
+# version with a checksum, and the more privileged of the two arrived at
+# whatever npm happened to serve that Tuesday.
+#
+# The cadence makes it concrete rather than theoretical. `@openai/codex` is
+# pre-1.0 and ships continuously — 0.153.1 was `latest` when this pin was
+# written, with 0.154.0-alpha.2 already tagged — so "latest" moves within a
+# single five-hour quota window. A behaviour change in `codex exec --json`,
+# whose output this script parses for the limit and auth markers below, would
+# land mid-window across every queue item at once, and the only thing an
+# operator would see is that the codex container exited non-zero.
+#
+# Bump this deliberately, as a reviewed commit, the same way GH_VERSION moves.
+CODEX_VERSION="${CODEX_VERSION:-0.153.1}"
+
 # Where a downloaded binary lands. Deliberately not /usr/local/bin: the worker
 # runs as root today only because the apt path above required it, and this
 # change is what makes narrowing that securityContext possible later. A path
-# under $HOME needs no privilege at all.
-TOOLS_BIN="${CODEX_TOOLS_BIN:-$HOME/.local/bin}"
+# under the tool cache needs no privilege at all.
+#
+# This was `$HOME/.local/bin` until the cache above existed, which put it on
+# the pod's ephemeral filesystem and threw the binary away with the Job.
+TOOLS_BIN="${CODEX_TOOLS_BIN:-$CODEX_TOOLS_DIR/bin}"
 export PATH="$TOOLS_BIN:$PATH"
+
+# True when `$1` resolves to a binary inside the cache this script manages.
+#
+# The distinction is what keeps the cache from quietly defeating the pins it
+# caches. Before the cache existed, a `gh` or `codex` already on PATH could
+# only have come from the image or from an operator, and second-guessing that
+# was never this script's business — `command -v` was the whole test. A cached
+# copy is different: it is *this script's own output from a previous Job*, so
+# it is the one place a binary at a version nobody reviewed can survive a pin
+# bump. Bumping CODEX_VERSION in git and having 288 Jobs a day go on running
+# the version it replaced is exactly the supply-chain failure the pins exist to
+# prevent, and it would be silent — everything downstream only asks whether
+# `codex` is on PATH.
+#
+# So: anything outside the cache is used as-is, unchanged from before. Anything
+# inside it has to match the pin or it is reinstalled.
+cached() {
+  local resolved
+  resolved="$(command -v "$1" 2>/dev/null || true)"
+  [[ -n "$resolved" && "$resolved" == "$CODEX_TOOLS_DIR"/* ]]
+}
+
+gh_matches_pin() {
+  gh --version 2>/dev/null | grep -qF "$GH_VERSION"
+}
+
+codex_matches_pin() {
+  [[ "$(codex --version 2>/dev/null || true)" == *"$CODEX_VERSION"* ]]
+}
 
 install_gh() {
   local arch tarball url sha expected dir
@@ -168,6 +241,9 @@ install_gh() {
   mkdir -p "$TOOLS_BIN"
   install -m 0755 "$dir/gh_${GH_VERSION}_linux_${arch}/bin/gh" "$TOOLS_BIN/gh"
   rm -rf "$dir"
+  # bash remembers where it last found a name. Without this, a reinstall over a
+  # stale cached copy keeps resolving to the path that was just replaced.
+  hash -r
 }
 
 install_tools() {
@@ -184,9 +260,63 @@ install_tools() {
     return 1
   fi
 
-  command -v gh >/dev/null 2>&1 || install_gh
+  # Absent → install. Present but ours and stale → reinstall. Present and not
+  # ours → leave it alone, which is what this did for both binaries before the
+  # cache existed. See `cached` above for why the middle case has to exist.
+  if ! command -v gh >/dev/null 2>&1; then
+    install_gh
+  elif cached gh && ! gh_matches_pin; then
+    echo "worker: cached gh is not ${GH_VERSION} — reinstalling"
+    rm -f "$TOOLS_BIN/gh"
+    hash -r
+    install_gh
+  else
+    echo "worker: gh ${GH_VERSION} already present"
+  fi
+
   if ! command -v codex >/dev/null 2>&1; then
-    npm install -g "@openai/codex@${CODEX_VERSION:-latest}"
+    install_codex
+  elif cached codex && ! codex_matches_pin; then
+    echo "worker: cached codex is not ${CODEX_VERSION} — reinstalling"
+    install_codex
+  else
+    echo "worker: codex ${CODEX_VERSION} already present"
+  fi
+}
+
+install_codex() {
+  # `npm` by name, but through a variable, for the same reason GH_VERSION is
+  # one: it is the only way a test can exercise this function. Line 44 forces
+  # /usr/local/bin to the front of PATH, so a stub npm placed on PATH by a test
+  # is shadowed by the real one — which is how these tests first "passed" by
+  # installing Codex from the live registry. Same reachability argument as the
+  # pins above: nothing sets it in the cluster.
+  local npm_bin="${CODEX_NPM:-npm}"
+  echo "worker: installing @openai/codex@${CODEX_VERSION}"
+  "$npm_bin" install -g "@openai/codex@${CODEX_VERSION}"
+  # See install_gh: a reinstall over a stale cached copy needs the lookup cache
+  # cleared before `codex --version` below can report the new binary.
+  hash -r
+
+  # Confirm the pin actually took, rather than trusting npm's exit code.
+  #
+  # `npm install -g` succeeds in cases that leave a different binary in front:
+  # an `@openai/codex` already global at another version keeps its bin symlink,
+  # and the platform-specific optional dependency this package resolves through
+  # (`@openai/codex-linux-x64` and friends) can satisfy the install from cache
+  # at a version the pin did not name. Either way the run continues on an
+  # unreviewed Codex, which is the exact thing the pin exists to prevent — and
+  # silently, because everything downstream only cares that `codex` is on PATH.
+  #
+  # Fail closed instead. A Job that stops here costs one tick and names the
+  # reason; one that proceeds spends the window and reports a Codex error.
+  local installed
+  installed="$(codex --version 2>/dev/null || true)"
+  if [[ "$installed" != *"$CODEX_VERSION"* ]]; then
+    echo "worker: codex version mismatch — refusing to run." >&2
+    echo "worker:   pinned    $CODEX_VERSION" >&2
+    echo "worker:   installed ${installed:-<no version reported>}" >&2
+    return 1
   fi
 }
 

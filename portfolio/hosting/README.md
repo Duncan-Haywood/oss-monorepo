@@ -33,16 +33,28 @@ It is not:
   serve a public site on the free tier, so the flip alone would not have
   put these tools in front of strangers. This was not accounted for when
   the row above was written.
-- ~~**Nothing is building the artifact.**~~ **Resolved 2026-09-01.** From
-  2026-08-26 every GitHub Actions run in this repo failed without a runner
-  (`runner_id: 0`, 3-second jobs), so `portfolio-pages.yml` produced no
-  deployable artifact for five days. Runners came back at
-  2026-09-01T00:00:53Z and `portfolio-pages.yml` would build again today.
-  The account-level ceiling looks like it cycles rather than being gone, so
-  treat this as "not currently blocking" rather than "cannot recur".
+- **Nothing is building the artifact — again, as of 2026-09-04.** This
+  entry read "~~Resolved 2026-09-01~~ ... treat this as 'not currently
+  blocking'" until 2026-09-05, and that is exactly how long it was wrong
+  for. The 2026-08-26 starvation did lift on its own at 2026-09-01T00:00:53Z,
+  which is what a metered allowance resetting looks like; it then recurred
+  on 2026-09-04 at ~22:39Z when the allowance was spent again. Measured
+  2026-09-05: run 33932676830 came back `runner_id: 0` with no steps and
+  `python3 platform/ci/ci_starvation.py --run 33932676830` exits 1. So
+  `portfolio-pages.yml` produces no deployable artifact today, and
+  `deploy-settings` cannot complete while that holds — which is why
+  `decision_queue.py` sinks it. Re-measure rather than trusting this
+  paragraph; it is the second time this exact line has gone stale.
 
-The two blockers that remain are the first two, and the Hetzner path shares
-none of the three: Argo syncs the
+**So three blockers remain, not two**, and the third is the one that keeps
+moving. Note also that the first two are not equivalent: enabling Pages is a
+flip the owner controls, but **the private-repo constraint above is a plan
+question, not a settings question** — if this account is on the free tier,
+`deploy-settings` is not a route to a public surface at all, however green
+CI gets. Nothing in this repository can read the account's plan, so that
+stays unresolved here rather than assumed either way.
+
+The Hetzner path shares none of the three: Argo syncs the
 manifest from `main` and the site is built inside the cluster, so it needs
 neither Actions nor Pages. The box is already paid for and already runs
 ingress-nginx and cert-manager. Its own remaining step is now **one**: a
@@ -57,11 +69,23 @@ Argo applies it from `main`, so it needs no Actions run and no Pages flip.
 That makes it the portfolio's first surface a stranger can actually reach,
 and it went up on a merge with no owner action.
 
-This does not replace the row above or reduce the seal's value — the front
-door is one page describing the collection, and every category card on it
-links into `tools.marisstella.dev`. The seal is still what puts 169 tools
-in front of anyone. What changed is that the domain is no longer a dead
-redirect while that waits. The DNS record
+This does not replace the row above, but it does reduce what the seal is still
+for. **Corrected 2026-09-03:** this paragraph used to say "the front door is one
+page describing the collection, and every category card on it links into
+`tools.marisstella.dev`. The seal is still what puts 169 tools in front of
+anyone." Neither half is true, and a session reading it mis-ranks its whole run
+— the same correction `CLAUDE.md` already carries.
+
+- The apex **serves the 174 tools itself**, at `/tools/<slug>/`, from the
+  mirror in `gitops/prod/front-door-tools/`. The seal buys no tool a stranger
+  cannot already reach.
+- The category cards link to `https://marisstella.dev/c/<id>/` — seven browse
+  pages this host renders and serves. They pointed at the dark host once; they
+  have not since the cards were fixed, and since 2026-09-03 they point at real
+  pages rather than at fragments.
+
+What the seal still buys is the canonical hostname and indexability under it.
+Worth doing, and not the difference between a dead end and a product. The DNS record
 turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
 the subdomain, verified 2026-08-29), and the ACME contact stopped being a
 step on 2026-08-30 — an ACME account contact is optional, so the issuers

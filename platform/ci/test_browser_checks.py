@@ -460,3 +460,112 @@ class DiscoverModules(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OnlyFilter(unittest.TestCase):
+    """`--only`, and the two guarantees that keep it from hiding a non-run.
+
+    A filter is a way to verify less. The failure this class exists to make
+    impossible is the one the repo has already paid for in three other
+    shapes: a check that reports a clean run it did not perform.
+    """
+
+    def _run(self, argv, slugs=("ebay-fee-calculator", "shopify-fee-calculator")):
+        """Drive main() over a served tree containing `slugs`, faking the checks.
+
+        `captured` collects the env each check was handed, which is the only
+        way to assert that the filter actually reached them -- the harness runs
+        every check as `node <path>` with no arguments, so ONLY_SLUGS is the
+        whole mechanism.
+        """
+        dist = tempfile.mkdtemp(prefix="bc-only-")
+        captured = {}
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            for slug in slugs:
+                os.mkdir(os.path.join(dist, slug))
+                with open(os.path.join(dist, slug, "index.html"), "w", encoding="utf-8") as fh:
+                    fh.write("<html></html>")
+
+            def fake_run_check(name, base, env, timeout):
+                captured[name] = env.get("ONLY_SLUGS")
+                return 0, ""
+
+            err, out = io.StringIO(), io.StringIO()
+            with mock.patch.object(bc, "run_check", fake_run_check), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "discover_axe", lambda env: None), \
+                 contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = bc.main(["--dist", dist] + argv)
+            return rc, err.getvalue() + out.getvalue(), captured
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
+
+    def test_the_filter_reaches_the_checks_as_ONLY_SLUGS(self):
+        _, _, captured = self._run(["--checks", "sideways", "--only", "ebay-fee-calculator"])
+        self.assertEqual(captured["sideways"], "ebay-fee-calculator")
+
+    def test_no_filter_leaves_the_variable_unset(self):
+        """Not the empty string: only-slugs.mjs reads a blank as "no filter",
+        but leaving it out entirely is what keeps that from being load-bearing."""
+        _, _, captured = self._run(["--checks", "sideways"])
+        self.assertIsNone(captured["sideways"])
+
+    def test_a_slug_not_in_the_build_stops_the_run_with_two(self):
+        """A typo must name itself, not silently reduce the run to nothing.
+
+        Exit 2, not 1: nothing was verified, and reporting it as a site defect
+        sends the reader hunting for a bug in a calculator that is fine.
+        """
+        rc, text, captured = self._run(
+            ["--checks", "sideways", "--only", "ebay-fee-calcualtor"])
+        self.assertEqual(rc, 2)
+        self.assertIn("ebay-fee-calcualtor", text)
+        # And nothing ran at all -- the refusal is before any browser starts.
+        self.assertEqual(captured, {})
+
+    def test_one_bad_slug_among_good_ones_still_stops_the_run(self):
+        """The dangerous case: the run would otherwise look scoped and pass."""
+        rc, _, captured = self._run(
+            ["--checks", "sideways", "--only", "ebay-fee-calculator,nope"])
+        self.assertEqual(rc, 2)
+        self.assertEqual(captured, {})
+
+    def test_a_filtered_pass_is_never_reported_as_a_full_one(self):
+        rc, text, _ = self._run(["--checks", "sideways", "--only", "ebay-fee-calculator"])
+        self.assertEqual(rc, 0)
+        self.assertIn("FILTERED: ebay-fee-calculator", text)
+
+    def test_an_unfiltered_pass_carries_no_filtered_stamp(self):
+        _, text, _ = self._run(["--checks", "sideways"])
+        self.assertIn("all 1 browser checks passed", text)
+        self.assertNotIn("FILTERED", text)
+
+    def test_a_filtered_skip_is_also_stamped(self):
+        """The exit-2 summary line needs the stamp as much as the exit-0 one."""
+        dist = tempfile.mkdtemp(prefix="bc-only-skip-")
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            os.mkdir(os.path.join(dist, "ebay-fee-calculator"))
+            with open(os.path.join(dist, "ebay-fee-calculator", "index.html"),
+                      "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            err, out = io.StringIO(), io.StringIO()
+            with mock.patch.object(bc, "run_check", lambda n, b, e, t: (2, "")), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "discover_axe", lambda env: None), \
+                 contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = bc.main(["--dist", dist, "--checks", "sideways",
+                              "--only", "ebay-fee-calculator"])
+            text = err.getvalue() + out.getvalue()
+            self.assertEqual(rc, 2)
+            self.assertIn("FILTERED: ebay-fee-calculator", text)
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
+
+    def test_journey_alone_under_a_filter_says_it_is_not_scoped(self):
+        """`journey` ignores the filter, so this combination must not look scoped."""
+        _, text, _ = self._run(["--checks", "journey", "--only", "ebay-fee-calculator"])
+        self.assertIn("ignores --only", text)

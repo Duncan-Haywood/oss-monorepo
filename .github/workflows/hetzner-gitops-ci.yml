@@ -50,6 +50,12 @@ on:
         description: SSH to the two hel1 boxes (read-only). Uses HETZNERSSHKEY.
         type: boolean
         default: false
+      restore:
+        description: >-
+          INSTALLS k3s + Argo CD on the two boxes. Owner-run only, after
+          HETZNERSSHKEY holds a private key. Type restore-cluster to confirm.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -57,6 +63,13 @@ permissions:
 jobs:
   gitops:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Normally ~2-3 minutes (pytest + two network downloads + a front-door
+    # generator run). Without a cap here a hung apt-get, curl, or nginx
+    # boot rides the default 360-minute GitHub-hosted ceiling — on a
+    # metered-minutes account (see CLAUDE.md's CI-starvation history) that
+    # is the difference between one stuck job and the next allowance cycle
+    # arriving early.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -97,6 +110,14 @@ jobs:
       # workflow that already triggers on the directory it lands in.
       - name: front door generator
         run: node --test "platform/marketing/*.test.mjs"
+      # Same guard as `portfolio-validate.yml`'s, on the other half of the
+      # trigger surface: that workflow catches a venture edit growing the
+      # mirror, this one catches a `platform/marketing/**` change doing it --
+      # a wider `STARTER_SET`, or an injection that adds bytes to all 173
+      # mirrored pages at once, which is the change most able to move the
+      # number in one commit. See `MIRROR_HEADROOM_WARN_RATIO`.
+      - name: front door mirror has room left
+        run: node platform/marketing/front-door-tools.mjs --headroom
       - name: infra layout
         run: |
           python3 infra/tests/test_infra_layout.py
@@ -132,6 +153,7 @@ jobs:
 
   tofu:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -146,6 +168,7 @@ jobs:
 
   scripts:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -161,9 +184,13 @@ jobs:
             bootstrap/install-k3s-agent.sh \
             bootstrap/install-argocd.sh \
             bootstrap/preflight.sh \
+            bootstrap/restore-cluster.sh \
             bootstrap/label-existing.sh \
+            bootstrap/scripts/load-ssh-key.sh \
             bootstrap/scripts/gen-age-key.sh \
             bootstrap/scripts/seal-owner-secrets.sh \
+            bootstrap/scripts/enable-codex-governor.sh \
+            bootstrap/scripts/install-codex-host.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
@@ -171,6 +198,7 @@ jobs:
 
   hcloud-scope:
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Prove HETZNERREADAPIKEY is Read-only
@@ -186,6 +214,11 @@ jobs:
   preflight:
     if: github.event_name == 'workflow_dispatch' && inputs.preflight == true
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # SSHes to two live boxes; ssh-keyscan and the preflight script have no
+    # timeout of their own, so this is the only thing that stops a
+    # network stall (a firewalled port, a box mid-reboot) from riding the
+    # runner to its 360-minute default.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: SSH preflight (read-only)
@@ -198,12 +231,66 @@ jobs:
             echo "HETZNERSSHKEY is unset." >&2
             exit 1
           fi
-          mkdir -p "${HOME}/.ssh"
-          printf '%s\n' "${KEY}" > "${HOME}/.ssh/id_hetzner"
-          chmod 600 "${HOME}/.ssh/id_hetzner"
-          ssh-keygen -y -f "${HOME}/.ssh/id_hetzner" >/dev/null
+          # The format classifier and its reasoning now live in
+          # bootstrap/scripts/load-ssh-key.sh, so the restore job below shares
+          # exactly this one rather than carrying a second copy that can drift.
+          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
           eval "$(ssh-agent -s)"
           ssh-add "${HOME}/.ssh/id_hetzner"
           ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
           export CP=root@89.167.29.39 AG=root@157.180.80.188
           bootstrap/preflight.sh
+
+  # The only thing in this repository that changes the two boxes. Everything
+  # else here reads: `tofu` never applies, HETZNERREADAPIKEY is asserted
+  # read-only, and `preflight` above is read-only by construction.
+  #
+  # It exists because rotating HETZNERSSHKEY was necessary but not sufficient:
+  # the recovery it unlocks was a human SSHing to two machines in order and
+  # copy-pasting a node token between them, which is not something an outage
+  # should be waiting on. See bootstrap/restore-cluster.sh for what it does and
+  # for why following the *documented* order fails today (the private network
+  # in infra/inventory.tf was never applied).
+  #
+  # Deliberately not reachable from push, schedule, or any agent Job: it is a
+  # workflow_dispatch that additionally requires the operator to type the
+  # confirmation string, so a mis-click on the Run workflow button does nothing.
+  restore:
+    if: github.event_name == 'workflow_dispatch' && inputs.restore == 'restore-cluster'
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # Longer than preflight's 10: this one waits on two k3s installs, a
+    # 180-second node-readiness wait and an Argo CD rollout. Still bounded, so
+    # a stalled join cannot ride the runner to the 360-minute default.
+    timeout-minutes: 45
+    concurrency:
+      # Two of these at once would race two k3s installs onto one box.
+      group: hetzner-restore
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore the k3s cluster
+        env:
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
+          CONFIRM: restore-cluster
+          # Optional but load-bearing: the GitOps repository is private, so
+          # without a credential Argo installs, applies the root Application
+          # and then fails every sync on repository authentication — a cluster
+          # that is up and a site that serves nothing. The script says so
+          # loudly rather than reporting success. A fine-grained PAT with
+          # Contents: Read on this repository is enough; it is the same
+          # permission the site's clone token needs, so one token can do both.
+          ARGOCD_REPO_TOKEN: ${{ secrets.ARGOCDREPOTOKEN }}
+        run: |
+          set -euo pipefail
+          bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
+          eval "$(ssh-agent -s)"
+          ssh-add "${HOME}/.ssh/id_hetzner"
+          ssh-keyscan -H 89.167.29.39 157.180.80.188 >> "${HOME}/.ssh/known_hosts"
+          export CP=root@89.167.29.39 AG=root@157.180.80.188
+          bootstrap/restore-cluster.sh
+      - name: What to do next
+        if: always()
+        run: |
+          echo "Dispatch 'Public surface check' — it needs no secret and is the"
+          echo "only reading a stranger's view agrees with. Record the result in"
+          echo "portfolio/ledger/infra_state.yaml with this run id."

@@ -151,7 +151,7 @@ separately:
 
 - **Freight runs three legs, not one.** Out, back, and out again on the
   relist. On a combo amp or a hardshell case each leg is real money — $205
-  of the $249.29 the default return costs.
+  of the $249.48 the default return costs.
 - **The piece is one of one.** There is no second unit on the shelf, so the
   cash you recover is whatever the *relist* fetches, and something that has
   shipped twice with a claim opened rarely fetches the first price. That
@@ -165,15 +165,15 @@ separately:
 
 So the number the calculator leads with is not a verdict on the return. It
 is **the largest partial refund that still beats taking it back**: on the
-defaults, $261.20, or 32.6% of an $800 sale. Four paths sit on one screen —
+defaults, $261.39, or 32.7% of an $800 sale. Four paths sit on one screen —
 sale stands, partial refund, take the return, full refund and they keep it.
 
 The SEO page
 [`should-i-take-the-return-or-refund-on-reverb.html`](should-i-take-the-return-or-refund-on-reverb.html)
 walks the default worked example ($800 sale / $75 return label / 61% fee
-credit / $720 relist: $284.33 if the sale stands, $35.03 on the return,
+credit / $720 relist: $284.33 if the sale stands, $34.85 on the return,
 $141.16 on a $150 concession, −$550.80 on a full refund with the item gone;
-$261.20 break-even concession; $909.94 return cost if the piece comes back
+$261.39 break-even concession; $910.12 return cost if the piece comes back
 unsellable).
 
 **What this does not say.** An expensive return is not a refusable one.

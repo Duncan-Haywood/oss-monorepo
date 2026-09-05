@@ -40,6 +40,7 @@ jobs:
     # regardless of the switch. gitops/tests/test_ci_runner.py pins this as a
     # named exception.
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       # The build only needs these to be present and well-formed — nothing is
       # queried at build time. Real credentials live in the deploy environment.

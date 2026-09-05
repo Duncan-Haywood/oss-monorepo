@@ -107,6 +107,15 @@ test('every element the script queries exists in parsed markup', () => {
   assert.deepEqual([...queried].filter((id) => !declaredIds.has(id)), []);
 });
 
+test('the result and copy-status regions are announced to screen readers', () => {
+  // #output rewrites the cash snapshot on every keystroke (including toggling
+  // its own .hidden class) and #copyStatus updates after every worksheet/PDF/
+  // JSON/share action, but neither carried aria-live -- a screen-reader user
+  // heard nothing when either changed.
+  assert.match(page, /<section id="output" class="hidden" aria-live="polite">/);
+  assert.match(page, /<p id="copyStatus" role="status" aria-live="polite">/);
+});
+
 test('the primary journey, disclaimer, and privacy note are rendered markup', () => {
   for (const id of [
     'form', 'contractValue', 'retainagePct', 'paidToDate', 'daysOutstanding',
@@ -117,6 +126,11 @@ test('the primary journey, disclaimer, and privacy note are rendered markup', ()
   }
   assert.match(markup, /No warranty/);
   assert.match(markup, /never uploaded/i);
+});
+
+test('the page carries the standard sponsor link', () => {
+  assert.match(markup, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(markup, /href="LICENSE"/);
 });
 
 test('a rejected worksheet hides every result section instead of leaving the last valid worksheet on screen', () => {

@@ -163,6 +163,49 @@ test('the usage checkbox is never part of a bid under either spelling', () => {
   );
 });
 
+/**
+ * The proposal header's customer name and home address, and the contractor's
+ * own business identity, are never serialized into a saved bid or (via
+ * `link.mjs`, which reads this same set) a shareable link. 104 ventures share
+ * these seven ids for that header, and a "Copy link to this bid" URL is built
+ * to be pasted into email or text to the customer — so a customer's own name
+ * and home address must never round-trip through it.
+ */
+test('the proposal header (customer and business identity) is never part of a bid', () => {
+  for (const id of [
+    'clientName', 'clientAddress', 'companyName', 'companyAddress',
+    'companyPhone', 'companyEmail', 'companyLicense',
+  ]) {
+    assert.ok(EXCLUDED_FIELD_IDS.has(id), id);
+  }
+  assert.deepEqual(
+    pageSaveableFieldIds(page(
+      '<input id="clientName"><input id="clientAddress">' +
+        '<input id="companyName"><input id="companyAddress">' +
+        '<input id="companyPhone"><input id="companyEmail"><input id="companyLicense">' +
+        '<input id="lengthFt"><input id="pitch">',
+    )),
+    ['lengthFt', 'pitch'],
+  );
+});
+
+/**
+ * The label a saved bid is listed under ("14 Oak St — Mrs Reid") is typed by
+ * the contractor into its own box, `pf-jobs-name` — never read off
+ * `clientName`/`clientAddress` — so excluding those two ids from the
+ * serialized field set cannot break the naming feature: `normalizeBid` keeps
+ * whatever `name` it is handed regardless of which form fields survived.
+ */
+test('excluding the proposal header does not touch a bid\'s own name', () => {
+  const bid = normalizeBid({
+    name: '14 Oak St — Mrs Reid',
+    at: '2026-01-01T00:00:00.000Z',
+    fields: { clientName: 'Mrs Reid', clientAddress: '14 Oak St', lengthFt: '40' },
+  });
+  assert.equal(bid.name, '14 Oak St — Mrs Reid');
+  assert.deepEqual(bid.fields, { lengthFt: '40' });
+});
+
 /** Including this feature's own name box, which would otherwise save itself. */
 test('the site chrome’s own inputs are never part of a bid', () => {
   assert.deepEqual(
