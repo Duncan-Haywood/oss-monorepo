@@ -13191,3 +13191,63 @@ entries:
           because the false alarm was one step away from a large and
           entirely unnecessary "fix" to a mirror that is sound.)
     mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped in #3356 (merged): added `VISIT_FREQUENCY_PRESETS` to
+        calc.mjs (weekly, every-2-weeks, monthly, quarterly, twice-a-year,
+        once-a-year, one-off, each the exact visits-per-month fraction
+        calculateBid already expects) and a "Billing frequency" dropdown on
+        the page that fills the existing `visitsPerMonth` field with it --
+        an operator pricing a quarterly storefront contract no longer has
+        to work out by hand that quarterly is 0.33 visits/month. Loosened
+        visitsPerMonth's input step from 1 to 0.01 so its own up/down
+        arrows reach a fractional cadence, and relabeled "Monthly (if
+        recurring)" to "Monthly average (if recurring)" since a quarterly
+        or annual contract's monthly figure is an average across visits,
+        not one month's bill.
+
+        Also closed two test-coverage gaps found while auditing this
+        family for the highest-value bounded change: added
+        window-cleaning-bid-calculator/page.test.mjs (was missing
+        entirely -- the structural check every sibling bid-calculator
+        carries), added vinyl-liner-bid-calculator/vs-jobber.test.mjs
+        (vinyl-liner was the only one of ~100 bid-calculators with a
+        vs-*.html page and no matching test), and extended vinyl-liner's
+        own page.test.mjs to also check the 'pattern', 'access', and
+        'wallHeightFeet' ids its calculator uses.
+
+        Investigated and deliberately did not add a bespoke share-link
+        encoder: window-cleaning is one of the "eight itemised
+        calculators" platform/pages/jobs.mjs already names as building
+        their form in script (data-pf-repeat="g"); node
+        platform/pages/build.mjs confirmed the page already gets the
+        generic, better-tested "Copy link to this bid" (pf-link) and
+        "Saved bids" (pf-jobs) features injected at build time, so a
+        hand-rolled share.mjs would have duplicated an existing mechanism
+        rather than filled a real gap.
+
+        Also found, fixed locally, then dropped from this branch:
+        platform/proposal/term-ids.test.mjs went red naming
+        water-softener-bid-calculator (a share-link bug in #3354) while
+        rebasing this branch onto main -- a concurrent session landed the
+        identical fix as #3355 before this branch pushed, so the local fix
+        was discarded here to avoid a duplicate rather than merged twice.
+
+        Verified locally (CI starved -- runner_id: 0 on recent dispatches):
+        - node --test ventures/vinyl-liner-bid-calculator/*.test.mjs
+          ventures/window-cleaning-bid-calculator/*.test.mjs -> 156/156 pass
+        - node --test platform/marketing/*.test.mjs
+          platform/pages/*.test.mjs -> 1124/1124 pass
+        - node --test platform/proposal/*.test.mjs -> 101/101 pass
+        - node --test ventures/*/*.test.mjs -> 15470/15470 pass (full repo)
+        - node platform/pages/build.mjs -> same shape as baseline
+        - node platform/marketing/regen.mjs -> regenerated this venture's
+          mirror shards and the kustomization byte-count comment;
+          committed
+        - python3 platform/ci/pages_state.py reported stale after merge;
+          refreshed via
+          CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+    mrr_end: null
