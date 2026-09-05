@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 148 files, 556784 bytes
 #   portfolio-front-tools-3: 116 files, 545769 bytes
 #   portfolio-front-tools-4: 126 files, 550140 bytes
-#   portfolio-front-tools-5: 111 files, 544903 bytes
+#   portfolio-front-tools-5: 112 files, 547627 bytes
 #   portfolio-front-tools-6: 107 files, 553483 bytes
 #   portfolio-front-tools-7: 116 files, 548408 bytes
 #   portfolio-front-tools-8: 95 files, 555266 bytes
@@ -731,6 +731,7 @@ configMapGenerator:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
       - entry-door-bid-calculator__index.html.gz=entry-door-bid-calculator__index.html.gz
+      - entry-door-bid-calculator__share.mjs.gz=entry-door-bid-calculator__share.mjs.gz
       - entry-door-bid-calculator__usage.mjs.gz=entry-door-bid-calculator__usage.mjs.gz
       - entry-door-bid-calculator__vs-jobber.html.gz=entry-door-bid-calculator__vs-jobber.html.gz
       - epoxy-garage-floor-bid-calculator__calc.mjs.gz=epoxy-garage-floor-bid-calculator__calc.mjs.gz
