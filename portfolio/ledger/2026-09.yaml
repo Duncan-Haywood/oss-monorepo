@@ -13367,6 +13367,42 @@ entries:
         - python3 -m pytest gitops/tests -q -> 384 passed, 25 skipped
         - 686 mirrored pages, 0 unresolved module imports
     mrr_end: null
+  - venture: tree-service-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Covered the venture's new shareable-bid-link feature with tests, and
+        corrected stale copy describing it (PR #3369). This venture was one
+        of the eight itemised-calculator ventures whose per-tree rows are
+        built at runtime, so the generic build-time bid-link injection in
+        platform/pages/link.mjs declines to cover it by design. This session
+        set out to close that gap and opened PR #3366 to do so, but a
+        concurrent session independently shipped the identical feature (same
+        share.mjs, same BID_SPEC shape) as PR #3367, which merged about two
+        minutes earlier and won the race -- #3366 was closed as superseded.
+        Comparing the two, #3367 was functionally complete but shipped with
+        zero page.test.mjs coverage of the new wiring (readTreeRows(),
+        BID_SPEC, the fragment-vs-query-string requirement, the button ids)
+        and left the featureList and both copies of the "Is my bid data
+        uploaded anywhere?" FAQ answer (the JSON-LD and the visible
+        paragraph) describing a page that could not yet share or save a bid.
+        The missing test coverage matters here specifically: share.mjs's own
+        header records a hand-written field allowlist silently falling out
+        of step with the real form five times already in this fleet, each
+        time producing a shared link that priced a cheaper, less hazardous
+        stop than the sender actually saw. Added guards pinning that every
+        field readTreeRows() collects rides in BID_SPEC's rows, and updated
+        both FAQ copies plus the featureList to match what the button now
+        does. Ran platform/marketing/regen.mjs and committed the mirror
+        shard and kustomization it rewrote.
+
+        Verified locally (GitHub Actions runners starved as of today per
+        ci_starvation.py):
+        - node --test ventures/tree-service-bid-calculator/*.test.mjs -> 126/126
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs -> 1124/1124
+        - node --test platform/proposal/*.test.mjs -> 101/101
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0

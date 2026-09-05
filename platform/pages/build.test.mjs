@@ -2341,8 +2341,11 @@ test('no injected script carries a template literal across a line break', async 
 
 test('the injected scripts ship without their prose', async () => {
   // ~19 KB of unminified source sat on each of 234 pages and again in the
-  // opt-in offline bundle, which has a fixed 16 MB budget. Stripping the
-  // comment lines and the indentation is worth ~976 KB across the bundle.
+  // opt-in offline bundle. Stripping the comment lines and the indentation is
+  // worth ~976 KB of raw bytes across the bundle. (This used to cite "a fixed
+  // 16 MB budget"; the bundle is now held to 8 MB gzipped in transit and
+  // 64 MB on disk, so the saving is smaller against the budget that binds
+  // than the raw figure suggests -- prose compresses well.)
   const band = await read('pf-jobs.js');
   assert.ok(band.includes('var SLUG'), 'the shared saved-bids script was not written');
   const commentLines = band.split('\n').filter((line) => line.trim().startsWith('//'));
@@ -2791,6 +2794,33 @@ test('the hub tells a visitor the real offline size, not a stale guess', async (
   assert.ok(!/about 3 MB/.test(hub), 'the old hardcoded size is still here');
   const label = offlineBundleSizeLabel(offline.bundleBytes);
   assert.ok(hub.includes(`about ${label}`), `hub does not show the real offline size (${label})`);
+});
+
+test('the saved catalogue fits in a browser origin cache quota', async () => {
+  const { outDir, offline } = await site();
+  let onDisk = 0;
+  for (const asset of offline.bundle) {
+    if (asset.endsWith('/')) continue;
+    onDisk += (await fs.stat(path.join(outDir, asset))).size;
+  }
+  // The companion to the transfer budget above, and the reason both exist:
+  // moving that assertion to gzipped bytes was right, but it left the bundle
+  // with no ceiling on uncompressed size at all, and the two are different
+  // costs paid by different resources. Cache Storage keeps responses
+  // decompressed, so this is what the save-all button occupies of the
+  // origin's quota on the device -- a phone low on space can have the whole
+  // catalogue evicted, which is the one failure mode that would break the
+  // offline promise silently, on the jobsite, after the download succeeded.
+  //
+  // Deliberately loose. Browsers grant an origin a share of free disk running
+  // to hundreds of MB, and at 16.8 MB the catalogue has room to roughly
+  // quadruple. This is a tripwire for a binary landing in the bundle by
+  // accident -- an image, a font, a .zip -- which compresses badly enough to
+  // show up here long before it moves the gzipped figure much.
+  assert.ok(
+    onDisk < 64 * 1024 * 1024,
+    `the saved catalogue would occupy ${(onDisk / 1e6).toFixed(1)} MB on the device`,
+  );
 });
 
 test('the manifest is installable: real icons, standalone, scoped to the site', async () => {
