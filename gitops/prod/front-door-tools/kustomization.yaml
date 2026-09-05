@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 106 files, 553382 bytes
 #   portfolio-front-tools-7: 117 files, 556974 bytes
 #   portfolio-front-tools-8: 96 files, 540937 bytes
-#   portfolio-front-tools-9: 70 files, 374019 bytes
+#   portfolio-front-tools-9: 71 files, 376551 bytes
 #   portfolio-front-tools-10: 52 files, 269842 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1208,6 +1208,7 @@ configMapGenerator:
       - sump-pump-bid-calculator__calc.mjs.gz=sump-pump-bid-calculator__calc.mjs.gz
       - sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz=sump-pump-bid-calculator__how-much-to-charge-to-install-a-sump-pump.html.gz
       - sump-pump-bid-calculator__index.html.gz=sump-pump-bid-calculator__index.html.gz
+      - sump-pump-bid-calculator__share.mjs.gz=sump-pump-bid-calculator__share.mjs.gz
       - sump-pump-bid-calculator__usage.mjs.gz=sump-pump-bid-calculator__usage.mjs.gz
       - sump-pump-bid-calculator__vs-servicetitan.html.gz=sump-pump-bid-calculator__vs-servicetitan.html.gz
       - sunroom-bid-calculator__calc.mjs.gz=sunroom-bid-calculator__calc.mjs.gz
