@@ -72,6 +72,19 @@
     </section>
 
     <section class="disclaimer">
+      <h2>This tool vs. a full WMS</h2>
+      <p>
+        A full warehouse-management platform such as
+        <a href="./vs-extensiv.html">Extensiv 3PL Warehouse Manager</a> runs
+        FIFO or lot-order visibility on top of a whole 3PL operation's client,
+        billing, and inventory records. This tool checks one exported pick log
+        instead — no account, no client setup, nothing uploaded. See
+        <a href="./vs-extensiv.html">FIFO Pick Evidence vs. Extensiv</a> for
+        which one answers your question.
+      </p>
+    </section>
+
+    <section class="disclaimer">
       <h2>Common questions</h2>
       <h3>What counts as a FIFO exception?</h3>
       <p>A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log. See <a href="./what-counts-as-a-fifo-exception.html">a worked example</a> for the exact rows that do and do not get flagged.</p>

@@ -328,7 +328,7 @@
       "url": "https://marisstella.dev/tools/fifo-pick-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Free, no-signup, no-upload tool that reads a warehouse pick-log CSV in your browser and reports FIFO pick-order exceptions and missing or ill-formed timestamps before a customer audit. Runs entirely client-side.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "backup-verification-evidence",
