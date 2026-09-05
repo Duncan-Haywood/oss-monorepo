@@ -14322,3 +14322,58 @@ entries:
         verification per CLAUDE.md's "ship without review ceremony", CI
         currently metered/starved fleet-wide.
     mrr_end: null
+  - venture: saas-seat-true-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second competitor comparison page, vs-vendr.html, alongside
+        the venture's existing vs-zylo.html (its only comparison page until
+        now). Picked deliberately: Vendr does a genuinely different job from
+        Zylo (a paid buying/renegotiation service with its own negotiators,
+        versus Zylo's usage-discovery platform), the same distinctness
+        freelance-retainer-calculator's vs-bonsai/vs-harvest pair and
+        cloud-egress-calculator's three vs-pages already establish as a valid
+        pattern -- as opposed to two pages naming different brands for the
+        same underlying alternative, which would be thin duplicate content.
+      - >-
+        This session initially picked two other ventures first and had to
+        abandon both mid-work after a concurrent session shipped the same
+        venture+feature first: vendor-change-watch (a vs-visualping.html
+        draft, superseded by #3413's vs-changedetection-io.html -- withdrawn
+        before opening a PR because the two pages would have made nearly the
+        identical "generic page-watcher vs purpose-built vendor-policy
+        watcher" argument, unlike a legitimate second comparison), then
+        portable-restroom-event-quote (a share.mjs draft using the
+        fence-bid-calculator JSON-payload pattern, superseded by #3417's
+        fuller BID_SPEC implementation with local draft save, discovered via
+        a routine `git fetch origin main` immediately before pushing). Both
+        collisions were caught before any PR was opened by re-checking
+        `git log origin/main` right before pushing, per this file's
+        "Duplicate PRs" section -- no duplicate PR, no wasted review.
+      - >-
+        Also discovered mid-session that this run shared a live working
+        directory with at least one concurrent agent (uncommitted work from
+        other ventures -- notary-trip-quote, appliance-repair-quote-calculator
+        -- appeared and disappeared in `git status` while idle). Moved all
+        work for this venture into an isolated `git worktree` on its own
+        branch to guarantee no cross-contamination with concurrent sessions'
+        uncommitted files, rather than risk staging or committing someone
+        else's in-progress changes.
+      - >-
+        Verified: venture suite (ventures/saas-seat-true-up) 46/46 including
+        a new vs-vendr.test.mjs (this venture's first vs-page, vs-zylo.html,
+        shipped in an earlier session with no dedicated test file).
+        platform/marketing+platform/pages 1126/1126 after
+        node platform/marketing/regen.mjs regenerated the gitops mirror --
+        this also caught a real bug in the new page: faq-visible.test.mjs
+        failed because the JSON-LD FAQ answer used a double-hyphen where the
+        visible prose used an em dash for the same punctuation; fixed by
+        matching them, re-verified green. gitops/tests: 409 passed, 25 skipped (pytest
+        installed fresh this session). All 15 platform/ci unittest modules
+        pass (run from inside platform/ci per CLAUDE.md's note that pytest
+        cannot collect them from the repo root). ci_starvation.py not
+        invoked: pushed and merged on local verification per CLAUDE.md's
+        "ship without review ceremony", CI fleet-wide metered/starved this
+        session per the standing brief.
+    mrr_end: null
