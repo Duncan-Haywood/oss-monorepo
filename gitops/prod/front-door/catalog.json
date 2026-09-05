@@ -336,7 +336,7 @@
       "url": "https://marisstella.dev/tools/backup-verification-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Drop backup-evidence run records in your browser to see whether last night's archive shrank or a verified job quietly got worse. Nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "repository-branch-hygiene",
