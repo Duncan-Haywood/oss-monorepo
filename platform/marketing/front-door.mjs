@@ -918,7 +918,17 @@ export const SITE_NAME = 'Free small-business calculators';
 export const SOCIAL_CARD_ALT =
   'The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.';
 
-const escapeHtml = (value) =>
+/**
+ * Exported so tests can assert against what this renderer actually emits
+ * rather than against a partial copy of these rules.
+ *
+ * `front-door-tools.test.mjs` used to look for a tool title with only `&`
+ * re-escaped, which held for as long as no title contained any other special
+ * character. `vendor-change-watch` shipped the catalogue's first apostrophe on
+ * 2026-09-05 and the assertion failed on correct output — the renderer was
+ * right to write `&#39;` and the test was checking for a string nothing emits.
+ */
+export const escapeHtml = (value) =>
   String(value)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')

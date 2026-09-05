@@ -87,6 +87,7 @@ import {
 import {
   FAVICON_FILE as FRONT_DOOR_FAVICON,
   SOCIAL_CARD_ALT as FRONT_DOOR_SOCIAL_CARD_ALT,
+  escapeHtml,
   renderFrontDoor,
 } from './front-door.mjs';
 import {
@@ -752,7 +753,10 @@ test('the front door lists exactly the mirrored tools, and links to them by apex
   const html = renderFrontDoor({ slugs: ['ebay-fee-calculator', 'roofing-bid-calculator'], mirrored: tools });
   for (const tool of tools) {
     assert.ok(html.includes(`href="${tool.url}"`), `the front door does not link to ${tool.url}`);
-    assert.ok(html.includes(tool.title.replaceAll('&', '&amp;')), `${tool.title} is not named`);
+    // Escape with the renderer's own helper, not a partial copy of it: this
+    // line re-escaped only `&`, so the first title containing an apostrophe
+    // failed the assertion against perfectly correct output.
+    assert.ok(html.includes(escapeHtml(tool.title)), `${tool.title} is not named`);
   }
   const linked = html.match(/href="\/tools\/[^"]*"/g) ?? [];
   assert.equal(linked.length, tools.length, 'the front door links to a tool the mirror does not serve');

@@ -13872,6 +13872,7 @@ entries:
         gates the merge per CLAUDE.md's "absent CI is not failed CI."
     mrr_end: null
   - venture: ai-engineering-academy
+  - venture: vendor-change-watch
     agent_spend_usd: null
     human_hours: 0
     outcomes:
@@ -13912,6 +13913,110 @@ entries:
         skipped, unrelated) since regen.mjs touched gitops/prod/front-door*.
         A fresh build.mjs/check.mjs run after regen still reports 716 pages,
         no dead links.
+        Gave the venture a public surface. It was a complete, tested free CLI
+        with no route to any user at all: `build.mjs` resolves a venture's
+        entry point at `index.html` or `site/index.html`, this venture had
+        neither, so it appeared in no build, no mirror, no sitemap and no
+        front door. Its own kill criterion is "no external run within 90 days",
+        which nothing could have satisfied, because nothing linked to it
+        anywhere a stranger looks. Eleven ventures were in that state; this is
+        the one whose value survives a browser (the rest are native apps,
+        servers and infrastructure).
+        Shipped index.html plus diff.mjs, store.mjs, usage.mjs and examples.mjs
+        (31 tests). diff.mjs is a faithful port of src/vendor_watch/diff.py and
+        snapshot.py -- same heading-indexed sections, same whitespace
+        normalisation, same three change kinds, and the same load-bearing
+        status vocabulary, so a failed capture reads `inconclusive` and a
+        mismatched pair reads `unknown`, never "no change". store.mjs keeps two
+        captures per page in localStorage, which is what makes the CLI's
+        capture-now/capture-later loop available in a browser at all; a full or
+        blocked store is reported rather than swallowed, because a silently
+        dropped capture is the one failure this venture must not have.
+        The page does not fetch and says so: browsers refuse cross-origin
+        reads, and the only way around it is a proxy that would see every URL a
+        user watches, which is the opposite of the venture's promise. That
+        split is stated in the copy and in the FAQ rather than papered over.
+        Catalogue went 174 -> 175 tools.
+        Three guards outside this venture were repaired rather than worked
+        around, each a case of a rule restated instead of imported --
+        the defect class CLAUDE.md records under "168 became 169":
+        (1) `platform/pages/clauses.test.mjs` used vendor-change-watch as its
+        fixture for "a venture with no browser surface". That fixture had
+        already gone stale once (cra-evidence-desk, 2026-09-03) and went stale
+        again here, because both were picked for having no page *yet* -- a fact
+        about the day, not the venture. Repointed at
+        garmin-world-traveler-watchface, a Connect IQ watchface with no web
+        target even in principle, and wrote down that property so the next
+        pick keeps it.
+        (2) `front-door-tools.test.mjs` asserted a tool title appears in the
+        front door after re-escaping only `&`. This venture shipped the
+        catalogue's first title containing an apostrophe, which the renderer
+        correctly escapes to `&#39;`, so the guard failed on correct output.
+        Exported the renderer's own escapeHtml and used it in the test instead
+        of a partial copy.
+        (3) The mirror dropped the page on a dead link to README.md (not a
+        mirrored file); found with front-door-tools.mjs's own
+        explainIneligible(), and fixed in the page rather than in the checker.
+        Verified locally, runners being starved: venture 31/31,
+        platform/marketing+pages 1126/1126, platform/proposal+privacy+webcheck
+        182/182 (incl. faq-visible, which caught six JSON-LD answers diverging
+        from the visible prose and one question with no visible counterpart --
+        all corrected), all 15 platform/ci unittest modules OK,
+        check.mjs "175 products, 716 pages, no dead links", and
+        launched.mjs --write so the new page can enter the feed.
+    mrr_end: null
+  - venture: screened-porch-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private bid link (#3406), the same share-link
+        template used across the portfolio (pool-plaster-bid-calculator,
+        vinyl-liner-bid-calculator, and others), adapted to this venture's
+        own attachment/roof/ceiling/mesh/height preset ids and 39
+        rate/geometry fields plus three boolean flags (includeFan,
+        includePermit, demoExisting). Added share.mjs/share.test.mjs (enum
+        fields checked against calc.mjs's own ATTACHMENT_PRESETS/
+        ROOF_PRESETS/CEILING_PRESETS/MESH_PRESETS/HEIGHT_PRESETS rather than
+        a hand-duplicated list) and vendored proposal-terms.mjs/
+        proposal-terms.test.mjs unchanged. Wired a "Copy share link" button
+        into the existing summary-actions row and restoreShare() marks every
+        restored KIT_ID field as edited before the page's own startup
+        applyMeshKit()/applyRoofKit()/applyCeilingKit()/applyHeightKit()/
+        applyGeometryKits() sequence runs, so a shared link's numbers are not
+        silently overwritten by a freshly computed suggestion.
+      - >-
+        This session found 5 of ~184 ventures still missing a share link and
+        attempted all three of the remaining fixed-field ones
+        (pool-plaster-bid-calculator, vinyl-liner-bid-calculator,
+        screened-porch-bid-calculator). The first two were each
+        independently duplicated and merged by concurrent sessions (#3401,
+        #3405) before this session's PR could land -- both reconciled
+        cleanly via portfolio/ledger/supersede_check.py (confirmed
+        superseded, no unique content lost) rather than shipping a
+        duplicate; see the closed #3403. Only screened-porch-bid-calculator
+        (#3406) was not simultaneously claimed by another session, checked
+        via a fresh `git fetch origin main` immediately before each commit
+        and again immediately before merge.
+      - >-
+        Verified: venture suite 106/106, platform/marketing+pages 1126/1126,
+        platform/proposal 101/101 (incl. term-ids.test.mjs), platform/privacy
+        +webcheck 50/50. platform/pages/roundtrip.mjs against a real
+        Chromium instance round-tripped all 65 fields and the $5,671.38
+        headline figure exactly. ci_starvation.py confirmed all 19 check
+        runs on #3406 were runner_id: 0 (starved, not a real failure) before
+        merging on local verification per CLAUDE.md's "absent CI is not
+        failed CI."
+      - >-
+        Also: refreshed the gh-pages snapshot after merging
+        (platform/ci/pages_state.py reported stale at 9302a730 vs main's
+        87021fd1; ran CONFIRM=publish-pages-branch PUSH=1
+        platform/pages/publish-branch.sh, now current). Confirmed via
+        Public surface check (run 33992439383, 2026-09-05) and Outage
+        triage that the Hetzner k3s cluster and HETZNERSSHKEY rotation
+        remain owner-blocked, unchanged since the ledger's existing
+        infra_state.yaml readings -- no new finding there, only
+        re-verification before reporting it to the owner.
     mrr_end: null
   - venture: mobile-detailing-bid-calculator
     agent_spend_usd: null

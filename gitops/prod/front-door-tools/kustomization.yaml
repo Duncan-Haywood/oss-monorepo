@@ -33,17 +33,17 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 130 files, 552213 bytes
-#   portfolio-front-tools-1: 113 files, 555332 bytes
-#   portfolio-front-tools-2: 150 files, 553762 bytes
+#   portfolio-front-tools-0: 130 files, 552226 bytes
+#   portfolio-front-tools-1: 113 files, 555330 bytes
+#   portfolio-front-tools-2: 150 files, 553745 bytes
 #   portfolio-front-tools-3: 119 files, 555750 bytes
-#   portfolio-front-tools-4: 127 files, 553875 bytes
-#   portfolio-front-tools-5: 115 files, 544496 bytes
-#   portfolio-front-tools-6: 106 files, 553764 bytes
-#   portfolio-front-tools-7: 120 files, 556206 bytes
-#   portfolio-front-tools-8: 99 files, 549917 bytes
-#   portfolio-front-tools-9: 84 files, 444116 bytes
-#   portfolio-front-tools-10: 54 files, 279301 bytes
+#   portfolio-front-tools-4: 127 files, 553889 bytes
+#   portfolio-front-tools-5: 115 files, 544487 bytes
+#   portfolio-front-tools-6: 106 files, 554553 bytes
+#   portfolio-front-tools-7: 120 files, 556754 bytes
+#   portfolio-front-tools-8: 98 files, 545925 bytes
+#   portfolio-front-tools-9: 89 files, 461397 bytes
+#   portfolio-front-tools-10: 54 files, 279353 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1258,6 +1258,11 @@ configMapGenerator:
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
       - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
+      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
+      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
+      - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
+      - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
+      - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
