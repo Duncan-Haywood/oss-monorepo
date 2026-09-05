@@ -68,10 +68,23 @@ test('inputs and result fields for the primary journey are present', () => {
     'shape', 'depth', 'mil', 'bead', 'stairs', 'pattern', 'access',
     'lengthFeet', 'widthFeet', 'wallHeightFeet',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'copySummary', 'copyLink', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
+});
+
+test('the share link wires encode, terms, and restore, not just the button', () => {
+  // A button with no wiring behind it is worse than no button: it tells a
+  // crew the feature exists. This is the source-level half of what
+  // `platform/proposal/term-ids.test.mjs` checks across every venture.
+  assert.match(scriptSource, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(scriptSource, /withTerms\(/, 'copyLink does not fold the proposal terms into the link');
+  assert.match(scriptSource, /splitTerms\(/, 'restoreShare does not separate the terms from the venture payload');
+  assert.match(scriptSource, /applyTerms\(/, 'a restored link does not write the terms back onto the panel');
+  assert.match(scriptSource, /readTerms\(/, 'copyLink does not read the terms currently on the panel');
+  assert.match(scriptSource, /overlongTermsNote\(/, 'a term dropped for length is not named back to the sender');
+  assert.match(scriptSource, /restoreShare\(\)/, 'restoreShare is defined but never called on load');
 });
 
 test('the landing page names the problem in the crew’s own words', () => {
