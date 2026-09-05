@@ -35,7 +35,7 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 550683 bytes
 #   portfolio-front-tools-1: 113 files, 555332 bytes
-#   portfolio-front-tools-2: 149 files, 549834 bytes
+#   portfolio-front-tools-2: 150 files, 551191 bytes
 #   portfolio-front-tools-3: 118 files, 551570 bytes
 #   portfolio-front-tools-4: 126 files, 553148 bytes
 #   portfolio-front-tools-5: 117 files, 553632 bytes
@@ -429,6 +429,7 @@ configMapGenerator:
       - music-lesson-break-even__calc.mjs.gz=music-lesson-break-even__calc.mjs.gz
       - music-lesson-break-even__how-to-price-music-lessons.html.gz=music-lesson-break-even__how-to-price-music-lessons.html.gz
       - music-lesson-break-even__index.html.gz=music-lesson-break-even__index.html.gz
+      - music-lesson-break-even__share.mjs.gz=music-lesson-break-even__share.mjs.gz
       - music-lesson-break-even__usage.mjs.gz=music-lesson-break-even__usage.mjs.gz
       - music-lesson-break-even__vs-mymusicstaff.html.gz=music-lesson-break-even__vs-mymusicstaff.html.gz
       - portable-restroom-event-quote__calc.mjs.gz=portable-restroom-event-quote__calc.mjs.gz
