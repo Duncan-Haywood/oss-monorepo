@@ -1,5 +1,34 @@
 period: 2026-09
 entries:
+  - venture: construction-evidence-log
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a CSV export of saved daily log entries. The tool already
+        persists every entry to localStorage and can bundle them into one
+        combined JSON evidence pack, but JSON is not what a contractor opens
+        to sort, filter, or hand a week of entries to a client, a board, or
+        an insurer -- grant-reporting-tracker, a sibling tracker in this
+        portfolio, already ships a toCsv for exactly that reason (one row
+        per record, every field the form collects), and this venture had no
+        equivalent. Added entriesToCsv (one row per saved entry: log
+        fields, change/delay fields, findings, savedAt) and a "Download CSV
+        (spreadsheet)" button beside the existing combined-pack download,
+        scoped to the same project filter; updated the FAQ answer and its
+        JSON-LD twin to describe it. Verified locally (CI starved,
+        runner_id:0 per CLAUDE.md): node --test
+        ventures/construction-evidence-log/*.test.mjs (26/26, 4 new tests
+        covering header shape, one row per entry with change/delay fields,
+        blank-field findings included, and comma/quote escaping); ran
+        platform/marketing/regen.mjs and committed the resulting mirror
+        shard rebalance; node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs (1124/1124, including ink.test.mjs's
+        full-portfolio contrast audit and the front-door-tools
+        mirror-completeness check). No new disclaimer or usage-tracking
+        surface needed: the page's existing localStorage event counter and
+        liability notice already cover the new button.
+    mrr_end: null
   - venture: owner-operator-cpm-calculator
     agent_spend_usd: null
     human_hours: 0
