@@ -573,5 +573,78 @@ class DispatchNeedsARunner(unittest.TestCase):
         self.assertIn("restore-cluster.sh", row["action"])
 
 
+class UnmeasuredIsNotBlocked(unittest.TestCase):
+    """`down` and `unknown` warrant opposite advice, and used to get the same.
+
+    The banner told the owner that every non-viable outage route "buys
+    nothing, however cheap it looks". True of a route whose infrastructure is
+    measured down; false of one nobody has measured. On 2026-09-05 the second
+    case was `deploy-settings` — one dropdown, no credential, no runner, no
+    cluster, the only route not downstream of an outage, with the `gh-pages`
+    snapshot already current at the tip of `main` — and the queue was telling
+    the owner it was not worth the thirty seconds.
+    """
+
+    DAY = dt.date(2026, 9, 5)
+
+    def outage_row(self, rid, requires):
+        return decision(id=rid, outage=True, requires=requires, gates="deployment")
+
+    def render_with(self, rows, infra):
+        # `render` returns a single string; joining it would split it per
+        # character and make every assertion below vacuously pass.
+        #
+        # Collapse whitespace before asserting: the banner is hard-wrapped at
+        # 72 columns, so a phrase under test can straddle a line break and an
+        # exact-substring assertion would fail on wrapping rather than on
+        # behaviour. This checks the wording, not the column it lands in.
+        return " ".join(render(rows, self.DAY, infra=infra).split())
+
+    def test_an_unmeasured_route_is_not_described_as_buying_nothing(self):
+        rows = [self.outage_row("pages", ["unmeasured-thing"])]
+        out = self.render_with(rows, {})
+        self.assertNotIn("buys nothing", out)
+        self.assertIn("unverified rather than blocked", out)
+
+    def test_a_down_route_is_still_described_as_buying_nothing(self):
+        # The safeguard must keep working for the case it was written for.
+        rows = [
+            self.outage_row("pages", ["cluster"]),
+            self.outage_row("ssh", []),
+        ]
+        infra = {"cluster": {"verdict": "down", "measured": "2026-09-05", "run": 1}}
+        out = self.render_with(rows, infra)
+        self.assertIn("buys nothing", out)
+
+    def test_unmeasured_and_down_are_described_separately_in_one_render(self):
+        rows = [
+            self.outage_row("down-route", ["cluster"]),
+            self.outage_row("unmeasured-route", ["never-read"]),
+            self.outage_row("live-route", []),
+        ]
+        infra = {"cluster": {"verdict": "down", "measured": "2026-09-05", "run": 1}}
+        out = self.render_with(rows, infra)
+        # The down one is named as buying nothing; the unmeasured one is not
+        # swept into the same sentence.
+        self.assertIn("down-route", out)
+        self.assertIn("buys nothing", out)
+        self.assertIn("unmeasured-route is unverified rather than blocked", out)
+
+    def test_all_unmeasured_does_not_claim_none_of_them_works(self):
+        # With nothing viable and nothing measured down, the old wording
+        # asserted "None of them works today" — the exact unchecked claim
+        # this split exists to stop.
+        rows = [self.outage_row("pages", ["never-read"])]
+        out = self.render_with(rows, {})
+        self.assertNotIn("None of them works today", out)
+        self.assertIn("None of them is confirmed to work today", out)
+
+    def test_viability_still_refuses_to_rank_unknown_as_up(self):
+        # The description changed; the ranking rule must not. An unmeasured
+        # prerequisite reading as healthy is what cost five days.
+        d = self.outage_row("pages", ["never-read"])
+        self.assertEqual(viability(d, {}, self.DAY)[0], "unknown")
+
+
 if __name__ == "__main__":
     unittest.main()
