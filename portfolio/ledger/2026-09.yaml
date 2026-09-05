@@ -13191,6 +13191,58 @@ entries:
           because the false alarm was one step away from a large and
           entirely unnecessary "fix" to a mirror that is sound.)
     mrr_end: null
+  - venture: wheelchair-ramp-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the shareable private quote link (PR #3357): share.mjs +
+        share.test.mjs, vendored proposal-terms.mjs + its test (byte-identical
+        to platform/proposal/terms.mjs, deduped by the mirror against the
+        existing shared copy -- zero new bytes on the wire), and wired
+        copyLink()/restoreShare() into index.html, following the tested
+        sump-pump-bid-calculator pattern exactly rather than inventing a new
+        one. Deposit/hold-days/payment-terms/notes ride via the pfterms
+        parameter from the first commit, so this venture does not repeat the
+        #3346/#3354/#3355 bug class (a share link that carries the arithmetic
+        fields but silently drops the proposal panel's five terms).
+        Regenerated the front-door mirror.
+
+        Session context: this was a scheduled autonomous run under a
+        product-first mandate that also asked to prioritize deployment/CI-CD
+        and the Codex-CLI-on-Hetzner setup. Before this, I sampled 35+ of the
+        repository's ~83 open branches for repairable work -- every one
+        checked (via direct file-content diff against `main`, not just branch
+        ancestry) was already fully superseded, so there was no open-PR or
+        stale-branch backlog to drain this run. I also verified the
+        Codex-on-Hetzner and CI/CD automation the user asked about:
+        bootstrap/scripts/install-codex-host.sh and enable-codex-governor.sh
+        already implement a systemd-timer-scheduled Codex worker running
+        against gitops/agents/workers/mandate.md (a mandate in the same spirit
+        as this session's own), and it is already the #1 item in
+        portfolio/ledger/decision_queue.py (hetzner-ssh-key-is-a-public-key,
+        #3184) -- blocked on an owner-only SSH key rotation, not on anything
+        buildable from a session. Nothing to add there without duplicating.
+
+        While rebasing onto a fast-moving main, a concurrent PR (#3354) added
+        the same share-link feature to water-softener-bid-calculator without
+        the pfterms wiring -- the exact bug this entry's pattern avoids. I
+        patched it locally, then a second concurrent commit (#3355) landed
+        the official fix moments before I pushed, so I discarded my duplicate
+        and merged the official fix instead rather than shipping a competing
+        patch.
+
+        Verified locally (CI starvation not checked this run -- verified via
+        direct local test execution instead):
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+          platform/proposal/*.test.mjs ventures/wheelchair-ramp-bid-calculator/*.test.mjs
+          ventures/water-softener-bid-calculator/*.test.mjs -> 1433/1433 pass,
+          post-merge with main at eeade5ec4.
+        - Manual round-trip smoke test of encodeInputs/decodeInputs.
+        - platform/proposal/term-ids.test.mjs (the guard that catches a
+          venture adopting the proposal panel without carrying its terms in
+          the share link) passes for this venture.
+    mrr_end: null
   - venture: window-cleaning-bid-calculator
     agent_spend_usd: null
     human_hours: 0

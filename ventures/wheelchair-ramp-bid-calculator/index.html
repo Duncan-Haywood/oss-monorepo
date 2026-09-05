@@ -8,7 +8,7 @@
   <meta property="og:title" content="Wheelchair Ramp Bid Calculator — ADA Slope & Landings">
   <meta property="og:description" content="Bid the landings, the rails, and the ADA-slope rise — not the lineal-foot coupon. See the margin before you send the price.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wheelchair Ramp Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Rise-to-run geometry, intermediate and switchback landings, both-side handrails, wood/composite/aluminum/concrete surface kits, walk-away price, proposed-price margin check, copyable customer-facing summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wheelchair Ramp Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Rise-to-run geometry, intermediate and switchback landings, both-side handrails, wood/composite/aluminum/concrete surface kits, walk-away price, proposed-price margin check, copyable customer-facing summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a 24-inch rise ramp 146 sq ft of walking surface, not 24 feet of ramp?","acceptedAnswer":{"@type":"Answer","text":"Because a lineal-foot special counts the sloped run and stops there. At a 1:12 slope, a 24-inch rise needs 24 lf of run, which at 4 ft wide is 96 sq ft — but the top and bottom landings add another 50 sq ft at the default 5×5 size, for 146 sq ft of actual walking surface. The lf number a competitor quotes off of never included the two landings the ramp can't function without."}},{"@type":"Question","name":"Why does a switchback sometimes need an extra landing that a straight ramp of the same rise doesn't?","acceptedAnswer":{"@type":"Answer","text":"Because a switchback needs a turn platform, and if the rise is short enough that no rest landing is already required between the top and bottom landings, the turn itself still has to happen somewhere — so the calculator adds one landing specifically for that case. A straight run at that same short rise needs only its top and bottom landings; the switchback layout is what forces the extra one."}},{"@type":"Question","name":"Why does aluminum cost so much more per square foot than wood, and why does it have no framing cost?","acceptedAnswer":{"@type":"Answer","text":"A modular aluminum kit prices decking at $28 per sq ft against $4.50 for pressure-treated wood, but it carries zero framing cost because the modular structure is the surface — there's no separate joist-and-post build the way wood, composite, and concrete all need at $4–$6 per sq ft. Aluminum also cuts labor roughly in half, at 1.8 hours per 100 sq ft versus 3.2 for wood, so the two costs move in opposite directions."}},{"@type":"Question","name":"Why does the calculator suggest zero handrail footage below a 6-inch rise?","acceptedAnswer":{"@type":"Answer","text":"Because that's the common starting threshold below which handrails are often not required on a residential ramp — the suggestion is editable, and the shop can still add rail hours and footage for any rise. Above the threshold, suggested handrail length covers both sides of the run plus one side of every landing, which is why landing count feeds into rail footage as well as surface area."}},{"@type":"Question","name":"Why does the footing count grow with both the run length and the number of landings?","acceptedAnswer":{"@type":"Answer","text":"Footings come from three sources added together: a fixed pair at the house, a pair at every landing, and posts spaced along the run itself — by default one pair roughly every 8 feet. A longer run needs more posts along its length independent of landings, and more landings need their own support independent of run length, so a switchback with an extra landing on a long run can need noticeably more footings than a straight ramp of the same total rise."}},{"@type":"Question","name":"Do this calculator's defaults match ADA ramp requirements?","acceptedAnswer":{"@type":"Answer","text":"The defaults mirror the numbers most often cited from the ADA Standards for Accessible Design: a 1:12 maximum running slope, a landing at least every 30 inches of rise, 5×5 ft (60×60 in) landings, and handrails once rise passes 6 inches — which is exactly what this calculator starts from. Matching those numbers is not the same as certifying ADA compliance: the standard also covers surface texture, handrail height and grip diameter, edge protection, and cross slope, none of which this calculator checks. Verify the built ramp against the full standard, your local building code, or the authority having jurisdiction before calling a job compliant."}},{"@type":"Question","name":"Does a ramp at a private home have to meet ADA requirements?","acceptedAnswer":{"@type":"Answer","text":"Not automatically. The ADA's design standards are a legal requirement for places of public accommodation and commercial facilities; a single-family home generally sits outside that reach unless it was built with certain public funds, falls under a state or local accessibility code, or the ramp is a condition of a program such as a VA or state home-modification grant. Plenty of homeowners ask for “ADA” anyway because it is the slope everyone recognizes, which is why the defaults above start there — confirm which rules actually apply to your job before pricing to a different slope."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
@@ -217,6 +217,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -287,7 +288,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rise, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rise, wages, costs, or prices.</p>
     <p>Wondering how this compares to a field-service platform? <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -308,6 +309,9 @@
       switchbackExtraLandings,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -321,6 +325,7 @@
       'deckingPerSf','framingPerSf','handrailPerLf','footingEach','demoFee','mobilizationFee','permitFee',
       'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin','proposedPrice',
     ];
+    const FLAG_IDS = ['demoExistingStairs','includePermit'];
     const KIT_IDS = new Set([
       'runPerRise','hoursPer100Sf','deckingPerSf','framingPerSf','handrailLf','footingCount',
     ]);
@@ -472,6 +477,68 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // share.mjs never carries them and the recipient would reopen the bid
+      // at this venture's defaults -- a different deposit and validity
+      // window under a headline that matched to the cent. They ride beside
+      // the payload in `pfterms`, which decodeInputs never sees.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FLAG_IDS) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A slope/surface change never overwrites a restored rate: mark the
+      // rates a preset suggests as already "edited", the same guard the form
+      // itself sets when a shop types over the suggestion.
+      KIT_IDS.forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     el('slope').addEventListener('change', () => {
       applySlopeKit();
       applyGeometryKits();
@@ -532,7 +599,11 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
+    restoreShare();
     applySlopeKit();
     applySurfaceKit();
     applyGeometryKits();
