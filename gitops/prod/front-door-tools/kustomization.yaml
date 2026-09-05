@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 107 files, 555856 bytes
 #   portfolio-front-tools-7: 116 files, 553629 bytes
 #   portfolio-front-tools-8: 96 files, 544269 bytes
-#   portfolio-front-tools-9: 97 files, 512729 bytes
+#   portfolio-front-tools-9: 98 files, 516748 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1265,6 +1265,7 @@ configMapGenerator:
       - which-job-first__how-do-i-decide-which-job-to-take-first.html.gz=which-job-first__how-do-i-decide-which-job-to-take-first.html.gz
       - which-job-first__index.html.gz=which-job-first__index.html.gz
       - which-job-first__rank.mjs.gz=which-job-first__rank.mjs.gz
+      - which-job-first__vs-jobber.html.gz=which-job-first__vs-jobber.html.gz
       - window-cleaning-bid-calculator__calc.mjs.gz=window-cleaning-bid-calculator__calc.mjs.gz
       - window-cleaning-bid-calculator__how-much-to-charge-per-window.html.gz=window-cleaning-bid-calculator__how-much-to-charge-per-window.html.gz
       - window-cleaning-bid-calculator__index.html.gz=window-cleaning-bid-calculator__index.html.gz
