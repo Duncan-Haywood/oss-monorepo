@@ -345,7 +345,13 @@ if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
       echo "    2. enable the policy (./bootstrap/scripts/enable-codex-governor.sh), then re-run the installer"
     else
       echo "  ! the Codex host install did not complete." >&2
-      echo "    The cluster restore above is unaffected; retry with" >&2
+      echo "    The cluster restore above is unaffected." >&2
+      echo "    The installer prints the reason and, for a missing package, the" >&2
+      echo "    exact apt-get line -- read the output just above rather than" >&2
+      echo "    starting over. The most likely reason on a fresh ubuntu-24.04" >&2
+      echo "    box is that it ships no node and no npm: the worker runs on the" >&2
+      echo "    host here, not in the node:22-bookworm image the k3s Job used." >&2
+      echo "    Fix it on ${AG} and re-run this step, or follow" >&2
       echo "    gitops/agents/host/README.md, which does it without this script." >&2
     fi
     ssh_ag "rm -rf '${codex_dir}'" >/dev/null 2>&1 || true
