@@ -13085,3 +13085,41 @@ entries:
         four pass, 103/103 tools point at the input they reject. No new
         defects.
     mrr_end: null
+  - venture: water-softener-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the shareable private quote link feature this venture was
+        still missing (radon-mitigation, septic-pumping, hot-tub, pergola,
+        retaining-wall, mold-remediation and sump-pump shipped it earlier
+        the same day). Added share.mjs (encodeInputs/decodeInputs) following
+        the established pattern: every number, boolean, and enum field on
+        the form -- capacity, system, work package, pipe material, pipe and
+        drain footage, haul-away, brine receptacle, and every wage/cost/
+        margin rate -- rides in the URL hash; the four enum fields
+        (capacity/system/work/pipe) are validated against calc.mjs's own
+        preset ids so a crafted or stale link can only set values the
+        form's own selects could produce; deposit, hold-price days, prose
+        terms, and company/customer details are deliberately left out (they
+        persist per device via proposal.mjs). Wired a "Copy share link"
+        button and restoreShare() into index.html, plus the usage tally and
+        footer disclaimer sentence already used by the reference ventures.
+        Ran platform/marketing/regen.mjs and committed the mirror shard +
+        kustomization it rewrote.
+
+        Verified locally (CI starved -- runner_id: 0 per
+        ci_starvation.py, see CLAUDE.md):
+        - node --test ventures/water-softener-bid-calculator/*.test.mjs ->
+          82/82 pass (7 new share.mjs tests: round trip of all 30 fields,
+          unknown-field rejection, unknown-enum rejection for all four enum
+          fields, negative/non-numeric rejection, hash/query prefix
+          handling, the salt-free zero-extras case)
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+          -> 1124/1124 pass (same count as the pre-change baseline)
+        - node --test platform/proposal/*.test.mjs -> 100/101 pass; the one
+          failure (`term-ids.test.mjs`, "a venture on the older hand-kept
+          field list still names all five terms") reproduces identically on
+          the pre-change commit via `git stash`, so it predates and is
+          unrelated to this change -- left alone as out of scope.
+    mrr_end: null
