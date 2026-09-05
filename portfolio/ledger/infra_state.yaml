@@ -99,6 +99,18 @@ readings:
       no `pages build and deployment` run appeared after a `gh-pages` push.
       See `platform/ci/pages_state.py`'s docstring for why that third one is
       the interesting failure.
+      **That last clause was overturned the same day — see
+      `github-pages-branch-route` below.** The source is readable, and this
+      note was one step from reading it: "no `pages build and deployment` run
+      appeared after a `gh-pages` push" *is* the measurement, written down
+      here as a fourth failed attempt rather than as the result it was. What
+      was missing was a reason to trust the absence, and the workflow
+      *listing* supplies it — `dynamic/pages/` is listed if and only if Pages
+      builds from a branch, and the other `dynamic/` entries prove that
+      namespace is visible to this token at all. Worth keeping as a shape:
+      three refused endpoints in a row make "unreadable" feel like a
+      conclusion, and the route that worked was an endpoint this repository
+      already calls for something else.
 
   k3s-cluster:
     verdict: down
@@ -249,6 +261,54 @@ readings:
       written to stop, and it would have been this file's own turn to make
       it. `unknown`, not `up`: the route may well work, and thirty seconds
       in Settings → Billing is what turns this into a real verdict.
+
+  github-pages-branch-route:
+    # A third Pages question, distinct from both rows around it.
+    #   `github-pages-plan`   — could this account serve a private repo's site?
+    #   `github-pages-branch-route` — is the runner-free `gh-pages` branch
+    #                                 source the one the site is pointed at?
+    #   `github-pages-origin` — does the URL actually return a page?
+    # Until 2026-09-05 the middle one was believed unreadable from a session,
+    # so it was folded into the third and both stayed `unknown`.
+    verdict: down
+    measured: "2026-09-05"
+    run: null
+    how: >-
+      `python3 platform/ci/pages_state.py` and read the `source` row (added
+      2026-09-05). It lists every workflow GitHub reports for this repository
+      and looks for the synthetic `dynamic/pages/` path. GitHub creates that
+      managed builder if and only if Pages serves from a *branch*; when the
+      source is "GitHub Actions" no such workflow exists. The call is
+      `GET /repos/{owner}/{repo}/actions/workflows` — the same endpoint
+      `ci_starvation.py` already uses, so it needs no new scope, no runner and
+      no owner. Re-measure by re-running the tool.
+    note: >-
+      Measured 2026-09-05 across all 232 workflows in this repository. The
+      three `dynamic/` entries are
+      `dynamic/agents/copilot-pull-request-reviewer`,
+      `dynamic/dependabot/dependabot-updates` and
+      `dynamic/dependabot/update-graph`. There is no `dynamic/pages/` entry,
+      while `gh-pages` carries commits that would have triggered one — so the
+      configured Pages site is pointed at the **Actions** source.
+      This is the question `pages_state.py`'s own docstring said no session
+      could answer. It was right that `GET /pages` is refused by the agent
+      egress proxy and that `/deployments` 403s on token scope; it did not
+      consider that the workflow *listing* carries the same fact by
+      side-effect. Worth remembering as a shape: a blocked endpoint is not the
+      same as an unmeasurable fact.
+      **What it changes.** The `deploy-settings` flip is not "turn Pages on" —
+      Pages is on. It is one dropdown: Settings → Pages → Source → "Deploy
+      from a branch" → `gh-pages` / (root). And it explains the darkness
+      without needing the origin fetch: the Actions source deploys via
+      `portfolio-pages.yml`, whose deploy job is gated on
+      `vars.PAGES_ENABLED == 'true'` (skipped on every run measured to date)
+      *and* needs a runner (`github-actions-runners` is down). Two independent
+      reasons nothing has been published from it.
+      **What it does not change.** Whether the origin serves — that still
+      needs a fetch, and `github-pages-origin` below stays `unknown`. Nor the
+      plan gate: on Free, a private repository's Pages site serves a stranger
+      nothing whichever source it points at, so `github-pages-plan` above is
+      still the thirty seconds that decides whether this flip is worth taking.
 
   github-pages-origin:
     # Distinct from `github-pages-plan` above, and the distinction is the whole

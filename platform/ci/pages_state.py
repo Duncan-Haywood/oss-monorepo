@@ -88,6 +88,48 @@ stale the moment `main` moves and nothing refreshes it. This tool reports the
 commit `gh-pages` was built from and whether that commit is still the tip of
 `main`, so "the flip is ready" and "the flip would publish a month-old
 catalogue" are distinguishable at a glance.
+
+## The source half — measured 2026-09-05, and it closes the open question
+
+Everything above this line was written believing the *source* question ("does
+Pages serve the `gh-pages` branch, or the Actions workflow?") was unreadable
+from a session. `source_note` said so in its own docstring, and the honest
+output was a URL for the owner to open in a browser.
+
+It is readable, and by a call this repository already makes on every
+`ci_starvation.py` run:
+
+    GET /repos/{owner}/{repo}/actions/workflows
+
+When Pages serves **from a branch**, GitHub creates and runs a managed
+workflow for it, and that workflow appears in this listing with the synthetic
+path `dynamic/pages/pages-build-deployment` — the same shape as the
+`dynamic/dependabot/...` and `dynamic/agents/...` entries this repository
+already carries. When Pages serves **from Actions**, no such workflow is
+created; the repository's own `portfolio-pages.yml` does the deploying.
+
+So the absent entry is the measurement. Run on 2026-09-05 against all 232
+workflows in this repository, the three `dynamic/` paths were
+`dynamic/agents/copilot-pull-request-reviewer`,
+`dynamic/dependabot/dependabot-updates` and `dynamic/dependabot/update-graph`.
+No `dynamic/pages/`. With `has_pages: true`, that says the source is Actions
+— which needs a runner, and the metered allowance is spent — so the site is
+dark for a reason one Settings dropdown fixes.
+
+**Why this counts as a measurement rather than an inference.** The failure
+mode it has to avoid is the one this file already reasons about: a branch
+source configured but never built would also show no workflow. That case is
+excluded here by the branch itself — a Pages branch source builds on every
+push to the branch it points at, and both candidate branches (`gh-pages` and
+the default branch) have taken pushes. `verdict_source` therefore withholds
+`actions` unless the publish branch actually exists with a commit, and
+reports `unknown` rather than guessing when it does not.
+
+**What it still does not prove.** That the site *serves*. `has_pages` is
+sticky and a workflow listing is not an HTTP 200 — the reading is about
+configuration, exactly as the plan verdict above is about billing. A stranger
+opening the URL remains the only proof of serving, and `public_surface.py`'s
+runner-side probe remains the credential-free way to get one.
 """
 
 import argparse
@@ -108,8 +150,27 @@ import public_surface  # noqa: E402  (same shim)
 
 REPO_PATH = f"repos/{REPO_PLACEHOLDER}"
 BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{{branch}}"
+WORKFLOWS_PATH = (
+    f"repos/{REPO_PLACEHOLDER}/actions/workflows?per_page=100&page={{page}}"
+)
 
 PUBLISH_BRANCH = "gh-pages"
+
+# GitHub's managed builder for a *branch*-sourced Pages site. It is not a file
+# in `.github/workflows/`; GitHub synthesises it and lists it under this path
+# prefix, the same way it lists `dynamic/dependabot/...`. Matching on the
+# prefix rather than the full name is deliberate — the leaf has been renamed
+# before (`pages-build-deployment` today), and any future managed Pages
+# builder still has to live under this namespace to be a Pages builder.
+PAGES_BUILDER_PREFIX = "dynamic/pages/"
+
+# One guard against a silent misread. If GitHub ever stops listing *any*
+# `dynamic/` workflow through this endpoint — a scope change, a token that
+# sees only repository-defined workflows — then "no dynamic/pages/ entry"
+# would stop being evidence of anything, and this tool would report `actions`
+# on a repository serving happily from a branch. So the absence only counts
+# when some other dynamic workflow is visible to prove the namespace is.
+DYNAMIC_PREFIX = "dynamic/"
 
 # `publish-branch.sh` writes exactly this subject line, and the SHA in it is
 # the whole reason the freshness check can be done without a second API call.
@@ -154,6 +215,89 @@ def read_default_head(api, branch):
     except RuntimeError:
         return None
     return ((payload.get("commit") or {}).get("sha")) or None
+
+
+def read_workflow_paths(api):
+    """Every workflow path GitHub lists for this repository, or None.
+
+    None means the listing could not be read at all (no Actions scope, a
+    proxy refusal, a transport error). That is deliberately distinct from an
+    empty list: "I could not look" and "I looked and there are none" support
+    opposite conclusions in `verdict_source`, and collapsing them is how a
+    tool starts asserting things it did not measure.
+
+    Pages the listing rather than trusting the first 100. This repository has
+    232 workflows and the `dynamic/` entries sort wherever GitHub puts them,
+    so a single-page read could miss the one field this vote turns on.
+    """
+    paths = []
+    for page in range(1, 21):  # 2000 workflows is far past any real repository
+        try:
+            payload = api(WORKFLOWS_PATH.replace("{page}", str(page)))
+        except RuntimeError:
+            return None
+        batch = payload.get("workflows") or []
+        if not batch:
+            break
+        paths.extend(w.get("path") or "" for w in batch)
+        if len(batch) < 100:
+            break
+    return paths
+
+
+def verdict_source(repo, publish, workflow_paths):
+    """Which source an already-configured Pages site serves from.
+
+    Returns `(verdict, reason)` where verdict is one of:
+
+      `branch`   -- GitHub's managed branch builder exists, so Pages is
+                    serving (or has served) from a branch. The queued
+                    `deploy-settings` ask is already granted.
+      `actions`  -- Pages is configured, the managed branch builder does not
+                    exist, and the publish branch does have commits that
+                    would have triggered one. The source is the Actions
+                    workflow, which needs a runner.
+      `unknown`  -- anything else, including every case where the evidence
+                    would have to be stretched to reach a verdict.
+
+    The asymmetry is on purpose. `branch` is a *positive* reading of a
+    workflow that is present; `actions` is a reading of an absence, so it
+    carries the two extra conditions above before it will fire.
+    """
+    if not repo["has_pages"]:
+        return "unknown", "no Pages site is configured, so it has no source"
+    if workflow_paths is None:
+        return (
+            "unknown",
+            "the Actions workflow listing could not be read (no Actions: read "
+            "scope, or the call was refused), and this vote is read from it",
+        )
+    if any(p.startswith(PAGES_BUILDER_PREFIX) for p in workflow_paths):
+        return (
+            "branch",
+            f"GitHub's managed `{PAGES_BUILDER_PREFIX}` builder is listed, "
+            "which it creates only for a branch-sourced Pages site",
+        )
+    if not any(p.startswith(DYNAMIC_PREFIX) for p in workflow_paths):
+        return (
+            "unknown",
+            f"no `{DYNAMIC_PREFIX}` workflow of any kind is listed, so this "
+            "listing is not showing GitHub's managed workflows and the "
+            f"absence of `{PAGES_BUILDER_PREFIX}` is not evidence",
+        )
+    if publish is None or not publish.get("sha"):
+        return (
+            "unknown",
+            f"no `{PUBLISH_BRANCH}` branch with a commit, so a branch source "
+            "may simply never have been built -- absence proves nothing yet",
+        )
+    return (
+        "actions",
+        f"Pages is configured but GitHub lists no `{PAGES_BUILDER_PREFIX}` "
+        f"builder, while `{PUBLISH_BRANCH}` has commits that would have "
+        "triggered one. The source is the Actions workflow, which needs a "
+        "runner the metered allowance no longer buys",
+    )
 
 
 def plan_verdict(repo):
@@ -209,8 +353,8 @@ def freshness(publish, head_sha):
     )
 
 
-def source_note(repo, base_url):
-    """What is actually left to do, given `has_pages`.
+def source_note(repo, base_url, source="unknown", source_reason=""):
+    """What is actually left to do, given `has_pages` and the source verdict.
 
     Why this is separate from `plan_verdict`
     ----------------------------------------
@@ -241,6 +385,14 @@ def source_note(repo, base_url):
     So the honest output is not a flip instruction. It is the one URL that
     settles it, which anyone with a browser can open in five seconds and no
     session running behind the proxy can.
+
+    **Superseded in part, 2026-09-05.** The paragraph above is right that
+    `/pages` is refused and that only a fetch proves *serving*. It was wrong
+    that nothing here can tell the two sources apart: the Actions workflow
+    listing does, and `verdict_source` now reads it. When that vote lands on
+    `branch` or `actions` this function says so and names the action; when it
+    lands on `unknown` it falls back to the URL, which is still the right
+    answer for a question nothing measured.
     """
     if not repo["has_pages"]:
         # Deliberately not a flip instruction. `has_pages: false` on a private
@@ -254,9 +406,38 @@ def source_note(repo, base_url):
             "question ahead of the switch is the plan: Settings -> Billing."
         )
     target = base_url or "the repository's github.io origin"
+
+    if source == "actions":
+        # The one case with a concrete, owner-sized action attached. Say the
+        # action, not the investigation -- this is the whole value of having
+        # measured the source rather than sending the owner to look.
+        return (
+            "Pages is configured, and its source is the ACTIONS workflow.\n"
+            f"    Measured: {source_reason}.\n"
+            "    THE FLIP (one dropdown, ~30 seconds, no secret to paste):\n"
+            f"      Settings -> Pages -> Source -> 'Deploy from a branch' -> "
+            f"'{PUBLISH_BRANCH}' / (root) -> Save\n"
+            "    That route needs no runner, no k3s cluster and no Hetzner "
+            "SSH key, so it is the only published-catalogue path that is not "
+            "downstream of an outage. Check the snapshot line above first: "
+            "the flip publishes whatever `gh-pages` holds right now.\n"
+            f"    Confirm afterwards by opening:  {target}"
+        )
+
+    if source == "branch":
+        return (
+            "Pages is configured and its source is a BRANCH.\n"
+            f"    Measured: {source_reason}.\n"
+            "    So `deploy-settings` is already granted and this catalogue "
+            "has a public URL. What is left is keeping the snapshot fresh -- "
+            "see the line above, and `platform/pages/publish-branch.sh` after "
+            "any merge that touches a served surface.\n"
+            f"    Confirm it serves by opening:  {target}"
+        )
+
     return (
         "Pages is ALREADY configured here (has_pages: true). What is unread is "
-        "which source it points at, and this session cannot read it -- the "
+        f"which source it points at: {source_reason or 'not measured'}. The "
         "/pages API path is refused by the agent egress proxy, and the "
         "runner-side probe that would answer it has never run on a real "
         "runner (added after run 33887885219; every dispatch since is "
@@ -279,7 +460,10 @@ def collect(api):
     base_url = public_surface.pages_base_url()
     verdict, reason = plan_verdict(repo)
     fresh, fresh_reason = freshness(publish, head_sha)
+    source, source_reason = verdict_source(repo, publish, read_workflow_paths(api))
     return {
+        "source": source,
+        "source_reason": source_reason,
         "private": repo["private"],
         "has_pages": repo["has_pages"],
         "default_branch": repo["default_branch"],
@@ -291,7 +475,7 @@ def collect(api):
         "snapshot": fresh,
         "snapshot_reason": fresh_reason,
         "pages_url": base_url,
-        "source_note": source_note(repo, base_url),
+        "source_note": source_note(repo, base_url, source, source_reason),
     }
 
 
@@ -304,6 +488,9 @@ def render(state):
         "",
         f"  plan              {state['plan_verdict']}",
         f"                    {state['plan_reason']}",
+        "",
+        f"  source            {state['source']}",
+        f"                    {state['source_reason']}",
         "",
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",
