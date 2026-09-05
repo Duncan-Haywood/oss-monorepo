@@ -174,5 +174,43 @@ class Cli(unittest.TestCase):
         self.assertNotIn("Settings -> Pages", buf.getvalue())
 
 
+class SourceNote(unittest.TestCase):
+    """`has_pages` answers a billing question and a routing one, and the tool
+    used to give the billing answer to both.
+
+    The routing half is the one with a cost: told "flip Pages on" when Pages is
+    already on, an owner either finds nothing to change or changes the wrong
+    thing, while the site may already be serving at a URL nobody has opened.
+    """
+
+    def test_an_already_configured_site_is_not_described_as_needing_enabling(self):
+        note = ps.source_note({"has_pages": True, "private": True}, "https://x.test/r/")
+        self.assertIn("ALREADY configured", note)
+        # The actionable half: the URL that settles it without any credential.
+        self.assertIn("https://x.test/r/", note)
+        # Both outcomes are spelled out, so neither reading needs inventing.
+        self.assertIn("serves", note)
+        self.assertIn("404", note)
+
+    def test_an_unconfigured_site_sends_the_owner_to_billing_not_to_the_switch(self):
+        note = ps.source_note({"has_pages": False, "private": True}, "https://x.test/r/")
+        self.assertIn("Billing", note)
+        self.assertNotIn("Settings -> Pages", note)
+
+    def test_a_missing_base_url_still_produces_a_usable_note(self):
+        """`build.mjs` renaming its export must not make this crash or lie."""
+        note = ps.source_note({"has_pages": True, "private": True}, None)
+        self.assertIn("ALREADY configured", note)
+        self.assertNotIn("None", note)
+
+    def test_collect_carries_the_origin_read_from_build_mjs(self):
+        api = fake_api(
+            branches={"gh-pages": branch(), "main": branch(sha="b" * 40, message="m")}
+        )
+        state = ps.collect(api)
+        self.assertTrue(state["pages_url"].startswith("https://"))
+        self.assertIn("ALREADY configured", state["source_note"])
+
+
 if __name__ == "__main__":
     unittest.main()

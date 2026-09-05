@@ -226,3 +226,43 @@ readings:
       written to stop, and it would have been this file's own turn to make
       it. `unknown`, not `up`: the route may well work, and thirty seconds
       in Settings → Billing is what turns this into a real verdict.
+
+  github-pages-origin:
+    # Distinct from `github-pages-plan` above, and the distinction is the whole
+    # point of this row. That one asks whether the account *could* serve a
+    # private repository's Pages site. This one asks whether
+    # `duncan-haywood.github.io/monorepo-projects/` **is serving one right
+    # now** — and the honest answer is that nobody has ever asked.
+    verdict: unknown
+    measured: "2026-09-05"
+    run: null
+    how: >-
+      Dispatch `Public surface check`
+      (`.github/workflows/public-surface-check.yml`) and read the Pages row of
+      its table; it needs no secret. Or, with a browser and no infrastructure
+      at all, open the URL `python3 platform/ci/pages_state.py` now prints
+      under `next`. The second route is the one that works today, because the
+      first needs a runner and `github-actions-runners` above is down.
+    note: >-
+      Added 2026-09-05. `platform/ci/public_surface.py` grew a probe for this
+      origin in dbf614c74 (#3199), precisely because nothing had ever measured
+      it. It has still never run. The last `Public surface check` to get a real
+      runner is run 33887885219, on commit 9a87ee6e4 — the commit *before*
+      dbf614c74 — and its table carries three rows, all `marisstella.dev`.
+      Every dispatch since has returned `runner_id: 0`, including one made from
+      this session (run 33968740961, 13:23Z, classified by
+      `ci_starvation.py --run`). So the probe exists, is correct, and has
+      produced no reading at all.
+      Why that matters more than one missing row: `has_pages: true` means a
+      Pages site **is configured on this repository**, and the `gh-pages`
+      snapshot is `current` (`pages_state.py`, and its 885 sitemap entries and
+      712 pages were checked to resolve against the committed artifact in this
+      session). Both facts are consistent with the catalogue *already being
+      served* at the github.io origin and this repository not knowing it —
+      which is the same shape of error CLAUDE.md records the apex having for
+      five days, a claim derived from what we ship and never checked against
+      what a stranger receives. It is equally consistent with the source still
+      being "GitHub Actions", in which case the site is dark for want of a
+      runner and the lever is Settings → Pages → Source.
+      Do not resolve this by reasoning. One browser request settles it, needs
+      no credential, and is the cheapest unread fact in this file.
