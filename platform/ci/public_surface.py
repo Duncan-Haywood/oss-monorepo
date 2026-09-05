@@ -107,6 +107,23 @@ BUILD_MJS = REPO / "platform" / "pages" / "build.mjs"
 # never duplicated here either.
 PAGES_WORKFLOW = "portfolio-pages.yml"
 
+# The *other* way that same origin can be served, and the reason a gated
+# workflow no longer implies a dark Pages site.
+#
+# `platform/pages/publish-branch.sh` builds the catalogue and commits it to an
+# orphan `gh-pages` branch. GitHub then serves that branch directly when the
+# owner sets Settings -> Pages -> Source to "Deploy from a branch" -- no
+# workflow runs, so `PAGES_ENABLED` is never consulted and no runner is needed.
+# That is the whole point of the route: it is downstream of neither the metered
+# Actions allowance nor the k3s cluster.
+#
+# It matters here because the two routes reach *one* origin. Predicting that
+# origin from the workflow alone says "gated" while the branch route may be
+# serving the very same URL, and `Result.agrees` would then score a working
+# deploy as a discrepancy -- turning the day the catalogue goes live into a red
+# check reading "probe disagrees with the manifests".
+PUBLISH_BRANCH_SCRIPT = REPO / "platform" / "pages" / "publish-branch.sh"
+
 # Long enough that a cold pod or a slow TLS handshake is not read as an
 # outage, short enough that a black-holed port cannot ride the runner to its
 # default 360-minute ceiling. The workflow sets its own `timeout-minutes` too;
@@ -130,13 +147,30 @@ MIN_SERVED_BYTES = 512
 # least representative of the 600-odd tool pages behind them.
 DEFAULT_SAMPLE = 24
 
+# The expectation for an origin whose serving state is set outside the
+# repository. See `Result.agrees` for why this is reported rather than scored.
+UNPREDICTABLE = "unpredictable"
+
+# Signatures of the agent egress gateway refusing the request before it ever
+# left the sandbox. See `Result.blocked` for why these must never be scored.
+#
+# Two shapes, both observed on 2026-09-05 from a session container:
+#   - the CONNECT tunnel is refused, and urllib raises URLError whose reason
+#     stringifies as `Tunnel connection failed: 403 Forbidden`;
+#   - the gateway terminates TLS itself (its certificate is issued by
+#     `Anthropic Egress Gateway SDS Issuing CA`) and answers the request with
+#     a 403 carrying `x-deny-reason: host_not_allowed`.
+TUNNEL_REFUSED_MARKER = "tunnel connection failed"
+DENY_REASON_HEADER = "x-deny-reason"
+BLOCKED_DENY_REASONS = frozenset({"host_not_allowed"})
+
 
 @dataclass(frozen=True)
 class Probe:
     """One request to make, and what the manifests predict it will do."""
 
     url: str
-    expect: str  # "serves" | "gated"
+    expect: str  # "serves" | "gated" | "unpredictable"
     why: str
 
 
@@ -149,6 +183,31 @@ class Result:
     final_url: str = ""
     error: str = ""
     redirected_to: str = ""
+    deny_reason: str = ""
+
+    @property
+    def blocked(self) -> bool:
+        """Did this request die at the agent egress gateway, unsent?
+
+        This is the difference between "the origin is dark" and "I was never
+        allowed to look", and the two are not distinguishable from the status
+        line alone -- a refused CONNECT and a refused origin both arrive as
+        "unreachable", and the gateway's own 403 is a perfectly well-formed
+        HTTP answer that came from no server of ours.
+
+        The module docstring above already knew the sandbox intercepts
+        outbound HTTPS; what it did not do was stop this tool from *scoring*
+        that interception. Run from a session container, every probe failed
+        and the report read `26 probe(s) disagree with the manifests` -- the
+        same sentence it would print on a day the site was perfectly healthy,
+        because the reading never touched the site either way. That is the
+        exact failure this repository has paid for repeatedly (CLAUDE.md,
+        "nothing is served"): a claim derived from something other than the
+        thing it claims about. An unmeasured probe must read as unmeasured.
+        """
+        if self.deny_reason.strip().lower() in BLOCKED_DENY_REASONS:
+            return True
+        return TUNNEL_REFUSED_MARKER in self.error.lower()
 
     @property
     def serving(self) -> bool:
@@ -164,12 +223,37 @@ class Result:
 
     @property
     def agrees(self) -> bool:
-        """Does reality match what the manifests said this host would do?"""
+        """Does reality match what the manifests said this host would do?
+
+        `unpredictable` is not a third answer to that question -- it is the
+        admission that the repository cannot ask it. The GitHub Pages origin is
+        served, or not, according to a Settings choice that lives in the
+        account and appears in no file here, so *either* outcome is consistent
+        with everything this tool can read. Scoring it would invent a
+        prediction the repo never made, and the direction that invention fails
+        in is the expensive one: the workflow route is gated today, so a
+        `gated` expectation would mark the origin as disagreeing on the exact
+        day the branch route starts serving the catalogue. A green check that
+        says "serving, as we could not have predicted" is worth more than a red
+        one that calls a working deploy a discrepancy.
+        """
+        # A blocked probe agrees with nothing and disagrees with nothing: no
+        # claim about the origin can be built from a request that never
+        # reached it. Reporting `True` here is deliberate -- it keeps a
+        # sandbox run out of the disagreement count -- but it is never the
+        # whole answer, so `render` and `main` both consult `blocked` rather
+        # than reading this flag as evidence the surface is healthy.
+        if self.blocked:
+            return True
+        if self.probe.expect == UNPREDICTABLE:
+            return True
         if self.probe.expect == "serves":
             return self.serving
         return not self.serving
 
     def summary(self) -> str:
+        if self.blocked:
+            return "not measured: blocked by the agent egress gateway"
         if self.error:
             return self.error
         parts = [str(self.status)]
@@ -223,7 +307,15 @@ def fetch(url: str, opener=None) -> tuple[int | None, bytes, dict, str]:
 
 def run_probe(probe: Probe, opener=None) -> Result:
     status, body, headers, error = fetch(probe.url, opener=opener)
-    result = Result(probe=probe, status=status, error=error)
+    # Read the deny header off both paths: the gateway's refusal arrives as a
+    # 403 *with* headers, so capturing it only on the success path would miss
+    # the shape that actually occurs.
+    deny = ""
+    for key, value in (headers or {}).items():
+        if key.lower() == DENY_REASON_HEADER:
+            deny = value or ""
+            break
+    result = Result(probe=probe, status=status, error=error, deny_reason=deny)
     if error:
         return result
     result.body_bytes = len(body)
@@ -279,7 +371,7 @@ def pages_base_url(path: Path | None = None) -> str | None:
     return match.group(1) if match else None
 
 
-def pages_probes(rows=None, base_url=None) -> list[Probe]:
+def pages_probes(rows=None, base_url=None, branch_route=None) -> list[Probe]:
     """One probe for the GitHub Pages origin, with the workflow's prediction.
 
     Why this is here at all
@@ -304,26 +396,59 @@ def pages_probes(rows=None, base_url=None) -> list[Probe]:
     clone token, so it can be serving while the cluster is down, or dark while
     the cluster is fine. One probe cannot stand in for the other.
 
+    Two routes, one origin
+    ----------------------
+    Added 2026-09-05, and it is the half that made the prediction wrong rather
+    than merely thin. This function read `portfolio-pages.yml` and nothing
+    else, so a gated deploy job produced `expect="gated"` -- a positive claim
+    that the origin does *not* serve. But `platform/pages/publish-branch.sh`
+    stages the same catalogue on an orphan `gh-pages` branch that GitHub serves
+    with no workflow at all, and whether it does is a Settings choice no file
+    here records. So the honest expectation once that route exists is
+    `unpredictable`: see `Result.agrees` for why reporting beats scoring, and
+    `platform/ci/pages_state.py` for reading how close the branch route is.
+
     `rows` is `publish_surface.survey()`'s first element; passed in by the
-    tests, read from the workflows otherwise.
+    tests, read from the workflows otherwise. `branch_route` is whether the
+    staged-branch publisher exists; the tests set it, and it is read from the
+    tree otherwise.
     """
     base_url = pages_base_url() if base_url is None else base_url
     if not base_url:
         return []
     if rows is None:
         rows, _ = publish_surface.survey()
+    if branch_route is None:
+        branch_route = PUBLISH_BRANCH_SCRIPT.is_file()
     row = next((r for r in rows if r["workflow"] == PAGES_WORKFLOW), None)
     if row is None:
-        # The workflow was renamed or removed. Saying nothing is honest; the
-        # alternative is predicting a deploy from a file that no longer exists.
+        # The workflow was renamed or removed. Saying nothing about the
+        # *workflow* is honest -- but the branch route publishes this origin
+        # without it, so an origin that something still stages is not an origin
+        # to fall silent about.
+        if branch_route:
+            return [Probe(
+                url=base_url,
+                expect=UNPREDICTABLE,
+                why=f"no {PAGES_WORKFLOW}, but publish-branch.sh stages this origin on "
+                    "gh-pages; whether Pages serves that branch is an account setting",
+            )]
         return []
     if row["classification"] == "live":
         expect, why = "serves", f"{PAGES_WORKFLOW} deploys it on a push to main, ungated"
     else:
         gates = [g for step in row["publishes"] for g in step["gates"]]
         detail = f"gated by {'; '.join(gates)}" if gates else row["classification"]
-        why = f"{PAGES_WORKFLOW} deploy is {detail}"
-        expect = "gated"
+        if branch_route:
+            expect = UNPREDICTABLE
+            why = (
+                f"{PAGES_WORKFLOW} deploy is {detail}, but publish-branch.sh stages "
+                "the same origin on gh-pages, which GitHub serves with no workflow; "
+                "whether it does is Settings -> Pages -> Source, which no file here "
+                "records"
+            )
+        else:
+            expect, why = "gated", f"{PAGES_WORKFLOW} deploy is {detail}"
     return [Probe(url=base_url, expect=expect, why=why)]
 
 
@@ -371,12 +496,49 @@ def run_probes(probes: list[Probe], opener=None, workers: int = 8) -> list[Resul
 
 
 def disagreements(results: list[Result]) -> list[Result]:
-    return [r for r in results if not r.agrees]
+    return [r for r in results if not r.blocked and not r.agrees]
+
+
+def unmeasured(results: list[Result]) -> list[Result]:
+    """The probes that never left the sandbox."""
+    return [r for r in results if r.blocked]
+
+
+def measured_nothing(results: list[Result]) -> bool:
+    """True when every probe was blocked, so the run has no reading at all.
+
+    Distinguished from "some were blocked" because the two call for different
+    actions: a partial block is a note beside a real reading, while a total
+    block means this invocation is worthless as evidence and the caller must
+    go and run it somewhere with ordinary outbound internet.
+    """
+    return bool(results) and len(unmeasured(results)) == len(results)
 
 
 def render(host_results: list[Result], page_results: list[Result]) -> str:
     """A GitHub step summary: what the manifests promised, what answered."""
     out: list[str] = ["## Public surface, measured from outside the cluster", ""]
+    everything = host_results + page_results
+    if measured_nothing(everything):
+        # Lead with this. It must be impossible to skim the table below and
+        # come away with a belief about the origin, because every cell in it
+        # describes the gateway rather than the site.
+        return "\n".join(
+            [
+                "## Public surface — NOT MEASURED",
+                "",
+                f"All {len(everything)} probe(s) were refused by the agent egress "
+                "gateway before leaving the sandbox. **This run says nothing about "
+                "whether the portfolio is reachable** — neither that it is up nor "
+                "that it is down.",
+                "",
+                "This tool only produces evidence from somewhere with ordinary "
+                "outbound internet. Dispatch the `Public surface check` workflow "
+                "(it needs no secret) and read its step summary instead.",
+                "",
+                "_No credential was used._",
+            ]
+        )
     if not host_results:
         out += ["No public hostname found in the manifests.", ""]
     else:
@@ -385,7 +547,17 @@ def render(host_results: list[Result], page_results: list[Result]) -> str:
             "| --- | --- | --- | --- |",
         ]
         for r in host_results:
-            mark = "yes" if r.agrees else "**NO**"
+            # `n/a` rather than `yes` for an origin nothing here predicts: a
+            # tick would claim the repository called this one right, and the
+            # whole point of `unpredictable` is that it made no call. The
+            # `Actually` column beside it still carries the reading, which is
+            # the part worth having.
+            if r.blocked:
+                mark = "n/a — not measured"
+            elif r.probe.expect == UNPREDICTABLE:
+                mark = f"n/a — {'serving' if r.serving else 'dark'}"
+            else:
+                mark = "yes" if r.agrees else "**NO**"
             out.append(
                 f"| `{r.probe.url}` | {r.probe.expect} ({r.probe.why}) "
                 f"| {r.summary()} | {mark} |"
@@ -393,11 +565,22 @@ def render(host_results: list[Result], page_results: list[Result]) -> str:
         out.append("")
 
     if page_results:
-        broken = [r for r in page_results if not r.agrees]
+        broken = disagreements(page_results)
+        skipped = unmeasured(page_results)
+        # Denominator excludes the blocked ones rather than counting them as
+        # served: "24/24 served" built from 24 requests that never left the
+        # sandbox is the most confident wrong sentence this tool could print.
+        countable = len(page_results) - len(skipped)
         out += [
-            f"### Sitemap sample: {len(page_results) - len(broken)}/{len(page_results)} served",
+            f"### Sitemap sample: {countable - len(broken)}/{countable} served",
             "",
         ]
+        if skipped:
+            out += [
+                f"{len(skipped)} URL(s) not measured — blocked by the agent "
+                "egress gateway, so they are excluded from the count above.",
+                "",
+            ]
         if broken:
             out += ["| URL | Result |", "| --- | --- |"]
             out += [f"| `{r.probe.url}` | {r.summary()} |" for r in broken]
@@ -431,13 +614,19 @@ def as_json(host_results: list[Result], page_results: list[Result]) -> str:
             "error": r.error,
             "serving": r.serving,
             "agrees": r.agrees,
+            "blocked": r.blocked,
         }
 
+    everything = host_results + page_results
     return json.dumps(
         {
             "hosts": [row(r) for r in host_results],
             "pages": [row(r) for r in page_results],
-            "disagreements": len(disagreements(host_results + page_results)),
+            "disagreements": len(disagreements(everything)),
+            "unmeasured": len(unmeasured(everything)),
+            # A consumer that reads only one key should read this one: it is
+            # false exactly when the rest of this document is evidence.
+            "measured": not measured_nothing(everything),
         },
         indent=2,
     )
@@ -491,7 +680,15 @@ def main(argv=None) -> int:
     # Exit 1 on a disagreement, so the job that runs this is red exactly when
     # the public surface stops matching what this repository ships -- and
     # green while a gated host stays correctly dark.
-    return 1 if disagreements(hosts + pages) else 0
+    #
+    # Exit 2 is a third answer, and it is not a worse 1: "I could not look" and
+    # "it is broken" call for different actions, and collapsing them is how a
+    # sandbox run gets filed as an outage. A caller that only checks `!= 0`
+    # still treats it as not-green, which is the safe default.
+    everything = hosts + pages
+    if measured_nothing(everything):
+        return 2
+    return 1 if disagreements(everything) else 0
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -95,6 +95,9 @@ export default function LandingPage() {
           <Link href="/terms" className="underline underline-offset-2">
             Terms
           </Link>
+          <Link href="/vs-typeform" className="underline underline-offset-2">
+            vs. Typeform
+          </Link>
         </p>
       </section>
     </main>

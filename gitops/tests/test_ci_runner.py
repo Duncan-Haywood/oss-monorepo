@@ -292,6 +292,48 @@ def test_setup_python_jobs_install_the_modules_they_import() -> None:
     assert not failures, "\n".join(failures)
 
 
+def test_host_mode_runner_version_matches_in_cluster_pin() -> None:
+    # gitops/ci/host/README.md and bootstrap/scripts/install-github-runner-host.sh
+    # both claim the host-mode runner installs "the same version
+    # gitops/ci/runner.yaml runs in-cluster, so the two paths behave
+    # identically" -- but until this test, that claim was two independent
+    # hand-written pins (an image tag here, a shell variable there) with
+    # nothing tying them together. gitops/ci/README.md already documents the
+    # one-line fix for when GitHub deprecates a runner version ("bump the tag
+    # in runner.yaml"), which updates only the in-cluster path and would leave
+    # the host-mode installer silently registering a stale runner under a
+    # comment claiming parity -- the same "a copied rule goes stale instead of
+    # being imported" shape CLAUDE.md already records paying for twice (168
+    # tools became 169 the same way). This test fails the moment the two pins
+    # disagree, rather than waiting for GitHub to start warning on one runner
+    # and not the other.
+    runner_yaml = (CI / "runner.yaml").read_text()
+    image_match = re.search(
+        r"image:\s*ghcr\.io/actions/actions-runner:([0-9.]+)", runner_yaml
+    )
+    assert image_match, "gitops/ci/runner.yaml's runner image tag not found or reworded"
+    cluster_version = image_match.group(1)
+
+    installer = (
+        REPO / "bootstrap" / "scripts" / "install-github-runner-host.sh"
+    ).read_text()
+    host_match = re.search(
+        r'RUNNER_VERSION="\$\{RUNNER_HOST_VERSION:-([0-9.]+)\}"', installer
+    )
+    assert host_match, (
+        "install-github-runner-host.sh's RUNNER_VERSION default not found or reworded"
+    )
+    host_version = host_match.group(1)
+
+    assert host_version == cluster_version, (
+        f"host-mode runner pins {host_version} (bootstrap/scripts/"
+        f"install-github-runner-host.sh) but the in-cluster pod "
+        f"(gitops/ci/runner.yaml) pins {cluster_version} -- bump both together, "
+        "and re-verify RUNNER_TARBALL_SHA256 in the installer against the new "
+        "release's own \"SHA-256 Checksums\" section before committing."
+    )
+
+
 def test_the_switch_defaults_to_github_hosted() -> None:
     # With the variable unset the expression must fall back to ubuntu-latest,
     # so merging this changes nothing until an owner opts in. `vars.CI_RUNNER`

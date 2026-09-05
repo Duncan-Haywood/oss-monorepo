@@ -101,12 +101,16 @@ const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 // still checked as a product.
 export const CATEGORY_DIR = 'c';
 export const ABOUT_DIR = 'about';
+// The comparison index — every `vs-<product>.html` page in the catalogue,
+// grouped by product. Same shape as `about`: a page the build writes about the
+// site, not a venture, so it has no launch date and no card on the hub.
+export const COMPARE_DIR = 'compare';
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
 // them — the hub links these from its footer, which is the right weight for a
 // page about the site rather than a tool.
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR]);
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -657,13 +661,60 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  // The comparison index, on the same terms as the About page and for the same
+  // reason: it is the only cross-venture route between the `vs-<product>`
+  // pages, each of which is otherwise linked from exactly one place — its own
+  // tool's entry page. A build that stopped emitting it, or emitted it with
+  // nothing linking it, would look completely healthy everywhere else here,
+  // and the whole point of the page is being reachable.
+  //
+  // It must also actually list something. An empty index is the failure mode
+  // this page has that About does not: `discoverComparisons` reads the venture
+  // tree, so a change to the filename convention or to `sourceDir` resolution
+  // would render a page with a headline, a disclaimer, and no comparisons —
+  // valid HTML, no dead links, and worthless.
+  {
+    const relative = path.join(COMPARE_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${COMPARE_DIR}/: did not ship, so the comparison pages have no cross-venture index`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="compare\/"/.test(hubHtml)) {
+        problems.push(`${COMPARE_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+      const linked = new Set(
+        [...html.matchAll(/href="\.\.\/([a-z0-9][a-z0-9-]*)\/vs-[^"]+"/g)].map((m) => m[1]),
+      );
+      if (linked.size === 0) {
+        problems.push(`${relative}: lists no comparison pages, so it is an empty index`);
+      }
+      for (const slug of linked) {
+        if (!productDirs.includes(slug)) {
+          problems.push(`${relative}: links "${slug}" but no such product shipped`);
+        }
+      }
+    }
+  }
+
   // Same reachability argument as the hub, for the machine-readable door. A
   // tool missing from llms.txt is invisible to an assistant recommending one,
   // and nothing else in the artifact would show it: every page still resolves.
   const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
   if (llms !== null) {
+    // The parent segment is captured as well as the leaf, because a leaf alone
+    // cannot tell a product from a page filed *under* a site-own directory.
+    // `/compare/jobber/` is one of the comparison index's per-product pages,
+    // and reading its leaf in isolation says a product called `jobber` shipped
+    // — which is both false and, worse, the reading that would make a real
+    // missing product look fine. Only URLs whose parent is the site root are
+    // product claims.
     const listed = new Set(
-      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/\)/g)].map((m) => m[1]),
+      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/([^/)]+)\/\)/g)]
+        .filter((m) => !SITE_OWN_DIRS.has(m[1]))
+        .map((m) => m[2]),
     );
     for (const product of productDirs) {
       if (!listed.has(product)) {

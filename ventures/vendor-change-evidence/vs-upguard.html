@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vendor Change Evidence vs. UpGuard</title>
+<meta name="description" content="UpGuard is continuous third-party risk management software: security ratings, questionnaires, and automated attack-surface and data-leak monitoring across a whole vendor portfolio. This is a free, local, no-account tool that diffs two snapshots you already captured of one vendor's policy page. Not affiliated with UpGuard.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="./vs-upguard.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Vendor Change Evidence vs. UpGuard">
+<meta property="og:description" content="UpGuard continuously monitors and scores a whole vendor portfolio for security risk. This page diffs two policy snapshots you already have, for free, entirely in your browser.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or UpGuard?","acceptedAnswer":{"@type":"Answer","text":"They cover different scopes. UpGuard is third-party and vendor risk management software: it continuously scans vendors' external attack surfaces, maintains security ratings, runs security assessment questionnaires (including frameworks such as NIST, ISO, and SIG), and detects data exposures across an organization's whole vendor portfolio, with alerting and board-level reporting built in. It is sold as an ongoing subscription platform aimed at security and procurement teams managing many vendor relationships at once. This tool does one narrower thing: you paste two dated snapshots you already captured of a single vendor's privacy, terms, subprocessor, or security page, and it reports what changed between them, entirely in your browser. It does not scan, score, rate, or continuously monitor anything, and it has no concept of a vendor portfolio. A team that needs ongoing, automated coverage across dozens or hundreds of vendors is the case UpGuard is built for; a team that already has two snapshots of one page and wants a fast, free, private diff and a dated record of that one review is the case this tool is built for."}},{"@type":"Question","name":"Is this page affiliated with UpGuard?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by UpGuard. UpGuard is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+  /* Two WCAG AA failures this page shipped with, both on its links.
+     Light only, like this venture's other two pages: the dark variant put
+     #2563eb on #14161a at 3.5:1, and no single colour fixes that, because
+     clearing 4.5:1 on #ffffff caps a colour's relative luminance at .183
+     while clearing it on #14161a needs at least .209. A re-add of dark mode
+     therefore has to bring a per-scheme link colour with it.
+     And #2563eb was under AA in light mode too once footer{opacity:.8}
+     composited it -- 3.63:1 -- so the link blue is a shade darker than the
+     Tailwind blue-600 it was: #1e40af holds 8.72:1 at full strength and
+     5.30:1 faded in the footer. */
+  :root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1a1a1a; background: #ffffff; }
+  body { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; line-height: 1.55; }
+  a { color: #1e40af; overflow-wrap: anywhere; }
+  h1 { font-size: clamp(1.6rem, 4.6vw, 2.3rem); line-height: 1.1; margin: .4rem 0; }
+  .lede { font-size: 1.05rem; max-width: 62ch; opacity: .82; }
+  section { border: 1px solid #e2e2e2; border-radius: 12px; padding: 1.1rem 1.3rem; margin: 1.25rem 0; }
+  h2 { margin-top: 0; font-size: 1.15rem; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: .75rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #e2e2e2; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+  .fine, .note { font-size: .88rem; opacity: .75; }
+  footer { font-size: .86rem; opacity: .8; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p><a href="./">&larr; Vendor Change Evidence</a></p>
+<header>
+<h1>Vendor Change Evidence vs. UpGuard</h1>
+<p class="lede">Different scopes: UpGuard continuously scans, scores, and questionnaires a whole portfolio of vendors for security risk. This page compares two snapshots you already captured of <em>one</em> vendor's policy page and reports what changed &mdash; free, local, no account.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>UpGuard</strong> is third-party and vendor risk management software.
+  Its Vendor Risk product continuously scans vendors' external attack
+  surfaces and vulnerabilities, maintains ongoing security ratings, runs
+  security assessment questionnaires built on frameworks such as NIST, ISO,
+  and SIG, and monitors for data exposures &mdash; reviewed and severity-rated
+  by UpGuard's own analysts &mdash; across an organization's entire vendor
+  portfolio, with alerting and reporting aimed at security teams and
+  boards. It is sold as an ongoing subscription platform, and its own pricing
+  is not something this session can verify, so no figure for it is stated
+  here.
+</p>
+<p>
+  This tool does none of that. It does not scan a vendor's infrastructure,
+  assign a security rating, run a questionnaire, or watch a portfolio on an
+  ongoing basis. It takes exactly two inputs &mdash; a <code>before</code> and
+  <code>after</code> JSON snapshot you already captured of one page (its URL,
+  when you captured it, whether the capture succeeded, and its text) &mdash;
+  and reports what changed between them: <code>changed</code>,
+  <code>unchanged</code>, or <code>inconclusive</code> when a capture failed,
+  never a false "unchanged". Comparison runs in your browser tab; nothing you
+  paste is uploaded, and the tool never contacts the vendor itself. There is
+  no account, no ongoing scan, and no per-vendor subscription.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I manage security risk across dozens or hundreds of vendors and need continuous scanning, ratings, and questionnaires.</td><td>UpGuard, or a comparable vendor-risk platform &mdash; portfolio-wide continuous monitoring is not something this tool does.</td></tr>
+<tr><td>I have two dated snapshots of one vendor's privacy or subprocessor page and want to know exactly what changed, right now, for free.</td><td>This tool &mdash; paste both, get a source-linked diff, nothing uploaded.</td></tr>
+<tr><td>I need an external security rating or attack-surface score for a vendor before we sign.</td><td>UpGuard or a comparable rating service &mdash; this tool has no concept of a security score.</td></tr>
+<tr><td>One snapshot capture failed or timed out &mdash; can I trust a "no changes" result?</td><td>This tool reports <code>inconclusive</code> rather than a false "unchanged" whenever a capture's <code>fetch_status</code> is not <code>ok</code>.</td></tr>
+<tr><td>Do I need to create an account, install an agent, or grant portfolio access to use it?</td><td>This tool: no, ever. UpGuard is used through a subscription account across a vendor portfolio.</td></tr>
+<tr><td>How do I build a habit of capturing and reviewing these snapshots myself?</td><td>See <a href="how-do-i-track-vendor-policy-changes.html">how to track vendor policy changes</a>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  Most procurement and security teams get different value from each:
+  UpGuard (or a comparable platform) for ongoing, automated risk coverage
+  across a whole vendor portfolio as a paid subscription, and a free tool
+  like this one for a fast, private, source-linked answer to "what changed
+  on this one page since the last time I looked" &mdash; useful on its own
+  for a small team, and useful as a lightweight first check even for a team
+  that already pays for portfolio-wide monitoring.
+</p>
+<p class="fine">This tool needs no account and no sign-in: it is a static page, the comparison runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or UpGuard?</h3>
+<p>They cover different scopes. UpGuard is third-party and vendor risk management software: it continuously scans vendors' external attack surfaces, maintains security ratings, runs security assessment questionnaires (including frameworks such as NIST, ISO, and SIG), and detects data exposures across an organization's whole vendor portfolio, with alerting and board-level reporting built in. It is sold as an ongoing subscription platform aimed at security and procurement teams managing many vendor relationships at once. This tool does one narrower thing: you paste two dated snapshots you already captured of a single vendor's privacy, terms, subprocessor, or security page, and it reports what changed between them, entirely in your browser. It does not scan, score, rate, or continuously monitor anything, and it has no concept of a vendor portfolio. A team that needs ongoing, automated coverage across dozens or hundreds of vendors is the case UpGuard is built for; a team that already has two snapshots of one page and wants a fast, free, private diff and a dated record of that one review is the case this tool is built for.</p>
+<h3>Is this page affiliated with UpGuard?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by UpGuard. UpGuard is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+<p class="note"><a href="./">Open Vendor Change Evidence</a> to compare your own two snapshots.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or compliance advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Every snapshot you paste stays on this device, and this page makes no live comparison against UpGuard &mdash; it is a static page describing publicly documented facts about UpGuard's product category.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental and may be slow, broken, moved, or taken offline without notice. Keep your own copies of any report you export.</p>
+<p>Free and open source. <a href="LICENSE" rel="noopener">MIT licensed</a> &mdash; optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change what the tool does.</p>
+</footer>
+</main>
+</body>
+</html>

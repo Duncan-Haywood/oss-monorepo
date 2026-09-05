@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -57,4 +57,30 @@ test("example fixtures referenced by app.js are real, authorized snapshots check
 test("page carries FAQ-shaped questions for AI/search discovery", () => {
   const questions = [...page.matchAll(/<h3>([^<]+\?)<\/h3>/g)];
   assert.ok(questions.length >= 3, "expected several question-shaped h3 headings");
+});
+
+// Regression: sitemap.xml shipped with #2201's browser front end still only
+// listed `./README.md` -- a leftover from before this venture had any HTML
+// at all. robots.txt points crawlers at this sitemap, so a search engine or
+// AI assistant following it found a markdown file and never learned the
+// tool itself (index.html) or its FAQ landing page
+// (how-do-i-track-changes-to-a-public-register.html, added by #2039/#2043)
+// existed. PRODUCT_PLAYBOOK.md's discoverability checklist requires "a
+// sitemap... that lets assistants crawl" as part of the definition of done;
+// a sitemap pointing at prose instead of the product fails that on arrival.
+test("sitemap lists the actual product pages, not just README.md", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  assert.doesNotMatch(sitemap, /README\.md/);
+  assert.match(sitemap, /<loc>\.\/<\/loc>/);
+  assert.match(sitemap, /how-do-i-track-changes-to-a-public-register\.html/);
+});
+
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue; // carried as the bare "./" entry
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
 });

@@ -65,3 +65,30 @@ test('hash or query prefixes and an empty proposed price do not break the codec'
   const encoded = encodeInputs({ jobType: 'spring_only', proposedPrice: '' });
   assert.equal(encoded.includes('proposedPrice'), false);
 });
+
+test('the kit selectors round-trip, including a hand-priced "custom" door', () => {
+  // The regression platform/pages/roundtrip.mjs caught: these three were
+  // omitted on the reasoning that their effect already rides in the numeric
+  // fields. The price did survive, but a sender who picked "Custom size"
+  // because they hand-priced the door handed over a bid labelled
+  // `double_16x7`, and proposalScope (generated from the construction label)
+  // then named a different door on the recipient's customer-facing copy.
+  const encoded = encodeInputs({
+    doorSize: 'custom', construction: 'non_insulated', opener: 'none', doorCost: '1450',
+  });
+  const restored = decodeInputs(encoded);
+  assert.equal(restored.doorSize, 'custom');
+  assert.equal(restored.construction, 'non_insulated');
+  assert.equal(restored.opener, 'none');
+  assert.equal(restored.doorCost, 1450);
+});
+
+test('an unknown value for any kit selector is dropped rather than accepted', () => {
+  // Same allowlist discipline the job type already had: a crafted or stale
+  // link can only set a value the form's own <select> could have produced.
+  const restored = decodeInputs('doorSize=mansion&construction=titanium&opener=warp_drive&doorCost=900');
+  assert.equal('doorSize' in restored, false);
+  assert.equal('construction' in restored, false);
+  assert.equal('opener' in restored, false);
+  assert.equal(restored.doorCost, 900);
+});

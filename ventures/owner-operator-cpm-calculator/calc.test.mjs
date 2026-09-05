@@ -276,3 +276,95 @@ test('detention hours to cover are null when the miles-only week already keeps m
   assert.ok(compared.milesOnly.offered.weeklyProfit > 0);
   assert.equal(compared.detentionHoursToCover, null);
 });
+
+test('no tax reserve set leaves every existing figure exactly where it was', () => {
+  // The reserve defaults to 0, so a caller written before it existed — every
+  // saved link, every test above — gets the same numbers it always did, and
+  // take-home is simply profit.
+  const result = calculateWeek(week());
+  assert.equal(result.taxReservePercent, 0);
+  assert.equal(result.offered.taxReserve, 0);
+  close(result.offered.weeklyTakeHome, result.offered.weeklyProfit);
+  close(result.offered.annualTakeHome, result.offered.weeklyProfit * 52);
+});
+
+test('the tax reserve comes out of profit, not out of revenue or cost', () => {
+  // Cost and the break-even rate are pre-tax facts about the truck; the
+  // reserve is a claim on what is left. Reserving must not move either, or
+  // the page would be telling an operator their fuel got more expensive.
+  // A deliberately profitable week: the default offer of $2.00/mi loses
+  // $8.24, and a reserve on a loss is floored at zero (covered separately
+  // below), which would make this test assert nothing.
+  const profitable = { ...week(), offeredLoadedRate: 2.4 };
+  const base = calculateWeek(profitable);
+  const reserved = calculateWeek({ ...profitable, taxReservePercent: 25 });
+  assert.ok(base.offered.weeklyProfit > 0, 'fixture must be a profitable week');
+  close(reserved.weeklyCost, base.weeklyCost);
+  close(reserved.breakEvenLoadedRate, base.breakEvenLoadedRate);
+  close(reserved.allInCpm, base.allInCpm);
+  close(reserved.offered.weeklyProfit, base.offered.weeklyProfit);
+
+  close(reserved.offered.taxReserve, base.offered.weeklyProfit * 0.25);
+  close(reserved.offered.weeklyTakeHome, base.offered.weeklyProfit * 0.75);
+});
+
+test('target take-home is what the operator keeps, so the rate is grossed up', () => {
+  // The regression this exists for: before the reserve, "target weekly
+  // take-home: $800" solved for a rate that cleared $800 *pre-tax*. An
+  // operator reserving 25% quoting that rate keeps $600 -- the tool's one
+  // quotable number, short by the whole tax bill.
+  const result = calculateWeek({
+    ...week(),
+    targetWeeklyTakeHome: 800,
+    taxReservePercent: 25,
+    offeredLoadedRate: '',
+  });
+  close(result.rateForTarget, (result.weeklyCost + 800 / 0.75) / 1800 / 0.97);
+
+  // Quote it back and the operator actually keeps the target.
+  const atTarget = calculateWeek({
+    ...week(),
+    offeredLoadedRate: result.rateForTarget,
+    targetWeeklyTakeHome: 800,
+    taxReservePercent: 25,
+  });
+  close(atTarget.offered.weeklyTakeHome, 800);
+  assert.ok(
+    atTarget.offered.weeklyProfit > 800,
+    'pre-tax profit must exceed the take-home target once a reserve is set',
+  );
+});
+
+test('a losing week reserves nothing and does not invent a refund', () => {
+  // A negative reserve would read as money coming back. Whether a loss
+  // offsets other income is exactly the judgement this page does not make.
+  const result = calculateWeek({ ...week(), offeredLoadedRate: 0.5, taxReservePercent: 30 });
+  assert.ok(result.offered.weeklyProfit < 0);
+  assert.equal(result.offered.taxReserve, 0);
+  close(result.offered.weeklyTakeHome, result.offered.weeklyProfit);
+});
+
+test('a tax reserve of 100% or more is refused rather than dividing by zero', () => {
+  // Left unguarded, targetWeeklyTakeHome / (1 - 1) is Infinity and the page
+  // would print an infinite rate to quote.
+  assert.throws(() => calculateWeek({ ...week(), taxReservePercent: 100 }), /less than 100/);
+  assert.throws(() => calculateWeek({ ...week(), taxReservePercent: 150 }), /less than 100/);
+  assert.throws(() => calculateWeek({ ...week(), taxReservePercent: -1 }), /at least 0/);
+});
+
+test('the reserve rides through the accessorial comparison on both weeks', () => {
+  const compared = compareAccessorials({
+    ...week(),
+    offeredLoadedRate: 2.4,
+    detentionHours: 6,
+    detentionPayPerHour: 50,
+    taxReservePercent: 20,
+  });
+  for (const side of [compared.milesOnly, compared.withAccessorials]) {
+    close(side.offered.taxReserve, Math.max(0, side.offered.weeklyProfit) * 0.2);
+    close(side.offered.weeklyTakeHome, side.offered.weeklyProfit - side.offered.taxReserve);
+  }
+  // deltaProfit stays a pre-tax comparison: it answers "did the wait pay?",
+  // which the reserve scales but does not change the sign of.
+  assert.ok(compared.deltaProfit > 0);
+});

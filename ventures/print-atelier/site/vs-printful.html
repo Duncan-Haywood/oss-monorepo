@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>This tool vs. Printful | Print File Preflight</title>
+<meta name="description" content="Printful is a print-on-demand fulfillment company, founded in 2013, that lets sellers upload artwork and connect it to an online store for on-demand printing and shipping. This is a free, private, no-account browser check that reads a print master's resolution, format, and filename before you ever upload it anywhere. Not affiliated with Printful." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="./vs-printful.html" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='4' width='24' height='24' rx='2' fill='%231f5c35'/%3E%3Crect x='9' y='9' width='14' height='14' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="This tool vs. Printful" />
+<meta property="og:description" content="Two different shapes: Printful is an account-based print-on-demand fulfillment service. This page is a free, private check of one file's resolution before you upload it anywhere." />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or Printful?","acceptedAnswer":{"@type":"Answer","text":"They do different jobs, and an artist selling prints will likely use both. Printful is a print-on-demand and warehousing company, founded in 2013, that lets a seller upload artwork, connect it to an online store (Shopify, Etsy, WooCommerce and others), and have each order printed and shipped only after a customer buys it — so the seller holds no inventory. It is used through a free account, with production and shipping charged per order. Printful's own upload dashboard runs its own checks on a file after you submit it, and its current published thresholds are not restated here because this session cannot reach printful.com to confirm today's exact wording. This tool does one narrower thing: it reads a candidate file's pixel dimensions, format, byte size, and filename in your own browser, checks the implied DPI at the print size named in the filename against a documented 150 DPI floor, ranks up to five candidates head-to-head, and exports a dated technical record — all before the file is ever uploaded anywhere. It runs free, keeps no account, and never transmits the artwork. An artist who wants to sell through a connected storefront with fulfillment, shipping, and payment handled for them is better served by Printful or a comparable print-on-demand service; an artist who wants to know, in seconds and before any upload, whether a specific export is sharp enough for a specific size is in the right place here."}},{"@type":"Question","name":"Is this page affiliated with Printful?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Printful. Printful is a trademark of its owner, named here only to describe what this tool is and is not."}}]}</script>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5f66; --border: #d9dce1;
+    --accent: #2b6cb0; --panel: #f7f7f8; --focus: #2b6cb0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main { max-width: 54rem; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+  h1 { font-size: 1.7rem; line-height: 1.25; margin: 0 0 0.5rem; max-width: 22ch; }
+  h2 { font-size: 1.2rem; margin: 2rem 0 0.5rem; }
+  h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+  .lede { color: var(--muted); margin: 0 0 1.25rem; max-width: 62ch; }
+  a { color: var(--accent); overflow-wrap: anywhere; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .table-scroll { overflow-x: auto; margin-top: 0.75rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--border); padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
+  th { background: var(--panel); }
+  .fine { font-size: 0.88rem; color: var(--muted); }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; margin-top: 1.25rem; }
+</style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; Print file preflight &mdash; free DPI and print-size checker</a></p>
+  <h1>This tool vs. Printful</h1>
+  <p class="lede">Two different shapes: Printful is account-based print-on-demand fulfillment for running a print storefront. This page is a free, private check of one file's resolution and filename before you upload it anywhere.</p>
+
+  <h2>What each is for</h2>
+  <p>
+    <strong>Printful</strong> is a print-on-demand and warehousing company,
+    founded in 2013, that lets a seller upload artwork, connect it to an
+    online store &mdash; Shopify, Etsy, WooCommerce and others &mdash; and
+    have each order printed and shipped only after a customer buys it, so the
+    seller holds no inventory. It is used through a free account, with
+    production and shipping charged per order rather than a flat
+    subscription. Printful's own upload dashboard runs its own checks on a
+    file after you submit it, and this page does not restate its current
+    published resolution guidance or pricing, because printful.com is not
+    reachable from this session to confirm today's exact wording: only its
+    well-documented identity and category &mdash; print-on-demand fulfillment,
+    connected to a seller's own storefront &mdash; are stated here.
+  </p>
+  <p>
+    This tool does none of what Printful does. It does not host a storefront,
+    print anything, or ship anything. It reads a candidate file's pixel
+    dimensions, format, byte size, and filename directly in your browser,
+    checks the implied DPI at the print size named in the filename against a
+    documented 150 DPI floor, ranks up to five candidate masters head-to-head
+    at one target size, and exports a dated technical record &mdash; all
+    before the file is ever uploaded anywhere. It runs free in any browser,
+    keeps no account, and never transmits the artwork.
+  </p>
+  <div class="table-scroll">
+  <table>
+  <thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+  <tbody>
+  <tr><td>I want to sell prints through a connected storefront, with fulfillment, shipping, and payment handled for me.</td><td>Printful, or a comparable print-on-demand service &mdash; running a store is not something this tool does.</td></tr>
+  <tr><td>Is this specific export sharp enough to print at the size I plan to sell it?</td><td>This tool's implied-DPI check, before you upload anywhere.</td></tr>
+  <tr><td>I have several exports of the same image and need to know which one to submit.</td><td>This tool's five-way ranked comparison.</td></tr>
+  <tr><td>I already got a low-resolution warning after uploading to a POD platform &mdash; could I have caught it sooner?</td><td>Yes: this tool checks the same kind of resolution problem before any upload, at no cost and with no account.</td></tr>
+  <tr><td>Do I need an account or a connected store to check a file?</td><td>This tool: no. Printful: yes, an account and a connected store.</td></tr>
+  <tr><td>Is my artwork sent anywhere to be checked?</td><td>This tool: no, it never leaves your device. Printful: yes &mdash; uploading the file is the point, since it is what gets printed.</td></tr>
+  <tr><td>What resolution do I actually need for a given print size?</td><td>This tool's own <a href="what-resolution-do-i-need-to-print-my-artwork.html">resolution walkthrough</a>.</td></tr>
+  </tbody>
+  </table>
+  </div>
+  <p>
+    Most artists get different value from each: Printful (or a comparable
+    print-on-demand service) for running an actual storefront with
+    fulfillment and shipping handled per order, and a private check like this
+    one for an instant, no-account answer to whether one candidate file is
+    sharp enough before any of it touches a platform. This page's own result
+    is a resolution and filename check, not a colour proof, a print
+    approval, or a substitute for whatever validation Printful or any other
+    print-on-demand service runs on its own upload.
+  </p>
+  <p class="fine">This tool needs no account and no sign-in: it is a static page, every check runs in your browser, and once it has loaded it keeps working with the connection off.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I use this tool or Printful?</h3>
+  <p>They do different jobs, and an artist selling prints will likely use both. Printful is a print-on-demand and warehousing company, founded in 2013, that lets a seller upload artwork, connect it to an online store (Shopify, Etsy, WooCommerce and others), and have each order printed and shipped only after a customer buys it &mdash; so the seller holds no inventory. It is used through a free account, with production and shipping charged per order. Printful's own upload dashboard runs its own checks on a file after you submit it, and its current published thresholds are not restated here because this session cannot reach printful.com to confirm today's exact wording. This tool does one narrower thing: it reads a candidate file's pixel dimensions, format, byte size, and filename in your own browser, checks the implied DPI at the print size named in the filename against a documented 150 DPI floor, ranks up to five candidates head-to-head, and exports a dated technical record &mdash; all before the file is ever uploaded anywhere. It runs free, keeps no account, and never transmits the artwork. An artist who wants to sell through a connected storefront with fulfillment, shipping, and payment handled for them is better served by Printful or a comparable print-on-demand service; an artist who wants to know, in seconds and before any upload, whether a specific export is sharp enough for a specific size is in the right place here.</p>
+  <h3>Is this page affiliated with Printful?</h3>
+  <p>No. This site is not affiliated with, endorsed by, or sponsored by Printful. Printful is a trademark of its owner, named here only to describe what this tool is and is not.</p>
+  <p><a href="./">Open the free print file preflight</a> to check your own file.</p>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> This page and the tool it describes are
+      provided free and as-is, without warranty of any kind, express or
+      implied. Nothing here is printing, production, colour-management, or
+      professional advice, and it does not replace a qualified printer,
+      colour manager, or whatever validation a print-on-demand service runs
+      on its own upload. <strong>You are responsible for reviewing and
+      verifying any output before relying on it</strong>. To the maximum
+      extent permitted by law, the authors accept no liability for any loss
+      or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice.
+    </p>
+    <p>
+      <strong>Nothing leaves your browser.</strong> This page makes no live
+      comparison against Printful and no network request of any kind &mdash;
+      it is a static page describing publicly documented facts, and the file
+      you check with the linked tool is read locally, never uploaded.
+    </p>
+    <p>
+      MIT licensed &mdash; see <a href="LICENSE">LICENSE</a>.
+      <a href="https://www.printful.com/" rel="nofollow noopener" target="_blank">Printful</a>
+      is not affiliated with this project.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a>
+      if this saved you a wasted proof &mdash; entirely optional, the tool stays free either way.
+    </p>
+  </footer>
+</main>
+</body>
+</html>

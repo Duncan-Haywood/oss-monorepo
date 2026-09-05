@@ -105,8 +105,44 @@ export const MIN_SAVEABLE_FIELDS = 3;
  * going to hold — the rule is about what the control means, not what it is
  * called — so both spellings are named here and `pageSaveableFieldIds` is
  * tested against both.
+ *
+ * The seven `client*`/`company*` ids are a different kind of exclusion: not a
+ * setting that must not travel, but a customer's own name and home address.
+ * 104 ventures share one "proposal header" convention — `clientName`,
+ * `clientAddress`, `companyName`, `companyAddress`, `companyPhone`,
+ * `companyEmail`, `companyLicense` — and this module's two features are the
+ * only two things on the site that turn a form's fields into a URL: the
+ * saved-bids band writes them to this browser's own disk, which is one
+ * thing, but `link.mjs` builds `pageSaveableFieldIds` straight into a
+ * shareable hash a contractor is expected to paste into email or text to a
+ * customer. Neither of these seven ids started with `pf-` or matched the
+ * older exclusions, so a page with no `share.mjs` of its own sent the
+ * customer's home address out in the "Copy link to this bid" URL — exactly
+ * the kind of link that ends up forwarded, or sitting in a browser's history,
+ * somewhere neither party expected. The 71 ventures with their own
+ * hand-written `share.mjs` were never affected; this is the shared
+ * serializer's own allowlist.
+ *
+ * Excluding them here does not touch the "14 Oak St — Mrs Reid" label a
+ * saved bid is listed under: that name is typed by the contractor into its
+ * own box (`pf-jobs-name`, see `JOBS_MARKUP` below) and is never read off
+ * these fields. It also does not stop a contractor's *own* company details
+ * from restoring on their own device — `usage`/`usageOptOut` are excluded
+ * from serialization for the same reason and restoring already worked before
+ * this ever changed the set the two features agree on.
  */
-export const EXCLUDED_FIELD_IDS = new Set(['usageOptOut', 'usage']);
+export const EXCLUDED_FIELD_IDS = new Set([
+  'usageOptOut',
+  'usage',
+  // The proposal header's customer and business-identity fields — see above.
+  'clientName',
+  'clientAddress',
+  'companyName',
+  'companyAddress',
+  'companyPhone',
+  'companyEmail',
+  'companyLicense',
+]);
 
 const EXCLUDED_ID_PREFIX = 'pf-';
 
@@ -200,7 +236,15 @@ export function pageTakesSavedBids(html) {
  * later correction to one cannot leave a saved bid showing a different number
  * than the printed proposal does.
  */
-export const HEADLINE_AMOUNT_OVERRIDES = { 'lawn-care-bid-calculator': '#monthly' };
+export const HEADLINE_AMOUNT_OVERRIDES = {
+  'lawn-care-bid-calculator': '#monthly',
+  // This page leads with the quote, but marks it `class="hero"` rather than
+  // this site's `hero-number`, so the rule below finds nothing and the tool
+  // saved no figure at all. `#target` is the price it quotes and the price its
+  // printed proposal carries — `trades.json` names the same element, and
+  // `jobs.test.mjs` holds the two to each other.
+  'appliance-repair-quote-calculator': '#target',
+};
 
 const HERO_NUMBER_TAG_RE = /<[^>]*\bclass="[^"]*\bhero-number\b[^"]*"[^>]*>/i;
 

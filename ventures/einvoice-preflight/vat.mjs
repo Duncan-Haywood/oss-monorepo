@@ -221,18 +221,23 @@ function luOk(digits) {
 function ieOk(body) {
   const alphabet = "WABCDEFGHIJKLMNOPQRSTUV";
   if (body.length === 8) {
-    const source = /^\d$/.test(body[1]) ? body.slice(0, 7) : `${body[0]}7${body.slice(2, 7)}`;
-    const numeric = [];
-    for (const char of source) {
-      if (/^\d$/.test(char)) numeric.push(Number(char));
-      else if (alphabet.includes(char)) numeric.push(alphabet.indexOf(char));
-      else return false;
-    }
-    if (numeric.length !== 7) return false;
+    // Two 8-character shapes share this branch. The common one is 7 digits
+    // plus a check letter, weighed as-is. The older one (digit, letter,
+    // 5 digits, check letter -- e.g. the legacy "8Z49289F" shape) cannot be
+    // weighed as typed: Revenue's own check-digit definition first
+    // rearranges it to "0" + the middle 5 digits + the leading digit before
+    // applying the same mod-23 weights. The prior version instead spliced a
+    // literal "7" in for the letter and left the leading digit in place --
+    // it never moved anything, so it was computing a checksum for a number
+    // that was not the one on the invoice. Every valid legacy-format Irish
+    // VAT number failed this check, silently: it read as a typo the same
+    // way a correctly-typed one would.
+    const source = /^\d$/.test(body[1]) ? body.slice(0, 7) : `0${body.slice(2, 7)}${body[0]}`;
+    if (!/^\d{7}$/.test(source)) return false;
     let total = 0;
-    numeric.forEach((value, index) => {
-      total += value * (8 - index);
-    });
+    for (let index = 0; index < 7; index += 1) {
+      total += Number(source[index]) * (8 - index);
+    }
     return body[7] === alphabet[total % 23];
   }
   if (body.length === 9 && /^\d{7}$/.test(body.slice(0, 7))) {

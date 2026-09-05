@@ -29,12 +29,14 @@ test('project log history section exists with the multi-day pack workflow wired 
   assert.match(html, /<section id="history">/);
   assert.match(html, /id="history-list"/);
   assert.match(html, /id="download-pack"/);
+  assert.match(html, /id="download-csv"/);
   assert.match(html, /id="clear-entries"/);
   const js = script();
   assert.match(js, /ENTRIES_KEY/);
   assert.match(js, /function loadEntries/);
   assert.match(js, /function saveEntries/);
   assert.match(js, /buildEvidencePack/);
+  assert.match(js, /entriesToCsv/);
   assert.match(js, /addEventListener\('submit'/);
 });
 

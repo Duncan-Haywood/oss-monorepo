@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -45,4 +45,19 @@ test("example fixture referenced by app.js is a real lockfile checked into the v
   assert.ok(parsed.lockfileVersion === 2 || parsed.lockfileVersion === 3);
   const app = readFileSync(new URL("./app.js", import.meta.url), "utf8");
   assert.match(app, /example-package-lock\.json/);
+});
+
+// Regression: sitemap.xml carried only the index page -- vs-npm-audit.html
+// and which-npm-vulnerabilities-actually-reach-production.html, both real
+// pages linked from index.html, were never in it, so a crawler following
+// robots.txt -> sitemap.xml never discovered them. Same defect class fixed
+// for public-record-watch in #3289.
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
 });

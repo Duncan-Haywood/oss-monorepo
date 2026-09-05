@@ -6,6 +6,9 @@ import unittest
 from decision_queue import (
     EXPOSURES,
     GATES,
+    VERDICTS,
+    load_infra,
+    viability,
     age_days,
     check,
     covers,
@@ -377,6 +380,197 @@ class MainDegradesGracefully(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("cannot render the queue", err)
         self.assertNotIn("Traceback", out)
+
+
+class Viability(unittest.TestCase):
+    """A route that restores a surface is not the same as one that can be taken.
+
+    Every case here is a form of the 2026-09-04 error: `deploy-settings` was a
+    genuine independent route to a public origin, and simultaneously could not
+    publish anything, because the workflow behind it needed an Actions runner
+    and runner assignment had stopped. The queue printed it at position 1 and
+    told the owner to do the cheapest first.
+    """
+
+    DAY = dt.date(2026, 9, 4)
+
+    def infra(self, verdict="up", measured="2026-09-04", **extra):
+        return {"ci": dict({"verdict": verdict, "measured": measured, "run": 1}, **extra)}
+
+    def test_no_requirements_is_viable(self):
+        self.assertEqual(viability(decision(), self.infra(), self.DAY)[0], "up")
+
+    def test_route_is_down_when_its_prerequisite_is_down(self):
+        d = decision(requires=["ci"])
+        self.assertEqual(viability(d, self.infra("down"), self.DAY)[0], "down")
+
+    def test_route_is_up_when_its_prerequisite_is_up(self):
+        d = decision(requires=["ci"])
+        self.assertEqual(viability(d, self.infra("up"), self.DAY)[0], "up")
+
+    def test_unmeasured_prerequisite_is_unknown_not_up(self):
+        # The failure direction that matters: an absent reading must never be
+        # read as a healthy one. That is precisely how "nothing is served"
+        # stood unchallenged for five days.
+        d = decision(requires=["never-measured"])
+        verdict, why = viability(d, self.infra(), self.DAY)
+        self.assertEqual(verdict, "unknown")
+        self.assertIn("never measured", why[0])
+
+    def test_stale_reading_ages_out_to_unknown_not_up(self):
+        d = decision(requires=["ci"])
+        stale = self.infra("up", measured="2026-08-01")
+        verdict, why = viability(d, stale, self.DAY)
+        self.assertEqual(verdict, "unknown")
+        self.assertIn("too stale", why[0])
+
+    def test_a_reading_from_the_future_is_not_trusted(self):
+        d = decision(requires=["ci"])
+        verdict, _ = viability(d, self.infra("up", measured="2026-12-25"), self.DAY)
+        self.assertEqual(verdict, "unknown")
+
+    def test_one_down_prerequisite_outweighs_an_up_one(self):
+        infra = {
+            "ci": {"verdict": "up", "measured": "2026-09-04"},
+            "cluster": {"verdict": "down", "measured": "2026-09-04"},
+        }
+        d = decision(requires=["ci", "cluster"])
+        self.assertEqual(viability(d, infra, self.DAY)[0], "down")
+
+
+class ViabilityOrdering(unittest.TestCase):
+    DAY = dt.date(2026, 9, 4)
+
+    def routes(self):
+        return [
+            decision(id="needs-ci", asks=[4], gates="deployment",
+                     exposure="credential", outage=True, requires=["ci"]),
+            decision(id="needs-nothing", asks=[5], gates="deployment",
+                     exposure="credential", outage=True),
+        ]
+
+    def down(self):
+        return {"ci": {"verdict": "down", "measured": "2026-09-04", "run": 1}}
+
+    def test_unusable_route_sinks_below_the_usable_one(self):
+        got = sorted(self.routes(), key=lambda d: sort_key(d, self.down(), self.DAY))
+        self.assertEqual([d["id"] for d in got], ["needs-nothing", "needs-ci"])
+
+    def test_ordering_is_unchanged_when_no_readings_are_supplied(self):
+        # Back-compat: `sort_key(d)` is still the one-argument function the
+        # rest of the tool and its tests call.
+        got = sorted(self.routes(), key=sort_key)
+        self.assertEqual([d["id"] for d in got], ["needs-ci", "needs-nothing"])
+
+    def test_banner_names_the_route_that_works_and_why_the_other_does_not(self):
+        out = render(self.routes(), self.DAY, self.down())
+        self.assertIn("Not all of them work today", out)
+        self.assertIn("needs-nothing", out)
+        self.assertIn("needs-ci — down", out)
+        # The sentence that misdirected the owner must not survive unqualified.
+        self.assertNotIn("Do the cheapest first.", out)
+
+    def test_banner_keeps_the_old_advice_when_every_route_works(self):
+        up = {"ci": {"verdict": "up", "measured": "2026-09-04", "run": 1}}
+        out = render(self.routes(), self.DAY, up)
+        self.assertIn("Do the cheapest first.", out)
+        self.assertNotIn("Not all of them work today", out)
+
+    def test_banner_says_so_when_no_route_works_at_all(self):
+        routes = [dict(d, requires=["ci"]) for d in self.routes()]
+        out = render(routes, self.DAY, self.down())
+        self.assertIn("None of them works today", out)
+
+
+class RequiresSchema(unittest.TestCase):
+    def test_requires_must_name_a_reading_that_exists(self):
+        d = decision(requires=["typo"])
+        problems = check([d], {"ci": {"verdict": "up", "measured": "2026-09-04"}})
+        self.assertTrue(any("no reading in infra_state.yaml" in p for p in problems))
+
+    def test_requires_must_be_a_list_of_names(self):
+        problems = check([decision(requires="ci")], {"ci": {}})
+        self.assertTrue(any("not a list of names" in p for p in problems))
+
+    def test_a_declared_reading_that_exists_is_clean(self):
+        d = decision(requires=["ci"])
+        self.assertEqual(check([d], {"ci": {"verdict": "up", "measured": "2026-09-04"}}), [])
+
+
+class ShippedInfraState(unittest.TestCase):
+    """The committed readings must stay loadable and well-formed."""
+
+    def test_every_reading_parses_and_carries_its_evidence(self):
+        infra = load_infra()
+        self.assertTrue(infra, "infra_state.yaml should carry readings")
+        for name, entry in infra.items():
+            with self.subTest(reading=name):
+                self.assertIn(entry.get("verdict"), VERDICTS)
+                dt.date.fromisoformat(str(entry["measured"]))
+                self.assertTrue(str(entry.get("how", "")).strip(),
+                                "a reading must say how to re-measure it")
+
+    def test_every_requires_in_the_shipped_asks_resolves(self):
+        self.assertEqual(check(load(), load_infra()), [])
+
+
+class DispatchNeedsARunner(unittest.TestCase):
+    """See DISPATCH_MARKERS in decision_queue.py.
+
+    A row's action prose and its `requires` list could disagree in silence,
+    and on 2026-09-05 the top-ranked outage row did: it told the owner to
+    dispatch two workflows while declaring no prerequisites, so it rendered
+    `up` and the banner called it the one grantable row. Both dispatches
+    would have returned `runner_id: 0`.
+    """
+
+    def test_dispatch_without_a_declared_runner_is_a_problem(self):
+        d = decision(action="Then dispatch `hetzner-gitops CI` with preflight.")
+        problems = check([d], {})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("github-actions-runners", problems[0])
+
+    def test_declaring_the_runner_dependency_clears_it(self):
+        d = decision(
+            action="Then dispatch `hetzner-gitops CI` with preflight.",
+            requires=["github-actions-runners"],
+        )
+        self.assertEqual(
+            check([d], {"github-actions-runners": {"verdict": "down"}}), []
+        )
+
+    def test_naming_a_runner_free_route_clears_it(self):
+        # The escape hatch the real ssh-key row uses: the workflow is
+        # mentioned, but a route that needs no runner is spelled out.
+        d = decision(
+            action="Run it locally. Or dispatch `hetzner-gitops CI` later.",
+            runner_free="bootstrap/restore-cluster.sh from the owner's machine.",
+        )
+        self.assertEqual(check([d], {}), [])
+
+    def test_an_empty_runner_free_does_not_count_as_an_explanation(self):
+        d = decision(
+            action="Then dispatch `hetzner-gitops CI`.", runner_free="   "
+        )
+        problems = check([d], {})
+        self.assertEqual(len(problems), 2)
+        self.assertTrue(any("is present but empty" in p for p in problems))
+
+    def test_an_action_that_only_pastes_a_secret_is_not_flagged(self):
+        # Pasting a secret works fine while runners are starved; it is
+        # running a workflow that does not. The marker set is deliberately
+        # narrow so this stays clean.
+        d = decision(action="Paste the key into Settings -> Secrets.")
+        self.assertEqual(check([d], {}), [])
+
+    def test_the_shipped_ssh_key_row_names_a_runner_free_route(self):
+        rows = {d["id"]: d for d in load()}
+        row = rows["hetzner-ssh-key-is-a-public-key"]
+        self.assertTrue(
+            str(row.get("runner_free", "")).strip(),
+            "the one outage route that works without a runner must say so",
+        )
+        self.assertIn("restore-cluster.sh", row["action"])
 
 
 if __name__ == "__main__":

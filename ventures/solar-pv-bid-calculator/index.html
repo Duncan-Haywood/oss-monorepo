@@ -221,6 +221,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -286,7 +287,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or electrical-code advice, and it does not tell you what to charge. It is not a structural, interconnection, or incentive determination. Verify every figure against your own payroll, invoices, AHJ and utility requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your system size, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your system size, wages, costs, or prices.</p>
     <p>See also: <a href="./how-much-to-charge-to-install-solar-panels.html">how much to charge to install solar panels</a> &middot; <a href="./vs-aurora-solar.html">this calculator vs. Aurora Solar</a>.</p>
     <p class="support">Free and open source. If it keeps you from matching a losing per-watt quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -294,6 +295,9 @@
   <script type="module">
     import { calculateBid, formatBidSummary, ROOF_PRESETS, ELECTRICAL_PRESETS, SYSTEM_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
@@ -304,6 +308,15 @@
       'hourlyWage','burdenRate','permitAndInterconnection','designEngineering','travelDumpsterLift',
       'overheadRate','targetMargin','proposedPrice',
     ];
+    // Which fields each select fills in when it changes. Restoring a shared
+    // link marks these as edited so a later preset change cannot overwrite the
+    // sender's figures; the change handlers below are the other reader of the
+    // same relationship, and `share.test.mjs` holds the two in step.
+    const SHARED_SELECT_SUGGESTIONS = {
+      roofPreset: ['roofFactor'],
+      electricalPreset: ['electricalHours', 'electricalMaterial'],
+      systemPreset: ['moduleCount', 'wattsPerModule'],
+    };
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
@@ -413,6 +426,89 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    /**
+     * The bid as share.mjs wants it: every number `readInput` collects, plus
+     * the three selects. `readInput` leaves the selects out because they only
+     * ever *suggest* field values and the arithmetic reads the fields -- but a
+     * link that dropped them would reopen the sender's numbers under the
+     * recipient's default roof and electrical labels, which reads as a
+     * different job even though the price matches.
+     */
+    function readShareInput() {
+      return {
+        ...readInput(),
+        roofPreset: el('roofPreset').value,
+        electricalPreset: el('electricalPreset').value,
+        systemPreset: el('systemPreset').value,
+      };
+    }
+
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // they ride beside the payload in `pfterms`, which decodeInputs never
+      // sees. Leaving them out is what `platform/proposal/term-ids.test.mjs`
+      // exists to catch: they persist per device, and per-device persistence
+      // is exactly what the recipient does not have.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readShareInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back, so a
+     * crafted fragment cannot set anything this page does not already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of Object.keys(SHARED_SELECT_SUGGESTIONS)) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      // A preset change never overwrites a restored rate: mark the fields a
+      // preset would suggest as already "edited", the same guard the form sets
+      // when an installer types over the suggestion. Without this, the first
+      // roof or electrical change after opening a link silently replaces the
+      // sender's own numbers.
+      for (const [select, suggested] of Object.entries(SHARED_SELECT_SUGGESTIONS)) {
+        if (fromUrl[select] === undefined) continue;
+        for (const id of suggested) {
+          if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+        }
+      }
+    }
+
     el('systemPreset').addEventListener('change', () => {
       const preset = SYSTEM_PRESETS[Number(el('systemPreset').value)];
       if (!preset) return;
@@ -453,6 +549,14 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => {
+        el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.';
+      });
+    });
+
+    // Before the first `update()`, so a shared bid is what gets priced.
+    restoreShare();
 
 
     // ---- Customer-facing proposal -------------------------------------------

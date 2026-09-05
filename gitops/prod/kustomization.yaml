@@ -160,6 +160,75 @@ configMapGenerator:
       # conditional on any category having mirrored tools, so it is always
       # present.
       - about.html=front-door/about.html
+      # The comparison index, served from the document root by the
+      # `^/compare/?$` block in `front-door/default.conf`. Same ConfigMap for
+      # the same reason as everything above it.
+      #
+      # **Stored gzipped** — ~95 KB of HTML on 2026-09-05, ~20 KB on disk. It
+      # was the second-largest key here after `c__trades.html`, and the one
+      # that grows without anybody deciding to grow it: it lists every
+      # `vs-<product>` page in the catalogue, so the fleet adds ~570 bytes to
+      # it with each one written. See the block on the product pages below for
+      # the measurement, and `COMPRESSED_SUFFIX` in
+      # `platform/marketing/front-door.mjs` for why only these keys are
+      # compressed and what nginx needs in order to serve them.
+      - compare.html.gz=front-door/compare.html.gz
+      # One page per product compared by more than one tool, served from the
+      # document root by the `^/compare/(?<vs>…)/?$` block in
+      # `front-door/default.conf`. Same ConfigMap for the same reason as
+      # everything above it.
+      #
+      # These exist because `compare.html` above is one URL carrying every
+      # comparison in the catalogue: its title has to be true of ~120 products
+      # at once, so it competes for "Jobber alternatives" against pages that
+      # are about nothing else, and the thirty-two Jobber comparisons were an
+      # anchor part-way down a 95 KB document. Each of these is about one
+      # product and nothing else.
+      #
+      # **Stored gzipped**, unlike every other key in this ConfigMap, and so is
+      # `compare.html.gz` above. These are the largest and fastest-growing
+      # things here — 226 KB uncompressed, the largest being `vs__jobber.html`
+      # at ~30 KB for 32 tools, and 80 KB of that total is one identical copy
+      # of `STYLE` per page. `COMPRESSED_SUFFIX` in
+      # `platform/marketing/front-door.mjs` carries the full reasoning; the
+      # short version is that plain they cost 81.3% of etcd's 1 MiB ceiling and
+      # gzipped they cost 60.3%.
+      #
+      # Measured, not estimated, on 2026-09-05: `portfolio-front-html`
+      # serialises to 631,774 bytes against a 943,718-byte test budget — 312 KB
+      # of headroom, where the same fourteen pages stored plain left 91 KB.
+      # `gitops/tests/test_manifests.py` measures the built object against 90%
+      # of the cap and the ceiling test in `front-door.test.mjs` reads this
+      # file's own list, so neither can grow past unnoticed.
+      #
+      # A `.gz` key is not valid UTF-8, so kustomize files it under
+      # `binaryData` as base64 — the 4/3 expansion the ceiling tests already
+      # model for the tool mirror. nginx serves them with `gzip_static always;
+      # gunzip on;` reached by a `rewrite`, never a `try_files`: the plain name
+      # is on disk nowhere, so `try_files` would stat a missing file and 404
+      # the whole comparison layer behind a config that reads correctly.
+      #
+      # Listed one line per file rather than generated, matching the seven
+      # `c__<id>.html` pages above, and with the same guard: `front-door.mjs`
+      # sweeps a `vs__*.html.gz` whose product drops below two comparisons, and
+      # `front-door.test.mjs` asserts this list against what the generator
+      # writes — so a product page added without a line here fails CI instead
+      # of going dark, and one removed without deleting its line fails here
+      # instead of leaving kustomize pointing at a file that is gone.
+      - vs__jobber.html.gz=front-door/vs__jobber.html.gz
+      - vs__servicetitan.html.gz=front-door/vs__servicetitan.html.gz
+      - vs__aspire.html.gz=front-door/vs__aspire.html.gz
+      - vs__buildxact.html.gz=front-door/vs__buildxact.html.gz
+      - vs__jobnimbus.html.gz=front-door/vs__jobnimbus.html.gz
+      - vs__quoteiq.html.gz=front-door/vs__quoteiq.html.gz
+      - vs__acculynx.html.gz=front-door/vs__acculynx.html.gz
+      - vs__housecall-pro.html.gz=front-door/vs__housecall-pro.html.gz
+      - vs__bonsai.html.gz=front-door/vs__bonsai.html.gz
+      - vs__govwin-iq.html.gz=front-door/vs__govwin-iq.html.gz
+      - vs__jobtread.html.gz=front-door/vs__jobtread.html.gz
+      - vs__paintscout.html.gz=front-door/vs__paintscout.html.gz
+      - vs__servicecore.html.gz=front-door/vs__servicecore.html.gz
+      - vs__servicemonster.html.gz=front-door/vs__servicemonster.html.gz
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

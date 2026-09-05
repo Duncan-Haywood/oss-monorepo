@@ -21,6 +21,7 @@
     "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, detention layover and lumper comparison, copyable load summary"
   }
   </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do owner operators calculate cost per mile?","acceptedAnswer":{"@type":"Answer","text":"Add every mile the truck moves that week — loaded and empty. Divide fuel, per-mile reserves, and the weekly share of the truck note, insurance, and permits by those total miles. That is all-in cost per mile. Then divide the same weekly cost by loaded miles only to get the loaded rate that covers the empty ones."}},{"@type":"Question","name":"How does deadhead affect a trucking rate?","acceptedAnswer":{"@type":"Answer","text":"Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring."}},{"@type":"Question","name":"Does this calculator use a different fuel mileage for loaded and empty miles?","acceptedAnswer":{"@type":"Answer","text":"No — it takes one “Average MPG” figure and divides it into every mile the truck moved that week, loaded and empty combined (fuel gallons = total miles ÷ MPG). It does not model the real gap between loaded and unladen fuel economy. At the starting figures — 2,250 total miles at 6.2 MPG, $4.20 diesel — that is $1,524.19 of fuel for the week, regardless of how the 1,800 loaded and 450 empty miles split it. If your logbook shows loaded and empty MPG separately, enter the mileage weighted for the week’s actual mix (total gallons actually burned ÷ total miles run), not your best-case unladen number, or the fuel line will understate cost on a week with a lot of loaded miles."}},{"@type":"Question","name":"What loaded rate should I accept?","acceptedAnswer":{"@type":"Answer","text":"This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load."}},{"@type":"Question","name":"How much does factoring actually cost on a load?","acceptedAnswer":{"@type":"Answer","text":"Factoring takes its percent off gross revenue before the money settles, not off profit. On the starting figures — 1,800 loaded miles at a $2.00 offer, $3,600 gross — 3% factoring is a $108 fee, leaving $3,492 net from the miles. The offered rate itself doesn’t change; the calculator’s “effective loaded rate” ($1.94/mi at those figures) is what you actually settle for, and that’s the number to compare against break-even, not the rate on the rate confirmation."}},{"@type":"Question","name":"Does an unreimbursed lumper fee change the cost per mile?","acceptedAnswer":{"@type":"Answer","text":"No — it’s added to the week’s cost as a flat dollar amount, not spread across miles. “Lumper you paid” minus “Lumper reimbursed” becomes a straight addition to weekly cost regardless of how many miles were run that week. At the starting figures, a $75 lumper the broker never reimburses is $75 straight off the week, on top of fuel, reserves, and fixed cost."}},{"@type":"Question","name":"How much does a short week raise cost per mile?","acceptedAnswer":{"@type":"Answer","text":"Fixed costs — the truck note, insurance, permits — are billed monthly and this calculator converts them to a weekly figure by dividing by 52÷12 weeks, then spreads that over total miles run. Fewer miles in the week means the same dollar figure divides over less distance. At the starting figures ($5,550/month fixed, about $1,281/week) run over 2,250 total miles, fixed cost alone is about $0.57/mi; the same $1,281 spread over a 1,500-mile week would be about $0.85/mi — the truck note doesn’t get cheaper because the week was slow."}},{"@type":"Question","name":"How many loaded miles does it take to break even at an offered rate?","acceptedAnswer":{"@type":"Answer","text":"“Loaded miles to cover this week at offer” divides the week’s cost, minus any detention/layover that’s already been factored in, by the settled effective rate — the offered rate after factoring. At the starting figures, a $2.00/mi offer settles to $1.94/mi after 3% factoring, and it takes roughly 1,706 loaded miles against the week’s cost (after the $291 of factored accessorials) to break even. The starting 1,800 loaded miles clears that, leaving around $183 for the week."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -101,8 +102,10 @@
           <label>Tolls, DEF, other / mile <input id="otherVariablePerMile" type="number" min="0" step="0.01" value="0.07"></label>
           <label>Factoring (%) <input id="factoringRate" type="number" min="0" max="99.9" step="0.1" value="3"></label>
           <label>Offered loaded rate (optional) <input id="offeredLoadedRate" type="number" min="0" step="0.01" value="2.00"></label>
-          <label>Target weekly take-home (optional) <input id="targetWeeklyTakeHome" type="number" min="0" step="25" placeholder="e.g. 800"></label>
+          <label>Tax reserve (% of profit) <input id="taxReservePercent" type="number" min="0" max="99.9" step="0.5" value="0" placeholder="e.g. 25"></label>
+          <label>Target weekly take-home, after that reserve (optional) <input id="targetWeeklyTakeHome" type="number" min="0" step="25" placeholder="e.g. 800"></label>
         </div>
+        <p class="hint">Nothing withholds tax for you. Put in whatever share of profit you set aside for self-employment and income tax and the target below becomes what you actually keep. Leave it at 0 and every figure behaves exactly as before. We do not guess the percentage &mdash; it depends on your filing status, state, deductions, and per-diem election, and picking one for you would be a claim about what you owe. Ask your tax preparer for yours.</p>
       </section>
 
       <section>
@@ -132,6 +135,8 @@
         <dt>Weekly cost</dt><dd id="weeklyCost"></dd>
         <dt>Annual cost (same week &times; 52)</dt><dd id="annualCost"></dd>
         <dt>Rate for target take-home</dt><dd id="rateForTarget"></dd>
+        <dt>Tax reserve at offered rate</dt><dd id="taxReserve"></dd>
+        <dt>Take-home after reserve</dt><dd id="weeklyTakeHome"></dd>
         <dt>Loaded miles to cover this week at offer</dt><dd id="loadedMilesToBreakEven"></dd>
         <dt>Detention + layover after factor</dt><dd id="accessorialNet"></dd>
         <dt>Unreimbursed lumper</dt><dd id="lumperUnreimbursed"></dd>
@@ -198,7 +203,7 @@
       'loadedMiles', 'emptyMiles', 'mpg', 'dieselPrice',
       'truckPayment', 'insurance', 'permits', 'otherFixed',
       'maintenancePerMile', 'tiresPerMile', 'otherVariablePerMile',
-      'factoringRate', 'offeredLoadedRate', 'targetWeeklyTakeHome',
+      'factoringRate', 'offeredLoadedRate', 'taxReservePercent', 'targetWeeklyTakeHome',
       'detentionHours', 'detentionPayPerHour', 'layoverPay',
       'lumperPaid', 'lumperReimbursed',
     ];
@@ -225,7 +230,7 @@
       el('hero').textContent = message;
       el('hero').className = 'hero-number negative';
       el('heroLabel').textContent = 'check the highlighted input';
-      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget', 'loadedMilesToBreakEven', 'accessorialNet', 'lumperUnreimbursed', 'milesOnlyProfit', 'withAccessorialsProfit', 'accessorialDelta', 'detentionHoursToCover']
+      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget', 'taxReserve', 'weeklyTakeHome', 'loadedMilesToBreakEven', 'accessorialNet', 'lumperUnreimbursed', 'milesOnlyProfit', 'withAccessorialsProfit', 'accessorialDelta', 'detentionHoursToCover']
         .forEach(id => { el(id).textContent = ''; });
       el('verdict').hidden = true;
     }
@@ -264,6 +269,10 @@
         : `${Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')} mi`;
       el('accessorialNet').textContent = money(result.accessorialNet);
       el('lumperUnreimbursed').textContent = money(result.lumperUnreimbursed);
+      // Both are properties of an offer, so they read 'n/a' with no rate
+      // entered rather than showing a reserve on a profit nobody quoted.
+      el('taxReserve').textContent = result.offered === null ? 'n/a' : money(result.offered.taxReserve);
+      el('weeklyTakeHome').textContent = result.offered === null ? 'n/a' : money(result.offered.weeklyTakeHome);
 
       const compared = compareAccessorials(readInput());
       el('milesOnlyProfit').textContent = compared.milesOnly.offered
@@ -289,7 +298,15 @@
         if (result.offered.belowBreakEven) {
           verdict.innerHTML = `At ${money(result.offered.offeredLoadedRate)}/loaded mile (${settled}) this week <strong>loses ${money(Math.abs(result.offered.weeklyProfit))}</strong>. You would need ${result.loadedMilesToBreakEven === null ? 'a positive settled rate' : `${result.loadedMilesToBreakEven.toFixed(0)} loaded miles at this settled rate`} to cover cost.`;
         } else {
-          verdict.innerHTML = `At ${money(result.offered.offeredLoadedRate)}/loaded mile (${settled}) you keep <strong>${money(result.offered.weeklyProfit)}</strong> this week — ${perMile(result.offered.profitPerLoadedMile)} of loaded miles, ${money(result.offered.annualProfit)} if every week looked like this.`;
+          // "You keep" has to mean what it says. With a reserve set, profit
+          // is not kept — the reserve is spoken for — so the headline number
+          // becomes take-home and the pre-tax figure is named as such beside
+          // it. With no reserve the two are equal and this reads exactly as
+          // it always did.
+          const reserved = result.offered.taxReserve > 0;
+          verdict.innerHTML = reserved
+            ? `At ${money(result.offered.offeredLoadedRate)}/loaded mile (${settled}) you keep <strong>${money(result.offered.weeklyTakeHome)}</strong> this week after setting aside ${money(result.offered.taxReserve)} for tax — ${money(result.offered.weeklyProfit)} before that reserve, ${money(result.offered.annualTakeHome)} kept if every week looked like this.`
+            : `At ${money(result.offered.offeredLoadedRate)}/loaded mile (${settled}) you keep <strong>${money(result.offered.weeklyProfit)}</strong> this week — ${perMile(result.offered.profitPerLoadedMile)} of loaded miles, ${money(result.offered.annualProfit)} if every week looked like this.`;
         }
       }
     }
@@ -302,6 +319,12 @@
           `After ${result.factoringRate.toFixed(1)}% factoring: ${money(result.offered.effectiveLoadedRate)}/mi`,
           `Weekly net: ${money(result.offered.netRevenue)}`,
           `Weekly profit: ${money(result.offered.weeklyProfit)}`,
+          ...(result.taxReservePercent > 0
+            ? [
+              `Tax reserve (${result.taxReservePercent}% of profit): ${money(result.offered.taxReserve)}`,
+              `Take-home after reserve: ${money(result.offered.weeklyTakeHome)}`,
+            ]
+            : []),
         ];
       return [
         'OWNER-OPERATOR WEEK',
@@ -346,9 +369,17 @@
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => {
         const accessorial = ['detentionHours', 'detentionPayPerHour', 'layoverPay', 'lumperPaid', 'lumperReimbursed'].includes(id);
-        count(id === 'offeredLoadedRate' || id === 'factoringRate'
-          ? 'offer_compared'
-          : accessorial ? 'accessorials_compared' : 'week_calculated');
+        // The reserve gets its own event rather than folding into
+        // week_calculated: whether operators actually set one is the open
+        // question about this feature, and it cannot be read back out of a
+        // shared counter. Still only the event name and the day — never the
+        // percentage, which would say something about their tax position.
+        const tax = id === 'taxReservePercent' || id === 'targetWeeklyTakeHome';
+        count(tax
+          ? 'tax_reserve_set'
+          : id === 'offeredLoadedRate' || id === 'factoringRate'
+            ? 'offer_compared'
+            : accessorial ? 'accessorials_compared' : 'week_calculated');
       });
     });
     el('factorAccessorials').addEventListener('change', () => {

@@ -237,3 +237,6 @@ does not outrank that deploy.
 MIT — see `LICENSE`. The Connect IQ Store itself does not require an
 open-source license to publish, but the rest of this portfolio's ventures
 carry one and this face is not a reason to be the exception.
+
+Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) never
+changes what this watch face does or costs.

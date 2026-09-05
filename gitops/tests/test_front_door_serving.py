@@ -578,6 +578,114 @@ def test_an_unknown_path_serves_the_front_page_body_but_with_a_404(front_door: s
         assert "no-store" in (headers.get("Cache-Control") or ""), url_path
 
 
+def test_the_comparison_index_and_its_product_pages_serve(front_door: str) -> None:
+    # `/compare/` and `/compare/<product>/` are two `location` blocks whose
+    # `try_files` targets are ConfigMap keys with a different shape from their
+    # URLs (`compare.html`, `vs__<product>.html`) — a ConfigMap key cannot
+    # contain `/`. Nothing but serving them proves the two halves agree, and
+    # this is the whole distribution layer between the mirrored `vs-` pages:
+    # if the rewrite is wrong, every comparison page in the catalogue goes back
+    # to being reachable from exactly one place.
+    status, headers, body = _get_with_error_body(front_door + "/compare/")
+    assert status == 200, f"/compare/ returned {status}"
+    assert b"<h1>" in body
+    assert "max-age=300" in (headers.get("Cache-Control") or "")
+
+    # The slashless spelling a person typing the address produces, on both.
+    assert _get_with_error_body(front_door + "/compare")[0] == 200
+
+    # `.html.gz`, not `.html`: these keys are stored gzipped and served by
+    # `gzip_static`, so the uncompressed name exists nowhere on disk. Reading
+    # for `.html` finds nothing and this loop would pass over an empty set —
+    # which is why the assertion below is on the set being non-empty rather
+    # than only on what each member does.
+    products = sorted(
+        key[len("vs__") : -len(".html.gz")]
+        for key in _front_door_configmaps()["portfolio-front-html"]
+        if key.startswith("vs__") and key.endswith(".html.gz")
+    )
+    assert products, "no per-product comparison pages are mounted, so there is nothing to route"
+    for product in products:
+        for url_path in (f"/compare/{product}/", f"/compare/{product}"):
+            status, headers, body = _get_with_error_body(front_door + url_path)
+            assert status == 200, f"{url_path} returned {status} rather than 200"
+            # The page it served is that product's, not a neighbour's — a
+            # capture that leaked would still answer 200 with the wrong page.
+            assert b"<h1>" in body, url_path
+            assert "max-age=300" in (headers.get("Cache-Control") or ""), url_path
+
+    # The `gunzip on` half, which is the one that fails silently for the people
+    # least able to report it. These keys are stored gzipped and there is no
+    # plain sibling, so a client that does not send `Accept-Encoding: gzip`
+    # gets whatever nginx decides to do about that — and if `gunzip` were off
+    # it would be gzip bytes labelled `text/html`, which renders as binary
+    # garbage. Both directions are asserted because only one of them is the
+    # common case in a browser.
+    sample = products[0]
+    status, headers, body = _get(f"{front_door}/compare/{sample}/", gzip_ok=True)
+    assert status == 200
+    assert (headers.get("Content-Encoding") or "") == "gzip", "gzip_static did not serve the .gz"
+
+    status, headers, body = _get(f"{front_door}/compare/{sample}/", gzip_ok=False)
+    assert status == 200
+    assert not headers.get("Content-Encoding"), "a client that cannot take gzip was sent gzip"
+    assert b"<!doctype html>" in body.lower(), "the body was not inflated for a non-gzip client"
+
+
+def test_a_swept_product_page_404s_rather_than_serving_a_different_one(front_door: str) -> None:
+    # A product drops below two comparisons whenever a venture leaves the
+    # mirror or an author rewords a heading, and `front-door.mjs` then sweeps
+    # its page. The URL stays in sitemaps and inbound links for a while after,
+    # so what it answers matters: a fallback to `/compare.html` would 200 with
+    # a different page and tell a crawler the dead URL is alive.
+    status, _, _ = _get_with_error_body(front_door + "/compare/no-such-product/")
+    assert status == 404
+
+    # A path outside what the capture allows falls to the catch-all rather than
+    # reaching `try_files` at all. Uppercase and a dot are the two shapes that
+    # would otherwise name a real key (`vs__Jobber.html` cannot exist, but a
+    # capture admitting `.` could be pointed at `vs__../about.html`).
+    for url_path in ("/compare/Jobber/", "/compare/a.b/", "/compare/a_b/"):
+        status, _, _ = _get_with_error_body(front_door + url_path)
+        assert status == 404, f"{url_path} returned {status} rather than 404"
+
+    # And nothing reaches the capture with a `..` still in it. `try_files` built
+    # from an unconstrained capture is a path-traversal read, so what happens to
+    # a traversal attempt is worth pinning rather than assuming — and the answer
+    # is not the one a `404` assertion would expect.
+    #
+    # nginx decodes and normalises `$uri` *before* it matches a location, so all
+    # four spellings below collapse to `/about/` and are served by the About
+    # block. That is the safe outcome, not a bypass: the resolved path is a real
+    # in-root URL and the `^/compare/(?<vs>…)` block is never entered, so no
+    # `..` can ever appear in `vs`. Asserting a 4xx here would fail on correct
+    # behaviour and invite someone to "fix" the config until it broke.
+    #
+    # Sent as raw request lines because `urllib` resolves `..` in the client
+    # before the request is made: asserting through it would test Python's
+    # normaliser and report the server safe without ever asking it.
+    about_body = _get_with_error_body(front_door + "/about/")[2]
+    host, port = front_door.removeprefix("http://").split(":")
+    for raw in (
+        "/compare/../about/",
+        "/compare/..%2fabout/",
+        "/compare/%2e%2e/about/",
+        "/compare/%2e%2e%2fabout/",
+    ):
+        with socket.create_connection((host, int(port)), timeout=5) as sock:
+            sock.sendall(f"GET {raw} HTTP/1.0\r\nHost: {host}\r\n\r\n".encode())
+            raw_response = b""
+            while True:
+                chunk = sock.recv(65536)
+                if not chunk:
+                    break
+                raw_response += chunk
+        head, _, body = raw_response.partition(b"\r\n\r\n")
+        status = int(head.split(b" ", 2)[1])
+        assert status == 200, f"{raw} returned {status}"
+        assert body == about_body, f"{raw} resolved to something other than /about/"
+
+
 def test_the_front_page_itself_is_still_a_200(front_door: str) -> None:
     # The exact-match block exists so the catch-all above can return 404
     # without taking the front page down with it. This is the test that would
@@ -598,6 +706,35 @@ def test_the_truncatable_parents_redirect_to_the_front_page(front_door: str) -> 
         status, location = _no_redirect(front_door + url_path)
         assert status == 301, f"{url_path} returned {status} rather than 301"
         assert (location or "").endswith("/"), f"{url_path} redirected to {location}"
+
+
+def test_a_tool_entry_page_without_its_trailing_slash_redirects(front_door: str) -> None:
+    # The entry-page rule used to be `/?$`, so `/tools/<slug>` answered 200 with
+    # the page's bytes. That is the one shape of "it works" that is worse than a
+    # 404: the browser then resolves the page's *relative* references against
+    # `/tools/`, one directory above where the mirror keeps them, so the page
+    # renders and everything on it is gone. Measured over the real mirror before
+    # the fix, all 174 mirrored entry pages answered 200 at the slashless URL
+    # and every one lost at least one same-directory reference there — 693 in
+    # total, 15 of them a stylesheet or an ES module. Nothing in the mirror
+    # links this spelling; a truncated address, a pasted link and an external
+    # inbound link produce it.
+    #
+    # The canonical host never had the problem: `portfolio-site.yaml` serves a
+    # real directory tree and nginx redirects a directory request to its
+    # trailing-slash form on its own. This asserts the mirror does the same.
+    entry_path = _sample_paths()[0][0]
+    assert entry_path.endswith("/")
+    status, location = _no_redirect(front_door + entry_path.rstrip("/"))
+    assert status == 301, f"{entry_path.rstrip('/')} returned {status} rather than 301"
+    assert location == entry_path, f"redirected to {location}, not {entry_path}"
+
+    # `return` does not carry the query string on its own, and the embed
+    # snippet's URL is `?pfEmbed=1` — dropping it would land the reader on the
+    # non-embed page inside someone else's iframe.
+    status, location = _no_redirect(front_door + entry_path.rstrip("/") + "?pfEmbed=1")
+    assert status == 301
+    assert location == entry_path + "?pfEmbed=1", f"the query string was lost: {location}"
 
 
 def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:

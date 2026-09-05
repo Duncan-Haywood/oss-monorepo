@@ -33,16 +33,28 @@ It is not:
   serve a public site on the free tier, so the flip alone would not have
   put these tools in front of strangers. This was not accounted for when
   the row above was written.
-- ~~**Nothing is building the artifact.**~~ **Resolved 2026-09-01.** From
-  2026-08-26 every GitHub Actions run in this repo failed without a runner
-  (`runner_id: 0`, 3-second jobs), so `portfolio-pages.yml` produced no
-  deployable artifact for five days. Runners came back at
-  2026-09-01T00:00:53Z and `portfolio-pages.yml` would build again today.
-  The account-level ceiling looks like it cycles rather than being gone, so
-  treat this as "not currently blocking" rather than "cannot recur".
+- **Nothing is building the artifact — again, as of 2026-09-04.** This
+  entry read "~~Resolved 2026-09-01~~ ... treat this as 'not currently
+  blocking'" until 2026-09-05, and that is exactly how long it was wrong
+  for. The 2026-08-26 starvation did lift on its own at 2026-09-01T00:00:53Z,
+  which is what a metered allowance resetting looks like; it then recurred
+  on 2026-09-04 at ~22:39Z when the allowance was spent again. Measured
+  2026-09-05: run 33932676830 came back `runner_id: 0` with no steps and
+  `python3 platform/ci/ci_starvation.py --run 33932676830` exits 1. So
+  `portfolio-pages.yml` produces no deployable artifact today, and
+  `deploy-settings` cannot complete while that holds — which is why
+  `decision_queue.py` sinks it. Re-measure rather than trusting this
+  paragraph; it is the second time this exact line has gone stale.
 
-The two blockers that remain are the first two, and the Hetzner path shares
-none of the three: Argo syncs the
+**So three blockers remain, not two**, and the third is the one that keeps
+moving. Note also that the first two are not equivalent: enabling Pages is a
+flip the owner controls, but **the private-repo constraint above is a plan
+question, not a settings question** — if this account is on the free tier,
+`deploy-settings` is not a route to a public surface at all, however green
+CI gets. Nothing in this repository can read the account's plan, so that
+stays unresolved here rather than assumed either way.
+
+The Hetzner path shares none of the three: Argo syncs the
 manifest from `main` and the site is built inside the cluster, so it needs
 neither Actions nor Pages. The box is already paid for and already runs
 ingress-nginx and cert-manager. Its own remaining step is now **one**: a
@@ -180,11 +192,36 @@ python3 platform/ci/build_pages_site.py          # build into _site/
 python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
-The remaining owner flip is still `deploy-settings` — enable GitHub Pages
-(`PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
-second platform ask. Until that variable is set, the build still runs on
-every push and the artifact is still uploaded; only the publish step is
-skipped. Flipping it publishes everything at once.
+The remaining owner flip is still `deploy-settings` — enable GitHub Pages.
+Do not open a second platform ask. Until it is flipped, the build still runs
+on every push and the artifact is still uploaded; only the publish step is
+skipped.
+
+**Amended 2026-09-05: take the branch route first, not the Actions one.**
+This section used to say the flip was `PAGES_ENABLED=true` with Pages source
+"GitHub Actions", full stop. That is still the better route *when Actions
+minutes are healthy* — it republishes on every merge, so the site cannot
+drift from the repository — but this account's minutes are metered and the
+allowance has run out twice in one week (2026-08-26, 2026-09-04; see
+`platform/ci/ci_starvation.py`). While that holds, `portfolio-pages.yml`'s
+`deploy` job cannot run regardless of the variable, so pointing the owner at
+it is pointing them at a route that currently does nothing.
+
+`platform/pages/publish-branch.sh` is the route that is not downstream of a
+runner: it builds the same artifact here and commits it to the orphan
+`gh-pages` branch (`python3 platform/ci/pages_state.py` reports whether that
+snapshot is still current against the tip of `main`). The flip for it is
+Settings → Pages → Source **"Deploy from a branch"** → `gh-pages` / `(root)`
+— no `PAGES_ENABLED` variable, no workflow run, no cluster. Its one real
+cost is that a committed snapshot does not rebuild itself: refresh it with
+`CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+after a change lands, or before trusting it as current.
+
+Both routes serve the same artifact and are gated on the same private-repo
+plan question above; neither is a prerequisite for the other, and switching
+the Pages source later (once Actions minutes are healthy again) costs
+nothing already spent. See `portfolio/ledger/decision_queue.py`'s
+`deploy-settings` row for the fuller, dated version of this trade-off.
 
 **Not `GITHUB_PAGES_ENABLED`, which this section named until it was found
 to be unsettable.** GitHub rejects any Actions configuration-variable name

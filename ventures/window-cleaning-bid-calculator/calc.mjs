@@ -26,6 +26,25 @@ export const PANE_PRESETS = Object.freeze([
   { label: 'Hard-water / restoration', minutesPerPane: 8, defaultSides: 1 },
 ]);
 
+// `calculateBid` only ever wants visits-per-month (0 meaning one-off), because
+// that is the one number every cadence reduces to for the monthly-average
+// figure. It is not, however, a number an operator scheduling a quarterly or
+// twice-a-year storefront contract can supply without doing the division
+// themselves first — "how many visits per month is once a quarter" is not a
+// question the form should be asking. These presets are the common recurring
+// cadences in the trade, expressed as the exact fraction `calculateBid`
+// expects, so the page can offer the cadence a contract is actually sold on
+// and fill the field for them.
+export const VISIT_FREQUENCY_PRESETS = Object.freeze([
+  { id: 'weekly', label: 'Weekly', visitsPerMonth: 52 / 12 },
+  { id: 'biweekly', label: 'Every 2 weeks', visitsPerMonth: 26 / 12 },
+  { id: 'monthly', label: 'Monthly', visitsPerMonth: 1 },
+  { id: 'quarterly', label: 'Quarterly (every 3 months)', visitsPerMonth: 1 / 3 },
+  { id: 'semiannual', label: 'Twice a year', visitsPerMonth: 2 / 12 },
+  { id: 'annual', label: 'Once a year', visitsPerMonth: 1 / 12 },
+  { id: 'one-off', label: 'One-off / no set schedule', visitsPerMonth: 0 },
+]);
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);

@@ -13,7 +13,37 @@ number the build already prints and nothing checks it, so it goes stale
 silently and quietly misinforms the next reader about how big the site is. Run
 `node platform/pages/build.mjs` and read the totals off the run instead.)
 
-There is one today.
+## Regenerating: one command, always
+
+**After any change to a venture page, run `node platform/marketing/regen.mjs`.**
+
+The apex's committed surface comes from **two** generators — `front-door.mjs`
+(the page, category pages, About, `robots.txt`, `sitemap.xml`, `feed.xml`,
+`llms.txt`, `catalog.json`, the card and icon) and `front-door-tools.mjs` (the
+mirrored tools as gzipped ConfigMap shards, their kustomization and the nginx
+alias map). Both read the same venture tree, so one venture edit can invalidate
+either or both, and running only one leaves the served surface half-updated.
+
+This line used to read "there is one today", and on 2026-09-05 that cost live
+product. #3256 added `ventures/einvoice-preflight/vs-avalara.html` and ran
+neither generator; `platform/pages/build.mjs` and `check.mjs` both passed
+because they build the *other* host. #3257 and #3258 then each hit the mirror
+tests, ran the single command those tests named, saw their own test go green,
+and reported success. `main` ended red on six tests with the new page mirrored
+nowhere and absent from the sitemap the apex serves — built, deployed, and
+findable by nobody.
+
+Nobody was careless there: each session ran exactly the command it was handed.
+So the fix is in the hint, not in the discipline. Every staleness assertion in
+this directory now names `regen.mjs`, and `regen.test.mjs` fails if one ever
+names an individual generator again. `regen.mjs` discovers the generator set
+from the directory rather than restating it, so a third one is picked up with
+no edit — see CLAUDE.md, "168 became 169", for what a copied list costs here.
+
+```
+node platform/marketing/regen.mjs           # run every generator
+node platform/marketing/regen.mjs --check   # list what would run, write nothing
+```
 
 ## `front-door.mjs` — the page at `https://marisstella.dev/`
 

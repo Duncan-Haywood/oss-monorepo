@@ -7,7 +7,7 @@
   <meta name="description" content="Price a radon mitigation install from extra suction points, crawl membrane, roof discharge, high-suction fan, new circuit, firestops, permit, and post-mitigation test — not a published $1,195 radon special. See the walk-away number before you match a cheaper basement quote.">
   <meta property="og:title" content="Radon Mitigation Bid Calculator">
   <meta property="og:description" content="A 1,200 sq ft walk-out basement with one suction is not the same job as a slab-and-crawl combo with two pits and a membrane. Bid the suction and the circuit.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Radon Mitigation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Basement versus crawl versus slab versus mixed foundation, extra suction points over the included pit, crawl membrane, roof versus sidewall discharge, high-suction fan, new dedicated circuit, firestops, permit, post-mitigation test, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Radon Mitigation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Basement versus crawl versus slab versus mixed foundation, extra suction points over the included pit, crawl membrane, roof versus sidewall discharge, high-suction fan, new dedicated circuit, firestops, permit, post-mitigation test, walk-away price, proposed-price margin check, copyable customer-facing bid summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does entering a 1,200 square foot footprint add nothing to the price?","acceptedAnswer":{"@type":"Answer","text":"Because 1,200 sq ft is the included footprint for a single-point system, and one suction point is also included. Neither adds a charge until you exceed it. A larger slab, or a floor plan that needs a second suction point to draw properly, is where the price starts moving — the square footage on its own does not."}},{"@type":"Question","name":"Is $0.93 per square foot a useful number?","acceptedAnswer":{"@type":"Answer","text":"Only as a comparison against someone else’s per-square-foot quote. It is $1,121.98 divided by 1,200 sq ft, and it is dominated by fixed items: a $185 fan, $145 of pipe, $85 of travel, and five hours of loaded labor. Double the footprint without adding a suction point and the per-foot figure nearly halves while the work is virtually identical. Radon systems price by suction points and discharge routing, not by area."}},{"@type":"Question","name":"What does the default system actually include?","acceptedAnswer":{"@type":"Answer","text":"A basement foundation, one suction point, a standard fan, and sidewall discharge — five hours of work all in, including one hour of site time. Roof discharge, a high-suction fan, a crawlspace membrane, a dedicated electrical circuit, firestopping, and a permit are all off by default. Sidewall discharge in particular is not permitted everywhere; check your local code before quoting it."}},{"@type":"Question","name":"Is a post-mitigation radon test included?","acceptedAnswer":{"@type":"Answer","text":"No — it is an option and it is off on the defaults. That matters because a mitigation job is not finished until a follow-up test shows the level actually came down, and many jurisdictions and real-estate contracts require that document. If your quote is being compared against one that includes the retest, turn it on so you are comparing the same scope."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a28; background: #e7efe8; }
@@ -214,6 +214,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -300,7 +301,7 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not radon, environmental, construction, health, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footprint, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footprint, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-for-radon-mitigation.html">How much to charge for radon mitigation</a>. You can also read <a href="./vs-oneradon.html">this calculator vs. OneRADON</a>.</p>
     <p class="support">Free and open source. If it wins you a system, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -314,6 +315,9 @@
       suggestedFan,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -499,6 +503,71 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // share.mjs never carried them and the recipient reopened the bid at
+      // this venture's defaults -- a different deposit and validity window
+      // under a headline that matched to the cent. They ride beside the
+      // payload in `pfterms`, which decodeInputs never sees.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FLAG_IDS) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A restored input never gets overwritten by a suggested default: mark
+      // the rates a preset suggests as already "edited", the same guard the
+      // form itself sets when a shop types over the suggestion.
+      [...SUGGESTED_FOUNDATION_IDS, ...SUGGESTED_FAN_IDS].forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     presets.addEventListener('change', () => {
       const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
@@ -543,7 +612,11 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
+    restoreShare();
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

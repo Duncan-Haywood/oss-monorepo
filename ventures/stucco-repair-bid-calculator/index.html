@@ -7,7 +7,7 @@
   <meta name="description" content="Price a stucco or EIFS repair from crack linear feet, hollow area, tear-off to the substrate, stories and scaffolding, window flashing, color match, and moisture investigation — not a published price per square foot. See the walk-away number before you match a cheaper crack-patch quote.">
   <meta property="og:title" content="Stucco / EIFS Repair Bid Calculator">
   <meta property="og:description" content="Forty feet of first-story hairline crack is not the same job as 180 square feet of second-story EIFS torn back to the substrate with new mesh and four window flashings. Bid the tear-off and the stories.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stucco Repair Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Crack linear feet versus hollow versus tear-off hours, hard-coat versus one-coat versus EIFS, second-story scaffold and third-story gable, window flashing, color match, moisture investigation, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stucco Repair Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Crack linear feet versus hollow versus tear-off hours, hard-coat versus one-coat versus EIFS, second-story scaffold and third-story gable, window flashing, color match, moisture investigation, walk-away price, proposed-price margin check, copyable customer-facing bid summary, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is labor almost three times the material here?","acceptedAnswer":{"@type":"Answer","text":"Because stucco repair is skilled hand work on cheap materials. The default job is $381.22 of labor over 7.6 hours against $143 of material — mostly $44 of mix and $24 of caulk. It is the reverse of most trades on this site, and it means your bid is decided by how accurately you estimated hours, not by what you paid at the supply house. Under-estimating access or cure time hurts here in a way an equipment-heavy job would absorb."}},{"@type":"Question","name":"Why is “price per repair square foot” blank?","acceptedAnswer":{"@type":"Answer","text":"Because the default job is priced by crack length, not area: 40 linear feet of cracking and 20 of caulk, with no delamination or tear-off square footage entered. The per-square-foot figure only appears once you enter repair area. The crack figure it does show, $24.94 per linear foot, is a division of the finished price and falls as the run lengthens — the site time and travel are the same whether you chase 40 feet or 100."}},{"@type":"Question","name":"Why is there a $75 permit on a crack repair?","acceptedAnswer":{"@type":"Answer","text":"Because it is an editable default, not a claim that your job needs one. Cosmetic patching rarely requires a permit; re-lathing a wall or anything touching the weather-resistive barrier often does, and in some jurisdictions any exterior work over a threshold value does. Set it to zero when it does not apply — it is a straight pass-through with no hours attached."}},{"@type":"Question","name":"Should I quote before investigating moisture?","acceptedAnswer":{"@type":"Answer","text":"Usually not, and the option is there for that reason. Cracking and delamination are frequently symptoms of water getting behind the stucco through failed flashing or window details. Patching over that hides the problem for one season and puts your name on it. The moisture-investigation option prices a look first; if you skip it, say in the proposal that the price covers the visible defect only and that concealed damage is a change order."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2118; background: #f3eee6; }
@@ -206,6 +206,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -293,7 +294,7 @@
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, engineering, moisture, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your square footage, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-for-stucco-repair.html">How much to charge for stucco repair</a> &middot; <a href="vs-jobber.html">This calculator vs. Jobber</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -307,6 +308,9 @@
       suggestedAccessKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -488,6 +492,71 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      // The proposal panel's five terms are not part of the arithmetic, so
+      // share.mjs never carried them and the recipient reopened the bid at
+      // this venture's defaults -- a different deposit and validity window
+      // under a headline price that matched to the cent. They ride beside the
+      // payload in `pfterms`, which decodeInputs never sees.
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      // A term too long to ride in the link is named to the sender rather
+      // than dropped silently -- the whole failure mode here is a recipient
+      // who cannot tell that something stayed behind.
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied first: a link carrying only the terms is still worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FLAG_IDS) {
+        if (fromUrl[id] !== undefined) el(id).checked = fromUrl[id];
+      }
+      // A system/stories change never overwrites a restored rate: mark the
+      // rates a preset suggests as already "edited", the same guard the form
+      // itself sets when a plasterer types over the suggestion.
+      [...SUGGESTED_SYSTEM_IDS, ...SUGGESTED_ACCESS_IDS].forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     presets.addEventListener('change', () => {
       const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
@@ -528,7 +597,11 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
+    restoreShare();
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

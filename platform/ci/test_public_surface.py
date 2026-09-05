@@ -162,6 +162,7 @@ class PagesOriginTests(unittest.TestCase):
         probes = ps.pages_probes(
             rows=[pages_row("gated", ["vars.PAGES_ENABLED == 'true'"])],
             base_url="https://example.test/site/",
+            branch_route=False,
         )
         self.assertEqual(len(probes), 1)
         self.assertEqual(probes[0].expect, "gated")
@@ -173,7 +174,54 @@ class PagesOriginTests(unittest.TestCase):
 
     def test_a_missing_workflow_predicts_nothing_rather_than_guessing(self):
         """A rename must not become a fabricated prediction about a deploy."""
-        self.assertEqual(ps.pages_probes(rows=[], base_url="https://example.test/"), [])
+        self.assertEqual(
+            ps.pages_probes(rows=[], base_url="https://example.test/", branch_route=False),
+            [],
+        )
+
+    def test_a_gated_workflow_with_the_branch_route_predicts_nothing(self):
+        """The defect this pair exists for.
+
+        `publish-branch.sh` serves this origin without the workflow, so a gated
+        deploy job no longer means dark. Predicting `gated` here would score the
+        catalogue going live as a discrepancy -- a red check on the one day the
+        route finally works.
+        """
+        probes = ps.pages_probes(
+            rows=[pages_row("gated", ["vars.PAGES_ENABLED == 'true'"])],
+            base_url="https://example.test/site/",
+            branch_route=True,
+        )
+        self.assertEqual(len(probes), 1)
+        self.assertEqual(probes[0].expect, ps.UNPREDICTABLE)
+        # Both routes are named, so a reader can tell which lever is which.
+        self.assertIn("PAGES_ENABLED", probes[0].why)
+        self.assertIn("gh-pages", probes[0].why)
+
+    def test_an_unpredictable_origin_agrees_either_way(self):
+        """Reported, never scored: neither outcome is evidence of a defect."""
+        probe = ps.Probe(url="https://example.test/", expect=ps.UNPREDICTABLE, why="two routes")
+        dark = ps.Result(probe=probe, status=404, body_bytes=0)
+        serving = ps.Result(probe=probe, status=200, body_bytes=ps.MIN_SERVED_BYTES + 1)
+        self.assertFalse(dark.serving)
+        self.assertTrue(serving.serving)
+        self.assertTrue(dark.agrees)
+        self.assertTrue(serving.agrees)
+
+    def test_the_branch_route_alone_still_probes_the_origin(self):
+        """No workflow but a staged branch is a reason to ask, not to fall silent."""
+        probes = ps.pages_probes(rows=[], base_url="https://example.test/", branch_route=True)
+        self.assertEqual(len(probes), 1)
+        self.assertEqual(probes[0].expect, ps.UNPREDICTABLE)
+
+    def test_the_publisher_this_reads_still_exists(self):
+        """`branch_route` defaults off a real path; a rename must not silently
+        drop the origin back to a `gated` prediction."""
+        self.assertTrue(
+            ps.PUBLISH_BRANCH_SCRIPT.is_file(),
+            "publish-branch.sh moved; pages_probes would silently go back to "
+            "predicting `gated` for an origin that branch still serves",
+        )
 
     def test_a_build_mjs_without_the_export_yields_no_url(self):
         """A rename of the export is a reason to read nothing, not to guess."""
@@ -195,7 +243,19 @@ class PagesOriginTests(unittest.TestCase):
     def test_the_real_workflows_produce_one_pages_probe(self):
         probes = ps.pages_probes()
         self.assertEqual(len(probes), 1, "portfolio-pages.yml no longer classifies as publishing")
-        self.assertIn(probes[0].expect, {"serves", "gated"})
+        self.assertIn(probes[0].expect, {"serves", "gated", ps.UNPREDICTABLE})
+
+    def test_the_real_repository_predicts_nothing_about_the_pages_origin(self):
+        """What the two live routes actually add up to today.
+
+        `portfolio-pages.yml` is gated on `PAGES_ENABLED` and `publish-branch.sh`
+        stages `gh-pages`, so both routes are real and the account setting
+        picks between them. Pinned rather than left to the looser set above
+        because this is the state the reporting was getting wrong: if this ever
+        goes back to a flat `gated`, a served catalogue starts reading as a
+        failed probe again.
+        """
+        self.assertEqual(ps.pages_probes()[0].expect, ps.UNPREDICTABLE)
 
     def test_the_pages_origin_is_not_one_of_the_manifest_hosts(self):
         """The point of the addition: it is an origin nothing else reaches."""
@@ -248,6 +308,109 @@ class ServingTests(unittest.TestCase):
         result = self.probe_with({TOOLS: served()}, expect="gated", url=TOOLS)
         self.assertTrue(result.serving)
         self.assertFalse(result.agrees)
+
+
+class EgressGatewayTests(unittest.TestCase):
+    """A probe refused by the sandbox must never be scored as a reading.
+
+    Measured 2026-09-05 from a session container: every probe failed at the
+    agent egress gateway and the report said `26 probe(s) disagree with the
+    manifests`, marking both apex hosts **NO**. That sentence is built from
+    nothing -- the requests never reached an origin -- and it is the sentence
+    this tool would print on a day the site was perfectly healthy.
+
+    Both refusal shapes are pinned here because they arrive down different
+    code paths: the tunnel refusal as a `URLError`, the gateway's own answer
+    as a 403 with a header.
+    """
+
+    def probe_with(self, answers, expect="serves", url=APEX):
+        return ps.run_probe(ps.Probe(url=url, expect=expect, why="test"), opener=StubOpener(answers))
+
+    def tunnel_refused(self):
+        return urllib.error.URLError("Tunnel connection failed: 403 Forbidden")
+
+    def denied_by_gateway(self):
+        return (403, b"Host not in allowlist: marisstella.dev.", {"x-deny-reason": "host_not_allowed"})
+
+    def test_a_refused_tunnel_is_blocked_not_dark(self):
+        result = self.probe_with({APEX: self.tunnel_refused()})
+        self.assertTrue(result.blocked)
+        self.assertFalse(result.serving)
+        self.assertIn("not measured", result.summary())
+
+    def test_the_gateways_own_403_is_blocked_not_an_answer(self):
+        """The dangerous shape: a well-formed HTTP 403 from no server of ours."""
+        result = self.probe_with({APEX: self.denied_by_gateway()})
+        self.assertTrue(result.blocked)
+        self.assertEqual(result.deny_reason, "host_not_allowed")
+        self.assertFalse(result.serving)
+
+    def test_a_blocked_probe_is_not_counted_as_a_disagreement(self):
+        result = self.probe_with({APEX: self.tunnel_refused()})
+        self.assertEqual(ps.disagreements([result]), [])
+        self.assertEqual(ps.unmeasured([result]), [result])
+
+    def test_a_blocked_gated_host_is_not_counted_as_correctly_dark(self):
+        """The false-negative direction: a block must not certify a gated host."""
+        result = self.probe_with({TOOLS: self.tunnel_refused()}, expect="gated", url=TOOLS)
+        self.assertTrue(result.blocked)
+        self.assertEqual(ps.unmeasured([result]), [result])
+
+    def test_a_real_403_from_a_real_server_is_still_an_answer(self):
+        """The boundary: only the gateway's deny header means unmeasured."""
+        result = self.probe_with({APEX: (403, b"nginx forbidden", {})})
+        self.assertFalse(result.blocked)
+        self.assertEqual(result.status, 403)
+        self.assertFalse(result.agrees)
+
+    def test_an_ordinary_unreachable_host_is_still_a_reading(self):
+        """Connection refused says something about the origin. Keep scoring it."""
+        result = self.probe_with({})
+        self.assertFalse(result.blocked)
+        self.assertFalse(result.agrees)
+
+    def test_all_blocked_means_the_run_measured_nothing(self):
+        results = [self.probe_with({APEX: self.tunnel_refused()}) for _ in range(3)]
+        self.assertTrue(ps.measured_nothing(results))
+
+    def test_a_partial_block_still_leaves_a_reading(self):
+        blocked = self.probe_with({APEX: self.tunnel_refused()})
+        real = self.probe_with({APEX: served()})
+        self.assertFalse(ps.measured_nothing([blocked, real]))
+
+    def test_no_results_at_all_is_not_a_measurement_claim(self):
+        self.assertFalse(ps.measured_nothing([]))
+
+    def test_the_report_refuses_to_render_a_verdict_when_nothing_was_measured(self):
+        results = [self.probe_with({APEX: self.tunnel_refused()})]
+        text = ps.render(results, [])
+        self.assertIn("NOT MEASURED", text)
+        # The exact sentence the old report printed must not survive.
+        self.assertNotIn("disagree with the manifests", text)
+        self.assertNotIn("All probes agree", text)
+
+    def test_the_sitemap_count_excludes_blocked_urls(self):
+        """`24/24 served` from 24 requests that never left the sandbox."""
+        page = ps.Probe(url=APEX, expect="serves", why="test")
+        blocked = ps.run_probe(page, opener=StubOpener({APEX: self.tunnel_refused()}))
+        real = ps.run_probe(page, opener=StubOpener({APEX: served()}))
+        text = ps.render([real], [real, blocked])
+        self.assertIn("Sitemap sample: 1/1 served", text)
+        self.assertIn("1 URL(s) not measured", text)
+
+    def test_json_marks_the_run_unmeasured(self):
+        results = [self.probe_with({APEX: self.tunnel_refused()})]
+        payload = json.loads(ps.as_json(results, []))
+        self.assertFalse(payload["measured"])
+        self.assertEqual(payload["unmeasured"], 1)
+        self.assertEqual(payload["disagreements"], 0)
+        self.assertTrue(payload["hosts"][0]["blocked"])
+
+    def test_a_measured_run_is_still_marked_measured(self):
+        payload = json.loads(ps.as_json([self.probe_with({APEX: served()})], []))
+        self.assertTrue(payload["measured"])
+        self.assertEqual(payload["unmeasured"], 0)
 
 
 class SampleTests(unittest.TestCase):

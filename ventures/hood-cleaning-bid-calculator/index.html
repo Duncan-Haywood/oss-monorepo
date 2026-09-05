@@ -7,7 +7,8 @@
   <meta name="description" content="Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.">
   <meta property="og:title" content="Kitchen Hood Cleaning Bid Calculator">
   <meta property="og:description" content="Bid commercial kitchen exhaust the way the trade loses money by skipping — duct and fan first, hood count last.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Hood Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Canopy, filter, duct and fan labor hours, grease-load and access multipliers, after-hours premium, travel, consumables, overhead and margin, annual contract, walk-away price, hood-only vs system comparison, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Hood Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Canopy, filter, duct and fan labor hours, grease-load and access multipliers, after-hours premium, travel, consumables, overhead and margin, annual contract, walk-away price, hood-only vs system comparison, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price kitchen hood cleaning?","acceptedAnswer":{"@type":"Answer","text":"Add the canopy, filters, duct, and fan as separate labor. Multiply by grease load and access, add after-hours and travel, then chemicals, disposal, overhead, and the margin you intend to keep."}},{"@type":"Question","name":"Why do per-hood quotes lose money?","acceptedAnswer":{"@type":"Answer","text":"Two kitchens can share a 10-foot canopy and have completely different labor. A short horizontal run is a small add-on. A vertical chase and a rooftop fan through a hatch is most of the job."}},{"@type":"Question","name":"How often should a restaurant hood be cleaned?","acceptedAnswer":{"@type":"Answer","text":"Operators commonly schedule from annually on light cooking to monthly on solid-fuel or 24-hour lines. Frequency is an operator and authority-having-jurisdiction decision. This calculator does not determine a required interval."}},{"@type":"Question","name":"How much does duct and fan work add over a per-hood price?","acceptedAnswer":{"@type":"Answer","text":"On a default mix of a 40 sq ft canopy, six filters, 12 feet of horizontal duct, 20 feet of vertical duct, and a rooftop fan at heavy grease load, canopy and filters alone price near $495. Add the duct and fan and the same job prices near $1,982 — a $1,487 gap, because duct work is 68.6% of the production hours in this mix, not the hood."}},{"@type":"Question","name":"Does grease load only change the price, or also how often the job repeats?","acceptedAnswer":{"@type":"Answer","text":"Both, and frequency usually matters more. Moving the same system from light to extra-heavy grease load roughly doubles the per-visit price (about $1,336 to $2,520 here), but the suggested cleaning frequency moves from once a year to monthly — 12 visits. That takes annual revenue from about $1,336 to roughly $30,237: the visit count, not the per-visit multiplier, drives most of the swing."}},{"@type":"Question","name":"Why does access — rooftop versus kitchen floor — matter so much?","acceptedAnswer":{"@type":"Answer","text":"The access multiplier applies per component, and it can be the biggest single number in the bid. The same 20 feet of vertical duct at kitchen-floor access prices near $803 for the job; make it a ladder-and-hatch rooftop climb and the identical footage prices near $1,199 — about $396 more from access alone, before grease load or crew size are even considered."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -219,6 +220,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -272,13 +274,16 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, fire-code, or business advice, and it does not tell you what to charge or how often a hood must be cleaned. It is not an NFPA 96 determination and it does not replace a qualified professional or the authority having jurisdiction. Verify every figure against your own payroll, insurance, and job costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the kitchen, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include the kitchen, wages, costs, or prices.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, COMPONENT_PRESETS, GREASE_LOADS, ACCESS_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -368,6 +373,16 @@
           quantity: row.querySelector('.c-qty').value,
           minutesPerUnit: row.querySelector('.c-min').value,
           accessMultiplier: access ? access.multiplier : 1,
+          // The multiplier is what calc.mjs prices from, but it is a lossy
+          // form of the answer: share.mjs encodes the access *id* against
+          // ACCESS_PRESETS, and a row that carries only the multiplier
+          // encodes no access at all. The recipient then fell back to
+          // "kitchen floor" (x1.0) on a row the sender had set to, say,
+          // "above ceiling" (x1.2) -- a complete, plausible, cheaper bid
+          // under a headline that did not match the sender's.
+          // Caught by platform/pages/roundtrip.mjs, which exists for
+          // exactly this: $164.69 arrived as $159.85.
+          access: access ? access.id : '',
         };
       });
     }
@@ -399,10 +414,15 @@
      * select rather than read straight off it, is exactly the field that gets
      * missed. The default parameter lets `update` pass rows it has already
      * read rather than reading them twice.
+     *
+     * `greaseLoad` (the select's own id, not the derived multiplier) rides
+     * along too -- `calculateBid` ignores the extra key, but `share.mjs`
+     * needs the id itself to restore the right option on a shared link.
      */
     function readInput(components = readComponents()) {
       return {
         components,
+        greaseLoad: el('greaseLoad').value,
         greaseMultiplier: selectedGreaseLoad().multiplier,
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
@@ -506,6 +526,72 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInput()), terms);
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — every component and cost included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for. Components replace the page's static starting rows
+     * entirely when the link carries any, rather than merging into them, so
+     * a five-component shared system does not reopen with extra starter rows
+     * still attached.
+     */
+    function restoreShare() {
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Applied before the components below: a link that carries only the
+      // terms is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
+
+      const components = Array.isArray(fromUrl.components) && fromUrl.components.length > 0
+        ? fromUrl.components.map(item => ({
+            name: item.name ?? '',
+            quantity: item.quantity ?? 0,
+            minutesPerUnit: item.minutesPerUnit ?? 4,
+            access: item.access || 'kitchen_floor',
+          }))
+        : STARTING;
+      components.forEach(addRow);
+
+      if (fromUrl.greaseLoad !== undefined) el('greaseLoad').value = fromUrl.greaseLoad;
+      for (const id of COST_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      // A restored cleans-per-year is a figure the sender chose; a later
+      // grease-load change on this page must not silently overwrite it with
+      // that load's suggested default (the same guard the form applies once
+      // a contractor types over the suggestion themselves).
+      if (fromUrl.cleansPerYear !== undefined) cleansEdited = true;
+    }
+
     el('addComponent').addEventListener('click', () => {
       addRow({ name: 'Horizontal duct (linear ft)', quantity: 0, minutesPerUnit: 8, access: 'kitchen_floor' });
       count('component_added');
@@ -533,8 +619,14 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Could not copy the link; copy the address bar.'; });
+    });
 
-    STARTING.forEach(addRow);
+    // Restored last, so a shared link's own components, grease load, and
+    // rates win over the page's static HTML defaults -- the whole point of a
+    // link is to reopen the sender's exact job.
+    restoreShare();
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

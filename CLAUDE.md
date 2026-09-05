@@ -59,6 +59,120 @@ owner as little as possible. Product PRs are the work — merge them.
 Before merge: run or read CI; scope stays in-bounds; new user-facing surfaces
 have disclaimers and usage tracking.
 
+**While runners are starved, "run or read CI" means run it here, and this is
+the set.** Measured 2026-09-05: `main` was red on four tests across #3324,
+#3325 and #3326 — three sibling comparison-page PRs that each merged the same
+afternoon. Three failures were `front-door-tools.test.mjs` reporting a page
+`missing from the commit` (the venture page landed, `regen.mjs` never ran, so
+the apex would have 404'd on a page the sitemap advertises — the same defect
+CLAUDE.md already records costing live product in #3256–#3258), and the fourth
+was `ink.test.mjs` on links below WCAG AA. Nobody was careless: every check on
+those PRs came back red in ~3 seconds with `runner_id: 0`, which is
+indistinguishable at a glance from the failure it was hiding.
+
+So when `ci_starvation.py` says starvation, run these before merging, and say
+in the PR what they said:
+
+```
+node platform/marketing/regen.mjs        # then commit whatever it rewrites
+node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+node --test platform/proposal/*.test.mjs
+node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
+node --test ventures/<slug>/*.test.mjs
+python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
+(cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
+```
+
+(`pip install pytest` first in a web session — the image has Python but not
+pytest, so that `gitops/tests` line exits `No module named pytest` rather than
+failing any test. Do not read that as a clean run. The `platform/ci` line needs
+no pytest — those suites are `unittest`.)
+
+**The `platform/ci` line was added 2026-09-05, and it is the same defect as
+`platform/proposal/`, arrived at from a third direction.** The line above it
+already said "only if you touched `gitops/` or **`platform/ci/`**" — so the
+list *named* the directory and then sent you to run a different one's tests.
+`platform/ci/` holds 15 `unittest` modules, and they guard the tools every
+session here leans on to decide what is true: `ci_starvation.py` (is this red
+check real?), `pages_state.py` and `publish_surface.py` (is there a route to
+a user?), `public_surface.py` (does a hostname answer?). A session that edits
+one of those and follows the list runs `gitops/tests` and never executes a
+single guard on the thing it just changed.
+
+CI does run all 15 (`portfolio-validate.yml` and four sibling workflows, one
+`python3 -m unittest <module>` step each), which is why this stayed invisible
+— and is exactly why it matters *now*: while runners are starved, CI running
+them is the same as nothing running them.
+
+Two traps, both measured rather than recalled. `python3 -m pytest platform/ci`
+from the repo root **fails collection** — these modules `import pages_state`,
+`import review` and so on by bare name, so they only resolve with
+`platform/ci` as the working directory, which is why the line above `cd`s.
+And grepping the workflows for `test_foo.py` finds nothing, because the steps
+invoke the *module* (`python3 -m unittest test_foo`); a coverage check by
+filename reports all 15 unrun, which is wrong. Verified 2026-09-05: all 15
+pass locally.
+
+The first line is the one that keeps being skipped, and it is the one that
+decides whether a page you shipped is reachable. A red check you have
+classified as starvation still leaves the repo's own tests unrun — that is
+what "absent CI is not failed CI" asks you to make up for, not a reason to
+merge unverified.
+
+**`platform/proposal/` was added to that list on 2026-09-05, and the reason is
+the sharper half of this section.** The set above was written as the checks
+that matter and then used as *the* checks that get run — so a guard outside it
+fails into silence, which is the same defect as a starved check, arrived at
+from the other direction. `platform/proposal/term-ids.test.mjs` exists
+precisely to catch a proposal panel whose deposit and terms do not survive the
+venture's own share link; it had been red on `main` for days, naming five
+ventures, while five separate sessions shipped that exact bug one after
+another and each recorded a clean local verification. Every one of those runs
+was honest: they ran the list. The list was wrong.
+
+So treat the block above as a floor that ages, not as a fixture. If you add a
+guard, add the directory it lives in here in the same commit — a test nobody
+runs is worth less than no test, because it also tells the next session the
+ground is covered.
+
+**`platform/privacy/` and `platform/webcheck/` were added the same day, by
+enumerating instead of remembering.** Not because either was red — both pass,
+31 assertions between them — but because the paragraph above had just been
+written about `platform/proposal/` and the obvious next question, *what else is
+outside the list?*, had not been asked. `find . -name '*.test.mjs' -not -path
+'./ventures/*'` answers it in one command and returned five directories against
+the three the list named. The privacy suite is the one that matters: it guards
+the claim every tool's page makes about the visitor's data never leaving the
+device, which is the portfolio's central promise and the one whose quiet
+breakage would be least visible in a diff.
+
+That is the cheap version of this lesson, and it generalises past this list. A
+guard going unrun is not usually discovered by a session noticing it is
+missing — nobody notices an absence — it is discovered by the bug it should
+have caught, months later. Enumerate the ground instead of recalling it; the
+command is faster than the recollection and it cannot be honestly wrong.
+
+**After you merge a change that touches a served surface, refresh the
+published snapshot** (added 2026-09-05):
+
+```
+python3 platform/ci/pages_state.py                  # says whether it is stale
+CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+```
+
+The runner-free deploy route serves the `gh-pages` branch, which is a
+committed artifact rather than a build: **nothing rebuilds it when `main`
+moves.** That is the one real cost of being downstream of neither a runner
+nor the cluster, and until now nothing in this file said so, so every merge
+quietly widened the gap between what `main` contains and what the route
+would publish. `pages_state.py` reports `current` or `stale` against the tip
+of `main`, so the question is one command rather than a judgement.
+
+This matters most on the day it stops being theoretical. If the owner has
+flipped Settings → Pages → `gh-pages`, a stale snapshot is not a staging
+detail — it is the live site silently lagging `main`, with no error anywhere
+to say so. Refreshing costs about a minute and needs no credential.
+
 **Merge yourself after CI is green:**
 
 - `platform/`, `portfolio/`, docs, tests, CI
@@ -492,13 +606,33 @@ waiting in [`gitops/ci/`](gitops/ci/README.md) — all 218 workflows already rea
 still moves every one of them at once, and self-hosted runners are not metered,
 so they are what makes the next cycle a non-event.
 
-But **GitHub-hosted runners work again today**, so this is no longer the thing
-standing between the portfolio and a working pipeline. Do not write it up as
-though CI were down, and do not present it to the owner as urgent — it competes
-for attention with the seal that actually is blocking, which is
-`portfolio-site-repo` (the site itself; see the Argo surface above). If you
-are writing any of this up, the useful sentence is which seals remain, not a
-re-derivation of a signature that no longer fires.
+**Starvation recurred on 2026-09-04 and this paragraph used to say runners
+worked.** Measured, not inferred: run 33925827289 (`Portfolio validate`,
+22:30:52Z) took real runner 1000054728 and passed in 196s; by 22:39:33Z runs
+33926434774 and 33926436491 both came back `runner_id: 0` with no steps, and a
+third dispatch starved too. So the signature does fire again, and the advice
+to "read a red check as a real failure" now needs `ci_starvation.py` run
+first rather than assumed — which is what that tool is for.
+
+**The sharp part is what this does to the self-hosted fallback.** That stack
+runs as pods *in the k3s cluster*, and the cluster is dead (`:6443` refused,
+`Outage triage` run 33889983086). So flipping `CI_RUNNER` today schedules
+pods onto an API server that is not listening: the insurance against metered
+CI is downstream of the cluster whose repair needs CI. All three routes to a
+public surface now converge on infrastructure that is down —
+
+- GitHub Pages (`deploy-settings`) needs a runner to build and deploy it;
+- self-hosted runners need the cluster;
+- the cluster needs SSH, and `HETZNERSSHKEY` holds a public key.
+
+— which makes `hetzner-ssh-key-is-a-public-key` the only one of them that
+depends on neither a runner nor the cluster (port 22 answers on both boxes).
+The decision queue used to rank `deploy-settings` first as the cheapest; it
+now measures viability and sinks a route whose prerequisite is down. See
+`portfolio/ledger/infra_state.yaml` for the dated readings and how to
+re-measure each; prefer re-running them to trusting these sentences, and
+expect the Actions ceiling to lift on 2026-10-01 if it behaves as it did in
+August.
 
 **This tool matters more now, not less.** While every check was red it was a
 formality — the answer was always starvation. Now that runners are back, it is

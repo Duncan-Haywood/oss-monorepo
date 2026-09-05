@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This tool vs. Visualping | Public-Record Watch</title>
+<meta name="description" content="Visualping is a free-tier website change monitor: give it a URL and a schedule, and it fetches the page for you, then screenshots and summarizes what moved. This tool never fetches anything — you supply two dated, authorized register exports and it reports what changed between them, entirely in your browser. Not affiliated with Visualping.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="vs-visualping.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="This tool vs. Visualping">
+<meta property="og:description" content="Visualping visits a URL on a schedule and screenshots what changed. This tool never visits anything — you supply two authorized register exports and it reports the difference, source-linked.">
+<meta property="og:url" content="vs-visualping.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this tool or Visualping to track a public register?","acceptedAnswer":{"@type":"Answer","text":"It depends on how the register can be reached. Visualping is a general-purpose website change monitor: point it at a URL and a schedule, and it visits the page for you, takes a screenshot, and produces an AI summary and visual diff of what moved, with alerts. That is the right tool for a public page a scheduled visitor can reach and render cleanly on its own. Many licence, permit, and registration registers are not that page: they sit behind a search form, a session, a CAPTCHA, or an export button, and a scheduled visitor cannot fill those in for you. This tool assumes exactly that case. You export the register yourself, however your access actually works, keep each export as a dated snapshot, and this tool compares two of them and reports what was added, removed, or changed, with the source URL carried through to each record. Nothing here visits a register on your behalf, so there is nothing that can be blocked, rate-limited, or logged in as you without your knowledge."}},{"@type":"Question","name":"Does this tool fetch or scrape the register for me, like Visualping does?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the whole design. Visualping's job is to visit a URL automatically on a schedule so you do not have to. This tool never makes a network request to a register at all — you supply both snapshots, captured however your own export process works, and it only compares the two you give it. That makes it usable for registers with no stable public URL, a login wall, a CAPTCHA, or a rate limit that an automated visitor could not respect anyway; it also means there is no scheduled crawler running against a register on your behalf that you would need to configure, pause, or explain."}},{"@type":"Question","name":"Do I lose the screenshot and AI summary Visualping gives me?","acceptedAnswer":{"@type":"Answer","text":"Yes, this tool does not attempt that, and for a register export it is the wrong shape of comparison. A visual screenshot diff is built for pages where layout and rendered content are what changed. A register export is structured data — rows with an id, a set of fields, and a source URL — and the useful comparison is per-record: which ids appeared, which disappeared, and which fields changed on records that stayed, each one still linked back to its source so a reviewer can open the original entry. That is a different report than a picture of two page renders, and it is the one this tool produces."}},{"@type":"Question","name":"Is this page affiliated with Visualping?","acceptedAnswer":{"@type":"Answer","text":"No. This site is not affiliated with, endorsed by, or sponsored by Visualping or its operators. Visualping is named here only to describe what this tool is and is not, and no claim is made about it beyond its well-documented category: a website change detection and monitoring service that visits a URL on a schedule."}}]}</script>
+<style>
+  :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2431; background: #f4f3ef; }
+  body { max-width: 900px; margin: 0 auto; padding: 32px 18px 48px; }
+  a { color: #9a3412; overflow-wrap: anywhere; }
+  .eyebrow { font-weight: 700; }
+  header { margin: 1rem 0; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.6rem); line-height: 1.05; margin: .3rem 0; max-width: 26ch; letter-spacing: -.03em; }
+  .lede { font-size: 1.05rem; max-width: 64ch; color: #5c6672; }
+  section { background: #fffefb; border: 1px solid #dcd7cd; border-radius: 14px; padding: 1.1rem 1.3rem; box-shadow: 0 8px 24px #2a231812; margin: 1rem 0; }
+  h2 { margin-top: 0; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dcd7cd; vertical-align: top; }
+  th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5c6672; }
+  .fine, .note { font-size: .88rem; color: #5c6672; }
+  footer { color: #5c6672; font-size: .86rem; }
+  footer p { margin: .6rem 0; }
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="index.html">&larr; Public-Record Watch</a></p>
+<header>
+<h1>This tool vs. Visualping</h1>
+<p class="lede">Visualping visits a URL for you on a schedule and reports what changed on the page. This tool never visits anything — you supply two dated, authorized register exports yourself, and it reports what changed between the records in them, source-linked back to the register.</p>
+</header>
+<section>
+<h2>What each tool is for</h2>
+<p>
+  <strong>Visualping</strong> is a general-purpose website change monitor.
+  Point it at a URL and a schedule, and it fetches the page for you, keeps a
+  screenshot history, and produces a visual diff and plain-language summary
+  of what moved, with alerts when it does. That is exactly the right tool
+  for a public page a scheduled visitor can reach and render on its own —
+  a pricing page, a job listing, a status page.
+</p>
+<p>
+  Many licence, permit, and registration registers are not that page. They
+  sit behind a search form, a session, a CAPTCHA, or an "export" button
+  rather than a single stable URL a crawler can revisit, and a scheduled
+  visitor cannot fill those in for you. This tool assumes exactly that
+  case: you export the register however your own access actually works,
+  keep each export as a dated, authorized snapshot, and this tool compares
+  two of them — reporting which record ids were added, which were removed,
+  and which fields changed on records that stayed, each one still linked to
+  the source URL so a reviewer can open the original entry. It runs free in
+  your browser or as a local command-line tool, keeps no account, and makes
+  no network request of its own; there is nothing here that visits a
+  register on your behalf, so there is nothing to configure, pause, or
+  explain to whoever administers that register's access.
+</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr></thead>
+<tbody>
+<tr><td>I need a page watched automatically on a schedule, with screenshots and alerts.</td><td>Visualping, or a comparable page-change monitor.</td></tr>
+<tr><td>The register sits behind a search form, login, or export button — nothing a scheduled crawler could revisit on its own.</td><td>This tool — you export it yourself, this tool only compares.</td></tr>
+<tr><td>I need a per-record diff (added / removed / changed id) with a source link, not a screenshot.</td><td>This tool's structured comparison report.</td></tr>
+<tr><td>I want a record I can hand a credentialing or procurement reviewer, tracing straight back to the source register.</td><td>This tool's source-linked output.</td></tr>
+<tr><td>I need something scripted, offline, for a repeatable local workflow.</td><td>This tool's command-line version.</td></tr>
+<tr><td>Do I need to create an account or sign up to use the tool?</td><td>Neither tool requires one at the free tier.</td></tr>
+</tbody>
+</table>
+</div>
+<p>
+  The two do not compete so much as start from opposite assumptions about
+  how you reach the source. Visualping assumes a URL a scheduled visitor can
+  reach and render; this tool assumes you already have (or can produce) a
+  dated export and just need the comparison and the source-linked record.
+  For a register with a plain, stable, publicly fetchable page, a scheduled
+  monitor like Visualping may be all you need. For a register you can only
+  reach through a search form, a login, or a manual export, this tool is
+  built for exactly that gap.
+</p>
+<p class="fine">This tool needs no account and no sign-in: comparison runs in your own browser or locally on the command line, and nothing you paste or export is uploaded anywhere.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Should I use this tool or Visualping to track a public register?</h3>
+<p>It depends on how the register can be reached. Visualping is a general-purpose website change monitor: point it at a URL and a schedule, and it visits the page for you, takes a screenshot, and produces an AI summary and visual diff of what moved, with alerts. That is the right tool for a public page a scheduled visitor can reach and render cleanly on its own. Many licence, permit, and registration registers are not that page: they sit behind a search form, a session, a CAPTCHA, or an export button, and a scheduled visitor cannot fill those in for you. This tool assumes exactly that case. You export the register yourself, however your access actually works, keep each export as a dated snapshot, and this tool compares two of them and reports what was added, removed, or changed, with the source URL carried through to each record. Nothing here visits a register on your behalf, so there is nothing that can be blocked, rate-limited, or logged in as you without your knowledge.</p>
+<h3>Does this tool fetch or scrape the register for me, like Visualping does?</h3>
+<p>No, and that is the whole design. Visualping's job is to visit a URL automatically on a schedule so you do not have to. This tool never makes a network request to a register at all — you supply both snapshots, captured however your own export process works, and it only compares the two you give it. That makes it usable for registers with no stable public URL, a login wall, a CAPTCHA, or a rate limit that an automated visitor could not respect anyway; it also means there is no scheduled crawler running against a register on your behalf that you would need to configure, pause, or explain.</p>
+<h3>Do I lose the screenshot and AI summary Visualping gives me?</h3>
+<p>Yes, this tool does not attempt that, and for a register export it is the wrong shape of comparison. A visual screenshot diff is built for pages where layout and rendered content are what changed. A register export is structured data — rows with an id, a set of fields, and a source URL — and the useful comparison is per-record: which ids appeared, which disappeared, and which fields changed on records that stayed, each one still linked back to its source so a reviewer can open the original entry. That is a different report than a picture of two page renders, and it is the one this tool produces.</p>
+<h3>Is this page affiliated with Visualping?</h3>
+<p>No. This site is not affiliated with, endorsed by, or sponsored by Visualping or its operators. Visualping is named here only to describe what this tool is and is not, and no claim is made about it beyond its well-documented category: a website change detection and monitoring service that visits a URL on a schedule.</p>
+<p class="note">
+  Open <a href="index.html">Public-Record Watch</a> to compare your own before/after register exports.
+</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is free and as-is. It does not scrape registers, create personal profiles, rank people, or decide suitability, and it is not legal, tax, financial, medical, or engineering advice. It only compares snapshots you are authorized to supply. A removed record may mean an export changed or a source was incomplete — inspect the source before acting. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Nothing leaves your browser.</strong> Comparison happens locally; this page makes no live comparison against Visualping — it is a static page describing a publicly documented category of tool.</p>
+<p class="support">Free and open source. If it helped you catch a register change, the <a href="LICENSE" rel="noopener">code is under an open licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+</footer>
+</main>
+</body></html>
