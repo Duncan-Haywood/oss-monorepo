@@ -11174,3 +11174,115 @@ entries:
         this ships to `main` as code only, ready to serve once the
         owner's infra fix lands.
     mrr_end: null
+  - venture: duct-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the seventh venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), `concrete-lifting-bid-calculator` (#3268,
+        merged as `12e9812c0`), and `countertop-bid-calculator` (#3271,
+        merged as `48b682306`) -- a duct-cleaning shop comparing a takeoff
+        with a homeowner, property manager, or GC had no way to send a
+        link that reopens the exact job instead of the recipient retyping
+        job type, systems, vents, returns, stories, crawl access,
+        occupied-home protection, coil clean, sanitizer, heavy debris, and
+        every hour and rate. Read `calc.mjs` fully first: this venture
+        prices a fixed field set -- no visitor-grown list of ducts, vents,
+        or registers -- so the plain "one query param per field" pattern
+        from cabinet-refinishing/basement-waterproofing/spray-foam/
+        concrete-lifting/countertop applies directly rather than carpet-
+        cleaning's row encoding. Built `share.mjs`/`share.test.mjs` (7
+        tests): 28 numeric cost/rate fields as allowlisted query params,
+        5 boolean checkboxes (`crawl`, `occupied`, `coil`, `sanitizer`,
+        `heavyDebris`) travelling as `'1'`/`'0'` the same way basement-
+        waterproofing's new-pit/freeze-discharge/dehumidifier checkboxes
+        do, and one enum (`jobType`) validated against `calc.mjs`'s own
+        `JOB_TYPE_PRESETS` ids rather than a hand-duplicated list -- the
+        same drift guard concrete-lifting's `method`/`access` enums use.
+        A returns count of zero and `heavyDebris: false` round-trip
+        as-is rather than being dropped as falsy -- they are the job, not
+        an error. This venture's proposal panel already carried
+        `depositPercent`, `validDays`, `paymentTerms`, `proposalNotes`,
+        and `proposalExclusions` -- `platform/proposal/terms.mjs`'s
+        five-field spec -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `countertop-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end.
+        Added a "Copy share link" button and an on-load `restoreShare()`
+        to `index.html`: `readInput()` already returns every FIELD_IDS,
+        FLAG_IDS, and `jobType` value the encoder needs (via its existing
+        `SELECT_IDS` loop), so `copyLink` calls it directly;
+        `restoreShare()` writes the job-type select, every FIELD_IDS
+        value, and every FLAG_IDS checkbox back onto the form, called
+        immediately before the page's first `update()` (previously
+        `update()` ran unconditionally right after the field/flag
+        listeners were wired, ahead of the proposal panel's own
+        `document`-level input/change listeners) so a shared link's exact
+        numbers win over the page's static HTML defaults and the restore
+        does not fire the proposal panel's listeners prematurely. Fixed
+        the "Is my data uploaded anywhere?" FAQ entry (visible copy and
+        FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan -- this
+        venture's old copy claimed outright "has no shareable bid link",
+        which was true until this change), the footer privacy paragraph,
+        and the SoftwareApplication `featureList` to name the new link.
+        This venture had no share control and was not offered the
+        platform's generic auto-injected "Copy link to this bid"
+        (confirmed via `pageTakesBidLink`/`pageHasOwnShareLink` reasoning
+        and by grepping the built page for `pf-link-copy`, which is
+        absent post-change while `copyLink`/`share.mjs` are present) --
+        `pageHasOwnShareLink` detects the new `share.mjs` import and
+        "Copy share link" text and defers to it; `build.mjs`'s own
+        `pageHasOwnShareControl` also matches the `id="copyLink"` button
+        via its `OWN_COPY_BUTTON` regex. This venture is not one of
+        `link.test.mjs`'s eight named itemised calculators, so that
+        pinned count is untouched and no opt-out was needed. Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the
+        countertop PR documented -- a first `regen.mjs` pass ahead of
+        `build.mjs` would have mirrored a stale `dist/duct-cleaning-bid-
+        calculator/index.html` and failed `front-door-tools.test.mjs`'s
+        "committed mirror matches the generator" check; running `build.mjs`
+        first avoided that failure entirely, so no second regen pass was
+        needed. `origin/main` did not move during this session (checked
+        immediately before appending this entry). Verified: venture's own
+        suite 102/102; `platform/proposal/*.test.mjs` 97/97; full
+        `platform/pages` suite 883/884 (the one failure,
+        `mcp-supply-chain-watch/vs-snyk.html`'s FAQ divergence, is
+        pre-existing on `main` before this branch's changes -- confirmed
+        by stashing this branch's diff and re-running, same failure);
+        full `platform/marketing` suite 211/211 (first pass 207/211 with
+        four stale-mirror failures before `build.mjs` had run, second
+        pass after `build.mjs`+`regen.mjs` clean); `platform/pages/
+        build.mjs` + `check.mjs` on a full site build -- "174 products,
+        688 pages, no dead links"; `python3 portfolio/router/validate.py`
+        -- all 183 VENTURE.yaml valid; `node platform/pages/clauses.mjs
+        duct-cleaning-bid-calculator` -- no-warranty clause present on all
+        3 published pages. `git status` after regen touched only this
+        venture's own mirror shard (new `share.mjs.gz` entry), the mirror
+        kustomization, and the nginx alias map -- no unrelated venture's
+        shard changed. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs` directly with a
+        full-field sample bid (heavy-debris two-system job, 22 vents, 3
+        returns, 2 stories, crawl + occupied + coil + sanitizer + heavy
+        debris all checked, a $1,450 proposed price to compare against):
+        encoded, decoded, and confirmed all 28 numeric fields, all 5
+        boolean flags, and the job-type enum matched the sender's input
+        exactly, and the recipient's recalculated price matched the
+        sender's to the cent ($1,060.26 both sides) -- the exact failure
+        this feature exists to prevent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved (cycling with the monthly Actions
+        minute allowance) and the Hetzner cluster as down (`:6443`
+        refused, no k3s API server) -- both pre-diagnosed, owner-blocked,
+        not re-diagnosed here per CLAUDE.md's explicit instruction to cite
+        rather than re-verify -- so all of the above is local verification
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI"
+        rule. Not deployed: the public surface is down (see CLAUDE.md), so
+        this ships to `main` as code only, ready to serve once the
+        owner's infra fix lands.
+    mrr_end: null
