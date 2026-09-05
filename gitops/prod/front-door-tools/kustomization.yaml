@@ -35,11 +35,11 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 131 files, 556620 bytes
 #   portfolio-front-tools-1: 114 files, 554699 bytes
-#   portfolio-front-tools-2: 150 files, 553820 bytes
-#   portfolio-front-tools-3: 116 files, 540424 bytes
-#   portfolio-front-tools-4: 126 files, 552549 bytes
-#   portfolio-front-tools-5: 117 files, 554278 bytes
-#   portfolio-front-tools-6: 104 files, 544739 bytes
+#   portfolio-front-tools-2: 147 files, 543722 bytes
+#   portfolio-front-tools-3: 118 files, 551570 bytes
+#   portfolio-front-tools-4: 126 files, 553148 bytes
+#   portfolio-front-tools-5: 117 files, 553632 bytes
+#   portfolio-front-tools-6: 106 files, 553382 bytes
 #   portfolio-front-tools-7: 117 files, 556974 bytes
 #   portfolio-front-tools-8: 96 files, 540937 bytes
 #   portfolio-front-tools-9: 70 files, 374019 bytes
@@ -342,6 +342,7 @@ configMapGenerator:
       - vendor-change-evidence__index.html.gz=vendor-change-evidence__index.html.gz
       - vendor-change-evidence__style.css.gz=vendor-change-evidence__style.css.gz
       - vendor-change-evidence__usage.js.gz=vendor-change-evidence__usage.js.gz
+      - vendor-change-evidence__vs-upguard.html.gz=vendor-change-evidence__vs-upguard.html.gz
       - public-record-watch__LICENSE.gz=public-record-watch__LICENSE.gz
       - public-record-watch__app.js.gz=public-record-watch__app.js.gz
       - public-record-watch__evidence.js.gz=public-record-watch__evidence.js.gz
@@ -467,15 +468,15 @@ configMapGenerator:
       - roofing-bid-calculator__usage.mjs.gz=roofing-bid-calculator__usage.mjs.gz
       - roofing-bid-calculator__vs-acculynx.html.gz=roofing-bid-calculator__vs-acculynx.html.gz
       - painting-bid-calculator__calc.mjs.gz=painting-bid-calculator__calc.mjs.gz
-      - painting-bid-calculator__index.html.gz=painting-bid-calculator__index.html.gz
-      - painting-bid-calculator__interior-painting-price-per-square-foot.html.gz=painting-bid-calculator__interior-painting-price-per-square-foot.html.gz
-      - painting-bid-calculator__share.mjs.gz=painting-bid-calculator__share.mjs.gz
-      - painting-bid-calculator__usage.mjs.gz=painting-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - painting-bid-calculator__index.html.gz=painting-bid-calculator__index.html.gz
+      - painting-bid-calculator__interior-painting-price-per-square-foot.html.gz=painting-bid-calculator__interior-painting-price-per-square-foot.html.gz
+      - painting-bid-calculator__share.mjs.gz=painting-bid-calculator__share.mjs.gz
+      - painting-bid-calculator__usage.mjs.gz=painting-bid-calculator__usage.mjs.gz
       - painting-bid-calculator__vs-paintscout.html.gz=painting-bid-calculator__vs-paintscout.html.gz
       - concrete-bid-calculator__calc.mjs.gz=concrete-bid-calculator__calc.mjs.gz
       - concrete-bid-calculator__how-much-concrete-for-a-driveway.html.gz=concrete-bid-calculator__how-much-concrete-for-a-driveway.html.gz
@@ -590,13 +591,13 @@ configMapGenerator:
       - carpet-cleaning-bid-calculator__share.mjs.gz=carpet-cleaning-bid-calculator__share.mjs.gz
       - carpet-cleaning-bid-calculator__usage.mjs.gz=carpet-cleaning-bid-calculator__usage.mjs.gz
       - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
-      - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
-      - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
+      - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
       - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
@@ -721,13 +722,13 @@ configMapGenerator:
       - einvoice-preflight__vat.mjs.gz=einvoice-preflight__vat.mjs.gz
       - einvoice-preflight__vs-avalara.html.gz=einvoice-preflight__vs-avalara.html.gz
       - einvoice-preflight__what-does-this-e-invoice-error-code-mean.html.gz=einvoice-preflight__what-does-this-e-invoice-error-code-mean.html.gz
-      - electrical-panel-upgrade-bid-calculator__calc.mjs.gz=electrical-panel-upgrade-bid-calculator__calc.mjs.gz
-      - electrical-panel-upgrade-bid-calculator__how-much-to-charge-to-upgrade-an-electrical-panel.html.gz=electrical-panel-upgrade-bid-calculator__how-much-to-charge-to-upgrade-an-electrical-panel.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - electrical-panel-upgrade-bid-calculator__calc.mjs.gz=electrical-panel-upgrade-bid-calculator__calc.mjs.gz
+      - electrical-panel-upgrade-bid-calculator__how-much-to-charge-to-upgrade-an-electrical-panel.html.gz=electrical-panel-upgrade-bid-calculator__how-much-to-charge-to-upgrade-an-electrical-panel.html.gz
       - electrical-panel-upgrade-bid-calculator__index.html.gz=electrical-panel-upgrade-bid-calculator__index.html.gz
       - electrical-panel-upgrade-bid-calculator__share.mjs.gz=electrical-panel-upgrade-bid-calculator__share.mjs.gz
       - electrical-panel-upgrade-bid-calculator__usage.mjs.gz=electrical-panel-upgrade-bid-calculator__usage.mjs.gz
@@ -843,13 +844,13 @@ configMapGenerator:
       - hardwood-refinishing-bid-calculator__share.mjs.gz=hardwood-refinishing-bid-calculator__share.mjs.gz
       - hardwood-refinishing-bid-calculator__usage.mjs.gz=hardwood-refinishing-bid-calculator__usage.mjs.gz
       - hardwood-refinishing-bid-calculator__vs-jobber.html.gz=hardwood-refinishing-bid-calculator__vs-jobber.html.gz
-      - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
-      - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
   - name: portfolio-front-tools-6
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - holiday-light-bid-calculator__calc.mjs.gz=holiday-light-bid-calculator__calc.mjs.gz
+      - holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz=holiday-light-bid-calculator__how-much-to-charge-to-hang-christmas-lights.html.gz
       - holiday-light-bid-calculator__index.html.gz=holiday-light-bid-calculator__index.html.gz
       - holiday-light-bid-calculator__usage.mjs.gz=holiday-light-bid-calculator__usage.mjs.gz
       - holiday-light-bid-calculator__vs-realgreen.html.gz=holiday-light-bid-calculator__vs-realgreen.html.gz

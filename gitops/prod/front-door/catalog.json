@@ -312,7 +312,7 @@
       "url": "https://marisstella.dev/tools/vendor-change-evidence/",
       "category": "Compliance checks & evidence records",
       "description": "Free, no-signup, no-upload tool that compares two dated vendor policy snapshots (privacy, terms, subprocessors, security) in your browser and reports what changed. Runs entirely client-side.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "public-record-watch",

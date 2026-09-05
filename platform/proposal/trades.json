@@ -3604,5 +3604,96 @@
       "notes": "Please keep the display area clear on service day. We work around opening hours where we can."
     },
     "disclaimerTail": "Cleaning removes surface soiling; it is not glass restoration, and mineral etching, scratches, or failed seals cannot be cleaned out."
+  },
+  "notary-trip-quote": {
+    "priceField": "quote",
+    "calcFn": "calculateQuote",
+    "depositPercent": 0,
+    "jobTitle": "Mobile notary appointment — {pagesPerSetIn~0}-page package, {printSetsIn~0} set{printSetsIn+s}",
+    "jobTitleFallback": "Mobile notary appointment",
+    "disclaimerTail": "Notarial acts are performed under the commission named above and the fees the state sets for them; travel, waiting, printing and after-hours charges are this notary's own and are not set by any state. This is a price quote, not legal advice, and it does not itself constitute a notarization.",
+    "labels": {
+      "heading": "Send the client a quote",
+      "intro": "The figures above are for you. This is the page you print or save as a PDF and send the signer or the company hiring you — your details, theirs, what the appointment covers, when the price holds until, and a line to sign. Your business details are saved on this device so you only type them once; the client's details are never saved.",
+      "companyLicense": "Commission number and expiry (optional)",
+      "clientName": "Signer or hiring party",
+      "clientAddress": "Signing address",
+      "validDays": "Hold this quote for (days)",
+      "depositPercent": "Deposit (%) — leave at 0 to bill on completion",
+      "scope": "What this appointment covers — one line each, edit freely",
+      "exclusions": "Not included — one per line (optional)",
+      "printButton": "Print quote / Save as PDF"
+    },
+    "placeholders": {
+      "clientName": "Cascade Title & Escrow",
+      "clientAddress": "812 Chamberlain St, Apt 4"
+    },
+    "fields": {
+      "travelMilesIn": {
+        "number": "travelMiles"
+      },
+      "travelMinutesIn": {
+        "number": "travelMinutes"
+      },
+      "appointmentMinutesIn": {
+        "number": "appointmentMinutes"
+      },
+      "waitingMinutesIn": {
+        "number": "waitingMinutes"
+      },
+      "witnessesIn": {
+        "number": "witnesses"
+      },
+      "afterHoursIn": {
+        "number": "afterHoursFee"
+      },
+      "stateFeesIn": {
+        "number": "stateFees"
+      },
+      "printedPagesOut": {
+        "from": "printedPages"
+      },
+      "pagesPerSetIn": {
+        "number": "pagesPerSet"
+      },
+      "printSetsIn": {
+        "number": "printSets"
+      }
+    },
+    "scope": [
+      {
+        "line": "Travel to the signing address and back, about {travelMilesIn~0} mile{travelMilesIn+s} round trip",
+        "when": "travelMilesIn"
+      },
+      {
+        "line": "Drive time of about {travelMinutesIn~0} minutes for the round trip",
+        "when": "travelMinutesIn"
+      },
+      {
+        "line": "Notarial acts performed at the appointment, about {appointmentMinutesIn~0} minutes on site",
+        "when": "appointmentMinutesIn"
+      },
+      {
+        "line": "State-set notarial fees for the acts performed, billed at the statutory rate",
+        "when": "stateFeesIn"
+      },
+      {
+        "line": "{printedPagesOut~0} pages printed and supplied at the appointment — a {pagesPerSetIn~0}-page package in {printSetsIn~0} set{printSetsIn+s}",
+        "when": "printedPagesOut"
+      },
+      {
+        "line": "Witnesses arranged and identified at the appointment: {witnessesIn~0}",
+        "when": "witnessesIn"
+      },
+      {
+        "line": "Up to {waitingMinutesIn~0} minutes of waiting if the signer or the documents are delayed",
+        "when": "waitingMinutesIn"
+      },
+      {
+        "line": "Attendance outside normal business hours",
+        "when": "afterHoursIn"
+      },
+      "Identification checked and the journal entry completed for each act"
+    ]
   }
 }

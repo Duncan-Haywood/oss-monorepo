@@ -20,7 +20,10 @@ arithmetic and layout in the browser, like everything else here.
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked.
 
-**And, since 2026-09-03, one venture that is not a bid calculator at all:**
+**And two ventures that are not bid calculators at all**, `translator-project-quote`
+(2026-09-03) and `notary-trip-quote` (2026-09-05). The second is written up under
+"A page that does not price the job inline" below.
+
 `translator-project-quote`. A freelance translator's quote is the same artifact
 — what the project covers, the price, the deposit split, a date it is held
 until, a line to sign — and the module was already generic enough to render it.
@@ -529,3 +532,19 @@ those blocks lists crew-hour breakdowns, which must not reach a homeowner.
 
 Then verify in a browser, not only with `node --test`: price a job, print, and
 confirm the sheet carries the price and not the wages.
+
+## A page that does not price the job inline
+
+`notary-trip-quote` adopted on 2026-09-05 and broke three more assumptions, all
+of them about the *shape of the page* rather than about the document. None was
+a judgement call; all three were spelling.
+
+| Assumption | Why it broke | Now |
+|---|---|---|
+| The page prices the job inline, so `calculate*(readInput())` names the calculator | A calculator that *throws* on a bad figure cannot be called from a render loop with nothing to catch it. This page renders through `quoteResult()`, a non-throwing wrapper, so no call of the inferred shape exists anywhere on it — and the throwing `calculateQuote` is nevertheless the right function for the proposal, where the throw is exactly what retires a sheet the figures no longer support. | A trade may name it: `"calcFn": "calculateQuote"`. `inspect()` then checks the page really defines or imports that name, because a name resolving to nothing generates a proposal that passes every text-level test and throws `ReferenceError` the first time someone presses print. |
+| The usage import is spelled `import { x } from './usage.mjs';\n` | This page writes `import{recordUsage}from './usage.mjs';const ids=[…]` — no spaces around the braces, next statement on the same line. Adoption was refused with "no usage.mjs import" on a page whose import is right there, the same misreading the quote-style fix above was written for. | The anchor tolerates either spacing and an absent trailing newline. The generated region opens and closes with a newline of its own, so the import lands on its own line either way, and `stripGenerated` takes that newline back out — which is what keeps a re-run idempotent. |
+| A venture that should adopt is discoverable by its slug | `--list` reports on `*-bid-calculator` plus whatever `trades.json` already names, so a venture is invisible until someone has already decided to adopt it. Measured 2026-09-05: 60 ventures with an `index.html` fall outside that filter, and two of them (`owner-operator-cpm-calculator`, `shop-rate-calculator`) satisfy every precondition today. | Unchanged, deliberately. Both of those price a figure the business keeps — a cost per mile, a shop rate — and neither has a customer to hand a proposal to. Mechanical readiness is not a reason to adopt, so widening the filter would report 60 tools as "ready" when the question it answers is a judgement one. What the count is good for is finding the next `notary-trip-quote`, by hand. |
+
+The first of those is the one to remember when adopting a venture whose
+calculator validates: the render loop and the printed sheet want *opposite*
+behaviour from a bad figure, and both are right.
