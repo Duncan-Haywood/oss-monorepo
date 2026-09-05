@@ -1213,7 +1213,12 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # surface. Same shape as the three ventures above: its Python CLI stays
     # canonical and an `index.html` beside it made the venture mirrorable, so
     # the mirror and the total moved together and parity held.
-    total = 174  # `infra/OWNER_CHECKLIST.md`'s own "N of the 174 tools" wording.
+    # 175 since 2026-09-05, when `vendor-change-watch` gained a browser
+    # surface (#3407) -- a CLI whose diff logic stayed canonical, same as the
+    # ventures above. `platform/pages/clauses.test.mjs`'s own fixture for "a
+    # venture with no browser surface" had to move off this same venture for
+    # the same reason.
+    total = 175  # `infra/OWNER_CHECKLIST.md`'s own "N of the 175 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
