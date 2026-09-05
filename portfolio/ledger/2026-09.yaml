@@ -14377,3 +14377,48 @@ entries:
         "ship without review ceremony", CI fleet-wide metered/starved this
         session per the standing brief.
     mrr_end: null
+  - venture: 3pl-quote-normalizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable comparison link on the compare-two-quotes page
+        (share.mjs, an allowlisted encode/decode of the five compared fields,
+        plus a "Copy comparison link" button in compare.html that restores
+        from the URL fragment ahead of the existing localStorage draft),
+        closing this venture's gap against the ~125 other calculators in the
+        fleet that already carry the same pattern. Picked after this
+        session's mandatory PR/branch-drain phase found the queue already
+        empty: 0 open PRs, and a sample of 11 of the ~232 remote branches
+        (checked with portfolio/ledger/supersede_check.py) were all confirmed
+        superseded or spent stale drafts, corroborating an earlier session
+        today's full 232-branch sweep recorded in
+        portfolio/ledger/infra_state.yaml -- no repairable PR work remained.
+      - >-
+        Also re-confirmed (rather than re-deriving) this session's standing
+        infra picture for the deployment/CI-CD and Codex-on-Hetzner asks:
+        github-actions-runners and k3s-cluster both still read down per
+        infra_state.yaml, and the codex-host-mode systemd-timer route
+        (gitops/agents/host/, installed via
+        bootstrap/restore-cluster.sh WITH_CODEX_HOST=1) is fully built and
+        already queued as part of the hetzner-ssh-key-is-a-public-key ask --
+        genuinely owner-blocked (needs the owner's real SSH private key from
+        their own machine), not something a session can push further today.
+        Confirmed egress to duncan-haywood.github.io is still blocked from
+        this session sandbox (EGRESS_BLOCKED), so github-pages-origin stays
+        unmeasured as already recorded; did not re-dispatch a runner-needing
+        workflow to re-confirm starvation beyond the one check this PR's own
+        merge required, per infra_state.yaml's "one classification per
+        session is enough" guidance.
+      - >-
+        Verified: ventures/3pl-quote-normalizer 119/119 (new share.test.mjs +
+        extended page.test.mjs). platform/marketing+platform/pages 1126/1126
+        after node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard, kustomization, and the new share.mjs mirror asset).
+        platform/proposal 101/101. platform/privacy+platform/webcheck 50/50.
+        gitops/tests: 409 passed, 25 skipped. All 15 platform/ci unittest
+        modules pass. ci_starvation.py run against the PR's own check runs
+        (run 33998741345): 4 of 6 jobs runner_id 0, confirming fleet-wide
+        starvation rather than a real failure; merged (#3420) on the local
+        verification above per CLAUDE.md's "ship without review ceremony".
+    mrr_end: null
