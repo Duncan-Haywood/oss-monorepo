@@ -3,7 +3,9 @@
 // calc.test.mjs stays green if the page never executes. These checks are
 // dependency-free (no jsdom) so CI stays a plain `node --test`. They catch
 // the class of defect that actually shipped on another calculator: an
-// unclosed raw-text element that swallowed the app script.
+// unclosed raw-text element that swallowed the app script. Every other
+// bid-calculator venture in this repo carries this file; this one did not
+// until now, so a regression here had no automated guard at all.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -63,7 +65,8 @@ test('every element the script reaches for exists in the markup', () => {
 
 test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
-    'shape', 'depth', 'mil', 'bead', 'stairs', 'lengthFeet', 'widthFeet',
+    'shape', 'depth', 'mil', 'bead', 'stairs', 'pattern', 'access',
+    'lengthFeet', 'widthFeet', 'wallHeightFeet',
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
@@ -71,10 +74,10 @@ test('inputs and result fields for the primary journey are present', () => {
   }
 });
 
-test('the landing page names the problem in the shop\'s words', () => {
+test('the landing page names the problem in the crew’s own words', () => {
   assert.match(html, /<title>[^<]*Vinyl Liner Bid Calculator/i);
-  assert.match(html, /meta name="description"[^>]*water-surface special/i);
-  assert.match(html, /Bid the walls, the hopper, and the stairs/);
+  assert.match(html, /meta name="description"[^>]*liner square feet/i);
+  assert.match(html, /Bid the walls, the hopper, and the stairs\./);
   assert.match(html, /SoftwareApplication/);
 });
 
