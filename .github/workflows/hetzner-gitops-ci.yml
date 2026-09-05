@@ -191,10 +191,12 @@ jobs:
             bootstrap/scripts/seal-owner-secrets.sh \
             bootstrap/scripts/enable-codex-governor.sh \
             bootstrap/scripts/install-codex-host.sh \
+            bootstrap/scripts/install-github-runner-host.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
             gitops/ci/runner-entrypoint.sh \
+            gitops/ci/host/register-and-run.sh \
             platform/pages/publish-branch.sh
 
   hcloud-scope:

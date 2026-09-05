@@ -68,13 +68,16 @@ case "$cmd" in
     printf 'STDIN %s bytes: %s\\n' "${{#body}}" "$(printf '%s' "$body" | head -c 60 | tr '\\n' ' ')" >> "{calls}"
     exit 0
     ;;
-  # The Codex host-mode payload arrives the same way -- a local `tar -cz` piped
-  # into a remote `tar -xz`. Draining it matters for the same reason: an
-  # undrained pipe SIGPIPEs the writer, and the script would read that as the
-  # install having failed rather than as the stub not listening.
+  # The Codex and GitHub-runner host-mode payloads arrive the same way -- a
+  # local `tar -cz` piped into a remote `tar -xz`. Draining it matters for the
+  # same reason: an undrained pipe SIGPIPEs the writer, and the script would
+  # read that as the install having failed rather than as the stub not
+  # listening. Both are gzip-compressed on the wire, so the body is opaque to
+  # a shell `case` match -- tests distinguish which feature's payload this was
+  # by which WITH_* flag they set, not by sniffing the compressed bytes.
   *"tar -xz"*)
     body="$(cat)"
-    printf 'STDIN %s bytes: codex payload\\n' "${{#body}}" >> "{calls}"
+    printf 'STDIN %s bytes: host-mode payload\\n' "${{#body}}" >> "{calls}"
     exit 0
     ;;
 esac
@@ -100,6 +103,8 @@ case "$cmd" in
   *mktemp*) echo /tmp/restore-stub ;;
   *"install-codex-host.sh"*)
     test ! -f "{state}/codex_install_fails" ;;
+  *"install-github-runner-host.sh"*)
+    test ! -f "{state}/runner_install_fails" ;;
   *"kubectl wait"*) echo "node/cp condition met" ;;
   *"kubectl get nodes"*) echo "cp Ready; ag Ready" ;;
   *curl*) echo "200, 4096 bytes" ;;
@@ -485,7 +490,7 @@ def test_codex_host_installs_on_the_agent_box_when_opted_in(box):
     assert not any(CP in line for line in install), "installed on the control plane"
     # The installer refuses without this, so a missing CONFIRM is a silent no-op.
     assert any("CONFIRM=install-codex-host" in line for line in install)
-    assert "codex payload" in log, "the agents tree never reached the box"
+    assert "host-mode payload" in log, "the agents tree never reached the box"
 
 
 def test_codex_host_failure_does_not_fail_the_restore(box):
@@ -510,3 +515,65 @@ def test_codex_host_enables_nothing(box):
     result = box.run(WITH_CODEX_HOST=1)
     assert "spends no quota" in result.stdout
     assert "--credentials" in result.stdout
+
+
+# --------------------------------------------------- GitHub runner, host mode
+#
+# gitops/ci/ runs self-hosted Actions runners as pods in the same cluster this
+# script restores, so that insurance against metered GitHub-hosted minutes was
+# downstream of the very outage it exists to survive -- the identical failure
+# WITH_CODEX_HOST above already fixes for the Codex worker. These tests pin
+# the same properties for the runner: off by default, sent to the agent box,
+# a broken install does not fail the restore, and it respects DRY_RUN.
+
+
+def test_github_runner_host_is_not_installed_by_default(box):
+    result = box.run()
+    assert result.returncode == 0, result.stderr
+    assert "install-github-runner-host.sh" not in box.log()
+    assert "WITH_GITHUB_RUNNER_HOST=1" in result.stdout
+
+
+def test_github_runner_host_installs_on_the_agent_box_when_opted_in(box):
+    result = box.run(WITH_GITHUB_RUNNER_HOST=1)
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+
+    install = [line for line in log.splitlines() if "install-github-runner-host.sh" in line]
+    assert install, "the installer was never invoked"
+    assert any(AG in line for line in install), f"not sent to the agent box: {install}"
+    assert not any(CP in line for line in install), "installed on the control plane"
+    assert any("CONFIRM=install-github-runner-host" in line for line in install)
+    assert "host-mode payload" in log, "the runner tree never reached the box"
+
+
+def test_github_runner_host_failure_does_not_fail_the_restore(box):
+    (box.state / "runner_install_fails").write_text("")
+    result = box.run(WITH_GITHUB_RUNNER_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "did not complete" in result.stderr
+    assert "cluster restore above is unaffected" in result.stderr
+
+
+def test_github_runner_host_respects_dry_run(box):
+    result = box.run(CONFIRM="", DRY_RUN=1, WITH_GITHUB_RUNNER_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "install-github-runner-host.sh" not in box.log()
+    assert "would install the GitHub Actions runner" in result.stdout
+    assert "holds until credentialed" in result.stdout
+
+
+def test_github_runner_host_registers_nothing_without_credentials(box):
+    """Installing is separated from registering with GitHub, and says so."""
+    result = box.run(WITH_GITHUB_RUNNER_HOST=1)
+    assert "registers with GitHub only once" in result.stdout
+    assert "--credentials" in result.stdout
+
+
+def test_both_host_mode_extras_can_be_installed_in_one_restore(box):
+    """The two flags are independent; taking one must not skip the other."""
+    result = box.run(WITH_CODEX_HOST=1, WITH_GITHUB_RUNNER_HOST=1)
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+    assert any("install-codex-host.sh" in line for line in log.splitlines())
+    assert any("install-github-runner-host.sh" in line for line in log.splitlines())

@@ -77,6 +77,14 @@ Cluster back, then this stack, then the seals. `infra/OWNER_CHECKLIST.md`
 still lists `portfolio-site-repo` and `codex-secrets` ahead of it; both are
 sealed *into* the cluster and so are downstream of the same repair.
 
+**Added 2026-09-05: [`host/`](host/README.md) is the same fix `gitops/agents/host/`
+already applied to the Codex worker, applied here.** A systemd service on the
+agent box's own OS, no k3s underneath it — restoring actual CI capacity
+without waiting on the cluster (or Argo, or an image pull) at all. It is not
+a replacement for the stack below; it is what the box can run the moment the
+SSH key is rotated, before or independent of `restore-cluster.sh` bringing
+k3s back up.
+
 ## The switch
 
 258 of the 260 `runs-on` lines across 225 workflows now read this. The other

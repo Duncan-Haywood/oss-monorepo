@@ -53,6 +53,11 @@
 #                              Opt-in, runs last, cannot fail the restore, and
 #                              enables nothing -- it holds until credentials
 #                              and the policy switch arrive.
+#   WITH_GITHUB_RUNNER_HOST=1  also install a self-hosted GitHub Actions
+#                              runner as a systemd service on the agent box
+#                              (gitops/ci/host/), independent of k3s and Argo.
+#                              Opt-in, runs last, cannot fail the restore, and
+#                              registers with GitHub only once credentialed.
 #   DRY_RUN=1                  print the plan and the detected mode, change nothing
 set -euo pipefail
 
@@ -182,6 +187,9 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "server already present: ${SERVER_PRESENT}"
   if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
     echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
+  fi
+  if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
+    echo "  runner  ${AG}  would install the GitHub Actions runner, host mode (holds until credentialed)"
   fi
   exit 0
 fi
@@ -361,4 +369,44 @@ else
   echo "Not installed: the Codex worker's host-mode scheduler (gitops/agents/host/)."
   echo "  Re-run with WITH_CODEX_HOST=1 to add it while you still hold the SSH key."
   echo "  It is what keeps dev capacity alive the next time this cluster is not."
+fi
+
+# --------------------------------------------- step 10: CI that outlives this
+# cluster too
+#
+# Same rationale as step 9, for the other tenant `gitops/ci/` describes as
+# "insurance": self-hosted Actions runners there run as pods in this same
+# cluster, so metered-CI insurance was downstream of the outage it exists to
+# survive. gitops/ci/host/ is a systemd service on the box instead -- no k3s,
+# no Argo, no image pull -- and it registers with GitHub only once
+# credentialed, exactly like the Codex host above holds until enabled.
+if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
+  step "GitHub Actions runner, host mode (agent box)"
+  runner_dir="$(ssh_ag 'mktemp -d' 2>/dev/null || true)"
+  if [[ -z "$runner_dir" ]]; then
+    echo "  ! could not create a working directory on ${AG}; skipped." >&2
+    echo "    The cluster restore above is unaffected." >&2
+  else
+    if tar -C "${HERE}/.." -cz gitops/ci/host bootstrap/scripts/install-github-runner-host.sh \
+         | ssh_ag "tar -xz -C '${runner_dir}'" \
+       && ssh_ag "CONFIRM=install-github-runner-host bash '${runner_dir}/bootstrap/scripts/install-github-runner-host.sh'"; then
+      echo
+      echo "  Installed and holding. It registers with GitHub only once you:"
+      echo "    ./bootstrap/scripts/install-github-runner-host.sh --credentials <<< 'RUNNER_TOKEN=<PAT>'"
+      echo "  (a fine-grained PAT, Administration: Read and write -- gitops/ci/README.md)"
+    else
+      echo "  ! the GitHub runner host install did not complete." >&2
+      echo "    The cluster restore above is unaffected." >&2
+      echo "    The installer prints the reason and, for a missing package, the" >&2
+      echo "    exact apt-get line -- read the output just above rather than" >&2
+      echo "    starting over. Fix it on ${AG} and re-run this step, or follow" >&2
+      echo "    gitops/ci/host/README.md, which does it without this script." >&2
+    fi
+    ssh_ag "rm -rf '${runner_dir}'" >/dev/null 2>&1 || true
+  fi
+else
+  echo
+  echo "Not installed: the GitHub Actions runner's host-mode service (gitops/ci/host/)."
+  echo "  Re-run with WITH_GITHUB_RUNNER_HOST=1 to add it while you still hold the SSH key."
+  echo "  It is what keeps CI running the next time metered minutes or this cluster are not."
 fi
