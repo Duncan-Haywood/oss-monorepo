@@ -362,6 +362,16 @@
       'templateHours','tearoutHours','suppliesPerSqFt','hourlyWage','burdenRate',
       'travelAndEquipment','overheadRate','targetMargin','proposedPrice',
     ];
+    // The four preset selects, kept out of FIELD_IDS because that array also
+    // drives the plain 'input'-event auto-recalculate wiring below and these
+    // fire 'change', not 'input' (see their own listeners further down).
+    // readInput() still has to fold them in: share.mjs's own header promises
+    // "the recipient's form shows the same selection the sender saw, not
+    // just the same arithmetic", and a link missing them silently reopens
+    // with layout/material/sink/edge reset to the page's defaults while the
+    // price still matches to the cent -- the exact "plausible, different
+    // answer" class this repo's roundtrip check exists to catch.
+    const ENUM_SELECT_IDS = ['layoutId', 'materialId', 'sinkId', 'edgeId'];
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
@@ -411,7 +421,7 @@
     }
 
     function readInput() {
-      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      return Object.fromEntries([...FIELD_IDS, ...ENUM_SELECT_IDS].map(id => [id, el(id).value]));
     }
 
     function clearOutputs(message, isError) {
