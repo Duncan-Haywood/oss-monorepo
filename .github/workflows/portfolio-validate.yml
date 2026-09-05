@@ -299,6 +299,15 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_ci_starvation
 
+      # Same argument again, one route over: this reads the Pages route's
+      # state for `infra_state.yaml`'s `github-pages-plan` row, and that row
+      # decides whether an owner's thirty seconds in Settings is worth
+      # spending. A tool that turns one API field into an owner-facing
+      # verdict has to be the thing that is right.
+      - name: Pages-route reader unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_pages_state
+
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
