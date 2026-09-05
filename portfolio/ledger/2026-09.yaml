@@ -14194,3 +14194,60 @@ entries:
         platform/ci, per CLAUDE.md's note that pytest cannot collect them
         from the repo root).
     mrr_end: null
+
+  - venture: vendor-change-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR/branch queue first (mandate's 3-PR quota check):
+        the one open PR (#3411, a mirrored-tool-count comment bump) was
+        already superseded by #3410 which merged the same fix minutes
+        earlier -- verified with portfolio/ledger/supersede_check.py
+        (identical-merge proof) and closed. Checked all 18 other remote
+        branches without open PRs the same way; every one was either already
+        fully absorbed into main or a stale earlier draft main has since
+        overtaken (confirmed manually for several the tool's line-scan
+        flagged NOT SUPERSEDED, e.g. marketing/vs-smartmoving-moving-bid-
+        calculator's front-door-tools.mjs fix and tree-service-bid-share-
+        link's share feature both already exist on main under the commit
+        that actually shipped them). Nothing repairable remained.
+      - >-
+        Shipped ventures/vendor-change-watch/vs-changedetection-io.html
+        (#3413): the venture gained a browser surface today (#3407) but had
+        no comparison page, unlike every other venture with a public tool
+        page. Compared honestly against changedetection.io (the best-known
+        general-purpose open-source webpage monitor): it watches arbitrary
+        URLs with rich notification routing, while this tool is narrower on
+        purpose -- vendor legal/security pages only, with an observed/
+        inconclusive/unknown status vocabulary built so a failed check can
+        never collapse into "no change". Found and fixed two bugs while
+        verifying: platform/pages/faq-visible.test.mjs caught a curly-vs-
+        straight quote mismatch between the JSON-LD FAQ text and the visible
+        prose, and a literal backslash-escaped quote inside the meta
+        description attribute (invalid HTML -- backslash escaping isn't
+        supported in attribute values).
+      - >-
+        Verified: venture suite 41/41, platform/marketing+platform/pages
+        1126/1126 (after the faq-visible fix), platform/proposal 101/101,
+        platform/privacy+platform/webcheck 50/50, python3 -m pytest
+        gitops/tests (408 passed, 25 skipped) after node platform/marketing/
+        regen.mjs rewrote gitops/prod/front-door* and the venture's mirror
+        shard, and all 15 platform/ci unittest modules. Merged #3413 on that
+        local verification -- github-actions-runners confirmed starved
+        (runner_id: 0, 3s, no steps via ci_starvation.py) on the PR's own
+        checks. Refreshed the gh-pages snapshot afterward (platform/ci/
+        pages_state.py reported stale; CONFIRM=publish-pages-branch PUSH=1
+        platform/pages/publish-branch.sh brought it back to current at the
+        new main tip).
+      - >-
+        Separately confirmed and reported to the owner (not fixed here --
+        needs the owner's own machine): github-actions-runners and the
+        Hetzner k3s cluster are both down per portfolio/ledger/
+        infra_state.yaml, and the fix for both plus the Codex-CLI host
+        scheduler the owner asked about is one scripted command
+        (bootstrap/restore-cluster.sh with WITH_CODEX_HOST=1 and
+        WITH_GITHUB_RUNNER_HOST=1) blocked only on HETZNERSSHKEY holding a
+        public key instead of a private one (portfolio/ledger/
+        decision_queue.py item #1, PR #3184).
+    mrr_end: null

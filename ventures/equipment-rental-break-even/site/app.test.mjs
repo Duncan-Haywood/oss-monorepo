@@ -15,6 +15,8 @@ test("landing page exposes searchable product, safety copy, and local app", () =
   assert.match(html, /Copy share link/);
   assert.match(html, /not a recommended price/);
   assert.match(html, /To the maximum extent permitted by law/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /entirely optional and never changes what the tool does/);
 });
 test("app wires the share button to encode/decode and applies an incoming link on load", () => {
   assert.match(app, /import \{ encodeShare, decodeShare \} from "\.\/share\.mjs";/);
