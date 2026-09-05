@@ -1277,9 +1277,13 @@ The build emits a service worker, a web app manifest, PNG icons, and an
 1. **Anything opened once opens again offline**, automatically, including its
    modules — the worker caches each same-origin GET as it is served.
 2. **"Save all tools for offline"** on the hub fetches every tool's entry page
-   and modules up front (~3 MB), for someone who knows they are about to lose
-   signal. It is a button, never automatic: nobody's mobile data gets spent
-   without them asking.
+   and modules up front, for someone who knows they are about to lose signal.
+   It is a button, never automatic: nobody's mobile data gets spent without
+   them asking. The button's copy states the real download size, computed at
+   build time from the actual bundle and patched into the hub page — not a
+   number typed once and left to drift as the catalog grows. (It did: the
+   copy said "about 3 MB" from ~30 tools onward while the catalog reached 174
+   and the real fetch reached 16.8 MB.)
 
 A page not saved and not previously opened falls back to `offline.html`, which
 says so plainly and links back to the hub.

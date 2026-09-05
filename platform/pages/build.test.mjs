@@ -84,7 +84,7 @@ import {
   renderComparePage,
   renderCompareProductPage,
 } from './build.mjs';
-import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
+import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
@@ -2765,6 +2765,7 @@ test('the offline bundle stays small enough to fetch on mobile data', async () =
     const buf = await fs.readFile(path.join(outDir, asset));
     bytes += (await gzip(buf, { level: 9 })).length;
   }
+  assert.equal(bytes, offline.bundleBytes, 'addOfflineSupport reported a different gzipped total than a fresh count');
   // Raw bytes stopped being the right proxy once the catalog passed ~180
   // tools: it hit 16.8 MB against a 16 MB ceiling that was itself already a
   // bump from an original 8 MB, and bumping the number a second time repeats
@@ -2778,6 +2779,21 @@ test('the offline bundle stays small enough to fetch on mobile data', async () =
   // "transferred" in its network panel, not the uncompressed size on disk.
   // Measured 2026-09-05: gzip brings the 16.8 MB raw bundle down to 5.2 MB.
   assert.ok(bytes < 8 * 1024 * 1024, `gzipped offline bundle is ${(bytes / 1e6).toFixed(1)} MB`);
+});
+
+test('the hub tells a visitor the real offline size, not a stale guess', async () => {
+  // The button said "about 3 MB" from ~30 tools onward while the catalog
+  // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
+  // limited mobile data, exactly who this feature is for, was told a number
+  // with no relationship to what they would actually pay. The label is now
+  // computed from the same gzipped bytes the test above measures, so it
+  // cannot drift from reality again.
+  const { offline } = await site();
+  const hub = await read('index.html');
+  assert.ok(!hub.includes('{{OFFLINE_BUNDLE_SIZE}}'), 'the size placeholder was never patched in');
+  assert.ok(!/about 3 MB/.test(hub), 'the old hardcoded size is still here');
+  const label = offlineBundleSizeLabel(offline.bundleBytes);
+  assert.ok(hub.includes(`about ${label}`), `hub does not show the real offline size (${label})`);
 });
 
 test('the saved catalogue fits in a browser origin cache quota', async () => {
