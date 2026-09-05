@@ -179,23 +179,43 @@ readings:
     measured: "2026-09-05"
     run: null
     how: >-
-      Owner-only, and deliberately so: nothing in this repository can read
-      the account's GitHub plan. Settings → Billing names it in one line.
-      Set `up` if it is Pro, Team or Enterprise; `down` if it is Free.
-      There is no API call an agent session can make here — the repository
-      token cannot see billing, and guessing is what this file exists to
-      stop.
-      Tested rather than assumed, 2026-09-05: `GET /user` with the session's
-      own credential authenticates as `Duncan-Haywood` and returns
+      `python3 platform/ci/pages_state.py` (added 2026-09-05; needs only the
+      session's own repository token, no runner, no cluster). Exit 0 means
+      the route looks worth the owner's thirty seconds. Then Settings →
+      Billing to close it: set `up` if the plan is Pro, Team or Enterprise;
+      `down` if it is Free.
+      **The sentence this replaced was wrong in a way worth keeping visible.**
+      It read: "There is no API call an agent session can make here — the
+      repository token cannot see billing, and guessing is what this file
+      exists to stop." The first clause is true of *billing* and was being
+      read as true of *Pages*, which are different questions. Pages
+      configuration is a plain field on the repository object — `has_pages` —
+      and every token that can read the repo can read it. Measured
+      2026-09-05: this repository is `private: true` **and**
+      `has_pages: true`. GitHub does not permit enabling Pages on a private
+      repository on the Free plan, so that combination is evidence about the
+      plan, obtained without ever asking about the plan.
+      The *billing* half really is unreadable, and that half was tested
+      rather than assumed on 2026-09-05: `GET /user` with the session's own
+      credential authenticates as `Duncan-Haywood` and returns
       `"plan": null`, because a fine-grained PAT omits that field without
-      the Plan permission. So the sentence above is now a measurement for
-      this credential and not merely a claim — worth one call to confirm if
-      the token is ever widened, and not worth re-attempting otherwise.
+      the Plan permission. Worth one call to confirm if the token is ever
+      widened, and not worth re-attempting otherwise.
+      The verdict stays `unknown` rather than moving to `up`, and the tool
+      says `likely-up` rather than `up` for the same reason: `has_pages` is
+      sticky. A repository that was public when Pages was switched on, or an
+      account that has since downgraded, carries `true` while serving a
+      stranger nothing. Evidence, not proof — but a good deal better than
+      the `unknown` this row reported while the answer sat in a field
+      nobody had read.
     note: >-
       GitHub Pages will not serve a **private** repository's site on the
       Free tier. This repository is private, so the whole `deploy-settings`
       route — both the workflow source and the branch source — is gated on
-      a plan nobody in this repo can observe.
+      the plan. What changed 2026-09-05 is that the gate is no longer
+      *unobservable*: `has_pages: true` on a private repository is a state
+      the Free plan cannot produce, so the route is now worth ranking rather
+      than merely worth asking about.
       This reading was added 2026-09-05 alongside
       `platform/pages/publish-branch.sh`. That script removed the *other*
       prerequisite: it builds the site here and commits it to `gh-pages`,

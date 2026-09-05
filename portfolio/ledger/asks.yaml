@@ -524,6 +524,20 @@ decisions:
     not serve a *private* repository's site on the Free tier, and this
     repository is private, so on Free this row publishes nothing to a
     stranger no matter what else is done. On Pro or above, continue.
+    **Expect that check to come back Pro or better** (new 2026-09-05, and
+    the reason this row is worth opening at all today):
+    `python3 platform/ci/pages_state.py` reads the repository object and
+    reports `private: true` **and** `has_pages: true`. GitHub does not let
+    the Free plan enable Pages on a private repository, so a Pages site
+    already being configured here is evidence the plan permits it — read
+    without any billing permission, from a session, with no runner. It is
+    evidence and not proof: `has_pages` is sticky across a repo going
+    private or an account downgrading, which is exactly why the thirty
+    seconds in Billing still settles it and why `github-pages-plan` stays
+    `unknown` in `infra_state.yaml` until you look. Also worth knowing
+    before you go: the same tool reports the `gh-pages` snapshot as
+    **current** — built from the tip of `main` — so the flip publishes
+    today's catalogue, not a stale one.
     **Then, the runner-free route (new 2026-09-05, and the one to take):**
     the built site is already committed to the `gh-pages` branch by
     `platform/pages/publish-branch.sh` — 174 products, 690 pages, verified
