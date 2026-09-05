@@ -310,6 +310,109 @@ class ServingTests(unittest.TestCase):
         self.assertFalse(result.agrees)
 
 
+class EgressGatewayTests(unittest.TestCase):
+    """A probe refused by the sandbox must never be scored as a reading.
+
+    Measured 2026-09-05 from a session container: every probe failed at the
+    agent egress gateway and the report said `26 probe(s) disagree with the
+    manifests`, marking both apex hosts **NO**. That sentence is built from
+    nothing -- the requests never reached an origin -- and it is the sentence
+    this tool would print on a day the site was perfectly healthy.
+
+    Both refusal shapes are pinned here because they arrive down different
+    code paths: the tunnel refusal as a `URLError`, the gateway's own answer
+    as a 403 with a header.
+    """
+
+    def probe_with(self, answers, expect="serves", url=APEX):
+        return ps.run_probe(ps.Probe(url=url, expect=expect, why="test"), opener=StubOpener(answers))
+
+    def tunnel_refused(self):
+        return urllib.error.URLError("Tunnel connection failed: 403 Forbidden")
+
+    def denied_by_gateway(self):
+        return (403, b"Host not in allowlist: marisstella.dev.", {"x-deny-reason": "host_not_allowed"})
+
+    def test_a_refused_tunnel_is_blocked_not_dark(self):
+        result = self.probe_with({APEX: self.tunnel_refused()})
+        self.assertTrue(result.blocked)
+        self.assertFalse(result.serving)
+        self.assertIn("not measured", result.summary())
+
+    def test_the_gateways_own_403_is_blocked_not_an_answer(self):
+        """The dangerous shape: a well-formed HTTP 403 from no server of ours."""
+        result = self.probe_with({APEX: self.denied_by_gateway()})
+        self.assertTrue(result.blocked)
+        self.assertEqual(result.deny_reason, "host_not_allowed")
+        self.assertFalse(result.serving)
+
+    def test_a_blocked_probe_is_not_counted_as_a_disagreement(self):
+        result = self.probe_with({APEX: self.tunnel_refused()})
+        self.assertEqual(ps.disagreements([result]), [])
+        self.assertEqual(ps.unmeasured([result]), [result])
+
+    def test_a_blocked_gated_host_is_not_counted_as_correctly_dark(self):
+        """The false-negative direction: a block must not certify a gated host."""
+        result = self.probe_with({TOOLS: self.tunnel_refused()}, expect="gated", url=TOOLS)
+        self.assertTrue(result.blocked)
+        self.assertEqual(ps.unmeasured([result]), [result])
+
+    def test_a_real_403_from_a_real_server_is_still_an_answer(self):
+        """The boundary: only the gateway's deny header means unmeasured."""
+        result = self.probe_with({APEX: (403, b"nginx forbidden", {})})
+        self.assertFalse(result.blocked)
+        self.assertEqual(result.status, 403)
+        self.assertFalse(result.agrees)
+
+    def test_an_ordinary_unreachable_host_is_still_a_reading(self):
+        """Connection refused says something about the origin. Keep scoring it."""
+        result = self.probe_with({})
+        self.assertFalse(result.blocked)
+        self.assertFalse(result.agrees)
+
+    def test_all_blocked_means_the_run_measured_nothing(self):
+        results = [self.probe_with({APEX: self.tunnel_refused()}) for _ in range(3)]
+        self.assertTrue(ps.measured_nothing(results))
+
+    def test_a_partial_block_still_leaves_a_reading(self):
+        blocked = self.probe_with({APEX: self.tunnel_refused()})
+        real = self.probe_with({APEX: served()})
+        self.assertFalse(ps.measured_nothing([blocked, real]))
+
+    def test_no_results_at_all_is_not_a_measurement_claim(self):
+        self.assertFalse(ps.measured_nothing([]))
+
+    def test_the_report_refuses_to_render_a_verdict_when_nothing_was_measured(self):
+        results = [self.probe_with({APEX: self.tunnel_refused()})]
+        text = ps.render(results, [])
+        self.assertIn("NOT MEASURED", text)
+        # The exact sentence the old report printed must not survive.
+        self.assertNotIn("disagree with the manifests", text)
+        self.assertNotIn("All probes agree", text)
+
+    def test_the_sitemap_count_excludes_blocked_urls(self):
+        """`24/24 served` from 24 requests that never left the sandbox."""
+        page = ps.Probe(url=APEX, expect="serves", why="test")
+        blocked = ps.run_probe(page, opener=StubOpener({APEX: self.tunnel_refused()}))
+        real = ps.run_probe(page, opener=StubOpener({APEX: served()}))
+        text = ps.render([real], [real, blocked])
+        self.assertIn("Sitemap sample: 1/1 served", text)
+        self.assertIn("1 URL(s) not measured", text)
+
+    def test_json_marks_the_run_unmeasured(self):
+        results = [self.probe_with({APEX: self.tunnel_refused()})]
+        payload = json.loads(ps.as_json(results, []))
+        self.assertFalse(payload["measured"])
+        self.assertEqual(payload["unmeasured"], 1)
+        self.assertEqual(payload["disagreements"], 0)
+        self.assertTrue(payload["hosts"][0]["blocked"])
+
+    def test_a_measured_run_is_still_marked_measured(self):
+        payload = json.loads(ps.as_json([self.probe_with({APEX: served()})], []))
+        self.assertTrue(payload["measured"])
+        self.assertEqual(payload["unmeasured"], 0)
+
+
 class SampleTests(unittest.TestCase):
     def test_sample_is_deterministic(self):
         urls = [f"u{i}" for i in range(100)]

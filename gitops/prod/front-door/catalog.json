@@ -1128,7 +1128,7 @@
       "url": "https://marisstella.dev/tools/print-atelier/",
       "category": "Compliance checks & evidence records",
       "description": "Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "quote-margin-check",
