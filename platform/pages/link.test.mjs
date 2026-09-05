@@ -565,7 +565,9 @@ test('the itemised calculators are offered the control once they declare their r
     'hood-cleaning keeps the share control it shipped alongside its exhaust-system component rows');
   assert.equal(takes.includes('tree-service-bid-calculator'), false,
     'tree-service keeps the share control it shipped alongside its per-tree rows');
-  assert.equal(takes.length, 2);
+  assert.equal(takes.includes('window-cleaning-bid-calculator'), false,
+    'window-cleaning keeps the share control it shipped alongside its per-glass-type rows');
+  assert.equal(takes.length, 1);
 
   // And the exclusion is intact for a runtime-built page that declares nothing,
   // which is what stops this widening past the eight pages above.
