@@ -21,16 +21,24 @@
 // blockCostPerSf, heightFactor, and engineerAndPermitFee, the numbers
 // calc.mjs actually consumes. Those numbers already round-trip as plain
 // NUMBER_FIELD_IDS, so the bid itself is fully reconstructed without the
-// presets. The three presets are still carried here as ENUM_FIELDS, checked
+// presets. The four presets are still carried here as ENUM_FIELDS, checked
 // against calc.mjs's own preset ids rather than a hand-duplicated list, so a
 // restored link shows the same selection the sender saw in the dropdown --
 // otherwise a wall priced at the poured-concrete factor could restore with
 // the "Segmental block (SRW)" option still showing, and the proposal's
 // scope line (`suggestScope`, which reads the select, not the factor) would
 // hand the customer the wrong wall-type label. The starting-layout preset
-// (`wallPreset`) is left out, matching `sump-pump-bid-calculator`'s
-// `jobPresets`: it is index-based rather than id-based and only bulk-applies
-// the same numeric fields this module already carries individually.
+// (`wallPreset`) used to be left out, on the reasoning that it is
+// index-based rather than id-based and only bulk-applies the same numeric
+// fields this module already carries individually. The numbers do survive
+// that way -- but the recipient's dropdown then read the first layout on a
+// bid the sender had built from a different one, so two people comparing the
+// bid were not looking at the same form. It is carried now, validated
+// against the *index range* of WALL_PRESETS, which is the only allowlist an
+// index-based select can have. Restoring it cannot re-run the bulk apply:
+// restoreShare assigns `.value` without dispatching a change event, and the
+// handler that copies preset values into the numeric fields listens for
+// `change`. Found by platform/pages/roundtrip.mjs.
 //
 // There are no checkbox bid inputs on this venture (the only checkbox is the
 // usage opt-out, which is deliberately never shared).
@@ -41,7 +49,7 @@
 // customer's name or address has no business riding in a URL two people
 // paste into text or email.
 
-import { WALL_TYPE_PRESETS, HEIGHT_PRESETS, ENGINEER_PRESETS } from './calc.mjs';
+import { WALL_PRESETS, WALL_TYPE_PRESETS, HEIGHT_PRESETS, ENGINEER_PRESETS } from './calc.mjs';
 
 export const NUMBER_FIELD_IDS = [
   'lengthFeet', 'exposedHeightFeet', 'embedmentFeet', 'blockCostPerSf', 'capCostPerFoot',
@@ -59,6 +67,11 @@ export const BOOLEAN_FIELD_IDS = [];
 // so the allowed values cannot drift out of step with the presets the form
 // offers.
 export const ENUM_FIELDS = {
+  // Index-based, matching index.html's
+  // `fillSelect(el('wallPreset'), WALL_PRESETS, (_, index) => String(index), ...)`
+  // -- so the allowlist is the valid index range, still derived from
+  // WALL_PRESETS itself rather than hand-written.
+  wallPreset: WALL_PRESETS.map((_, index) => String(index)),
   wallTypePreset: WALL_TYPE_PRESETS.map((preset) => preset.id),
   heightPreset: HEIGHT_PRESETS.map((preset) => preset.id),
   engineerPreset: ENGINEER_PRESETS.map((preset) => preset.id),

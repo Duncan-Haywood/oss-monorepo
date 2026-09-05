@@ -381,6 +381,13 @@
     function readInput() {
       return {
         jobType: el('jobType').value,
+        // calculateBid prices from the numeric fields and ignores these three,
+        // but share.mjs encodes them: a link that carried only the numbers
+        // handed the recipient a bid labelled with the wrong door. See the
+        // header of share.mjs.
+        doorSize: el('doorSize').value,
+        construction: el('construction').value,
+        opener: el('opener').value,
         widthFt: el('widthFt').value,
         heightFt: el('heightFt').value,
         doorCost: el('doorCost').value,

@@ -76,6 +76,7 @@ in the PR what they said:
 ```
 node platform/marketing/regen.mjs        # then commit whatever it rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
+node --test platform/proposal/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
 python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
 ```
@@ -85,6 +86,22 @@ decides whether a page you shipped is reachable. A red check you have
 classified as starvation still leaves the repo's own tests unrun — that is
 what "absent CI is not failed CI" asks you to make up for, not a reason to
 merge unverified.
+
+**`platform/proposal/` was added to that list on 2026-09-05, and the reason is
+the sharper half of this section.** The set above was written as the checks
+that matter and then used as *the* checks that get run — so a guard outside it
+fails into silence, which is the same defect as a starved check, arrived at
+from the other direction. `platform/proposal/term-ids.test.mjs` exists
+precisely to catch a proposal panel whose deposit and terms do not survive the
+venture's own share link; it had been red on `main` for days, naming five
+ventures, while five separate sessions shipped that exact bug one after
+another and each recorded a clean local verification. Every one of those runs
+was honest: they ran the list. The list was wrong.
+
+So treat the block above as a floor that ages, not as a fixture. If you add a
+guard, add the directory it lives in here in the same commit — a test nobody
+runs is worth less than no test, because it also tells the next session the
+ground is covered.
 
 **Merge yourself after CI is green:**
 

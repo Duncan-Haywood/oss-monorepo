@@ -115,7 +115,7 @@
     <p>To resolve branches against real pull-request history instead of leaving them <code>uncertain</code>, export your own pull requests first with your own credentials and pass them in:</p>
     <div class="command"><code>gh pr list --state all --limit 500 --json headRefName,state,baseRefName &gt; prs.json
 python3 src/branch_hygiene.py --repo /path/to/checkout --pr-json prs.json --emit-snapshot &gt; snapshot.json</code></div>
-    <p>Then paste <code>snapshot.json</code> above. The scanner makes no network call of its own and has no account or API key; <code>gh</code> uses the credentials already on your machine. See <a href="./is-it-safe-to-delete-this-branch.html">is it safe to delete this Git branch?</a></p>
+    <p>Then paste <code>snapshot.json</code> above. The scanner makes no network call of its own and has no account or API key; <code>gh</code> uses the credentials already on your machine. See <a href="./is-it-safe-to-delete-this-branch.html">is it safe to delete this Git branch?</a>, or <a href="./vs-github-branches.html">how this compares with the GitHub Branches page</a>.</p>
   </section>
 
   <section class="card">

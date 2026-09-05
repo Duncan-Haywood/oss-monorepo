@@ -12752,3 +12752,232 @@ entries:
         today (ci_starvation.py exits 1 on a fresh dispatch), so this stands
         in for CI per "absent CI is not failed CI".
     mrr_end: null
+  - venture: repository-branch-hygiene
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-github-branches.html, closing the last gap in the
+        portfolio's comparison-page surface: 167 of the 168 static ventures
+        already had a vs-* page and this was the only one that did not. The
+        comparator is the GitHub Branches page rather than a paid product,
+        because that is the alternative every one of this tool's users
+        already has open, and the honest contrast is sharp: a branch list
+        sorts by age and by ahead/behind count, and neither is the same
+        claim as "this work exists somewhere else". The page names the two
+        cases that look ordinary in any branch list and are the reason this
+        venture exists -- a merged pull request whose tip moved afterwards
+        (commits outside the base history that may exist nowhere else), and
+        a squash or rebase merge (original commits are not ancestors of the
+        default branch, so a finished branch reads as "ahead"). It also
+        carries the read-only promise explicitly, since a comparison page
+        that blurred "this tool cannot delete anything" would be the most
+        damaging copy error this venture could ship; a test pins that
+        sentence rather than trusting review.
+      - >-
+        No dollar figure for GitHub appears on the page and a test asserts
+        it, matching the discipline every other vs-* page here uses: vendor
+        pricing pages are not reachable from an agent session (egress is
+        proxied), so only well-documented non-numeric behaviour is stated.
+      - >-
+        One test-convention fix worth recording because it points the other
+        way from the usual drift. The sibling vs-* tests assert that every
+        visible `h3` appears in the FAQPage JSON-LD, but `faqEntries()` in
+        platform/pages/build.mjs derives schema only from an `h2`/`h3` whose
+        text ends in a question mark -- so the sibling rule is stricter than
+        the builder's and fails an ordinary prose subheading that ships no
+        schema entry and is not meant to. This venture's test filters on the
+        question mark and cites the builder as the authority, per the
+        "restating a rule that lives in build.mjs" lesson in CLAUDE.md.
+      - >-
+        Verified locally, CI being starved (see the portfolio entry below):
+        `node --test ventures/repository-branch-hygiene/*.test.mjs` 29/29,
+        `node platform/marketing/regen.mjs` (which generated the served
+        mirror shard, so the page is reachable at
+        /tools/repository-branch-hygiene/vs-github-branches.html rather than
+        only committed -- the step CLAUDE.md records as the one that keeps
+        being skipped and 404ing a page the sitemap advertises), and the
+        full `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` suite.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-measured the delivery blockers rather than inheriting them, and
+        all three of the account owner's stated priorities for this run
+        (deployment/CI-CD, marketing materials on the Hetzner boxes, and a
+        Codex CLI worker on the VM spending ChatGPT quota) turn out to be
+        already built and blocked on the same single owner action. GitHub
+        Actions runners are still starved: dispatched `Public surface check`
+        run 33963170699, and `ci_starvation.py --run 33963170699` reports
+        `runner_id: 0`, 3s, no steps. The k3s cluster remains down and
+        cannot be re-measured without a runner. Direct measurement of the
+        public surface from a session is still impossible -- curl to all
+        three hostnames returns `CONNECT tunnel failed, response 403` from
+        the egress proxy, with `remote_ip 127.0.0.1` confirming the proxy
+        and not the box answered.
+      - >-
+        Independently confirmed the branch queue really is drained rather
+        than trusting the prior session's sweep: zero open PRs, and the two
+        branches still touching an unfinished-looking venture were checked
+        with supersede_check.py -- `cursor/branch-hygiene-product-20260824`
+        exits 0 on the identical-merge proof (replaying it on main with main
+        winning every conflict produces main's tree exactly), and
+        `claude/festive-mccarthy-4rzjtb` carries an empty diff. So the
+        three-PR merge quota was vacuously met by an empty repairable queue,
+        not skipped.
+      - >-
+        Ran the seven Playwright browser checks that no workflow covers,
+        which this container can do because Chromium is pre-installed here
+        and the starved CI cannot. This is the layer standing between a
+        merge and a page that renders perfectly and does nothing. sweep
+        (180/180 tools answer), journey, sideways, presets and highlight all
+        passed; contrast skipped on a missing dependency; roundtrip FAILED on
+        four tools and those failures were real. Fixed in the same run --
+        see the four venture entries below.
+    mrr_end: null
+  - venture: hood-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a share link that quietly repriced the bid. `readComponents()`
+        converted each component row's access level into `accessMultiplier`
+        and dropped the raw `access` id, but share.mjs encodes the id against
+        ACCESS_PRESETS -- so the link carried no access at all and the
+        recipient's rows fell back to "kitchen floor" (x1.0) on rows the
+        sender had set to "above ceiling" (x1.2). The recipient saw a
+        complete, plausible, cheaper bid: $164.69 left as $159.85. Found by
+        platform/pages/roundtrip.mjs, which exists for exactly this class and
+        which no workflow runs. Verified: the link now round-trips 50 fields
+        with the headline intact at $164.69.
+    mrr_end: null
+  - venture: mold-remediation-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Wired proposal-terms.mjs into the share link. The share feature
+        shipped days ago carried the arithmetic but not the proposal panel's
+        five terms -- deposit percentage, validity window, exclusions,
+        payment terms, notes -- so a bid sent at a 65% deposit held for 37
+        days reopened at this venture's defaults (30/30, three empty prose
+        blocks) under a headline matching to the cent. Those are the terms of
+        the offer, and the customer proposal the recipient prints asks for a
+        different amount on acceptance than the sender's did. The module
+        already existed and is used by 40 other ventures; this one and
+        sump-pump-bid-calculator had the proposal panel without it, which is
+        why roundtrip.mjs reported the same five fields dropped by two tools
+        and named it one cause rather than two. Verified: 54 fields
+        round-trip, headline $1,037.75 intact.
+    mrr_end: null
+  - venture: sump-pump-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same fix, same cause as mold-remediation-bid-calculator above: the
+        proposal panel's five terms were not carried by the share link, so a
+        shared bid reopened at the venture's default deposit and validity
+        window with the prose terms blank. Wired proposal-terms.mjs
+        (`withTerms`/`splitTerms`), the mechanism 40 other ventures already
+        use, rather than extending this venture's hand-written allowlist --
+        so the five ids cannot drift per venture. Verified: 50 fields
+        round-trip, headline $1,695.31 intact.
+    mrr_end: null
+  - venture: garage-door-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Carried the three kit selectors (doorSize, construction, opener) in
+        the share link. They had been omitted deliberately, on the reasoning
+        that they only pre-fill numeric fields so "their effect already rides
+        in those fields". The headline price does survive that way, which is
+        why it went unnoticed, but the recipient's form was still wrong twice
+        over: a sender who picked "Custom size" because they hand-priced the
+        door handed over a bid labelled `double_16x7`, and touching any of
+        the three selects then fires applySuggestions and overwrites the
+        sender's hand-entered costs with that kit's defaults; and
+        `proposalScope` is generated from the construction label, so the
+        customer-facing scope on the recipient's copy named a different door
+        than the sender's proposal did. Safe to carry because index.html runs
+        applySuggestions({force:true}) before restoreShare(), and restore
+        assigns `.value` without dispatching a change event. Values are
+        validated against calc.mjs's own preset ids, so a crafted link can
+        still only set what the form's selects offer. Verified: 37 fields
+        round-trip, headline $281.44 intact.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed the reason five ventures shipped the same share-link
+        bug in a row, which is more useful than the five fixes. A guard for
+        exactly this defect already existed -- `platform/proposal/term-ids.test.mjs`
+        fails when a page shows a proposal panel whose deposit and terms do
+        not survive the venture's own share link. It was red on `main`,
+        naming hot-tub, mold-remediation, pergola, retaining-wall and
+        sump-pump, and had been for days. Nobody saw it because CLAUDE.md's
+        documented starvation check set names `platform/marketing` and
+        `platform/pages` and not `platform/proposal`, so every session that
+        recorded an honest local verification ran a list that did not
+        include the test written to catch what they were about to ship.
+        Added the directory to that block, with a note that the set is a
+        floor which ages rather than a fixture: a guard outside it fails
+        into silence, which is the same defect as a starved check reached
+        from the other direction, and it is worse than no guard because it
+        also tells the next session the ground is covered.
+      - >-
+        Verified the whole surface rather than the tools this run touched:
+        `browser_checks.py --checks roundtrip` now reports 147/147 share
+        links round-tripping (29 skipped, no link to copy) against a fresh
+        build of the merged tree, where the same command reported four
+        failures at the start of the run and three more arriving from `main`
+        while it was in progress. `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs platform/proposal/*.test.mjs` -> 1225/1225.
+    mrr_end: null
+  - venture: hot-tub-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Wired proposal-terms.mjs into the share link: the five proposal terms
+        (deposit percentage, validity window, exclusions, payment terms,
+        notes) were not carried, so a bid sent at a 65% deposit held for 37
+        days reopened at the venture defaults of 30/30 with three empty prose
+        blocks, under a headline matching to the cent. Also added
+        overlongTermsNote, so a term too long to ride in the link is named to
+        the sender instead of disappearing quietly.
+    mrr_end: null
+  - venture: pergola-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same fix and same cause as hot-tub-bid-calculator above: the proposal
+        panel's five terms were absent from the share link, so the customer
+        proposal the recipient printed asked for a different amount on
+        acceptance than the sender's did. Wired the shared
+        proposal-terms.mjs mechanism rather than extending this venture's own
+        allowlist, so the five ids cannot drift per venture.
+    mrr_end: null
+  - venture: retaining-wall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Wired proposal-terms.mjs for the five terms, as above, and also
+        carried the starting-layout preset (`wallPreset`). That one had been
+        left out deliberately as a convenience control whose numbers already
+        ride individually -- true of the price, but the recipient's dropdown
+        then read a different layout than the sender's, so two people
+        comparing one bid were not looking at the same form. It is validated
+        against the index range of WALL_PRESETS, which is the only allowlist
+        an index-based select can have, and restoring it cannot re-run the
+        bulk apply because restoreShare assigns `.value` without dispatching
+        a change event.
+    mrr_end: null
