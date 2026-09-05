@@ -13016,3 +13016,72 @@ entries:
         reports runner_id: 0 on a fresh dispatch), so this stands in for CI
         per "absent CI is not failed CI".
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Read the GitHub Pages route's state for the first time and re-ranked
+        `deploy-settings` on the result. `infra_state.yaml`'s
+        `github-pages-plan` row asserted "there is no API call an agent
+        session can make here". That is true of *billing* and was being read
+        as true of *Pages* -- two different questions behind one credential
+        limit. Pages configuration is a plain field on the repository object,
+        `has_pages`, readable by any token that can read the repo, and nobody
+        had read it. Measured 2026-09-05: this repository is `private: true`
+        **and** `has_pages: true`. GitHub does not permit enabling Pages on a
+        private repository on the Free plan, so that combination is evidence
+        about the plan obtained without ever asking about the plan. It
+        matters because `deploy-settings` is the only route to a public
+        surface downstream of neither an Actions runner, nor the k3s
+        cluster, nor the SSH key -- the three things that were down
+        simultaneously on 2026-09-04 -- and it had sat at 17 days ranked
+        second purely because its prerequisite read as unknowable. Shipped
+        `platform/ci/pages_state.py` (#3348) to read it, wired its tests into
+        `portfolio-validate.yml` in the same commit per the rule #3346
+        landed. It reports `likely-up`, never `up`, and the verdict in
+        `infra_state.yaml` stays `unknown`: `has_pages` is sticky across a
+        repo going private or an account downgrading, so Settings -> Billing
+        still settles it. Narrowing an unknown is not closing one.
+      - >-
+        Merged #3346 after verifying its central claim independently rather
+        than from its own description: `platform/proposal/term-ids.test.mjs`
+        was genuinely red on `main` (`not ok 80`) and green on the branch, so
+        the seven share links that handed recipients a different bid than the
+        sender saw were a real defect and a real fix. Runners were starved
+        (run 33965793071, `runner_id: 0`, 3s, no steps), so verification was
+        local per "absent CI is not failed CI": `regen.mjs` (no diff, mirror
+        current), 1225/1225 across `platform/marketing`, `platform/pages` and
+        `platform/proposal`, and 765/765 across the eight affected ventures.
+      - >-
+        Refreshed the `gh-pages` snapshot to the post-merge tip (174
+        products, 712 pages, `check.mjs` reports no dead links) so the
+        owner's one-click flip publishes today's catalogue rather than last
+        week's, and confirmed the artifact is correct for the project-Pages
+        URL it would actually be served from -- canonical and `og:url` both
+        `https://duncan-haywood.github.io/monorepo-projects/`, relative asset
+        hrefs, `noindex` present on `404.html` and nowhere else.
+      - >-
+        Added the snapshot refresh to CLAUDE.md's merge checklist, which is
+        the gap this session found rather than created. The runner-free route
+        serves a *committed artifact*, so nothing rebuilds it when `main`
+        moves, and nothing in the repo said so -- every merge quietly widened
+        the gap between what `main` contains and what the route would
+        publish. Harmless while nothing is served; the day the owner flips
+        the switch it becomes the live site silently lagging `main` with no
+        error anywhere to say so.
+      - >-
+        Branch backlog: checked the ten branches with unique commits against
+        `main`. Four were already fully merged (zero diff); `vendor-watch`,
+        the 3PL comparison page and `renderCatalog` are all on `main` in
+        later and fuller form than their branches carry, which is the stale-
+        draft shape `supersede_check.py` documents; the remaining two are
+        ledger-only or a pipeline candidate list, neither of which is a
+        deliverable here. No PR opened for any of them -- opening one would
+        have proposed reverting `main` to an earlier draft.
+      - >-
+        Browser checks against the current tree, which CI cannot run:
+        `browser_checks.py --checks sweep,journey,presets,highlight` -- all
+        four pass, 103/103 tools point at the input they reject. No new
+        defects.
+    mrr_end: null

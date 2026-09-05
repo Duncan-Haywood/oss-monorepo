@@ -103,6 +103,27 @@ guard, add the directory it lives in here in the same commit — a test nobody
 runs is worth less than no test, because it also tells the next session the
 ground is covered.
 
+**After you merge a change that touches a served surface, refresh the
+published snapshot** (added 2026-09-05):
+
+```
+python3 platform/ci/pages_state.py                  # says whether it is stale
+CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+```
+
+The runner-free deploy route serves the `gh-pages` branch, which is a
+committed artifact rather than a build: **nothing rebuilds it when `main`
+moves.** That is the one real cost of being downstream of neither a runner
+nor the cluster, and until now nothing in this file said so, so every merge
+quietly widened the gap between what `main` contains and what the route
+would publish. `pages_state.py` reports `current` or `stale` against the tip
+of `main`, so the question is one command rather than a judgement.
+
+This matters most on the day it stops being theoretical. If the owner has
+flipped Settings → Pages → `gh-pages`, a stale snapshot is not a staging
+detail — it is the live site silently lagging `main`, with no error anywhere
+to say so. Refreshing costs about a minute and needs no credential.
+
 **Merge yourself after CI is green:**
 
 - `platform/`, `portfolio/`, docs, tests, CI
