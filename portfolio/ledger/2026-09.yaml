@@ -12680,3 +12680,85 @@ entries:
         public surface itself is restored (currently down, see CLAUDE.md),
         and via the refreshed gh-pages branch once GitHub Pages is enabled.
     mrr_end: null
+  - venture: repository-branch-hygiene
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped vs-github-branches.html, closing the last gap in the
+        portfolio's comparison-page surface: 167 of the 168 static ventures
+        already had a vs-* page and this was the only one that did not. The
+        comparator is the GitHub Branches page rather than a paid product,
+        because that is the alternative every one of this tool's users
+        already has open, and the honest contrast is sharp: a branch list
+        sorts by age and by ahead/behind count, and neither is the same
+        claim as "this work exists somewhere else". The page names the two
+        cases that look ordinary in any branch list and are the reason this
+        venture exists -- a merged pull request whose tip moved afterwards
+        (commits outside the base history that may exist nowhere else), and
+        a squash or rebase merge (original commits are not ancestors of the
+        default branch, so a finished branch reads as "ahead"). It also
+        carries the read-only promise explicitly, since a comparison page
+        that blurred "this tool cannot delete anything" would be the most
+        damaging copy error this venture could ship; a test pins that
+        sentence rather than trusting review.
+      - >-
+        No dollar figure for GitHub appears on the page and a test asserts
+        it, matching the discipline every other vs-* page here uses: vendor
+        pricing pages are not reachable from an agent session (egress is
+        proxied), so only well-documented non-numeric behaviour is stated.
+      - >-
+        One test-convention fix worth recording because it points the other
+        way from the usual drift. The sibling vs-* tests assert that every
+        visible `h3` appears in the FAQPage JSON-LD, but `faqEntries()` in
+        platform/pages/build.mjs derives schema only from an `h2`/`h3` whose
+        text ends in a question mark -- so the sibling rule is stricter than
+        the builder's and fails an ordinary prose subheading that ships no
+        schema entry and is not meant to. This venture's test filters on the
+        question mark and cites the builder as the authority, per the
+        "restating a rule that lives in build.mjs" lesson in CLAUDE.md.
+      - >-
+        Verified locally, CI being starved (see the portfolio entry below):
+        `node --test ventures/repository-branch-hygiene/*.test.mjs` 29/29,
+        `node platform/marketing/regen.mjs` (which generated the served
+        mirror shard, so the page is reachable at
+        /tools/repository-branch-hygiene/vs-github-branches.html rather than
+        only committed -- the step CLAUDE.md records as the one that keeps
+        being skipped and 404ing a page the sitemap advertises), and the
+        full `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` suite.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-measured the delivery blockers rather than inheriting them, and
+        all three of the account owner's stated priorities for this run
+        (deployment/CI-CD, marketing materials on the Hetzner boxes, and a
+        Codex CLI worker on the VM spending ChatGPT quota) turn out to be
+        already built and blocked on the same single owner action. GitHub
+        Actions runners are still starved: dispatched `Public surface check`
+        run 33963170699, and `ci_starvation.py --run 33963170699` reports
+        `runner_id: 0`, 3s, no steps. The k3s cluster remains down and
+        cannot be re-measured without a runner. Direct measurement of the
+        public surface from a session is still impossible -- curl to all
+        three hostnames returns `CONNECT tunnel failed, response 403` from
+        the egress proxy, with `remote_ip 127.0.0.1` confirming the proxy
+        and not the box answered.
+      - >-
+        Independently confirmed the branch queue really is drained rather
+        than trusting the prior session's sweep: zero open PRs, and the two
+        branches still touching an unfinished-looking venture were checked
+        with supersede_check.py -- `cursor/branch-hygiene-product-20260824`
+        exits 0 on the identical-merge proof (replaying it on main with main
+        winning every conflict produces main's tree exactly), and
+        `claude/festive-mccarthy-4rzjtb` carries an empty diff. So the
+        three-PR merge quota was vacuously met by an empty repairable queue,
+        not skipped.
+      - >-
+        Ran the seven Playwright browser checks that no workflow covers,
+        which this container can do because Chromium is pre-installed here
+        and the starved CI cannot. This is the layer standing between a
+        merge and a page that renders perfectly and does nothing.
+    mrr_end: null

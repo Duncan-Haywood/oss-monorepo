@@ -2,4 +2,5 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://example.invalid/repository-branch-hygiene/</loc></url>
   <url><loc>https://example.invalid/repository-branch-hygiene/is-it-safe-to-delete-this-branch.html</loc></url>
+  <url><loc>https://example.invalid/repository-branch-hygiene/vs-github-branches.html</loc></url>
 </urlset>

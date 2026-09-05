@@ -344,7 +344,7 @@
       "url": "https://marisstella.dev/tools/repository-branch-hygiene/",
       "category": "Compliance checks & evidence records",
       "description": "Paste a branch snapshot and see which stale Git branches are delete candidates and which still hold unique work. Runs in your browser; nothing is uploaded and nothing is deleted.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "npm-deployment-evidence",

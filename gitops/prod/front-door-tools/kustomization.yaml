@@ -35,7 +35,7 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 130 files, 550683 bytes
 #   portfolio-front-tools-1: 113 files, 555332 bytes
-#   portfolio-front-tools-2: 150 files, 551191 bytes
+#   portfolio-front-tools-2: 151 files, 556424 bytes
 #   portfolio-front-tools-3: 118 files, 551570 bytes
 #   portfolio-front-tools-4: 126 files, 549764 bytes
 #   portfolio-front-tools-5: 117 files, 556920 bytes
@@ -371,6 +371,7 @@ configMapGenerator:
       - repository-branch-hygiene__is-it-safe-to-delete-this-branch.html.gz=repository-branch-hygiene__is-it-safe-to-delete-this-branch.html.gz
       - repository-branch-hygiene__scan.mjs.gz=repository-branch-hygiene__scan.mjs.gz
       - repository-branch-hygiene__usage.mjs.gz=repository-branch-hygiene__usage.mjs.gz
+      - repository-branch-hygiene__vs-github-branches.html.gz=repository-branch-hygiene__vs-github-branches.html.gz
       - npm-deployment-evidence__app.js.gz=npm-deployment-evidence__app.js.gz
       - npm-deployment-evidence__evidence.js.gz=npm-deployment-evidence__evidence.js.gz
       - npm-deployment-evidence__index.html.gz=npm-deployment-evidence__index.html.gz
