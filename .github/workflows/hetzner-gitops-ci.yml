@@ -104,6 +104,27 @@ jobs:
         run: pyflakes gitops/agents/governor/governor.py
       - name: pytest
         run: pytest gitops/tests -v
+      # `test_install_codex_host.py` and `test_install_github_runner_host.py`
+      # skip every assertion they contain unless `os.geteuid() == 0` -- both
+      # installers do a real `useradd`/`chown`/`install -d` against a scratch
+      # prefix, which needs root even off real paths. The step above runs as
+      # the unprivileged `runner` user, so both files reported "skipped", not
+      # "passed", on every push -- a green check that never once exercised
+      # either installer. `test_root_only_installer_tests_are_elevated_in_ci`
+      # (gitops/tests/test_root_only_host_installer_tests_run.py) fails if
+      # this step is ever removed or stops naming both files.
+      #
+      # GitHub-hosted runners carry passwordless sudo; the self-hosted image
+      # has neither apt nor sudo at all (see "Install nginx" above), so this
+      # does not merely skip there the way a bare `|| true` would let it --
+      # `sudo: command not found` would fail the step outright and hide
+      # whatever pytest itself had to say. Gated on `runner.environment`
+      # instead: absent on hosted, this step does not run at all rather than
+      # running and swallowing a real failure. `command -v pytest` resolves
+      # the venv's pytest before sudo's `secure_path` can drop it.
+      - name: pytest (root-only host installer tests)
+        if: runner.environment == 'github-hosted'
+        run: sudo "$(command -v pytest)" gitops/tests/test_install_codex_host.py gitops/tests/test_install_github_runner_host.py -v
       # The generator behind `gitops/prod/front-door/index.html`. Run here
       # rather than in portfolio-pages.yml because the page it produces is a
       # GitOps input, not part of the Pages artifact — and because this is the
