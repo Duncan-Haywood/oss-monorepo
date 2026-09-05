@@ -121,3 +121,16 @@ test("the page is indexable and declares a canonical", () => {
   const description = html.match(/<meta name="description" content="([^"]+)"/);
   assert.ok(description && description[1].length >= 100, "a description long enough to be a useful snippet");
 });
+
+// Regression: the venture-root sitemap.xml (../sitemap.xml, the file
+// robots.txt points crawlers at) listed only `./README.md` -- a leftover
+// from before this venture's real pages existed under site/. A crawler
+// following it found a markdown file and never learned this page or
+// why-was-my-listing-photo-rejected.html existed. Same defect class fixed
+// for public-record-watch in #3289.
+test("the venture-root sitemap lists the real site/ pages, not README.md", () => {
+  const sitemap = readFileSync(path.join(here, "..", "sitemap.xml"), "utf8");
+  assert.doesNotMatch(sitemap, /README\.md/);
+  assert.match(sitemap, /site\//);
+  assert.match(sitemap, /why-was-my-listing-photo-rejected\.html/);
+});

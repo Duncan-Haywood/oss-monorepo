@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -52,4 +52,27 @@ test("example fixtures referenced by app.js are real snapshots checked into the 
   const app = readFileSync(new URL("./app.js", import.meta.url), "utf8");
   assert.match(app, /examples\/before\.json/);
   assert.match(app, /examples\/after\.json/);
+});
+
+// Regression: sitemap.xml shipped listing only `./README.md`, a leftover
+// from before this venture had any HTML at all -- the same defect fixed for
+// public-record-watch in #3289. robots.txt points crawlers at this sitemap,
+// so a search engine or AI assistant following it found a markdown file and
+// never learned the tool itself (index.html) or its FAQ landing page
+// (how-do-i-track-vendor-policy-changes.html) existed.
+test("sitemap lists the actual product pages, not just README.md", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  assert.doesNotMatch(sitemap, /README\.md/);
+  assert.match(sitemap, /<loc>\.\/<\/loc>/);
+  assert.match(sitemap, /how-do-i-track-vendor-policy-changes\.html/);
+});
+
+test("every .html file in the venture is reachable from the sitemap", () => {
+  const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
+  const dir = new URL("./", import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    if (name === "index.html") continue; // carried as the bare "./" entry
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
 });

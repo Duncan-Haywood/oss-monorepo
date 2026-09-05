@@ -12268,3 +12268,59 @@ entries:
         left for a future session rather than expanded here to keep this PR
         to one focused, reviewable fix.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Sitemap-discoverability sweep, the follow-up #3289 (public-record-watch)
+        flagged: 167 ventures ship a hand-authored sitemap.xml (the rest rely
+        on platform/pages/build.mjs's generated one, which is unaffected by
+        this class of bug since it always overwrites the venture's file from
+        the pages actually published). Audited all 167 by diffing every real
+        .html file in each venture directory against its sitemap.xml. Found
+        16 with a genuine gap, not the 15-18 estimated by grep triage --
+        close, one turned out to be a false positive (vendor-watch, a
+        single-page Next.js app with no static .html pages, whose sitemap
+        already correctly lists just "./"). Two carried the identical
+        README.md-only defect as public-record-watch (a stale leftover from
+        before the venture had real HTML): vendor-change-evidence (fixed to
+        list `./` and how-do-i-track-vendor-policy-changes.html) and
+        real-estate-agent-photo-app (fixed to list its real pages under
+        site/, not the venture root, since that venture's product moved
+        there in #3075/#3121 and the root sitemap was never updated). One
+        (einvoice-preflight) carried a stale README.md entry alongside
+        otherwise-correct entries -- removed it and strengthened its
+        existing sitemap test. The remaining 13 were each missing exactly
+        one or two real, linked pages the sitemap was never updated for
+        after they shipped (amazon-fba-calculator: vs-amazon-revenue-calculator.html;
+        cash-runway-planner: when-will-i-run-out-of-cash.html;
+        cleaning-dilution-calculator: how-much-does-diluted-cleaning-solution-cost.html;
+        consent-change-record: what-did-my-cookie-banner-actually-change.html;
+        etsy-profit-calculator: vs-etsys-listing-form-calculator.html;
+        medical-courier-route-margin: is-this-medical-courier-route-worth-it.html;
+        music-lesson-break-even: how-to-price-music-lessons.html;
+        notary-trip-quote: how-much-to-charge-for-a-mobile-notary-appointment.html;
+        npm-deployment-evidence: vs-npm-audit.html and
+        which-npm-vulnerabilities-actually-reach-production.html;
+        repository-branch-hygiene: is-it-safe-to-delete-this-branch.html;
+        saas-seat-true-up: how-many-unused-saas-seats-am-i-paying-for.html and
+        vs-zylo.html; translator-project-quote: how-to-quote-a-translation-project.html;
+        which-job-first: how-do-i-decide-which-job-to-take-first.html).
+        Verified each is a real page linked from its venture's index.html
+        (not an orphan draft) before adding it. Added a regression test to
+        every touched venture's page.test.mjs (or site/page.test.mjs for
+        real-estate-agent-photo-app, whose test file lives there) modelled
+        on #3289's: assert every .html file in the venture is reachable
+        from its sitemap, so a future added page without a sitemap update
+        fails locally the way #2201's did. Verified: `node --test` in each
+        of the 15 touched ventures with a root-level suite (all green, e.g.
+        amazon-fba-calculator 308/308, etsy-profit-calculator 170/170,
+        einvoice-preflight 242/242) plus real-estate-agent-photo-app/site
+        (47/47), and `node platform/webcheck/check_pages.mjs` across the
+        whole repo (693/693 pages sound, no regression). GitHub Actions is
+        starved per CLAUDE.md, so all verification above is local per the
+        "absent CI is not failed CI" rule. Batched into one PR since all 16
+        fixes are the same mechanical class (a stale or incomplete
+        hand-authored sitemap.xml) rather than opening 16 separate ones.
+    mrr_end: null
