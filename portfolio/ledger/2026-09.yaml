@@ -12324,3 +12324,163 @@ entries:
         fixes are the same mechanical class (a stale or incomplete
         hand-authored sitemap.xml) rather than opening 16 separate ones.
     mrr_end: null
+  - venture: hood-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fifteenth venture closing this gap
+        after `spray-foam-`, `basement-waterproofing-` (#3262),
+        `cabinet-refinishing-` (#3265, merged as `8bae18000`),
+        `carpet-cleaning-` (#3266, merged as `effadfdbc`),
+        `concrete-lifting-` (#3268, merged as `12e9812c0`),
+        `countertop-` (#3271, merged as `48b682306`),
+        `duct-cleaning-` (#3272, merged as `43cffd85b`),
+        `electrical-panel-upgrade-` (#3274, merged as `d06fb858d`),
+        `entry-door-` (#3277, merged as `f5d42a9da`),
+        `epoxy-garage-floor-` (#3279, merged as `099d78ac3`),
+        `exterior-painting-` (#3283, merged as `ca5ea4402`),
+        `foundation-repair-` (#3284, merged as `1423165e9`),
+        `furnace-bid-calculator` (#3286, merged as `dd0cfddba`), and
+        `gutter-install-bid-calculator` (#3287, merged as `03736c9a6`) -- a
+        hood cleaner comparing a takeoff with an operator, GM, or a second
+        tech had no way to send a link that reopens the exact job instead of
+        the recipient retyping the whole exhaust system -- every canopy,
+        filter, duct run, and fan the contractor added, each one's quantity,
+        minutes-per-unit, and access -- plus the grease load and every hour
+        and dollar figure -- a silently dropped component meant the
+        recipient priced a different system than the sender saw. Read
+        `calc.mjs` first: unlike `gutter-install-bid-calculator`'s fixed
+        field set, this venture prices the exhaust system as a
+        visitor-grown list of rows -- canopy, filters, horizontal duct,
+        vertical duct, and fans are each a row the contractor adds and
+        removes with "+ Add a component", the same shape
+        `carpet-cleaning-bid-calculator`'s rooms/upholstery is -- so the
+        row-encoded pattern applied, not the plain fixed-field one; grease
+        load, travel, wage, and margin are still a fixed field set riding
+        one query param each.
+      - >-
+        Added `share.mjs`/`share.test.mjs`: 14 numeric cost/schedule fields
+        (wage, burden, crew, travel, after-hours, consumables, disposal,
+        overhead, margin, cleans/year, `proposedPrice`), 1 enum
+        (`greaseLoad`, validated against `calc.mjs`'s own `GREASE_LOADS`
+        ids), and the `components` list row-encoded one row per
+        canopy/filter/duct/fan -- name and access each validated against
+        `calc.mjs`'s own `COMPONENT_PRESETS`/`ACCESS_PRESETS` rather than a
+        hand-duplicated allowlist, the drift class CLAUDE.md's "RENAME
+        SUSPECTED" note describes for a select field left off an allowlist.
+        A component with no matching preset (the "Other component" option)
+        carries no name at all, matching what `readComponents()` already
+        does for that case. Twelve tests: full-field round trip across all
+        14 numbers, the enum, and 5 components; an exact field-id list plus
+        preset-count floors so a future field added to
+        `calc.mjs`/`index.html` and never wired into `share.mjs` fails
+        loudly rather than silently dropping; unknown-query-key rejection;
+        unknown component-name and unknown-access enum rejection (each
+        dropped from its own cell, not the whole row); unrecognised
+        grease-load rejection; a negative/non-numeric drop matching the
+        form's own `min="0"`; a fully-blank row dropped rather than restored
+        as an empty card; multi-row ordering; hash/query-prefix and
+        empty-`proposedPrice` handling; and a component missing only its
+        access still restoring the rest, matching `addRow`'s own
+        `'kitchen_floor'` fallback for that cell. Vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified
+        (byte-identical, `diff` against `platform/proposal/terms.mjs`
+        confirmed, and the mirror's own dedup pass aliased it onto
+        `asphalt-sealcoat-bid-calculator`'s copy) so the deposit, validity
+        window, and the three prose terms (`proposalExclusions`,
+        `paymentTerms`, `proposalNotes`) ride along in `pfterms=` beside
+        this venture's own payload, matching its existing five-field
+        `TERM_IDS` proposal panel exactly -- no field invented, none
+        dropped.
+      - >-
+        Added a "Copy share link" button beside "Copy bid summary" and an
+        on-load `restoreShare()` to `index.html`. `readInput()` did not
+        previously expose the `greaseLoad` select's own id (only the
+        derived `greaseMultiplier` it feeds `calculateBid`), so it now
+        carries both -- `calculateBid` ignores the extra key, and
+        `share.mjs` needs the id itself to restore the right `<option>` on
+        a shared link. `restoreShare()` replaces the page's five static
+        starting components with the link's own list when one is present,
+        rather than merging into them, matching
+        `carpet-cleaning-bid-calculator`'s precedent, and marks a restored
+        `cleansPerYear` as "edited" so a later grease-load change on the
+        page never silently overwrites a cadence the sender chose with that
+        load's suggested default. Fixed the footer privacy paragraph and
+        the SoftwareApplication `featureList` to name the new link; this
+        venture carried no pre-existing "Is my data uploaded anywhere?" FAQ
+        entry to correct -- confirmed by grepping the page for
+        "upload"/"leaves your browser"/"share" before editing -- so none was
+        invented. This venture had no share control before this change and
+        was one of the eight itemised calculators `platform/pages/
+        link.test.mjs` already tracked by name (it declares its row group
+        via `data-pf-repeat="c"` on "+ Add a component"): updated that
+        test's pinned exclusion list and count (4 -> 3 of the eight still
+        taking the platform's generic bid-link control) now that this
+        venture keeps its own, per the file's own instruction to re-read
+        the count rather than let it drift silently. `build.mjs`'s
+        `pageHasOwnShareControl`/`pageHasOwnShareLink` need no code change:
+        both detect the new `id="copyLink"` button plus the same-directory
+        `share.mjs` import structurally, with no hardcoded venture list to
+        extend.
+      - >-
+        Ran `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the prior
+        fourteen PRs documented. `origin/main` moved four times during this
+        session (#3289 a sitemap fix, #3288 a vs-Crest-Capital comparison
+        page, #3291 countertop-bid-calculator extending its own share link,
+        #3292 a 16-venture sitemap-discoverability sweep) -- none touching
+        this venture or `platform/pages/link.test.mjs`, and only the last
+        one touching the ledger (a same-position append, resolved by
+        rebasing this commit without its own ledger change and re-appending
+        that change fresh at the new end of file rather than resolving a
+        content conflict inside one YAML block) -- rebased and re-ran
+        `build.mjs` + `regen.mjs` fresh against each new base before
+        committing, per the instruction to redo generated output rather
+        than trust a stale build; each fresh regen left this venture's own
+        mirror shard byte-identical to the pre-rebase run while picking up
+        two unrelated ventures' own stale mirror gaps (their PRs had not
+        run `regen.mjs` themselves) as a side effect, which is allowed under
+        this task's "generated artifacts reflecting all of `main`" carve-out.
+        Verified: venture's own suite 108/108 (`calc.test.mjs`,
+        `page.test.mjs`, `proposal-terms.test.mjs`, `proposal.test.mjs`,
+        `share.test.mjs`, `usage.test.mjs`, `vs-hoodcleaningdispatch.test.mjs`,
+        `vs-hoodcleanpro.test.mjs`); `platform/proposal/*.test.mjs` 97/97;
+        full `platform/pages` suite 897/897; full `platform/marketing` suite
+        218/218; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "174 products, 7 category pages, 693 pages, no dead
+        links"; `python3 portfolio/router/validate.py` -- all 183
+        VENTURE.yaml valid; `node platform/pages/clauses.mjs
+        hood-cleaning-bid-calculator` -- no-warranty clause present on all
+        4 published pages. `git status` after each regen touched only this
+        venture's own mirror shard plus the unrelated ventures' own stale
+        gaps described above -- no other venture's shard changed for a
+        reason connected to this change, and `portfolio-front.yaml` needed
+        no new shard mount.
+      - >-
+        Manually exercised the round trip outside the test framework too,
+        driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs` directly with a
+        full-field sample system (55 sq ft canopy, 8 filters, 18 ft
+        horizontal duct above a ceiling, 32 ft vertical duct on a rooftop
+        hard climb, a rooftop fan, and a rooftop-easy makeup-air unit, extra
+        heavy grease load, a $2,650 proposed price, plus
+        deposit/validity/payment-terms/notes/exclusions terms): encoded,
+        decoded, and confirmed all 6 components, the grease load, all 14
+        numeric fields, and all 5 proposal terms matched the sender's input
+        exactly, and the recipient's recalculated price and profit matched
+        the sender's to the cent ($4,764.53 price, -$780.46 proposed
+        profit, both identical on both sides) -- the exact failure this
+        feature exists to prevent. GitHub Actions is documented in this
+        repo's CLAUDE.md as starved (cycling with the monthly Actions minute
+        allowance) and the Hetzner cluster as down (`:6443` refused, no k3s
+        API server) -- both pre-diagnosed, owner-blocked, not re-diagnosed
+        here per CLAUDE.md's explicit instruction to cite rather than
+        re-verify -- so all of the above is local verification standing in
+        for CI per CLAUDE.md's "absent CI is not failed CI" rule. Ran
+        `platform/ci/ci_starvation.py --run <run_id>` against this PR's own
+        checks before merging to confirm any red or absent check reflects
+        the documented starvation rather than a real regression. Not
+        deployed: the public surface is down (see CLAUDE.md), so this ships
+        to `main` as code only, ready to serve once the owner's infra fix
+        lands.
+    mrr_end: null

@@ -35,11 +35,11 @@
 # Shards as generated:
 #   portfolio-front-tools-0: 132 files, 555221 bytes
 #   portfolio-front-tools-1: 117 files, 555818 bytes
-#   portfolio-front-tools-2: 148 files, 556784 bytes
-#   portfolio-front-tools-3: 116 files, 545769 bytes
-#   portfolio-front-tools-4: 127 files, 554431 bytes
-#   portfolio-front-tools-5: 115 files, 549013 bytes
-#   portfolio-front-tools-6: 105 files, 552606 bytes
+#   portfolio-front-tools-2: 146 files, 543020 bytes
+#   portfolio-front-tools-3: 116 files, 553593 bytes
+#   portfolio-front-tools-4: 128 files, 557032 bytes
+#   portfolio-front-tools-5: 117 files, 556871 bytes
+#   portfolio-front-tools-6: 106 files, 556493 bytes
 #   portfolio-front-tools-7: 118 files, 554964 bytes
 #   portfolio-front-tools-8: 95 files, 541345 bytes
 #   portfolio-front-tools-9: 64 files, 338947 bytes
@@ -421,6 +421,7 @@ configMapGenerator:
       - vendor-rate-break-even__is-switching-vendors-worth-it.html.gz=vendor-rate-break-even__is-switching-vendors-worth-it.html.gz
       - vendor-rate-break-even__share.mjs.gz=vendor-rate-break-even__share.mjs.gz
       - vendor-rate-break-even__usage.mjs.gz=vendor-rate-break-even__usage.mjs.gz
+      - vendor-rate-break-even__vs-crest-capital.html.gz=vendor-rate-break-even__vs-crest-capital.html.gz
       - music-lesson-break-even__calc.mjs.gz=music-lesson-break-even__calc.mjs.gz
       - music-lesson-break-even__how-to-price-music-lessons.html.gz=music-lesson-break-even__how-to-price-music-lessons.html.gz
       - music-lesson-break-even__index.html.gz=music-lesson-break-even__index.html.gz
@@ -470,14 +471,14 @@ configMapGenerator:
       - painting-bid-calculator__vs-paintscout.html.gz=painting-bid-calculator__vs-paintscout.html.gz
       - concrete-bid-calculator__calc.mjs.gz=concrete-bid-calculator__calc.mjs.gz
       - concrete-bid-calculator__how-much-concrete-for-a-driveway.html.gz=concrete-bid-calculator__how-much-concrete-for-a-driveway.html.gz
-      - concrete-bid-calculator__index.html.gz=concrete-bid-calculator__index.html.gz
-      - concrete-bid-calculator__share.mjs.gz=concrete-bid-calculator__share.mjs.gz
-      - concrete-bid-calculator__usage.mjs.gz=concrete-bid-calculator__usage.mjs.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - concrete-bid-calculator__index.html.gz=concrete-bid-calculator__index.html.gz
+      - concrete-bid-calculator__share.mjs.gz=concrete-bid-calculator__share.mjs.gz
+      - concrete-bid-calculator__usage.mjs.gz=concrete-bid-calculator__usage.mjs.gz
       - concrete-bid-calculator__vs-stack.html.gz=concrete-bid-calculator__vs-stack.html.gz
       - lawn-care-bid-calculator__calc.mjs.gz=lawn-care-bid-calculator__calc.mjs.gz
       - lawn-care-bid-calculator__how-to-price-lawn-mowing.html.gz=lawn-care-bid-calculator__how-to-price-lawn-mowing.html.gz
@@ -591,14 +592,14 @@ configMapGenerator:
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
       - carpet-install-bid-calculator__usage.mjs.gz=carpet-install-bid-calculator__usage.mjs.gz
-      - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
-      - chimney-sweep-bid-calculator__calc.mjs.gz=chimney-sweep-bid-calculator__calc.mjs.gz
-      - chimney-sweep-bid-calculator__how-much-to-charge.html.gz=chimney-sweep-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-install-bid-calculator__vs-measuresquare.html.gz=carpet-install-bid-calculator__vs-measuresquare.html.gz
+      - chimney-sweep-bid-calculator__calc.mjs.gz=chimney-sweep-bid-calculator__calc.mjs.gz
+      - chimney-sweep-bid-calculator__how-much-to-charge.html.gz=chimney-sweep-bid-calculator__how-much-to-charge.html.gz
       - chimney-sweep-bid-calculator__index.html.gz=chimney-sweep-bid-calculator__index.html.gz
       - chimney-sweep-bid-calculator__share.mjs.gz=chimney-sweep-bid-calculator__share.mjs.gz
       - chimney-sweep-bid-calculator__usage.mjs.gz=chimney-sweep-bid-calculator__usage.mjs.gz
@@ -724,13 +725,13 @@ configMapGenerator:
       - electrical-panel-upgrade-bid-calculator__share.mjs.gz=electrical-panel-upgrade-bid-calculator__share.mjs.gz
       - electrical-panel-upgrade-bid-calculator__usage.mjs.gz=electrical-panel-upgrade-bid-calculator__usage.mjs.gz
       - electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz=electrical-panel-upgrade-bid-calculator__vs-servicetitan.html.gz
-      - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
-      - entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz=entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - entry-door-bid-calculator__calc.mjs.gz=entry-door-bid-calculator__calc.mjs.gz
+      - entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz=entry-door-bid-calculator__how-much-to-charge-to-replace-a-front-door.html.gz
       - entry-door-bid-calculator__index.html.gz=entry-door-bid-calculator__index.html.gz
       - entry-door-bid-calculator__share.mjs.gz=entry-door-bid-calculator__share.mjs.gz
       - entry-door-bid-calculator__usage.mjs.gz=entry-door-bid-calculator__usage.mjs.gz
@@ -861,6 +862,7 @@ configMapGenerator:
       - hood-cleaning-bid-calculator__calc.mjs.gz=hood-cleaning-bid-calculator__calc.mjs.gz
       - hood-cleaning-bid-calculator__how-much-to-charge.html.gz=hood-cleaning-bid-calculator__how-much-to-charge.html.gz
       - hood-cleaning-bid-calculator__index.html.gz=hood-cleaning-bid-calculator__index.html.gz
+      - hood-cleaning-bid-calculator__share.mjs.gz=hood-cleaning-bid-calculator__share.mjs.gz
       - hood-cleaning-bid-calculator__usage.mjs.gz=hood-cleaning-bid-calculator__usage.mjs.gz
       - hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz=hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz
       - hood-cleaning-bid-calculator__vs-hoodcleanpro.html.gz=hood-cleaning-bid-calculator__vs-hoodcleanpro.html.gz
