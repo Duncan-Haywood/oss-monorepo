@@ -55,6 +55,9 @@ reported as `inconclusive`, never as "no change" — a failed check must never
 look like stability. Only public pages you explicitly add are ever fetched;
 this tool does not scrape, crawl, or collect personal data.
 
+Optional [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) never
+changes what this tool does.
+
 ## Privacy-conscious usage tracking
 
 `vendor-watch usage` prints locally recorded counts (how many checks you've
