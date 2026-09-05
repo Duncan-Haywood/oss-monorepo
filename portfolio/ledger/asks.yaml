@@ -85,7 +85,7 @@ decisions:
     (the key matching the public half already installed on `root@89.167.29.39`
     and `root@157.180.80.188`), run:
     `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1
-    bootstrap/restore-cluster.sh`
+    WITH_GITHUB_RUNNER_HOST=1 bootstrap/restore-cluster.sh`
     — that is the whole recovery, end to end, and it needs no runner and no
     repository secret. Add `DRY_RUN=1` first if you want to see the plan and
     the detected addressing mode without changing anything.
@@ -98,7 +98,15 @@ decisions:
     what makes the *next* cluster loss survivable instead of another week with
     nowhere to run anything. It runs last, cannot fail the restore, and
     enables nothing: the policy still ships `"enabled": false`, so it holds
-    until credentials and the switch arrive. The `<pat>` is a
+    until credentials and the switch arrive.
+    `WITH_GITHUB_RUNNER_HOST=1` is the same fix for the *other* tenant of that
+    same cluster: `gitops/ci/`'s self-hosted Actions runners also run as pods
+    there, so metered-CI insurance was equally downstream of this outage. It
+    installs a GitHub Actions runner as a systemd service on the agent box
+    (`gitops/ci/host/`) — no k3s, no Argo, no image pull — and registers with
+    GitHub only once you hand it a registration-token PAT via
+    `--credentials`; add it while you are already holding the SSH key, for the
+    same reason as the Codex step. The `<pat>` is a
     fine-grained PAT with **Contents: Read** on this repository; the script
     masks it and ships it to the box as a mode-600 file rather than putting it
     in argv. Without it the restore *succeeds and the site stays dark*, which
