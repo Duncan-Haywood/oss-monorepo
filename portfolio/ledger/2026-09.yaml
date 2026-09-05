@@ -13871,3 +13871,45 @@ entries:
         starvation window (runner_id: 0) at push time, so the above is what
         gates the merge per CLAUDE.md's "absent CI is not failed CI."
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Marketing-distribution queue item. Measured before picking: build.mjs
+        + check.mjs on a fresh build reported 174 tools/716 pages/no dead
+        links, the embed widget already covers all 174 entry pages, and
+        renderAboutPage's numeric claims are computed live from the surface
+        list rather than hardcoded, so none of those three mechanisms had a
+        gap. The comparison-page mechanism did: 169 vs-*.html pages exist,
+        and of the 12 ventures with none, 11 are Next.js apps excluded from
+        the static build entirely (discoverSurfaces confirms no index.html or
+        site/index.html), so a comparison page there would not deploy with
+        the site. ai-engineering-academy's tools/ hub (six electronics
+        calculators, via ENTRY_OVERRIDES) is the one exception and the only
+        genuine gap. Added tools/vs-omni-calculator.html: identity/category
+        facts only for the incumbent (general-purpose calculator site, free,
+        no account) with no invented pricing or unverifiable catalog claims,
+        the venture's own no-warranty/no-affiliation wording, an FAQPage
+        schema whose answers are byte-identical to the visible copy, and
+        links both directions (hub <-> comparison, comparison -> each of the
+        six calculator pages). Linked it from tools/index.html so it is not
+        orphaned. Added tools/vs-omni-calculator.test.mjs and wired it into
+        ai-engineering-academy-ci.yml's build job (the existing tools-test
+        matrix only covers the six per-tool directories, not a file living
+        directly under tools/, so nothing would otherwise have run this
+        test). Ran node platform/marketing/regen.mjs afterward so the apex
+        mirror and sitemap/catalog/compare-index pick up the new page, per
+        CLAUDE.md's regen.mjs requirement.
+        Verified: venture test (7/7), site/tools.test.mjs (17/17), site's own
+        npm run build plus its "built site exposes every calculator" and
+        clauses.mjs no-warranty checks, platform/marketing+pages full suite
+        (1126/1126, including faq-visible.test.mjs's exact-match check --
+        caught and fixed one em-dash/double-hyphen mismatch between the
+        JSON-LD and the visible paragraph on first pass), platform/proposal
+        (101/101), platform/privacy+webcheck (50/50), all 15 platform/ci
+        unittest modules, and python3 -m pytest gitops/tests (408 passed, 25
+        skipped, unrelated) since regen.mjs touched gitops/prod/front-door*.
+        A fresh build.mjs/check.mjs run after regen still reports 716 pages,
+        no dead links.
+    mrr_end: null
