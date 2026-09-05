@@ -13403,6 +13403,100 @@ entries:
         - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs -> 1124/1124
         - node --test platform/proposal/*.test.mjs -> 101/101
     mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added FAQPage JSON-LD structured data (this venture had none). Scanned
+        all ~184 ventures for a page carrying a visible "Common questions"
+        section but no FAQPage schema anywhere in the file and found 5:
+        booth-rent-vs-commission, hood-cleaning-bid-calculator,
+        owner-operator-cpm-calculator, seller-net-sheet, and
+        window-cleaning-bid-calculator (this entry covers all five; see their
+        own rows below). This matters for the route that actually serves
+        these pages today: platform/pages/build.mjs derives FAQPage schema at
+        build time for the GitHub Pages route, but that route is
+        owner-blocked (deploy-settings) and the Argo/Hetzner mirror
+        (platform/marketing/front-door-tools.mjs, which serves
+        /tools/<slug>/ once the cluster is back) copies venture HTML
+        verbatim with no schema derivation -- so these 5 pages would ship
+        with zero FAQPage markup on the surface that matters, same as the
+        other ~179 already carry.
+        Generated each block by calling build.mjs's own exported
+        faqEntries() against the venture's current index.html (so the schema
+        text is derived from, and therefore identical to, the visible
+        copy already on the page -- nothing invented) and inserting the
+        resulting <script type="application/ld+json"> block next to the
+        existing SoftwareApplication one, matching the convention the other
+        ~179 ventures already use. Two bugs surfaced and were fixed before
+        merging: (1) the first insertion pass used a template-string
+        replacer with String.replace(), so a literal "$1,982"/"$45"/etc. in
+        an FAQ answer was read as a regex backreference and silently
+        replaced with the whole matched script tag, corrupting four of the
+        five files with duplicated garbage -- fixed by switching to a
+        function replacer; (2) build.mjs's own FAQ_MAX_ANSWER truncation
+        (600 chars) cut three long answers mid-sentence and appended an
+        ellipsis the page's real text does not contain, which
+        platform/pages/faq-visible.test.mjs (a portfolio-wide guard that
+        every authored FAQPage question/answer must appear verbatim on its
+        own page) correctly caught -- fixed by using the full untruncated
+        answer text for those three entries instead of the derivation
+        script's default cap.
+        Ran platform/marketing/regen.mjs and committed the mirror shards and
+        kustomization it rewrote for all five ventures.
+        Verified locally (GitHub Actions runners starved as of today per
+        ci_starvation.py):
+        - node --test platform/pages/faq-visible.test.mjs -> 4/4
+        - node --test platform/pages/*.test.mjs -> 902/902
+        - node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs -> 1124/1124
+        - node --test platform/proposal/*.test.mjs -> 101/101
+        - node --test ventures/booth-rent-vs-commission/*.test.mjs -> 48/48
+        - node --test ventures/hood-cleaning-bid-calculator/*.test.mjs -> 108/108
+        - node --test ventures/owner-operator-cpm-calculator/*.test.mjs -> 44/44
+        - node --test ventures/seller-net-sheet/*.test.mjs -> 36/36
+        - node --test ventures/window-cleaning-bid-calculator/*.test.mjs -> 76/76
+    mrr_end: null
+  - venture: hood-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added FAQPage JSON-LD (6 entries, derived from the venture's own
+        visible "Common questions" section). See the booth-rent-vs-commission
+        entry above for the full account -- this was one of 5 ventures fixed
+        together in the same PR.
+    mrr_end: null
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added FAQPage JSON-LD (8 entries, derived from the venture's own
+        visible "Common questions" section). See the booth-rent-vs-commission
+        entry above for the full account -- this was one of 5 ventures fixed
+        together in the same PR.
+    mrr_end: null
+  - venture: seller-net-sheet
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added FAQPage JSON-LD (4 entries, derived from the venture's own
+        visible "Common questions" section). See the booth-rent-vs-commission
+        entry above for the full account -- this was one of 5 ventures fixed
+        together in the same PR.
+    mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added FAQPage JSON-LD (4 entries, derived from the venture's own
+        visible "Common questions" section). See the booth-rent-vs-commission
+        entry above for the full account -- this was one of 5 ventures fixed
+        together in the same PR.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
