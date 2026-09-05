@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 117 files, 555818 bytes
 #   portfolio-front-tools-2: 148 files, 556784 bytes
 #   portfolio-front-tools-3: 116 files, 545769 bytes
-#   portfolio-front-tools-4: 126 files, 550140 bytes
-#   portfolio-front-tools-5: 113 files, 550262 bytes
+#   portfolio-front-tools-4: 127 files, 554431 bytes
+#   portfolio-front-tools-5: 114 files, 553153 bytes
 #   portfolio-front-tools-6: 107 files, 553483 bytes
 #   portfolio-front-tools-7: 116 files, 548408 bytes
 #   portfolio-front-tools-8: 95 files, 555266 bytes
@@ -668,6 +668,7 @@ configMapGenerator:
       - dns-configuration-evidence__dns-evidence.mjs.gz=dns-configuration-evidence__dns-evidence.mjs.gz
       - dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz=dns-configuration-evidence__how-long-does-dns-propagation-take.html.gz
       - dns-configuration-evidence__index.html.gz=dns-configuration-evidence__index.html.gz
+      - dns-configuration-evidence__vs-whatsmydns.html.gz=dns-configuration-evidence__vs-whatsmydns.html.gz
       - dryer-vent-bid-calculator__calc.mjs.gz=dryer-vent-bid-calculator__calc.mjs.gz
       - dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz=dryer-vent-bid-calculator__how-much-to-charge-for-dryer-vent-cleaning.html.gz
       - dryer-vent-bid-calculator__index.html.gz=dryer-vent-bid-calculator__index.html.gz
@@ -757,6 +758,7 @@ configMapGenerator:
       - exterior-painting-bid-calculator__calc.mjs.gz=exterior-painting-bid-calculator__calc.mjs.gz
       - exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz=exterior-painting-bid-calculator__how-much-to-charge-to-paint-the-exterior-of-a-house.html.gz
       - exterior-painting-bid-calculator__index.html.gz=exterior-painting-bid-calculator__index.html.gz
+      - exterior-painting-bid-calculator__share.mjs.gz=exterior-painting-bid-calculator__share.mjs.gz
       - exterior-painting-bid-calculator__usage.mjs.gz=exterior-painting-bid-calculator__usage.mjs.gz
       - exterior-painting-bid-calculator__vs-paintscout.html.gz=exterior-painting-bid-calculator__vs-paintscout.html.gz
       - fireplace-insert-bid-calculator__calc.mjs.gz=fireplace-insert-bid-calculator__calc.mjs.gz
