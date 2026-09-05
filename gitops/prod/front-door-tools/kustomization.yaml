@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 117 files, 555818 bytes
 #   portfolio-front-tools-2: 149 files, 555936 bytes
 #   portfolio-front-tools-3: 117 files, 556901 bytes
-#   portfolio-front-tools-4: 126 files, 551189 bytes
+#   portfolio-front-tools-4: 127 files, 553799 bytes
 #   portfolio-front-tools-5: 112 files, 553697 bytes
 #   portfolio-front-tools-6: 107 files, 555903 bytes
 #   portfolio-front-tools-7: 117 files, 555175 bytes
@@ -680,6 +680,7 @@ configMapGenerator:
       - duct-cleaning-bid-calculator__calc.mjs.gz=duct-cleaning-bid-calculator__calc.mjs.gz
       - duct-cleaning-bid-calculator__how-much-to-charge-for-duct-cleaning.html.gz=duct-cleaning-bid-calculator__how-much-to-charge-for-duct-cleaning.html.gz
       - duct-cleaning-bid-calculator__index.html.gz=duct-cleaning-bid-calculator__index.html.gz
+      - duct-cleaning-bid-calculator__share.mjs.gz=duct-cleaning-bid-calculator__share.mjs.gz
       - duct-cleaning-bid-calculator__usage.mjs.gz=duct-cleaning-bid-calculator__usage.mjs.gz
       - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
       - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
