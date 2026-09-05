@@ -37,10 +37,12 @@ import {
 
 import {
   ICONS,
+  OFFLINE_SIZE_MARKER,
   OFFLINE_WIDGET_HTML,
   OFFLINE_WIDGET_SCRIPT,
   THEME_COLOR,
   injectOfflineSupport,
+  offlineBundleSizeLabel,
   renderIcon,
   renderKillSwitchWorker,
   renderManifest,
@@ -5280,6 +5282,7 @@ export async function addOfflineSupport({
     path.join(outDir, 'manifest.webmanifest'),
     renderManifest(base, surfaces.length, externalCallExceptions(surfaces).length > 0),
   );
+
   for (const icon of ICONS) {
     await fs.writeFile(
       path.join(outDir, icon.file),
@@ -5309,7 +5312,27 @@ export async function addOfflineSupport({
     injected += 1;
   }
 
-  return { cacheName, bundle, injected };
+  // The real weight of everything "Save all tools for offline" fetches, taken
+  // after the head injection above -- that markup is part of what a visitor's
+  // browser actually downloads for every page in the bundle. Patched into the
+  // hub's own copy so it can never drift from what a visitor on mobile data
+  // actually pays: see OFFLINE_SIZE_MARKER in offline.mjs for the stale "about
+  // 3 MB" claim this replaces, which stood while the catalog grew to 16.8 MB.
+  let bundleBytes = 0;
+  for (const asset of bundle) {
+    if (asset.endsWith('/')) continue; // directory alias of a page already counted
+    bundleBytes += (await fs.stat(path.join(outDir, asset))).size;
+  }
+  const hubIndex = path.join(outDir, 'index.html');
+  const beforePatch = await fs.readFile(hubIndex, 'utf8');
+  const afterPatch = beforePatch.replaceAll(OFFLINE_SIZE_MARKER, offlineBundleSizeLabel(bundleBytes));
+  await fs.writeFile(hubIndex, afterPatch);
+  // index.html is itself one of the stated assets; account for the patch's own
+  // size delta so bundleBytes matches the bytes actually on disk afterward,
+  // rather than the pre-patch state it was measured from.
+  bundleBytes += Buffer.byteLength(afterPatch) - Buffer.byteLength(beforePatch);
+
+  return { cacheName, bundle, bundleBytes, injected };
 }
 
 // ---------------------------------------------------------------------------
