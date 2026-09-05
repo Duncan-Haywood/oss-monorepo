@@ -68,6 +68,8 @@ import {
   renderSitemap,
   subtitleFor,
   COMPARE_KEY,
+  apexCompareProductUrl,
+  compareProductKey,
   apexCompareUrl,
   compareOutputFile,
 } from './front-door.mjs';
@@ -487,6 +489,100 @@ test('every rendered category page is mounted by the kustomization', async () =>
   assert.deepEqual(
     mounted.sort(),
     categoryPages.map((page) => categoryPageKey(page.id)).sort(),
+  );
+});
+
+test('every rendered per-product comparison page is mounted by the kustomization', async () => {
+  // The same seam the category test above guards, one page type later, and the
+  // set moves more often: a product crosses into having its own page the day a
+  // second venture writes a `vs-` page naming it, and out again the day one is
+  // reworded or its venture leaves the mirror. Hand-keeping the file list is
+  // fine (it matches the seven category lines), but only because both
+  // directions are asserted here.
+  const { compareProductPages } = await buildFrontDoor();
+  assert.ok(
+    compareProductPages.length > 1,
+    'the catalogue has several products compared by more than one tool; a run producing none means the grouping broke',
+  );
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  for (const page of compareProductPages) {
+    const key = compareProductKey(page.key);
+    assert.ok(
+      kustomization.includes(`- ${key}=front-door/${key}`),
+      `gitops/prod/kustomization.yaml must mount ${key}; add it or the page is dark`,
+    );
+  }
+  // And nothing stale, for the reason the category test gives: a line naming a
+  // file the generator has swept makes `kustomize build` fail on a missing
+  // file, which takes the whole prod Application down rather than one page.
+  const mounted = [
+    ...kustomization.matchAll(/- (vs__[a-z0-9-]+\.html)=front-door\//g),
+  ].map((match) => match[1]);
+  assert.deepEqual(
+    mounted.sort(),
+    compareProductPages.map((page) => compareProductKey(page.key)).sort(),
+  );
+});
+
+test('the nginx route for a product page agrees with the key it is stored under', async () => {
+  // The two halves of one rewrite, in two files. If `compareProductKey` ever
+  // stops producing what `try_files` looks for, every product page 404s while
+  // the index goes on linking all fourteen — a whole page type dark with
+  // nothing else failing.
+  const conf = await fs.readFile(
+    path.join(path.dirname(OUTPUT_FILE), 'default.conf'),
+    'utf8',
+  );
+  const block = conf.match(
+    /location ~ "\^\/compare\/\(\?<vs>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$" \{([\s\S]*?)\n  \}/,
+  );
+  assert.ok(block, 'default.conf must carry the per-product comparison location block');
+  assert.match(block[1], /try_files \/vs__\$\{vs\}\.html =404;/);
+
+  // The capture and the key have to agree on shape too, not just on prefix: a
+  // key with a character the location cannot capture is a page nginx will
+  // never be asked for.
+  const { compareProductPages } = await buildFrontDoor();
+  for (const page of compareProductPages) {
+    const key = compareProductKey(page.key);
+    assert.match(
+      key,
+      /^vs__[a-z0-9][a-z0-9-]*\.html$/,
+      `${key} cannot be produced by the ^/compare/(?<vs>…)/?$ capture, so nothing would ever request it`,
+    );
+  }
+});
+
+test('the comparison index links every product page it generates', async () => {
+  // A spoke the hub does not link is reachable only from the sitemap, which
+  // is the quiet half of the failure `check.mjs` guards on the other host:
+  // it renders, it deploys, it 200s, and no reader arrives.
+  const { comparisons, compareProductPages } = await buildFrontDoor();
+  for (const page of compareProductPages) {
+    assert.ok(
+      comparisons.includes(apexCompareProductUrl(page.key)),
+      `the comparison index must link ${page.subject}'s own page`,
+    );
+  }
+});
+
+test('a product page names only the product, and claims nothing about it', async () => {
+  const { compareProductPages } = await buildFrontDoor();
+  const page = compareProductPages[0];
+  // The trademark and non-affiliation notice every surface naming another
+  // company's product here carries. Losing it is the one defect on this page
+  // with legal weight rather than SEO weight.
+  assert.match(page.html, /not affiliated with, endorsed by, or reviewed by/i);
+  assert.ok(page.html.includes("trademark"), 'the trademark notice must survive');
+  assert.match(page.html, /No warranty/);
+  // And no claim of its own about the product. "Better than" is the phrasing
+  // this page is deliberately not written in — see `renderFrontDoorCompareProduct`.
+  assert.ok(
+    !/better than/i.test(page.html),
+    'this page indexes comparisons; it does not make one',
   );
 });
 
@@ -1329,6 +1425,7 @@ test('every link in the committed llms.txt resolves on this host', async () => {
   const { buildMirror } = await import('./front-door-tools.mjs');
   const { files } = await buildMirror();
   const keys = new Set(files.map((f) => f.key));
+  const { compareProductPages } = await buildFrontDoor();
   const txt = await fs.readFile(LLMS_OUTPUT_FILE, 'utf8');
   const links = [...txt.matchAll(/\]\((https:\/\/[^)]+)\)/g)].map((m) => m[1]);
   assert.ok(links.length > 10, 'the committed llms.txt should carry the mirrored tools');
@@ -1342,6 +1439,13 @@ test('every link in the committed llms.txt resolves on this host', async () => {
     // check it against. That it is actually served is checked by the
     // `^/compare/?$` nginx block test and the ConfigMap-key test.
     `${FRONT_DOOR_URL}${COMPARE_PATH}`,
+    // The index's per-product spokes, on the same terms and taken from the
+    // generator rather than typed here — a list written by hand would let
+    // llms.txt name a product page the generator no longer writes, which is
+    // exactly the dead link this test exists to catch. That each is actually
+    // served is checked by the `^/compare/(?<vs>…)/?$` nginx block test and
+    // the ConfigMap-key test below.
+    ...compareProductPages.map((page) => apexCompareProductUrl(page.key)),
   ]);
   for (const link of links) {
     if (served.has(link)) continue;

@@ -578,6 +578,92 @@ def test_an_unknown_path_serves_the_front_page_body_but_with_a_404(front_door: s
         assert "no-store" in (headers.get("Cache-Control") or ""), url_path
 
 
+def test_the_comparison_index_and_its_product_pages_serve(front_door: str) -> None:
+    # `/compare/` and `/compare/<product>/` are two `location` blocks whose
+    # `try_files` targets are ConfigMap keys with a different shape from their
+    # URLs (`compare.html`, `vs__<product>.html`) — a ConfigMap key cannot
+    # contain `/`. Nothing but serving them proves the two halves agree, and
+    # this is the whole distribution layer between the mirrored `vs-` pages:
+    # if the rewrite is wrong, every comparison page in the catalogue goes back
+    # to being reachable from exactly one place.
+    status, headers, body = _get_with_error_body(front_door + "/compare/")
+    assert status == 200, f"/compare/ returned {status}"
+    assert b"<h1>" in body
+    assert "max-age=300" in (headers.get("Cache-Control") or "")
+
+    # The slashless spelling a person typing the address produces, on both.
+    assert _get_with_error_body(front_door + "/compare")[0] == 200
+
+    products = sorted(
+        key[len("vs__") : -len(".html")]
+        for key in _front_door_configmaps()["portfolio-front-html"]
+        if key.startswith("vs__") and key.endswith(".html")
+    )
+    assert products, "no per-product comparison pages are mounted, so there is nothing to route"
+    for product in products:
+        for url_path in (f"/compare/{product}/", f"/compare/{product}"):
+            status, headers, body = _get_with_error_body(front_door + url_path)
+            assert status == 200, f"{url_path} returned {status} rather than 200"
+            # The page it served is that product's, not a neighbour's — a
+            # capture that leaked would still answer 200 with the wrong page.
+            assert b"<h1>" in body, url_path
+            assert "max-age=300" in (headers.get("Cache-Control") or ""), url_path
+
+
+def test_a_swept_product_page_404s_rather_than_serving_a_different_one(front_door: str) -> None:
+    # A product drops below two comparisons whenever a venture leaves the
+    # mirror or an author rewords a heading, and `front-door.mjs` then sweeps
+    # its page. The URL stays in sitemaps and inbound links for a while after,
+    # so what it answers matters: a fallback to `/compare.html` would 200 with
+    # a different page and tell a crawler the dead URL is alive.
+    status, _, _ = _get_with_error_body(front_door + "/compare/no-such-product/")
+    assert status == 404
+
+    # A path outside what the capture allows falls to the catch-all rather than
+    # reaching `try_files` at all. Uppercase and a dot are the two shapes that
+    # would otherwise name a real key (`vs__Jobber.html` cannot exist, but a
+    # capture admitting `.` could be pointed at `vs__../about.html`).
+    for url_path in ("/compare/Jobber/", "/compare/a.b/", "/compare/a_b/"):
+        status, _, _ = _get_with_error_body(front_door + url_path)
+        assert status == 404, f"{url_path} returned {status} rather than 404"
+
+    # And nothing reaches the capture with a `..` still in it. `try_files` built
+    # from an unconstrained capture is a path-traversal read, so what happens to
+    # a traversal attempt is worth pinning rather than assuming — and the answer
+    # is not the one a `404` assertion would expect.
+    #
+    # nginx decodes and normalises `$uri` *before* it matches a location, so all
+    # four spellings below collapse to `/about/` and are served by the About
+    # block. That is the safe outcome, not a bypass: the resolved path is a real
+    # in-root URL and the `^/compare/(?<vs>…)` block is never entered, so no
+    # `..` can ever appear in `vs`. Asserting a 4xx here would fail on correct
+    # behaviour and invite someone to "fix" the config until it broke.
+    #
+    # Sent as raw request lines because `urllib` resolves `..` in the client
+    # before the request is made: asserting through it would test Python's
+    # normaliser and report the server safe without ever asking it.
+    about_body = _get_with_error_body(front_door + "/about/")[2]
+    host, port = front_door.removeprefix("http://").split(":")
+    for raw in (
+        "/compare/../about/",
+        "/compare/..%2fabout/",
+        "/compare/%2e%2e/about/",
+        "/compare/%2e%2e%2fabout/",
+    ):
+        with socket.create_connection((host, int(port)), timeout=5) as sock:
+            sock.sendall(f"GET {raw} HTTP/1.0\r\nHost: {host}\r\n\r\n".encode())
+            raw_response = b""
+            while True:
+                chunk = sock.recv(65536)
+                if not chunk:
+                    break
+                raw_response += chunk
+        head, _, body = raw_response.partition(b"\r\n\r\n")
+        status = int(head.split(b" ", 2)[1])
+        assert status == 200, f"{raw} returned {status}"
+        assert body == about_body, f"{raw} resolved to something other than /about/"
+
+
 def test_the_front_page_itself_is_still_a_200(front_door: str) -> None:
     # The exact-match block exists so the catch-all above can return 404
     # without taking the front page down with it. This is the test that would

@@ -229,6 +229,28 @@ test('an llms.txt entry with no product behind it is caught', async () => {
   assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
 });
 
+test('an llms.txt entry under a site-own directory is not read as a product claim', async () => {
+  // `llms.txt` names the comparison index's per-product pages individually, so
+  // an assistant asked "is there a free alternative to Jobber" can answer from
+  // this file without fetching and scanning a 167-entry index. Those URLs are
+  // `…/compare/<product>/`, and reading the last segment alone says a product
+  // called `jobber` shipped — fourteen false problems on a healthy site.
+  const problems = await problemsFor({
+    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): 32 tools compare with it.\n`,
+  });
+  assert.equal(mentioning(problems, 'no such product shipped').length, 0);
+});
+
+test('a real missing product is still caught beside a site-own link', async () => {
+  // The direction that matters more, and the one the fix above could have
+  // broken silently: widening the parse to forgive `compare/<product>/` must
+  // not forgive a bullet that genuinely names a product nothing shipped.
+  const problems = await problemsFor({
+    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n  - [Jobber](${url('compare/jobber/')}): fine.\n- [Ghost](${url('ghost/')}): gone.\n`,
+  });
+  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+});
+
 test('a product the hub does not link is caught', async () => {
   // The quiet one. It built, it deployed, every other check passes, and no
   // visitor can reach it.

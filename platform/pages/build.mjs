@@ -519,6 +519,49 @@ export const ABOUT_PATH = 'about/';
 export const COMPARE_PATH = 'compare/';
 
 /**
+ * The URL segment a product's own comparison page lives under.
+ *
+ * Derived from `comparisonSubjectKey`, never from the product's display name,
+ * so the page's URL and the group it renders cannot drift apart: the key is
+ * already the thing two comparison pages must share to be filed together, and
+ * a second normalisation here would be a rule restated rather than imported —
+ * the mistake CLAUDE.md records twice under "168 became 169".
+ *
+ * The key is `[a-z0-9]` and single spaces by construction, so mapping space to
+ * hyphen is injective (no key can contain a hyphen to collide with) and the
+ * result always matches the `[a-z0-9][a-z0-9-]*` that both the front door's
+ * nginx location and a ConfigMap key require.
+ */
+export function comparisonProductSlug(key) {
+  return key.replace(/\s+/g, '-');
+}
+
+/** A product page's path under the catalogue host's root. */
+export function comparisonProductPath(key) {
+  return `${COMPARE_PATH}${comparisonProductSlug(key)}/`;
+}
+
+/**
+ * How many tools must compare themselves with a product before it gets a page.
+ *
+ * Two, and the threshold is the whole point of the page rather than a tidiness
+ * rule. `/compare/` is one URL carrying every comparison in the catalogue, so
+ * it has to be titled for all of them at once — which means it competes for
+ * "Jobber alternatives" with pages that are about nothing else, and loses. A
+ * product compared by one tool gains nothing from a page of its own: that page
+ * would say what the tool's own `vs-` page already says, at a URL with less
+ * authority, and split the little signal there is across two. A product
+ * compared by thirty-two is the opposite case — the set *is* the answer to the
+ * query, and no page in the catalogue was about it.
+ */
+export const COMPARE_PRODUCT_MIN_TOOLS = 2;
+
+/** The groups that get a page of their own. See `COMPARE_PRODUCT_MIN_TOOLS`. */
+export function comparisonProductGroups(groups) {
+  return groups.filter((group) => group.items.length >= COMPARE_PRODUCT_MIN_TOOLS);
+}
+
+/**
  * The filename convention a comparison page follows.
  *
  * Matched rather than listed: `vs-*.html` is the convention every one of the
@@ -1944,7 +1987,9 @@ export function renderComparePage({ groups, surfaces, categoryGroups = [], baseU
         <h2>${escapeHtml(group.subject)}</h2>
         <p class="note">${escapeHtml(
           `${group.items.length} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
-        )}</p>
+        )} <a href="${escapeHtml(`${toRoot}${comparisonProductPath(group.key)}`)}">${escapeHtml(
+          `${group.subject} on its own page →`,
+        )}</a></p>
         <ul class="cards">
 ${group.items.map(renderCard).join('\n')}
         </ul>
@@ -2082,6 +2127,218 @@ ${categoryLinks}
        sends go on to open a tool — which is the only evidence that would
        justify writing more comparison pages. -->
   <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="compare" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * One product's comparison pages, on a URL that is about that product only.
+ *
+ * ## Why the hub is not enough
+ *
+ * `/compare/` is the index and it works as one: a reader who lands there can
+ * find any comparison in the catalogue. But it is a single URL carrying 167
+ * pages across ~120 products, so its `<title>`, its description and its
+ * heading have to be true of all of them at once — "Comparisons: free tools
+ * next to the software they are measured against". A stranger does not search
+ * that. They search "Jobber alternatives", and the page that answers it is
+ * competing, on one shared URL, against pages that are about nothing else.
+ * The thirty-two Jobber comparisons were an anchor two-thirds of the way down
+ * a 100 KB document.
+ *
+ * This is the hub-and-spoke half. Each product compared by more than one tool
+ * gets a page whose every word is about that product, and the hub keeps its
+ * job of linking all of them. The spokes also give the catalogue the thing it
+ * had least of (measured 2026-09-05: zero cross-venture `vs-` links anywhere
+ * in the tree) — thirty-two tools that share a subject now sit on one page
+ * linking each other, which is an internal-linking layer no category page can
+ * provide because these tools are spread across every trade.
+ *
+ * ## What it may say
+ *
+ * Exactly what the hub may say, and for the same reason: nothing of its own.
+ * The product's name is `comparisonSubject`'s reading of the linked page's own
+ * `<h1>`; the tool names and blurbs are the tools' own. It states no
+ * comparison, ranks nothing, and makes no claim about any named product — an
+ * index cannot introduce a fact the page it links does not already carry.
+ *
+ * The heading is deliberately "compared with", not "better than". Several of
+ * these tools price one job and the product they name runs a whole business;
+ * calling them alternatives outright would be the page's own claim, and a
+ * false one. The word a searcher types belongs in the title, where it is a
+ * description of the query the page answers, and the lede immediately says
+ * what the linked pages actually are — including that they say when the paid
+ * product is the right answer.
+ */
+export function renderCompareProductPage({
+  group,
+  groups = [],
+  surfaces,
+  categoryGroups = [],
+  baseUrl,
+}) {
+  const url = `${baseUrl}${comparisonProductPath(group.key)}`;
+  // Two segments deep (`compare/<product>/`), unlike the hub's one.
+  const toRoot = '../../';
+  const subject = group.subject;
+  const n = group.items.length;
+
+  const exceptions = externalCallExceptions(surfaces);
+  const privacyClaim = exceptions.length
+    ? `nothing you type is uploaded, except on ${listProse(
+        exceptions.map((x) => escapeHtml(x.title)),
+      )}`
+    : 'nothing you type is uploaded';
+
+  const title = `${subject} alternatives: ${n} free tools with a side-by-side page`;
+  const description =
+    `${n} free browser tools on this site each have a page comparing themselves with ${subject} — ` +
+    `what ${subject} does, what the free tool does, and when ${subject} is the right answer. ` +
+    `Written by each tool's author. Not affiliated with ${subject}.`;
+
+  const entryHref = (entry) => `${toRoot}${entry.slug}/${entry.file}`;
+
+  const cards = group.items
+    .map(
+      (entry) => `          <li class="card">
+            <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
+              <h3>${escapeHtml(entry.title)}</h3>
+            </a>
+            <p>${escapeHtml(truncate(entry.description, 120))}</p>
+          </li>`,
+    )
+    .join('\n');
+
+  // The sibling spokes. This is the cross-linking the catalogue had none of:
+  // without it every product page is a leaf reachable only from the hub, and a
+  // crawler that finds one finds one.
+  const siblings = comparisonProductGroups(groups)
+    .filter((other) => other.key !== group.key)
+    .map(
+      (other) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${comparisonProductPath(other.key)}`)}">${escapeHtml(
+          other.subject,
+        )}</a> <span>(${other.items.length})</span></li>`,
+    )
+    .join('\n');
+
+  const categoryLinks = categoryGroups
+    .map(
+      ({ category, items }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a> <span>(${items.length})</span></li>`,
+    )
+    .join('\n');
+
+  const structured = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Comparisons', item: `${baseUrl}${COMPARE_PATH}` },
+        { '@type': 'ListItem', position: 3, name: subject, item: url },
+      ],
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: n,
+      itemListElement: group.items.map((entry, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: `${entry.title} vs. ${subject}`,
+        url: `${baseUrl}${pageUrlPath(entry.slug, entry.file)}`,
+      })),
+    },
+  };
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(structured)}</script>
+  <style>${CATEGORY_STYLE}${COMPARE_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} free tools</a> › <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> › ${escapeHtml(subject)}</p>
+    <header>
+      <p class="eyebrow">Compared with ${escapeHtml(subject)}</p>
+      <h1>${escapeHtml(`${n} free tools here have a page comparing themselves with ${subject}`)}</h1>
+      <p class="lede">${escapeHtml(
+        `Each page below is written by the author of the free tool, cites ${subject}'s own public documentation, and says three things: what ${subject} does, what the free tool does, and when ${subject} is the right answer. None of them is affiliated with, endorsed by, or reviewed by ${subject}, and none is a statement about its quality — only about what each tool does and does not do.`,
+      )}</p>
+      <p class="count">${n} comparison page${n === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+    </header>
+
+    <main>
+      <section class="subject">
+        <ul class="cards">
+${cards}
+        </ul>
+      </section>
+    </main>
+${
+  siblings
+    ? `
+    <nav class="jump" aria-label="Other products compared here">
+      <h2>Other products compared by more than one tool</h2>
+      <ul>
+${siblings}
+      </ul>
+    </nav>
+`
+    : ''
+}
+    <section class="siblings">
+      <h2>Browse by trade instead</h2>
+      <ul>
+${categoryLinks}
+      </ul>
+    </section>
+
+    <footer>${disclaimerHtml(toRoot, surfaces)}
+      <h2>About ${escapeHtml(subject)}</h2>
+      <p>
+        ${escapeHtml(subject)} is a trademark of its owner and is used on this
+        page only to identify the product being compared. This site is not
+        affiliated with, endorsed by, or reviewed by ${escapeHtml(subject)},
+        and nothing here is a statement about its quality. For what
+        ${escapeHtml(subject)} does, read ${escapeHtml(subject)}'s own
+        documentation.
+      </p>
+      <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a> · <a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+    </footer>
+  </div>
+  <!-- Its own slug, not the hub's. Whether a product page earns the traffic
+       the hub could not is the entire question these pages were written to
+       answer, and folding them onto the hub's slug would leave it
+       unanswerable. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`compare/${comparisonProductSlug(group.key)}`)}" defer></script>
 </body>
 </html>
 `;
@@ -4686,7 +4943,7 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
     .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
     // The About page is a hub-level surface, not a venture's, so it is listed
@@ -4695,7 +4952,16 @@ export function renderHubSitemap(baseUrl, categoryIds = []) {
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
-    .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`]);
+    .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`])
+    // And its spokes. These are the pages most likely to be *found* by search
+    // rather than by following a link — each is about one product a stranger
+    // may be typing the name of — so leaving them out of the sitemap would
+    // omit exactly the pages that need it most.
+    .concat(
+      compareProductKeys.map(
+        (key) => `  <url><loc>${baseUrl}${comparisonProductPath(key)}</loc></url>`,
+      ),
+    );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -4829,7 +5095,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
  * silently ends the list item, so a tool whose meta description wrapped would
  * publish its second half as body prose.
  */
-export function renderLlmsTxt(surfaces, baseUrl) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = []) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // Same fact the About page states in full; see `disclaimerHtml` for why it
   // is derived rather than hand-typed.
@@ -4868,6 +5134,18 @@ export function renderLlmsTxt(surfaces, baseUrl) {
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
+    // Named individually rather than left behind the index, because the
+    // question an assistant is actually asked is about one product ("a free
+    // alternative to Jobber?"), and a bare link to a 167-entry index makes it
+    // fetch and scan the lot to find out whether this site has an answer. One
+    // line per product answers that from `llms.txt` alone, and points at the
+    // page that carries the detail if it needs it. Only the multi-tool
+    // products: a product with a single comparison is already reachable
+    // through the index and would pad this file without adding an answer.
+    ...compareProductGroups.map(
+      (group) =>
+        `  - [${group.subject}](${baseUrl}${comparisonProductPath(group.key)}): ${group.items.length} tools here have a side-by-side page against ${group.subject}, each saying what it does, what the free tool does, and when ${group.subject} is the right answer.`,
+    ),
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
@@ -5214,13 +5492,37 @@ export async function buildSite({
     renderComparePage({ groups: comparisons, surfaces, categoryGroups, baseUrl: base }),
   );
 
+  // One spoke per product compared by more than one tool. After the index
+  // because each links back to it, and before the sitemaps because they list
+  // every one. See `renderCompareProductPage` for why the index alone is not
+  // enough.
+  const compareProducts = comparisonProductGroups(comparisons);
+  for (const group of compareProducts) {
+    const dir = path.join(outDir, comparisonProductPath(group.key));
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'index.html'),
+      renderCompareProductPage({
+        group,
+        groups: comparisons,
+        surfaces,
+        categoryGroups,
+        baseUrl: base,
+      }),
+    );
+  }
+
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),
-    renderHubSitemap(base, categoryGroups.map(({ category }) => category.id)),
+    renderHubSitemap(
+      base,
+      categoryGroups.map(({ category }) => category.id),
+      compareProducts.map((group) => group.key),
+    ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts));
   // Read from the committed file, not from `git log`: the in-cluster build
   // clones `--depth 1` and has no history. See `launched.mjs`.
   await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));
