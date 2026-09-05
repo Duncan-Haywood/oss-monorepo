@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 174 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 175 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 174 of them — and
+Every tool in the collection is listed below — all 175 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -160,6 +160,7 @@ page that hosts it.
 - [Print File Preflight — free DPI and print-size checker for artists](https://marisstella.dev/tools/print-atelier/): Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.
 - [MLS Listing Photo Preflight — free listing photo checker for real estate agents](https://marisstella.dev/tools/real-estate-agent-photo-app/): Free preflight check for MLS listing photos: resolution, file size, format, aspect ratio, branding filenames, and staged-photo pairing. Reads photo headers in your browser — nothing is uploaded. Download a dated evidence record before you deliver.
 - [Shopify Permission Drift Record](https://marisstella.dev/tools/shopify-permission-drift/): Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.
+- [Vendor Change Watch — See What Changed in a Vendor's Terms](https://marisstella.dev/tools/vendor-change-watch/): Paste a vendor's terms, privacy policy, or subprocessor page. Come back later, paste it again, and get a section-by-section diff of what changed. Runs in your browser; nothing is uploaded.
 
 ## Marketplace seller tools
 

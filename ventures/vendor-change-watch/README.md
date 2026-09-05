@@ -19,6 +19,26 @@ claiming to interpret the change for you. See
 [`portfolio/pipeline/candidates/vendor-change-evidence.md`](../../portfolio/pipeline/candidates/vendor-change-evidence.md)
 for the market write-up this venture graduated from.
 
+## Try it without installing anything
+
+[`index.html`](index.html) is the same diff in a browser page. Paste a vendor's
+terms, privacy, subprocessor or security page to capture it; paste it again
+later and the page reports what changed, section by section and word by word,
+with the source URL and both capture timestamps on the report.
+
+It shares this venture's logic and its exact status vocabulary — `observed`,
+`inconclusive` and `unknown` mean the same thing in both, and a first capture
+is reported as *captured*, never as *unchanged*. Captures are kept in the
+reader's own browser (two per page, which is what a diff needs) and are never
+uploaded; there is no account and no server.
+
+The one thing the page cannot do is **fetch**. Browsers refuse cross-origin
+reads of another site's pages, and the only way around that is a proxy that
+would see every URL a user watches — which is the opposite of this venture's
+promise. So the page asks for a paste, and the CLI below does the fetching, on
+the user's own machine. That split is stated on the page rather than papered
+over.
+
 ## Quickstart
 
 ```sh
