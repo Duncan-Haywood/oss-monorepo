@@ -17,7 +17,10 @@
 //   1. Anything you have opened before opens again offline, automatically.
 //   2. "Save all tools for offline" on the hub fetches every tool's entry page
 //      and modules up front — for the person who knows they are about to lose
-//      signal, and would rather spend ~3 MB now than find out later.
+//      signal, and would rather spend the data now than find out later. The
+//      hub's own copy states the real size, computed at build time (see
+//      OFFLINE_SIZE_MARKER below) rather than a number typed once and left to
+//      go stale as the catalog grows.
 //
 // Staleness is bounded by construction: the cache name carries a hash of the
 // built site, so a deploy lands in a *new* cache and `activate` deletes every
@@ -591,15 +594,31 @@ export function injectOfflineSupport(html, rootRel) {
 // Hub widget
 // ---------------------------------------------------------------------------
 
+// Written once when the catalog was ~30 tools and never updated as it grew
+// past 170 — the button said "about 3 MB" while the real fetch had reached
+// 16.8 MB, nearly 6x what someone on limited mobile data was told to expect.
+// The size is computed at build time from the actual bundle (see
+// `addOfflineSupport`'s post-write patch of this marker in build.mjs) so it
+// cannot drift from reality again.
+export const OFFLINE_SIZE_MARKER = '{{OFFLINE_BUNDLE_SIZE}}';
+
 export const OFFLINE_WIDGET_HTML = `    <div class="support offline" id="offline-box" hidden>
       <strong>Going somewhere without signal?</strong>
       <p id="offline-copy">
-        Save every tool to this device — about 3 MB — and they all keep working
-        with no connection. Nothing is uploaded either way.
+        Save every tool to this device — about ${OFFLINE_SIZE_MARKER} — and they
+        all keep working with no connection. Nothing is uploaded either way.
       </p>
       <button type="button" id="offline-save">Save all tools for offline</button>
       <p id="offline-status" role="status" aria-live="polite"></p>
     </div>`;
+
+/** "16.8 MB" style label for a byte count, rounded so the copy reads like a
+ *  person wrote it rather than a computed value with false precision. */
+export function offlineBundleSizeLabel(bytes) {
+  const mb = bytes / (1024 * 1024);
+  const rounded = mb < 10 ? Math.round(mb * 10) / 10 : Math.round(mb);
+  return `${rounded} MB`;
+}
 
 export const OFFLINE_WIDGET_SCRIPT = `
     // Offline saving is offered only where it can actually work, so the button
