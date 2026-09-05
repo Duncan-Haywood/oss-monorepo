@@ -10969,3 +10969,100 @@ entries:
         CLAUDE.md), so this ships to `main` as code only, ready to serve
         once the owner's infra fix lands.
     mrr_end: null
+  - venture: concrete-lifting-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the fifth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), and `carpet-cleaning-bid-calculator`
+        (#3266, merged as `effadfdbc`) -- a mudjacking/polyjacking crew
+        comparing a takeoff with a homeowner, GC, or property manager had
+        no way to send a link that reopens the exact job instead of the
+        recipient retyping method, access, void depth, extra holes, and
+        every rate. Read `calc.mjs` fully first to decide which of the two
+        shapes fit: unlike carpet-cleaning's rooms/upholstery, this
+        venture prices a fixed field set -- no visitor-grown list -- so
+        the plain "one query param per field" pattern from cabinet-
+        refinishing/basement-waterproofing/spray-foam applies directly
+        rather than needing carpet-cleaning's row encoding. Built
+        `share.mjs`/`share.test.mjs` (8 tests): 22 numeric cost/rate
+        fields as allowlisted query params, 1 boolean (`addSeal`), and 2
+        enums (`method`, `access`) validated against `calc.mjs`'s own
+        `METHOD_PRESETS`/`ACCESS_PRESETS` ids rather than a hand-
+        duplicated list -- the same drift guard `FINISH_PRESETS`/
+        `COLOR_PRESETS` give cabinet-refinishing's enum fields. A zero
+        void depth round-trips as zero rather than being dropped as
+        falsy, matching the calculator's own "zero void depth still
+        prices -- pump hours are the void, not an error" note. This
+        venture's proposal panel carries `depositPercent`, `validDays`,
+        `paymentTerms`, `proposalNotes`, and `proposalExclusions` --
+        `platform/proposal/terms.mjs`'s five-field spec -- so vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified from
+        `cabinet-refinishing-bid-calculator` (confirmed byte-identical
+        with `diff`) so all five terms ride in the link instead of
+        silently reverting to this venture's defaults on the recipient's
+        end. Added a "Copy share link" button and an on-load
+        `restoreShare()` to `index.html`: `readInput()` already returns
+        every FIELD_IDS/FLAG_IDS/SELECT_IDS value the encoder needs, so
+        `copyLink` calls it directly; `restoreShare()` writes `method`,
+        `access`, every FIELD_IDS value, and `addSeal` back onto the form,
+        called immediately before the page's first `update()` so a shared
+        link's exact numbers win over the page's static HTML defaults --
+        no method/access "kit" needs reapplying on restore, because the
+        rates a kit would set (`hoursLift`, `hoursPerCf`,
+        `materialPerCf`, `hoursAccess`) are themselves carried fields.
+        Fixed the "Is my data uploaded anywhere?" FAQ entry (visible copy
+        and FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan), the
+        footer privacy paragraph, and the SoftwareApplication
+        `featureList`: this venture's copy did not claim no link exists --
+        it already described the platform's own generic auto-injected
+        "Copy link to this bid" control (`pf-link.js`, confirmed present
+        in `platform/pages/dist/concrete-lifting-bid-calculator/index.html`
+        pre-change) -- so the fix retargets the wording at this venture's
+        own dedicated control instead, which is what actually serves the
+        page once `pageHasOwnShareLink` detects the new `share.mjs`
+        import and "Copy share link" text and stops offering the generic
+        one (`pageTakesBidLink` false). This venture is not one of
+        `link.test.mjs`'s eight named itemised calculators, so that
+        pinned count is untouched. Regenerated the served surface with
+        `node platform/marketing/regen.mjs`. `origin/main` did not move
+        during this session, so no rebase was needed. Verified: venture's
+        own suite 106/106; `platform/proposal/*.test.mjs` 97/97; full
+        `platform/pages` suite 884/884; full `platform/marketing` suite
+        211/211; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "174 products, 686 pages, no dead links" (build.mjs log
+        also shows the generic bid-link count dropping from before this
+        change, consistent with this venture leaving that bucket);
+        `python3 portfolio/router/validate.py` -- all 183 VENTURE.yaml
+        valid; `node platform/pages/clauses.mjs
+        concrete-lifting-bid-calculator` -- no-warranty clause present on
+        all 3 published pages. `git status` after regen touched only this
+        venture's own mirror shard (new `share.mjs.gz` entry), the mirror
+        kustomization, and the nginx alias map -- no unrelated venture's
+        shard changed. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly with a full-field sample bid (poly method, interior
+        access, 200 sq ft slab, 2-inch void, 4 extra holes, joint seal, a
+        50% deposit held 15 days with custom terms text): encoded,
+        decoded, and confirmed all 22 numeric fields, the boolean, both
+        enums, and all 5 proposal terms matched the sender's input
+        exactly, and the recipient's recalculated price, walk-away price,
+        and profit matched the sender's to the cent ($5,361.15 price,
+        $3,752.80 walk-away, $1,608.34 profit, all three sides) -- the
+        exact failure this feature exists to prevent. Confirmed CI
+        starvation directly rather than citing it secondhand:
+        `platform/ci/ci_starvation.py --run 33941053248` (the most recent
+        `Portfolio validate` run at the time) reports the one job's
+        `runner_id: 0`, 3s runtime -- unassigned, not a real failure.
+        GitHub Actions is documented in this repo's CLAUDE.md as starved
+        and the Hetzner cluster as down -- both pre-diagnosed, owner-
+        blocked, not re-investigated further here -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Not deployed: the public surface is
+        down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
