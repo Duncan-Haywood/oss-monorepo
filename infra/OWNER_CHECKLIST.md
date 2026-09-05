@@ -7,8 +7,8 @@ identities. Nothing here applies itself.
 
 **Changed 2026-09-01: this was "three seals" until CI came back on its
 own.** Two sealed secrets are what the live site and the Codex worker are
-waiting on — items 8 and "Publish `tools.marisstella.dev`" below. The
-third, item 9's runner PAT, is no longer blocking anything: GitHub
+waiting on — items 7 and "Publish `tools.marisstella.dev`" below. The
+third, item 8's runner PAT, is no longer blocking anything: GitHub
 resumed assigning runners at 2026-09-01T00:00:53Z, and the PRs run since
 have passed on merit. Seal it too if you want insurance against the next
 allowance cycle, but do it last.
@@ -28,11 +28,11 @@ reports `did not seal: ci` if you press Enter past it. Add the third
 later, on its own, if you want it:
 
 ```bash
-./bootstrap/scripts/seal-owner-secrets.sh ci    # optional, see item 9
+./bootstrap/scripts/seal-owner-secrets.sh ci    # optional, see item 8
 ```
 
 Its one branching question — which Codex credential — now defaults to the
-plan-quota route on a bare Enter, because item 8 below records that you have
+plan-quota route on a bare Enter, because item 7 below records that you have
 already chosen it. Typing `2` still seals the metered key.
 
 It prompts for each token with echo off, verifies against the GitHub API
@@ -105,21 +105,58 @@ see" instruction in this repository — here, in `bootstrap/README.md`, in
 `bootstrap/preflight.sh`'s "what the apex actually serves" section, the one
 check no agent session can run for itself, has never once been run.
 
-**The fix is yours and takes a minute:** put the *private* key matching the
-public key already on `root@89.167.29.39` and `root@157.180.80.188` into
-Settings → Secrets and variables → Actions → `HETZNERSSHKEY` (the whole file,
-`-----BEGIN OPENSSH PRIVATE KEY-----` through `-----END …-----`). Then
-dispatch `hetzner-gitops CI` with `preflight: true` again; it is read-only and
-never installs k3s or runs tofu. The workflow already normalises the two ways
-a pasted key usually breaks (literal `\n` escapes and CRLF), so a plain paste
-is fine.
+**Rewritten 2026-09-05: do this from your own machine, not from Settings —
+the Actions route below cannot work today.** This paragraph used to end at
+"paste the key into Settings, then dispatch `hetzner-gitops CI` with
+`preflight: true` again." Actions is separately starved as of 2026-09-04
+(every job returns `runner_id: 0` with no steps executed — see
+`ci_starvation.py` and the CLAUDE.md section on it), so a paste-then-dispatch
+plan would leave you watching that dispatch come back empty and reading it as
+the fix not having worked, when the fix was never exercised at all.
 
-**Nothing else waits on this.** `Public surface check`
-(`.github/workflows/public-surface-check.yml`) answers the question the
-preflight was wanted for — what each hostname actually serves — from a
-runner's ordinary internet, with no credential at all. Rotate the key for
-cluster-level diagnosis (pod state, k3s health, disk); the public surface is
-already observable without it.
+**The actual fix:** load the *private* key matching the public key already on
+`root@89.167.29.39` and `root@157.180.80.188` into your own SSH agent
+(`ssh-add`), then from a checkout of this repository run
+
+```
+CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1 \
+  bootstrap/restore-cluster.sh
+```
+
+(`DRY_RUN=1` first if you want to see the detected addressing mode without
+changing anything.) That is the whole recovery, end to end — server, agent
+join, Argo CD, then a Host-header curl on the box for what the apex actually
+returns — and it needs no runner and no repository secret. See
+`bootstrap/README.md` and `gitops/agents/host/README.md` for what
+`ARGOCD_REPO_TOKEN` and `WITH_CODEX_HOST` each do.
+
+**Do not skip `ARGOCD_REPO_TOKEN`.** Without it the restore *succeeds and the
+site stays dark*: this repository is private, so Argo CD installs, applies
+the root Application, and then fails every sync on repository
+authentication, with no error anywhere except Argo's own Application
+status. A fine-grained PAT scoped to this repository with **Contents:
+Read** is enough — the same permission the `portfolio-site-repo` seal
+(below) needs, so one token covers both. It cannot be a sealed secret:
+sealed-secrets is itself deployed *by* Argo from `gitops/apps`, so this
+credential has to exist before the first sync it enables.
+
+**The Settings/Actions route is still worth setting up, for when runners
+come back.** Paste the same private key as the Actions secret
+`HETZNERSSHKEY` (the whole file, `-----BEGIN OPENSSH PRIVATE KEY-----`
+through `-----END …-----`) and the same PAT as `ARGOCDREPOTOKEN`, then
+dispatch `hetzner-gitops CI` with `preflight: true` to confirm read-only,
+and again with `restore: restore-cluster` to run the identical script from
+a runner. It reaches the same code path as the laptop command above, but
+both dispatches return `runner_id: 0` today, so it buys nothing until
+runners are back. The workflow already normalises the two ways a pasted
+key usually breaks (literal `\n` escapes and CRLF), so a plain paste is
+fine either way.
+
+**Nothing else waits on the SSH key itself for diagnosis.** `Public surface
+check` (`.github/workflows/public-surface-check.yml`) already answers what
+each hostname serves — from a runner's ordinary internet, with no
+credential at all — which is why the restore command above ends with its own
+Host-header curl rather than asking you to trust the manifests.
 
 **Hetzner Read token — `HETZNERREADAPIKEY` is already in Actions.** CI
 probes `POST /servers` with an empty body (cannot create a server).
@@ -173,21 +210,27 @@ codes as exit 42 and a rejected credential as exit 43.
 1. Laptop: `export HCLOUD_TOKEN=` the `HETZNERREADAPIKEY` value, then
    `make discover` and paste `firewall_id` / `volume_id` into
    `infra/terraform.tfvars` (gitignored).
-2. Confirm SSH: Actions preflight (`HETZNERSSHKEY`), or
-   `bootstrap/preflight.sh` from a machine that has the key.
-3. If k3s is already on the cpx52, `bootstrap/label-existing.sh` instead
-   of `install-k3s-server.sh`.
-4. Fine-grained GH token (agents) + read-only deploy key (Argo).
-5. Age keypair — `bootstrap/scripts/gen-age-key.sh`. Private key stays
+2. Confirm SSH: `bootstrap/preflight.sh` from a machine that has the key
+   (the Actions preflight dispatch is starved today — see the SSH
+   paragraph above).
+3. Steps 3 and 4 (installing k3s and Argo CD) are now one command:
+   `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> bootstrap/restore-cluster.sh`.
+   It installs k3s on both boxes (or labels the cpx52 in place if k3s is
+   already there — it never reinstalls over an existing server) and Argo CD
+   with the repo credential Argo needs to clone this private repository, in
+   one idempotent run. `bootstrap/README.md` has the manual step-by-step if
+   you want it instead; `<pat>` is a fine-grained PAT scoped to this
+   repository with **Contents: Read**.
+4. Age keypair — `bootstrap/scripts/gen-age-key.sh`. Private key stays
    offline. Public key goes in `.sops.yaml`.
-6. ~~ACME email~~ — **no longer required (2026-08-30).** An ACME account
+5. ~~ACME email~~ — **no longer required (2026-08-30).** An ACME account
    contact is optional, so `gitops/platform/cert-manager/issuer.yaml`
    ships without one instead of with a placeholder. Add a real address
    later if you want Let's Encrypt's expiry warnings; nothing waits on it.
-7. Merge this PR, then from the laptop with the **write** token:
+6. Merge this PR, then from the laptop with the **write** token:
    `tofu plan` (must not replace either server) → `tofu apply` → the
    three bootstrap scripts.
-8. **Codex credential.** Two routes are supported. **You have stated a
+7. **Codex credential.** Two routes are supported. **You have stated a
    preference for the first** — recorded 2026-09-01, from the standing
    instruction for these scheduled runs: *"I also want the codex cli to be
    set up to use up the built in quota for dev work."* That settles the
@@ -242,7 +285,7 @@ codes as exit 42 and a rejected credential as exit 43.
    instruction — deployment/CI-CD first, then marketing and distribution.
    Nothing about the queue needs your input; it is listed here only so the
    spend is predictable before you authorise it.
-9. ~~**Restore CI.**~~ **Not needed as of 2026-09-01 — optional.** Every
+8. ~~**Restore CI.**~~ **Not needed as of 2026-09-01 — optional.** Every
    workflow was red from 2026-08-26 with `runner_id: 0` and zero steps —
    jobs never assigned a runner. Actions minutes on this private repo are
    metered, so the ceiling was some account-level Actions condition, but
