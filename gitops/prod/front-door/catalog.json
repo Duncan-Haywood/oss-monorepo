@@ -984,7 +984,7 @@
       "url": "https://marisstella.dev/tools/mcp-supply-chain-watch/",
       "category": "Compliance checks & evidence records",
       "description": "Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "metal-roof-bid-calculator",
