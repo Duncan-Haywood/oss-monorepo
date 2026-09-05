@@ -41,7 +41,7 @@
 #   portfolio-front-tools-5: 112 files, 553697 bytes
 #   portfolio-front-tools-6: 107 files, 555171 bytes
 #   portfolio-front-tools-7: 116 files, 551822 bytes
-#   portfolio-front-tools-8: 97 files, 550777 bytes
+#   portfolio-front-tools-8: 98 files, 554911 bytes
 #   portfolio-front-tools-9: 103 files, 542744 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1122,6 +1122,7 @@ configMapGenerator:
       - shopify-permission-drift__compare.mjs.gz=shopify-permission-drift__compare.mjs.gz
       - shopify-permission-drift__index.html.gz=shopify-permission-drift__index.html.gz
       - shopify-permission-drift__usage.mjs.gz=shopify-permission-drift__usage.mjs.gz
+      - shopify-permission-drift__vs-miniorange.html.gz=shopify-permission-drift__vs-miniorange.html.gz
       - siding-bid-calculator__calc.mjs.gz=siding-bid-calculator__calc.mjs.gz
       - siding-bid-calculator__how-much-to-charge.html.gz=siding-bid-calculator__how-much-to-charge.html.gz
       - siding-bid-calculator__index.html.gz=siding-bid-calculator__index.html.gz

@@ -1240,7 +1240,7 @@
       "url": "https://marisstella.dev/tools/shopify-permission-drift/",
       "category": "Compliance checks & evidence records",
       "description": "Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "siding-bid-calculator",
