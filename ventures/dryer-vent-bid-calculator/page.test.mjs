@@ -65,10 +65,27 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'stories', 'runFeet', 'extraDryers', 'jobType',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets', 'copyLink',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
+});
+
+test('the shareable bid link is wired to the same fields the form actually reads', () => {
+  assert.match(scriptSource, /from '.\/share\.mjs'/, 'share.mjs is not imported');
+  assert.match(scriptSource, /encodeInputs\(readInput\(\)\)/, 'copyLink does not encode the form\'s own reader');
+  assert.match(scriptSource, /decodeInputs\(incoming\.payload\)/, 'restoreShare does not decode the incoming link');
+  assert.match(scriptSource, /restoreShare\(\);/, 'restoreShare is never called on load, so a pasted link never opens');
+  // The five proposal terms (deposit, valid days, exclusions, payment terms,
+  // notes) ride beside the venture's own payload -- see proposal-terms.mjs --
+  // so a shared link cannot silently reopen at the venture's default deposit
+  // while the recipient's printed proposal quotes a different number than the
+  // sender's screen, the defect class documented in platform/proposal/README.md.
+  assert.match(scriptSource, /withTerms\(/, 'the link does not carry the proposal terms');
+  assert.match(scriptSource, /splitTerms\(/, 'the link cannot separate the terms back out on load');
+  assert.match(scriptSource, /applyTerms\(/, 'a link\'s terms are decoded but never written back onto the panel');
+  assert.match(scriptSource, /readTerms\(/, 'the link is built without reading the panel\'s own terms');
+  assert.match(scriptSource, /overlongTermsNote\(/, 'a term too long to fit in the link is dropped silently');
 });
 
 test('the landing page names the problem in the tech\'s words', () => {
