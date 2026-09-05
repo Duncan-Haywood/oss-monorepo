@@ -10780,3 +10780,90 @@ entries:
         is down (see CLAUDE.md), so this ships to `main` as code only, ready
         to serve once the owner's infra fix lands.
     mrr_end: null
+  - venture: cabinet-refinishing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, closing the same gap #3262 closed for
+        `basement-waterproofing-bid-calculator` and `spray-foam-bid-
+        calculator` -- a cabinet refinisher comparing a takeoff with a
+        homeowner, GC, or kitchen designer had no way to send a link that
+        reopens the exact job instead of the recipient retyping twenty-plus
+        numbers. Read `calc.mjs` (24 numeric fields, 1 flag --
+        `replaceHardware` -- and 2 enums -- `finishId`/`colorId` sourced from
+        `FINISH_PRESETS`/`COLOR_PRESETS`), `index.html`, and `proposal.mjs`
+        fully before writing anything. Built `share.mjs`/`share.test.mjs`
+        (pure allowlisted encode/decode of all 24 numbers, 1 flag, and 2
+        enums, the enums validated against `calc.mjs`'s own preset ids
+        rather than a hand-duplicated list, matching the drift class
+        CLAUDE.md's "RENAME SUSPECTED" note and #2962 describe for a select
+        field left off an allowlist). This venture's proposal panel already
+        carries `depositPercent`, `validDays`, `paymentTerms`,
+        `proposalNotes`, and `proposalExclusions` -- exactly
+        `platform/proposal/terms.mjs`'s five-field spec -- so vendored
+        `proposal-terms.mjs`/`proposal-terms.test.mjs` unmodified from
+        `basement-waterproofing-bid-calculator` (byte-identical, confirmed
+        with `diff`) so all five terms ride in the link instead of silently
+        reverting to the venture's defaults on the recipient's end (the
+        "different money on acceptance" bug `platform/proposal/terms.mjs`
+        documents from 2026-08-29). Added a "Copy share link" button and
+        on-load `restoreShare()` to `index.html`, called last (after the
+        proposal panel's field ids exist but before the page's first
+        `update()`) so a shared link's finish/color selection and
+        twenty-plus rates win over the page's own static HTML defaults and
+        the finish/color-change auto-suggest logic. Updated the "Is my data
+        uploaded anywhere?" FAQ entry (both the visible copy and the FAQPage
+        JSON-LD, byte-identical per `platform/pages/faq-visible.test.mjs`'s
+        divergence scan) -- it previously stated outright that this
+        calculator "does not... generate a shareable bid link", which this
+        change makes false, so the wording now matches the two just-shipped
+        ventures' pattern instead. Also updated the footer privacy
+        paragraph and the SoftwareApplication `featureList` for the same
+        honesty-about-what-a-link-carries reason. Regenerated the served
+        surface with `node platform/marketing/regen.mjs` -- the new unified
+        entry point #3263 added the same day this session started, which
+        runs both `front-door-tools.mjs --write` and `front-door.mjs
+        --write` and is now what every staleness hint in
+        `platform/marketing` names, replacing the single-generator command
+        the basement-waterproofing ledger entry recorded. `origin/main`
+        moved twice while this was in progress -- #3263 itself (the
+        regen.mjs unification, landing mid-session, which is why this
+        session used the new command rather than the two-command sequence
+        it started with) and #3264 (an AGENTS.md-only doc addition pointing
+        venture authors at the same tool, touching no code or generated
+        files). Rebased cleanly onto both; the AGENTS.md commit needed no
+        regen since it touched no venture or generator file. Verified
+        against the final state: venture's own suite 103/103 (was 92);
+        `platform/proposal/*.test.mjs` 97/97 (includes `term-ids.test.mjs`'s
+        drift check across both the shared-spec and vendored-module
+        mechanisms, now scanning 13 vendored copies); full `platform/pages`
+        suite 884/884; full `platform/marketing` suite 211/211 (6 failed
+        before the regen, all on the newly-stale mirror/kustomization/alias
+        map, as expected); `platform/pages/build.mjs` + `check.mjs` on a
+        full site build -- "174 products, 686 pages, no dead links", and
+        "Added a shareable bid link to 146 page(s)" (up from 145); `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs cabinet-refinishing-bid-calculator` --
+        no-warranty clause present on all 3 published pages. `git status`
+        after regen touched only this venture's own mirror shard, the
+        mirror kustomization, and the nginx alias map -- no unrelated
+        venture's shard changed, so no stale-mirror collateral to document
+        this time. Manually exercised the round trip outside the test
+        framework too, driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly with a full-field sample bid (30-door/24-drawer large
+        kitchen, on-site brush finish, dark-to-light color change, new
+        hardware, a 50% deposit held 15 days with custom exclusions/payment/
+        notes text): encoded, decoded, and confirmed every one of the 24
+        numeric fields, the 1 flag, the 2 enums, and the 5 proposal terms
+        matched the sender's input exactly, and the recipient's
+        recalculated price matched the sender's to the cent ($13,683.76
+        both sides) -- the exact failure this feature exists to prevent.
+        GitHub Actions is documented in this repo's CLAUDE.md as starved
+        and the Hetzner cluster as down -- both pre-diagnosed, owner-
+        blocked, not re-investigated here -- so all of the above is local
+        verification standing in for CI per CLAUDE.md's "absent CI is not
+        failed CI" rule. Not deployed: the public surface is down (see
+        CLAUDE.md), so this ships to `main` as code only, ready to serve
+        once the owner's infra fix lands.
+    mrr_end: null
