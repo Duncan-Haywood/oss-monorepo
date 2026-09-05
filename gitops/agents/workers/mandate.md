@@ -141,16 +141,47 @@ public is the owner's.
 
 ## Verifying
 
-CI in this repository works again as of 2026-09-01, after five days in which
-every workflow failed for want of a runner. **Treat a red check as a real
-failure and fix it.** Two caveats, neither of which is licence to discount one:
+**Classify a red check before you believe it, in either direction.** Actions
+minutes here are metered and the ceiling *cycles*: the allowance ran out on
+2026-08-26, came back on its own at 00:00:53Z on 2026-09-01, and ran out again
+on 2026-09-04 at 22:39Z. So neither "red means broken" nor "red means the
+outage" is a standing fact you can inherit from this file — whichever one you
+assume, you will be wrong for weeks at a time, and both mistakes are expensive.
+Assuming a real failure burns a run "fixing" green code; assuming starvation
+merges something genuinely broken.
 
-- A check that fails in 3-6 seconds with `runner_id: 0` is the starvation
-  signature, not your regression. That window closed on 2026-09-01, but the
-  account-level ceiling looks like it cycles rather than being gone, so the
-  signature may return. Do not judge it by eye — run the tool below, which
-  votes on `runner_id` alone. If it says a real runner ran the job, the failure
-  is yours.
+Do not re-derive it by hand; hand-derivation is where this goes wrong in both
+directions. There is a tool, and it votes on `runner_id` alone, which is the
+only field that cannot mean two things:
+
+```
+python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
+```
+
+- Exit 0 — every job got a real runner, so a failure there is **yours**,
+  however much this repository's recent history invites you to assume
+  otherwise. Fix it and push.
+- Exit 1 — at least one job carried `runner_id: 0`: no runner was ever
+  assigned and no step ran. Not your regression. Verify locally instead, and
+  record exactly what you ran.
+
+It uses `gh` when present and falls back to `api.github.com` with `GH_TOKEN`;
+`--from-json` classifies a payload you fetched some other way.
+
+The starvation signature also includes a 3-6 second runtime, empty
+`output.title/summary/text`, and a 404 on log download — but do not judge it by
+any of those. A real job *can* fail in three seconds, which is precisely how a
+genuine failure gets waved through as "the outage". An unassigned runner cannot
+be anything else.
+
+Three things the classifier does not tell you, and each has cost this
+repository a merge:
+
+- When the classifier says starvation, `main` is unverified too — nobody's
+  checks have run on it either. The local set that stands in for CI is named in
+  CLAUDE.md ("Ship without review ceremony"); `platform/marketing/regen.mjs` is
+  the line that keeps being skipped and the one that decides whether a page you
+  shipped is reachable at all.
 - No checks at all is not failed checks either — but do not *expect* a blank
   list, and do not read one as an explanation. This bullet used to say "PRs
   opened with `GITHUB_TOKEN` do not trigger Actions here", which names the
@@ -166,21 +197,6 @@ failure and fix it.** Two caveats, neither of which is licence to discount one:
   and reports `total_count: 0` on a PR whose checks are red — which reads as
   "absent CI" and is handled differently from a real failure. Use
   `/commits/<sha>/check-runs` or the PR's checks tab.
-
-Do not re-derive that by hand; there is a tool, and hand-derivation is where it
-goes wrong in both directions — "fixing" green code, or merging something
-broken because it also failed fast:
-
-```
-python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
-```
-
-Exit 0 means every job got a real runner, so a failure there is yours to fix.
-Exit 1 means at least one never did. It uses `gh` when present and falls back
-to `api.github.com` with `GH_TOKEN`; `--from-json` classifies a payload you
-fetched some other way. And read *check runs*, not the commit-status API — the
-latter reports `total_count: 0` on a PR whose checks are red, which reads as
-"absent CI" and is handled differently.
 
 Either way, run the repository's own checks locally and record exactly what you
 ran and what it said. Do not claim something is tested, working, secure, or
