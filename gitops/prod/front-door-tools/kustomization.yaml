@@ -36,8 +36,8 @@
 #   portfolio-front-tools-0: 130 files, 552213 bytes
 #   portfolio-front-tools-1: 113 files, 555332 bytes
 #   portfolio-front-tools-2: 150 files, 553762 bytes
-#   portfolio-front-tools-3: 119 files, 555548 bytes
-#   portfolio-front-tools-4: 126 files, 549764 bytes
+#   portfolio-front-tools-3: 119 files, 555750 bytes
+#   portfolio-front-tools-4: 127 files, 553875 bytes
 #   portfolio-front-tools-5: 115 files, 544496 bytes
 #   portfolio-front-tools-6: 106 files, 554577 bytes
 #   portfolio-front-tools-7: 120 files, 556764 bytes
@@ -525,6 +525,7 @@ configMapGenerator:
       - ai-engineering-academy__voltage-divider-calculator__how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.gz=ai-engineering-academy__voltage-divider-calculator__how-do-i-choose-resistor-values-for-a-loaded-voltage-divider.html.gz
       - ai-engineering-academy__voltage-divider-calculator__index.html.gz=ai-engineering-academy__voltage-divider-calculator__index.html.gz
       - ai-engineering-academy__voltage-divider-calculator__usage.mjs.gz=ai-engineering-academy__voltage-divider-calculator__usage.mjs.gz
+      - ai-engineering-academy__vs-omni-calculator.html.gz=ai-engineering-academy__vs-omni-calculator.html.gz
       - appointment-deposit-calculator__app.mjs.gz=appointment-deposit-calculator__app.mjs.gz
       - appointment-deposit-calculator__calc.mjs.gz=appointment-deposit-calculator__calc.mjs.gz
       - appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz=appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz
@@ -592,12 +593,12 @@ configMapGenerator:
       - carpet-cleaning-bid-calculator__index.html.gz=carpet-cleaning-bid-calculator__index.html.gz
       - carpet-cleaning-bid-calculator__share.mjs.gz=carpet-cleaning-bid-calculator__share.mjs.gz
       - carpet-cleaning-bid-calculator__usage.mjs.gz=carpet-cleaning-bid-calculator__usage.mjs.gz
-      - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - carpet-cleaning-bid-calculator__vs-servicemonster.html.gz=carpet-cleaning-bid-calculator__vs-servicemonster.html.gz
       - carpet-install-bid-calculator__calc.mjs.gz=carpet-install-bid-calculator__calc.mjs.gz
       - carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz=carpet-install-bid-calculator__how-much-to-charge-to-install-carpet.html.gz
       - carpet-install-bid-calculator__index.html.gz=carpet-install-bid-calculator__index.html.gz
