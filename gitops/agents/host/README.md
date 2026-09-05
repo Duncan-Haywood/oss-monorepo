@@ -1,0 +1,149 @@
+# Codex governor, host mode
+
+The Codex worker, scheduled by a **systemd timer on the Hetzner box** instead
+of by a Kubernetes CronJob. Same scheduler, same worker, same queue, same
+budget policy — different place to stand.
+
+## Why this exists
+
+On 2026-09-05 this repository had three ways to execute code and all three
+were down, two of them for reasons that turned out to be the same reason:
+
+| route | state | why |
+|---|---|---|
+| k3s CronJob (`agents/governor/cronjob.yaml`) | down | `:6443` refused on both boxes — [`Outage triage`](../../../.github/workflows/outage-triage.yml) run 33889983086 |
+| GitHub Actions | down | metered minutes exhausted; every job returns `runner_id: 0` — `ci_starvation.py --run 33935905418` |
+| self-hosted runners ([`gitops/ci/`](../../ci/README.md)) | down | they run **as pods in the cluster**, so they are downstream of the outage they insure against |
+
+The third row is the lesson. The insurance against metered CI was built inside
+the thing most likely to fail with it, so when the cluster went the fallback
+went too — and the repository spent a week with no way to run anything.
+
+The boxes themselves were up the whole time: `:22` answers on both, per the
+same triage run. Host mode installs onto that. It needs no k3s, no Argo, no
+runner and no GitHub Actions minutes, and the Codex worker spends the owner's
+ChatGPT subscription quota rather than the Actions allowance that is
+exhausted — so it is capacity that does not compete with the thing that broke.
+
+It is deliberately *not* the primary scheduler. When the cluster is healthy the
+CronJob is better: it has real isolation, resource limits enforced by the
+kubelet, and a control plane that reaps wedged pods. Host mode is the route
+that survives when that is unavailable.
+
+## It is not a fork of the governor
+
+Every scheduling decision comes from [`../governor/governor.py`](../governor/governor.py) —
+`tick`, `decide`, `pick_item`, `rollover`, `absorb_finished_jobs`, the budget
+arithmetic, and the limit/no-op/auth precedence in `classify_outcome`. All of
+it is **imported**, none of it restated. `host_governor.py` is only the I/O
+half the CronJob does through the kube-apiserver:
+
+| | CronJob | host mode |
+|---|---|---|
+| schedule | `schedule: "*/5 * * * *"` | `codex-governor.timer`, `OnUnitActiveSec=5min` |
+| concurrency | `maxConcurrent` via running Jobs | one synchronous run under an `flock`; systemd will not start a second oneshot |
+| worker | a `batch/v1` Job | a `bash worker.sh` subprocess |
+| outcome | pod `terminated.exitCode` + message | subprocess exit code + `CODEX_TERMINATION_LOG` |
+| budget | ConfigMap `governor-state` | `/var/lib/codex-governor/state.json` |
+| credentials | Secret `codex-secrets` | `EnvironmentFile=/etc/codex-agents/credentials.env`, mode 0600 |
+| deadline | Kubernetes reaps the pod | `CODEX_HOST_JOB_TIMEOUT` (1h) + `TimeoutStartSec` |
+
+`gitops/tests/test_host_governor.py` asserts the no-fork rule mechanically:
+it fails if `host_governor.py` ever defines `pick_item`, `decide`, `rollover`,
+`absorb_finished_jobs` or a budget constant of its own. This repository has
+twice paid for a copied rule going stale rather than being imported — see
+CLAUDE.md, "168 became 169" — and this is the cheap version of that guard.
+
+## Install
+
+Run it on the box, as root, from a checkout of this repository.
+
+```bash
+# on your laptop
+rsync -a --exclude .git ./ root@89.167.29.39:/root/monorepo-projects/
+
+# on the box
+cd /root/monorepo-projects
+CONFIRM=install-codex-host ./bootstrap/scripts/install-codex-host.sh
+```
+
+It copies `governor.py`, `host_governor.py`, `worker.sh`, `mandate.md`,
+`policy.json` and the queue to `/opt/codex-agents`, creates the three state
+directories, installs both units, and enables the timer. It is idempotent —
+re-run it to roll out a new queue or a new policy.
+
+Then give it credentials. This reads **stdin, never argv**, so nothing lands
+in your shell history or in `ps`:
+
+```bash
+./bootstrap/scripts/install-codex-host.sh --credentials <<'EOF'
+CODEX_AUTH_JSON={"...":"..."}
+GH_TOKEN=<your fine-grained PAT>
+EOF
+```
+
+`CODEX_AUTH_JSON` is what `codex login` leaves in `~/.codex/auth.json`.
+`GH_TOKEN` is a fine-grained PAT with **Contents: Read and write** and
+**Pull requests: Read and write** on this repository — the worker opens PRs
+and never merges. See [`../secrets/README.md`](../secrets/README.md), which
+describes the same two values in their sealed form.
+
+Installing does **not** enable the governor. `policy.json` ships
+`"enabled": false`, so the timer ticks and holds until you flip it with
+`./bootstrap/scripts/enable-codex-governor.sh`, commit, and re-run the
+installer. A box can be fully prepared long before it is allowed to spend
+quota.
+
+## Operate
+
+```bash
+./bootstrap/scripts/install-codex-host.sh --check   # what is installed, what is missing
+/opt/codex-agents/host/host_governor.py --check     # what it would do right now, and the budget
+systemctl list-timers codex-governor.timer          # when it next fires
+journalctl -u codex-governor.service -f             # what it did
+```
+
+`--check` on either script starts nothing and writes nothing.
+
+To stop it, `systemctl disable --now codex-governor.timer`. To remove it,
+`CONFIRM=install-codex-host ./bootstrap/scripts/install-codex-host.sh --uninstall`
+— which deliberately keeps `/etc/codex-agents/credentials.env` (re-obtaining it
+costs a `codex login`) and `/var/lib/codex-governor/state.json` (losing the
+budget ledger would let a reinstall spend a fresh window immediately).
+
+## What it is allowed to do
+
+The worker's own limits are unchanged and are documented in
+[`../workers/mandate.md`](../workers/mandate.md): it opens pull requests and
+**never pushes to the base branch and never merges**. Host mode does not widen
+that — it hands `worker.sh` the same environment the Job does, which
+`test_host_governor.py::test_env_matches_the_cluster_job` checks by building
+the real Job manifest and diffing the variable names.
+
+The unit narrows what the process can reach, as the Job's `securityContext`
+does: `NoNewPrivileges`, `ProtectSystem=strict`, `ProtectHome`, `PrivateTmp`,
+`RestrictSUIDSGID`, and `ReadWritePaths` limited to the three state
+directories. It is not `runAsNonRoot`/read-only-root for the same reason the
+Job is not: `npm install -g` and the clone need a writable `$HOME`.
+
+It is also the low-priority tenant on the box — `Nice=10`,
+`IOSchedulingClass=idle`, `CPUWeight=20`, `MemoryMax=4G` — matching the Job's
+`priorityClassName: agents-low`. If the box is also serving the portfolio, the
+site wins.
+
+## Known limits
+
+- **`maxConcurrent > 1` has no effect here.** Host mode runs one worker per
+  tick, synchronously, under a lock. Raising the policy value prints a note to
+  stderr rather than silently serialising; shorten the timer interval instead.
+- **No per-run isolation.** The Job gets a fresh container; here the worker
+  runs on the host as root with a persistent `$HOME`. Acceptable on a box
+  dedicated to this, and the reason host mode is the fallback rather than the
+  default.
+- **The budget ledger is per-box.** Two boxes running host mode against one
+  ChatGPT seat would each think they had the whole window. Run it on one, or
+  give them separate credentials.
+- **Nothing reaps a wedged run except the deadline.** `CODEX_HOST_JOB_TIMEOUT`
+  defaults to one hour; a run killed on it is recorded as a failure and
+  explicitly *not* as a no-op, so a wedged item surfaces instead of sinking
+  behind a damped score.
