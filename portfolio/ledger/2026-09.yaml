@@ -14251,3 +14251,74 @@ entries:
         public key instead of a private one (portfolio/ledger/
         decision_queue.py item #1, PR #3184).
     mrr_end: null
+  - venture: portable-restroom-event-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave this venture its own shareable-bid-link + local-draft-save
+        feature, closing the last gap platform/pages/link.test.mjs's
+        "itemised calculators" list named: of the 8 dynamic-row calculators
+        the platform's generic build-time bid-link injector declines to
+        handle, 7 already had a bespoke share.mjs and this was the only one
+        still falling back to the generic control. Vendored share.mjs
+        byte-identical from window-cleaning-bid-calculator (confirmed the
+        newest of the 7 existing implementations by file history, #3375,
+        newer than the tree-service template named in the brief, #3367 --
+        diffed byte-identical to tree-service's copy too, confirming the
+        module really is shared code with no venture-specific logic inside
+        it). Wired BID_SPEC to this venture's actual row shape -- a
+        visitor-grown fleet of unit-type rows (type/quantity/rentPerDay/
+        serviceEach), with the unit-type choice validated against calc.mjs's
+        own UNIT_PRESETS rather than a hand-copied option list, following
+        the same pattern window-cleaning-bid-calculator uses for its
+        glass-type rows -- plus the flat cost fields (COST_IDS) and the
+        optional attendance/duration fields (EVENT_IDS) and alcohol/
+        food-service flags the fleet-size suggestion and price-per-attendee
+        sanity check also read, so a shared link reopens the same suggested
+        fleet the sender saw, not just the same price. Added "Copy quote
+        link" / "Start a fresh quote" buttons, a restoreNote status line,
+        document-level persist() autosave, and updated the featureList
+        JSON-LD and the visible "Nothing leaves your browser" footer
+        paragraph to describe the save/share capability accurately (no
+        dedicated "Is my bid data uploaded anywhere?" FAQ existed on this
+        venture already, matching the majority convention -- 5 of the 7
+        prior implementations rely on the footer paragraph as the privacy
+        answer rather than a standalone FAQ entry). Added page.test.mjs
+        drift-guard tests mirroring tree-service-bid-calculator's
+        `bodyOf`-based pattern: assert every field readUnitRows() collects
+        rides in BID_SPEC.rows, so a hand-written allowlist can't silently
+        diverge from the real form -- the same defect that has already cost
+        five other calculators a shared link that priced a different job
+        than the one the sender saw. Updated
+        platform/pages/link.test.mjs's pinned assertion (takes.length 1 ->
+        0, all 8 itemised calculators now keep their own share control) with
+        a new exclusion line for this venture.
+      - >-
+        Verified: ventures/portable-restroom-event-quote suite 123/123
+        (42 new in share.test.mjs incl. a full round-trip of every cost,
+        event, and unit-type row field; extended page.test.mjs with the
+        drift-guard and featureList tests). platform/marketing+pages
+        1126/1126 and platform/proposal 101/101 after running
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        front-door-tools mirror shard, the shard kustomization, and the
+        nginx alias map -- no other venture's shard touched).
+        platform/privacy+webcheck 50/50. python3 -m pytest gitops/tests:
+        408 passed, 25 skipped. platform/ci: all 15 unittest modules pass
+        (cd platform/ci; for m in test_*.py; do python3 -m unittest
+        "${m%.py}"; done). A manual Node round-trip (encodeBid then
+        decodeBid on the real BID_SPEC with a full fleet, event fields, and
+        proposal terms) reproduced every input unchanged. One
+        self-inflicted false alarm along the way, recorded so the next
+        session does not repeat the diagnosis: running the marketing/pages
+        suite concurrently with a second node platform/marketing/regen.mjs
+        process produced 2 spurious front-door-tools.test.mjs failures
+        ("committed mirror/alias map matches what the generator produces")
+        from reading gitops files mid-rewrite; serializing regen.mjs to
+        completion before the test run made the suite pass 1126/1126 with
+        zero flakiness on a repeat run -- not a repo defect, a race in how
+        this session sequenced its own background jobs.
+        ci_starvation.py was not needed: pushed and merged after local
+        verification per CLAUDE.md's "ship without review ceremony", CI
+        currently metered/starved fleet-wide.
+    mrr_end: null
