@@ -12981,3 +12981,38 @@ entries:
         bulk apply because restoreShare assigns `.value` without dispatching
         a change event.
     mrr_end: null
+  - venture: chargeback-evidence-packet
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Extended the dispute-reason coverage in packet.mjs from 4 to 7 reason
+        codes, adding "Duplicate transaction", "Subscription canceled", and
+        "Incorrect amount" -- each with its own required/recommended evidence
+        set and focus explanation, distinct from the other six (verified by
+        the existing "genuinely different records" signature test). Picked
+        this deliberately instead of the comparison-page/share-link pattern
+        dominating the fleet right now: the FAQ already disclosed the gap
+        ("What if my dispute reason isn't one of the four listed?") and any
+        seller with one of these three common reasons was falling back to a
+        generic order+payment checklist with no reason-specific guidance,
+        which is the actual product gap CLAUDE.md asks this session to find.
+        Updated the reason <select>, both FAQ blocks (visible copy and
+        JSON-LD, kept in sync), the how-to-respond-to-a-chargeback.html
+        table/copy, and README to reflect seven modeled reasons. No overlap:
+        checked git log and the two stray remote branches named for this
+        venture (cursor/chargeback-evidence-packet-launch-20260824,
+        cursor/chargeback-evidence-packet-main) -- both are strictly behind
+        main (regressive diffs), nothing to recover or duplicate. Verified:
+        `node --test ventures/chargeback-evidence-packet/*.mjs
+        ventures/chargeback-evidence-packet/*.test.mjs` (33/33, including 2
+        new reason-coverage tests and the pre-existing "every option offered
+        on the page" / "how-to article covers every reason" tests extended to
+        all 7), `node --test ventures/**/*.test.mjs` (15246/15246, no
+        regression), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1124/1124), and `node
+        platform/marketing/regen.mjs` to refresh the served front-door
+        mirror. GitHub Actions runners are starved today (ci_starvation.py
+        reports runner_id: 0 on a fresh dispatch), so this stands in for CI
+        per "absent CI is not failed CI".
+    mrr_end: null
