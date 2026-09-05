@@ -226,6 +226,7 @@
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -293,7 +294,7 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or soils advice, and it does not tell you what to charge. It is not an engineered wall design, a permit approval, or a geotechnical determination. Verify every figure against your own payroll, invoices, manufacturer tables, AHJ requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your wall size, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your wall size, wages, costs, or prices.</p>
     <p>See also: <a href="./how-much-to-charge-for-a-retaining-wall.html">how much to charge for a retaining wall</a> &middot; <a href="vs-aspire.html">this calculator vs. Aspire</a>.</p>
     <p class="support">Free and open source. If it keeps you from matching a losing per-foot quote, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -310,6 +311,7 @@
       WALL_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
     import {
       COMPANY_FIELDS,
       buildProposal,
@@ -326,6 +328,15 @@
       'hoursPerFaceSqFt','corners','hoursPerCorner','excavationHours','drainHours',
       'hourlyWage','burdenRate','engineerAndPermitFee','travelAndEquipment',
       'overheadRate','targetMargin','proposedPrice',
+    ];
+    const SELECT_IDS = ['wallTypePreset','heightPreset','engineerPreset'];
+    // Fields a preset (or, for heightFactor, the exposed-height input) offers
+    // to overwrite via a "suggested value" -- see the dataset.edited guards
+    // below. A restored share link marks each of these edited so a later
+    // preset change never clobbers the exact figure the sender shared.
+    const SUGGESTED_FIELD_IDS = [
+      'wallTypeFactor','blockCostPerSf','heightFactor','engineerAndPermitFee',
+      'embedmentFeet','corners','geogridLayers','excavationHours',
     ];
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -354,7 +365,9 @@
     }
 
     function readInput() {
-      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
     }
 
     function clearOutputs(message, isError) {
@@ -437,6 +450,54 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyLink() {
+      const encoded = encodeInputs(readInput());
+      const url = `${location.origin}${location.pathname}#${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      // So the address bar itself carries the link the button just copied --
+      // reloading or bookmarking the page reopens the same bid.
+      history.replaceState(null, '', `#${encoded}`);
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * Restore a shared bid from the URL hash (or query string, for a link
+     * pasted somewhere that stripped the fragment). Only the ids share.mjs
+     * re-validates against calc.mjs's own presets are ever written back into
+     * the form, so a crafted fragment cannot set anything this page does not
+     * already ask for.
+     */
+    function restoreShare() {
+      const fromUrl = decodeInputs(window.location.hash || window.location.search);
+      for (const id of SELECT_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      for (const id of FIELD_IDS) {
+        if (fromUrl[id] !== undefined) el(id).value = fromUrl[id];
+      }
+      // A wall-type/height/engineer/starting-layout change never overwrites a
+      // restored rate: mark the rates a preset suggests as already "edited",
+      // the same guard the form itself sets when a shop types over the
+      // suggestion.
+      SUGGESTED_FIELD_IDS.forEach((id) => {
+        if (fromUrl[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
     el('wallPreset').addEventListener('change', () => {
       const preset = WALL_PRESETS[Number(el('wallPreset').value)];
       if (!preset) return;
@@ -500,6 +561,9 @@
       } catch (error) {
         el('summaryStatus').textContent = error.message;
       }
+    });
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
     });
 
 
@@ -643,6 +707,7 @@
     document.addEventListener('input', refreshProposal);
     document.addEventListener('change', refreshProposal);
 
+    restoreShare();
     update();
     restoreCompany();
     refreshProposal();
