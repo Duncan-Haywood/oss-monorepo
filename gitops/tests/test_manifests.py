@@ -1008,9 +1008,10 @@ def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
             bodyless.append(block.splitlines()[0].strip())
         else:
             content_blocks.append(block)
-    assert len(bodyless) == 6, (
-        "expected exactly six body-less blocks — the five redirects "
-        f"(/index.html, /tools, /tools/, /c, /c/) and the catch-all; got {bodyless}"
+    assert len(bodyless) == 7, (
+        "expected exactly seven body-less blocks — the six redirects "
+        "(/index.html, /tools, /tools/, /c, /c/, and /tools/<slug> to its "
+        f"trailing-slash form) and the catch-all; got {bodyless}"
     )
     #
     # Changed 2026-09-03, and deliberately narrowed rather than relaxed. The
@@ -1044,7 +1045,7 @@ def test_portfolio_front_every_content_location_sends_x_frame_options() -> None:
                 "and not others"
             )
 
-    assert mapped == ['location ~ "^/tools/(?<slug>[a-z0-9][a-z0-9-]*)/?$" {'], (
+    assert mapped == ['location ~ "^/tools/(?<slug>[a-z0-9][a-z0-9-]*)/$" {'], (
         "exactly one block — the tool entry page — may use the conditional "
         f"framing map; found {mapped}"
     )

@@ -600,6 +600,35 @@ def test_the_truncatable_parents_redirect_to_the_front_page(front_door: str) -> 
         assert (location or "").endswith("/"), f"{url_path} redirected to {location}"
 
 
+def test_a_tool_entry_page_without_its_trailing_slash_redirects(front_door: str) -> None:
+    # The entry-page rule used to be `/?$`, so `/tools/<slug>` answered 200 with
+    # the page's bytes. That is the one shape of "it works" that is worse than a
+    # 404: the browser then resolves the page's *relative* references against
+    # `/tools/`, one directory above where the mirror keeps them, so the page
+    # renders and everything on it is gone. Measured over the real mirror before
+    # the fix, all 174 mirrored entry pages answered 200 at the slashless URL
+    # and every one lost at least one same-directory reference there — 693 in
+    # total, 15 of them a stylesheet or an ES module. Nothing in the mirror
+    # links this spelling; a truncated address, a pasted link and an external
+    # inbound link produce it.
+    #
+    # The canonical host never had the problem: `portfolio-site.yaml` serves a
+    # real directory tree and nginx redirects a directory request to its
+    # trailing-slash form on its own. This asserts the mirror does the same.
+    entry_path = _sample_paths()[0][0]
+    assert entry_path.endswith("/")
+    status, location = _no_redirect(front_door + entry_path.rstrip("/"))
+    assert status == 301, f"{entry_path.rstrip('/')} returned {status} rather than 301"
+    assert location == entry_path, f"redirected to {location}, not {entry_path}"
+
+    # `return` does not carry the query string on its own, and the embed
+    # snippet's URL is `?pfEmbed=1` — dropping it would land the reader on the
+    # non-embed page inside someone else's iframe.
+    status, location = _no_redirect(front_door + entry_path.rstrip("/") + "?pfEmbed=1")
+    assert status == 301
+    assert location == entry_path + "?pfEmbed=1", f"the query string was lost: {location}"
+
+
 def test_the_served_tree_is_the_size_the_ceilings_predict() -> None:
     # Not a serving property, but it is measured from the same built objects
     # and it is what the pod's tmpfs actually holds — the number
