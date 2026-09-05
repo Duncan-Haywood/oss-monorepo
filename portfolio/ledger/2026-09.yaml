@@ -1,5 +1,46 @@
 period: 2026-09
 entries:
+  - venture: consent-change-record
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a vs-Cookiebot marketing/SEO comparison page
+        (ventures/consent-change-record/vs-cookiebot.html), following the
+        established vs-*.html template used across the portfolio (see
+        vendor-change-evidence/vs-upguard.html). consent-change-record was
+        one of the last static-page ventures in the portfolio still without
+        a comparison page against a well-known named competitor in its
+        category (consent-management platforms). The page explains the
+        real scope difference -- Cookiebot crawls a whole domain on a
+        schedule and renders/manages the consent banner itself, while this
+        tool only diffs two before/after trace snapshots a user already
+        captured, for free, entirely client-side -- states no invented
+        Cookiebot pricing, and carries the standard not-affiliated,
+        no-warranty, and nothing-leaves-your-browser disclaimers, plus
+        FAQPage JSON-LD matching the visible text word-for-word. Linked it
+        from index.html and added it to sitemap.xml (a real .html page
+        missing from the sitemap was this venture's own prior regression
+        class, guarded by page.test.mjs's "every .html file in the venture
+        root is reachable from the sitemap" test). Ran `node
+        platform/marketing/regen.mjs` and committed the front-door /
+        front-door-tools mirror, sitemap.xml, catalog.json, llms.txt, and
+        compare.html it rewrote. Verified locally: `node --test
+        ventures/consent-change-record/*.test.mjs
+        ventures/consent-change-record/test/*.test.mjs
+        ventures/consent-change-record/tool/*.test.mjs` (47/47 passing) and
+        `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1124/1124 passing after fixing one
+        genuine failure this change introduced: the new page's JSON-LD FAQ
+        answer used a literal `--` where the visible prose used an em
+        dash, tripping platform/pages/faq-visible.test.mjs's
+        word-for-word JSON-LD/visible-text match -- corrected to a real em
+        dash in the JSON-LD). GitHub Actions is documented in this repo's
+        CLAUDE.md as starved and the Hetzner cluster as down (`:6443`
+        refused); both are owner-blocked and pre-diagnosed, so this ships
+        to `main` as code only, ready to serve once the owner's infra fix
+        lands.
+    mrr_end: null
   - venture: construction-evidence-log
     agent_spend_usd: null
     human_hours: 0
