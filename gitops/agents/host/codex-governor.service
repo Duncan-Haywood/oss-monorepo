@@ -36,6 +36,20 @@ Environment=CODEX_HOST_MANDATE=/opt/codex-agents/workers/mandate.md
 Environment=CODEX_STATE_DIR=/var/lib/codex
 Environment=CODEX_TOOLS_DIR=/var/lib/codex-tools
 
+# worker.sh redirects the Codex CLI's own state (CODEX_HOME=$CODEX_STATE_DIR/
+# home, above) and npm's install target (npm_config_prefix) away from $HOME --
+# but not everything it shells out to. `npm install -g` still falls back to
+# its default *cache* at ~/.npm, and `gh` falls back to ~/.config/gh, because
+# neither is told otherwise. This process's real $HOME is /root (root, no
+# User=), and ProtectHome=true below makes /root inaccessible and empty, not
+# merely read-only -- so left unset, the first tick that actually reaches
+# `install_codex` (a held tick, with no credentials yet, never does) fails
+# outright on a write no one sees coming. Pointing $HOME at the same
+# already-writable, already-declared directory CODEX_STATE_DIR names above
+# fixes it without carving out /root and weakening ProtectHome for everything
+# else that lives there.
+Environment=HOME=/var/lib/codex
+
 # A tick that has not finished in an hour is wedged. host_governor.py enforces
 # the same ceiling on the worker subprocess itself (CODEX_HOST_JOB_TIMEOUT) and
 # records the result as a failure; this is the outer backstop for the case where
@@ -46,7 +60,10 @@ TimeoutStartSec=4200
 # The Job this replaces sets a securityContext; these are the systemd
 # equivalents of the same narrowing. Not runAsNonRoot: worker.sh installs the
 # Codex CLI and gh under $HOME and clones into a temp dir, so it needs a
-# writable home, and the k8s side documents the same exception.
+# writable home -- the k8s side documents the same exception by leaving its
+# whole root filesystem writable. Here $HOME is redirected instead (see
+# above), so ProtectHome=true below can stay on rather than needing the same
+# blanket exception.
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
