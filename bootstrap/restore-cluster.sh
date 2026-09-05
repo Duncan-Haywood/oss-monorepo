@@ -48,6 +48,11 @@
 #
 #   MODE=auto|private|public   addressing; auto (default) probes the boxes
 #   SKIP_ARGOCD=1              stop after the two nodes are Ready
+#   WITH_CODEX_HOST=1          also install the Codex worker's systemd-timer
+#                              scheduler on the agent box (gitops/agents/host/).
+#                              Opt-in, runs last, cannot fail the restore, and
+#                              enables nothing -- it holds until credentials
+#                              and the policy switch arrive.
 #   DRY_RUN=1                  print the plan and the detected mode, change nothing
 set -euo pipefail
 
@@ -175,6 +180,9 @@ if [[ "$DRY_RUN" == "1" ]]; then
   echo "  agent   ${AG}  SERVER_URL=${SERVER_URL} NODE_IP=${AGENT_NODE_IP}"
   echo "  argocd  ${CP}  $([[ "$SKIP_ARGOCD" == 1 ]] && echo '(skipped)' || echo '(root Application from gitops/)')"
   echo "server already present: ${SERVER_PRESENT}"
+  if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
+    echo "  codex   ${AG}  would install the Codex host governor (holds until enabled)"
+  fi
   exit 0
 fi
 
@@ -296,3 +304,55 @@ echo
 echo "Confirm from outside the box — this is the only check a stranger's view agrees with:"
 echo "  dispatch 'Public surface check' (.github/workflows/public-surface-check.yml)."
 echo "Record what it returns in portfolio/ledger/infra_state.yaml."
+
+# ------------------------------------------ step 9: dev capacity that outlives
+# this cluster
+#
+# Opt-in, last, and unable to fail the restore. The cluster coming back is the
+# whole job above; this is a second thing worth having while you are already
+# holding the SSH key, and a broken install of it must not make a successful
+# recovery look failed.
+#
+# Why it is worth a step here at all: when this cluster died it took the Codex
+# worker's only scheduler with it, and the fallback — self-hosted runners in
+# `gitops/ci/` — died too, because those run as pods in this same cluster. The
+# insurance was downstream of the outage. `gitops/agents/host/` is a systemd
+# timer on the box that runs the identical governor with no k3s underneath it,
+# so installing it now is what makes the *next* cluster loss survivable rather
+# than another week with nowhere to run anything.
+#
+# It installs onto the agent box, matching the Job's `nodeSelector:
+# hcloud/node-role: agents`, and it enables nothing: policy.json ships
+# "enabled": false, so the timer ticks and holds until someone flips it and
+# supplies credentials. See gitops/agents/host/README.md.
+if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
+  # A dry run has already exited above, at the plan, which is where it names
+  # this step. Nothing here needs to check DRY_RUN.
+  step "Codex worker, host mode (agent box)"
+  codex_dir="$(ssh_ag 'mktemp -d' 2>/dev/null || true)"
+  if [[ -z "$codex_dir" ]]; then
+    echo "  ! could not create a working directory on ${AG}; skipped." >&2
+    echo "    The cluster restore above is unaffected." >&2
+  else
+    # The installer resolves its ROOT two levels up from itself, so the two
+    # trees have to land keeping their repository-relative paths.
+    if tar -C "${HERE}/.." -cz gitops/agents bootstrap/scripts/install-codex-host.sh \
+         | ssh_ag "tar -xz -C '${codex_dir}'" \
+       && ssh_ag "CONFIRM=install-codex-host bash '${codex_dir}/bootstrap/scripts/install-codex-host.sh'"; then
+      echo
+      echo "  Installed and holding. It spends no quota until you:"
+      echo "    1. ./bootstrap/scripts/install-codex-host.sh --credentials < codex.env"
+      echo "    2. enable the policy (./bootstrap/scripts/enable-codex-governor.sh), then re-run the installer"
+    else
+      echo "  ! the Codex host install did not complete." >&2
+      echo "    The cluster restore above is unaffected; retry with" >&2
+      echo "    gitops/agents/host/README.md, which does it without this script." >&2
+    fi
+    ssh_ag "rm -rf '${codex_dir}'" >/dev/null 2>&1 || true
+  fi
+else
+  echo
+  echo "Not installed: the Codex worker's host-mode scheduler (gitops/agents/host/)."
+  echo "  Re-run with WITH_CODEX_HOST=1 to add it while you still hold the SSH key."
+  echo "  It is what keeps dev capacity alive the next time this cluster is not."
+fi

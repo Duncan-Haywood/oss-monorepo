@@ -84,10 +84,21 @@ decisions:
     GitHub route cannot work.** With the private key loaded in your SSH agent
     (the key matching the public half already installed on `root@89.167.29.39`
     and `root@157.180.80.188`), run:
-    `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> bootstrap/restore-cluster.sh`
+    `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> WITH_CODEX_HOST=1
+    bootstrap/restore-cluster.sh`
     — that is the whole recovery, end to end, and it needs no runner and no
     repository secret. Add `DRY_RUN=1` first if you want to see the plan and
-    the detected addressing mode without changing anything. The `<pat>` is a
+    the detected addressing mode without changing anything.
+    `WITH_CODEX_HOST=1` is optional and worth taking while you are already
+    holding the key. It installs the Codex worker's systemd-timer scheduler
+    (`gitops/agents/host/`) on the agent box: the same governor, running with
+    no k3s underneath it. When this cluster died it took the worker's only
+    scheduler with it, and the fallback — self-hosted runners in `gitops/ci/`
+    — died too, because those run as pods in this same cluster. That step is
+    what makes the *next* cluster loss survivable instead of another week with
+    nowhere to run anything. It runs last, cannot fail the restore, and
+    enables nothing: the policy still ships `"enabled": false`, so it holds
+    until credentials and the switch arrive. The `<pat>` is a
     fine-grained PAT with **Contents: Read** on this repository; the script
     masks it and ships it to the box as a mode-600 file rather than putting it
     in argv. Without it the restore *succeeds and the site stays dark*, which
