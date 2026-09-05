@@ -34,6 +34,14 @@ test('rejects negative assumptions', () => {
   assert.throws(() => calculateQuote({ ...input, partsCost: -1 }), /partsCost/);
 });
 
+test('rejects a target margin of 100% or more instead of silently clamping it', () => {
+  // Previously this clamped to 99.9% and returned an extreme, unexplained
+  // price instead of telling the contractor the input was out of range --
+  // the one bid calculator in the fleet that did not reject it outright.
+  assert.throws(() => calculateQuote({ ...input, targetMargin: 100 }), /less than 100/);
+  assert.throws(() => calculateQuote({ ...input, targetMargin: 150 }), /less than 100/);
+});
+
 test('default dryer repair costs the customer more per year than a $799 replacement', () => {
   const comparison = compareServiceCallVsReplace(input, replaceDefault);
   close(comparison.quote.target, 635.25, 'target');
