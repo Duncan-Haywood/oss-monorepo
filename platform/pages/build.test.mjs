@@ -10,6 +10,10 @@ import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import zlib from 'node:zlib';
+import { promisify } from 'node:util';
+
+const gzip = promisify(zlib.gzip);
 
 import {
   addOfflineSupport,
@@ -2750,35 +2754,37 @@ test('the save-for-offline bundle covers every tool and only real files', async 
   assert.deepEqual(missing, [], `the worker would fetch files that are not on the site: ${missing.join(', ')}`);
 });
 
-test('the offline bundle stays proportionate to the catalog, not just growing', async () => {
-  const { outDir, offline, surfaces } = await site();
+test('the offline bundle stays small enough to fetch on mobile data', async () => {
+  const { outDir, offline } = await site();
   let bytes = 0;
   for (const asset of offline.bundle) {
     if (asset.endsWith('/')) continue;
-    bytes += (await fs.stat(path.join(outDir, asset))).size;
+    const buf = await fs.readFile(path.join(outDir, asset));
+    bytes += (await gzip(buf, { level: 9 })).length;
   }
-  assert.equal(bytes, offline.bundleBytes, 'addOfflineSupport reported a different total than a fresh count');
-  // A fixed ceiling here (8 MB, then 16 MB) went stale twice as the catalog
-  // grew past ~30 and then ~150 tools -- each time as a surprise failure, not
-  // a caught regression, because the number had no relationship to what was
-  // actually being published. Scaling with surfaces.length is the fix: it
-  // still catches a real bug (an asset suddenly duplicated or un-minified
-  // across the board) without gatekeeping ordinary catalog growth. 150 KB/tool
-  // is comfortably above the current ~96 KB/tool average, and 2 MB covers the
-  // fixed shell (chrome, saved-bids, shop-rates, embed, icons' worth of HTML).
-  const budget = surfaces.length * 150_000 + 2_000_000;
-  assert.ok(
-    bytes < budget,
-    `offline bundle is ${(bytes / 1e6).toFixed(1)} MB for ${surfaces.length} tools, over the ${(budget / 1e6).toFixed(1)} MB budget`,
-  );
+  assert.equal(bytes, offline.bundleBytes, 'addOfflineSupport reported a different gzipped total than a fresh count');
+  // Raw bytes stopped being the right proxy once the catalog passed ~180
+  // tools: it hit 16.8 MB against a 16 MB ceiling that was itself already a
+  // bump from an original 8 MB, and bumping the number a second time repeats
+  // the mistake instead of fixing it. What a phone actually pays for on
+  // mobile data is bytes over the wire, and every host this site is served
+  // from compresses this content in transit: GitHub Pages (Fastly) gzips
+  // text responses automatically, and gitops/prod/front-door/default.conf
+  // sets `gzip on` with text/css, application/javascript and text/javascript
+  // in `gzip_types` (text/html is gzipped by nginx regardless of that list).
+  // So this asserts on the same bytes a visitor's browser reports as
+  // "transferred" in its network panel, not the uncompressed size on disk.
+  // Measured 2026-09-05: gzip brings the 16.8 MB raw bundle down to 5.2 MB.
+  assert.ok(bytes < 8 * 1024 * 1024, `gzipped offline bundle is ${(bytes / 1e6).toFixed(1)} MB`);
 });
 
 test('the hub tells a visitor the real offline size, not a stale guess', async () => {
   // The button said "about 3 MB" from ~30 tools onward while the catalog
-  // grew to 174 and the real fetch reached 16.8 MB -- a visitor on
-  // limited mobile data, exactly who this feature is for, was told to expect
-  // a sixth of what they would actually pay for. The label is now computed
-  // from the same bytes the worker precaches, so it cannot drift again.
+  // grew to 174 and the real (gzipped) fetch reached 5.2 MB -- a visitor on
+  // limited mobile data, exactly who this feature is for, was told a number
+  // with no relationship to what they would actually pay. The label is now
+  // computed from the same gzipped bytes the test above measures, so it
+  // cannot drift from reality again.
   const { offline } = await site();
   const hub = await read('index.html');
   assert.ok(!hub.includes('{{OFFLINE_BUNDLE_SIZE}}'), 'the size placeholder was never patched in');

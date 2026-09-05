@@ -5312,16 +5312,21 @@ export async function addOfflineSupport({
     injected += 1;
   }
 
-  // The real weight of everything "Save all tools for offline" fetches, taken
-  // after the head injection above -- that markup is part of what a visitor's
-  // browser actually downloads for every page in the bundle. Patched into the
-  // hub's own copy so it can never drift from what a visitor on mobile data
-  // actually pays: see OFFLINE_SIZE_MARKER in offline.mjs for the stale "about
-  // 3 MB" claim this replaces, which stood while the catalog grew to 16.8 MB.
+  // The real weight of everything "Save all tools for offline" fetches, over
+  // the wire rather than on disk -- GitHub Pages (Fastly) and the front
+  // door's own nginx both gzip text responses in transit, so raw bytes
+  // overstate what a visitor's mobile data plan is actually charged (see
+  // build.test.mjs's "stays small enough to fetch on mobile data" for the
+  // same measurement). Taken after the head injection above, so it matches
+  // what a browser really downloads. Patched into the hub's own copy so it
+  // can never drift from reality: see OFFLINE_SIZE_MARKER in offline.mjs for
+  // the stale "about 3 MB" claim this replaces, which stood while the
+  // catalog grew to 174 tools and 16.8 MB raw (5.2 MB gzipped).
   let bundleBytes = 0;
   for (const asset of bundle) {
     if (asset.endsWith('/')) continue; // directory alias of a page already counted
-    bundleBytes += (await fs.stat(path.join(outDir, asset))).size;
+    const buf = await fs.readFile(path.join(outDir, asset));
+    bundleBytes += zlib.gzipSync(buf, { level: 9 }).length;
   }
   const hubIndex = path.join(outDir, 'index.html');
   const beforePatch = await fs.readFile(hubIndex, 'utf8');
@@ -5330,7 +5335,9 @@ export async function addOfflineSupport({
   // index.html is itself one of the stated assets; account for the patch's own
   // size delta so bundleBytes matches the bytes actually on disk afterward,
   // rather than the pre-patch state it was measured from.
-  bundleBytes += Buffer.byteLength(afterPatch) - Buffer.byteLength(beforePatch);
+  bundleBytes +=
+    zlib.gzipSync(Buffer.from(afterPatch), { level: 9 }).length -
+    zlib.gzipSync(Buffer.from(beforePatch), { level: 9 }).length;
 
   return { cacheName, bundle, bundleBytes, injected };
 }
