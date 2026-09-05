@@ -616,7 +616,7 @@
       "url": "https://marisstella.dev/tools/consent-change-record/",
       "category": "Compliance checks & evidence records",
       "description": "Compare before-and-after consent browser traces and create a local request and storage change record.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "countertop-bid-calculator",
