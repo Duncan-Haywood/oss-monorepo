@@ -498,10 +498,26 @@ decisions:
     written: GitHub rejects any Actions configuration-variable name
     starting with `GITHUB_`, case-insensitive, at creation time. See
     `portfolio/hosting/README.md`.)
-    That is the remaining flip for static products. The host is already
-    decided (GitHub Pages + existing Hetzner boxes; see
-    `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
-    secrets as the way the portfolio goes live.
+    **This row used to call that "the remaining flip for static products".
+    It is not the remaining anything** (corrected 2026-09-05). Two things
+    sit behind it. First, `portfolio-pages.yml` has to build the artifact,
+    and it cannot today — runner assignment stopped again on 2026-09-04,
+    which is why this row now renders `down`. Second, and fixable by no
+    amount of CI: **this repository is private, and Pages from a private
+    repository does not serve a public site on the free tier.** If this
+    account is on the free tier, granting this row publishes nothing to a
+    stranger however green CI gets, and it is not a restore route at all;
+    on Pro or above it is. Nothing in this repository can read the
+    account's plan, so the owner is the only one who can settle which case
+    this is — worth thirty seconds in Settings → Billing before spending
+    anything else here, because the answer decides whether this row belongs
+    in the outage set. `portfolio/hosting/README.md` has carried the
+    private-repo constraint since 2026-09-01; this row had not caught up.
+    The Hetzner route in `hetzner-ssh-key-is-a-public-key` has neither
+    constraint and, as of 2026-09-05, is one command from the owner's own
+    machine. The host is already decided (GitHub Pages + existing Hetzner
+    boxes; see `portfolio/hosting/README.md`) — do not add Cloudflare or
+    Vercel secrets as the way the portfolio goes live.
   unlocks:
     - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
     - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
