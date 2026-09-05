@@ -100,7 +100,11 @@ import {
 } from '../pages/offline.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const REGENERATE = 'node platform/marketing/front-door-tools.mjs --write';
+// Deliberately the whole-surface command, not this generator alone: a session
+// handed `front-door-tools.mjs --write` fixes the mirror, sees its test go
+// green, and ships a stale sitemap from the *other* generator. That is what
+// #3257 and #3258 each did on 2026-09-05. See platform/marketing/regen.mjs.
+const REGENERATE = 'node platform/marketing/regen.mjs';
 
 test('the committed mirror matches what the generator produces', async () => {
   // `stored`, not `files`: a file whose bytes are byte-identical to one already
