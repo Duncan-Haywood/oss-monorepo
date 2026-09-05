@@ -2,7 +2,7 @@
 // column mismatch or an advertised-but-unrendered figure would stay green.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareOffsiteAdRates, maxAffordableOffsiteRate, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping, compareEtsyLabels } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -528,4 +528,18 @@ test('the result panel is announced to screen readers when it updates', () => {
     /<section class="result" aria-live="polite">/,
     'the result section is not a live region, so updates are never announced',
   );
+});
+
+// Regression: sitemap.xml was missing vs-etsys-listing-form-calculator.html,
+// a real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture is reachable from the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
 });

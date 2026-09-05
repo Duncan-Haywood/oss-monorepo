@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
 
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const secondary = await readFile(new URL('./is-it-safe-to-delete-this-branch.html', import.meta.url), 'utf8');
@@ -64,4 +65,18 @@ test('secondary FAQ answers the search question without a warranty', () => {
   assert.match(secondary, /FAQPage/);
   assert.match(secondary, /No warranty/);
   assert.match(secondary, /no SLA/i);
+});
+
+// Regression: sitemap.xml was missing is-it-safe-to-delete-this-branch.html,
+// a real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture is reachable from the sitemap', async () => {
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
 });
