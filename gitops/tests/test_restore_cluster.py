@@ -68,6 +68,15 @@ case "$cmd" in
     printf 'STDIN %s bytes: %s\\n' "${{#body}}" "$(printf '%s' "$body" | head -c 60 | tr '\\n' ' ')" >> "{calls}"
     exit 0
     ;;
+  # The Codex host-mode payload arrives the same way -- a local `tar -cz` piped
+  # into a remote `tar -xz`. Draining it matters for the same reason: an
+  # undrained pipe SIGPIPEs the writer, and the script would read that as the
+  # install having failed rather than as the stub not listening.
+  *"tar -xz"*)
+    body="$(cat)"
+    printf 'STDIN %s bytes: codex payload\\n' "${{#body}}" >> "{calls}"
+    exit 0
+    ;;
 esac
 
 # No trailing `exit 0`: several branches below are probes whose *exit status*
@@ -89,6 +98,8 @@ case "$cmd" in
     # reject; `cat` succeeding on it is the realistic behaviour.
     cat "{state}/node_token" 2>/dev/null || exit 1 ;;
   *mktemp*) echo /tmp/restore-stub ;;
+  *"install-codex-host.sh"*)
+    test ! -f "{state}/codex_install_fails" ;;
   *"kubectl wait"*) echo "node/cp condition met" ;;
   *"kubectl get nodes"*) echo "cp Ready; ag Ready" ;;
   *curl*) echo "200, 4096 bytes" ;;
@@ -439,3 +450,63 @@ def test_invalid_mode_is_rejected(box):
     result = box.run(MODE="sideways")
     assert result.returncode != 0
     assert "MODE must be" in result.stderr
+
+
+# ------------------------------------- step 9: dev capacity that outlives this
+# cluster
+#
+# When this cluster died it took the Codex worker's only scheduler with it, and
+# the fallback (self-hosted runners in `gitops/ci/`) died too, because those run
+# as pods in this same cluster. `gitops/agents/host/` is a systemd timer that
+# runs the identical governor with no k3s underneath it, so installing it during
+# the restore is what makes the *next* cluster loss survivable. These tests pin
+# the three properties that make it safe to bolt onto the recovery path.
+
+
+def test_codex_host_is_not_installed_by_default(box):
+    """The recovery path is unchanged unless you ask for the extra step."""
+    result = box.run()
+    assert result.returncode == 0, result.stderr
+    assert "install-codex-host.sh" not in box.log()
+    # ...but it says the option exists, or nobody holding the key would know.
+    assert "WITH_CODEX_HOST=1" in result.stdout
+
+
+def test_codex_host_installs_on_the_agent_box_when_opted_in(box):
+    result = box.run(WITH_CODEX_HOST=1)
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+
+    install = [line for line in log.splitlines() if "install-codex-host.sh" in line]
+    assert install, "the installer was never invoked"
+    # The Job it stands in for carries `nodeSelector: hcloud/node-role: agents`,
+    # so the worker belongs on the agent box, not the control plane.
+    assert any(AG in line for line in install), f"not sent to the agent box: {install}"
+    assert not any(CP in line for line in install), "installed on the control plane"
+    # The installer refuses without this, so a missing CONFIRM is a silent no-op.
+    assert any("CONFIRM=install-codex-host" in line for line in install)
+    assert "codex payload" in log, "the agents tree never reached the box"
+
+
+def test_codex_host_failure_does_not_fail_the_restore(box):
+    """A broken extra must not make a successful recovery look failed."""
+    (box.state / "codex_install_fails").write_text("")
+    result = box.run(WITH_CODEX_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "did not complete" in result.stderr
+    assert "cluster restore above is unaffected" in result.stderr
+
+
+def test_codex_host_respects_dry_run(box):
+    result = box.run(CONFIRM="", DRY_RUN=1, WITH_CODEX_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "install-codex-host.sh" not in box.log()
+    assert "would install the Codex host governor" in result.stdout
+    assert "holds until enabled" in result.stdout
+
+
+def test_codex_host_enables_nothing(box):
+    """Installing is separated from authorising spend, and says so."""
+    result = box.run(WITH_CODEX_HOST=1)
+    assert "spends no quota" in result.stdout
+    assert "--credentials" in result.stdout
