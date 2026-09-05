@@ -13664,3 +13664,30 @@ entries:
         would either duplicate the existing governor or ship the one shape
         the repo's own checklist says not to.
     mrr_end: null
+  - venture: stucco-repair-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link (#3383, merged). Zero open
+        PRs existed at session start; audited all 86 remote branches with
+        commits ahead of `main` and confirmed every one already superseded
+        (matching another session's independent `supersede_check.py` run
+        the same day), so picked the highest-value available product
+        improvement instead: this venture was one of 21 remaining
+        bid-calculator ventures without the shareable-link feature ~207
+        others already carry. Added share.mjs/share.test.mjs (checked
+        against calc.mjs's own SYSTEM_PRESETS/STORY_PRESETS) and
+        proposal-terms.mjs/proposal-terms.test.mjs (deposit/validity/terms
+        ride beside the payload in `pfterms`), both following the
+        water-softener-bid-calculator template verbatim. Verified: venture
+        suite 103/103, platform/marketing+pages 1126/1126,
+        platform/proposal 101/101 (incl. term-ids.test.mjs),
+        platform/privacy+webcheck 31/31, a full build.mjs/check.mjs pass
+        (174 products, no dead links), and a real-browser
+        `roundtrip.mjs` run (installed the playwright npm package against
+        the already-present Chromium via `CHROME_PATH`) confirming the
+        share link round-trips all 51 fields with the headline price
+        unchanged. PR's CI was starved (`ci_starvation.py` against run
+        33984054830: runner_id 0); merged on the local verification above.
+    mrr_end: null
