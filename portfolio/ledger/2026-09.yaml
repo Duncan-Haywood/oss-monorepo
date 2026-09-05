@@ -13548,3 +13548,119 @@ entries:
         - node platform/marketing/regen.mjs -> served surface already
           current, no diff
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue first per this session's mandate: 0 open
+        PRs existed at start (confirmed twice, since 3 concurrent sessions
+        were active on this repo), so the 3-PR merge quota was trivially met
+        (queue empty).
+      - >-
+        Found and fixed real drift instead: ran `node
+        platform/marketing/regen.mjs` cold and it reported non-trivial diff
+        in gitops/prod/front-door-tools/ -- PR #3376 (merged same day) fixed
+        the equipment-rental-break-even formula on the venture's own page but
+        nobody re-ran regen.mjs, so the mirrored copy served at
+        /tools/equipment-rental-break-even/ still carried the pre-fix,
+        wrong formula. This is the exact "page landed, mirror never
+        regenerated" defect class CLAUDE.md already records costing live
+        product in #3256-#3258 and #3324-#3326. Fixed via PR #3377, verified
+        with the full platform/marketing + platform/pages suite (1126/1126
+        passing) before merging. CI on the PR was starved (check,
+        resolve-pr, tofu, gitops, hcloud-scope, scripts all failed in 3-5s);
+        confirmed with `ci_starvation.py` against each run id (all
+        runner_id: 0) before merging on local verification alone.
+      - >-
+        Refreshed the gh-pages snapshot per CLAUDE.md's standing
+        post-merge instruction: `pages_state.py` reported it stale (built
+        from 44bc8c5, main at 77be2845/d954a67c). Ran `CONFIRM=publish-pages-branch
+        PUSH=1 ./platform/pages/publish-branch.sh` (safe/no-op on the owner
+        Settings switch -- it only writes the gh-pages branch, never enables
+        Pages) and confirmed `pages_state.py` now reports "current". This is
+        the one deployment route not downstream of the dead k3s cluster or
+        starved Actions runners, so it was worth keeping fresh even though
+        this session could not verify whether Settings -> Pages source
+        actually points at it (WebFetch to *.github.io is blocked by this
+        session's own egress proxy).
+      - >-
+        Investigated this session's explicit new asks (prioritize Hetzner
+        deployment/CI-CD, marketing-material deployment, and setting up
+        Codex CLI on the Hetzner VM to use "built-in quota" for dev work).
+        All three are already fully built and documented as blocked on the
+        same owner-only action: `asks.yaml`'s `codex-governor-enable` and
+        `portfolio-site-hetzner-deploy` rows show the governor code, RBAC,
+        tests, and credential templates already exist and are unused,
+        gated only on the owner sealing a credential and on
+        `hetzner-ssh-key-is-a-public-key` (k3s API server not listening,
+        run 33889983086) -- both require the owner's own machine/laptop
+        with the real private key, which this session does not have.
+        Deliberately did NOT implement a personal-ChatGPT-login shape for
+        "use the built-in quota": `codex-governor-enable`'s note quotes
+        `infra/OWNER_CHECKLIST.md` line 80 explicitly forbidding exactly
+        that (no euro hard stop, competes with the owner's interactive
+        use) -- the already-designed alternative is a project API key with
+        a hard dollar limit, or a non-personal-account CODEX_AUTH_JSON,
+        both owner-sealed secrets. No new code needed here; re-implementing
+        would either duplicate the existing governor or ship the one shape
+        the repo's own checklist says not to.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the open-PR queue first per this session's mandate: 0 open
+        PRs existed at start (confirmed twice, since 3 concurrent sessions
+        were active on this repo), so the 3-PR merge quota was trivially met
+        (queue empty).
+      - >-
+        Found and fixed real drift instead: ran `node
+        platform/marketing/regen.mjs` cold and it reported non-trivial diff
+        in gitops/prod/front-door-tools/ -- PR #3376 (merged same day) fixed
+        the equipment-rental-break-even formula on the venture's own page but
+        nobody re-ran regen.mjs, so the mirrored copy served at
+        /tools/equipment-rental-break-even/ still carried the pre-fix,
+        wrong formula. This is the exact "page landed, mirror never
+        regenerated" defect class CLAUDE.md already records costing live
+        product in #3256-#3258 and #3324-#3326. Fixed via PR #3377, verified
+        with the full platform/marketing + platform/pages suite (1126/1126
+        passing) before merging. CI on the PR was starved (check,
+        resolve-pr, tofu, gitops, hcloud-scope, scripts all failed in 3-5s);
+        confirmed with `ci_starvation.py` against each run id (all
+        runner_id: 0) before merging on local verification alone.
+      - >-
+        Refreshed the gh-pages snapshot per CLAUDE.md's standing
+        post-merge instruction: `pages_state.py` reported it stale (built
+        from 44bc8c5, main at 77be2845/d954a67c). Ran `CONFIRM=publish-pages-branch
+        PUSH=1 ./platform/pages/publish-branch.sh` (safe/no-op on the owner
+        Settings switch -- it only writes the gh-pages branch, never enables
+        Pages) and confirmed `pages_state.py` now reports "current". This is
+        the one deployment route not downstream of the dead k3s cluster or
+        starved Actions runners, so it was worth keeping fresh even though
+        this session could not verify whether Settings -> Pages source
+        actually points at it (WebFetch to *.github.io is blocked by this
+        session's own egress proxy).
+      - >-
+        Investigated this session's explicit new asks (prioritize Hetzner
+        deployment/CI-CD, marketing-material deployment, and setting up
+        Codex CLI on the Hetzner VM to use "built-in quota" for dev work).
+        All three are already fully built and documented as blocked on the
+        same owner-only action: `asks.yaml`'s `codex-governor-enable` and
+        `portfolio-site-hetzner-deploy` rows show the governor code, RBAC,
+        tests, and credential templates already exist and are unused,
+        gated only on the owner sealing a credential and on
+        `hetzner-ssh-key-is-a-public-key` (k3s API server not listening,
+        run 33889983086) -- both require the owner's own machine/laptop
+        with the real private key, which this session does not have.
+        Deliberately did NOT implement a personal-ChatGPT-login shape for
+        "use the built-in quota": `codex-governor-enable`'s note quotes
+        `infra/OWNER_CHECKLIST.md` line 80 explicitly forbidding exactly
+        that (no euro hard stop, competes with the owner's interactive
+        use) -- the already-designed alternative is a project API key with
+        a hard dollar limit, or a non-personal-account CODEX_AUTH_JSON,
+        both owner-sealed secrets. No new code needed here; re-implementing
+        would either duplicate the existing governor or ship the one shape
+        the repo's own checklist says not to.
+    mrr_end: null
