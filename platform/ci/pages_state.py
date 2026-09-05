@@ -83,6 +83,7 @@ from ci_starvation import (  # noqa: E402  (path shim must precede the import)
     http_api_for,
     resolve_repo,
 )
+import public_surface  # noqa: E402  (same shim)
 
 REPO_PATH = f"repos/{REPO_PLACEHOLDER}"
 BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{{branch}}"
@@ -154,6 +155,9 @@ def plan_verdict(repo):
             "Free plan does not permit -- so the plan most likely supports "
             "private Pages. Sticky flag: confirm in Settings -> Billing",
         )
+    # `has_pages` false is the one case where "flip Pages on" is the whole
+    # action. Every other branch reaches `source_note` below, which is about
+    # *which source* an already-configured site points at.
     return (
         "unknown",
         "no Pages site is configured, which is what both a Free plan and an "
@@ -184,10 +188,74 @@ def freshness(publish, head_sha):
     )
 
 
+def source_note(repo, base_url):
+    """What is actually left to do, given `has_pages`.
+
+    Why this is separate from `plan_verdict`
+    ----------------------------------------
+    Added 2026-09-05, because the two questions had been collapsed into one and
+    the answer to the second was wrong. `has_pages: true` was read purely as
+    evidence about *billing* -- which it is, and that inference stands -- and
+    the tool then printed "The flip: Settings -> Pages -> Source ..." as though
+    Pages were switched off. It is not. `has_pages: true` means a Pages site is
+    **already configured on this repository**; what nobody here has read is
+    which *source* it points at, and the two possibilities need opposite
+    actions:
+
+      * Source = "GitHub Actions" (what `portfolio-pages.yml` configures). The
+        site is dark because that workflow needs a runner and the metered
+        allowance is spent. The owner's move is to switch the source to the
+        `gh-pages` branch, which needs no runner at all.
+      * Source = `gh-pages` branch already. Then the catalogue **is being
+        served** and the queued `deploy-settings` ask is already granted.
+
+    Nothing in this repository can tell those apart: `GET /repos/{o}/{r}/pages`
+    carries the answer and is one of the paths the agent egress proxy refuses
+    (403), which is why this module reads only the plain repository object.
+    And the credential-free check that could settle it from a runner --
+    `platform/ci/public_surface.py`'s Pages probe -- has never once executed:
+    it landed in dbf614c74, one commit *after* run 33887885219, the last run to
+    get a real runner. Every dispatch since has come back `runner_id: 0`.
+
+    So the honest output is not a flip instruction. It is the one URL that
+    settles it, which anyone with a browser can open in five seconds and no
+    session running behind the proxy can.
+    """
+    if not repo["has_pages"]:
+        # Deliberately not a flip instruction. `has_pages: false` on a private
+        # repository is what a Free plan and an unflipped switch look like
+        # alike, so naming the switch here would send the owner to a Settings
+        # page that may have nothing to offer them. The plan is the question
+        # that comes first, and it is the one this cannot read.
+        return (
+            "No Pages site is configured. On a private repository that is what "
+            "a Free plan and an unflipped switch look like alike, so the "
+            "question ahead of the switch is the plan: Settings -> Billing."
+        )
+    target = base_url or "the repository's github.io origin"
+    return (
+        "Pages is ALREADY configured here (has_pages: true). What is unread is "
+        "which source it points at, and this session cannot read it -- the "
+        "/pages API path is refused by the agent egress proxy, and the "
+        "runner-side probe that would answer it has never run on a real "
+        "runner (added after run 33887885219; every dispatch since is "
+        "runner_id: 0).\n"
+        f"    Settle it by opening:  {target}\n"
+        "      serves  -> the branch route is already live; deploy-settings is "
+        "already granted, and this catalogue has a public URL.\n"
+        "      404/dark -> the source is still 'GitHub Actions', which needs a "
+        f"runner. Switch it to '{PUBLISH_BRANCH} / (root)' -- no runner, no "
+        "cluster, no secret."
+    )
+
+
 def collect(api):
     repo = read_repo(api)
     publish = read_publish_branch(api)
     head_sha = read_default_head(api, repo["default_branch"])
+    # Read from build.mjs by the module that already owns that parse, rather
+    # than restated here -- the copied-constant mistake CLAUDE.md records twice.
+    base_url = public_surface.pages_base_url()
     verdict, reason = plan_verdict(repo)
     fresh, fresh_reason = freshness(publish, head_sha)
     return {
@@ -201,6 +269,8 @@ def collect(api):
         "plan_reason": reason,
         "snapshot": fresh,
         "snapshot_reason": fresh_reason,
+        "pages_url": base_url,
+        "source_note": source_note(repo, base_url),
     }
 
 
@@ -217,13 +287,8 @@ def render(state):
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",
     ]
-    if state["plan_verdict"] == "likely-up":
-        lines += [
-            "",
-            "  The flip, if the plan confirms: Settings -> Pages -> Source",
-            "  'Deploy from a branch' -> gh-pages / (root). No Actions runner,",
-            "  no k3s cluster, no secret.",
-        ]
+    lines += ["", "  next"]
+    lines += [f"    {line}" for line in state["source_note"].split("\n")]
     return "\n".join(lines) + "\n"
 
 

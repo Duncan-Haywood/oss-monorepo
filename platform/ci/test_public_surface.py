@@ -162,6 +162,7 @@ class PagesOriginTests(unittest.TestCase):
         probes = ps.pages_probes(
             rows=[pages_row("gated", ["vars.PAGES_ENABLED == 'true'"])],
             base_url="https://example.test/site/",
+            branch_route=False,
         )
         self.assertEqual(len(probes), 1)
         self.assertEqual(probes[0].expect, "gated")
@@ -173,7 +174,54 @@ class PagesOriginTests(unittest.TestCase):
 
     def test_a_missing_workflow_predicts_nothing_rather_than_guessing(self):
         """A rename must not become a fabricated prediction about a deploy."""
-        self.assertEqual(ps.pages_probes(rows=[], base_url="https://example.test/"), [])
+        self.assertEqual(
+            ps.pages_probes(rows=[], base_url="https://example.test/", branch_route=False),
+            [],
+        )
+
+    def test_a_gated_workflow_with_the_branch_route_predicts_nothing(self):
+        """The defect this pair exists for.
+
+        `publish-branch.sh` serves this origin without the workflow, so a gated
+        deploy job no longer means dark. Predicting `gated` here would score the
+        catalogue going live as a discrepancy -- a red check on the one day the
+        route finally works.
+        """
+        probes = ps.pages_probes(
+            rows=[pages_row("gated", ["vars.PAGES_ENABLED == 'true'"])],
+            base_url="https://example.test/site/",
+            branch_route=True,
+        )
+        self.assertEqual(len(probes), 1)
+        self.assertEqual(probes[0].expect, ps.UNPREDICTABLE)
+        # Both routes are named, so a reader can tell which lever is which.
+        self.assertIn("PAGES_ENABLED", probes[0].why)
+        self.assertIn("gh-pages", probes[0].why)
+
+    def test_an_unpredictable_origin_agrees_either_way(self):
+        """Reported, never scored: neither outcome is evidence of a defect."""
+        probe = ps.Probe(url="https://example.test/", expect=ps.UNPREDICTABLE, why="two routes")
+        dark = ps.Result(probe=probe, status=404, body_bytes=0)
+        serving = ps.Result(probe=probe, status=200, body_bytes=ps.MIN_SERVED_BYTES + 1)
+        self.assertFalse(dark.serving)
+        self.assertTrue(serving.serving)
+        self.assertTrue(dark.agrees)
+        self.assertTrue(serving.agrees)
+
+    def test_the_branch_route_alone_still_probes_the_origin(self):
+        """No workflow but a staged branch is a reason to ask, not to fall silent."""
+        probes = ps.pages_probes(rows=[], base_url="https://example.test/", branch_route=True)
+        self.assertEqual(len(probes), 1)
+        self.assertEqual(probes[0].expect, ps.UNPREDICTABLE)
+
+    def test_the_publisher_this_reads_still_exists(self):
+        """`branch_route` defaults off a real path; a rename must not silently
+        drop the origin back to a `gated` prediction."""
+        self.assertTrue(
+            ps.PUBLISH_BRANCH_SCRIPT.is_file(),
+            "publish-branch.sh moved; pages_probes would silently go back to "
+            "predicting `gated` for an origin that branch still serves",
+        )
 
     def test_a_build_mjs_without_the_export_yields_no_url(self):
         """A rename of the export is a reason to read nothing, not to guess."""
@@ -195,7 +243,19 @@ class PagesOriginTests(unittest.TestCase):
     def test_the_real_workflows_produce_one_pages_probe(self):
         probes = ps.pages_probes()
         self.assertEqual(len(probes), 1, "portfolio-pages.yml no longer classifies as publishing")
-        self.assertIn(probes[0].expect, {"serves", "gated"})
+        self.assertIn(probes[0].expect, {"serves", "gated", ps.UNPREDICTABLE})
+
+    def test_the_real_repository_predicts_nothing_about_the_pages_origin(self):
+        """What the two live routes actually add up to today.
+
+        `portfolio-pages.yml` is gated on `PAGES_ENABLED` and `publish-branch.sh`
+        stages `gh-pages`, so both routes are real and the account setting
+        picks between them. Pinned rather than left to the looser set above
+        because this is the state the reporting was getting wrong: if this ever
+        goes back to a flat `gated`, a served catalogue starts reading as a
+        failed probe again.
+        """
+        self.assertEqual(ps.pages_probes()[0].expect, ps.UNPREDICTABLE)
 
     def test_the_pages_origin_is_not_one_of_the_manifest_hosts(self):
         """The point of the addition: it is an origin nothing else reaches."""

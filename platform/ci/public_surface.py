@@ -107,6 +107,23 @@ BUILD_MJS = REPO / "platform" / "pages" / "build.mjs"
 # never duplicated here either.
 PAGES_WORKFLOW = "portfolio-pages.yml"
 
+# The *other* way that same origin can be served, and the reason a gated
+# workflow no longer implies a dark Pages site.
+#
+# `platform/pages/publish-branch.sh` builds the catalogue and commits it to an
+# orphan `gh-pages` branch. GitHub then serves that branch directly when the
+# owner sets Settings -> Pages -> Source to "Deploy from a branch" -- no
+# workflow runs, so `PAGES_ENABLED` is never consulted and no runner is needed.
+# That is the whole point of the route: it is downstream of neither the metered
+# Actions allowance nor the k3s cluster.
+#
+# It matters here because the two routes reach *one* origin. Predicting that
+# origin from the workflow alone says "gated" while the branch route may be
+# serving the very same URL, and `Result.agrees` would then score a working
+# deploy as a discrepancy -- turning the day the catalogue goes live into a red
+# check reading "probe disagrees with the manifests".
+PUBLISH_BRANCH_SCRIPT = REPO / "platform" / "pages" / "publish-branch.sh"
+
 # Long enough that a cold pod or a slow TLS handshake is not read as an
 # outage, short enough that a black-holed port cannot ride the runner to its
 # default 360-minute ceiling. The workflow sets its own `timeout-minutes` too;
@@ -130,13 +147,17 @@ MIN_SERVED_BYTES = 512
 # least representative of the 600-odd tool pages behind them.
 DEFAULT_SAMPLE = 24
 
+# The expectation for an origin whose serving state is set outside the
+# repository. See `Result.agrees` for why this is reported rather than scored.
+UNPREDICTABLE = "unpredictable"
+
 
 @dataclass(frozen=True)
 class Probe:
     """One request to make, and what the manifests predict it will do."""
 
     url: str
-    expect: str  # "serves" | "gated"
+    expect: str  # "serves" | "gated" | "unpredictable"
     why: str
 
 
@@ -164,7 +185,22 @@ class Result:
 
     @property
     def agrees(self) -> bool:
-        """Does reality match what the manifests said this host would do?"""
+        """Does reality match what the manifests said this host would do?
+
+        `unpredictable` is not a third answer to that question -- it is the
+        admission that the repository cannot ask it. The GitHub Pages origin is
+        served, or not, according to a Settings choice that lives in the
+        account and appears in no file here, so *either* outcome is consistent
+        with everything this tool can read. Scoring it would invent a
+        prediction the repo never made, and the direction that invention fails
+        in is the expensive one: the workflow route is gated today, so a
+        `gated` expectation would mark the origin as disagreeing on the exact
+        day the branch route starts serving the catalogue. A green check that
+        says "serving, as we could not have predicted" is worth more than a red
+        one that calls a working deploy a discrepancy.
+        """
+        if self.probe.expect == UNPREDICTABLE:
+            return True
         if self.probe.expect == "serves":
             return self.serving
         return not self.serving
@@ -279,7 +315,7 @@ def pages_base_url(path: Path | None = None) -> str | None:
     return match.group(1) if match else None
 
 
-def pages_probes(rows=None, base_url=None) -> list[Probe]:
+def pages_probes(rows=None, base_url=None, branch_route=None) -> list[Probe]:
     """One probe for the GitHub Pages origin, with the workflow's prediction.
 
     Why this is here at all
@@ -304,26 +340,59 @@ def pages_probes(rows=None, base_url=None) -> list[Probe]:
     clone token, so it can be serving while the cluster is down, or dark while
     the cluster is fine. One probe cannot stand in for the other.
 
+    Two routes, one origin
+    ----------------------
+    Added 2026-09-05, and it is the half that made the prediction wrong rather
+    than merely thin. This function read `portfolio-pages.yml` and nothing
+    else, so a gated deploy job produced `expect="gated"` -- a positive claim
+    that the origin does *not* serve. But `platform/pages/publish-branch.sh`
+    stages the same catalogue on an orphan `gh-pages` branch that GitHub serves
+    with no workflow at all, and whether it does is a Settings choice no file
+    here records. So the honest expectation once that route exists is
+    `unpredictable`: see `Result.agrees` for why reporting beats scoring, and
+    `platform/ci/pages_state.py` for reading how close the branch route is.
+
     `rows` is `publish_surface.survey()`'s first element; passed in by the
-    tests, read from the workflows otherwise.
+    tests, read from the workflows otherwise. `branch_route` is whether the
+    staged-branch publisher exists; the tests set it, and it is read from the
+    tree otherwise.
     """
     base_url = pages_base_url() if base_url is None else base_url
     if not base_url:
         return []
     if rows is None:
         rows, _ = publish_surface.survey()
+    if branch_route is None:
+        branch_route = PUBLISH_BRANCH_SCRIPT.is_file()
     row = next((r for r in rows if r["workflow"] == PAGES_WORKFLOW), None)
     if row is None:
-        # The workflow was renamed or removed. Saying nothing is honest; the
-        # alternative is predicting a deploy from a file that no longer exists.
+        # The workflow was renamed or removed. Saying nothing about the
+        # *workflow* is honest -- but the branch route publishes this origin
+        # without it, so an origin that something still stages is not an origin
+        # to fall silent about.
+        if branch_route:
+            return [Probe(
+                url=base_url,
+                expect=UNPREDICTABLE,
+                why=f"no {PAGES_WORKFLOW}, but publish-branch.sh stages this origin on "
+                    "gh-pages; whether Pages serves that branch is an account setting",
+            )]
         return []
     if row["classification"] == "live":
         expect, why = "serves", f"{PAGES_WORKFLOW} deploys it on a push to main, ungated"
     else:
         gates = [g for step in row["publishes"] for g in step["gates"]]
         detail = f"gated by {'; '.join(gates)}" if gates else row["classification"]
-        why = f"{PAGES_WORKFLOW} deploy is {detail}"
-        expect = "gated"
+        if branch_route:
+            expect = UNPREDICTABLE
+            why = (
+                f"{PAGES_WORKFLOW} deploy is {detail}, but publish-branch.sh stages "
+                "the same origin on gh-pages, which GitHub serves with no workflow; "
+                "whether it does is Settings -> Pages -> Source, which no file here "
+                "records"
+            )
+        else:
+            expect, why = "gated", f"{PAGES_WORKFLOW} deploy is {detail}"
     return [Probe(url=base_url, expect=expect, why=why)]
 
 
@@ -385,7 +454,15 @@ def render(host_results: list[Result], page_results: list[Result]) -> str:
             "| --- | --- | --- | --- |",
         ]
         for r in host_results:
-            mark = "yes" if r.agrees else "**NO**"
+            # `n/a` rather than `yes` for an origin nothing here predicts: a
+            # tick would claim the repository called this one right, and the
+            # whole point of `unpredictable` is that it made no call. The
+            # `Actually` column beside it still carries the reading, which is
+            # the part worth having.
+            if r.probe.expect == UNPREDICTABLE:
+                mark = f"n/a — {'serving' if r.serving else 'dark'}"
+            else:
+                mark = "yes" if r.agrees else "**NO**"
             out.append(
                 f"| `{r.probe.url}` | {r.probe.expect} ({r.probe.why}) "
                 f"| {r.summary()} | {mark} |"
