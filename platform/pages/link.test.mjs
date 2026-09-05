@@ -148,6 +148,35 @@ test('isLinkableId refuses this build own ids and the standing preference', () =
   assert.equal(isLinkableId(null), false);
 });
 
+/**
+ * The proposal header's customer name and home address, and the contractor's
+ * own business identity fields, must never ride in a "Copy link to this bid"
+ * URL: that link is built to be pasted into email or text to the customer
+ * (or forwarded on from there), and neither of these is a number the tool
+ * priced.
+ */
+test('the proposal header is never linkable, even though the job it prices still is', () => {
+  for (const id of [
+    'clientName', 'clientAddress', 'companyName', 'companyAddress',
+    'companyPhone', 'companyEmail', 'companyLicense',
+  ]) {
+    assert.equal(isLinkableId(id), false, id);
+  }
+
+  const fragment = encodeBidLink({
+    fields: {
+      clientName: 'Mrs Reid', clientAddress: '14 Oak St',
+      companyName: 'Acme Roofing', companyAddress: '2 Main St',
+      companyPhone: '555-0100', companyEmail: 'a@example.com', companyLicense: 'RC-1',
+      lengthFt: '40', pitch: '6/12',
+    },
+    amount: '$1,800.00',
+  });
+  const decoded = decodeBidLink('#' + fragment);
+  assert.deepEqual(decoded.fields, { lengthFt: '40', pitch: '6/12' });
+  assert.equal(decoded.amount, '$1,800.00');
+});
+
 // ---------------------------------------------------------------------------
 // Atomic or refused
 // ---------------------------------------------------------------------------
