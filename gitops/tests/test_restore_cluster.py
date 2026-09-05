@@ -269,7 +269,24 @@ def test_unreachable_control_plane_names_the_likely_cause(box):
     """The failure this script is most likely to hit on its first real run."""
     result = box.run(CP="root@0.0.0.0")
     assert result.returncode != 0
-    assert "private" in result.stderr  # "Is HETZNERSSHKEY the *private* key?"
+    assert "private" in result.stderr  # "... the *private* key?"
+
+
+def test_ssh_hint_names_the_agent_when_run_outside_actions(box):
+    """As of 2026-09-05 the owner's primary route is a laptop run, because
+    Actions runners are starved and the workflow route cannot fire at all.
+    On a laptop there is no HETZNERSSHKEY to suspect, so naming only the
+    secret would send them to fix a variable that does not exist in the
+    shell they are standing in. The fixture pops GITHUB_ACTIONS, so this is
+    the laptop context."""
+    result = box.run(CP="root@0.0.0.0")
+    assert "SSH agent" in result.stderr
+    assert "HETZNERSSHKEY" not in result.stderr
+
+
+def test_ssh_hint_names_the_secret_when_run_inside_actions(box):
+    result = box.run(CP="root@0.0.0.0", GITHUB_ACTIONS="true")
+    assert "HETZNERSSHKEY" in result.stderr
 
 
 def test_skip_argocd_leaves_the_cluster_empty(box):

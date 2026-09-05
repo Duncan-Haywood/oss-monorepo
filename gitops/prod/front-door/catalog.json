@@ -280,7 +280,7 @@
       "url": "https://marisstella.dev/tools/3pl-quote-normalizer/",
       "category": "Logistics, freight & cloud cost",
       "description": "Compare a third-party logistics quote with in-house fulfillment costs, minimum monthly spend, and true cost per order.",
-      "pages": 12
+      "pages": 13
     },
     {
       "slug": "freight-accessorial-auditor",
@@ -680,7 +680,7 @@
       "url": "https://marisstella.dev/tools/delivery-app-margin-calculator/",
       "category": "Marketplace seller tools",
       "description": "Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "dns-configuration-evidence",
@@ -1432,7 +1432,7 @@
       "url": "https://marisstella.dev/tools/where-to-sell-calculator/",
       "category": "Marketplace seller tools",
       "description": "Free marketplace fee comparison calculator: enter one item once and see net profit after fees, after returns, per day of wait, and per month of shelf time on eBay, Etsy, Amazon, your own store, and a local sale.",
-      "pages": 4
+      "pages": 5
     },
     {
       "slug": "which-job-first",

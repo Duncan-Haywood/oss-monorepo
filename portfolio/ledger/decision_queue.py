@@ -133,6 +133,33 @@ OUTAGE = "outage"
 # the cross-reference, so a typo cannot silently make a route look fine.
 REQUIRES = "requires"
 
+# `viability()` reads `requires` and nothing else, so a row's *prose* and its
+# *verdict* could disagree in silence -- and on 2026-09-05 they did, at the top
+# of the queue. `hetzner-ssh-key-is-a-public-key` declared no prerequisites, so
+# it rendered `up` and the banner named it as the one row that "can be granted
+# now and will change something". Every route its action described --
+# "dispatch `hetzner-gitops CI` with `preflight: true`", then again with
+# `restore: restore-cluster` -- runs on `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`,
+# and runner assignment had stopped again the evening before. An owner who
+# acted on it would have pasted a private key into Settings and then watched
+# both dispatches come back `runner_id: 0`.
+#
+# That is the identical error `infra_state.yaml` was written to stop, one row
+# further up than the row it was written about, which is what makes it worth a
+# check rather than a correction. A `requires` list is only as good as somebody
+# remembering to write it, and the rows most likely to be missing one are the
+# rows added in a hurry during an outage.
+#
+# So: if an action tells the owner to run a workflow, the row must either
+# declare the runner dependency or say, in `runner_free`, which route works
+# without one. Prose-matching is crude and deliberately narrow -- these markers
+# describe *running* a workflow, not merely pasting a secret that a workflow
+# will later read, because pasting works fine while runners are starved. It is
+# a floor under the obvious mistake, not a proof of correctness.
+RUNNER_FREE = "runner_free"
+RUNNER_INFRA = "github-actions-runners"
+DISPATCH_MARKERS = ("dispatch ", "workflow_dispatch", "re-run the workflow")
+
 
 def load(path: Path = ASKS) -> list[dict]:
     doc = yaml.safe_load(path.read_text())
@@ -251,6 +278,22 @@ def check(decisions: list[dict], infra: dict | None = None) -> list[str]:
                             f"{where}: {REQUIRES} names {n!r}, which has no "
                             f"reading in infra_state.yaml"
                         )
+
+        # See DISPATCH_MARKERS: an action that tells the owner to run a
+        # workflow depends on a runner whether or not the row says so.
+        action_text = str(d.get("action", "")).lower()
+        if any(m in action_text for m in DISPATCH_MARKERS):
+            declared = RUNNER_INFRA in (d.get(REQUIRES) or [])
+            explained = bool(str(d.get(RUNNER_FREE, "")).strip())
+            if not declared and not explained:
+                problems.append(
+                    f"{where}: action tells the owner to dispatch a workflow "
+                    f"but the row neither lists {RUNNER_INFRA!r} in {REQUIRES} "
+                    f"nor explains a runner-free route in {RUNNER_FREE}"
+                )
+
+        if RUNNER_FREE in d and not str(d[RUNNER_FREE] or "").strip():
+            problems.append(f"{where}: {RUNNER_FREE} is present but empty")
 
         for blocker in d["blocked_by"]:
             if blocker not in ids:

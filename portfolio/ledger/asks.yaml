@@ -70,31 +70,53 @@ decisions:
   # hostnames refusing on 443. See OUTAGE in decision_queue.py for how narrow
   # this flag is meant to be -- it is not a way to say "important".
   outage: true
+  runner_free: >-
+    `bootstrap/restore-cluster.sh` run from the owner's own machine. It takes
+    the SSH key from the local agent and the Argo credential from
+    `ARGOCD_REPO_TOKEN` in the environment, so it needs no GitHub Actions
+    runner and no repository secret at all. That matters as of 2026-09-05,
+    because the workflow route below is deadlocked: every job in
+    `hetzner-gitops CI` runs on `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`,
+    runner assignment stopped again on 2026-09-04, and the self-hosted
+    fallback runs as pods on the very cluster this row exists to restore.
   action: >-
-    Replace the Actions secret `HETZNERSSHKEY` with the **private** key
-    matching the public key already installed on `root@89.167.29.39` and
-    `root@157.180.80.188` — the whole file, `-----BEGIN OPENSSH PRIVATE
-    KEY-----` through `-----END …-----`, pasted into Settings → Secrets and
-    variables → Actions. Then dispatch `hetzner-gitops CI` with `preflight:
-    true` to confirm; it is read-only and never installs k3s or runs tofu.
-    **Then dispatch it again with `restore: restore-cluster` — that is the
-    whole recovery, and as of 2026-09-05 it is one dispatch rather than a
-    hands-on session.** While you are in Settings → Secrets, paste a second
-    one: `ARGOCDREPOTOKEN`, a fine-grained PAT with **Contents: Read** on this
-    repository. This is not a second ask, it is the same sitting — but without
-    it the restore *succeeds and the site stays dark*, which is the worst
-    outcome available here. The GitOps repository is private and Argo CD
-    cannot clone it anonymously, so it would install, apply the root
-    Application, and then fail every sync on repository authentication with no
-    error anywhere except Argo's own Application status. It cannot be a sealed
-    secret, because sealed-secrets is itself deployed by Argo from `gitops/apps`
-    — the credential has to exist before the first sync it enables. The same
-    token works for the `portfolio-site-repo` seal, which needs exactly that
-    permission, so one PAT covers both. Until then this ask was necessary but *not
-    sufficient*: rotating the key bought a read-only reading, and the restore
-    it was supposed to enable still meant a human SSHing to two machines in
-    order and copy-pasting a node token between them, which nobody had
-    scheduled. `bootstrap/restore-cluster.sh` does it end to end (server,
+    **Do this from your own machine, not from Settings — as of 2026-09-05 the
+    GitHub route cannot work.** With the private key loaded in your SSH agent
+    (the key matching the public half already installed on `root@89.167.29.39`
+    and `root@157.180.80.188`), run:
+    `CONFIRM=restore-cluster ARGOCD_REPO_TOKEN=<pat> bootstrap/restore-cluster.sh`
+    — that is the whole recovery, end to end, and it needs no runner and no
+    repository secret. Add `DRY_RUN=1` first if you want to see the plan and
+    the detected addressing mode without changing anything. The `<pat>` is a
+    fine-grained PAT with **Contents: Read** on this repository; the script
+    masks it and ships it to the box as a mode-600 file rather than putting it
+    in argv. Without it the restore *succeeds and the site stays dark*, which
+    is the worst outcome available here — the GitOps repository is private, so
+    Argo CD would install, apply the root Application, and then fail every
+    sync on repository authentication with no error anywhere except Argo's own
+    Application status. It cannot be a sealed secret, because sealed-secrets
+    is itself deployed by Argo from `gitops/apps` — the credential has to
+    exist before the first sync it enables. The same token works for the
+    `portfolio-site-repo` seal, so one PAT covers both.
+    **The GitHub route, for when runners come back:** paste that same private
+    key as the Actions secret `HETZNERSSHKEY` (the whole file, `-----BEGIN
+    OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as
+    `ARGOCDREPOTOKEN`, then dispatch `hetzner-gitops CI` with `preflight:
+    true` to confirm, and again with `restore: restore-cluster`. It reaches
+    the same script. It is worth doing eventually so the recovery is
+    repeatable without a laptop, but it buys nothing today: both dispatches
+    return `runner_id: 0`.
+    **Why this row was rewritten on 2026-09-05:** it used to lead with the
+    Settings route and declared no prerequisites, so the queue rendered it
+    `up` and the banner named it as the one row that "can be granted now and
+    will change something". Every route it described needed a runner. An owner
+    acting on it would have pasted a private key into Settings and then
+    watched both dispatches come back `runner_id: 0` — the identical mistake
+    `infra_state.yaml` was written to prevent, one row above the row it was
+    written about. `check()` now refuses a row whose action says to dispatch a
+    workflow unless it declares the dependency or names a runner-free route.
+    What did not change is the shape of the recovery:
+    `bootstrap/restore-cluster.sh` does it end to end (server,
     agent join, Argo CD, then a Host-header curl for what the apex actually
     returns), refuses to start without the typed confirmation, and never
     overwrites a cluster that is already there. It touches no Hetzner API, so
@@ -186,14 +208,32 @@ decisions:
   exposure: credential
   opened: "2026-08-26"
   action: >-
-    **Nothing is blocked on you here as of 2026-09-01 — this row is now
-    optional.** GitHub started assigning real runners again at
-    2026-09-01T00:00:53Z, ending the starvation that opened this row on
-    2026-08-26. Verified directly rather than assumed: recent runs carry
-    runner ids in the `1000040xxx` range, and #2601 that evening was the
-    first PR in five days to go green on merit (`gitops` executed
+    **Live again as of 2026-09-05, and it is now the widest blocker in this
+    queue.** Measured, not inferred: run 33932676830 (`Portfolio validate`,
+    00:20:57Z today) came back `runner_id: 0` with no steps, and
+    `python3 platform/ci/ci_starvation.py --run 33932676830` exits 1. Every
+    check on the PR merged this morning was red for that reason and none of
+    them was a real failure. **Do not read the paragraph this replaced.** It
+    said "nothing is blocked on you here as of 2026-09-01 — this row is now
+    optional", which was true when written and stopped being true on
+    2026-09-04 at roughly 22:39Z, when starvation recurred mid-session
+    exactly as `gitops/ci/README.md` predicted it would once the metered
+    allowance was spent again. A row that announces its own irrelevance ages
+    the most dangerously of any row here, because nobody re-reads it.
+    What is blocked on this: the GitHub route in
+    `hetzner-ssh-key-is-a-public-key`, all of `deploy-settings`, and the
+    self-hosted fallback in `gitops/ci/` (its runners are pods on the dead
+    cluster, so it cannot substitute). The one route out that needs no runner
+    is the laptop command in `hetzner-ssh-key-is-a-public-key` —
+    prefer it to waiting for this row. If the August window is a guide, the
+    allowance resets on 2026-10-01; the owner can lift it sooner from
+    Settings → Billing.
+    For history, the earlier recovery really did happen on its own: GitHub
+    started assigning real runners again at 2026-09-01T00:00:53Z, recent runs
+    then carried runner ids in the `1000040xxx` range, and #2601 that evening
+    was the first PR in five days to go green on merit (`gitops` executed
     `kustomize build`, `kubeconform` and 193 pytest cases). So option (a)
-    below — checking Settings → Billing → Spending limit for Actions — has
+    below — checking Settings → Billing → Spending limit for Actions — had
     resolved itself, most likely a monthly allowance reset, and CI is
     working today with no action from you. If you want to spend two
     minutes on it anyway, confirming the payment method is current is the
@@ -253,6 +293,10 @@ decisions:
   gates: deployment
   exposure: none
   opened: "2026-08-24"
+  # The whole row is about how often a GitHub Actions workflow fires, and a
+  # scheduled workflow is starved exactly as a dispatched one is. Deciding the
+  # cadence while nothing can run is deciding the speed of a stopped clock.
+  requires: [github-actions-runners]
   action: >-
     Decide whether the 4-minute routine cadence runs, now that the merge half
     is already done: #788 landed on 2026-08-24 and
@@ -454,10 +498,26 @@ decisions:
     written: GitHub rejects any Actions configuration-variable name
     starting with `GITHUB_`, case-insensitive, at creation time. See
     `portfolio/hosting/README.md`.)
-    That is the remaining flip for static products. The host is already
-    decided (GitHub Pages + existing Hetzner boxes; see
-    `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
-    secrets as the way the portfolio goes live.
+    **This row used to call that "the remaining flip for static products".
+    It is not the remaining anything** (corrected 2026-09-05). Two things
+    sit behind it. First, `portfolio-pages.yml` has to build the artifact,
+    and it cannot today — runner assignment stopped again on 2026-09-04,
+    which is why this row now renders `down`. Second, and fixable by no
+    amount of CI: **this repository is private, and Pages from a private
+    repository does not serve a public site on the free tier.** If this
+    account is on the free tier, granting this row publishes nothing to a
+    stranger however green CI gets, and it is not a restore route at all;
+    on Pro or above it is. Nothing in this repository can read the
+    account's plan, so the owner is the only one who can settle which case
+    this is — worth thirty seconds in Settings → Billing before spending
+    anything else here, because the answer decides whether this row belongs
+    in the outage set. `portfolio/hosting/README.md` has carried the
+    private-repo constraint since 2026-09-01; this row had not caught up.
+    The Hetzner route in `hetzner-ssh-key-is-a-public-key` has neither
+    constraint and, as of 2026-09-05, is one command from the owner's own
+    machine. The host is already decided (GitHub Pages + existing Hetzner
+    boxes; see `portfolio/hosting/README.md`) — do not add Cloudflare or
+    Vercel secrets as the way the portfolio goes live.
   unlocks:
     - "**174 finished, tested, free products at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Recorded as 33 until 2026-08-27 and as 161 until 2026-09-04; the portfolio keeps growing and the figure keeps not keeping up, understating the payoff of this one flip each time.)"
     - "Re-verified 2026-09-04, not merely assumed: `node platform/pages/build.mjs --out=dist` then `node platform/pages/check.mjs dist` returns \"looks publishable: 174 products, 7 category pages, 675 pages, no dead links\" (exit 0). There is no unfinished build work between this flip and a stranger using one of these tools."
@@ -855,6 +915,13 @@ decisions:
   # is not listening -- :6443 refused on both boxes. Sealing the credential is
   # durable preparation and does not expire, so it is not wasted, but nothing
   # will run until `hetzner-ssh-key-is-a-public-key` leads to k3s coming back.
+  # Declared as well as described (2026-09-05): the paragraph above has been
+  # right since 2026-09-04, but `viability()` reads `requires` and cannot read
+  # a comment, so this row still rendered `up` and sorted among the grantable
+  # ones. The owner asked for the Codex loop specifically; telling them it is
+  # ready to enable, while the cluster it schedules onto is not listening, is
+  # the wrong answer to that question.
+  requires: [k3s-cluster]
   # Not marked `blocked_by`: the seal is a git commit Argo picks up whenever
   # it next syncs, so it is genuinely doable today -- just not observable.
   gates: deployment
@@ -958,6 +1025,7 @@ decisions:
   # The seal is durable and worth doing, but it publishes nothing while k3s
   # is down -- so do not read a completed seal as a live `tools.` hostname
   # until `Public surface check` says a host answers.
+  requires: [k3s-cluster]
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
