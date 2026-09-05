@@ -6,6 +6,8 @@ Choosing a supplier discount, subcontractor rate, or equipment lease? Compare th
 
 Open `index.html`, enter current costs, revenue per job, and up to three alternatives, then compare cost per job, profit per job, margin, and break-even volume. Drafts are saved only in your browser and restored the next time you open the page. Use "Copy share link" to hand the same comparison to a partner, accountant, or the vendor themselves — the link carries only the numbers in the form, nothing is uploaded.
 
+See [this calculator vs. Crest Capital's lease calculator](vs-crest-capital.html) for which job fits a one-off lender payment estimate versus comparing an already-quoted rate against your own current cost and volume.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your data is never uploaded, and we use no accounts, tracking cookies, or analytics vendor. We count only anonymous local feature events such as a comparison or export, never people, IPs, inputs, or content. Use the opt-out checkbox in the page to turn counting off.
