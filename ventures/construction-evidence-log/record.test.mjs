@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { makeRecord, summary, buildEvidencePack, packSummary } from './record.mjs';
+import { makeRecord, summary, buildEvidencePack, packSummary, entriesToCsv } from './record.mjs';
 
 const complete = {
   date: '2026-08-26',
@@ -79,4 +79,42 @@ test('packSummary reads as a short combined-pack review line', () => {
   assert.match(text, /^1 day logged \(2026-08-25 to 2026-08-25\)/);
   assert.match(text, /Oak Street renovation/);
   assert.match(text, /No missing-field observations across the pack\./);
+});
+
+test('entriesToCsv header carries every field the form collects', () => {
+  const csv = entriesToCsv([]);
+  assert.equal(
+    csv,
+    'date,project,crew,conditions,work,changeType,requestedBy,impact,changeDetails,findings,savedAt',
+  );
+});
+
+test('entriesToCsv writes one row per saved entry, including change/delay fields', () => {
+  const day1 = { ...makeRecord({ ...complete, date: '2026-08-25' }), savedAt: '2026-08-25T09:00:00.000Z' };
+  const withChange = {
+    ...makeRecord({
+      ...complete, date: '2026-08-26', changeType: 'delay', requestedBy: 'Owner', impact: '1 day',
+      changeDetails: 'Rain stopped exterior work.',
+    }),
+    savedAt: '2026-08-26T09:00:00.000Z',
+  };
+  const rows = entriesToCsv([day1, withChange]).split('\n');
+  assert.equal(rows.length, 3);
+  assert.match(rows[1], /^"2026-08-25","Oak Street renovation".*"none"/);
+  assert.match(rows[2], /"delay","Owner","1 day","Rain stopped exterior work\."/);
+});
+
+test('entriesToCsv includes a blank entry\'s review notes, not just its data', () => {
+  const thin = { ...makeRecord({ ...complete, date: '2026-08-25', crew: '' }), savedAt: '2026-08-25T09:00:00.000Z' };
+  const rows = entriesToCsv([thin]).split('\n');
+  assert.match(rows[1], /People on site was left blank/);
+});
+
+test('entriesToCsv quotes commas and doubles embedded quotes so the file stays one column per field', () => {
+  const withComma = {
+    ...makeRecord({ ...complete, date: '2026-08-25', work: 'Set cabinets, then trim the "west" wall.' }),
+    savedAt: '2026-08-25T09:00:00.000Z',
+  };
+  const rows = entriesToCsv([withComma]).split('\n');
+  assert.match(rows[1], /"Set cabinets, then trim the ""west"" wall\."/);
 });

@@ -33,9 +33,9 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 131 files, 556620 bytes
-#   portfolio-front-tools-1: 114 files, 554699 bytes
-#   portfolio-front-tools-2: 147 files, 543722 bytes
+#   portfolio-front-tools-0: 130 files, 550683 bytes
+#   portfolio-front-tools-1: 113 files, 555332 bytes
+#   portfolio-front-tools-2: 149 files, 549834 bytes
 #   portfolio-front-tools-3: 118 files, 551570 bytes
 #   portfolio-front-tools-4: 126 files, 553148 bytes
 #   portfolio-front-tools-5: 117 files, 553632 bytes
@@ -196,12 +196,12 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-offer-an-ebay-coupon.html.gz=ebay-fee-calculator__should-i-offer-an-ebay-coupon.html.gz
       - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html.gz=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html.gz
       - ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html.gz=ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html.gz
-      - ebay-fee-calculator__should-i-offer-ebay-local-pickup.html.gz=ebay-fee-calculator__should-i-offer-ebay-local-pickup.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__should-i-offer-ebay-local-pickup.html.gz=ebay-fee-calculator__should-i-offer-ebay-local-pickup.html.gz
       - ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-free-shipping-on-ebay.html.gz
       - ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-international-shipping-on-ebay.html.gz
       - ebay-fee-calculator__should-i-require-immediate-payment-on-ebay.html.gz=ebay-fee-calculator__should-i-require-immediate-payment-on-ebay.html.gz
@@ -314,13 +314,13 @@ configMapGenerator:
       - freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html.gz=freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html.gz
       - freight-accessorial-auditor__should-i-dispute-this-detention-charge.html.gz=freight-accessorial-auditor__should-i-dispute-this-detention-charge.html.gz
       - freight-accessorial-auditor__usage.mjs.gz=freight-accessorial-auditor__usage.mjs.gz
-      - freight-accessorial-auditor__vs-trax.html.gz=freight-accessorial-auditor__vs-trax.html.gz
-      - ltl-freight-class-estimator__calc.mjs.gz=ltl-freight-class-estimator__calc.mjs.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - freight-accessorial-auditor__vs-trax.html.gz=freight-accessorial-auditor__vs-trax.html.gz
+      - ltl-freight-class-estimator__calc.mjs.gz=ltl-freight-class-estimator__calc.mjs.gz
       - ltl-freight-class-estimator__how-to-calculate-freight-class.html.gz=ltl-freight-class-estimator__how-to-calculate-freight-class.html.gz
       - ltl-freight-class-estimator__index.html.gz=ltl-freight-class-estimator__index.html.gz
       - ltl-freight-class-estimator__levers.mjs.gz=ltl-freight-class-estimator__levers.mjs.gz
