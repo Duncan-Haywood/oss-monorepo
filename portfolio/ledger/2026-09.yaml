@@ -10623,3 +10623,67 @@ entries:
         this ships to `main` as code only, ready to serve once the owner's
         infra fix lands.
     mrr_end: null
+  - venture: spray-foam-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same gap `well-pump-bid-
+        calculator` closed earlier this month: 34 `*-bid-calculator`
+        ventures still had no way for a shop to send a link that reopens the
+        exact bid a distributor, GC, or office manager needs to see --
+        retyping thirty-plus board-foot, rim, and rate figures is how that
+        comparison never happens. Re-checked the 34-venture list against
+        `main` before starting (still accurate) and picked this venture for
+        having the least recent commit activity of the 34 (last touched by
+        #3049 on 2026-09-03, a vs-Jobber page, versus 2026-09-04 for the
+        other 33), to minimize collision with concurrent sessions working
+        the same backlog; no open PRs and no in-flight branch touched this
+        venture. Ported the pattern from `well-pump-bid-calculator`/
+        `fireplace-insert-bid-calculator`: `share.mjs`/`share.test.mjs`
+        (pure allowlisted encode/decode of the calculator's 31 numeric
+        fields, 1 flag, and the `area`/`cell`/`pitch`/`barrier`/`access`
+        enums, enums validated against `calc.mjs`'s own preset ids rather
+        than a hand-duplicated list); vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified (this venture's proposal panel
+        has `depositPercent`, `validDays`, `proposalExclusions`,
+        `paymentTerms`, and `proposalNotes`, so all five terms now ride in
+        the link instead of silently reverting to the venture's defaults on
+        the recipient's end -- the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29); a "Copy
+        share link" button and on-load decode in `index.html`, restored
+        after the page's own geometry/cell-kit auto-fill so a shared link's
+        board feet and waste win over freshly computed suggestions rather
+        than being overwritten by them; a matching FAQ entry ("Is my data
+        uploaded anywhere?", visible copy and FAQPage JSON-LD both, checked
+        against `platform/pages/faq-visible.test.mjs`'s divergence scan) and
+        footer/featureList mentions so the privacy claim ("nothing leaves
+        your browser") stays honest about what a share link carries.
+        Regenerated the front-door-tools mirror (`front-door-tools.mjs
+        --write`) since the venture's file set changed -- new `share.mjs`
+        shard, updated `index.html` shard. Verified: venture's own suite
+        102/102 (was 92); `platform/proposal/*.test.mjs` 97/97 (includes
+        `term-ids.test.mjs`'s drift check across both the shared-spec and
+        vendored-module mechanisms); full `platform/pages` suite 880/880;
+        full `platform/marketing` suite 208/208 (204/208 before the mirror
+        regen, as expected -- the four failures were exactly "committed
+        mirror/alias/kustomization does not match the generator", gone
+        after `--write`); `platform/pages/build.mjs` + `check.mjs` on a full
+        site build -- "174 products, 684 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs spray-foam-bid-calculator` -- no-warranty
+        clause present on all 3 published pages; manually exercised the
+        primary journey outside a browser by driving `share.mjs`/
+        `proposal-terms.mjs` directly with a full-field sample bid
+        (cathedral, hybrid cell, 12/12 pitch, intumescent barrier, occupied
+        access, a 40% deposit held 21 days with custom exclusions/payment/
+        notes text) -- encoded, decoded, and confirmed every one of the 31
+        numeric fields, the flag, the 5 enums, and the 5 proposal terms
+        matched the original to the cent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved and the Hetzner cluster as down --
+        both pre-diagnosed, owner-blocked, not re-investigated here -- so
+        all of the above is local verification standing in for CI per
+        CLAUDE.md's "absent CI is not failed CI" rule. Not deployed: the
+        public surface is down (see CLAUDE.md), so this ships to `main` as
+        code only, ready to serve once the owner's infra fix lands.
+    mrr_end: null
