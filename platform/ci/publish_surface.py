@@ -93,6 +93,43 @@ under the hosts it contradicts.
 
 `--check` pins these rows beside the workflow ones, so sealing the token, or
 adding a second public host, has to be a deliberate change here as well.
+
+## The `gh-pages` branch is a third publish surface, and a staler one
+
+`platform/pages/publish-branch.sh` builds the site here and commits it to an
+orphan `gh-pages` branch, so serving it needs neither an Actions runner nor the
+k3s cluster -- which on 2026-09-05 was the only one of the three routes
+downstream of nothing that was down. That makes it the likeliest route to a
+public surface, and it was invisible to this tool for the same reason Argo CD
+was: it publishes without a workflow and without a manifest.
+
+It differs from both in a way that matters here. The workflow and gitops
+surfaces describe what a merge *would* do, and are therefore true until someone
+edits them. This one is a **snapshot already taken**: the branch holds a build
+of one particular commit, and every later merge to `main` silently widens the
+gap between what is staged and what the repository says. On 2026-09-05 the
+staged artifact was a build of #3334, whose share-link feature was broken in
+exactly the way `regen.mjs` exists to catch -- and nothing anywhere reported
+that the thing the owner was being asked to serve was a build of a red commit.
+
+So `pages_branch_survey()` reports the staleness rather than asserting
+freshness, and three of its four states are deliberately not failures:
+
+  current        built from the tip of `main`; serving it serves today's repo
+  behind         built from an ancestor, N commits back
+  unfetched      no local `gh-pages` ref -- says nothing about whether one exists
+  unknown        a ref, but no parseable source commit in its message
+
+`unfetched` carries its own warning because CI clones are shallow and do not
+fetch this branch: an absent measurement must never read as "no artifact is
+staged", which is the direction the whole 2026-08-30..09-04 "nothing is served"
+episode failed in.
+
+These rows are deliberately **not** pinned by `--check`. The other two surfaces
+change only when a human edits a file, so freezing them is what makes an
+unintended change visible; this one changes on every merge to `main`, so pinning
+it would fail `--check` constantly and teach everyone to re-run `--write`
+without reading it. Staleness is a reading to print, not an invariant to hold.
 """
 
 from __future__ import annotations
@@ -100,6 +137,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -697,6 +735,111 @@ def render_gitops(rows) -> str:
     return "\n".join(out)
 
 
+PAGES_BRANCH = "gh-pages"
+
+# The message `publish-branch.sh` writes. Matched rather than assumed: a commit
+# on this branch that does not carry it was not written by that script, and
+# calling its tree "the staged site" would be a guess.
+_PAGES_SOURCE_RE = re.compile(r"^Publish site built from ([0-9a-f]{7,40})\b", re.MULTILINE)
+
+
+def _git(*args: str) -> str | None:
+    """Run git in the repo, or return None if it fails for any reason.
+
+    Every caller below treats None as "cannot tell", never as "no". This tool
+    is otherwise hermetic -- it reads files and opens no sockets -- and git is
+    the one exception, so it is kept to this single choke point where a missing
+    binary, a bare tree, or a shallow clone all degrade to the same honest
+    answer instead of a traceback.
+    """
+    try:
+        done = subprocess.run(
+            ("git", "-C", str(REPO), *args),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if done.returncode != 0:
+        return None
+    return done.stdout.strip()
+
+
+def _resolve(*refs: str) -> tuple[str, str] | None:
+    for ref in refs:
+        sha = _git("rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+        if sha:
+            return ref, sha
+    return None
+
+
+def pages_branch_survey() -> dict:
+    """What the `gh-pages` branch has staged, and how far behind `main` it is."""
+    found = _resolve(f"refs/heads/{PAGES_BRANCH}", f"refs/remotes/origin/{PAGES_BRANCH}")
+    if not found:
+        # Not "there is no artifact". A shallow CI clone fetches one branch, so
+        # this is the expected reading there and it must not be reported as an
+        # absence of staged content.
+        return {"branch": PAGES_BRANCH, "state": "unfetched", "source": None, "behind": None}
+
+    ref, tip = found
+    message = _git("log", "-1", "--format=%B", tip) or ""
+    match = _PAGES_SOURCE_RE.search(message)
+    if not match:
+        return {"branch": PAGES_BRANCH, "state": "unknown", "source": None, "behind": None, "ref": ref, "tip": tip}
+
+    source = match.group(1)
+    main = _resolve(f"refs/heads/{DEFAULT_BRANCH}", f"refs/remotes/origin/{DEFAULT_BRANCH}")
+    row = {"branch": PAGES_BRANCH, "source": source, "ref": ref, "tip": tip, "behind": None}
+    if not main:
+        row["state"] = "unknown"
+        return row
+
+    # `--count <source>..<main>` needs both objects present. In a shallow clone
+    # the source commit is usually not, and that failure is indistinguishable
+    # here from a source commit that was force-pushed away -- so both land on
+    # "unknown" rather than on a number that would be wrong in one of the cases.
+    behind = _git("rev-list", "--count", f"{source}..{main[1]}")
+    if behind is None or not behind.isdigit():
+        row["state"] = "unknown"
+        return row
+
+    row["behind"] = int(behind)
+    row["state"] = "current" if row["behind"] == 0 else "behind"
+    return row
+
+
+def render_pages_branch(row) -> str:
+    out = ["", f"What the `{PAGES_BRANCH}` branch has staged for a branch-source Pages flip", ""]
+    state = row["state"]
+    if state == "unfetched":
+        out.append(f"  No local `{PAGES_BRANCH}` ref, so nothing can be said about it here.")
+        out.append("  This is the normal reading in a shallow clone; it is not evidence")
+        out.append(f"  that no artifact is staged. `git fetch origin {PAGES_BRANCH}` to look.")
+        return "\n".join(out)
+    if state == "unknown":
+        out.append(f"  `{PAGES_BRANCH}` exists but its source commit could not be determined,")
+        out.append("  so how stale it is cannot be read. Re-run platform/pages/publish-branch.sh")
+        out.append("  to restage it from a known commit.")
+        return "\n".join(out)
+
+    behind = row["behind"]
+    if state == "current":
+        out.append(f"  + built from {row['source'][:9]}, the tip of `{DEFAULT_BRANCH}`.")
+        out.append("    Serving it would serve today's repository.")
+    else:
+        out.append(f"  - built from {row['source'][:9]}, which is {behind} commit(s) behind `{DEFAULT_BRANCH}`.")
+        out.append("    Serving it would serve the repository as of that commit, not as of now.")
+        out.append("    Re-run platform/pages/publish-branch.sh to restage it.")
+    # Said in both cases, because a current artifact is still not a served one,
+    # and this tool has no way to tell whether the Settings switch is on.
+    out.append("")
+    out.append("  Staged, not served: enabling Pages is the account owner's decision")
+    out.append(f"  (Settings -> Pages -> Source 'Deploy from a branch' -> {PAGES_BRANCH} / root).")
+    return "\n".join(out)
+
+
 def load_snapshot():
     if not SNAPSHOT.exists():
         return None
@@ -1015,10 +1158,22 @@ def main() -> int:
             print(f"  note: {problem}")
         return 0
 
+    # Surveyed after --write and --check have returned, and deliberately absent
+    # from both: see "The `gh-pages` branch is a third publish surface" in the
+    # module docstring. Pinning a value that changes on every merge would make
+    # --check cry wolf, and a --check nobody believes is worse than one that
+    # says less.
+    pages_row = pages_branch_survey()
+
     if args.json:
         print(
             json.dumps(
-                {"default_branch": DEFAULT_BRANCH, "workflows": rows, "gitops": gitops_rows},
+                {
+                    "default_branch": DEFAULT_BRANCH,
+                    "workflows": rows,
+                    "gitops": gitops_rows,
+                    "pages_branch": pages_row,
+                },
                 indent=2,
             )
         )
@@ -1026,6 +1181,7 @@ def main() -> int:
 
     print(render(rows))
     print(render_gitops(gitops_rows))
+    print(render_pages_branch(pages_row))
     return 0
 
 
