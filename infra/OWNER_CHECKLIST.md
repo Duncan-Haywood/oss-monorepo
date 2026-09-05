@@ -352,7 +352,7 @@ codes as exit 42 and a rejected credential as exit 43.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 
-This is the shortest path from "174 finished tools nobody can reach" to a
+This is the shortest path from "175 finished tools nobody can reach" to a
 public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
@@ -360,7 +360,7 @@ order to type them in and how to tell each worked.
 **Note what this section is and is not about, since 2026-09-02.** The
 domain itself is no longer dark: `marisstella.dev` and `www` already serve
 a front door with no owner action (see the `marisstella.dev` bullet under
-"You decide" below), and it mirrors 174 of the 174 tools directly. Step 1
+"You decide" below), and it mirrors 175 of the 175 tools directly. Step 1
 below no longer publishes any tool a stranger cannot already reach; what it
 buys is the canonical hostname and indexability.
 
@@ -402,7 +402,7 @@ it retires the mirror, serves the canonical host, and lets those pages be
 *indexed*, which the mirrored copies deliberately are not — but it is no
 longer the difference between a stranger reaching 53 tools and reaching
 169. Since the `ENTRY_OVERRIDES` fix above it is not a tool-count difference
-at all: the apex serves all 174. What Step 1 buys is the canonical host and
+at all: the apex serves all 175. What Step 1 buys is the canonical host and
 search.
 
 **Updated 2026-09-03, twice.** This paragraph said 159 until #2948
@@ -522,7 +522,7 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
   `portfolio-site-repo` is sealed, so the redirect was live but led
   nowhere. It now serves `gitops/prod/portfolio-front.yaml` instead: a
   generated front-door page (positioning, one card per category, the
-  §5b clauses) plus a static mirror of 174 tools at `/tools/<slug>/`, both
+  §5b clauses) plus a static mirror of 175 tools at `/tools/<slug>/`, both
   held in kustomize ConfigMaps. Neither clones the repo at pod start, so
   neither needs the token, a runner, or a Pages flip — a merge to `main`
   is the deploy, same as everything else in this tree. No owner action;
