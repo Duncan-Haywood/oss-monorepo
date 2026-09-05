@@ -376,7 +376,7 @@
       "url": "https://marisstella.dev/tools/faire-wholesale-calculator/",
       "category": "Marketplace seller tools",
       "description": "Free Faire wholesale fee calculator for brands: net payout after 15% commission, the $10 new-customer fee, and payout-speed processing. Compare first orders, Faire Direct, Open House, Promoted Listings after last-click organic, next-day payout after carrying cost, Pay Now leftover after Faire remittance wait, and whether a keep-it credit still beats taking a return.",
-      "pages": 8
+      "pages": 9
     },
     {
       "slug": "invoice-payment-terms-calculator",
@@ -728,7 +728,7 @@
       "url": "https://marisstella.dev/tools/einvoice-preflight/",
       "category": "Compliance checks & evidence records",
       "description": "Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.",
-      "pages": 3
+      "pages": 4
     },
     {
       "slug": "electrical-panel-upgrade-bid-calculator",
