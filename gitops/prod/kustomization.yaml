@@ -160,6 +160,15 @@ configMapGenerator:
       # conditional on any category having mirrored tools, so it is always
       # present.
       - about.html=front-door/about.html
+      # The comparison index, served from the document root by the
+      # `^/compare/?$` block in `front-door/default.conf`. Same ConfigMap for
+      # the same reason as everything above it. ~95 KB on 2026-09-05 — the
+      # second-largest key here after `c__trades.html`, because it lists every
+      # `vs-<product>` page the mirror carries and so grows with the catalogue.
+      # The ceiling test in `front-door.test.mjs` reads this file's own
+      # `portfolio-front-html` list and measures all of it, so no key here can
+      # grow past 1 MiB unnoticed.
+      - compare.html=front-door/compare.html
   - name: portfolio-front-nginx
     files:
       - default.conf=front-door/default.conf

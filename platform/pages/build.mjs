@@ -485,6 +485,176 @@ export function categoryPagePath(categoryId) {
 export const ABOUT_PATH = 'about/';
 
 /**
+ * The index of every `vs-<product>.html` comparison page in the catalogue,
+ * grouped by the product each one names.
+ *
+ * ## Why this page exists
+ *
+ * Ventures here had written 167 comparison pages on 2026-09-05 — a snapshot,
+ * not a constant; the page is generated and the count tracks the tree — and
+ * every one of them was
+ * reachable from exactly one place: its own tool's entry page. Nothing linked
+ * across ventures (measured 2026-09-05: zero `../<slug>/vs-…` hrefs in the
+ * whole tree), and no page on either host collects them — the word
+ * "alternative" did not appear anywhere in the served surface.
+ *
+ * That is a distribution hole rather than a cosmetic one. Thirty-two separate
+ * tools compare themselves with Jobber; thirteen with ServiceTitan. A reader
+ * searching "Jobber alternatives" who lands on the artificial-turf one has no
+ * route to the other thirty-one, and there is no single URL that is *about*
+ * that query for a crawler to rank. One page that is about it links all
+ * thirty-two, and gives the catalogue the cross-venture internal linking layer
+ * `renderCategoryPage` gave it within a trade.
+ *
+ * ## What it may and may not say
+ *
+ * Every word on it is lifted from a page a venture author already wrote and
+ * cited: the product's name comes out of that page's own `<h1>`, the tool's
+ * name and blurb out of the tool's own `<title>`/description. This page adds
+ * no comparison of its own, no ranking, and no claim about any named product —
+ * it is an index, so it cannot introduce a fact that the page it links to does
+ * not already carry. See `PRODUCT_PLAYBOOK.md`: a marketing surface here may
+ * only restate what is already true and already cited.
+ */
+export const COMPARE_PATH = 'compare/';
+
+/**
+ * The filename convention a comparison page follows.
+ *
+ * Matched rather than listed: `vs-*.html` is the convention every one of the
+ * 167 uses, and a hand-kept list would silently drop the next one — the same
+ * staleness the venture discovery in this file exists to avoid. `.test.mjs`
+ * siblings cannot match because they are not `.html`.
+ */
+export const COMPARISON_FILE_PATTERN = /^vs-[a-z0-9][a-z0-9-]*\.html$/i;
+
+/**
+ * The product a comparison page is about, taken from the page's own words.
+ *
+ * Not from the filename. `vs-lmn.html` is titled "This calculator vs. LMN by
+ * Granum" and `vs-yardi.html` "…vs. Yardi Voyager CAM reconciliation" — the
+ * author knows the product's real name and casing, and a slug does not. So the
+ * text after the last "vs." in the `<h1>` is the answer, with the `<title>`
+ * (minus any " | Site name" suffix) as the fallback for a page whose heading is
+ * phrased differently.
+ *
+ * Returns `null` when neither carries the pattern, and the caller drops that
+ * page rather than guessing: an index entry naming the wrong product is worse
+ * than one fewer entry, and this is a page about other companies' products.
+ * Measured across all 167 pages on 2026-09-05, nothing fell through.
+ */
+export function comparisonSubject(html) {
+  const text = (value) =>
+    value
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const afterVs = (value) => {
+    const matches = [...value.matchAll(/\svs\.?\s/gi)];
+    if (!matches.length) return null;
+    const last = matches[matches.length - 1];
+    const tail = value.slice(last.index + last[0].length).trim();
+    return tail || null;
+  };
+
+  const h1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  const fromH1 = h1 ? afterVs(text(h1[1])) : null;
+  if (fromH1) return fromH1;
+
+  const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  return title ? afterVs(text(title[1]).split(' | ')[0]) : null;
+}
+
+/**
+ * The key two comparison pages must share to be filed under one product.
+ *
+ * Leading articles and possessives are what actually differ between authors —
+ * "the AWS Pricing Calculator" and "AWS Pricing Calculator" are one product,
+ * and "Amazon's own Revenue Calculator" is filed under the words the author
+ * chose because trimming a possessive off a brand ("Etsy's own Profit
+ * Calculator") would merge products that are genuinely distinct. So this
+ * normalises punctuation and case only, and deliberately does not try to guess
+ * a canonical brand out of a phrase.
+ */
+export function comparisonSubjectKey(subject) {
+  return subject
+    .toLowerCase()
+    .replace(/^(the|a|an)\s+/, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Every comparison page in the catalogue, grouped by product, most-compared
+ * first and alphabetical within a tie.
+ *
+ * Ordered that way because the ordering is the page's editorial judgement and
+ * the only one it makes: a product thirty-two tools compare themselves with is
+ * the reason a stranger opens this page, and burying it under an alphabetical
+ * "AccuLynx" would be filing rather than publishing.
+ */
+export function groupComparisons(entries) {
+  const byKey = new Map();
+  for (const entry of entries) {
+    const existing = byKey.get(entry.subjectKey);
+    if (existing) {
+      existing.items.push(entry);
+      continue;
+    }
+    byKey.set(entry.subjectKey, { key: entry.subjectKey, subject: entry.subject, items: [entry] });
+  }
+  for (const group of byKey.values()) {
+    group.items.sort((a, b) => a.title.localeCompare(b.title));
+  }
+  return [...byKey.values()].sort(
+    (a, b) => b.items.length - a.items.length || a.subject.localeCompare(b.subject),
+  );
+}
+
+/**
+ * Read every published surface's comparison pages off disk.
+ *
+ * Takes the finished `surfaces` list rather than re-walking `ventures/`, so a
+ * venture excluded from the build (`EXCLUDED_SLUGS`) cannot contribute an entry
+ * linking to a page that was never published — and so a venture publishing from
+ * `site/` is covered without restating that rule, because `sourceDir` already
+ * points at whichever directory `ENTRY_CANDIDATES` resolved.
+ */
+export async function discoverComparisons(surfaces) {
+  const entries = [];
+  for (const surface of surfaces) {
+    let names;
+    try {
+      names = await fs.readdir(surface.sourceDir);
+    } catch {
+      continue;
+    }
+    for (const name of names.sort()) {
+      if (!COMPARISON_FILE_PATTERN.test(name)) continue;
+      const file = path.join(surface.sourceDir, name);
+      const html = await fs.readFile(file, 'utf8');
+      const subject = comparisonSubject(html);
+      // A page whose heading does not name a product is dropped rather than
+      // guessed at. See `comparisonSubject`.
+      if (!subject) continue;
+      entries.push({
+        slug: surface.slug,
+        file: name,
+        subject,
+        subjectKey: comparisonSubjectKey(subject),
+        title: surface.title,
+        description: surface.description,
+      });
+    }
+  }
+  return entries;
+}
+
+/**
  * The copy each category page is published with.
  *
  * Separate from `CATEGORY_RULES` because these are different jobs. The rules
@@ -1671,7 +1841,7 @@ ${siblings}
     </section>
 
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every tool page loads, with the
@@ -1693,6 +1863,230 @@ ${siblings}
  * palette, the same `.wrap`, the same footer treatment — a visitor arriving
  * from a tool page should not feel they have left the site.
  */
+/**
+ * The extra rules the comparison index needs on top of `CATEGORY_STYLE`.
+ *
+ * Appended rather than replacing it for the reason `ABOUT_STYLE` is: a visitor
+ * arriving here from a category page should not feel they have left the site.
+ */
+const COMPARE_STYLE = `
+    .jump { margin: 30px 0 6px; padding: 16px 18px; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 13px; }
+    .jump h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+               color: var(--muted); font-weight: 700; margin: 0 0 10px; }
+    .jump ul { list-style: none; margin: 0; padding: 0; display: flex;
+               flex-wrap: wrap; gap: 8px 14px; }
+    .jump a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .93rem; }
+    .jump a:hover, .jump a:focus-visible { text-decoration: underline; }
+    .jump span { color: var(--soft); font-weight: 500; }
+    .subject { margin-top: 34px; scroll-margin-top: 14px; }
+    .subject h2 { font-size: 1.12rem; letter-spacing: -.02em; margin: 0 0 4px; }
+    .subject .note { font-size: .85rem; color: var(--soft); margin: 0 0 12px; }
+    .singles { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
+               grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+    .singles li { background: var(--panel); border: 1px solid var(--line);
+                  border-radius: 11px; padding: 12px 14px; font-size: .94rem;
+                  line-height: 1.45; }
+    .singles strong { display: block; color: var(--ink); }
+    .singles a { color: var(--accent); }
+`;
+
+/**
+ * The catalogue's comparison pages, on one URL, grouped by the product each
+ * names. See `COMPARE_PATH` for why this page exists and what it is allowed to
+ * say.
+ *
+ * Two bands, because 167 pages across ~120 products rendered as one flat list
+ * is the alphabetical wall `SUBCATEGORY_RULES` was written to fix on the trades
+ * page. Products compared by more than one tool get a section of their own —
+ * those are the queries with volume, and the only ones where a reader gains
+ * something from seeing the set. The long tail of one-offs gets a single
+ * compact band at the foot, which is enough for a crawler to find the page and
+ * enough for a reader to scan.
+ */
+export function renderComparePage({ groups, surfaces, categoryGroups = [], baseUrl }) {
+  const url = `${baseUrl}${COMPARE_PATH}`;
+  const toRoot = '../';
+  const total = groups.reduce((n, group) => n + group.items.length, 0);
+  const multi = groups.filter((group) => group.items.length > 1);
+  const singles = groups.filter((group) => group.items.length === 1);
+  const anchorFor = (group) => `p-${group.key.replace(/\s+/g, '-')}`;
+
+  // Derived the same way the category pages and the About page derive theirs.
+  // This page spans the whole catalogue, so it always covers the tools that do
+  // make a documented live call (Sponsor Ready, the DNS evidence tool) — a
+  // flat "nothing you type is uploaded" in the header would be false for them
+  // while the footer's own disclaimer named the exception two screens below.
+  const exceptions = externalCallExceptions(surfaces);
+  const privacyClaim = exceptions.length
+    ? `nothing you type is uploaded, except on ${listProse(
+        exceptions.map((x) => escapeHtml(x.title)),
+      )}`
+    : 'nothing you type is uploaded';
+
+  const title = `Comparisons: free tools next to the software they are measured against`;
+  const description =
+    `${total} side-by-side pages comparing the free calculators on this site with named commercial products — ` +
+    `what each one does, what it does not, and which to use when. Not affiliated with any product named.`;
+
+  const entryHref = (entry) => `${toRoot}${entry.slug}/${entry.file}`;
+
+  const renderCard = (entry) => `          <li class="card">
+            <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
+              <h3>${escapeHtml(entry.title)}</h3>
+            </a>
+            <p>${escapeHtml(truncate(entry.description, 120))}</p>
+          </li>`;
+
+  const sections = multi
+    .map(
+      (group) => `      <section class="subject" id="${escapeHtml(anchorFor(group))}">
+        <h2>${escapeHtml(group.subject)}</h2>
+        <p class="note">${escapeHtml(
+          `${group.items.length} tools here have a page comparing themselves with ${group.subject}. Written by the tool's author; not affiliated with ${group.subject}.`,
+        )}</p>
+        <ul class="cards">
+${group.items.map(renderCard).join('\n')}
+        </ul>
+      </section>`,
+    )
+    .join('\n');
+
+  const singleItems = singles
+    .map((group) => {
+      const entry = group.items[0];
+      return `        <li><strong>${escapeHtml(group.subject)}</strong><a href="${escapeHtml(entryHref(entry))}" data-pf-to="${escapeHtml(entry.slug)}">${escapeHtml(entry.title)}</a></li>`;
+    })
+    .join('\n');
+
+  const jump = multi
+    .map(
+      (group) =>
+        `        <li><a href="#${escapeHtml(anchorFor(group))}">${escapeHtml(group.subject)}</a> <span>(${group.items.length})</span></li>`,
+    )
+    .join('\n');
+
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: 'Comparisons', item: url },
+      ],
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: total,
+      itemListElement: groups.flatMap((group) =>
+        group.items.map((entry) => ({
+          '@type': 'ListItem',
+          name: `${entry.title} vs. ${group.subject}`,
+          url: `${baseUrl}${pageUrlPath(entry.slug, entry.file)}`,
+        })),
+      ).map((item, index) => ({ ...item, position: index + 1 })),
+    },
+  };
+
+  const categoryLinks = categoryGroups
+    .map(
+      ({ category, items }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a> <span>(${items.length})</span></li>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <style>${CATEGORY_STYLE}${COMPARE_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} free tools</a> › Comparisons</p>
+    <header>
+      <p class="eyebrow">Comparisons</p>
+      <h1>What each free tool here does that the paid product does not — and what it does not do</h1>
+      <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying so plainly: what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author, cite the product's own public documentation, and are not affiliated with, endorsed by, or reviewed by any product named here.</p>
+      <p class="count">${total} comparison page${total === 1 ? '' : 's'} across ${groups.length} product${groups.length === 1 ? '' : 's'} · free · no account · ${privacyClaim}</p>
+    </header>
+
+    <nav class="jump" aria-label="Products with more than one comparison">
+      <h2>Products compared by more than one tool</h2>
+      <ul>
+${jump}
+      </ul>
+    </nav>
+
+    <main>
+${sections}
+
+      <section class="subject" id="p-one-each">
+        <h2>One comparison each</h2>
+        <p class="note">${escapeHtml(
+          `${singles.length} more products, each compared by a single tool here.`,
+        )}</p>
+        <ul class="singles">
+${singleItems}
+        </ul>
+      </section>
+    </main>
+
+    <section class="siblings">
+      <h2>Browse by trade instead</h2>
+      <ul>
+${categoryLinks}
+      </ul>
+    </section>
+
+    <footer>${disclaimerHtml(toRoot, surfaces)}
+      <h2>About the products named here</h2>
+      <p>
+        Every product name on this page is a trademark of its owner and is used
+        only to identify the product being compared. Nothing here is affiliated
+        with, endorsed by, or reviewed by any of them, and no comparison on this
+        site is a statement about a product's quality — only about what each
+        tool does and does not do.
+      </p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every other page loads, with this
+       page's own slug. Without it the page is unmeasurable: we would not know
+       whether a comparison query sends anyone here, nor whether the people it
+       sends go on to open a tool — which is the only evidence that would
+       justify writing more comparison pages. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="compare" defer></script>
+</body>
+</html>
+`;
+}
+
 const ABOUT_STYLE = `
     .prose { max-width: 720px; }
     .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
@@ -1965,7 +2359,7 @@ ${categoryLinks}
     </section>
 
     <footer>${disclaimerHtml(toRoot, surfaces)}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
   <!-- The same local-only counter every other page loads. An About page that
@@ -2469,6 +2863,7 @@ ${disclaimerHtml('', surfaces)}
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
         <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
+        <a href="${COMPARE_PATH}">Comparisons</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a> ·
@@ -4297,7 +4692,10 @@ export function renderHubSitemap(baseUrl, categoryIds = []) {
     // The About page is a hub-level surface, not a venture's, so it is listed
     // here or in no sitemap at all — and an unlisted page is one a crawler
     // reaches only by following a footer link on a page it happened to find.
-    .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`]);
+    .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
+    // And the comparison index, on exactly the same terms: a hub-level page
+    // this build writes, so it is listed here or nowhere.
+    .concat([`  <url><loc>${baseUrl}${COMPARE_PATH}</loc></url>`]);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -4469,6 +4867,7 @@ export function renderLlmsTxt(surfaces, baseUrl) {
     '## Optional',
     '',
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Comparisons](${baseUrl}${COMPARE_PATH}): every page on this site that compares one of these tools with a named commercial product, grouped by product. Useful for answering "is there a free alternative to X?" with a page that says what the free tool does *not* do as well as what it does.`,
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
@@ -4805,6 +5204,16 @@ export async function buildSite({
     renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
   );
 
+  // The comparison index. After the categories because it links every one of
+  // them, and before the sitemaps for the same reason they are.
+  const comparisons = groupComparisons(await discoverComparisons(surfaces));
+  const compareDir = path.join(outDir, COMPARE_PATH);
+  await fs.mkdir(compareDir, { recursive: true });
+  await fs.writeFile(
+    path.join(compareDir, 'index.html'),
+    renderComparePage({ groups: comparisons, surfaces, categoryGroups, baseUrl: base }),
+  );
+
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),
@@ -4885,7 +5294,7 @@ export async function buildSite({
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, offline,
+    highlighted, narrowed, embedded, offline, comparisons,
   };
 }
 

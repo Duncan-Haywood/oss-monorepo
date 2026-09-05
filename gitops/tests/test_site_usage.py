@@ -285,6 +285,12 @@ def test_slug_for_buckets_pages_and_ignores_assets() -> None:
     assert slug_for("/") == "_hub"
     assert slug_for("/index.html") == "_hub"
     assert slug_for("/about/index.html") == "about"
+    # The comparison index, on both hosts' spellings: the catalogue host
+    # serves it as a directory, the apex rewrites `/compare/` to a flat
+    # `compare.html` key, and both must land in the one "compare" row or the
+    # page reads as two different surfaces in the usage table.
+    assert slug_for("/compare/index.html") == "compare"
+    assert slug_for("/compare.html") == "compare"
     # Which category page someone lands on is the same kind of signal as
     # which tool; collapsing all seven into one "c" row would hide it.
     assert slug_for("/c/marketplace/index.html") == "c/marketplace"
@@ -379,7 +385,7 @@ def test_every_published_tool_is_reachable_by_slug_for() -> None:
         known = (
             {t["slug"] for t in tools}
             | {f"c/{c['id']}" for c in catalog["categories"]}
-            | {"_hub", "about", "404", "offline"}
+            | {"_hub", "about", "compare", "404", "offline"}
         )
         for page in sorted(out.rglob("*.html")):
             uri = "/" + page.relative_to(out).as_posix()
