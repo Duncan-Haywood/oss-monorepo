@@ -39,8 +39,14 @@ async function siteWith(files = {}) {
     // The hub links About from its footer rather than as a tool card, which is
     // how the real hub does it — `data-tool` is for products.
     'index.html':
-      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> '
+      + '<a href="compare/">Comparisons</a> No warranty.</footer>',
     'about/index.html': '<p>About</p><footer>No warranty.</footer>',
+    // The comparison index, on the same footing as About: a hub-level page the
+    // build writes, linked from the hub's footer rather than as a tool card. It
+    // must list at least one `vs-` page or the check calls it an empty index.
+    'compare/index.html':
+      '<a href="../tool/vs-widget.html">Tool</a><footer>No warranty.</footer>',
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${url('sitemap.xml')}\n`,
     '404.html': '<p>gone</p>',
     '.nojekyll': '',
@@ -48,7 +54,7 @@ async function siteWith(files = {}) {
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
     // About is a hub-level page, so the hub sitemap is the only one that can
     // carry it — the real `renderHubSitemap` lists it here for the same reason.
-    'sitemap-hub.xml': urlset('', 'about/'),
+    'sitemap-hub.xml': urlset('', 'about/', 'compare/'),
     'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     // The feed and the catalogue are a pair: the feed is the "what's new"
     // door, and the catalogue is where the check reads every tool's launch
@@ -58,7 +64,10 @@ async function siteWith(files = {}) {
       + '<entry><id>tag:marisstella.dev,2026:tool/tool</id></entry></feed>',
     'catalog.json': JSON.stringify({ tools: [{ slug: 'tool', launched: '2026-08-01' }] }),
     'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
-    'tool/sitemap.xml': urlset('tool/'),
+    // The page `compare/index.html` above links. Without it the artifact ships
+    // an index pointing at a 404, which is the defect that check exists to see.
+    'tool/vs-widget.html': '<p>Tool vs. Widget</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/', 'tool/vs-widget.html'),
   };
 
   for (const [relative, contents] of Object.entries({ ...defaults, ...files })) {
@@ -300,7 +309,7 @@ test('a data-tool literal inside a script is not read as a hub link', async () =
     'index.html':
       '<a href="tool/" data-tool="tool">Tool</a>' +
       '<script>const card = (slug) => `<a data-tool="` + slug + `">x</a>`;</script>' +
-      '<footer><a href="about/">About</a> No warranty.</footer>',
+      '<footer><a href="about/">About</a> <a href="compare/">Comparisons</a> No warranty.</footer>',
   });
   assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems)}`);
 });
@@ -532,8 +541,8 @@ const CATEGORY_SITE = {
   'index.html':
     '<a href="tool/" data-tool="tool">Tool</a>'
     + '<h2><a href="c/trades/" data-category="trades">Trades</a></h2>'
-    + '<footer><a href="about/">About</a> No warranty.</footer>',
-  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/'),
+    + '<footer><a href="about/">About</a> <a href="compare/">Comparisons</a> No warranty.</footer>',
+  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/', 'compare/'),
   'c/trades/index.html':
     '<a href="../../tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
 };
@@ -809,4 +818,69 @@ test('correctly escaped entities in the feed are not mistaken for a raw ampersan
       + '<title>Fees &amp; &quot;margins&quot; &lt;b&gt; &#39;x&#39;</title></entry></feed>',
   });
   assert.deepEqual(mentioning(problems, 'unparseable'), []);
+});
+
+// ---------------------------------------------------------------------------
+// The comparison index (`compare/`)
+//
+// Same shape as `about/`: a root directory the build writes about the site
+// rather than a venture, so the product contract must skip it — and skipping
+// it must not leave it unchecked. Its own failures are different from About's,
+// because its whole value is being a route to pages that have no other one.
+// ---------------------------------------------------------------------------
+
+test('compare/ is not held to the product contract', async () => {
+  const problems = await problemsFor();
+  assert.deepEqual(mentioning(problems, 'compare/ has no index.html'), []);
+  assert.deepEqual(mentioning(problems, 'compare/: shipped but the hub does not link'), []);
+  assert.deepEqual(mentioning(problems, 'compare/: shipped with no launch date'), []);
+});
+
+test('a missing comparison index is a problem', async () => {
+  const problems = await problemsFor({
+    'compare/index.html': null,
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+    'sitemap-hub.xml': urlset('', 'about/'),
+  });
+  assert.equal(
+    mentioning(problems, 'comparison pages have no cross-venture index').length,
+    1,
+  );
+});
+
+test('a comparison index the hub does not link is a problem', async () => {
+  const problems = await problemsFor({
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+  });
+  assert.equal(
+    mentioning(problems, 'compare/: shipped but the hub does not link it').length,
+    1,
+  );
+});
+
+test('an empty comparison index is a problem, because it looks healthy', async () => {
+  // The quiet failure: `discoverComparisons` stops matching, and the page still
+  // renders with a headline, a disclaimer and no dead links. Nothing else in
+  // this file would show it.
+  const problems = await problemsFor({
+    'compare/index.html': '<p>Nothing to compare.</p><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'lists no comparison pages').length, 1);
+});
+
+test('a comparison index linking a product that did not ship is a problem', async () => {
+  const problems = await problemsFor({
+    'compare/index.html':
+      '<a href="../gone/vs-widget.html">Gone</a><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'links "gone" but no such product shipped').length, 1);
+});
+
+test('a comparison index with no disclaimer must not ship', async () => {
+  const problems = await problemsFor({
+    'compare/index.html': '<a href="../tool/vs-widget.html">Tool</a>',
+  });
+  assert.equal(mentioning(problems, 'compare/index.html: carries no disclaimer').length, 1);
 });

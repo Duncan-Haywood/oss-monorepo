@@ -1,0 +1,1675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free alternatives, compared honestly — 168 side-by-side pages — Free small-business calculators</title>
+<meta name="description" content="168 pages comparing the free calculators on this site with named commercial products: what each product does, what the free tool does, and when the paid one is the right answer. Not affiliated with any product named.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#12594a">
+<link rel="canonical" href="https://marisstella.dev/compare/">
+<link rel="alternate" type="application/atom+xml" title="Free small-business calculators — tools on marisstella.dev" href="/feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Free small-business calculators">
+<meta property="og:title" content="Free alternatives, compared honestly — 168 side-by-side pages">
+<meta property="og:description" content="168 pages comparing the free calculators on this site with named commercial products: what each product does, what the free tool does, and when the paid one is the right answer. Not affiliated with any product named.">
+<meta property="og:url" content="https://marisstella.dev/compare/">
+<meta property="og:image" content="https://marisstella.dev/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://marisstella.dev/social-card.png">
+<meta name="twitter:image:alt" content="The site mark: a simple calculator — a display above two rows of three keys — centred on a plain coloured field. The card carries no text.">
+<meta name="robots" content="index, follow">
+<style>
+  :root {
+    color-scheme: light dark;
+    --ink: #16191d;
+    --ink-soft: #454c55;
+    --paper: #fbfaf8;
+    --card: #ffffff;
+    --rule: #ddd8d0;
+    --link: #12506b;
+    /* The call to action needs its own pair rather than reusing --link on a
+       white foreground. In dark mode --link is a pale blue, and white text on
+       it measured 1.93:1 — a headless contrast pass caught it before this page
+       ever shipped. The button inverts instead: pale fill, dark ink. */
+    --cta-bg: #12506b;
+    --cta-fg: #ffffff;
+    /* The search field's edge, and the one border on this page that is not
+       --rule. --rule measures 1.36:1 against --paper in light and 1.54:1 in
+       dark: fine for a card, whose shape a reader gets from its fill and its
+       content, and a failure of WCAG 2.1 SC 1.4.11 for a text input, where
+       the boundary is the only thing saying "you can type here". A headless
+       pass over the rendered page caught it before this shipped; both values
+       below clear 3:1 against --paper. */
+    --field-edge: #8a8379;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #eceef1;
+      --ink-soft: #b3bac3;
+      --paper: #14171a;
+      --card: #1c2025;
+      --rule: #333940;
+      --link: #7fc4e2;
+      --cta-bg: #7fc4e2;
+      --cta-fg: #10161a;
+      --field-edge: #6f7780;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  main, header, footer { max-width: 62rem; margin: 0 auto; padding: 0 1.25rem; }
+  header { padding-top: 3.5rem; padding-bottom: 1rem; }
+  h1 { font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.15; margin: 0 0 0.75rem; letter-spacing: -0.015em; }
+  .lede { font-size: clamp(1.05rem, 2.4vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.5rem; max-width: 44rem; }
+  .cta {
+    display: inline-block;
+    background: var(--cta-bg);
+    color: var(--cta-fg);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.7rem 1.3rem;
+    border-radius: 0.4rem;
+  }
+  .cta:hover, .cta:focus { filter: brightness(1.1); }
+  h2 { font-size: 1.35rem; margin: 2.75rem 0 1rem; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent, var(--rule));
+    border-radius: 0.5rem;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 { margin: 0 0 0.15rem; font-size: 1.05rem; }
+  .card h3 a { color: var(--link); text-decoration: none; }
+  .card h3 a:hover, .card h3 a:focus { text-decoration: underline; }
+  .count { display: block; font-size: 0.82rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  /* The category headings inside the mirror section. Sized between an h2 and a
+     card title so the section reads as one list with dividers rather than as
+     several sections; scroll-margin-top keeps a heading off the very top
+     edge when a card's fragment link jumps to it. */
+  .group { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); margin: 1.75rem 0 0.75rem; scroll-margin-top: 1rem; }
+  .group:first-of-type { margin-top: 0; }
+  header .fine { color: var(--ink-soft); font-size: 0.9rem; max-width: 60ch; margin: 0.75rem 0 0; }
+  .rows { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .lede-sm { color: var(--ink-soft); max-width: 60ch; margin: -0.25rem 0 1rem; }
+  .rows h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+  .rows p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+  footer { border-top: 1px solid var(--rule); margin-top: 3.5rem; padding-top: 1.5rem; padding-bottom: 3rem; color: var(--ink-soft); font-size: 0.88rem; }
+  footer a { color: var(--link); }
+  footer p { max-width: 52rem; }
+  .fine strong { color: var(--ink); }
+  /* The filter over the mirrored tools. Revealed by script — see
+     FILTER_SCRIPT — so a reader without JavaScript never meets a box that
+     does nothing.
+
+     Every element the filter hides needs a rule here, and the reason is the
+     cascade rather than specificity: the UA sheet's [hidden] { display: none }
+     loses to ANY author display declaration, however weak. .filter and .grid
+     both set display: grid, so without these two selectors the hidden element
+     keeps its box. For .grid that was not hypothetical — it was measured in a
+     browser: filtering to one trade left the six emptied category lists still
+     rendering. Nothing was visible, because a grid with no visible items has
+     no height, so the page looked right and a screen reader read six empty
+     lists between the heading and the one result. */
+  .filter[hidden], .filter-empty[hidden], .grid[hidden] { display: none; }
+  .filter { display: grid; gap: 0.4rem; margin: 0 0 1.5rem; max-width: 30rem; }
+  .filter label { font-size: 0.88rem; color: var(--ink-soft); }
+  .filter input {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--field-edge);
+    border-radius: 0.4rem;
+    padding: 0.55rem 0.7rem;
+    width: 100%;
+  }
+  .filter input:focus-visible { outline: 2px solid var(--link); outline-offset: 1px; }
+  .filter-status { margin: 0; font-size: 0.85rem; color: var(--ink-soft); min-height: 1.4em; }
+  .filter-empty { margin: 0 0 1rem; color: var(--ink-soft); }
+
+  .singles { display: grid; gap: 0.6rem; grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr)); padding: 0; list-style: none; margin: 0; }
+  .singles li { background: var(--card); border: 1px solid var(--rule); border-radius: 0.5rem; padding: 0.7rem 0.9rem; font-size: 0.94rem; }
+  .singles strong { display: block; color: var(--ink); }
+  .singles a { color: var(--link); }
+  .jump { color: var(--ink-soft); font-size: 0.9rem; max-width: 60rem; margin: 0 0 1.5rem; }
+  .jump a { color: var(--link); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Free alternatives, compared honestly — 168 side-by-side pages",
+  "url": "https://marisstella.dev/compare/",
+  "description": "168 pages comparing the free calculators on this site with named commercial products: what each product does, what the free tool does, and when the paid one is the right answer. Not affiliated with any product named.",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Free small-business calculators",
+    "url": "https://marisstella.dev/"
+  },
+  "breadcrumb": {
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Free small-business calculators",
+        "item": "https://marisstella.dev/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Comparisons",
+        "item": "https://marisstella.dev/compare/"
+      }
+    ]
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": 168,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "name": "Artificial Turf Bid Calculator — Landscape vs Pet vs Green vs. Jobber",
+        "url": "https://marisstella.dev/tools/artificial-turf-bid-calculator/vs-jobber.html",
+        "position": 1
+      },
+      {
+        "@type": "ListItem",
+        "name": "Automatic Driveway Gate Bid Calculator — Price Operators vs. Jobber",
+        "url": "https://marisstella.dev/tools/automatic-driveway-gate-bid-calculator/vs-jobber.html",
+        "position": 2
+      },
+      {
+        "@type": "ListItem",
+        "name": "Chimney Sweep Bid Calculator vs. Jobber",
+        "url": "https://marisstella.dev/tools/chimney-sweep-bid-calculator/vs-jobber.html",
+        "position": 3
+      },
+      {
+        "@type": "ListItem",
+        "name": "Crown Molding Bid Calculator — Price to Install It vs. Jobber",
+        "url": "https://marisstella.dev/tools/crown-molding-bid-calculator/vs-jobber.html",
+        "position": 4
+      },
+      {
+        "@type": "ListItem",
+        "name": "Duct Cleaning Bid Calculator — Systems, Vents, and Coil vs. Jobber",
+        "url": "https://marisstella.dev/tools/duct-cleaning-bid-calculator/vs-jobber.html",
+        "position": 5
+      },
+      {
+        "@type": "ListItem",
+        "name": "Entry Door Bid Calculator — Opening, Lights, and Rot vs. Jobber",
+        "url": "https://marisstella.dev/tools/entry-door-bid-calculator/vs-jobber.html",
+        "position": 6
+      },
+      {
+        "@type": "ListItem",
+        "name": "Fireplace Insert Bid Calculator — Liner, Hearth, Stack vs. Jobber",
+        "url": "https://marisstella.dev/tools/fireplace-insert-bid-calculator/vs-jobber.html",
+        "position": 7
+      },
+      {
+        "@type": "ListItem",
+        "name": "Foundation Repair Bid Calculator — Access, Depth, Straps vs. Jobber",
+        "url": "https://marisstella.dev/tools/foundation-repair-bid-calculator/vs-jobber.html",
+        "position": 8
+      },
+      {
+        "@type": "ListItem",
+        "name": "French Drain Bid Calculator — Trench, Outlet, and Soil vs. Jobber",
+        "url": "https://marisstella.dev/tools/french-drain-bid-calculator/vs-jobber.html",
+        "position": 9
+      },
+      {
+        "@type": "ListItem",
+        "name": "Gravel Driveway Bid Calculator — Price It by the Yard vs. Jobber",
+        "url": "https://marisstella.dev/tools/gravel-driveway-bid-calculator/vs-jobber.html",
+        "position": 10
+      },
+      {
+        "@type": "ListItem",
+        "name": "Gutter Cleaning Bid Calculator — Stories, Guards, Spouts vs. Jobber",
+        "url": "https://marisstella.dev/tools/gutter-cleaning-bid-calculator/vs-jobber.html",
+        "position": 11
+      },
+      {
+        "@type": "ListItem",
+        "name": "Hardwood Refinishing Bid Calculator — Stairs and Closets vs. Jobber",
+        "url": "https://marisstella.dev/tools/hardwood-refinishing-bid-calculator/vs-jobber.html",
+        "position": 12
+      },
+      {
+        "@type": "ListItem",
+        "name": "Home Elevator Bid Calculator — Price to Install It vs. Jobber",
+        "url": "https://marisstella.dev/tools/home-elevator-bid-calculator/vs-jobber.html",
+        "position": 13
+      },
+      {
+        "@type": "ListItem",
+        "name": "Hot Tub Bid Calculator — Crane, Pad, and Circuit vs. Jobber",
+        "url": "https://marisstella.dev/tools/hot-tub-bid-calculator/vs-jobber.html",
+        "position": 14
+      },
+      {
+        "@type": "ListItem",
+        "name": "Hydro-Jet and Sewer Camera Bid Calculator — Footage, Access vs. Jobber",
+        "url": "https://marisstella.dev/tools/sewer-hydrojet-bid-calculator/vs-jobber.html",
+        "position": 15
+      },
+      {
+        "@type": "ListItem",
+        "name": "Interior Door Bid Calculator — Price to Replace Doors vs. Jobber",
+        "url": "https://marisstella.dev/tools/interior-door-bid-calculator/vs-jobber.html",
+        "position": 16
+      },
+      {
+        "@type": "ListItem",
+        "name": "Irrigation Winterization Bid Calculator — Blowout Price vs. Jobber",
+        "url": "https://marisstella.dev/tools/irrigation-winterization-bid-calculator/vs-jobber.html",
+        "position": 17
+      },
+      {
+        "@type": "ListItem",
+        "name": "Kitchen Tile Backsplash Bid Calculator — Price It Right vs. Jobber",
+        "url": "https://marisstella.dev/tools/kitchen-tile-backsplash-bid-calculator/vs-jobber.html",
+        "position": 18
+      },
+      {
+        "@type": "ListItem",
+        "name": "Patio Door Bid Calculator — Panels, Glass, and Opening vs. Jobber",
+        "url": "https://marisstella.dev/tools/patio-door-bid-calculator/vs-jobber.html",
+        "position": 19
+      },
+      {
+        "@type": "ListItem",
+        "name": "Plantation Shutter Bid Calculator — Price to Install It vs. Jobber",
+        "url": "https://marisstella.dev/tools/plantation-shutter-bid-calculator/vs-jobber.html",
+        "position": 20
+      },
+      {
+        "@type": "ListItem",
+        "name": "Popcorn Ceiling Bid Calculator — Price to Remove It vs. Jobber",
+        "url": "https://marisstella.dev/tools/popcorn-ceiling-bid-calculator/vs-jobber.html",
+        "position": 21
+      },
+      {
+        "@type": "ListItem",
+        "name": "Shed Install Bid Calculator — Price to Install a Shed vs. Jobber",
+        "url": "https://marisstella.dev/tools/shed-install-bid-calculator/vs-jobber.html",
+        "position": 22
+      },
+      {
+        "@type": "ListItem",
+        "name": "Skylight Install Bid Calculator — Price to Install It vs. Jobber",
+        "url": "https://marisstella.dev/tools/skylight-install-bid-calculator/vs-jobber.html",
+        "position": 23
+      },
+      {
+        "@type": "ListItem",
+        "name": "Soffit and Fascia Bid Calculator — Price the Job Right vs. Jobber",
+        "url": "https://marisstella.dev/tools/soffit-fascia-bid-calculator/vs-jobber.html",
+        "position": 24
+      },
+      {
+        "@type": "ListItem",
+        "name": "Spray Foam Bid Calculator — Price the Insulation Job vs. Jobber",
+        "url": "https://marisstella.dev/tools/spray-foam-bid-calculator/vs-jobber.html",
+        "position": 25
+      },
+      {
+        "@type": "ListItem",
+        "name": "Stucco Repair Bid Calculator — Cracks, Tear-Off, Stories vs. Jobber",
+        "url": "https://marisstella.dev/tools/stucco-repair-bid-calculator/vs-jobber.html",
+        "position": 26
+      },
+      {
+        "@type": "ListItem",
+        "name": "Sunroom Bid Calculator — Price to Build a Sunroom vs. Jobber",
+        "url": "https://marisstella.dev/tools/sunroom-bid-calculator/vs-jobber.html",
+        "position": 27
+      },
+      {
+        "@type": "ListItem",
+        "name": "Vinyl Liner Bid Calculator — Price to Replace a Liner vs. Jobber",
+        "url": "https://marisstella.dev/tools/vinyl-liner-bid-calculator/vs-jobber.html",
+        "position": 28
+      },
+      {
+        "@type": "ListItem",
+        "name": "Walk-In Shower Bid Calculator — Drain, Slope, Overtime vs. Jobber",
+        "url": "https://marisstella.dev/tools/walk-in-shower-bid-calculator/vs-jobber.html",
+        "position": 29
+      },
+      {
+        "@type": "ListItem",
+        "name": "Water Softener Bid Calculator — Run, Copper, and Iron vs. Jobber",
+        "url": "https://marisstella.dev/tools/water-softener-bid-calculator/vs-jobber.html",
+        "position": 30
+      },
+      {
+        "@type": "ListItem",
+        "name": "Wheelchair Ramp Bid Calculator — ADA Slope, Landings, Rails vs. Jobber",
+        "url": "https://marisstella.dev/tools/wheelchair-ramp-bid-calculator/vs-jobber.html",
+        "position": 31
+      },
+      {
+        "@type": "ListItem",
+        "name": "Which Job First? Free Pairwise Job Priority Ranker for Contractors vs. Jobber",
+        "url": "https://marisstella.dev/tools/which-job-first/vs-jobber.html",
+        "position": 32
+      },
+      {
+        "@type": "ListItem",
+        "name": "Boiler Replacement Bid Calculator — Price to Replace It vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/boiler-replacement-bid-calculator/vs-servicetitan.html",
+        "position": 33
+      },
+      {
+        "@type": "ListItem",
+        "name": "Electrical Panel Upgrade Bid Calculator — Feeder, Circuits vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/electrical-panel-upgrade-bid-calculator/vs-servicetitan.html",
+        "position": 34
+      },
+      {
+        "@type": "ListItem",
+        "name": "EV Charger Installation Bid Calculator — Level 2 EVSE Cost vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/ev-charger-bid-calculator/vs-servicetitan.html",
+        "position": 35
+      },
+      {
+        "@type": "ListItem",
+        "name": "Furnace Bid Calculator — Attic, Coil, and Gas Line vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/furnace-bid-calculator/vs-servicetitan.html",
+        "position": 36
+      },
+      {
+        "@type": "ListItem",
+        "name": "HVAC Maintenance Contract Pricing Calculator vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/hvac-maintenance-contract-calculator/vs-servicetitan.html",
+        "position": 37
+      },
+      {
+        "@type": "ListItem",
+        "name": "Mini-Split Install Bid Calculator — Price Per Head vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/mini-split-bid-calculator/vs-servicetitan.html",
+        "position": 38
+      },
+      {
+        "@type": "ListItem",
+        "name": "Sewer Line Replacement Bid Calculator — Open-Cut vs CIPP vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/sewer-line-replace-bid-calculator/vs-servicetitan.html",
+        "position": 39
+      },
+      {
+        "@type": "ListItem",
+        "name": "Shop Rate Calculator vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/shop-rate-calculator/vs-servicetitan.html",
+        "position": 40
+      },
+      {
+        "@type": "ListItem",
+        "name": "Standby Generator Installation Bid Calculator — House Cost vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/standby-generator-bid-calculator/vs-servicetitan.html",
+        "position": 41
+      },
+      {
+        "@type": "ListItem",
+        "name": "Sump Pump Bid Calculator — Pit, Discharge, and Backup vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/sump-pump-bid-calculator/vs-servicetitan.html",
+        "position": 42
+      },
+      {
+        "@type": "ListItem",
+        "name": "Toilet Replacement Bid Calculator — Price to Replace It vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/toilet-replacement-bid-calculator/vs-servicetitan.html",
+        "position": 43
+      },
+      {
+        "@type": "ListItem",
+        "name": "Water Heater Replacement Bid Calculator — Tank vs Tankless vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/water-heater-bid-calculator/vs-servicetitan.html",
+        "position": 44
+      },
+      {
+        "@type": "ListItem",
+        "name": "Well Pump Bid Calculator — Depth, Pitless, and Tank vs. ServiceTitan",
+        "url": "https://marisstella.dev/tools/well-pump-bid-calculator/vs-servicetitan.html",
+        "position": 45
+      },
+      {
+        "@type": "ListItem",
+        "name": "Irrigation Install Bid Calculator — Zones and Backflow vs. Aspire",
+        "url": "https://marisstella.dev/tools/irrigation-install-bid-calculator/vs-aspire.html",
+        "position": 46
+      },
+      {
+        "@type": "ListItem",
+        "name": "Landscape Lighting Bid Calculator — Price to Install It vs. Aspire",
+        "url": "https://marisstella.dev/tools/landscape-lighting-bid-calculator/vs-aspire.html",
+        "position": 47
+      },
+      {
+        "@type": "ListItem",
+        "name": "Paver Patio Bid Calculator — Base, Waste, and Edge vs. Aspire",
+        "url": "https://marisstella.dev/tools/paver-patio-bid-calculator/vs-aspire.html",
+        "position": 48
+      },
+      {
+        "@type": "ListItem",
+        "name": "Retaining Wall Bid Calculator — Height and Drainage vs. Aspire",
+        "url": "https://marisstella.dev/tools/retaining-wall-bid-calculator/vs-aspire.html",
+        "position": 49
+      },
+      {
+        "@type": "ListItem",
+        "name": "Snow Removal Bid Calculator — Per-Push vs Seasonal vs. Aspire",
+        "url": "https://marisstella.dev/tools/snow-removal-bid-calculator/vs-aspire.html",
+        "position": 50
+      },
+      {
+        "@type": "ListItem",
+        "name": "Sod Installation Bid Calculator — Price to Install It vs. Aspire",
+        "url": "https://marisstella.dev/tools/sod-install-bid-calculator/vs-aspire.html",
+        "position": 51
+      },
+      {
+        "@type": "ListItem",
+        "name": "Basement Finishing Bid Calculator — Price to Finish It vs. Buildxact",
+        "url": "https://marisstella.dev/tools/basement-finishing-bid-calculator/vs-buildxact.html",
+        "position": 52
+      },
+      {
+        "@type": "ListItem",
+        "name": "Drywall Bid Calculator — Price the Finish Level, Not Sheets vs. Buildxact",
+        "url": "https://marisstella.dev/tools/drywall-bid-calculator/vs-buildxact.html",
+        "position": 53
+      },
+      {
+        "@type": "ListItem",
+        "name": "Pergola Bid Calculator — Price to Build a Pergola vs. Buildxact",
+        "url": "https://marisstella.dev/tools/pergola-bid-calculator/vs-buildxact.html",
+        "position": 54
+      },
+      {
+        "@type": "ListItem",
+        "name": "Pool Plaster Bid Calculator — Walls, Chip-Off, Finish vs. Buildxact",
+        "url": "https://marisstella.dev/tools/pool-plaster-bid-calculator/vs-buildxact.html",
+        "position": 55
+      },
+      {
+        "@type": "ListItem",
+        "name": "Screened Porch Bid Calculator — Price to Screen It vs. Buildxact",
+        "url": "https://marisstella.dev/tools/screened-porch-bid-calculator/vs-buildxact.html",
+        "position": 56
+      },
+      {
+        "@type": "ListItem",
+        "name": "Asphalt Driveway Paving Bid Calculator — Price by the Ton vs. JobNimbus",
+        "url": "https://marisstella.dev/tools/asphalt-driveway-pave-bid-calculator/vs-jobnimbus.html",
+        "position": 57
+      },
+      {
+        "@type": "ListItem",
+        "name": "Egress Window Bid Calculator — Price to Install It vs. JobNimbus",
+        "url": "https://marisstella.dev/tools/egress-window-bid-calculator/vs-jobnimbus.html",
+        "position": 58
+      },
+      {
+        "@type": "ListItem",
+        "name": "Gutter Guard Bid Calculator — Feet, Stories, and Mesh vs. JobNimbus",
+        "url": "https://marisstella.dev/tools/gutter-guard-bid-calculator/vs-jobnimbus.html",
+        "position": 59
+      },
+      {
+        "@type": "ListItem",
+        "name": "Gutter Install Bid Calculator — Corners, Drops, Stories vs. JobNimbus",
+        "url": "https://marisstella.dev/tools/gutter-install-bid-calculator/vs-jobnimbus.html",
+        "position": 60
+      },
+      {
+        "@type": "ListItem",
+        "name": "Siding Bid Calculator vs. JobNimbus",
+        "url": "https://marisstella.dev/tools/siding-bid-calculator/vs-jobnimbus.html",
+        "position": 61
+      },
+      {
+        "@type": "ListItem",
+        "name": "Concrete Lifting Bid Calculator — Void, Method, and Access vs. QuoteIQ",
+        "url": "https://marisstella.dev/tools/concrete-lifting-bid-calculator/vs-quoteiq.html",
+        "position": 62
+      },
+      {
+        "@type": "ListItem",
+        "name": "Crawl Space Encapsulation Bid Calculator — Price It Right vs. QuoteIQ",
+        "url": "https://marisstella.dev/tools/crawl-space-encapsulation-bid-calculator/vs-quoteiq.html",
+        "position": 63
+      },
+      {
+        "@type": "ListItem",
+        "name": "Deck Bid Calculator vs. QuoteIQ",
+        "url": "https://marisstella.dev/tools/deck-bid-calculator/vs-quoteiq.html",
+        "position": 64
+      },
+      {
+        "@type": "ListItem",
+        "name": "Tuckpointing Bid Calculator — Price for Brick Pointing vs. QuoteIQ",
+        "url": "https://marisstella.dev/tools/tuckpointing-bid-calculator/vs-quoteiq.html",
+        "position": 65
+      },
+      {
+        "@type": "ListItem",
+        "name": "Flat Roof Bid Calculator — Price a TPO or EPDM Roof vs. AccuLynx",
+        "url": "https://marisstella.dev/tools/flat-roof-bid-calculator/vs-acculynx.html",
+        "position": 66
+      },
+      {
+        "@type": "ListItem",
+        "name": "Metal Roof Bid Calculator — Price a Metal Roof Job vs. AccuLynx",
+        "url": "https://marisstella.dev/tools/metal-roof-bid-calculator/vs-acculynx.html",
+        "position": 67
+      },
+      {
+        "@type": "ListItem",
+        "name": "Roofing Bid Calculator — Price a Reroof by the Square vs. AccuLynx",
+        "url": "https://marisstella.dev/tools/roofing-bid-calculator/vs-acculynx.html",
+        "position": 68
+      },
+      {
+        "@type": "ListItem",
+        "name": "Appliance Repair Quote Calculator — Repair vs Replace vs. Housecall Pro",
+        "url": "https://marisstella.dev/tools/appliance-repair-quote-calculator/vs-housecall-pro.html",
+        "position": 69
+      },
+      {
+        "@type": "ListItem",
+        "name": "Garage Door Bid Calculator — Spring, Door, and Drive vs. Housecall Pro",
+        "url": "https://marisstella.dev/tools/garage-door-bid-calculator/vs-housecall-pro.html",
+        "position": 70
+      },
+      {
+        "@type": "ListItem",
+        "name": "Walk-In Tub Bid Calculator — Price to Install a Tub vs. Housecall Pro",
+        "url": "https://marisstella.dev/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html",
+        "position": 71
+      },
+      {
+        "@type": "ListItem",
+        "name": "Freelance Retainer Calculator — Retainer vs Hourly vs. Bonsai",
+        "url": "https://marisstella.dev/tools/freelance-retainer-calculator/vs-bonsai.html",
+        "position": 72
+      },
+      {
+        "@type": "ListItem",
+        "name": "Quote Margin Check — free effective hourly rate calculator for freelancers vs. Bonsai",
+        "url": "https://marisstella.dev/tools/quote-margin-check/vs-bonsai.html",
+        "position": 73
+      },
+      {
+        "@type": "ListItem",
+        "name": "Tender Bid Readiness Checker for Small Contractors vs. GovWin IQ",
+        "url": "https://marisstella.dev/tools/tender-bid-readiness/vs-govwin.html",
+        "position": 74
+      },
+      {
+        "@type": "ListItem",
+        "name": "Tender Radar vs. GovWin IQ",
+        "url": "https://marisstella.dev/tools/tender-radar/vs-govwin.html",
+        "position": 75
+      },
+      {
+        "@type": "ListItem",
+        "name": "Free Contractor Bid Readiness Checklist vs. JobTread",
+        "url": "https://marisstella.dev/tools/contractor-bid-readiness/vs-jobtread.html",
+        "position": 76
+      },
+      {
+        "@type": "ListItem",
+        "name": "Pole Barn Bid Calculator — Price to Build a Pole Barn vs. JobTread",
+        "url": "https://marisstella.dev/tools/pole-barn-bid-calculator/vs-jobtread.html",
+        "position": 77
+      },
+      {
+        "@type": "ListItem",
+        "name": "Exterior Painting Bid Calculator — Elevation and Scrape vs. PaintScout",
+        "url": "https://marisstella.dev/tools/exterior-painting-bid-calculator/vs-paintscout.html",
+        "position": 78
+      },
+      {
+        "@type": "ListItem",
+        "name": "Painting Bid Calculator — Interior Price Per Sq Ft vs. PaintScout",
+        "url": "https://marisstella.dev/tools/painting-bid-calculator/vs-paintscout.html",
+        "position": 79
+      },
+      {
+        "@type": "ListItem",
+        "name": "Porta Potty Event Quote Calculator — Restroom Rental Bid vs. ServiceCore",
+        "url": "https://marisstella.dev/tools/portable-restroom-event-quote/vs-servicecore.html",
+        "position": 80
+      },
+      {
+        "@type": "ListItem",
+        "name": "Septic Pumping Bid Calculator — Lid, Hose, Extra Gallons vs. ServiceCore",
+        "url": "https://marisstella.dev/tools/septic-pumping-bid-calculator/vs-servicecore.html",
+        "position": 81
+      },
+      {
+        "@type": "ListItem",
+        "name": "Carpet Cleaning Bid Calculator — Price the Stop, Not Room vs. ServiceMonster",
+        "url": "https://marisstella.dev/tools/carpet-cleaning-bid-calculator/vs-servicemonster.html",
+        "position": 82
+      },
+      {
+        "@type": "ListItem",
+        "name": "Window Cleaning Bid Calculator — Price Per Visit vs. ServiceMonster",
+        "url": "https://marisstella.dev/tools/window-cleaning-bid-calculator/vs-servicemonster.html",
+        "position": 83
+      },
+      {
+        "@type": "ListItem",
+        "name": "Shopify Accessibility Evidence Report vs. accessiBe",
+        "url": "https://marisstella.dev/tools/shopify-a11y-evidence/vs-accessibe.html",
+        "position": 84
+      },
+      {
+        "@type": "ListItem",
+        "name": "No-Show Fee Calculator for Service Businesses vs. Acuity Scheduling",
+        "url": "https://marisstella.dev/tools/no-show-fee-calculator/vs-acuity-scheduling.html",
+        "position": 85
+      },
+      {
+        "@type": "ListItem",
+        "name": "Airbnb vs Vrbo Host Payout Calculator vs. Airbnb's own \"Estimate your earnings\" tool",
+        "url": "https://marisstella.dev/tools/str-host-payout-calculator/vs-airbnb-earnings-estimator.html",
+        "position": 86
+      },
+      {
+        "@type": "ListItem",
+        "name": "Amazon FBA vs FBM Profit Calculator — Placement vs Freight vs. Amazon's own Revenue Calculator",
+        "url": "https://marisstella.dev/tools/amazon-fba-calculator/vs-amazon-revenue-calculator.html",
+        "position": 87
+      },
+      {
+        "@type": "ListItem",
+        "name": "Faire Seller Fee Calculator — First Order vs Reorder vs. Ankorstore",
+        "url": "https://marisstella.dev/tools/faire-wholesale-calculator/vs-ankorstore.html",
+        "position": 88
+      },
+      {
+        "@type": "ListItem",
+        "name": "Owner Operator CPM Calculator — Deadhead-Adjusted Rate vs. ATBS",
+        "url": "https://marisstella.dev/tools/owner-operator-cpm-calculator/vs-atbs.html",
+        "position": 89
+      },
+      {
+        "@type": "ListItem",
+        "name": "Solar PV Install Bid Calculator — Price Per Watt vs. Aurora Solar",
+        "url": "https://marisstella.dev/tools/solar-pv-bid-calculator/vs-aurora-solar.html",
+        "position": 90
+      },
+      {
+        "@type": "ListItem",
+        "name": "Stair Lift Bid Calculator — Price to Install a Lift vs. AutoVu Solutions",
+        "url": "https://marisstella.dev/tools/stair-lift-bid-calculator/vs-autovu.html",
+        "position": 91
+      },
+      {
+        "@type": "ListItem",
+        "name": "E-invoice Preflight — Check JSON, UBL, CII, or Factur-X vs. Avalara",
+        "url": "https://marisstella.dev/tools/einvoice-preflight/vs-avalara.html",
+        "position": 92
+      },
+      {
+        "@type": "ListItem",
+        "name": "SaaS Price Increase Churn Calculator — Price Impact vs. Baremetrics",
+        "url": "https://marisstella.dev/tools/subscription-price-impact/vs-baremetrics.html",
+        "position": 93
+      },
+      {
+        "@type": "ListItem",
+        "name": "Shopify Fee Calculator — Payments vs PayPal vs Grow vs. BeProfit",
+        "url": "https://marisstella.dev/tools/shopify-fee-calculator/vs-beprofit.html",
+        "position": 94
+      },
+      {
+        "@type": "ListItem",
+        "name": "Subcontractor Cash Flow Planner — Payment Delay Gap vs. Billd Material Financing",
+        "url": "https://marisstella.dev/tools/subcontractor-cashflow-planner/vs-billd.html",
+        "position": 95
+      },
+      {
+        "@type": "ListItem",
+        "name": "Asphalt Sealcoating Bid Calculator — Driveway & Lot Price vs. Bitumio",
+        "url": "https://marisstella.dev/tools/asphalt-sealcoat-bid-calculator/vs-bitumio.html",
+        "position": 96
+      },
+      {
+        "@type": "ListItem",
+        "name": "Equipment Rental Break-Even Calculator vs. Booqable",
+        "url": "https://marisstella.dev/tools/equipment-rental-break-even/vs-booqable.html",
+        "position": 97
+      },
+      {
+        "@type": "ListItem",
+        "name": "Change Order Margin Calculator — Price the Added Work vs. Buildertrend",
+        "url": "https://marisstella.dev/tools/change-order-margin-calculator/vs-buildertrend.html",
+        "position": 98
+      },
+      {
+        "@type": "ListItem",
+        "name": "Chargeback Evidence Packet Builder for Ecommerce Sellers vs. Chargeflow",
+        "url": "https://marisstella.dev/tools/chargeback-evidence-packet/vs-chargeflow.html",
+        "position": 99
+      },
+      {
+        "@type": "ListItem",
+        "name": "Janitorial Bid Calculator — Commercial Price Per Month vs. CleanGuru",
+        "url": "https://marisstella.dev/tools/janitorial-bid-calculator/vs-cleanguru.html",
+        "position": 100
+      },
+      {
+        "@type": "ListItem",
+        "name": "Epoxy Garage Floor Bid Calculator — Flake and Polyaspartic vs. CoatingOS",
+        "url": "https://marisstella.dev/tools/epoxy-garage-floor-bid-calculator/vs-coatingos.html",
+        "position": 101
+      },
+      {
+        "@type": "ListItem",
+        "name": "Security Camera Installation Bid Calculator — CCTV Storage vs. D-Tools",
+        "url": "https://marisstella.dev/tools/security-camera-bid-calculator/vs-d-tools.html",
+        "position": 102
+      },
+      {
+        "@type": "ListItem",
+        "name": "eBay Fee & Profit Calculator vs. eBay's own Fee Calculator",
+        "url": "https://marisstella.dev/tools/ebay-fee-calculator/vs-ebay-fee-calculator.html",
+        "position": 103
+      },
+      {
+        "@type": "ListItem",
+        "name": "Etsy Profit Calculator vs. Etsy's own Profit Calculator",
+        "url": "https://marisstella.dev/tools/etsy-profit-calculator/vs-etsys-listing-form-calculator.html",
+        "position": 104
+      },
+      {
+        "@type": "ListItem",
+        "name": "3PL Cost Calculator vs. Extensiv",
+        "url": "https://marisstella.dev/tools/3pl-quote-normalizer/vs-extensiv.html",
+        "position": 105
+      },
+      {
+        "@type": "ListItem",
+        "name": "Fence Bid Calculator — Posts, Gates, and Tear-Out vs. Fence Cloud",
+        "url": "https://marisstella.dev/tools/fence-bid-calculator/vs-fence-cloud.html",
+        "position": 106
+      },
+      {
+        "@type": "ListItem",
+        "name": "Attic Insulation Bid Calculator — Price the Bags, Not Attic vs. FieldCamp",
+        "url": "https://marisstella.dev/tools/attic-insulation-bid-calculator/vs-fieldcamp.html",
+        "position": 107
+      },
+      {
+        "@type": "ListItem",
+        "name": "Commercial Photography Licensing Quote Calculator vs. fotoQuote Pro",
+        "url": "https://marisstella.dev/tools/commercial-photo-license-calculator/vs-fotoquote.html",
+        "position": 108
+      },
+      {
+        "@type": "ListItem",
+        "name": "Sponsor Ready — free GitHub Sponsors readiness checklist vs. GitHub's Community Standards",
+        "url": "https://marisstella.dev/tools/sponsor-ready/vs-github-community-standards.html",
+        "position": 109
+      },
+      {
+        "@type": "ListItem",
+        "name": "Pressure Washing Bid Calculator — Price the Drive vs. GorillaDesk",
+        "url": "https://marisstella.dev/tools/pressure-washing-bid-calculator/vs-gorilladesk.html",
+        "position": 110
+      },
+      {
+        "@type": "ListItem",
+        "name": "Free Grant Reporting Deadline Tracker for Small Nonprofits vs. GrantHub",
+        "url": "https://marisstella.dev/tools/grant-reporting-tracker/vs-granthub.html",
+        "position": 111
+      },
+      {
+        "@type": "ListItem",
+        "name": "Backup Verification Evidence — Compare It to Last Night vs. Healthchecks.io",
+        "url": "https://marisstella.dev/tools/backup-verification-evidence/vs-healthchecks.html",
+        "position": 112
+      },
+      {
+        "@type": "ListItem",
+        "name": "Kitchen Hood Cleaning Bid Calculator — Exhaust Price vs. HoodClean Pro",
+        "url": "https://marisstella.dev/tools/hood-cleaning-bid-calculator/vs-hoodcleanpro.html",
+        "position": 113
+      },
+      {
+        "@type": "ListItem",
+        "name": "Kitchen Hood Cleaning Bid Calculator — Exhaust Price vs. HoodCleaningDispatch",
+        "url": "https://marisstella.dev/tools/hood-cleaning-bid-calculator/vs-hoodcleaningdispatch.html",
+        "position": 114
+      },
+      {
+        "@type": "ListItem",
+        "name": "Grant Deadline Tracker for Small Nonprofits vs. Instrumentl",
+        "url": "https://marisstella.dev/tools/grant-deadline-tracker/vs-instrumentl.html",
+        "position": 115
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cleaning Chemical Dilution Cost Calculator vs. Janitorial Manager",
+        "url": "https://marisstella.dev/tools/cleaning-dilution-calculator/vs-janitorial-manager.html",
+        "position": 116
+      },
+      {
+        "@type": "ListItem",
+        "name": "Deck Staining Bid Calculator — Rails, Stairs, and Coats vs. Joist",
+        "url": "https://marisstella.dev/tools/deck-staining-bid-calculator/vs-joist.html",
+        "position": 117
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cabinet Refinishing Bid Calculator — Doors, Drawers, Prep vs. Kickserv",
+        "url": "https://marisstella.dev/tools/cabinet-refinishing-bid-calculator/vs-kickserv.html",
+        "position": 118
+      },
+      {
+        "@type": "ListItem",
+        "name": "Construction Retainage Calculator vs. Levelset",
+        "url": "https://marisstella.dev/tools/retainage-cashflow-calculator/vs-levelset.html",
+        "position": 119
+      },
+      {
+        "@type": "ListItem",
+        "name": "Lawn Care Bid Calculator — Price a Mowing Stop vs. LMN by Granum",
+        "url": "https://marisstella.dev/tools/lawn-care-bid-calculator/vs-lmn.html",
+        "position": 120
+      },
+      {
+        "@type": "ListItem",
+        "name": "Window Replacement Bid Calculator — Price the Opening vs. MarketSharp",
+        "url": "https://marisstella.dev/tools/window-replacement-bid-calculator/vs-marketsharp.html",
+        "position": 121
+      },
+      {
+        "@type": "ListItem",
+        "name": "Carpet Installation Bid Calculator — Price to Install It vs. MeasureSquare",
+        "url": "https://marisstella.dev/tools/carpet-install-bid-calculator/vs-measuresquare.html",
+        "position": 122
+      },
+      {
+        "@type": "ListItem",
+        "name": "Shopify Permission Drift Record vs. miniOrange",
+        "url": "https://marisstella.dev/tools/shopify-permission-drift/vs-miniorange.html",
+        "position": 123
+      },
+      {
+        "@type": "ListItem",
+        "name": "Mobile Detailing Bid Calculator — Price a Detail Job vs. Mobile Tech RX",
+        "url": "https://marisstella.dev/tools/mobile-detailing-bid-calculator/vs-mobiletechrx.html",
+        "position": 124
+      },
+      {
+        "@type": "ListItem",
+        "name": "Quartz & Granite Countertop Bid Calculator — Slabs & Cuts vs. Moraware CounterGo",
+        "url": "https://marisstella.dev/tools/countertop-bid-calculator/vs-moraware.html",
+        "position": 125
+      },
+      {
+        "@type": "ListItem",
+        "name": "Music Lesson Pricing Calculator vs. My Music Staff",
+        "url": "https://marisstella.dev/tools/music-lesson-break-even/vs-mymusicstaff.html",
+        "position": 126
+      },
+      {
+        "@type": "ListItem",
+        "name": "Mobile Notary & Loan Signing Fee Calculator vs. NotaryGadget",
+        "url": "https://marisstella.dev/tools/notary-trip-quote/vs-notarygadget.html",
+        "position": 127
+      },
+      {
+        "@type": "ListItem",
+        "name": "npm Deployment Evidence — Free Lockfile Surface Report vs. npm audit",
+        "url": "https://marisstella.dev/tools/npm-deployment-evidence/vs-npm-audit.html",
+        "position": 128
+      },
+      {
+        "@type": "ListItem",
+        "name": "Basement Waterproofing Bid Calculator — Wells, Sump, Drain vs. Oblyss",
+        "url": "https://marisstella.dev/tools/basement-waterproofing-bid-calculator/vs-oblyss.html",
+        "position": 129
+      },
+      {
+        "@type": "ListItem",
+        "name": "Radon Mitigation Bid Calculator — Suction and Membrane vs. OneRADON",
+        "url": "https://marisstella.dev/tools/radon-mitigation-bid-calculator/vs-oneradon.html",
+        "position": 130
+      },
+      {
+        "@type": "ListItem",
+        "name": "Medical Courier Route Calculator — Per-Stop Pricing vs. Onfleet",
+        "url": "https://marisstella.dev/tools/medical-courier-route-margin/vs-onfleet.html",
+        "position": 131
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cut List Optimizer — Compare Sheet Sizes and Board Lengths vs. optiCutter and CutList Optimizer",
+        "url": "https://marisstella.dev/tools/cut-list-optimizer/vs-opticutter-and-cutlist-optimizer.html",
+        "position": 132
+      },
+      {
+        "@type": "ListItem",
+        "name": "CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors vs. OWASP Dependency-Track",
+        "url": "https://marisstella.dev/tools/cra-evidence-desk/vs-dependency-track.html",
+        "position": 133
+      },
+      {
+        "@type": "ListItem",
+        "name": "Pest Control Bid Calculator — Price Drive and Stations vs. PestPac",
+        "url": "https://marisstella.dev/tools/pest-control-bid-calculator/vs-pestpac.html",
+        "position": 134
+      },
+      {
+        "@type": "ListItem",
+        "name": "Construction Daily Log and Change Order Evidence Pack vs. Procore",
+        "url": "https://marisstella.dev/tools/construction-evidence-log/vs-procore.html",
+        "position": 135
+      },
+      {
+        "@type": "ListItem",
+        "name": "Job Cost Variance Calculator vs. QuickBooks Job Costing",
+        "url": "https://marisstella.dev/tools/job-margin-variance/vs-quickbooks-job-costing.html",
+        "position": 136
+      },
+      {
+        "@type": "ListItem",
+        "name": "Invoice Payment Terms Calculator — Net 30 Late Fee vs. QuickBooks Online invoicing",
+        "url": "https://marisstella.dev/tools/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html",
+        "position": 137
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cash Runway Planner for Small Businesses vs. QuickBooks Online's Cash Flow Planner",
+        "url": "https://marisstella.dev/tools/cash-runway-planner/vs-quickbooks-cash-flow-planner.html",
+        "position": 138
+      },
+      {
+        "@type": "ListItem",
+        "name": "Holiday Light Bid Calculator — Price to Hang the Lights vs. RealGreen",
+        "url": "https://marisstella.dev/tools/holiday-light-bid-calculator/vs-realgreen.html",
+        "position": 139
+      },
+      {
+        "@type": "ListItem",
+        "name": "Reverb Fee Calculator — Offer vs List, Cash vs Consign vs. Reverb's own Selling Fees page",
+        "url": "https://marisstella.dev/tools/reverb-fee-calculator/vs-reverbs-selling-fees-page.html",
+        "position": 140
+      },
+      {
+        "@type": "ListItem",
+        "name": "Flooring Bid Calculator vs. RFMS",
+        "url": "https://marisstella.dev/tools/flooring-bid-calculator/vs-rfms.html",
+        "position": 141
+      },
+      {
+        "@type": "ListItem",
+        "name": "Parking Lot Striping Bid Calculator — Price to Stripe It vs. SaaSphalt",
+        "url": "https://marisstella.dev/tools/parking-lot-striping-bid-calculator/vs-saasphalt.html",
+        "position": 142
+      },
+      {
+        "@type": "ListItem",
+        "name": "Marketplace Fee Comparison — Which Channel Nets Most vs. Sellerboard",
+        "url": "https://marisstella.dev/tools/marketplace-fee-compare/vs-sellerboard.html",
+        "position": 143
+      },
+      {
+        "@type": "ListItem",
+        "name": "Tree Service Bid Calculator — Removal by DBH and Access vs. SingleOps",
+        "url": "https://marisstella.dev/tools/tree-service-bid-calculator/vs-singleops.html",
+        "position": 144
+      },
+      {
+        "@type": "ListItem",
+        "name": "Pool Route Pricing Calculator — Price Weekly Accounts vs. Skimmer",
+        "url": "https://marisstella.dev/tools/pool-route-pricing/vs-skimmer.html",
+        "position": 145
+      },
+      {
+        "@type": "ListItem",
+        "name": "Translator Project Quote Calculator vs. Smartcat",
+        "url": "https://marisstella.dev/tools/translator-project-quote/vs-smartcat.html",
+        "position": 146
+      },
+      {
+        "@type": "ListItem",
+        "name": "Moving Company Bid Calculator — Stairs and Long Carry vs. SmartMoving",
+        "url": "https://marisstella.dev/tools/moving-bid-calculator/vs-smartmoving.html",
+        "position": 147
+      },
+      {
+        "@type": "ListItem",
+        "name": "LTL Freight Class Estimator vs. SMC³ FastClass",
+        "url": "https://marisstella.dev/tools/ltl-freight-class-estimator/vs-smc3-fastclass.html",
+        "position": 148
+      },
+      {
+        "@type": "ListItem",
+        "name": "MCP Supply-Chain Watch vs. Snyk's agent-scan",
+        "url": "https://marisstella.dev/tools/mcp-supply-chain-watch/vs-snyk.html",
+        "position": 149
+      },
+      {
+        "@type": "ListItem",
+        "name": "Appointment Deposit Calculator for Service Businesses vs. Square Appointments",
+        "url": "https://marisstella.dev/tools/appointment-deposit-calculator/vs-square-appointments.html",
+        "position": 150
+      },
+      {
+        "@type": "ListItem",
+        "name": "Concrete Bid Calculator — Driveway & Patio by Cubic Yard vs. STACK",
+        "url": "https://marisstella.dev/tools/concrete-bid-calculator/vs-stack.html",
+        "position": 151
+      },
+      {
+        "@type": "ListItem",
+        "name": "Payment Reconciliation — Match Payouts to Bank Deposits vs. Synder",
+        "url": "https://marisstella.dev/tools/payment-reconciliation-workbench/vs-synder.html",
+        "position": 152
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cloud Egress Cost Calculator for S3 Storage vs. the AWS Pricing Calculator",
+        "url": "https://marisstella.dev/tools/cloud-egress-calculator/vs-aws-pricing-calculator.html",
+        "position": 153
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cloud Egress Cost Calculator for S3 Storage vs. the Azure Pricing Calculator",
+        "url": "https://marisstella.dev/tools/cloud-egress-calculator/vs-azure-pricing-calculator.html",
+        "position": 154
+      },
+      {
+        "@type": "ListItem",
+        "name": "Cloud Egress Cost Calculator for S3 Storage vs. the Google Cloud Pricing Calculator",
+        "url": "https://marisstella.dev/tools/cloud-egress-calculator/vs-google-cloud-pricing-calculator.html",
+        "position": 155
+      },
+      {
+        "@type": "ListItem",
+        "name": "TikTok Shop Fee Calculator — Affiliate and Returns vs. TikTok Shop's own Seller University fee pages",
+        "url": "https://marisstella.dev/tools/tiktok-shop-fee-calculator/vs-tiktok-shops-seller-university.html",
+        "position": 156
+      },
+      {
+        "@type": "ListItem",
+        "name": "DoorDash Fee Calculator for Restaurants — Delivery Margin vs. Toast",
+        "url": "https://marisstella.dev/tools/delivery-app-margin-calculator/vs-toast.html",
+        "position": 157
+      },
+      {
+        "@type": "ListItem",
+        "name": "Freight Accessorial Invoice Auditor vs. Trax Technologies",
+        "url": "https://marisstella.dev/tools/freight-accessorial-auditor/vs-trax.html",
+        "position": 158
+      },
+      {
+        "@type": "ListItem",
+        "name": "Booth Rent vs Commission Calculator vs. Vagaro",
+        "url": "https://marisstella.dev/tools/booth-rent-vs-commission/vs-vagaro.html",
+        "position": 159
+      },
+      {
+        "@type": "ListItem",
+        "name": "Where to Sell Calculator — eBay vs Etsy vs Amazon vs. Vendoo",
+        "url": "https://marisstella.dev/tools/where-to-sell-calculator/vs-vendoo.html",
+        "position": 160
+      },
+      {
+        "@type": "ListItem",
+        "name": "Walmart Marketplace Fee Calculator vs. Walmart's own WFS Cost Estimator",
+        "url": "https://marisstella.dev/tools/walmart-marketplace-calculator/vs-wfs-cost-estimator.html",
+        "position": 161
+      },
+      {
+        "@type": "ListItem",
+        "name": "Dryer Vent Bid Calculator — Stories, Run, and Roof Cap vs. WePro",
+        "url": "https://marisstella.dev/tools/dryer-vent-bid-calculator/vs-wepro.html",
+        "position": 162
+      },
+      {
+        "@type": "ListItem",
+        "name": "DNS Change Evidence — Free Before/After DNS Record Report vs. whatsmydns.net",
+        "url": "https://marisstella.dev/tools/dns-configuration-evidence/vs-whatsmydns.html",
+        "position": 163
+      },
+      {
+        "@type": "ListItem",
+        "name": "Junk Removal Bid Calculator — Price the Dump Ticket vs. Workiz",
+        "url": "https://marisstella.dev/tools/junk-removal-bid-calculator/vs-workiz.html",
+        "position": 164
+      },
+      {
+        "@type": "ListItem",
+        "name": "Mold Remediation Bid Calculator — Containment and Demo vs. Xactimate",
+        "url": "https://marisstella.dev/tools/mold-remediation-bid-calculator/vs-xactimate.html",
+        "position": 165
+      },
+      {
+        "@type": "ListItem",
+        "name": "CAM Reconciliation Calculator for Commercial Leases vs. Yardi Voyager CAM reconciliation",
+        "url": "https://marisstella.dev/tools/cam-reconciliation-check/vs-yardi.html",
+        "position": 166
+      },
+      {
+        "@type": "ListItem",
+        "name": "Seller Net Sheet Calculator vs. your title company's net sheet",
+        "url": "https://marisstella.dev/tools/seller-net-sheet/vs-title-company-net-sheet.html",
+        "position": 167
+      },
+      {
+        "@type": "ListItem",
+        "name": "SaaS Seat True-Up Calculator — Find Unused Spend vs. Zylo",
+        "url": "https://marisstella.dev/tools/saas-seat-true-up/vs-zylo.html",
+        "position": 168
+      }
+    ]
+  }
+}
+</script>
+</head>
+<body>
+<header>
+  <h1>Is there a free alternative? Here is the honest answer, one product at a time.</h1>
+  <p class="lede">Every tool on this site that overlaps with a commercial product has a page saying plainly what the product does, what the free tool does, and when the paid one is the right answer. They are written by the tool's author and cite the product's own public documentation.</p>
+  <p class="fine">168 comparison pages across 99 products, from the 174 free tools on this site. Every one runs in your browser — nothing you type is uploaded. Not affiliated with, endorsed by, or reviewed by any product named on this page; each name is its owner&#39;s trademark and is used only to identify the product being compared.</p>
+</header>
+<main>
+  <p class="jump"><strong>Compared by more than one tool:</strong> <a href="#p-jobber">Jobber</a> · <a href="#p-servicetitan">ServiceTitan</a> · <a href="#p-aspire">Aspire</a> · <a href="#p-buildxact">Buildxact</a> · <a href="#p-jobnimbus">JobNimbus</a> · <a href="#p-quoteiq">QuoteIQ</a> · <a href="#p-acculynx">AccuLynx</a> · <a href="#p-housecall-pro">Housecall Pro</a> · <a href="#p-bonsai">Bonsai</a> · <a href="#p-govwin-iq">GovWin IQ</a> · <a href="#p-jobtread">JobTread</a> · <a href="#p-paintscout">PaintScout</a> · <a href="#p-servicecore">ServiceCore</a> · <a href="#p-servicemonster">ServiceMonster</a></p>
+  <h2 class="group" id="p-jobber">Jobber — 32 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/artificial-turf-bid-calculator/vs-jobber.html">Artificial Turf Bid Calculator — Landscape vs Pet vs Green</a></h3>
+      <p>Price an artificial turf install from landscape, pet, or putting-green turf: lawn square footage, 15-foot-roll waste…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/automatic-driveway-gate-bid-calculator/vs-jobber.html">Automatic Driveway Gate Bid Calculator — Price Operators</a></h3>
+      <p>Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/chimney-sweep-bid-calculator/vs-jobber.html">Chimney Sweep Bid Calculator</a></h3>
+      <p>Price a chimney sweep from flue type, stories, roof access, and creosote — not a flat house rate. See labor hours…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/crown-molding-bid-calculator/vs-jobber.html">Crown Molding Bid Calculator — Price to Install It</a></h3>
+      <p>Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/duct-cleaning-bid-calculator/vs-jobber.html">Duct Cleaning Bid Calculator — Systems, Vents, and Coil</a></h3>
+      <p>Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/entry-door-bid-calculator/vs-jobber.html">Entry Door Bid Calculator — Opening, Lights, and Rot</a></h3>
+      <p>Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/fireplace-insert-bid-calculator/vs-jobber.html">Fireplace Insert Bid Calculator — Liner, Hearth, Stack</a></h3>
+      <p>Price a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/foundation-repair-bid-calculator/vs-jobber.html">Foundation Repair Bid Calculator — Access, Depth, Straps</a></h3>
+      <p>Price helical piers, hydraulic push piers, or bowed-wall stabilization from pier count, installed depth past included…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/french-drain-bid-calculator/vs-jobber.html">French Drain Bid Calculator — Trench, Outlet, and Soil</a></h3>
+      <p>Price an exterior French drain from trench depth, pipe size, soil, daylight versus drywell versus storm tie-in, catch…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/gravel-driveway-bid-calculator/vs-jobber.html">Gravel Driveway Bid Calculator — Price It by the Yard</a></h3>
+      <p>Price a gravel driveway from crusher-run, clean stone, recycled concrete, or pea gravel: compacted depth, whole…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/gutter-cleaning-bid-calculator/vs-jobber.html">Gutter Cleaning Bid Calculator — Stories, Guards, Spouts</a></h3>
+      <p>Price a gutter cleaning visit from linear feet, stories, roof pitch, gutter guards, debris, and downspouts — then…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/hardwood-refinishing-bid-calculator/vs-jobber.html">Hardwood Refinishing Bid Calculator — Stairs and Closets</a></h3>
+      <p>Price a hardwood floor refinish from field square footage, stair treads, closets, stain, and extra coats — then see…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/home-elevator-bid-calculator/vs-jobber.html">Home Elevator Bid Calculator — Price to Install It</a></h3>
+      <p>Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/hot-tub-bid-calculator/vs-jobber.html">Hot Tub Bid Calculator — Crane, Pad, and Circuit</a></h3>
+      <p>Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/sewer-hydrojet-bid-calculator/vs-jobber.html">Hydro-Jet and Sewer Camera Bid Calculator — Footage, Access</a></h3>
+      <p>Price a sewer camera inspection or hydro-jet from extra footage past the included run, cleanout versus toilet pull…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/interior-door-bid-calculator/vs-jobber.html">Interior Door Bid Calculator — Price to Replace Doors</a></h3>
+      <p>Price an interior door replacement from door count, hollow slab versus solid-core versus French-or-barn, hang-only…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/irrigation-winterization-bid-calculator/vs-jobber.html">Irrigation Winterization Bid Calculator — Blowout Price</a></h3>
+      <p>Price a sprinkler blowout from spray, rotor, and drip zones, backflow drain-and-insulate time, and the drive — not a…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/kitchen-tile-backsplash-bid-calculator/vs-jobber.html">Kitchen Tile Backsplash Bid Calculator — Price It Right</a></h3>
+      <p>Price a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/patio-door-bid-calculator/vs-jobber.html">Patio Door Bid Calculator — Panels, Glass, and Opening</a></h3>
+      <p>Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/plantation-shutter-bid-calculator/vs-jobber.html">Plantation Shutter Bid Calculator — Price to Install It</a></h3>
+      <p>Price a residential plantation-shutter install from openings, inside versus outside mount, paint-grade versus…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/popcorn-ceiling-bid-calculator/vs-jobber.html">Popcorn Ceiling Bid Calculator — Price to Remove It</a></h3>
+      <p>Price popcorn ceiling removal from ceiling area, scrape-and-prime versus Level 4 skim versus Level 5 plus paint, 8-foot…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/shed-install-bid-calculator/vs-jobber.html">Shed Install Bid Calculator — Price to Install a Shed</a></h3>
+      <p>Price a backyard shed install from pad, delivery miles, crane versus forklift, and extras — plus the walk-away price a…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/skylight-install-bid-calculator/vs-jobber.html">Skylight Install Bid Calculator — Price to Install It</a></h3>
+      <p>Price a skylight install from unit count, tubular versus fixed versus solar-venting, replace-existing versus new…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/soffit-fascia-bid-calculator/vs-jobber.html">Soffit and Fascia Bid Calculator — Price the Job Right</a></h3>
+      <p>Price soffit and fascia from eave lineal feet, aluminum wrap versus vinyl replace versus wood replace, 1-story versus…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/spray-foam-bid-calculator/vs-jobber.html">Spray Foam Bid Calculator — Price the Insulation Job</a></h3>
+      <p>Price residential spray foam from the board feet an attic-square-foot special cannot see, the rim, the cell, and the…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/stucco-repair-bid-calculator/vs-jobber.html">Stucco Repair Bid Calculator — Cracks, Tear-Off, Stories</a></h3>
+      <p>Price a stucco or EIFS repair from crack linear feet, hollow area, tear-off to the substrate, stories and scaffolding…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/sunroom-bid-calculator/vs-jobber.html">Sunroom Bid Calculator — Price to Build a Sunroom</a></h3>
+      <p>Price a residential sunroom or three-season room from the glazed-wall square feet a floor-square-foot special cannot…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/vinyl-liner-bid-calculator/vs-jobber.html">Vinyl Liner Bid Calculator — Price to Replace a Liner</a></h3>
+      <p>Price a residential vinyl pool liner from the liner square feet a water-surface special cannot see, the hopper, the…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/walk-in-shower-bid-calculator/vs-jobber.html">Walk-In Shower Bid Calculator — Drain, Slope, Overtime</a></h3>
+      <p>Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/water-softener-bid-calculator/vs-jobber.html">Water Softener Bid Calculator — Run, Copper, and Iron</a></h3>
+      <p>Price a water-softener install from extra pipe past the included run, copper versus PEX, an iron filter or under-sink…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/wheelchair-ramp-bid-calculator/vs-jobber.html">Wheelchair Ramp Bid Calculator — ADA Slope, Landings, Rails</a></h3>
+      <p>Price a residential ADA-slope wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/which-job-first/vs-jobber.html">Which Job First? Free Pairwise Job Priority Ranker for Contractors</a></h3>
+      <p>Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-servicetitan">ServiceTitan — 13 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/boiler-replacement-bid-calculator/vs-servicetitan.html">Boiler Replacement Bid Calculator — Price to Replace It</a></h3>
+      <p>Price a residential boiler replacement from input MBH, hot water versus steam, like-for-like versus condensing versus…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/electrical-panel-upgrade-bid-calculator/vs-servicetitan.html">Electrical Panel Upgrade Bid Calculator — Feeder, Circuits</a></h3>
+      <p>Price a 100A to 200A electrical panel or service upgrade from feeder feet, circuit landing, AFCI/GFCI, underground vs…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/ev-charger-bid-calculator/vs-servicetitan.html">EV Charger Installation Bid Calculator — Level 2 EVSE Cost</a></h3>
+      <p>Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/furnace-bid-calculator/vs-servicetitan.html">Furnace Bid Calculator — Attic, Coil, and Gas Line</a></h3>
+      <p>Price a furnace or heat-pump replacement from extra duct past the included run, attic versus basement, a matching coil…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/hvac-maintenance-contract-calculator/vs-servicetitan.html">HVAC Maintenance Contract Pricing Calculator</a></h3>
+      <p>Free HVAC maintenance contract pricing calculator. Price preventive visits, callbacks, parts reserve, overhead, and…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/mini-split-bid-calculator/vs-servicetitan.html">Mini-Split Install Bid Calculator — Price Per Head</a></h3>
+      <p>Price a ductless mini-split install from indoor heads, line-set extras, story height, electrical extras, and margin —…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/sewer-line-replace-bid-calculator/vs-servicetitan.html">Sewer Line Replacement Bid Calculator — Open-Cut vs CIPP</a></h3>
+      <p>Price a sewer line replacement from open-cut, pipe bursting, or CIPP lining: footage, bury depth, laterals, and the…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/shop-rate-calculator/vs-servicetitan.html">Shop Rate Calculator</a></h3>
+      <p>Work out your real labor burden, your overhead rate on direct cost, and the hourly rate a trade job has to be sold at —…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/standby-generator-bid-calculator/vs-servicetitan.html">Standby Generator Installation Bid Calculator — House Cost</a></h3>
+      <p>Price a residential standby generator install from the nameplate feeder, transfer switch, pad, gas or propane line, and…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/sump-pump-bid-calculator/vs-servicetitan.html">Sump Pump Bid Calculator — Pit, Discharge, and Backup</a></h3>
+      <p>Price a sump-pump install from pit type, extra discharge past the included first fifteen feet, battery or water-powered…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/toilet-replacement-bid-calculator/vs-servicetitan.html">Toilet Replacement Bid Calculator — Price to Replace It</a></h3>
+      <p>Price a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/water-heater-bid-calculator/vs-servicetitan.html">Water Heater Replacement Bid Calculator — Tank vs Tankless</a></h3>
+      <p>Price a residential water heater replacement from the tank or tankless type, the location, the vent, and the gas or…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/well-pump-bid-calculator/vs-servicetitan.html">Well Pump Bid Calculator — Depth, Pitless, and Tank</a></h3>
+      <p>Price a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-aspire">Aspire — 6 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/irrigation-install-bid-calculator/vs-aspire.html">Irrigation Install Bid Calculator — Zones and Backflow</a></h3>
+      <p>Price a new sprinkler system from zones, extra heads, trench footage, soil, controller, 3/4-inch PVB versus 1-inch…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/landscape-lighting-bid-calculator/vs-aspire.html">Landscape Lighting Bid Calculator — Price to Install It</a></h3>
+      <p>Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/paver-patio-bid-calculator/vs-aspire.html">Paver Patio Bid Calculator — Base, Waste, and Edge</a></h3>
+      <p>Price a paver patio from pattern waste, base depth, excavation, edge restraint, and haul-away — then see price per…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/retaining-wall-bid-calculator/vs-aspire.html">Retaining Wall Bid Calculator — Height and Drainage</a></h3>
+      <p>Price a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/snow-removal-bid-calculator/vs-aspire.html">Snow Removal Bid Calculator — Per-Push vs Seasonal</a></h3>
+      <p>Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/sod-install-bid-calculator/vs-aspire.html">Sod Installation Bid Calculator — Price to Install It</a></h3>
+      <p>Price a sod install from fescue, bermuda, or zoysia: lawn size, whole pallets, soil prep, delivery, slope, and watering…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-buildxact">Buildxact — 5 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/basement-finishing-bid-calculator/vs-buildxact.html">Basement Finishing Bid Calculator — Price to Finish It</a></h3>
+      <p>Price a basement finish from finished square feet, rec-room versus framed-finish versus legal-living, drop ceiling…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/drywall-bid-calculator/vs-buildxact.html">Drywall Bid Calculator — Price the Finish Level, Not Sheets</a></h3>
+      <p>Price a hang-and-finish drywall job from rooms, waste, openings, ceiling height, and Gypsum Association finish levels…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/pergola-bid-calculator/vs-buildxact.html">Pergola Bid Calculator — Price to Build a Pergola</a></h3>
+      <p>Price a residential pergola or patio cover from the posts a square-foot special cannot see, the shade layer, the…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/pool-plaster-bid-calculator/vs-buildxact.html">Pool Plaster Bid Calculator — Walls, Chip-Off, Finish</a></h3>
+      <p>Price a pool replaster from floor-plus-wall surface, finish (white plaster, quartz, pebble, glass), chip-out, spa…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/screened-porch-bid-calculator/vs-buildxact.html">Screened Porch Bid Calculator — Price to Screen It</a></h3>
+      <p>Price a residential screened porch or lanai from the wall-screen square feet a floor-square-foot special cannot see…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-jobnimbus">JobNimbus — 5 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/asphalt-driveway-pave-bid-calculator/vs-jobnimbus.html">Asphalt Driveway Paving Bid Calculator — Price by the Ton</a></h3>
+      <p>Price an asphalt driveway from overlay, mill-and-overlay, or full-depth: square footage, thickness, street apron…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/egress-window-bid-calculator/vs-jobnimbus.html">Egress Window Bid Calculator — Price to Install It</a></h3>
+      <p>Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/gutter-guard-bid-calculator/vs-jobnimbus.html">Gutter Guard Bid Calculator — Feet, Stories, and Mesh</a></h3>
+      <p>Price a gutter guard install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/gutter-install-bid-calculator/vs-jobnimbus.html">Gutter Install Bid Calculator — Corners, Drops, Stories</a></h3>
+      <p>Price a new gutter hang from inside and outside miters, extra downspouts past the included first two, extra downspout…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/siding-bid-calculator/vs-jobnimbus.html">Siding Bid Calculator</a></h3>
+      <p>Price a vinyl, fiber-cement, or engineered-wood siding job from wall area, waste, openings, stories, and tear-off — not…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-quoteiq">QuoteIQ — 4 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/concrete-lifting-bid-calculator/vs-quoteiq.html">Concrete Lifting Bid Calculator — Void, Method, and Access</a></h3>
+      <p>Price a mudjacking or polyjacking job from slab area, void depth, method, access path, extra holes, and joint seal —…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/crawl-space-encapsulation-bid-calculator/vs-quoteiq.html">Crawl Space Encapsulation Bid Calculator — Price It Right</a></h3>
+      <p>Price crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/deck-bid-calculator/vs-quoteiq.html">Deck Bid Calculator</a></h3>
+      <p>Price a residential deck from height, material, railing lineal feet, and stairs — not a flat dollar-per-square-foot…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/tuckpointing-bid-calculator/vs-quoteiq.html">Tuckpointing Bid Calculator — Price for Brick Pointing</a></h3>
+      <p>Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-acculynx">AccuLynx — 3 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/flat-roof-bid-calculator/vs-acculynx.html">Flat Roof Bid Calculator — Price a TPO or EPDM Roof</a></h3>
+      <p>Price a low-slope TPO, EPDM, PVC, or modified-bitumen roof from the membrane squares a per-square special cannot see…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/metal-roof-bid-calculator/vs-acculynx.html">Metal Roof Bid Calculator — Price a Metal Roof Job</a></h3>
+      <p>Price a residential standing-seam or exposed-fastener metal roof from the panel squares a per-square special cannot…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/roofing-bid-calculator/vs-acculynx.html">Roofing Bid Calculator — Price a Reroof by the Square</a></h3>
+      <p>Price a residential reroof from roof squares, pitch, waste, and tear-off layers — labor, material, dump, overhead, and…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-housecall-pro">Housecall Pro — 3 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/appliance-repair-quote-calculator/vs-housecall-pro.html">Appliance Repair Quote Calculator — Repair vs Replace</a></h3>
+      <p>Price an appliance repair service call, then see whether finishing the repair still beats recommending replace —…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/garage-door-bid-calculator/vs-housecall-pro.html">Garage Door Bid Calculator — Spring, Door, and Drive</a></h3>
+      <p>Price a garage door replacement or broken-spring service from parts, shop labor, and travel — not a lump-sum guess. See…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/walk-in-tub-bid-calculator/vs-housecall-pro.html">Walk-In Tub Bid Calculator — Price to Install a Tub</a></h3>
+      <p>Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-bonsai">Bonsai — 2 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/freelance-retainer-calculator/vs-bonsai.html">Freelance Retainer Calculator — Retainer vs Hourly</a></h3>
+      <p>Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/quote-margin-check/vs-bonsai.html">Quote Margin Check — free effective hourly rate calculator for freelancers</a></h3>
+      <p>Free calculator for freelancers and small agencies: turn a proposed price, delivery hours, admin/revision time…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-govwin-iq">GovWin IQ — 2 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/tender-bid-readiness/vs-govwin.html">Tender Bid Readiness Checker for Small Contractors</a></h3>
+      <p>Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/tender-radar/vs-govwin.html">Tender Radar</a></h3>
+      <p>Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-jobtread">JobTread — 2 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/contractor-bid-readiness/vs-jobtread.html">Free Contractor Bid Readiness Checklist</a></h3>
+      <p>Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/pole-barn-bid-calculator/vs-jobtread.html">Pole Barn Bid Calculator — Price to Build a Pole Barn</a></h3>
+      <p>Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-paintscout">PaintScout — 2 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/exterior-painting-bid-calculator/vs-paintscout.html">Exterior Painting Bid Calculator — Elevation and Scrape</a></h3>
+      <p>Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/painting-bid-calculator/vs-paintscout.html">Painting Bid Calculator — Interior Price Per Sq Ft</a></h3>
+      <p>Price an interior painting job from production rates: walls, ceilings, trim, and doors — plus paint, payroll burden…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-servicecore">ServiceCore — 2 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/portable-restroom-event-quote/vs-servicecore.html">Porta Potty Event Quote Calculator — Restroom Rental Bid</a></h3>
+      <p>Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/septic-pumping-bid-calculator/vs-servicecore.html">Septic Pumping Bid Calculator — Lid, Hose, Extra Gallons</a></h3>
+      <p>Price a septic tank pump from buried lids, hose run, extra tanks, baffles, risers, inspection, dump tickets, and…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-servicemonster">ServiceMonster — 2 tools</h2>
+  <ul class="grid">
+    <li class="card">
+      <h3><a href="/tools/carpet-cleaning-bid-calculator/vs-servicemonster.html">Carpet Cleaning Bid Calculator — Price the Stop, Not Room</a></h3>
+      <p>Price a carpet cleaning job from soil-specific extraction rates: rooms, stairs, pet-urine extra passes, upholstery…</p>
+    </li>
+    <li class="card">
+      <h3><a href="/tools/window-cleaning-bid-calculator/vs-servicemonster.html">Window Cleaning Bid Calculator — Price Per Visit</a></h3>
+      <p>Price a window cleaning job from panes, minutes per pane, stories, and travel time — then see the per-visit price…</p>
+    </li>
+  </ul>
+  <h2 class="group" id="p-one-each">One comparison each</h2>
+  <p class="lede-sm">85 more products, each compared by a single tool here.</p>
+  <ul class="singles">
+    <li><strong>accessiBe</strong> <a href="/tools/shopify-a11y-evidence/vs-accessibe.html">Shopify Accessibility Evidence Report</a></li>
+    <li><strong>Acuity Scheduling</strong> <a href="/tools/no-show-fee-calculator/vs-acuity-scheduling.html">No-Show Fee Calculator for Service Businesses</a></li>
+    <li><strong>Airbnb&#39;s own &quot;Estimate your earnings&quot; tool</strong> <a href="/tools/str-host-payout-calculator/vs-airbnb-earnings-estimator.html">Airbnb vs Vrbo Host Payout Calculator</a></li>
+    <li><strong>Amazon&#39;s own Revenue Calculator</strong> <a href="/tools/amazon-fba-calculator/vs-amazon-revenue-calculator.html">Amazon FBA vs FBM Profit Calculator — Placement vs Freight</a></li>
+    <li><strong>Ankorstore</strong> <a href="/tools/faire-wholesale-calculator/vs-ankorstore.html">Faire Seller Fee Calculator — First Order vs Reorder</a></li>
+    <li><strong>ATBS</strong> <a href="/tools/owner-operator-cpm-calculator/vs-atbs.html">Owner Operator CPM Calculator — Deadhead-Adjusted Rate</a></li>
+    <li><strong>Aurora Solar</strong> <a href="/tools/solar-pv-bid-calculator/vs-aurora-solar.html">Solar PV Install Bid Calculator — Price Per Watt</a></li>
+    <li><strong>AutoVu Solutions</strong> <a href="/tools/stair-lift-bid-calculator/vs-autovu.html">Stair Lift Bid Calculator — Price to Install a Lift</a></li>
+    <li><strong>Avalara</strong> <a href="/tools/einvoice-preflight/vs-avalara.html">E-invoice Preflight — Check JSON, UBL, CII, or Factur-X</a></li>
+    <li><strong>Baremetrics</strong> <a href="/tools/subscription-price-impact/vs-baremetrics.html">SaaS Price Increase Churn Calculator — Price Impact</a></li>
+    <li><strong>BeProfit</strong> <a href="/tools/shopify-fee-calculator/vs-beprofit.html">Shopify Fee Calculator — Payments vs PayPal vs Grow</a></li>
+    <li><strong>Billd Material Financing</strong> <a href="/tools/subcontractor-cashflow-planner/vs-billd.html">Subcontractor Cash Flow Planner — Payment Delay Gap</a></li>
+    <li><strong>Bitumio</strong> <a href="/tools/asphalt-sealcoat-bid-calculator/vs-bitumio.html">Asphalt Sealcoating Bid Calculator — Driveway &amp; Lot Price</a></li>
+    <li><strong>Booqable</strong> <a href="/tools/equipment-rental-break-even/vs-booqable.html">Equipment Rental Break-Even Calculator</a></li>
+    <li><strong>Buildertrend</strong> <a href="/tools/change-order-margin-calculator/vs-buildertrend.html">Change Order Margin Calculator — Price the Added Work</a></li>
+    <li><strong>Chargeflow</strong> <a href="/tools/chargeback-evidence-packet/vs-chargeflow.html">Chargeback Evidence Packet Builder for Ecommerce Sellers</a></li>
+    <li><strong>CleanGuru</strong> <a href="/tools/janitorial-bid-calculator/vs-cleanguru.html">Janitorial Bid Calculator — Commercial Price Per Month</a></li>
+    <li><strong>CoatingOS</strong> <a href="/tools/epoxy-garage-floor-bid-calculator/vs-coatingos.html">Epoxy Garage Floor Bid Calculator — Flake and Polyaspartic</a></li>
+    <li><strong>D-Tools</strong> <a href="/tools/security-camera-bid-calculator/vs-d-tools.html">Security Camera Installation Bid Calculator — CCTV Storage</a></li>
+    <li><strong>eBay&#39;s own Fee Calculator</strong> <a href="/tools/ebay-fee-calculator/vs-ebay-fee-calculator.html">eBay Fee &amp; Profit Calculator</a></li>
+    <li><strong>Etsy&#39;s own Profit Calculator</strong> <a href="/tools/etsy-profit-calculator/vs-etsys-listing-form-calculator.html">Etsy Profit Calculator</a></li>
+    <li><strong>Extensiv</strong> <a href="/tools/3pl-quote-normalizer/vs-extensiv.html">3PL Cost Calculator</a></li>
+    <li><strong>Fence Cloud</strong> <a href="/tools/fence-bid-calculator/vs-fence-cloud.html">Fence Bid Calculator — Posts, Gates, and Tear-Out</a></li>
+    <li><strong>FieldCamp</strong> <a href="/tools/attic-insulation-bid-calculator/vs-fieldcamp.html">Attic Insulation Bid Calculator — Price the Bags, Not Attic</a></li>
+    <li><strong>fotoQuote Pro</strong> <a href="/tools/commercial-photo-license-calculator/vs-fotoquote.html">Commercial Photography Licensing Quote Calculator</a></li>
+    <li><strong>GitHub&#39;s Community Standards</strong> <a href="/tools/sponsor-ready/vs-github-community-standards.html">Sponsor Ready — free GitHub Sponsors readiness checklist</a></li>
+    <li><strong>GorillaDesk</strong> <a href="/tools/pressure-washing-bid-calculator/vs-gorilladesk.html">Pressure Washing Bid Calculator — Price the Drive</a></li>
+    <li><strong>GrantHub</strong> <a href="/tools/grant-reporting-tracker/vs-granthub.html">Free Grant Reporting Deadline Tracker for Small Nonprofits</a></li>
+    <li><strong>Healthchecks.io</strong> <a href="/tools/backup-verification-evidence/vs-healthchecks.html">Backup Verification Evidence — Compare It to Last Night</a></li>
+    <li><strong>HoodClean Pro</strong> <a href="/tools/hood-cleaning-bid-calculator/vs-hoodcleanpro.html">Kitchen Hood Cleaning Bid Calculator — Exhaust Price</a></li>
+    <li><strong>HoodCleaningDispatch</strong> <a href="/tools/hood-cleaning-bid-calculator/vs-hoodcleaningdispatch.html">Kitchen Hood Cleaning Bid Calculator — Exhaust Price</a></li>
+    <li><strong>Instrumentl</strong> <a href="/tools/grant-deadline-tracker/vs-instrumentl.html">Grant Deadline Tracker for Small Nonprofits</a></li>
+    <li><strong>Janitorial Manager</strong> <a href="/tools/cleaning-dilution-calculator/vs-janitorial-manager.html">Cleaning Chemical Dilution Cost Calculator</a></li>
+    <li><strong>Joist</strong> <a href="/tools/deck-staining-bid-calculator/vs-joist.html">Deck Staining Bid Calculator — Rails, Stairs, and Coats</a></li>
+    <li><strong>Kickserv</strong> <a href="/tools/cabinet-refinishing-bid-calculator/vs-kickserv.html">Cabinet Refinishing Bid Calculator — Doors, Drawers, Prep</a></li>
+    <li><strong>Levelset</strong> <a href="/tools/retainage-cashflow-calculator/vs-levelset.html">Construction Retainage Calculator</a></li>
+    <li><strong>LMN by Granum</strong> <a href="/tools/lawn-care-bid-calculator/vs-lmn.html">Lawn Care Bid Calculator — Price a Mowing Stop</a></li>
+    <li><strong>MarketSharp</strong> <a href="/tools/window-replacement-bid-calculator/vs-marketsharp.html">Window Replacement Bid Calculator — Price the Opening</a></li>
+    <li><strong>MeasureSquare</strong> <a href="/tools/carpet-install-bid-calculator/vs-measuresquare.html">Carpet Installation Bid Calculator — Price to Install It</a></li>
+    <li><strong>miniOrange</strong> <a href="/tools/shopify-permission-drift/vs-miniorange.html">Shopify Permission Drift Record</a></li>
+    <li><strong>Mobile Tech RX</strong> <a href="/tools/mobile-detailing-bid-calculator/vs-mobiletechrx.html">Mobile Detailing Bid Calculator — Price a Detail Job</a></li>
+    <li><strong>Moraware CounterGo</strong> <a href="/tools/countertop-bid-calculator/vs-moraware.html">Quartz &amp; Granite Countertop Bid Calculator — Slabs &amp; Cuts</a></li>
+    <li><strong>My Music Staff</strong> <a href="/tools/music-lesson-break-even/vs-mymusicstaff.html">Music Lesson Pricing Calculator</a></li>
+    <li><strong>NotaryGadget</strong> <a href="/tools/notary-trip-quote/vs-notarygadget.html">Mobile Notary &amp; Loan Signing Fee Calculator</a></li>
+    <li><strong>npm audit</strong> <a href="/tools/npm-deployment-evidence/vs-npm-audit.html">npm Deployment Evidence — Free Lockfile Surface Report</a></li>
+    <li><strong>Oblyss</strong> <a href="/tools/basement-waterproofing-bid-calculator/vs-oblyss.html">Basement Waterproofing Bid Calculator — Wells, Sump, Drain</a></li>
+    <li><strong>OneRADON</strong> <a href="/tools/radon-mitigation-bid-calculator/vs-oneradon.html">Radon Mitigation Bid Calculator — Suction and Membrane</a></li>
+    <li><strong>Onfleet</strong> <a href="/tools/medical-courier-route-margin/vs-onfleet.html">Medical Courier Route Calculator — Per-Stop Pricing</a></li>
+    <li><strong>optiCutter and CutList Optimizer</strong> <a href="/tools/cut-list-optimizer/vs-opticutter-and-cutlist-optimizer.html">Cut List Optimizer — Compare Sheet Sizes and Board Lengths</a></li>
+    <li><strong>OWASP Dependency-Track</strong> <a href="/tools/cra-evidence-desk/vs-dependency-track.html">CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors</a></li>
+    <li><strong>PestPac</strong> <a href="/tools/pest-control-bid-calculator/vs-pestpac.html">Pest Control Bid Calculator — Price Drive and Stations</a></li>
+    <li><strong>Procore</strong> <a href="/tools/construction-evidence-log/vs-procore.html">Construction Daily Log and Change Order Evidence Pack</a></li>
+    <li><strong>QuickBooks Job Costing</strong> <a href="/tools/job-margin-variance/vs-quickbooks-job-costing.html">Job Cost Variance Calculator</a></li>
+    <li><strong>QuickBooks Online invoicing</strong> <a href="/tools/invoice-payment-terms-calculator/vs-quickbooks-online-invoicing.html">Invoice Payment Terms Calculator — Net 30 Late Fee</a></li>
+    <li><strong>QuickBooks Online&#39;s Cash Flow Planner</strong> <a href="/tools/cash-runway-planner/vs-quickbooks-cash-flow-planner.html">Cash Runway Planner for Small Businesses</a></li>
+    <li><strong>RealGreen</strong> <a href="/tools/holiday-light-bid-calculator/vs-realgreen.html">Holiday Light Bid Calculator — Price to Hang the Lights</a></li>
+    <li><strong>Reverb&#39;s own Selling Fees page</strong> <a href="/tools/reverb-fee-calculator/vs-reverbs-selling-fees-page.html">Reverb Fee Calculator — Offer vs List, Cash vs Consign</a></li>
+    <li><strong>RFMS</strong> <a href="/tools/flooring-bid-calculator/vs-rfms.html">Flooring Bid Calculator</a></li>
+    <li><strong>SaaSphalt</strong> <a href="/tools/parking-lot-striping-bid-calculator/vs-saasphalt.html">Parking Lot Striping Bid Calculator — Price to Stripe It</a></li>
+    <li><strong>Sellerboard</strong> <a href="/tools/marketplace-fee-compare/vs-sellerboard.html">Marketplace Fee Comparison — Which Channel Nets Most</a></li>
+    <li><strong>SingleOps</strong> <a href="/tools/tree-service-bid-calculator/vs-singleops.html">Tree Service Bid Calculator — Removal by DBH and Access</a></li>
+    <li><strong>Skimmer</strong> <a href="/tools/pool-route-pricing/vs-skimmer.html">Pool Route Pricing Calculator — Price Weekly Accounts</a></li>
+    <li><strong>Smartcat</strong> <a href="/tools/translator-project-quote/vs-smartcat.html">Translator Project Quote Calculator</a></li>
+    <li><strong>SmartMoving</strong> <a href="/tools/moving-bid-calculator/vs-smartmoving.html">Moving Company Bid Calculator — Stairs and Long Carry</a></li>
+    <li><strong>SMC³ FastClass</strong> <a href="/tools/ltl-freight-class-estimator/vs-smc3-fastclass.html">LTL Freight Class Estimator</a></li>
+    <li><strong>Snyk&#39;s agent-scan</strong> <a href="/tools/mcp-supply-chain-watch/vs-snyk.html">MCP Supply-Chain Watch</a></li>
+    <li><strong>Square Appointments</strong> <a href="/tools/appointment-deposit-calculator/vs-square-appointments.html">Appointment Deposit Calculator for Service Businesses</a></li>
+    <li><strong>STACK</strong> <a href="/tools/concrete-bid-calculator/vs-stack.html">Concrete Bid Calculator — Driveway &amp; Patio by Cubic Yard</a></li>
+    <li><strong>Synder</strong> <a href="/tools/payment-reconciliation-workbench/vs-synder.html">Payment Reconciliation — Match Payouts to Bank Deposits</a></li>
+    <li><strong>the AWS Pricing Calculator</strong> <a href="/tools/cloud-egress-calculator/vs-aws-pricing-calculator.html">Cloud Egress Cost Calculator for S3 Storage</a></li>
+    <li><strong>the Azure Pricing Calculator</strong> <a href="/tools/cloud-egress-calculator/vs-azure-pricing-calculator.html">Cloud Egress Cost Calculator for S3 Storage</a></li>
+    <li><strong>the Google Cloud Pricing Calculator</strong> <a href="/tools/cloud-egress-calculator/vs-google-cloud-pricing-calculator.html">Cloud Egress Cost Calculator for S3 Storage</a></li>
+    <li><strong>TikTok Shop&#39;s own Seller University fee pages</strong> <a href="/tools/tiktok-shop-fee-calculator/vs-tiktok-shops-seller-university.html">TikTok Shop Fee Calculator — Affiliate and Returns</a></li>
+    <li><strong>Toast</strong> <a href="/tools/delivery-app-margin-calculator/vs-toast.html">DoorDash Fee Calculator for Restaurants — Delivery Margin</a></li>
+    <li><strong>Trax Technologies</strong> <a href="/tools/freight-accessorial-auditor/vs-trax.html">Freight Accessorial Invoice Auditor</a></li>
+    <li><strong>Vagaro</strong> <a href="/tools/booth-rent-vs-commission/vs-vagaro.html">Booth Rent vs Commission Calculator</a></li>
+    <li><strong>Vendoo</strong> <a href="/tools/where-to-sell-calculator/vs-vendoo.html">Where to Sell Calculator — eBay vs Etsy vs Amazon</a></li>
+    <li><strong>Walmart&#39;s own WFS Cost Estimator</strong> <a href="/tools/walmart-marketplace-calculator/vs-wfs-cost-estimator.html">Walmart Marketplace Fee Calculator</a></li>
+    <li><strong>WePro</strong> <a href="/tools/dryer-vent-bid-calculator/vs-wepro.html">Dryer Vent Bid Calculator — Stories, Run, and Roof Cap</a></li>
+    <li><strong>whatsmydns.net</strong> <a href="/tools/dns-configuration-evidence/vs-whatsmydns.html">DNS Change Evidence — Free Before/After DNS Record Report</a></li>
+    <li><strong>Workiz</strong> <a href="/tools/junk-removal-bid-calculator/vs-workiz.html">Junk Removal Bid Calculator — Price the Dump Ticket</a></li>
+    <li><strong>Xactimate</strong> <a href="/tools/mold-remediation-bid-calculator/vs-xactimate.html">Mold Remediation Bid Calculator — Containment and Demo</a></li>
+    <li><strong>Yardi Voyager CAM reconciliation</strong> <a href="/tools/cam-reconciliation-check/vs-yardi.html">CAM Reconciliation Calculator for Commercial Leases</a></li>
+    <li><strong>your title company&#39;s net sheet</strong> <a href="/tools/seller-net-sheet/vs-title-company-net-sheet.html">Seller Net Sheet Calculator</a></li>
+    <li><strong>Zylo</strong> <a href="/tools/saas-seat-true-up/vs-zylo.html">SaaS Seat True-Up Calculator — Find Unused Spend</a></li>
+  </ul>
+</main>
+<footer>
+  <p><a href="/">All 174 tools</a> · <a href="/about/">About &amp; privacy</a> · <a href="/feed.xml" type="application/atom+xml">New tools feed</a> · <a href="/llms.txt">llms.txt</a></p>
+  <p class="fine"><a href="https://marisstella.dev/c/trades/">Free contractor bid calculators and estimating tools</a> · <a href="https://marisstella.dev/c/evidence/">Free compliance check and evidence record tools</a> · <a href="https://marisstella.dev/c/marketplace/">Free marketplace seller fee calculators</a> · <a href="https://marisstella.dev/c/backoffice/">Free small-business cash flow and pricing tools</a> · <a href="https://marisstella.dev/c/services/">Free pricing calculators for service businesses</a> · <a href="https://marisstella.dev/c/logistics/">Free freight, 3PL and cloud cost calculators</a> · <a href="https://marisstella.dev/c/more/">More free small-business calculators</a></p>
+  <p class="fine"><strong>No warranty.</strong> These tools are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, financial, engineering or professional advice, and they do not replace a qualified professional. You are responsible for reviewing and verifying any output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p class="fine"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+</footer>
+</body>
+</html>

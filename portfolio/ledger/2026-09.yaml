@@ -12028,3 +12028,69 @@ entries:
         to `main` as code only, ready to serve once the owner's infra fix
         lands.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `/compare/` -- one page indexing every `vs-<product>.html`
+        comparison page in the catalogue, grouped by the product each one
+        names -- on both the apex (`gitops/prod/front-door/compare.html`,
+        the host that actually serves) and the catalogue build
+        (`platform/pages/dist/compare/`). Ran the marketing-distribution
+        queue item's brief by hand and measured before picking rather than
+        re-checking its four standard candidates: the embed widget is at
+        174/174 entry pages, the seven `/c/` hubs read as written, the
+        `/about/` press kit's numbers are still computed live, and
+        `find ventures -maxdepth 2 -iname "vs-*.html"` has gone from the
+        78 that file records on 2026-09-02 to 168 as this landed (the page is
+        generated, so the number tracks the tree). The gap that opened
+        with that growth is not another comparison page: all of them were
+        reachable from exactly one place each -- their own tool's entry
+        page -- with zero cross-venture `../<slug>/vs-` hrefs in the whole
+        tree and the word "alternative" appearing nowhere in anything the
+        apex serves. Thirty-two tools compare themselves with Jobber and
+        thirteen with ServiceTitan, so a reader arriving on "Jobber
+        alternatives" and landing on the artificial-turf calculator had no
+        route to the other thirty-one, and no single URL was about that
+        query for a crawler to rank. The page adds no claim of its own:
+        every product name is lifted from the linked page's own `<h1>`
+        (`comparisonSubject`), every tool name and blurb from the mirror's
+        own record, and a test asserts each printed name is text the page
+        it links to actually contains -- every page passes, zero fell back to a
+        filename.
+        Ordering is its one editorial act (most-compared first). Wired
+        into both sitemaps, both `llms.txt` files, the hub/category/About
+        footers, and the apex's nginx (`^/compare/?$` -> `compare.html`)
+        and ConfigMap. Carries the standard no-warranty/no-SLA/privacy
+        block, a trademark notice, and `data-pf-slug="compare"` usage
+        tracking; the header's privacy line is derived from
+        `externalCallExceptions` rather than asserted, so it names DNS
+        Change Evidence and Sponsor Ready instead of claiming "nothing you
+        type is uploaded" for all 174. No new script, font, CDN or network
+        call. Also fixed a claim this change would otherwise have
+        inherited: the front-door ConfigMap ceiling test named seven files
+        by hand while the generator wrote sixteen, so the seven category
+        pages (~136 KB) and About sat outside the 1 MiB guard the
+        kustomization said covered them; it now parses the
+        `portfolio-front-html` file list out of the kustomization and
+        measures all 20 keys (578,688 bytes, 55% of the ceiling).
+        Verified locally: `node --test platform/pages/*.test.mjs` 897/897
+        (13 new), `node --test platform/marketing/*.test.mjs` 218/218 (6
+        new), `python3 -m pytest gitops/tests -q` 390 passed 1 skipped,
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs` + `node platform/pages/check.mjs
+        --dist=platform/pages/dist` -- 174 products, 691 pages, no dead
+        links -- `node platform/marketing/regen.mjs` leaving the tree
+        clean, and `python3 platform/ci/run_workflow_locally.py
+        --for-changes` (6 workflows selected; `conflict-markers` 2/2,
+        `duplicate-symbols` 2/2, `gitops` 8/10 with `kustomize build` and
+        `kubeconform` green -- its two failures are this sandbox, a bare
+        `pytest` on an interpreter without pyyaml and no `tofu` binary,
+        both of which pass under `python3 -m pytest`). CLAUDE.md records
+        Actions as cycling-starved and the cluster as down (`:6443`
+        refused), both owner-blocked and cited rather than re-diagnosed,
+        so the above is local verification standing in for CI. Not
+        deployed: this ships to `main` ready to serve the moment a
+        hostname answers.
+    mrr_end: null

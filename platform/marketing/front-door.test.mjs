@@ -4,7 +4,18 @@ import test from 'node:test';
 
 import path from 'node:path';
 
-import { ABOUT_PATH, ALL_CATEGORIES, FEED_FILE, SOCIAL_CARD_FILE, categoryPagePath } from '../pages/build.mjs';
+import {
+  ABOUT_PATH,
+  ALL_CATEGORIES,
+  COMPARE_PATH,
+  COMPARISON_FILE_PATTERN,
+  FEED_FILE,
+  SOCIAL_CARD_FILE,
+  categoryPagePath,
+  comparisonSubject,
+  comparisonSubjectKey,
+  groupComparisons,
+} from '../pages/build.mjs';
 import { FEED_MAX_ENTRIES } from '../pages/launched.mjs';
 import { SOCIAL_CARD_HEIGHT, SOCIAL_CARD_WIDTH, renderSocialCard } from '../pages/offline.mjs';
 import {
@@ -52,9 +63,13 @@ import {
   renderFrontDoorAbout,
   renderFrontDoorCatalog,
   renderFrontDoorFeed,
+  renderFrontDoorComparisons,
   renderFrontDoorLlms,
   renderSitemap,
   subtitleFor,
+  COMPARE_KEY,
+  apexCompareUrl,
+  compareOutputFile,
 } from './front-door.mjs';
 
 /** The nginx config that serves the page and the card, beside them both. */
@@ -1321,6 +1336,12 @@ test('every link in the committed llms.txt resolves on this host', async () => {
     `${FRONT_DOOR_URL}${FEED_FILE}`,
     `${FRONT_DOOR_URL}${SITEMAP_FILE}`,
     `${FRONT_DOOR_URL}${CATALOG_FILE}`,
+    // The comparison index. Listed here rather than pattern-matched below for
+    // the same reason the three above are: it is a page this host renders
+    // itself, not a mirrored tool, so there is no `<slug>__index.html` key to
+    // check it against. That it is actually served is checked by the
+    // `^/compare/?$` nginx block test and the ConfigMap-key test.
+    `${FRONT_DOOR_URL}${COMPARE_PATH}`,
   ]);
   for (const link of links) {
     if (served.has(link)) continue;
@@ -1621,19 +1642,34 @@ test('the generated front-door set stays under the ConfigMap object ceiling', as
   //     is now the only thing standing between a growing mirror and a front
   //     door that cannot be applied at all.
   //
-  // The card is counted base64'd, which is how kustomize stores it.
-  const files = [
-    OUTPUT_FILE,
-    ROBOTS_OUTPUT_FILE,
-    SITEMAP_OUTPUT_FILE,
-    FEED_OUTPUT_FILE,
-    LLMS_OUTPUT_FILE,
-    CATALOG_OUTPUT_FILE,
-    FAVICON_OUTPUT_FILE,
-  ];
+  // The file list is read out of `gitops/prod/kustomization.yaml` rather than
+  // written here, because the object this bounds is the one kustomize builds
+  // and a hand-kept copy of its contents undercounts silently. It did: this
+  // test named seven files while the `portfolio-front-html` generator carried
+  // sixteen, so the seven category pages (~136 KB) and the About page were
+  // outside the ceiling it claimed to enforce, and the comment in the
+  // kustomization saying "the ceiling test covers the whole generated set" was
+  // not true of it. Derived, adding a key to that ConfigMap is now measured by
+  // this test on the run that adds it.
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  const block = kustomization.match(
+    /\n {2}- name: portfolio-front-html\n([\s\S]*?)(?=\n {2}- name: |\n[a-zA-Z])/,
+  );
+  assert.ok(block, 'could not find the portfolio-front-html ConfigMap in the kustomization');
+  const names = [...block[1].matchAll(/^ {6}- [^=\n]+=front-door\/(\S+)$/gm)].map((m) => m[1]);
+  assert.ok(names.length >= 16, `only ${names.length} keys parsed out of the ConfigMap block`);
+
+  // Binary keys are counted base64'd, which is how kustomize stores them; text
+  // keys ride as-is under `data`.
+  const BINARY = /\.(png|ico|woff2?)$/;
   let total = 0;
-  for (const file of files) total += (await fs.readFile(file)).byteLength;
-  total += Math.ceil((await fs.readFile(SOCIAL_CARD_OUTPUT_FILE)).byteLength / 3) * 4;
+  for (const name of names) {
+    const bytes = (await fs.readFile(path.join(path.dirname(OUTPUT_FILE), name))).byteLength;
+    total += BINARY.test(name) ? Math.ceil(bytes / 3) * 4 : bytes;
+  }
   assert.ok(
     total < 1024 * 1024,
     `the front-door ConfigMap would be ${total} bytes, over the 1 MiB ceiling`,
@@ -1816,4 +1852,127 @@ test('renderFrontDoorAbout survives an empty catalogue', async () => {
   assert.ok(about.includes('<!doctype html>'));
   assert.ok(about.includes('No warranty.'));
   assert.ok(about.includes(SPONSORS_URL));
+});
+
+// ---------------------------------------------------------------------------
+// The comparison index
+//
+// The gap it closes, measured on 2026-09-05 against the committed front door:
+// 167 `vs-<product>.html` pages in the catalogue, each linked from exactly one
+// place (its own tool's entry page), zero cross-venture links between them, and
+// the word "alternative" nowhere in anything this host serves. These tests pin
+// the three ways that would come back — the page not rendering, the page
+// rendering unreachably, and the page saying something no venture author wrote.
+// ---------------------------------------------------------------------------
+
+test('the comparison index lists a page for every mirrored vs- file', async () => {
+  const { comparisons } = await buildFrontDoor();
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { files } = await buildMirror();
+  const expected = files.filter((f) => COMPARISON_FILE_PATTERN.test(f.file));
+  assert.ok(expected.length > 100, 'the mirror should carry the catalogue comparison pages');
+  assert.ok(comparisons, 'the index must render while the mirror carries comparison pages');
+  for (const f of expected) {
+    assert.ok(
+      comparisons.includes(`href="/tools/${f.slug}/${f.file}"`),
+      `/compare/ omits ${f.slug}/${f.file}, so that page stays reachable from one place only`,
+    );
+  }
+  // And nothing it does not serve: a link the catch-all answers with the front
+  // page is the defect every other artifact here is guarded against.
+  const linked = [...comparisons.matchAll(/href="\/tools\/([a-z0-9-]+)\/(vs-[^"]+)"/g)];
+  const keys = new Set(files.map((f) => f.key));
+  for (const [, slug, file] of linked) {
+    assert.ok(keys.has(`${slug}__${file}`), `/compare/ links ${slug}/${file}, which the mirror lacks`);
+  }
+});
+
+test('every product name on the comparison index came from a page that named it', async () => {
+  // The mandate's absolute limit: a marketing surface may only restate a claim
+  // a venture author already wrote and cited. This page names other companies'
+  // products, so the strictest reading applies — every name it prints has to be
+  // a substring of the comparison page it links to, or the index invented it.
+  const { buildMirror } = await import('./front-door-tools.mjs');
+  const { files } = await buildMirror();
+  const comparisonFiles = files.filter((f) => COMPARISON_FILE_PATTERN.test(f.file));
+  for (const f of comparisonFiles) {
+    const subject = comparisonSubject(f.contents);
+    assert.ok(subject, `${f.slug}/${f.file} has no "… vs. <product>" heading`);
+    assert.ok(
+      f.contents.includes(subject),
+      `"${subject}" is not text ${f.slug}/${f.file} contains`,
+    );
+  }
+});
+
+test('the comparison index is reachable and disclaimed', async () => {
+  const { comparisons, html, sitemap, llms } = await buildFrontDoor();
+  assert.ok(
+    html.includes(`href="/${COMPARE_PATH}"`),
+    'the front page must link /compare/, or the index is published and unreachable',
+  );
+  assert.ok(
+    sitemap.includes(`<loc>${FRONT_DOOR_URL}${COMPARE_PATH}</loc>`),
+    'the sitemap must list /compare/',
+  );
+  assert.ok(llms.includes(`${FRONT_DOOR_URL}${COMPARE_PATH}`), 'llms.txt must name /compare/');
+  assert.match(comparisons, /No warranty\./);
+  assert.match(comparisons, /Not affiliated with, endorsed by, or reviewed by/);
+  assert.equal(apexCompareUrl(), `${FRONT_DOOR_URL}${COMPARE_PATH}`);
+  assert.ok(compareOutputFile().endsWith(COMPARE_KEY));
+  assert.ok(
+    comparisons.includes(`<link rel="canonical" href="${apexCompareUrl()}">`),
+    'the index must name its own canonical URL',
+  );
+});
+
+test('nginx routes /compare/ to the key the generator writes', async () => {
+  // Same seam as the category pages: `COMPARE_KEY` names the file and the
+  // `^/compare/?$` block rewrites the URL to it. If they disagree the page is
+  // dark while the generator, the kustomization and the sitemap all still pass.
+  const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
+  assert.match(conf, /location ~ "\^\/compare\/\?\$" \{/);
+  assert.match(conf, new RegExp(`try_files /${escapeForRegExp(COMPARE_KEY)} =404;`));
+  assert.equal(`${COMPARE_PATH.replace(/\/$/, '')}.html`, COMPARE_KEY);
+});
+
+test('the kustomization mounts the comparison index', async () => {
+  const kustomization = await fs.readFile(
+    path.join(path.dirname(path.dirname(OUTPUT_FILE)), 'kustomization.yaml'),
+    'utf8',
+  );
+  assert.ok(
+    kustomization.includes(`- ${COMPARE_KEY}=front-door/${COMPARE_KEY}`),
+    `gitops/prod/kustomization.yaml must mount ${COMPARE_KEY}; add it or the page is dark`,
+  );
+});
+
+test('the committed comparison index matches what this generator produces', async () => {
+  const { comparisons } = await buildFrontDoor();
+  assert.equal(
+    await fs.readFile(compareOutputFile(), 'utf8'),
+    comparisons,
+    'gitops/prod/front-door/compare.html is stale — run: node platform/marketing/regen.mjs',
+  );
+});
+
+test('renderFrontDoorComparisons survives one product and one tool', () => {
+  // The shape that has no "compared by more than one tool" band at all. It must
+  // render rather than emit an empty `<ul>` under a heading promising entries.
+  const groups = groupComparisons([
+    {
+      slug: 'x-calculator',
+      file: 'vs-example.html',
+      subject: 'Example Software',
+      subjectKey: comparisonSubjectKey('Example Software'),
+      title: 'X Calculator',
+      href: '/tools/x-calculator/vs-example.html',
+      summary: 'Prices a thing.',
+    },
+  ]);
+  const html = renderFrontDoorComparisons({ groups, total: 1, categories: [] });
+  assert.ok(html.includes('<!doctype html>'));
+  assert.ok(html.includes('Example Software'));
+  assert.ok(html.includes('href="/tools/x-calculator/vs-example.html"'));
+  assert.match(html, /No warranty\./);
 });
