@@ -35,6 +35,10 @@ jobs:
           node-version: "22"
       - run: npm ci
       - run: node --test tools.test.mjs
+      # The hub-level comparison page lives directly under tools/, not inside
+      # one of the per-tool directories the matrix job below scopes to, so
+      # nothing else in this workflow would ever run its test.
+      - run: node --test ../tools/vs-omni-calculator.test.mjs
       - run: npm run build
       # The calculators are the only part of this venture a stranger can
       # actually use, and they are reachable only through what the build emits:
