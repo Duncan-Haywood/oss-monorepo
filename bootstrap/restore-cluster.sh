@@ -92,9 +92,21 @@ step "SSH reachability"
 # script did not exist until now is that HETZNERSSHKEY has never held a usable
 # private key. A clear message here is the difference between "the key is still
 # wrong" and "the restore failed", which are very different next actions.
-ssh_cp 'echo ok' >/dev/null 2>&1 || fail "cannot SSH to control-plane $CP. Is HETZNERSSHKEY the *private* key?"
+# The message names both contexts on purpose. As of 2026-09-05 the owner's
+# primary route is a laptop run (Actions runners are starved, so the workflow
+# route cannot fire at all), and on a laptop there is no HETZNERSSHKEY to
+# suspect -- naming only the secret would send them to fix a variable that
+# does not exist in the shell they are standing in.
+key_hint() {
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    echo "Is the HETZNERSSHKEY secret the *private* key?"
+  else
+    echo "Is the matching *private* key loaded in your SSH agent? (ssh-add -l)"
+  fi
+}
+ssh_cp 'echo ok' >/dev/null 2>&1 || fail "cannot SSH to control-plane $CP. $(key_hint)"
 echo "control-plane $CP: ok"
-ssh_ag 'echo ok' >/dev/null 2>&1 || fail "cannot SSH to agent $AG. Is HETZNERSSHKEY the *private* key?"
+ssh_ag 'echo ok' >/dev/null 2>&1 || fail "cannot SSH to agent $AG. $(key_hint)"
 echo "agent         $AG: ok"
 
 # ------------------------------------------------- step 2: existing cluster?
