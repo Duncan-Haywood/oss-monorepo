@@ -13,6 +13,7 @@ import {
   type BaselineStorage,
 } from "@/lib/baseline-store";
 import DiffView from "./DiffView";
+import { recheckStatus, sortByRecheckPriority } from "@/lib/recheck";
 
 // The watch list lives in localStorage, which React cannot see. Reading it in
 // an effect and pushing it into state would render the empty list first and
@@ -267,10 +268,13 @@ export default function WatchTool() {
             Pages you are watching
           </h2>
           <p className="mt-1 text-xs text-slate-500">
-            Saved in this browser. Re-check one to see what has changed since the snapshot shown.
+            Saved in this browser. Pages due for a recheck are listed first — nothing here is
+            fetched automatically, so a stale watch only updates when you re-check it.
           </p>
           <ul className="mt-4 divide-y divide-slate-100">
-            {watched.map((entry) => (
+            {sortByRecheckPriority(watched).map((entry) => {
+              const { daysSinceChecked, isDue } = recheckStatus(entry.fetchedAt);
+              return (
               <li
                 key={entry.url}
                 className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
@@ -281,7 +285,15 @@ export default function WatchTool() {
                     Snapshot from {formatTimestamp(entry.fetchedAt)}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-2">
+                <div className="flex shrink-0 items-center gap-2">
+                  {isDue && (
+                    <span
+                      data-testid="recheck-due-badge"
+                      className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800"
+                    >
+                      Recheck due — {daysSinceChecked}d since last check
+                    </span>
+                  )}
                   <button
                     type="button"
                     disabled={state === "checking"}
@@ -302,7 +314,8 @@ export default function WatchTool() {
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </section>
       )}
