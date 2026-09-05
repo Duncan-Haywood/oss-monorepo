@@ -63,15 +63,32 @@ test('the FAQPage schema is valid JSON and matches the visible FAQ headings', ()
   }
 });
 
+// The JSON-LD carries real characters (an actual em dash) while the visible
+// markup spells the same glyph as an HTML entity (&mdash;) -- a browser
+// renders both identically, but a raw string comparison needs the visible
+// side decoded first. See platform/pages/faq-visible.test.mjs for the
+// whole-portfolio version of this check.
+const decodeEntities = (text) => text
+  .replace(/&mdash;/g, '—')
+  .replace(/&ndash;/g, '–')
+  .replace(/&rsquo;/g, '’')
+  .replace(/&lsquo;/g, '‘')
+  .replace(/&rdquo;/g, '”')
+  .replace(/&ldquo;/g, '“')
+  .replace(/&amp;/g, '&');
+
 test('every FAQ answer in the schema also appears as visible copy', () => {
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   const schema = JSON.parse(match[1]);
   for (const question of schema.mainEntity) {
     const answer = question.acceptedAnswer.text;
-    assert.ok(
-      html.includes(`<p>${answer}</p>`),
-      `FAQ answer for "${question.name}" is not present verbatim as visible copy`,
-    );
+    const headingIndex = html.indexOf(`<h3>${question.name}</h3>`);
+    assert.notEqual(headingIndex, -1, `FAQ schema question "${question.name}" has no matching <h3> on the page`);
+    const afterHeading = html.slice(headingIndex);
+    const paragraphStart = afterHeading.indexOf('<p>');
+    const paragraphEnd = afterHeading.indexOf('</p>');
+    const visibleAnswer = decodeEntities(afterHeading.slice(paragraphStart + '<p>'.length, paragraphEnd));
+    assert.equal(visibleAnswer, answer, `FAQ answer for "${question.name}" is not present verbatim as visible copy`);
   }
 });
 
