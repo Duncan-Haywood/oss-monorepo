@@ -77,9 +77,14 @@ in the PR what they said:
 node platform/marketing/regen.mjs        # then commit whatever it rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
+node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
 python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
 ```
+
+(`pip install pytest` first in a web session — the image has Python but not
+pytest, so that last line exits `No module named pytest` rather than failing
+any test. Do not read that as a clean run.)
 
 The first line is the one that keeps being skipped, and it is the one that
 decides whether a page you shipped is reachable. A red check you have
@@ -102,6 +107,23 @@ So treat the block above as a floor that ages, not as a fixture. If you add a
 guard, add the directory it lives in here in the same commit — a test nobody
 runs is worth less than no test, because it also tells the next session the
 ground is covered.
+
+**`platform/privacy/` and `platform/webcheck/` were added the same day, by
+enumerating instead of remembering.** Not because either was red — both pass,
+31 assertions between them — but because the paragraph above had just been
+written about `platform/proposal/` and the obvious next question, *what else is
+outside the list?*, had not been asked. `find . -name '*.test.mjs' -not -path
+'./ventures/*'` answers it in one command and returned five directories against
+the three the list named. The privacy suite is the one that matters: it guards
+the claim every tool's page makes about the visitor's data never leaving the
+device, which is the portfolio's central promise and the one whose quiet
+breakage would be least visible in a diff.
+
+That is the cheap version of this lesson, and it generalises past this list. A
+guard going unrun is not usually discovered by a session noticing it is
+missing — nobody notices an absence — it is discovered by the bug it should
+have caught, months later. Enumerate the ground instead of recalling it; the
+command is faster than the recollection and it cannot be honestly wrong.
 
 **After you merge a change that touches a served surface, refresh the
 published snapshot** (added 2026-09-05):
