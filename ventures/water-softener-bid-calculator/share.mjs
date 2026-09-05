@@ -24,11 +24,22 @@
 // as '1'/'0' the same way `gutter-install-bid-calculator`'s tearOff/
 // steepAccess/addHiddenHangers do.
 //
-// Deposit, hold-price days, and the proposal's prose terms are deliberately
-// left out, along with company and customer details: they persist per
+// Company and customer details are deliberately left out: they persist per
 // device via `proposal.mjs`'s `loadCompany`/`saveCompany`, and a customer's
 // name or address has no business riding in a URL two people paste into
 // text or email.
+//
+// The proposal panel's five terms are NOT in that category, and this file
+// said they were until 2026-09-05. "They persist per device" is true and is
+// exactly the wrong reason to omit them from a *share* link: per-device
+// persistence is what the recipient does not have. A shop that priced a job
+// at a 50% deposit held for 15 days copied the link, and the recipient's
+// page reopened it at this venture's 30%/30-day defaults beneath a headline
+// price that matched to the cent -- two people reading one price and
+// different money on acceptance, with nothing on either page saying so.
+// The terms now ride beside this payload in `pfterms`, handled by
+// `proposal-terms.mjs` (see `platform/proposal/term-ids.test.mjs`), so
+// nothing below needs to know about them.
 
 import { CAPACITY_PRESETS, SYSTEM_PRESETS, WORK_PRESETS, PIPE_PRESETS } from './calc.mjs';
 
