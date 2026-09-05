@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 117 files, 555818 bytes
 #   portfolio-front-tools-2: 149 files, 555936 bytes
 #   portfolio-front-tools-3: 117 files, 556901 bytes
-#   portfolio-front-tools-4: 125 files, 548432 bytes
+#   portfolio-front-tools-4: 126 files, 551189 bytes
 #   portfolio-front-tools-5: 112 files, 553697 bytes
 #   portfolio-front-tools-6: 107 files, 555903 bytes
 #   portfolio-front-tools-7: 117 files, 555175 bytes
@@ -618,6 +618,7 @@ configMapGenerator:
       - countertop-bid-calculator__calc.mjs.gz=countertop-bid-calculator__calc.mjs.gz
       - countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz=countertop-bid-calculator__how-much-to-charge-to-install-quartz-countertops.html.gz
       - countertop-bid-calculator__index.html.gz=countertop-bid-calculator__index.html.gz
+      - countertop-bid-calculator__share.mjs.gz=countertop-bid-calculator__share.mjs.gz
       - countertop-bid-calculator__usage.mjs.gz=countertop-bid-calculator__usage.mjs.gz
       - countertop-bid-calculator__vs-moraware.html.gz=countertop-bid-calculator__vs-moraware.html.gz
       - cra-evidence-desk__index.html.gz=cra-evidence-desk__index.html.gz
