@@ -52,11 +52,32 @@ neither. It narrows an unknown; it does not close it.
 It does not enable Pages, and it could not: `PUT /repos/{owner}/{repo}/pages`
 is a publish-under-the-portfolio's-public-name action, which `CLAUDE.md`
 reserves for the owner. It also does not try `/pages`, `/environments` or
-`/deployments`: all three are refused before they reach GitHub by the agent
-egress proxy that Claude-on-the-web sessions run behind, and a tool whose
-central call 403s in the environment that most needs it is the failure mode
-`ci_starvation.py` had until it stopped requiring the `gh` CLI. Every call
-here is one the plain repository object answers.
+`/deployments`: all three 403 from a Claude-on-the-web session, and a tool
+whose central call 403s in the environment that most needs it is the failure
+mode `ci_starvation.py` had until it stopped requiring the `gh` CLI. Every
+call here is one the plain repository object answers.
+
+**They do not all 403 for the same reason, and this docstring said they did
+until it was measured on 2026-09-05.** Read the bodies, not just the status:
+
+    /pages         403  "not permitted through this proxy"   (agent egress proxy)
+    /environments  403  "not permitted through this proxy"   (agent egress proxy)
+    /deployments   403  "Resource not accessible by integration"  (GitHub: token scope)
+
+The first two never reach GitHub. The third does, and GitHub declines it —
+the session token simply lacks `deployments: read`. That distinction is worth
+keeping because it says which of these is *reachable in principle*, and
+`/deployments` is the interesting one: when Pages serves from a branch,
+GitHub records a `github-pages` environment deployment on it, so a caller
+that could read deployments would settle the open `source_note` question —
+branch route or Actions route — without the owner opening anything.
+
+This tool still must not depend on it, for the reason above: the answer has
+to come from a call that works in the environment that needs it. The place
+that *can* make it is a runner, where `secrets.GITHUB_TOKEN` carries the
+scope and no agent proxy sits in front of GitHub. That is a note for whoever
+extends the runner-side probe once runners are back — not a reason to add an
+owner ask, and not a call to add here.
 
 ## The freshness half
 

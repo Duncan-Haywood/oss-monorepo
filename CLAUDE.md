@@ -80,11 +80,38 @@ node --test platform/proposal/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
 python3 -m pytest gitops/tests -q        # only if you touched gitops/ or platform/ci/
+(cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
 ```
 
 (`pip install pytest` first in a web session — the image has Python but not
-pytest, so that last line exits `No module named pytest` rather than failing
-any test. Do not read that as a clean run.)
+pytest, so that `gitops/tests` line exits `No module named pytest` rather than
+failing any test. Do not read that as a clean run. The `platform/ci` line needs
+no pytest — those suites are `unittest`.)
+
+**The `platform/ci` line was added 2026-09-05, and it is the same defect as
+`platform/proposal/`, arrived at from a third direction.** The line above it
+already said "only if you touched `gitops/` or **`platform/ci/`**" — so the
+list *named* the directory and then sent you to run a different one's tests.
+`platform/ci/` holds 15 `unittest` modules, and they guard the tools every
+session here leans on to decide what is true: `ci_starvation.py` (is this red
+check real?), `pages_state.py` and `publish_surface.py` (is there a route to
+a user?), `public_surface.py` (does a hostname answer?). A session that edits
+one of those and follows the list runs `gitops/tests` and never executes a
+single guard on the thing it just changed.
+
+CI does run all 15 (`portfolio-validate.yml` and four sibling workflows, one
+`python3 -m unittest <module>` step each), which is why this stayed invisible
+— and is exactly why it matters *now*: while runners are starved, CI running
+them is the same as nothing running them.
+
+Two traps, both measured rather than recalled. `python3 -m pytest platform/ci`
+from the repo root **fails collection** — these modules `import pages_state`,
+`import review` and so on by bare name, so they only resolve with
+`platform/ci` as the working directory, which is why the line above `cd`s.
+And grepping the workflows for `test_foo.py` finds nothing, because the steps
+invoke the *module* (`python3 -m unittest test_foo`); a coverage check by
+filename reports all 15 unrun, which is wrong. Verified 2026-09-05: all 15
+pass locally.
 
 The first line is the one that keeps being skipped, and it is the one that
 decides whether a page you shipped is reachable. A red check you have
