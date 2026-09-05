@@ -13772,3 +13772,30 @@ entries:
         platform/proposal 101/101, all 15 platform/ci unittest modules OK,
         gitops 407 passed/25 skipped.
     mrr_end: null
+  - venture: sewer-hydrojet-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link (#3389, merged), the second
+        instance of this session's share-link template (after #3383 on
+        stucco-repair-bid-calculator). Added share.mjs/share.test.mjs
+        (checked against calc.mjs's own WORK_PRESETS/ACCESS_PRESETS/
+        LINE_PRESETS) and proposal-terms.mjs/proposal-terms.test.mjs
+        (deposit/validity/terms ride beside the payload in `pfterms`),
+        following the water-softener-bid-calculator template verbatim.
+        Verified: venture suite 102/102, platform/marketing+pages
+        1126/1126, platform/proposal 101/101 (incl. term-ids.test.mjs),
+        platform/privacy+webcheck 31/31, a full build.mjs/check.mjs pass
+        (174 products, no dead links), and real-browser roundtrip.mjs/
+        sweep.mjs/presets.mjs runs confirming the share link round-trips
+        all 52 fields with the headline price ($194.71) unchanged. PR
+        showed 0 check runs at merge time (verified via the check-runs
+        endpoint, not the bare status call, per CLAUDE.md); merged on the
+        local verification above per "absent CI is not failed CI."
+        Refreshed the gh-pages snapshot afterward
+        (CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh);
+        it went stale again within minutes from concurrent sessions'
+        merges, which is expected at this fleet velocity and not chased
+        further per session.
+    mrr_end: null
