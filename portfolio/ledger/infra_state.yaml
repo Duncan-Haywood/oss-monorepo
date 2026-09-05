@@ -185,6 +185,12 @@ readings:
       There is no API call an agent session can make here — the repository
       token cannot see billing, and guessing is what this file exists to
       stop.
+      Tested rather than assumed, 2026-09-05: `GET /user` with the session's
+      own credential authenticates as `Duncan-Haywood` and returns
+      `"plan": null`, because a fine-grained PAT omits that field without
+      the Plan permission. So the sentence above is now a measurement for
+      this credential and not merely a claim — worth one call to confirm if
+      the token is ever widened, and not worth re-attempting otherwise.
     note: >-
       GitHub Pages will not serve a **private** repository's site on the
       Free tier. This repository is private, so the whole `deploy-settings`
