@@ -398,6 +398,24 @@ jobs:
       - name: Browser-signal checker unit tests
         run: node --test platform/privacy/browser-signals.test.mjs
 
+      # The other half of the same promise. `browser-signals.mjs` finds its
+      # subjects by filename (`usage.mjs` / `usage.js`), and 11 ventures keep
+      # the counter inline in the page or in `app.mjs` instead -- so the step
+      # above reported a clean run over a fifteenth of the catalogue it never
+      # looked at. This checks those structurally: the signal must be consulted
+      # before the write, with a branch between them.
+      #
+      # Named explicitly rather than globbed, matching the steps around it. That
+      # is also why these two lines exist at all: `CLAUDE.md`'s local test list
+      # already covers `platform/privacy/*.test.mjs`, so the new suite runs for
+      # a session either way, and it would have run *nowhere* in CI without
+      # being named here -- the same defect being fixed, one layer up.
+      - name: Inline usage counters honour Do Not Track and Global Privacy Control
+        run: node platform/privacy/inline-signals.mjs
+
+      - name: Inline-signal checker unit tests
+        run: node --test platform/privacy/inline-signals.test.mjs
+
       - name: Publish-surface unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_publish_surface
