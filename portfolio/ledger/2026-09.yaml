@@ -12910,3 +12910,74 @@ entries:
         still only set what the form's selects offer. Verified: 37 fields
         round-trip, headline $281.44 intact.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed the reason five ventures shipped the same share-link
+        bug in a row, which is more useful than the five fixes. A guard for
+        exactly this defect already existed -- `platform/proposal/term-ids.test.mjs`
+        fails when a page shows a proposal panel whose deposit and terms do
+        not survive the venture's own share link. It was red on `main`,
+        naming hot-tub, mold-remediation, pergola, retaining-wall and
+        sump-pump, and had been for days. Nobody saw it because CLAUDE.md's
+        documented starvation check set names `platform/marketing` and
+        `platform/pages` and not `platform/proposal`, so every session that
+        recorded an honest local verification ran a list that did not
+        include the test written to catch what they were about to ship.
+        Added the directory to that block, with a note that the set is a
+        floor which ages rather than a fixture: a guard outside it fails
+        into silence, which is the same defect as a starved check reached
+        from the other direction, and it is worse than no guard because it
+        also tells the next session the ground is covered.
+      - >-
+        Verified the whole surface rather than the tools this run touched:
+        `browser_checks.py --checks roundtrip` now reports 147/147 share
+        links round-tripping (29 skipped, no link to copy) against a fresh
+        build of the merged tree, where the same command reported four
+        failures at the start of the run and three more arriving from `main`
+        while it was in progress. `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs platform/proposal/*.test.mjs` -> 1225/1225.
+    mrr_end: null
+  - venture: hot-tub-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Wired proposal-terms.mjs into the share link: the five proposal terms
+        (deposit percentage, validity window, exclusions, payment terms,
+        notes) were not carried, so a bid sent at a 65% deposit held for 37
+        days reopened at the venture defaults of 30/30 with three empty prose
+        blocks, under a headline matching to the cent. Also added
+        overlongTermsNote, so a term too long to ride in the link is named to
+        the sender instead of disappearing quietly.
+    mrr_end: null
+  - venture: pergola-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same fix and same cause as hot-tub-bid-calculator above: the proposal
+        panel's five terms were absent from the share link, so the customer
+        proposal the recipient printed asked for a different amount on
+        acceptance than the sender's did. Wired the shared
+        proposal-terms.mjs mechanism rather than extending this venture's own
+        allowlist, so the five ids cannot drift per venture.
+    mrr_end: null
+  - venture: retaining-wall-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Wired proposal-terms.mjs for the five terms, as above, and also
+        carried the starting-layout preset (`wallPreset`). That one had been
+        left out deliberately as a convenience control whose numbers already
+        ride individually -- true of the price, but the recipient's dropdown
+        then read a different layout than the sender's, so two people
+        comparing one bid were not looking at the same form. It is validated
+        against the index range of WALL_PRESETS, which is the only allowlist
+        an index-based select can have, and restoring it cannot re-run the
+        bulk apply because restoreShare assigns `.value` without dispatching
+        a change event.
+    mrr_end: null

@@ -45,7 +45,13 @@ test('every numeric and enum field the calculator uses is shareable', () => {
   // share.mjs's own header and CLAUDE.md's rename-drift note both describe.
   assert.ok(NUMBER_FIELD_IDS.length >= 24);
   assert.deepEqual(BOOLEAN_FIELD_IDS, []);
-  assert.deepEqual(Object.keys(ENUM_FIELDS).sort(), ['engineerPreset', 'heightPreset', 'wallTypePreset']);
+  // `wallPreset` joined this list on 2026-09-05. It had been left out as a
+  // "starting layout" convenience whose numbers already ride individually --
+  // true of the price, but the recipient's dropdown then read a different
+  // layout than the sender's, so the two people comparing the bid were not
+  // looking at the same form. platform/pages/roundtrip.mjs is what noticed.
+  assert.deepEqual(Object.keys(ENUM_FIELDS).sort(),
+    ['engineerPreset', 'heightPreset', 'wallPreset', 'wallTypePreset']);
 });
 
 test('unknown query keys are ignored so a stale or crafted link cannot inject fields', () => {
@@ -99,4 +105,14 @@ test('every wall-type, height, and engineer preset id from calc.mjs is accepted'
   for (const id of ENUM_FIELDS.engineerPreset) {
     assert.equal(decodeInputs(`engineerPreset=${id}`).engineerPreset, id);
   }
+});
+
+test('the starting-layout preset round-trips, and an out-of-range index is dropped', () => {
+  // Index-based rather than id-based, so the allowlist is the valid index
+  // range of WALL_PRESETS. A crafted link still cannot select a layout the
+  // form does not offer.
+  const restored = decodeInputs(encodeInputs({ wallPreset: '1', lengthFeet: '60' }));
+  assert.equal(restored.wallPreset, '1');
+  assert.equal('wallPreset' in decodeInputs('wallPreset=999&lengthFeet=60'), false);
+  assert.equal('wallPreset' in decodeInputs('wallPreset=notanindex'), false);
 });
