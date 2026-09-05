@@ -97,6 +97,13 @@ import {
 // the day the seal lands.
 import { FEED_MAX_ENTRIES, feedUpdatedAt, isIsoDate, orderForFeed } from '../pages/launched.mjs';
 
+// The gzip used for the comparison keys, imported from the module that owns
+// the mirror's compression rather than re-derived. `GZIP_LEVEL` and the pinned
+// `GZIP_HEADER` are what make the committed bytes reproducible, so a second
+// `zlib.gzipSync` call here with its own options would produce a diff on every
+// regeneration and no test would say why. See `COMPRESSED_SUFFIX`.
+import { compress } from './front-door-tools.mjs';
+
 // The share card is drawn, not copied: `renderSocialCard` is the same
 // dependency-free PNG encoder `build.mjs` uses for the hub's card, so the apex
 // and the tools host show one mark rather than two pictures that drift.
@@ -1169,8 +1176,47 @@ ${sections}
  */
 export const COMPARE_KEY = 'compare.html';
 
+/**
+ * The comparison pages are the only keys in `portfolio-front-html` stored
+ * gzipped, and this is why.
+ *
+ * They are the largest and the fastest-growing things in that ConfigMap:
+ * `compare.html` lists every `vs-<product>.html` in the catalogue, so it grows
+ * ~570 bytes with each one the fleet writes, and the fourteen product pages
+ * added ~226 KB at once. Measured on 2026-09-05 with all of them plain, the
+ * object serialised to 852,432 bytes — 81.3% of etcd's 1 MiB cap, against a
+ * test budget of 943,718. Roughly six more product pages would have tripped a
+ * build failure whose blast radius is the whole `prod` Application, not one
+ * page: the hashed ConfigMap name `portfolio-front.yaml` mounts is never
+ * created, new pods sit in ContainerCreating, and Argo reports Degraded.
+ *
+ * Gzip is the lever the mirror already pulled for the same problem — see the
+ * compression note in `front-door-tools.mjs`, which is where `compress` lives
+ * and is imported from rather than restated. It is worth ~4x here even after
+ * base64: a `.gz` key is not valid UTF-8, so kustomize files it under
+ * `binaryData`, which costs the 4/3 expansion the ceiling tests already model.
+ *
+ * Only these keys, deliberately. The front page, About and the seven category
+ * pages stay plain: together they are a fraction of the size, they do not grow
+ * with the catalogue, and the front page in particular is the one surface
+ * where inlined bytes with no extra content-phase work is worth more than the
+ * KB. A mechanism is cheapest where it is applied narrowly and for a reason
+ * that can be stated.
+ *
+ * nginx serves them with `gzip_static always; gunzip on;`, reached by a
+ * `rewrite`, never a `try_files`. That is not style: `try_files` stats the
+ * *uncompressed* name, which no longer exists for these keys, so it would
+ * answer 404 before `gzip_static` ever ran — the whole comparison layer dark
+ * behind a correct-looking config. The mirror's blocks in
+ * `front-door/default.conf` document the same trap at length.
+ */
+export const COMPRESSED_SUFFIX = '.gz';
+
+/** The ConfigMap key the comparison index is stored under, gzipped. */
+export const compareStoredKey = () => `${COMPARE_KEY}${COMPRESSED_SUFFIX}`;
+
 export const compareOutputFile = () =>
-  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', COMPARE_KEY);
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', compareStoredKey());
 
 /** The comparison index's URL *on this host*. */
 export const apexCompareUrl = () => `${FRONT_DOOR_URL}${COMPARE_PATH}`;
@@ -1377,13 +1423,22 @@ ${singleItems}
  */
 export const COMPARE_PRODUCT_PREFIX = 'vs__';
 
-/** The ConfigMap key one product's page is stored under. */
+/**
+ * The name one product's page is served *as* — the URI after the `rewrite`,
+ * which is what `gzip_static` appends `.gz` to. Not a key on disk: see
+ * `compareProductStoredKey` for the file, and `COMPRESSED_SUFFIX` for why the
+ * two differ.
+ */
 export const compareProductKey = (productKey) =>
   `${COMPARE_PRODUCT_PREFIX}${comparisonProductSlug(productKey)}.html`;
 
+/** The ConfigMap key one product's page is stored under, gzipped. */
+export const compareProductStoredKey = (productKey) =>
+  `${compareProductKey(productKey)}${COMPRESSED_SUFFIX}`;
+
 /** Where `--write` puts one rendered product page. */
 export const compareProductOutputFile = (productKey) =>
-  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', compareProductKey(productKey));
+  path.join(REPO_ROOT, 'gitops', 'prod', 'front-door', compareProductStoredKey(productKey));
 
 /** One product page's URL on this host. */
 export const apexCompareProductUrl = (productKey) =>
@@ -2755,11 +2810,27 @@ if (isMain) {
     // serves.
     const compareFile = compareOutputFile();
     if (comparisons) {
-      await fs.writeFile(compareFile, comparisons);
-      console.log(`wrote ${path.relative(REPO_ROOT, compareFile)} (${comparisons.length} bytes)`);
+      const stored = compress(comparisons);
+      await fs.writeFile(compareFile, stored);
+      console.log(
+        `wrote ${path.relative(REPO_ROOT, compareFile)} (${stored.length} bytes, ${comparisons.length} uncompressed)`,
+      );
     } else if (await fs.stat(compareFile).then(() => true, () => false)) {
       await fs.rm(compareFile);
-      console.log(`removed ${COMPARE_KEY} (no mirrored comparison pages)`);
+      console.log(`removed ${compareStoredKey()} (no mirrored comparison pages)`);
+    }
+    // The plain sibling from before these keys were compressed. Left behind it
+    // would be dead weight in a ConfigMap this change exists to shrink, and
+    // worse than dead: `gzip_static` prefers the `.gz` but `try_files` and the
+    // catch-all would still find the stale plain copy, so a regeneration that
+    // silently stopped writing one would keep serving the other for as long as
+    // anybody looked.
+    for (const stale of [COMPARE_KEY, ...compareProductPages.map((p) => compareProductKey(p.key))]) {
+      const file = path.join(path.dirname(OUTPUT_FILE), stale);
+      if (await fs.stat(file).then(() => true, () => false)) {
+        await fs.rm(file);
+        console.log(`removed ${stale} (superseded by its .gz)`);
+      }
     }
     // The per-product pages, swept and written on exactly the terms the
     // category pages above are. The sweep is what matters here: a product
@@ -2767,11 +2838,13 @@ if (isMain) {
     // mirror or an author rewords a heading, and without this its page would
     // stay in git, stay in the ConfigMap and stay linked from nothing while
     // still answering its URL with a list this host no longer stands behind.
-    const wantedProducts = new Set(compareProductPages.map((page) => compareProductKey(page.key)));
+    const wantedProducts = new Set(
+      compareProductPages.map((page) => compareProductStoredKey(page.key)),
+    );
     for (const name of await fs.readdir(path.dirname(OUTPUT_FILE))) {
       if (
         name.startsWith(COMPARE_PRODUCT_PREFIX) &&
-        name.endsWith('.html') &&
+        name.endsWith(`.html${COMPRESSED_SUFFIX}`) &&
         !wantedProducts.has(name)
       ) {
         await fs.rm(path.join(path.dirname(OUTPUT_FILE), name));
@@ -2780,8 +2853,11 @@ if (isMain) {
     }
     for (const page of compareProductPages) {
       const file = compareProductOutputFile(page.key);
-      await fs.writeFile(file, page.html);
-      console.log(`wrote ${path.relative(REPO_ROOT, file)} (${page.html.length} bytes)`);
+      const stored = compress(page.html);
+      await fs.writeFile(file, stored);
+      console.log(
+        `wrote ${path.relative(REPO_ROOT, file)} (${stored.length} bytes, ${page.html.length} uncompressed)`,
+      );
     }
   } else {
     process.stdout.write(html);

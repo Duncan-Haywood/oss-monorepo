@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import zlib from 'node:zlib';
 import test from 'node:test';
 
 import path from 'node:path';
@@ -70,6 +71,8 @@ import {
   COMPARE_KEY,
   apexCompareProductUrl,
   compareProductKey,
+  compareProductStoredKey,
+  compareStoredKey,
   apexCompareUrl,
   compareOutputFile,
 } from './front-door.mjs';
@@ -509,7 +512,7 @@ test('every rendered per-product comparison page is mounted by the kustomization
     'utf8',
   );
   for (const page of compareProductPages) {
-    const key = compareProductKey(page.key);
+    const key = compareProductStoredKey(page.key);
     assert.ok(
       kustomization.includes(`- ${key}=front-door/${key}`),
       `gitops/prod/kustomization.yaml must mount ${key}; add it or the page is dark`,
@@ -519,11 +522,11 @@ test('every rendered per-product comparison page is mounted by the kustomization
   // file the generator has swept makes `kustomize build` fail on a missing
   // file, which takes the whole prod Application down rather than one page.
   const mounted = [
-    ...kustomization.matchAll(/- (vs__[a-z0-9-]+\.html)=front-door\//g),
+    ...kustomization.matchAll(/- (vs__[a-z0-9-]+\.html\.gz)=front-door\//g),
   ].map((match) => match[1]);
   assert.deepEqual(
     mounted.sort(),
-    compareProductPages.map((page) => compareProductKey(page.key)).sort(),
+    compareProductPages.map((page) => compareProductStoredKey(page.key)).sort(),
   );
 });
 
@@ -540,7 +543,12 @@ test('the nginx route for a product page agrees with the key it is stored under'
     /location ~ "\^\/compare\/\(\?<vs>\[a-z0-9\]\[a-z0-9-\]\*\)\/\?\$" \{([\s\S]*?)\n  \}/,
   );
   assert.ok(block, 'default.conf must carry the per-product comparison location block');
-  assert.match(block[1], /try_files \/vs__\$\{vs\}\.html =404;/);
+  // `rewrite` + `gzip_static`, not `try_files`: these keys are stored gzipped
+  // and the plain name is on disk nowhere, so `try_files` would stat a missing
+  // file and 404 the whole page type. See `COMPRESSED_SUFFIX` in front-door.mjs.
+  assert.match(block[1], /rewrite \^ \/vs__\$\{vs\}\.html break;/);
+  assert.match(block[1], /gzip_static always;/);
+  assert.match(block[1], /gunzip on;/);
 
   // The capture and the key have to agree on shape too, not just on prefix: a
   // key with a character the location cannot capture is a page nginx will
@@ -553,6 +561,9 @@ test('the nginx route for a product page agrees with the key it is stored under'
       /^vs__[a-z0-9][a-z0-9-]*\.html$/,
       `${key} cannot be produced by the ^/compare/(?<vs>…)/?$ capture, so nothing would ever request it`,
     );
+    // And `gzip_static` looks for exactly that name plus `.gz`, which is the
+    // file the generator writes. A mismatch here is the whole page type dark.
+    assert.equal(compareProductStoredKey(page.key), `${key}.gz`);
   }
 });
 
@@ -2023,7 +2034,7 @@ test('the comparison index is reachable and disclaimed', async () => {
   assert.match(comparisons, /No warranty\./);
   assert.match(comparisons, /Not affiliated with, endorsed by, or reviewed by/);
   assert.equal(apexCompareUrl(), `${FRONT_DOOR_URL}${COMPARE_PATH}`);
-  assert.ok(compareOutputFile().endsWith(COMPARE_KEY));
+  assert.ok(compareOutputFile().endsWith(compareStoredKey()));
   assert.ok(
     comparisons.includes(`<link rel="canonical" href="${apexCompareUrl()}">`),
     'the index must name its own canonical URL',
@@ -2036,8 +2047,16 @@ test('nginx routes /compare/ to the key the generator writes', async () => {
   // dark while the generator, the kustomization and the sitemap all still pass.
   const conf = await fs.readFile(NGINX_CONF_FILE, 'utf8');
   assert.match(conf, /location ~ "\^\/compare\/\?\$" \{/);
-  assert.match(conf, new RegExp(`try_files /${escapeForRegExp(COMPARE_KEY)} =404;`));
+  // `rewrite`, not `try_files`: the key is stored gzipped and the plain name
+  // exists nowhere, so a `try_files` would stat a missing file and 404 before
+  // `gzip_static` ever ran. See `COMPRESSED_SUFFIX` in front-door.mjs.
+  assert.match(conf, new RegExp(`rewrite \\^ /${escapeForRegExp(COMPARE_KEY)} break;`));
+  assert.match(conf, /gzip_static always;/);
+  assert.match(conf, /gunzip on;/);
   assert.equal(`${COMPARE_PATH.replace(/\/$/, '')}.html`, COMPARE_KEY);
+  // And the rewritten name plus `.gz` is what is actually on disk — the two
+  // halves of `gzip_static`'s lookup, which nothing else states in one place.
+  assert.equal(compareStoredKey(), `${COMPARE_KEY}.gz`);
 });
 
 test('the kustomization mounts the comparison index', async () => {
@@ -2046,17 +2065,23 @@ test('the kustomization mounts the comparison index', async () => {
     'utf8',
   );
   assert.ok(
-    kustomization.includes(`- ${COMPARE_KEY}=front-door/${COMPARE_KEY}`),
-    `gitops/prod/kustomization.yaml must mount ${COMPARE_KEY}; add it or the page is dark`,
+    kustomization.includes(`- ${compareStoredKey()}=front-door/${compareStoredKey()}`),
+    `gitops/prod/kustomization.yaml must mount ${compareStoredKey()}; add it or the page is dark`,
   );
 });
 
 test('the committed comparison index matches what this generator produces', async () => {
   const { comparisons } = await buildFrontDoor();
+  // Compared after inflating rather than by re-gzipping and matching bytes:
+  // the committed artifact is what a visitor receives, and that is the HTML,
+  // not one particular encoder's framing of it. `GZIP_LEVEL` and the pinned
+  // `GZIP_HEADER` in front-door-tools.mjs are what keep the stored bytes
+  // reproducible; this test is about the content.
+  const stored = await fs.readFile(compareOutputFile());
   assert.equal(
-    await fs.readFile(compareOutputFile(), 'utf8'),
+    zlib.gunzipSync(stored).toString('utf8'),
     comparisons,
-    'gitops/prod/front-door/compare.html is stale — run: node platform/marketing/regen.mjs',
+    'gitops/prod/front-door/compare.html.gz is stale — run: node platform/marketing/regen.mjs',
   );
 });
 

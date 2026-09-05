@@ -594,10 +594,15 @@ def test_the_comparison_index_and_its_product_pages_serve(front_door: str) -> No
     # The slashless spelling a person typing the address produces, on both.
     assert _get_with_error_body(front_door + "/compare")[0] == 200
 
+    # `.html.gz`, not `.html`: these keys are stored gzipped and served by
+    # `gzip_static`, so the uncompressed name exists nowhere on disk. Reading
+    # for `.html` finds nothing and this loop would pass over an empty set —
+    # which is why the assertion below is on the set being non-empty rather
+    # than only on what each member does.
     products = sorted(
-        key[len("vs__") : -len(".html")]
+        key[len("vs__") : -len(".html.gz")]
         for key in _front_door_configmaps()["portfolio-front-html"]
-        if key.startswith("vs__") and key.endswith(".html")
+        if key.startswith("vs__") and key.endswith(".html.gz")
     )
     assert products, "no per-product comparison pages are mounted, so there is nothing to route"
     for product in products:
@@ -608,6 +613,23 @@ def test_the_comparison_index_and_its_product_pages_serve(front_door: str) -> No
             # capture that leaked would still answer 200 with the wrong page.
             assert b"<h1>" in body, url_path
             assert "max-age=300" in (headers.get("Cache-Control") or ""), url_path
+
+    # The `gunzip on` half, which is the one that fails silently for the people
+    # least able to report it. These keys are stored gzipped and there is no
+    # plain sibling, so a client that does not send `Accept-Encoding: gzip`
+    # gets whatever nginx decides to do about that — and if `gunzip` were off
+    # it would be gzip bytes labelled `text/html`, which renders as binary
+    # garbage. Both directions are asserted because only one of them is the
+    # common case in a browser.
+    sample = products[0]
+    status, headers, body = _get(f"{front_door}/compare/{sample}/", gzip_ok=True)
+    assert status == 200
+    assert (headers.get("Content-Encoding") or "") == "gzip", "gzip_static did not serve the .gz"
+
+    status, headers, body = _get(f"{front_door}/compare/{sample}/", gzip_ok=False)
+    assert status == 200
+    assert not headers.get("Content-Encoding"), "a client that cannot take gzip was sent gzip"
+    assert b"<!doctype html>" in body.lower(), "the body was not inflated for a non-gzip client"
 
 
 def test_a_swept_product_page_404s_rather_than_serving_a_different_one(front_door: str) -> None:
