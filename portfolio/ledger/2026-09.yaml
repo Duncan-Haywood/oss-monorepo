@@ -12680,3 +12680,46 @@ entries:
         public surface itself is restored (currently down, see CLAUDE.md),
         and via the refreshed gh-pages branch once GitHub Pages is enabled.
     mrr_end: null
+  - venture: pergola-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added a "Copy share link" feature (PR #3341), the same pattern
+        already shipped on retaining-wall-bid-calculator,
+        mold-remediation-bid-calculator, and 100+ other ventures in the
+        portfolio: a new share.mjs with encodeInputs/decodeInputs round-trips
+        every geometry, hour, cost, and rate field (40 numeric fields, 4
+        boolean toggles, and the attachment/shade/height enum selects
+        validated against calc.mjs's own preset ids) through a URL fragment,
+        never sent to a server, and rejects unknown keys, invalid enum
+        values, and negative/non-numeric values rather than carrying them
+        into the form. Lets a contractor hand a second estimator, an office
+        manager, or a homeowner the exact job instead of only a screenshot
+        of the headline price. Wired a "Copy share link" button into
+        index.html, with the established copyLink()/restoreShare() pair and
+        dataset.edited guards so a later attachment/shade/height change
+        never clobbers a value a restored link explicitly carried. Picked
+        this venture because it had the identical file shape (calc.mjs +
+        proposal.mjs, no share.mjs) to the calculators that already got this
+        feature, and no open PR or active branch touched it. Before this,
+        checked the open-PR/branch queue per CLAUDE.md's mandatory drain
+        step: 0 open PRs, and an exhaustive supersede_check.py pass over all
+        232 branches with unique commits (independently re-confirming a
+        same-day earlier session's identical finding, see the
+        github-actions-runners reading in infra_state.yaml) found nothing
+        repairable -- every branch was either already landed on main under a
+        different name/PR, or a stale draft main has since overtaken.
+        Verified: `node --test ventures/pergola-bid-calculator/*.test.mjs`
+        (86/86, including 9 new share tests), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1124/1124),
+        and `node platform/marketing/regen.mjs` to refresh the served
+        front-door mirror. GitHub Actions runners are starved today
+        (ci_starvation.py exits 1 on a fresh dispatch), so this stands in for
+        CI per "absent CI is not failed CI". Separately notified the owner
+        that Hetzner deployment, self-hosted CI, and the Codex-worker-on-VM
+        setup they asked about are all blocked on the same owner-only action
+        (#3184, rotating HETZNERSSHKEY) -- the Codex host-mode worker
+        (gitops/agents/host/) is already built and tested but not yet
+        installed on the boxes, which needs SSH.
+    mrr_end: null
