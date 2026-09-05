@@ -87,3 +87,18 @@ test("the result panel is announced to screen readers when it updates", () => {
     "the result section is not a live region, so updates are never announced",
   );
 });
+
+test("the share link wires encode, terms, and restore, not just the button", () => {
+  // A button with no wiring behind it is worse than no button: it tells a
+  // tech the feature exists. This is the source-level half of what
+  // `platform/proposal/term-ids.test.mjs` checks across every venture.
+  assert.match(html, /import \{ encodeInputs, decodeInputs \} from '\.\/share\.mjs'/);
+  assert.match(html, /withTerms\(/, "copyLink does not fold the proposal terms into the link");
+  assert.match(html, /splitTerms\(/, "restoreShare does not separate the terms from the venture payload");
+  assert.match(html, /applyTerms\(/, "a restored link does not write the terms back onto the panel");
+  assert.match(html, /readTerms\(/, "copyLink does not read the terms currently on the panel");
+  assert.match(html, /overlongTermsNote\(/, "a term dropped for length is not named back to the sender");
+  assert.match(html, /restoreShare\(\)/, "restoreShare is defined but never called on load");
+  assert.match(html, /id="copyLink"/, "the share-link button is missing");
+  assert.match(html, /s\.setItem\(DRAFT_KEY/, "the quote draft is not kept on the visitor's own device between visits");
+});

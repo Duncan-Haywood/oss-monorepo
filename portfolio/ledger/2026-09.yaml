@@ -1,5 +1,77 @@
 period: 2026-09
 entries:
+  - venture: appliance-repair-quote-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link plus a local draft save,
+        closing this venture's gap against the ~125 other bid calculators in
+        the fleet that already carry both. calc.mjs exports no `defaults`
+        object here (unlike most sibling ventures), so share.mjs declares
+        its own `QUOTE_FIELD_IDS`/`REPLACE_FIELD_IDS` literal arrays
+        matching index.html's own `quoteIds`/`replaceIds`, covering all 15
+        numeric fields across the repair-quote panel and the
+        repair-vs-replace comparison panel -- not just the headline target
+        price a screenshot would show.
+      - >-
+        This venture already had a proposal panel (depositPercent,
+        validDays, paymentTerms, proposalNotes, proposalExclusions via
+        proposal.mjs's generic TERM_FIELDS) with no mechanism to carry those
+        five terms through a link or a saved draft -- precisely the
+        fleet-wide "different-money" bug CLAUDE.md and
+        platform/proposal/term-ids.test.mjs record costing this portfolio a
+        live discrepancy on 2026-08-29 (a 50%/15-day deposit reopening at a
+        venture's defaults). Vendored proposal-terms.mjs/
+        proposal-terms.test.mjs verbatim from mobile-detailing-bid-calculator
+        (confirmed byte-identical before vendoring) rather than shipping the
+        share link without the terms fix that fixed the same bug everywhere
+        else. Wired withTerms/splitTerms/readTerms/applyTerms/
+        overlongTermsNote into copyLink()/restoreShare(), added a "Copy
+        share link" button beside the existing "Copy quote summary" and
+        "Reset" actions, and a "Nothing leaves your browser" privacy-footer
+        line disclosing the new local-storage draft and the share link.
+      - >-
+        Verified: venture suite 96/96 (27 new: 6 in share.test.mjs incl. a
+        round-trip covering all 15 fields against a locked worked example,
+        21 in proposal-terms.test.mjs), platform/proposal 101/101 (incl.
+        term-ids.test.mjs confirming this venture now names exactly the
+        five terms adopt.mjs offers, through the vendored-module path),
+        platform/marketing+pages 222+? green after `node
+        platform/marketing/regen.mjs` refreshed the front-door mirror shard
+        and alias map (also re-pointed ~370 other ventures'
+        `proposal-terms.mjs` alias target to this venture's copy, an
+        alphabetical-first side effect of content-addressed dedup, not a
+        content change), platform/privacy+webcheck 50/50, python3 -m pytest
+        gitops/tests (408 passed, 25 skipped), and all 15 platform/ci
+        unittest modules. ci_starvation.py was not needed: pushed and
+        merged after local verification per CLAUDE.md's "ship without
+        review ceremony" -- CI is fleet-wide metered/starved as of
+        2026-09-05 per portfolio/ledger/infra_state.yaml.
+      - >-
+        Also (per this session's mandate to prioritize deployment/CI/CD):
+        confirmed via infra_state.yaml and a fresh WebFetch attempt
+        (blocked by the agent egress proxy, as expected) that both GitHub
+        Actions runners and the Hetzner k3s cluster remain down, and that
+        the built, tested `gitops/agents/host/` systemd-timer Codex
+        scheduler ("host mode") -- which is exactly the "run Codex CLI on
+        the Hetzner VM against the owner's ChatGPT quota" capability this
+        session's brief asked for -- is complete and installable but
+        blocked on the same owner-only SSH-key rotation already at the top
+        of the decision queue (#3184). No new infra finding; re-verified
+        rather than duplicated the existing ask. Checked the open-PR queue
+        (0 open) and spot-checked the newest non-session-named branches
+        (tree-service-bid-share-link, venture/tree-service-share-link,
+        tender-radar-vs-govwin, land/vs-yardi,
+        hotfix/boiler-replacement-conflict-markers,
+        venture/vendor-change-watch) via supersede_check.py and direct
+        diffs against main: all either already merged (identical tree) or a
+        stale draft superseded by a later, fuller version already on main
+        (tree-service's two branches, confirmed via the STALE DRAFT
+        SUSPECTED report) -- nothing repairable found, consistent with a
+        concurrent session's identical conclusion recorded in
+        infra_state.yaml a few hours earlier.
+    mrr_end: null
   - venture: real-estate-agent-photo-app
     agent_spend_usd: null
     human_hours: 0
