@@ -11286,3 +11286,128 @@ entries:
         this ships to `main` as code only, ready to serve once the
         owner's infra fix lands.
     mrr_end: null
+  - venture: electrical-panel-upgrade-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shareable private quote link, the eighth venture closing this gap
+        after `spray-foam-bid-calculator`, `basement-waterproofing-bid-
+        calculator` (#3262), `cabinet-refinishing-bid-calculator` (#3265,
+        merged as `8bae18000`), `carpet-cleaning-bid-calculator` (#3266,
+        merged as `effadfdbc`), `concrete-lifting-bid-calculator` (#3268,
+        merged as `12e9812c0`), `countertop-bid-calculator` (#3271, merged
+        as `48b682306`), and `duct-cleaning-bid-calculator` (#3272, merged
+        as `43cffd85b`) -- an electrician comparing a takeoff with a
+        homeowner, property manager, or GC had no way to send a link that
+        reopens the exact job instead of the recipient retyping existing
+        and new amps, service path, panel style, panel location, feeder
+        feet, circuit count, AFCI/GFCI count, meter socket / grounding /
+        temporary power, and every hour and rate. Read `calc.mjs` fully
+        first: this venture prices a fixed field set -- no visitor-grown
+        list of circuits or fixtures -- so the plain "one query param per
+        field" pattern from cabinet-refinishing/basement-waterproofing/
+        spray-foam/concrete-lifting/countertop/duct-cleaning applies
+        directly rather than carpet-cleaning's row encoding. Built
+        `share.mjs`/`share.test.mjs` (7 tests): 33 numeric cost/rate
+        fields as allowlisted query params, 3 boolean checkboxes
+        (`replaceMeterSocket`, `newGrounding`, `temporaryPower`)
+        travelling as `'1'`/`'0'` the same way basement-waterproofing's
+        new-pit/freeze-discharge/dehumidifier checkboxes do, and three
+        enums (`service`, `panelStyle`, `location` -- this venture has
+        three select fields where duct-cleaning and most siblings have
+        only one `jobType`) each validated against `calc.mjs`'s own
+        `SERVICE_PRESETS`/`PANEL_STYLE_PRESETS`/`LOCATION_PRESETS` ids
+        rather than a hand-duplicated list -- the same drift guard
+        concrete-lifting's `method`/`access` enums use, generalised from a
+        single `usableEnum` call to an `ENUM_FIELDS` map keyed by id. An
+        AFCI count of zero and `temporaryPower: false` round-trip as-is
+        rather than being dropped as falsy -- they are the job, not an
+        error. This venture's proposal panel already carried
+        `depositPercent`, `validDays`, `paymentTerms`, `proposalNotes`,
+        and `proposalExclusions` -- `platform/proposal/terms.mjs`'s
+        five-field spec, confirmed against `proposal.mjs`'s own
+        `TERM_FIELDS` constant -- so vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified from
+        `duct-cleaning-bid-calculator` (confirmed byte-identical with
+        `diff`) so all five terms ride in the link instead of silently
+        reverting to this venture's defaults on the recipient's end.
+        Added a "Copy share link" button and an on-load `restoreShare()`
+        to `index.html`: `readInput()` already returns every FIELD_IDS,
+        FLAG_IDS, and `SELECT_IDS` value the encoder needs, so `copyLink`
+        calls it directly; `restoreShare()` writes the three selects,
+        every FIELD_IDS value, and every FLAG_IDS checkbox back onto the
+        form, called immediately before the page's first `update()` so a
+        shared link's exact numbers win over the page's static HTML
+        defaults. Fixed the "Is my data uploaded anywhere?" FAQ entry
+        (visible copy and FAQPage JSON-LD, byte-identical per
+        `platform/pages/faq-visible.test.mjs`'s divergence scan -- this
+        venture's old copy claimed the bid was "saved in this browser's
+        local storage" with no mention of a link, which was true until
+        this change), the footer privacy paragraph, and the
+        SoftwareApplication `featureList` to name the new link. This
+        venture had no share control and was not offered the platform's
+        generic auto-injected bid link (confirmed by grepping the built
+        page for `pf-link`, which is absent post-build while
+        `copyLink`/`share.mjs` are present) -- `pageHasOwnShareLink`
+        detects the new `share.mjs` import and "Copy share link" text and
+        defers to it, and `build.mjs` is passed the venture's own
+        `share.mjs` on disk as `hasShareModule` so the generic injection
+        never runs regardless of markup detection. This venture is not
+        one of `link.test.mjs`'s named itemised calculators, so that
+        pinned count is untouched and no opt-out was needed. Ran
+        `platform/pages/build.mjs` before `node
+        platform/marketing/regen.mjs`, per the ordering gotcha the
+        countertop/duct-cleaning PRs documented -- a first `regen.mjs`
+        pass ahead of `build.mjs` would have mirrored a stale
+        `dist/electrical-panel-upgrade-bid-calculator/index.html` and
+        failed `front-door-tools.test.mjs`'s "committed mirror matches
+        the generator" check; running `build.mjs` first avoided that
+        failure entirely. `origin/main` moved once mid-session (a
+        vs-Healthchecks.io comparison page for a different venture,
+        #3273); rebased cleanly onto it and re-ran `build.mjs` +
+        `regen.mjs` fresh against the new base before this final append
+        (checked immediately before appending this entry, and again
+        immediately before pushing). Verified: venture's own suite
+        106/106 (includes `calc.test.mjs`, `proposal.test.mjs`,
+        `proposal-terms.test.mjs`, `share.test.mjs`, `usage.test.mjs`,
+        `vs-servicetitan.test.mjs`, `page.test.mjs`);
+        `platform/proposal/*.test.mjs` 97/97; full `platform/pages` suite
+        883/884 (the one failure, `mcp-supply-chain-watch/vs-snyk.html`'s
+        FAQ divergence -- an em-dash-vs-double-hyphen mismatch -- is
+        pre-existing on `main`: that page is generated from
+        `ventures/mcp-supply-chain-watch/site/vs-snyk.html`, added by
+        PR #3270 before this session started and untouched by this
+        branch's `git status`); full `platform/marketing` suite 211/211;
+        `platform/pages/build.mjs` + `check.mjs` on a full site build --
+        "174 products, 688 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid;
+        `node platform/pages/clauses.mjs
+        electrical-panel-upgrade-bid-calculator` -- no-warranty clause
+        present on all 3 published pages. `git status` after the fresh
+        regen touched only this venture's own mirror shard (new
+        `share.mjs.gz` and updated `index.html.gz` entries), the mirror
+        kustomization, the nginx alias map, and `portfolio-front.yaml`
+        gaining a tenth shard mount (the mirror was already at 97-100%
+        per-shard capacity before this change) -- no unrelated venture's
+        shard content changed. Manually exercised the round trip outside
+        the test framework too, driving `calc.mjs`/`share.mjs` directly
+        with a full-field sample bid (100A to 200A underground upgrade,
+        meter-main panel, finished-space location, 40 ft feeder, 20
+        circuits, 20 AFCI/GFCI, meter socket replacement + new grounding
+        + temporary power all checked, a $4,500 proposed price to compare
+        against): encoded, decoded, and confirmed all 33 numeric fields,
+        all 3 boolean flags, and all 3 enums matched the sender's input
+        exactly, and the recipient's recalculated price matched the
+        sender's to the cent ($11,252.61 both sides) -- the exact failure
+        this feature exists to prevent. GitHub Actions is documented in
+        this repo's CLAUDE.md as starved (cycling with the monthly
+        Actions minute allowance) and the Hetzner cluster as down
+        (`:6443` refused, no k3s API server) -- both pre-diagnosed,
+        owner-blocked, not re-diagnosed here per CLAUDE.md's explicit
+        instruction to cite rather than re-verify -- so all of the above
+        is local verification standing in for CI per CLAUDE.md's "absent
+        CI is not failed CI" rule. Not deployed: the public surface is
+        down (see CLAUDE.md), so this ships to `main` as code only, ready
+        to serve once the owner's infra fix lands.
+    mrr_end: null
