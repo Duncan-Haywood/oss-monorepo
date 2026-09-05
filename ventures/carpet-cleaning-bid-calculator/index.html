@@ -345,7 +345,7 @@
       .join('');
     const SOIL_OPTIONS = SOIL_PRESETS
       .map((preset) => `<option value="${preset.id}">${preset.label} (${preset.rate} sq ft/h)</option>`)
-      .join('');
+      .join('') + '<option value="custom">Custom rate</option>';
     const UPH_OPTIONS = UPHOLSTERY_PRESETS
       .map((preset) => `<option value="${preset.label}">${preset.label}</option>`)
       .join('') + '<option value="other">Other piece</option>';
@@ -371,8 +371,16 @@
       const rateField = row.querySelector('.r-rate');
       nameField.value = ROOM_NAME_PRESETS.includes(room.name) ? room.name : 'Other room';
       row.querySelector('.r-sqft').value = room.squareFeet;
-      const soil = SOIL_PRESETS.find((preset) => preset.rate === room.productionRate) || SOIL_PRESETS[1];
-      soilField.value = soil.id;
+      // A rate with no matching preset is shown as "Custom rate", not
+      // silently relabeled to whichever preset happens to sit at index 1.
+      // A room shared at a custom (e.g. heavily soiled) rate must not read
+      // back as "Normal household soil" on the recipient's screen -- the
+      // same plausible-but-wrong-label risk `roundtrip.mjs` exists to catch,
+      // just on a select that is a display convenience rather than the
+      // carried value itself (the real number, `room.productionRate`,
+      // already round-trips correctly via share.mjs).
+      const soil = SOIL_PRESETS.find((preset) => preset.rate === room.productionRate);
+      soilField.value = soil ? soil.id : 'custom';
       rateField.value = room.productionRate;
       row.querySelector('.r-pet').checked = Boolean(room.petTreatment);
 

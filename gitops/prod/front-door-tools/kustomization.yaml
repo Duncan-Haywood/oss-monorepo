@@ -36,10 +36,10 @@
 #   portfolio-front-tools-0: 132 files, 555221 bytes
 #   portfolio-front-tools-1: 117 files, 555818 bytes
 #   portfolio-front-tools-2: 146 files, 543020 bytes
-#   portfolio-front-tools-3: 116 files, 553593 bytes
-#   portfolio-front-tools-4: 128 files, 556437 bytes
+#   portfolio-front-tools-3: 116 files, 553855 bytes
+#   portfolio-front-tools-4: 128 files, 557032 bytes
 #   portfolio-front-tools-5: 117 files, 556871 bytes
-#   portfolio-front-tools-6: 105 files, 552606 bytes
+#   portfolio-front-tools-6: 106 files, 556493 bytes
 #   portfolio-front-tools-7: 118 files, 554964 bytes
 #   portfolio-front-tools-8: 95 files, 541345 bytes
 #   portfolio-front-tools-9: 64 files, 338947 bytes
@@ -862,6 +862,7 @@ configMapGenerator:
       - hood-cleaning-bid-calculator__calc.mjs.gz=hood-cleaning-bid-calculator__calc.mjs.gz
       - hood-cleaning-bid-calculator__how-much-to-charge.html.gz=hood-cleaning-bid-calculator__how-much-to-charge.html.gz
       - hood-cleaning-bid-calculator__index.html.gz=hood-cleaning-bid-calculator__index.html.gz
+      - hood-cleaning-bid-calculator__share.mjs.gz=hood-cleaning-bid-calculator__share.mjs.gz
       - hood-cleaning-bid-calculator__usage.mjs.gz=hood-cleaning-bid-calculator__usage.mjs.gz
       - hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz=hood-cleaning-bid-calculator__vs-hoodcleaningdispatch.html.gz
       - hood-cleaning-bid-calculator__vs-hoodcleanpro.html.gz=hood-cleaning-bid-calculator__vs-hoodcleanpro.html.gz

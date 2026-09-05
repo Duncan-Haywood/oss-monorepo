@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -66,4 +66,17 @@ test("sitemap and robots list the browser page", () => {
   assert.match(sitemap, /einvoice-preflight\/index.html/);
   assert.match(robots, /Allow: \//);
   assert.match(robots, /Sitemap: sitemap.xml/);
+});
+
+// Regression: sitemap.xml carried a trailing entry pointing at README.md (a
+// raw github.com/blob URL, not a servable page) even after the venture had
+// real HTML pages. A crawler following it wastes a fetch on prose instead of
+// the product, and every .html page the venture actually ships should be
+// reachable from the sitemap it publishes.
+test("sitemap does not point at README.md and lists every shipped html page", () => {
+  assert.doesNotMatch(sitemap, /README\.md/);
+  const htmlFiles = readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
+  for (const name of htmlFiles) {
+    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+  }
 });

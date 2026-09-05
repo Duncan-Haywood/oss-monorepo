@@ -349,20 +349,26 @@ async function roundTrip(browser, slug) {
       const flat = String(value).replace(/\s+/g, ' ').trim();
       return flat.length > 40 ? `${flat.slice(0, 40)}…` : flat;
     };
-    // A preset select that comes back empty or as `other` is not a finding, and
-    // the README has said so since this file shipped — the recipient now holds
-    // custom rates, and "Choose a starting job…" or `other` is the honest label
-    // for them. Carrying the preset id instead would re-apply it on arrival and
-    // write the venture's kit figures over the sender's own, which is the exact
-    // defect #1984 repaired on `amazon-fba-calculator`.
+    // A preset select that comes back empty, as `other`, or as `custom` is not
+    // a finding, and the README has said so since this file shipped — the
+    // recipient now holds custom rates, and "Choose a starting job…", `other`,
+    // or `custom` is the honest label for them. Carrying the preset id instead
+    // would re-apply it on arrival and write the venture's kit figures over the
+    // sender's own, which is the exact defect #1984 repaired on
+    // `amazon-fba-calculator`. `custom` joined this list once
+    // `carpet-cleaning-bid-calculator`'s room "soil" select stopped silently
+    // relabeling an unmatched rate as a specific preset ("Normal household
+    // soil") and started saying "Custom rate" instead — `garage-door-bid-calculator`'s
+    // `DOOR_SIZE_PRESETS` already used `custom` as this same honest label before
+    // this file recognized it.
     //
     // Implemented rather than left as prose because a probe that reports 39
     // known-benign failures is a probe whose 40th, real one goes unread. The
     // teeth stay: every field such a select would have written is compared like
     // any other, so a preset that took the rates with it still fails here.
     const selectIds = new Set(selects.map((select) => select.id));
-    const presetHandback = (id) =>
-      selectIds.has(id) && (after[id] === '' || after[id] === 'other');
+    const HANDBACK_VALUES = new Set(['', 'other', 'custom']);
+    const presetHandback = (id) => selectIds.has(id) && HANDBACK_VALUES.has(after[id]);
 
     const dropped = Object.keys(before)
       .filter((id) => !NOT_IN_A_LINK.has(id) && id in after && !sameValue(before[id], after[id]))

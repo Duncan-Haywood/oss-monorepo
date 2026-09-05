@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
+import { readdirSync } from 'node:fs';
 
 const html = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
@@ -59,5 +60,19 @@ test('every visible FAQ question also appears in the FAQPage block', () => {
       schema.includes(JSON.stringify(question).slice(1, -1)),
       `visible question is missing from the FAQPage block: ${question}`,
     );
+  }
+});
+
+// Regression: sitemap.xml was missing is-this-medical-courier-route-worth-it.html,
+// a real page linked from index.html, so a crawler following robots.txt ->
+// sitemap.xml never discovered it. Same defect class fixed for
+// public-record-watch in #3289.
+test('every .html file in the venture is reachable from the sitemap', () => {
+  const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
   }
 });

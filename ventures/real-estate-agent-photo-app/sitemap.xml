@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>./README.md</loc></url>
+  <url><loc>./site/</loc></url>
+  <url><loc>./site/why-was-my-listing-photo-rejected.html</loc></url>
 </urlset>
