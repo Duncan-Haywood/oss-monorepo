@@ -12228,3 +12228,43 @@ entries:
         to `main` as code only, ready to serve once the owner's infra fix
         lands.
     mrr_end: null
+  - venture: public-record-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a broken sitemap.xml that made the whole product undiscoverable.
+        `sitemap.xml` still read `<url><loc>./README.md</loc></url>` only --
+        a leftover from before this venture had any HTML at all -- even
+        though #2201 shipped a full browser front end (index.html) and
+        #2039/#2043 later added an FAQ landing page
+        (how-do-i-track-changes-to-a-public-register.html). robots.txt
+        points crawlers straight at this sitemap, so every search engine and
+        AI assistant following it since 2026-08 found a markdown file and
+        never learned the tool itself existed -- a direct miss on
+        PRODUCT_PLAYBOOK.md's discoverability checklist ("a sitemap... that
+        lets assistants crawl" is part of v0's definition of done, not a
+        later step). Replaced the two stale entries with the real product
+        pages (`./` and the FAQ page) and added two regression tests to
+        page.test.mjs: one asserting the sitemap never again points at
+        README.md and does list both real pages, and one that walks every
+        .html file in the venture directory asserting it is reachable from
+        the sitemap, so a future added page fails CI here if its author
+        forgets this file the way #2201 did. Verified: `node --test` in the
+        venture (25/25 passing, up from 23, both new tests exercised and
+        green), `python3 -m unittest discover -s tests -v` for the untouched
+        Python CLI side (7/7 passing), `node platform/webcheck/check_pages.mjs`
+        across the whole repo (692/692 pages sound, no regression), and the
+        sitemap.xml parses as well-formed XML. GitHub Actions is starved per
+        CLAUDE.md (cross-checked against the documented starvation signature
+        rather than re-diagnosed), so all verification above is local,
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI" rule.
+        While scoped to this one venture per this session's brief, the same
+        pattern (a real page shipped, sitemap never updated to list it) was
+        found by grep across roughly 15-18 other ventures during triage
+        (e.g. vendor-change-evidence and real-estate-agent-photo-app both
+        carry the identical "README.md only" sitemap; several bid-calculator
+        ventures are missing just their newest vs-*.html comparison page) --
+        left for a future session rather than expanded here to keep this PR
+        to one focused, reviewable fix.
+    mrr_end: null
