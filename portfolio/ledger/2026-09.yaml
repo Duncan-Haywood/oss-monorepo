@@ -10567,3 +10567,59 @@ entries:
         "absent CI is not failed CI" rule. Not deployed: the public surface
         is down (see CLAUDE.md), so this ships to `main` as code only.
     mrr_end: null
+  - venture: well-pump-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, closing the gap a portfolio
+        survey (ledger'd against #3209/#3210) found in ~37 of the
+        `*-bid-calculator` ventures: `share.mjs` already existed in 65+
+        siblings so a shop could send a link that reopens the exact bid a
+        partner or office manager needs to see, but this one had no way to
+        do that -- a screenshot of the headline price was the only option,
+        and retyping thirty-plus numbers is how a comparison never happens.
+        Ported the pattern used by `fireplace-insert-bid-calculator`:
+        `share.mjs`/`share.test.mjs` (pure allowlisted encode/decode of the
+        calculator's 28 numeric fields, 2 flags, and the `type`/`work`/`hp`/
+        `pitless` enums, enums validated against `calc.mjs`'s own preset ids
+        rather than a hand-duplicated list); vendored `proposal-terms.mjs`/
+        `proposal-terms.test.mjs` unmodified so the deposit, price-hold
+        window, and the three proposal-panel prose fields ride in the link
+        instead of silently reverting to the venture's defaults on the
+        recipient's end (the "different money on acceptance" bug
+        `platform/proposal/terms.mjs` documents from 2026-08-29); a "Copy
+        share link" button and on-load decode in `index.html`; a matching
+        FAQ entry (visible copy and FAQPage JSON-LD both) and footer/
+        featureList mentions so the privacy claim ("nothing leaves your
+        browser") stays honest about what a share link carries. Regenerated
+        the front-door-tools mirror (`front-door-tools.mjs --write`) since
+        the venture's file set changed -- new `share.mjs` shard, updated
+        `index.html` shard. Verified: venture's own suite 102/102 (was 92);
+        `platform/proposal/*.test.mjs` 97/97; `term-ids.test.mjs` 4/4 (both
+        the shared-spec and vendored-module drift checks); full
+        `platform/pages` suite 880/880; full `platform/marketing` suite
+        208/208; `platform/pages/build.mjs` + `check.mjs` on a full site
+        build -- "680 pages, no dead links"; `python3
+        portfolio/router/validate.py` -- all 183 VENTURE.yaml valid; `node
+        platform/pages/clauses.mjs well-pump-bid-calculator` -- no-warranty
+        clause present on all 3 published pages; manually exercised the
+        primary journey end-to-end outside a browser (no display in this
+        session) by driving `calc.mjs`/`share.mjs`/`proposal-terms.mjs`
+        directly: encoded a sender's bid (280 ft, seized pitless, stuck
+        pump, VFD, 50% deposit, 15-day hold, custom payment terms) into a
+        link, decoded it back, and confirmed the recipient's calculated
+        price matched the sender's to the cent with the deposit and terms
+        intact -- the exact failure this feature exists to prevent.
+        `kustomize`/`kubeconform` not available in this session to run
+        `gitops/tests` directly (same gap prior sessions noted); ran
+        `gitops/tests/test_front_door_serving.py` instead, which needs
+        neither (1 passed, 16 skipped on the missing binaries). GitHub
+        Actions confirmed starved this session and the Hetzner cluster is
+        confirmed down -- both pre-diagnosed, owner-blocked, not
+        re-investigated here -- so all of the above is local verification
+        standing in for CI per CLAUDE.md's "absent CI is not failed CI"
+        rule. Not deployed: the public surface is down (see CLAUDE.md), so
+        this ships to `main` as code only, ready to serve once the owner's
+        infra fix lands.
+    mrr_end: null
