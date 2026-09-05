@@ -13913,3 +13913,50 @@ entries:
         A fresh build.mjs/check.mjs run after regen still reports 716 pages,
         no dead links.
     mrr_end: null
+  - venture: mobile-detailing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable private quote link, the same share-link template
+        already on stucco-repair-bid-calculator, sewer-hydrojet-bid-calculator,
+        pool-plaster-bid-calculator and vinyl-liner-bid-calculator, adapted to
+        this venture's own shape: calc.mjs has no presets or checkboxes, so
+        share.mjs derives its whole field list as `Object.keys(defaults)` --
+        the same list index.html already uses for readInput/persist/restore --
+        rather than retyping the 13 fields by hand. Vendored
+        proposal-terms.mjs/proposal-terms.test.mjs unchanged (confirmed
+        byte-identical to vinyl-liner-bid-calculator's copy before vendoring).
+        Discovered and resolved a real conflict before wiring anything: this
+        venture's own page.test.mjs, from #1986 (2026-08-29), forbade an inline
+        `location.hash`-reading copyLink button because at that time the page
+        had one with no share module behind it, dropping the proposal's five
+        terms -- the fix then was to delete it and rely on
+        platform/pages/link.mjs's generic build-injected bid-link control
+        instead (which only reaches the GitHub Pages hub build, not the
+        front-door mirror this venture is actually served from). Confirmed via
+        pageHasOwnShareLink in platform/pages/link.mjs that a venture shipping
+        a real share.mjs is the designed carve-out -- the generic injector
+        stands down for it, the same as it does for vinyl-liner and the other
+        47 hand-wired ventures -- so replaced that one stale test with the
+        standard share-wiring assertions instead of leaving a contradiction on
+        main. Wired a "Copy share link" button beside "Reset example",
+        restoreShare() running after the device's own localStorage draft
+        restore so an explicitly shared link wins, and a
+        "Nothing leaves your browser" privacy-footer line matching the
+        sibling ventures.
+        Verified: venture suite 102/102 (27 new in share.test.mjs incl. a
+        round-trip against calc.mjs's own `defaults`, 21 in
+        proposal-terms.test.mjs), platform/proposal 101/101 (incl.
+        term-ids.test.mjs confirming this venture now carries all five
+        proposal terms through its link), platform/marketing+pages
+        1126/1126, platform/privacy+webcheck 50/50, python3 -m pytest
+        gitops/tests (408 passed, 25 skipped, unchanged from baseline) since
+        regen.mjs rewrote gitops/prod/front-door* and the mobile-detailing
+        mirror shard. A scripted round-trip (encode a full 13-field job plus
+        a 50%/15-day/prose-terms proposal, decode fresh) reproduced every
+        input and all five terms unchanged on the recipient side.
+        ci_starvation.py was not needed: pushed and merged after local
+        verification per CLAUDE.md's "ship without review ceremony", CI
+        currently metered/starved fleet-wide.
+    mrr_end: null
