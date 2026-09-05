@@ -42,7 +42,7 @@
 #   portfolio-front-tools-6: 106 files, 554577 bytes
 #   portfolio-front-tools-7: 120 files, 556764 bytes
 #   portfolio-front-tools-8: 97 files, 542893 bytes
-#   portfolio-front-tools-9: 83 files, 440734 bytes
+#   portfolio-front-tools-9: 84 files, 443814 bytes
 #   portfolio-front-tools-10: 54 files, 279301 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -1258,6 +1258,7 @@ configMapGenerator:
       - vinyl-liner-bid-calculator__calc.mjs.gz=vinyl-liner-bid-calculator__calc.mjs.gz
       - vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz=vinyl-liner-bid-calculator__how-much-to-charge-to-replace-a-pool-liner.html.gz
       - vinyl-liner-bid-calculator__index.html.gz=vinyl-liner-bid-calculator__index.html.gz
+      - vinyl-liner-bid-calculator__share.mjs.gz=vinyl-liner-bid-calculator__share.mjs.gz
       - vinyl-liner-bid-calculator__usage.mjs.gz=vinyl-liner-bid-calculator__usage.mjs.gz
       - vinyl-liner-bid-calculator__vs-jobber.html.gz=vinyl-liner-bid-calculator__vs-jobber.html.gz
       - walk-in-shower-bid-calculator__calc.mjs.gz=walk-in-shower-bid-calculator__calc.mjs.gz
