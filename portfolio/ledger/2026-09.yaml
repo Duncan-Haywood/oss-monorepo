@@ -17117,3 +17117,55 @@ entries:
         was blocking either. No new owner ask added; this reconfirms the
         existing one covers both requests.
     mrr_end: null
+  - venture: dumpster-rental-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Independently ran the same open-PR/branch drain this session's
+        mandate requires: 0 open PRs, and a 4-agent triage of the ~60
+        named (non-auto-generated) stale remote branches came back 100%
+        SUPERSEDED or stale-draft -- every one already re-shipped by a
+        concurrent session under a different PR lineage, several with the
+        exact absorbing PR number confirmed (e.g. #3367/#3369, #3519/#3525,
+        #3530). This corroborates, at finer grain, the same-day finding
+        recorded in the `vehicle-wrap-bid-calculator` entry above and in
+        `infra_state.yaml`'s 2026-09-05 232-branch sweep: the repairable
+        queue is genuinely empty right now, not under-checked. Branch
+        deletion was attempted for hygiene but the session's GH token
+        returned HTTP 403 (no delete-branch permission) -- left in place,
+        not an owner ask since it doesn't block delivery.
+      - >-
+        Added `vs-jobber.html` (+ test) to `dumpster-rental-margin-calculator`,
+        the second of the two ventures (with `vehicle-wrap-bid-calculator`,
+        closed by a concurrent session the same session) that had a live
+        calculator but no `vs-*` comparison page. Compares against Jobber,
+        a well-known account-based field-service SaaS, following the exact
+        template of sibling `vs-jobber.html` pages elsewhere in the
+        catalogue; no unverifiable Jobber pricing/feature claims (Jobber's
+        site isn't reachable from this sandbox), explicit non-affiliation
+        statement, accessible labeled inputs.
+      - >-
+        Opened as PR #3557. Checks came back red in ~3s each;
+        `ci_starvation.py` confirmed `runner_id: 0` (starvation, matching
+        this session's own re-check). Verified locally instead: 50 venture
+        tests, 1140 `platform/marketing`+`platform/pages` tests,
+        `checklist_coverage.py` clean, 490 `gitops/tests` pytest cases (25
+        skipped), all 19 `platform/ci` unittest modules, 380
+        `portfolio/ledger|scoring|router|usage|pipeline`+`infra/tests`
+        pytest cases, and the Playwright/axe browser pass (contrast, axe,
+        sweep, journey, sideways, presets, roundtrip all green) via
+        `browser_checks.py --only dumpster-rental-margin-calculator`.
+        Merged main into the branch first (3+ concurrent sessions landed
+        regen/venture commits mid-flight), re-ran `regen.mjs`, re-verified,
+        then merged per CLAUDE.md's "Ship without review ceremony". No
+        payment collection, no new third-party script/CDN/network call, no
+        personal data collected beyond the existing privacy-conscious usage
+        tracking pattern already used fleet-wide.
+      - >-
+        Deployed the same session: after merge, `pages_state.py
+        --require-current` reported `stale`, then `CONFIRM=publish-pages-branch
+        PUSH=1 ./platform/pages/publish-branch.sh` republished (186
+        products, 752 pages, no dead links), and a final `pages_state.py
+        --require-current` confirmed `current`.
+    mrr_end: null
