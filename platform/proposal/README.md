@@ -16,9 +16,33 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**All 102 bid calculators**, and the list is no longer worth keeping by
+**All bid calculators but one**, and the list is no longer worth keeping by
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
-ready, and what is blocked.
+ready, and what is blocked. As of 2026-09-06 that is 111 adopted and 1 blocked.
+
+The one is **`home-staging`** (`home-staging-bid-calculator`, graduated in
+#3580). It is **not** deliberately excluded — a stager hands the seller or the
+listing agent exactly this artifact, so it should adopt. It is blocked on page
+shape, and `adopt.mjs` says so itself:
+
+```
+$ node platform/proposal/adopt.mjs --list
+home-staging-bid-calculator   blocked: no readInput()/readInputs() to read the
+                              job from; no calculate*(readInput()) call to price
+                              it with; no count() helper
+```
+
+The venture prices the job inline from individual `el(...)` reads rather than
+through the `readInput()` / `calculate*(readInput())` pair `inspect()` looks
+for, so the generator has nothing to anchor on. The unblock is to give the page
+those two conventions — not to write the proposal by hand, and not to add a
+trade entry, which would generate against anchors that are not there.
+
+This note exists because `discoverability.test.mjs` requires it: a
+`*-bid-calculator` that does not ship the proposal must be named here with the
+reason, so the gap is recorded rather than silently normal. Recording it is not
+the same as accepting it — when the page conventions land, adopt it and delete
+this paragraph.
 
 **And two ventures that are not bid calculators at all**, `translator-project-quote`
 (2026-09-03) and `notary-trip-quote` (2026-09-05). The second is written up under
