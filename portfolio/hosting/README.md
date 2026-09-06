@@ -259,6 +259,19 @@ Do not open a second platform ask. Until it is flipped, the build still runs
 on every push and the artifact is still uploaded; only the publish step is
 skipped.
 
+**Corrected 2026-09-06: `deploy-settings` is GRANTED, not remaining.** The
+paragraph above describes the state before the owner flipped Pages on — it
+did not move when #3450 corrected the same stale claim in CLAUDE.md and
+`gitops/agents/workers/mandate.md`, so a session reading this file instead of
+those two would still rank a granted ask. `python3 platform/ci/pages_state.py`
+shows Pages configured with source **branch**, and GitHub's own managed
+builder (`dynamic/pages/pages-build-deployment`) has run on `gh-pages` and
+succeeded — a managed Pages build is triggered only by a push to the
+configured source, so the flip is done. Re-run that command rather than
+trusting this sentence; it also reports whether the `gh-pages` snapshot is
+still current, which is the actual remaining job (see the "Amended
+2026-09-05" section right below).
+
 **Amended 2026-09-05: take the branch route first, not the Actions one.**
 This section used to say the flip was `PAGES_ENABLED=true` with Pages source
 "GitHub Actions", full stop. That is still the better route *when Actions
