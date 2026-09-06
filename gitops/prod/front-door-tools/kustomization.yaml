@@ -36,13 +36,13 @@
 #   portfolio-front-tools-0: 136 files, 556051 bytes
 #   portfolio-front-tools-1: 112 files, 553347 bytes
 #   portfolio-front-tools-2: 147 files, 550707 bytes
-#   portfolio-front-tools-3: 124 files, 552649 bytes
-#   portfolio-front-tools-4: 119 files, 553856 bytes
-#   portfolio-front-tools-5: 128 files, 553435 bytes
+#   portfolio-front-tools-3: 124 files, 552766 bytes
+#   portfolio-front-tools-4: 119 files, 554336 bytes
+#   portfolio-front-tools-5: 129 files, 556492 bytes
 #   portfolio-front-tools-6: 106 files, 555899 bytes
 #   portfolio-front-tools-7: 113 files, 556185 bytes
 #   portfolio-front-tools-8: 108 files, 551017 bytes
-#   portfolio-front-tools-9: 110 files, 555385 bytes
+#   portfolio-front-tools-9: 110 files, 555424 bytes
 #   portfolio-front-tools-10: 78 files, 397105 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
@@ -679,6 +679,7 @@ configMapGenerator:
       - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
       - custom-farm-rate-calculator__index.html.gz=custom-farm-rate-calculator__index.html.gz
       - custom-farm-rate-calculator__usage.mjs.gz=custom-farm-rate-calculator__usage.mjs.gz
+      - custom-farm-rate-calculator__vs-survey-rates.html.gz=custom-farm-rate-calculator__vs-survey-rates.html.gz
       - custom-farm-rate-calculator__why-a-lightly-used-machine-needs-a-higher-rate.html.gz=custom-farm-rate-calculator__why-a-lightly-used-machine-needs-a-higher-rate.html.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
@@ -723,12 +724,12 @@ configMapGenerator:
       - dryer-vent-bid-calculator__usage.mjs.gz=dryer-vent-bid-calculator__usage.mjs.gz
       - dryer-vent-bid-calculator__vs-wepro.html.gz=dryer-vent-bid-calculator__vs-wepro.html.gz
       - drywall-bid-calculator__calc.mjs.gz=drywall-bid-calculator__calc.mjs.gz
-      - drywall-bid-calculator__how-much-to-charge.html.gz=drywall-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - drywall-bid-calculator__how-much-to-charge.html.gz=drywall-bid-calculator__how-much-to-charge.html.gz
       - drywall-bid-calculator__index.html.gz=drywall-bid-calculator__index.html.gz
       - drywall-bid-calculator__share.mjs.gz=drywall-bid-calculator__share.mjs.gz
       - drywall-bid-calculator__usage.mjs.gz=drywall-bid-calculator__usage.mjs.gz

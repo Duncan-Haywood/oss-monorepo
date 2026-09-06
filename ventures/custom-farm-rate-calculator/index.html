@@ -61,12 +61,12 @@
 
 <section id="seasonRevenue"><h2>Your season this year</h2><p class="note">For each job, run it through the calculator above and enter its profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
 <div style="overflow-x:auto"><table><thead><tr><th>Job</th><th>Profit ($)</th></tr></thead><tbody id="jobRows">
-<tr><td>1</td><td><input class="jobProfit" data-row="1" type="number" step="1" value="460"></td></tr>
-<tr><td>2</td><td><input class="jobProfit" data-row="2" type="number" step="1" value="310"></td></tr>
-<tr><td>3</td><td><input class="jobProfit" data-row="3" type="number" step="1" value=""></td></tr>
-<tr><td>4</td><td><input class="jobProfit" data-row="4" type="number" step="1" value=""></td></tr>
-<tr><td>5</td><td><input class="jobProfit" data-row="5" type="number" step="1" value=""></td></tr>
-<tr><td>6</td><td><input class="jobProfit" data-row="6" type="number" step="1" value=""></td></tr>
+<tr><td>1</td><td><input class="jobProfit" data-row="1" aria-label="Job 1 profit in dollars" type="number" step="1" value="460"></td></tr>
+<tr><td>2</td><td><input class="jobProfit" data-row="2" aria-label="Job 2 profit in dollars" type="number" step="1" value="310"></td></tr>
+<tr><td>3</td><td><input class="jobProfit" data-row="3" aria-label="Job 3 profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td>4</td><td><input class="jobProfit" data-row="4" aria-label="Job 4 profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td>5</td><td><input class="jobProfit" data-row="5" aria-label="Job 5 profit in dollars" type="number" step="1" value=""></td></tr>
+<tr><td>6</td><td><input class="jobProfit" data-row="6" aria-label="Job 6 profit in dollars" type="number" step="1" value=""></td></tr>
 </tbody></table></div>
 <div class="fields" style="margin-top:14px">
 <label>Target season income<input id="targetSeasonIncome" type="number" min="0" step="100" value="6000"></label>
@@ -87,7 +87,7 @@
 <h3>Why does the field efficiency percentage matter so much?</h3><p>Because it directly scales how many hours a job actually takes. A machine rated for a given speed and width never works at 100% of that in the field &mdash; turns at the end of every pass, overlap between passes, and stops to refill or unload all eat into it. Overstating field efficiency understates hours for the job, which understates every cost that scales with hours: fuel, repairs, ownership cost, and your own labor.</p>
 <h3>Why spread the machine's ownership cost over hours used per year instead of just this job's hours?</h3><p>A combine or planter costs money to own &mdash; depreciation, interest, insurance, and housing &mdash; whether it runs 50 hours a year or 500. Spreading that fixed annual cost over the hours it actually runs, then charging each job its share of the resulting per-hour figure, is what makes lightly used equipment carry a higher rate per acre than the same machine run hard across more acres and more customers.</p>
 <h3>Is margin here a percentage of cost or a percentage of price?</h3><p>A percentage of price. Fifteen percent margin on a $3,000 job is $450 of profit; a 15% mark-up on $3,000 of cost is $450 too, coincidentally, but the two diverge as the margin percentage rises &mdash; a 40% margin and a 40% mark-up are very different numbers. This calculator always treats your target as a share of what you bill, since that is the number a season's revenue and profit actually depend on.</p>
-<h3>Does this replace a published custom rate survey?</h3><p>No. Published regional custom rate surveys report what other operators charged last season, averaged across many farms and machines &mdash; useful as a market check, not as your own cost structure. This calculator works out what a job costs a machine with your specific speed, width, fuel burn, repair history, ownership cost, and hours of annual use, which the survey average cannot know.</p>
+<h3>Does this replace a published custom rate survey?</h3><p>No. Published regional custom rate surveys report what other operators charged last season, averaged across many farms and machines &mdash; useful as a market check, not as your own cost structure. This calculator works out what a job costs a machine with your specific speed, width, fuel burn, repair history, ownership cost, and hours of annual use, which the survey average cannot know. See <a href="./vs-survey-rates.html">this calculator vs. a published custom rate survey</a> for more.</p>
 <h3>Is my data uploaded anywhere?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the job list you type into the season section is never saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
 </section>
 

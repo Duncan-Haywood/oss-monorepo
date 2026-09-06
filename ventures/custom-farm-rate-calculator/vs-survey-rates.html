@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>This calculator vs. a published custom rate survey</title>
+  <meta name="description" content="How this free custom farm rate calculator differs from a published regional custom rate survey, and when to use each one.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./vs-survey-rates.html">
+  <meta property="og:title" content="This calculator vs. a published custom rate survey">
+  <meta property="og:description" content="A survey reports what other operators charged last season, averaged across many farms. This calculator prices one job from your own machine's numbers.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I use this calculator or a published custom rate survey?","acceptedAnswer":{"@type":"Answer","text":"Use both, for different questions. A survey (such as a state extension service's regional custom rate survey) tells you what other operators charged last season, averaged across many farms, machines, and conditions — a useful market check on whether your number is in the right neighborhood. It cannot know your own machine's field speed, width, field efficiency, fuel burn, repair history, or how many hours you actually spread its ownership cost over. This calculator answers that second question: what does this specific job cost your specific machine, this year."}},{"@type":"Question","name":"Why not just charge the survey average?","acceptedAnswer":{"@type":"Answer","text":"A survey average can be right for you by coincidence, but it is computed from someone else's costs. A machine run hard across many customers spreads its fixed ownership cost over more acres than a machine used lightly, so the same survey figure undercharges one operator and overcharges the other. Fuel price, local repair costs, and your own field efficiency also move the real number away from a regional average in either direction."}},{"@type":"Question","name":"Does this calculator replace a survey?","acceptedAnswer":{"@type":"Answer","text":"No. A survey is still a useful sanity check and a reference point when a customer asks how your number compares to the going rate. This calculator does not collect or aggregate anyone else's rates and is not a substitute for that market context — it only computes your own cost-based number from figures you supply."}},{"@type":"Question","name":"Is this page affiliated with any particular survey publisher?","acceptedAnswer":{"@type":"Answer","text":"No. This page does not name or link to any specific survey publisher, and makes no claim about any survey's published figures. It describes custom rate surveys as a category to explain when to use each tool."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2b1a; background: #f3fbe7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #2f6b1f; overflow-wrap: anywhere; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9edbb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5a8a20; }
+    .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #2f6b1f; color: #f3fbe7; text-decoration: none; font-weight: 650; }
+    .note { font-size: .85rem; color: #56634f; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #56634f; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Custom farm rate calculator</a></p>
+  <h1>This calculator vs. a published custom rate survey</h1>
+  <p>
+    Several state extension services and farm publications run a regional
+    <strong>custom rate survey</strong>: they ask operators what they charged
+    for a job last season and publish the average, often broken out by
+    region and by task (combining, planting, spraying, baling, tillage).
+    That average is a genuinely useful market check — it tells you roughly
+    what a customer in your area expects to pay. It does not know your
+    machine.
+  </p>
+  <p>
+    A survey figure is computed from many operators' costs, not yours.
+    <strong>Field capacity</strong> depends on your own speed, implement
+    width, and field efficiency. <strong>Fuel and repairs</strong> scale with
+    the hours a job takes on your machine, at your fuel price and your own
+    repair history. <strong>Ownership cost</strong> — depreciation, interest,
+    insurance, housing — is fixed for the year, so a machine run hard across
+    many customers spreads that fixed cost over more acres than the same
+    machine used lightly, and the two operators need different rates even
+    doing the identical job. A single regional average cannot carry that
+    difference; this calculator is built entirely from it.
+  </p>
+  <table>
+    <thead>
+      <tr><th scope="col">Question</th><th scope="col">Where to answer it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>What do operators in my region typically charge for this task?</td>
+        <td>A published regional custom rate survey.</td>
+      </tr>
+      <tr>
+        <td>Is my quote roughly in line with the going rate, if a customer asks?</td>
+        <td>A published survey, as a sanity check.</td>
+      </tr>
+      <tr>
+        <td>What does this job cost my specific machine, at my fuel price and my hours?</td>
+        <td>This calculator's <a href="./#price">per-job rate</a> — a survey has no way to know your machine's numbers.</td>
+      </tr>
+      <tr>
+        <td>Does a season of jobs at this rate hit my income goal?</td>
+        <td>This calculator's <a href="./#seasonRevenue">season rollup</a> — a survey reports one job's average, not a season.</td>
+      </tr>
+      <tr>
+        <td>How much is my rate driven by ownership cost I'm not spreading over enough hours?</td>
+        <td>This calculator's ownership-cost breakdown — a survey average bakes this in for someone else's usage, not yours.</td>
+      </tr>
+    </tbody>
+  </table>
+  <a class="cta" href="./">Price your own job</a>
+  <p>
+    This tool needs no account, upload, or subscription: it is a static
+    page, the arithmetic runs in your browser, and your machine numbers and
+    season list stay on your device — nothing is uploaded anywhere, and
+    refreshing the page clears the season table on purpose.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I use this calculator or a published custom rate survey?</h3>
+  <p>Use both, for different questions. A survey (such as a state extension service's regional custom rate survey) tells you what other operators charged last season, averaged across many farms, machines, and conditions — a useful market check on whether your number is in the right neighborhood. It cannot know your own machine's field speed, width, field efficiency, fuel burn, repair history, or how many hours you actually spread its ownership cost over. This calculator answers that second question: what does this specific job cost your specific machine, this year.</p>
+  <h3>Why not just charge the survey average?</h3>
+  <p>A survey average can be right for you by coincidence, but it is computed from someone else's costs. A machine run hard across many customers spreads its fixed ownership cost over more acres than a machine used lightly, so the same survey figure undercharges one operator and overcharges the other. Fuel price, local repair costs, and your own field efficiency also move the real number away from a regional average in either direction.</p>
+  <h3>Does this calculator replace a survey?</h3>
+  <p>No. A survey is still a useful sanity check and a reference point when a customer asks how your number compares to the going rate. This calculator does not collect or aggregate anyone else's rates and is not a substitute for that market context — it only computes your own cost-based number from figures you supply.</p>
+  <h3>Is this page affiliated with any particular survey publisher?</h3>
+  <p>No. This page does not name or link to any specific survey publisher, and makes no claim about any survey's published figures. It describes custom rate surveys as a category to explain when to use each tool.</p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not agronomic, tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source. If it saved you time, <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</body>
+</html>
