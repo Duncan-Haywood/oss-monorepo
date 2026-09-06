@@ -1277,6 +1277,27 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
 });
 
+// Found 2026-09-06: five more tools sat in the catch-all for the same reason —
+// each is a sibling of a tool already filed in a named section, under a slug
+// no keyword there caught. `equipment-lease-buyout-calculator` is the same
+// cost-per-month-of-use decision as `equipment-rental-break-even`, just ending
+// in `-calculator` rather than `-break-even`. `card-processing-fee-audit` is
+// the same after-the-sale statement reconciliation as this section's other
+// tools, for a card processor's bill. `tender-bid-readiness`, `tender-radar`
+// and `which-job-first` are read by the same contractor deciding whether and
+// what to bid as `contractor-bid-readiness`, already in "Getting paid & job
+// margin" — none of their slugs start with a trade-bid keyword.
+test('a contractor pre-bid tool and a statement-reconciliation tool are not left in the catch-all either', () => {
+  assert.equal(categoryFor('equipment-lease-buyout-calculator').id, 'backoffice');
+  assert.equal(categoryFor('card-processing-fee-audit').id, 'backoffice');
+  assert.equal(categoryFor('tender-bid-readiness').id, 'trades');
+  assert.equal(subcategoryFor('tender-bid-readiness').id, 'trades-paid');
+  assert.equal(categoryFor('tender-radar').id, 'trades');
+  assert.equal(subcategoryFor('tender-radar').id, 'trades-paid');
+  assert.equal(categoryFor('which-job-first').id, 'trades');
+  assert.equal(subcategoryFor('which-job-first').id, 'trades-paid');
+});
+
 // A cutting planner for woodworkers and sign shops spent its whole life filed
 // under "Logistics, freight & cloud cost" because the `logistics` rule matched
 // the literal prefix `cut-list`. Nothing about the page was wrong; every

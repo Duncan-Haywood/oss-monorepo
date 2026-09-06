@@ -572,7 +572,7 @@ export const STARTER_SET = [
   { slug: 'subcontractor-cashflow-planner', why: 'trades — pairs with the change-order tool on the same job' },
   { slug: 'contractor-bid-readiness', why: 'trades — the pre-bid check, no arithmetic to get wrong' },
   { slug: 'construction-evidence-log', why: 'trades — the jobsite record side of a job, not the bid side' },
-  { slug: 'tender-bid-readiness', why: 'more — smallest complete venture in the repo, and the only thing behind that card' },
+  { slug: 'tender-bid-readiness', why: 'trades — a second pre-bid check, this one for a tender rather than a direct-hire bid; refiled from "more" 2026-09-06 when categoryFor picked up the slug' },
   { slug: 'job-margin-variance', why: 'trades — the after-the-job review' },
   { slug: 'seller-net-sheet', why: 'back-office — highest standalone search intent in the category' },
   { slug: 'subscription-price-impact', why: 'back-office — the SaaS pricing question' },
