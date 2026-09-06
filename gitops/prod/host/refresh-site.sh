@@ -187,11 +187,50 @@ mv -T "$CURRENT.new" "$CURRENT"
 log "serving $release (built from $target)"
 
 # Keep a few predecessors so a rollback is a symlink away.
-mapfile -t old < <(find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name '2*' -printf '%f\n' | sort -r | tail -n "+$((KEEP + 1))")
-for dir in "${old[@]:-}"; do
-  [[ -n "$dir" ]] || continue
-  rm -rf "${RELEASES:?}/$dir"
-  log "pruned old release $dir"
+#
+# Ordered by mtime, not by name. The name is `<timestamp>-<sha8>` and the
+# timestamp is second-resolution, so two releases minted in the same second are
+# separated only by the commit sha -- which is not chronological. A lexical sort
+# then puts them in an arbitrary order, and the tail of that order gets deleted:
+# with SITE_KEEP=2 and three same-second releases, the one `current` points at
+# is deleted roughly a third of the time, leaving the symlink dangling and nginx
+# serving 404 for every path on the site. The comment above already noted that
+# second-resolution collisions are "unlikely rather than impossible" and gave
+# the *path* a sha to stay unique; the ordering here was still assuming the name
+# sorts chronologically.
+#
+# The live release is then excluded outright rather than trusted to sort high.
+# mtime ordering makes a collision improbable instead of impossible (the same
+# second is the same second), and "never delete what is being served" is the
+# invariant that actually matters -- it should not rest on a sort.
+live=""
+if [[ -L "$CURRENT" ]]; then
+  live="$(basename "$(readlink -f "$CURRENT")")"
+fi
+
+# Newest first by mtime.
+mapfile -t ranked < <(
+  find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name '2*' -printf '%T@\t%f\n' \
+    | sort -rn | cut -f2-
+)
+
+# The live release is pinned to the head rather than dropped from the list, so
+# SITE_KEEP still means "this many releases on disk" and not "this many plus
+# whatever is being served".
+ranked_live_first=()
+[[ -n "$live" ]] && ranked_live_first+=("$live")
+for dir in "${ranked[@]:-}"; do
+  [[ -n "$dir" && "$dir" != "$live" ]] || continue
+  ranked_live_first+=("$dir")
+done
+
+# Never fewer than one: SITE_KEEP=0 would otherwise delete the release the
+# symlink points at, which is the failure this whole block exists to avoid.
+keep_n="$KEEP"
+[[ "$keep_n" -lt 1 ]] && keep_n=1
+for ((i = keep_n; i < ${#ranked_live_first[@]}; i++)); do
+  rm -rf "${RELEASES:?}/${ranked_live_first[i]}"
+  log "pruned old release ${ranked_live_first[i]}"
 done
 
 # nginx resolves `root` per request, and no open_file_cache is configured, so
