@@ -22,6 +22,16 @@ const FILLED = Object.freeze({
   'sheet-onhand': '31.5 x 11.25',
   'sheet-unit': 'in',
   'sheet-rotate': true,
+  // The two alternative sheet sizes the shop is pricing the same cut list
+  // against — a 5x5 Baltic birch panel and a half sheet. These are a real part
+  // of the decision the sender made, which is why a link that dropped them
+  // handed the recipient a different comparison under the same headline.
+  'sheet-alt1-width': '60',
+  'sheet-alt1-height': '60',
+  'sheet-alt1-cost': '55.00',
+  'sheet-alt2-width': '48',
+  'sheet-alt2-height': '48',
+  'sheet-alt2-cost': '22.00',
   stock: '96',
   kerf: '0.125',
   cuts: '48 x 2\n24 x 6\n12.5',
@@ -69,6 +79,40 @@ test('every draft field actually rides in the link', () => {
   for (const id of DRAFT_FIELDS) {
     assert.ok(params.has(id), `${id} is missing from the encoded link`);
   }
+});
+
+// The converse of the test above, and the one that was missing.
+//
+// "Every name in the list exists in the form" catches a typo and a field the
+// markup dropped. It cannot catch a field the *markup gained*, which is the
+// direction this venture actually drifted: the alternative-sheet comparison
+// added six inputs to `index.html` and none of them to `DRAFT_FIELDS`, so a
+// shared plan handed the recipient the sender's primary sheet beside the
+// recipient's own defaults for both alternatives — a different comparison,
+// with no error and a matching headline. Found 2026-09-06 by
+// `platform/pages/roundtrip.mjs`, which is a browser check nothing in CI runs;
+// this is the same finding as a unit test, so the next one costs a test run
+// instead of a Playwright sweep somebody has to remember to do.
+//
+// Enumerating the markup rather than restating a count is the point: a literal
+// "there are 22 fields" assertion is a second hand-kept list with the same
+// failure mode as the first.
+test('every editable control in the form is a field the link carries', () => {
+  const ids = [...markup.matchAll(/<(?:input|select|textarea)\b[^>]*\bid="([^"]+)"/g)]
+    .map((m) => m[1]);
+  assert.ok(ids.length > 0, 'found no form controls — the regex or the markup moved');
+
+  // `optout` is the visitor's own privacy preference for this browser, not part
+  // of the plan. Carrying it would apply the sender's choice to the recipient's
+  // device. Any other exclusion needs the same kind of reason written down.
+  const notPartOfThePlan = new Set(['optout']);
+
+  const missing = ids.filter((id) => !notPartOfThePlan.has(id) && !DRAFT_FIELDS.includes(id));
+  assert.deepEqual(
+    missing,
+    [],
+    `these inputs exist in the form but ride in no link or draft: ${missing.join(', ')}`,
+  );
 });
 
 test('an unticked checkbox is carried, not dropped', () => {

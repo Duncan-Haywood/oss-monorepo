@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://example.invalid/fire-extinguisher-inspection-route-margin/sitemap.xml

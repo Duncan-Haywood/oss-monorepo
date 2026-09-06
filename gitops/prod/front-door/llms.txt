@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 186 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 187 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 186 of them — and
+Every tool in the collection is listed below — all 187 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -218,6 +218,7 @@ page that hosts it.
 - [Commercial Photography Licensing Quote Calculator](https://marisstella.dev/tools/commercial-photo-license-calculator/): Price commercial photography usage rights by channel, term, territory, and exclusivity. Free local-first quote worksheet for photographers.
 - [Mobile Notary & Loan Signing Fee Calculator](https://marisstella.dev/tools/notary-trip-quote/): Price a mobile notary appointment from mileage, drive time, print pages, witnesses and waiting — then test a signing service's flat offer against what you actually earn per hour after paper, toner and fuel.
 - [Booth Rent vs Commission Calculator](https://marisstella.dev/tools/booth-rent-vs-commission/): Free booth rent vs commission calculator for hair stylists, barbers, and nail techs. Compare take-home and hourly pay on your own book after rent, card fees, backbar, and unpaid hours.
+- [Fire Extinguisher Inspection Route Margin Calculator](https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/): Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.
 
 ## Logistics, freight & cloud cost
 
@@ -239,9 +240,9 @@ page that hosts it.
   - [Aspire](https://marisstella.dev/compare/aspire/): 6 tools here have a side-by-side page against Aspire, each saying what it does, what the free tool does, and when Aspire is the right answer.
   - [Buildxact](https://marisstella.dev/compare/buildxact/): 5 tools here have a side-by-side page against Buildxact, each saying what it does, what the free tool does, and when Buildxact is the right answer.
   - [JobNimbus](https://marisstella.dev/compare/jobnimbus/): 5 tools here have a side-by-side page against JobNimbus, each saying what it does, what the free tool does, and when JobNimbus is the right answer.
+  - [Housecall Pro](https://marisstella.dev/compare/housecall-pro/): 4 tools here have a side-by-side page against Housecall Pro, each saying what it does, what the free tool does, and when Housecall Pro is the right answer.
   - [QuoteIQ](https://marisstella.dev/compare/quoteiq/): 4 tools here have a side-by-side page against QuoteIQ, each saying what it does, what the free tool does, and when QuoteIQ is the right answer.
   - [AccuLynx](https://marisstella.dev/compare/acculynx/): 3 tools here have a side-by-side page against AccuLynx, each saying what it does, what the free tool does, and when AccuLynx is the right answer.
-  - [Housecall Pro](https://marisstella.dev/compare/housecall-pro/): 3 tools here have a side-by-side page against Housecall Pro, each saying what it does, what the free tool does, and when Housecall Pro is the right answer.
   - [Bonsai](https://marisstella.dev/compare/bonsai/): 2 tools here have a side-by-side page against Bonsai, each saying what it does, what the free tool does, and when Bonsai is the right answer.
   - [Crest Capital's lease calculator](https://marisstella.dev/compare/crest-capital-s-lease-calculator/): 2 tools here have a side-by-side page against Crest Capital's lease calculator, each saying what it does, what the free tool does, and when Crest Capital's lease calculator is the right answer.
   - [GovWin IQ](https://marisstella.dev/compare/govwin-iq/): 2 tools here have a side-by-side page against GovWin IQ, each saying what it does, what the free tool does, and when GovWin IQ is the right answer.
