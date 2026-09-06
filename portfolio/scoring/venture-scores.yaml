@@ -6494,3 +6494,47 @@ ventures:
       guarantee of actual attendance or print volume. The tool never touches
       a live payment, a guest's photo, or personal data of any kind. Nothing
       entered leaves the browser.
+
+  - slug: vehicle-wrap-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — material priced from
+      a waste-inclusive square footage rather than the vehicle's bare surface
+      area, and an install-hours estimate scaled by a complexity multiplier
+      rather than a single flat installed rate — and it is arithmetic a shop
+      owner has to be able to re-derive before sending a quote.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      job-pricing calculators built around one buyer-specific cost trap
+      (`dumpster-rental-margin-calculator`'s overage rate vs. tipping fee,
+      `epoxy-garage-floor-bid-calculator`'s coating system selection),
+      applied to a niche with no existing venture: an independent vehicle
+      wrap/graphics shop pricing a full or partial vinyl wrap. Defensibility
+      5: the waste-factor-vs-bare-area material gap and the complexity-scaled
+      labor estimate are specific to this buyer and not modeled by a generic
+      per-square-foot rate card or a sign shop's job-costing software built
+      for invoicing rather than the pre-quote pricing decision. Distribution
+      6: "vehicle wrap cost calculator" and "how much to charge for a car
+      wrap" are narrow, real search terms an installer types before quoting,
+      with no incumbent free interactive tool built around this exact
+      arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the shop's own figures, never a
+      warranty on film adhesion or durability, a vehicle-condition
+      determination, or a design/trademark clearance opinion. The tool never
+      touches a live transaction or anyone else's data. Nothing entered
+      leaves the browser.
