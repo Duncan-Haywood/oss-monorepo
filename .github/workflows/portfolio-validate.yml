@@ -237,6 +237,15 @@ jobs:
         working-directory: portfolio/pipeline/probes/mls-photo-spec
         run: python3 -m pytest tests -q
 
+      # The gate itself lives in `checklist-coverage.yml`, not here: it has to
+      # fire on a new test directory *anywhere*, and this workflow's trigger
+      # list is a hand-maintained enumeration of paths that would not include
+      # one. These are its unit tests, which belong here because
+      # `platform/ci/**` already triggers this workflow.
+      - name: Checklist-coverage unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_checklist_coverage
+
       - name: Check the measurement record in candidates.yaml is still readable
         run: python3 portfolio/pipeline/score_sensitivity.py
 
