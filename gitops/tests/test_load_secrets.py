@@ -218,6 +218,32 @@ def test_exec_does_not_leak_into_a_sibling_process(store):
     assert after.stdout in ("unset", "")
 
 
+def test_exec_keeps_secrets_out_of_argv(store):
+    """The disclosure `--put` avoids on stdin, `--exec` must avoid too.
+
+    /proc/<pid>/cmdline is mode 444 and /proc/<pid>/environ is mode 400, so a
+    secret placed in argv is readable by every local user for the life of the
+    process while one placed in the environment is not. An earlier revision
+    built an `env NAME=VALUE -- cmd` argv, which put every resolved secret
+    there. The child reads its own argv here because that is the same bytes any
+    other user could read out of /proc.
+    """
+    run("--put", "ARGOCD_REPO_TOKEN", env=store, stdin="a-token")
+    out = run(
+        "--exec", "--", "bash", "-c",
+        'cat /proc/$PPID/cmdline /proc/$$/cmdline | tr "\\0" " "',
+        env={**store, "NO_SSH_AGENT": "1"},
+    )
+    assert "a-token" not in out.stdout
+
+
+def test_exec_propagates_the_child_exit_status(store):
+    """Callers branch on it -- restore-cluster.sh among them."""
+    out = run("--exec", "--", "bash", "-c", "exit 23",
+              env={**store, "NO_SSH_AGENT": "1"})
+    assert out.returncode == 23
+
+
 def test_exec_needs_a_command(store):
     out = run("--exec", "--", env={**store, "NO_SSH_AGENT": "1"})
     assert out.returncode != 0

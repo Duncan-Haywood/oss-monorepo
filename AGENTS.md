@@ -34,6 +34,27 @@ venture on `main` still has no public URL, that deploy is the next task.
 See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
 Do not open a second `deploy-settings` ask.
 
+**As of 2026-09-06 the primary deploy (GitHub Pages) is done and confirmed
+current** — `deploy-settings` is granted, ~175 products are live at
+`https://duncan-haywood.github.io/monorepo-projects/`, and the standing job
+is just keeping the snapshot fresh (`python3 platform/ci/pages_state.py`,
+then `platform/pages/publish-branch.sh` if stale). With distribution solved,
+default to reading [`portfolio/usage/usage.yaml`](portfolio/usage/README.md)
+first and improving a product with an actual signal, over adding depth to
+one that has had a fair run at zero. See `portfolio/DIRECTION.md`
+"What changes now that distribution is solved" for the full priority order,
+including when a new venture is and isn't the better use of the session.
+
+**Before copying a feature onto a venture just because a sibling venture has
+it** (a share link, a save slot, an export format), check that venture's row
+in `portfolio/usage/usage.yaml`. As of 2026-09-06, 55 of 185 ventures had a
+`share.mjs` added this way with zero usage signal on any of them to justify
+it, while the pipeline still has ungraduated `build-now` candidates and new,
+non-duplicative niches are always welcome. See `portfolio/DIRECTION.md`
+"The fleet-parity trap, and where new ventures actually stand" — a new
+venture or a real discoverability fix now outranks a parity feature on a
+product nobody has visited yet.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
@@ -200,7 +221,10 @@ product PR?"
 1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
    and no SLA on hosted URLs. Copy the wording from
    [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
-   *and* somewhere the user sees it (footer, about, `--help`).
+   *and* somewhere the user sees it (footer, about, `--help`). A page that
+   names a specific competitor (`vs-<competitor>.html`) needs a second,
+   separate disclaimer — §5f, nominative fair use plus a "not affiliated
+   with" line — checked by `node platform/pages/clauses.mjs <slug>`.
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).

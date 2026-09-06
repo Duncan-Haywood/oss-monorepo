@@ -222,6 +222,39 @@ This is a build task and it ships with v0, not later:
       artifact, queue the one-line ask, ship the product regardless: search and
       AI discovery do not need anyone's permission.
 
+### f. If the page names a competitor
+
+Naming a specific commercial product to explain what your tool is and isn't
+("this calculator vs. ServiceMonster") is normal here — 173 pages across the
+portfolio do it, and it is good SEO: it answers the comparison question a
+searcher actually types. It is also the one piece of marketing copy in this
+playbook that names someone else's trademark, so it carries its own two rules,
+not just the disclaimer in §5b.
+
+1. **Nominative fair use only.** Name the product solely to describe what it
+   is and what your free tool is not — never in a way a reader could take as
+   affiliation, endorsement, or sponsorship. Say so explicitly:
+
+   > Not affiliated with, endorsed by, or sponsored by **[Product]**.
+   > **[Product]** is a trademark of its owner, named here only to describe
+   > what this tool is and is not.
+
+   `node platform/pages/clauses.mjs <slug>` fails the build if a
+   `vs-<competitor>.html` page lacks this. If the page genuinely compares
+   against a generic role rather than a named product or company — "your
+   title company's net sheet" is nobody's trademark — add it to
+   `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs` with why,
+   rather than writing a disclaimer about a party that doesn't exist.
+
+2. **Facts only, sourced, comparative rather than derogatory.** What the
+   competitor's product does, cite its own public documentation or marketing.
+   State it plainly rather than guessing or inferring reviews you haven't
+   read. Never claim it is bad, broken, or a bad value — the honest and legally
+   safer framing is "different job": what it does, what the free tool does,
+   and when each is the right answer. A comparison that reads as an attack
+   rather than a fact sheet is a defamation and false-advertising exposure
+   for a page that costs nothing to make safe instead.
+
 ## 6. Money: not yet
 
 No checkout, no card fields, no billing code, no merchant of record, not even
@@ -253,10 +286,11 @@ Ship when every line is true:
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,
-      not just the calculator — `node platform/pages/clauses.mjs <slug>`. The
-      venture's own CI runs this, so it fails on the PR rather than on `main`.
-      (The no-SLA clause is injected by the Pages build and is not yours to
-      carry; see §5b.)
+      not just the calculator, and any `vs-<competitor>.html` page carries the
+      §5f **not-affiliated** trademark disclaimer — `node
+      platform/pages/clauses.mjs <slug>` checks both. The venture's own CI runs
+      this, so it fails on the PR rather than on `main`. (The no-SLA clause is
+      injected by the Pages build and is not yours to carry; see §5b.)
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.

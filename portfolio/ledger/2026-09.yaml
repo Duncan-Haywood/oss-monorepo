@@ -14888,3 +14888,410 @@ entries:
         check.mjs dist: 175 products, 720 pages, no dead links, and exactly
         one `id="shareLink"` in the built output (no duplicate control).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled direction-setting run. portfolio/DIRECTION.md's "Current
+        priority" section still read as if no built product had a public
+        URL, dated 2026-08-25 through 2026-09-02 -- stale against
+        platform/ci/pages_state.py, which now reports the GitHub Pages
+        route deployed (GitHub's own managed builder ran gh-pages, run
+        34013011002, 2026-09-06T05:03:36Z) and current (snapshot built from
+        main's own tip). A session reading DIRECTION.md alone (not
+        CLAUDE.md, which already carries the newer correction) would still
+        re-derive deploy-first urgency that no longer applies. Added a
+        dated superseding note plus a new "What changes now that
+        distribution is solved" section giving the fleet's next priority
+        order now that ~175 products are reachable: keep the snapshot
+        fresh, read usage.yaml before picking work and prioritize any
+        product with a nonzero signal, stop adding depth to a product that
+        has had a fair run at zero (pointing at portfolio/router/
+        allocate.py's existing kill_criteria review for ventures at $0 MRR
+        past revenue stage), then weigh a new venture against the
+        pipeline's own liability/ethics gates and a named channel rather
+        than as a default action.
+      - >-
+        Added a "Revenue: donations, and keeping customers happy" section
+        naming funding-sponsors-live (#839, decision_queue.py) precisely --
+        a yes/no on re-landing .github/FUNDING.yml, merged once and
+        reverted the same day by #862 -- as the one lever that moves
+        revenue off $0 without touching payment rails, and stating what an
+        agent can do while it's pending (keep every product's own Sponsors
+        line correct and non-coercive) versus what stays owner-only (the
+        account-ownership decision itself). Tied "keeping customers happy"
+        to concrete, already-existing checks (browser_checks.py, the WCAG
+        AA link-contrast test, the PRODUCT_PLAYBOOK.md §5b disclaimer)
+        rather than adding a new subjective bar. Cross-referenced both
+        sections from AGENTS.md's build-criteria section so a session
+        reading that file first also gets redirected. No code changed;
+        verified with check_ledger_only.py that this entry rides with a
+        real docs change rather than standing alone, and confirmed the
+        referenced pages_state.py/decision_queue.py/allocate.py output by
+        running each rather than restating a remembered figure.
+    mrr_end: null
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable scenario link, closing this venture's gap
+        against the rest of the fleet that already carries one. This
+        venture has no exported field-id list in calc.mjs/schedule.mjs
+        (the `ids`/`scheduleIds` arrays live only in index.html's own
+        script), so share.mjs declares its own matching literal lists
+        covering all 21 numeric fields, the one enum field (`payRun`,
+        checked against the form's own `<select>` options), and the one
+        date field (`invoiceDate`, shape-checked as YYYY-MM-DD and left for
+        calc.mjs's own calendar validation to reject an impossible date the
+        same way it rejects one typed by hand). Same URL-fragment
+        convention as the rest of the fleet: never sent to a server or
+        logged in a Referer header, blank/unusable fields omitted rather
+        than serialized as a default, and a fixed field allowlist so a
+        crafted fragment cannot inject an unrecognised value. "Copy
+        shareable link" sits beside the venture's existing local-draft
+        save/load controls; an incoming shared link is decoded ahead of
+        both the date default and the draft on load, and recalculates both
+        the single-invoice and billing-schedule sections together.
+      - >-
+        Deliberately checked first for a reason this venture's own page.test.mjs
+        does not carry but a sibling one does: shop-rate-calculator's test
+        suite asserts outright that it "does not read or write a saved bid
+        or a shared link" because its inputs are a shop's payroll and
+        overhead figures, "more than anybody should put in a URL." Started
+        building the share link there before reading that test, reverted
+        it, and picked this venture instead -- invoice terms, late-fee
+        rates, and billing-schedule percentages carry materially less
+        sensitive data than a business's payroll costs.
+      - >-
+        Verified locally (Actions is starved this cycle per CLAUDE.md's
+        ci_starvation.py signature): venture suite 99/99 (9 new
+        share.test.mjs assertions, including round-trips through the enum
+        and date fields and a rejection test for an out-of-allowlist
+        payRun value). platform/marketing + platform/pages 1126/1126 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml, plus a merge-conflict
+        re-regen after rebasing onto #3453 which touched the same
+        generated kustomization.yaml). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 50/50. gitops/tests: 461
+        passed, 25 skipped. All 17 platform/ci unittest modules pass (590
+        tests, run individually as CLAUDE.md's starvation section
+        directs).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Direction-setting session (scheduled brief: focus the fleet on viable
+        businesses, donation revenue, customer happiness, and marketing
+        without new legal liability). Found the gap by checking practice
+        against enforcement rather than against prose: 173 `vs-<competitor>`
+        comparison pages exist across the portfolio, naming real trademarks
+        (ServiceMonster, Jobber, ServiceTitan, Avalara, Extensiv, and more),
+        and 172 of them already carry a "not affiliated with" disclaimer by
+        author convention -- but nothing checked for it, and one page
+        (`seller-net-sheet/vs-title-company-net-sheet.html`, correctly, since
+        it compares against a generic role rather than a named product) had
+        already drifted from the pattern. That is the exact shape CLAUDE.md's
+        own history warns about: a guard nobody runs is invisible until the
+        thing it should have caught costs something, and a page that names a
+        trademark with no affiliation disclaimer and unverified claims about
+        a competitor is a real Lanham Act / trademark exposure for the owner,
+        not a hypothetical one.
+      - >-
+        Closed it with an enforced check, not just a written rule.
+        `platform/pages/clauses.mjs` now also flags any `vs-<competitor>.html`
+        page missing a "not affiliated with" disclaimer (`NOT_AFFILIATED`
+        pattern, loosely matched like the existing no-warranty check), with a
+        narrow, named `COMPARISON_DISCLAIMER_EXEMPT` allowlist for the one
+        genuine non-trademark comparison rather than a loosened pattern for
+        everyone. `node platform/pages/clauses.mjs <slug>` -- already wired
+        into every venture's CI -- now checks both clauses in one pass.
+        Documented as `PRODUCT_PLAYBOOK.md` §5f (nominative fair use, a
+        required disclaimer, and "facts only, sourced, comparative rather
+        than derogatory" -- comparison copy that reads as an attack is a
+        defamation/false-advertising exposure this portfolio does not need to
+        take), cross-linked from `AGENTS.md`'s disclaimer checklist and
+        `portfolio/DIRECTION.md`'s legal guardrails, and added to the §7
+        definition-of-done checklist next to the existing no-warranty bullet.
+      - >-
+        Also sharpened `portfolio/DIRECTION.md`'s new-venture guidance per the
+        brief: the existing "only then does a new venture compete for time"
+        ordering was right about sequencing (an untested backlog beats an
+        unscreened 37th idea) but read as a demotion of new ventures rather
+        than as a queue order, which is not what the owner wants signaled to
+        the fleet. Added a dated addendum making explicit that a candidate
+        clearing both pipeline gates (`liability_containment` >= 5,
+        `ethical_robustness` >= 5) and naming a real channel is exactly as
+        welcome as a queued `build-now` item, without lowering the evidence
+        bar that "176th niche calculator with no evidence" already guards
+        against.
+      - >-
+        Verified: `node --test platform/pages/clauses.test.mjs` (21/21,
+        including a new suite asserting the real venture tree's 173
+        comparison pages all pass or are explicitly exempted) and
+        `node platform/pages/clauses.mjs` (695 pages / 175 surfaces, clean).
+        Then the full required set for a `platform/pages/` change per
+        CLAUDE.md: `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` -- 1135/1135. No venture code, no gitops,
+        no platform/ci touched, so those suites do not apply this cycle.
+        Revenue is still $0 recorded across the ledger; this does not move
+        usage or MRR, it closes a liability gap the fleet's own marketing
+        practice had already outrun its enforcement on.
+    mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled deploy/marketing-focused run. Open-PR and open-branch
+        drain came first per this run's mandate: 0 open PRs (list_pull_requests,
+        state=open, empty). Sampled the five branches whose names read as
+        deliberate work rather than an auto-generated session slug
+        (agent/deploy-cicd-ledger-2868, agent/marketing-distribution-gutter-
+        guard-vs-jobnimbus, agent/runner-token-error-message, ci/hetzner-ssh-
+        key-diagnostic, claude/codex-governor-ask-and-queue-drain-report) --
+        all five came back SUPERSEDED or an identical-merge proof from
+        supersede_check.py, consistent with the 232-branch sweep this file's
+        infra_state.yaml already recorded on 2026-09-05. Nothing repairable
+        found; quota does not apply when the queue is empty.
+      - >-
+        Re-measured the Hetzner/Codex-host deployment blocker the run's
+        prompt asked about directly, rather than restating portfolio/ledger/
+        infra_state.yaml from memory: github-actions-runners still down
+        (fresh dispatch classified via ci_starvation.py --run 34014826526,
+        runner_id 0, 3s, no steps -- checked this morning, not inherited),
+        k3s-cluster still down, and both are gated on the same owner-only
+        action (hetzner-ssh-key-is-a-public-key, decision_queue.py's #1 row)
+        that no agent session can perform: it needs the owner's own private
+        key material pasted from their own machine, which is categorically
+        outside what a hosted session's credentials or network access cover
+        (agent-session-egress reads down for this account's Hetzner boxes,
+        confirmed by infra_state.yaml's own probe results, not simulated
+        here). codex-host-mode's installer/governor code is otherwise ready
+        (gitops/agents/host/), so once the key is rotated the existing
+        `WITH_CODEX_HOST=1` flag on the documented restore command installs
+        it in the same pass -- no separate ask needed, no code change made.
+        The live, actually-agent-operable deploy/CI-CD route right now is
+        the GitHub Pages gh-pages branch: platform/ci/pages_state.py reports
+        it deployed (GitHub's own managed builder, run 34014862380,
+        2026-09-06T05:48:07Z, success) and current (snapshot built from
+        main's own tip e026c22f). No refresh needed this run.
+      - >-
+        Selected product work the same way the two prior scheduled sessions
+        in this file did: usage.yaml carries no genuine external-user signal
+        yet (all 30 nonzero readings are one-off local self-checks or
+        portfolio-pages build aggregates, not visits), so continued the
+        fleet's established shareable-link backlog rather than picking a
+        product on invented evidence. Scanned every venture for a `<form>`
+        with no share.mjs and no existing share-link text/id; five
+        candidates, three ruled out (sponsor-ready already has its own
+        buildShareUrl under app.js, just not named share.mjs; shop-rate-
+        calculator's own test explicitly refuses a share link because
+        payroll/overhead figures are "more than anybody should put in a
+        URL"; grant-reporting-tracker and construction-evidence-log are both
+        open-ended multi-entry logs -- an unbounded list of free-text site
+        notes or grant awards -- not a bounded single scenario, the shape
+        every existing share.mjs in this fleet actually covers).
+        grant-deadline-tracker's "Cash at risk if this report is late" panel
+        was the real gap: a bounded 9-numeric-plus-1-date single-scenario
+        calculator that already implies a sharing need via its existing
+        "Copy a board-ready note" button (static text a board member cannot
+        recalculate or adjust), but had no way to send the live, editable
+        scenario itself.
+      - >-
+        share.mjs follows the fleet's established convention exactly
+        (URLSearchParams in the URL fragment, never sent to a server or
+        logged in a Referer header; a fixed field allowlist mirroring
+        readRiskInput() so a crafted fragment cannot inject an unrecognised
+        value; a blank/unusable field omitted rather than serialized as a
+        default; a shape-only date check, leaving calc.mjs's own
+        compareLateReport to reject an impossible calendar date). Added
+        "Copy shareable link" beside the existing risk-form actions and a
+        riskShareStatus status line; decodes an incoming hash/query ahead of
+        the form's own HTML defaults, before the first renderRisk() call, so
+        a recipient sees the sender's numbers on first paint; two new
+        countUsage events (risk_share_link_copied, risk_shared_link_opened)
+        added the same way this venture's usage.mjs already counts every
+        other feature (no closed EVENTS allowlist exists here, unlike some
+        sibling ventures, so no allowlist edit was needed). Verified a
+        crafted `__proto__` fragment is dropped rather than polluting the
+        prototype, matching the fleet's existing prototype-pollution test
+        pattern.
+      - >-
+        Verified locally (ci_starvation.py --run 34014826526 confirms
+        Actions still starved this morning, runner_id 0, 3s, no steps):
+        venture suite 45/45 (11 new share.test.mjs assertions, including a
+        round-trip, a proto-pollution-drop test, and a page.test.mjs check
+        that the new button/events/import are wired). platform/marketing +
+        platform/pages 1128/1128 after node platform/marketing/regen.mjs
+        (rewrote only this venture's mirror shard and kustomization.yaml).
+        platform/proposal 101/101. platform/privacy + platform/webcheck
+        50/50. gitops/tests: 461 passed, 25 skipped. All 17 platform/ci
+        unittest modules pass individually. build.mjs --out=dist +
+        check.mjs dist: 175 products, 7 category pages, 721 pages, no dead
+        links.
+    mrr_end: null
+  - venture: delivery-app-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable comparison link, continuing this month's
+        shareable-link backlog on a venture assigned from a shortlist a
+        concurrent session was also drawing from (a different venture,
+        chosen to avoid collision). Confirmed no branch existed yet for any
+        shortlist venture, then ruled out four of the ten as already
+        covered before picking: booth-rent-vs-commission, which-job-first
+        and tiktok-shop-fee-calculator each already carry an inline
+        share-link mechanism under a different name (writeShareQuery/
+        loadShareQuery, an encode-for-share-link pair, and a
+        copyScenario/scenarioLink respectively); equipment-rental-break-
+        even and quote-margin-check already ship their own share.mjs or
+        equivalent decodeQuote/copy-share-link wiring. shop-rate-calculator
+        was also ruled out, but for a different reason worth recording
+        separately: its own page.test.mjs asserts outright that the tool
+        "does not read or write a saved bid or a shared link", because
+        burden and overhead are a shop's payroll figures and "more than
+        anybody should put in a URL" -- the same reasoning an earlier
+        session this month recorded for shop-rate-calculator against
+        invoice-payment-terms-calculator. delivery-app-margin-calculator
+        was the real gap: a bounded, fixed-shape comparison (one ticket
+        across up to seven named delivery channels) that already had a
+        local `localStorage` save/restore and a text-only "Copy decision
+        summary" button, but no way to hand the live, editable comparison
+        itself to a partner or accountant.
+      - >-
+        share.mjs follows the fleet's established convention (URLSearchParams
+        in the URL fragment, never sent to a server or logged in a Referer
+        header; localStorage save/load/clear/restore mirroring
+        tree-service-bid-calculator's; a link winning over a browser's own
+        saved comparison on load). Its field spec is built at runtime from
+        index.html's own SHARED_FIELDS and CHANNEL_FIELDS arrays plus
+        CHANNEL_PRESETS' own channel ids (via a new `buildSpec` export), not
+        restated as a second literal list, so a field added to the form is
+        shareable the moment it exists. Each channel rides as a `rows` entry
+        keyed by its preset id -- a `choice` cell restricted to the ids
+        CHANNEL_PRESETS actually ships -- so a crafted link cannot address a
+        channel with no rate table behind it, and a channel a link omits
+        keeps its shipped default exactly as "Reset everything" already did.
+        Replaced the venture's ad hoc `SAVE_KEY` localStorage blob with
+        share.mjs's own save/load, so the comparison is persisted through
+        the same validated path a link uses rather than two divergent ones.
+        Added a "Copy shareable link" button beside "Reset everything" and a
+        restoreNote status line naming whether the page opened from a link,
+        a save, or neither -- the same convention
+        tree-service-bid-calculator uses.
+      - >-
+        A field-coverage test in html.test.mjs checks the share spec against
+        calc.mjs's own readers by regex (every `channel.<key>` and
+        `shared.<key>` calculateChannel/compareChannels actually dereference)
+        rather than re-deriving the same field lists a second time, which
+        would be tautological. Confirmed the check is not vacuous by
+        rebuilding the spec with a field dropped by hand and watching the
+        assertion fail before restoring it.
+      - >-
+        Hit a live concurrency hazard mid-session: another process sharing
+        this same git checkout performed branch switches and a fast-forward
+        merge (visible in `git reflog`) that silently wiped this venture's
+        uncommitted share.mjs/share.test.mjs (deleted) and reverted
+        index.html/README.md/html.test.mjs to origin/main, while leaving a
+        different concurrent agent's own in-progress, uncommitted edits to
+        contractor-bid-readiness intact in the same working tree. Recovered
+        by moving to an isolated `git worktree` on a fresh branch off
+        origin/main rather than continuing to share the primary checkout,
+        recreating the same diff there, and committing immediately rather
+        than leaving further uncommitted work exposed to the same failure
+        mode. No content lost since the work was recreated from this
+        session's own record of what it had just written, but the next
+        session sharing this checkout should commit to a branch early
+        rather than leaving edits uncommitted on `main`.
+      - >-
+        Verified locally (Actions starved this run: run 34016966948's
+        `build` job classifies via ci_starvation.py as runner_id 0, 3s, no
+        steps): venture suite 57/57 (13 new share.test.mjs assertions --
+        round-trip, unknown-channel-id rejection, partial-row fallback,
+        negative/non-numeric rejection, storage round-trip and
+        blocked-storage handling, link-wins-over-storage, and a
+        row-truncation ceiling -- plus 3 new html.test.mjs assertions for
+        the button/wiring and the calc.mjs field-coverage check).
+        platform/marketing + platform/pages 1135/1135 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 50/50. gitops/tests: 461
+        passed, 25 skipped. All 17 platform/ci unittest modules pass
+        individually (603 tests).
+    mrr_end: null
+  - venture: contractor-bid-readiness
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued the fleet's shareable-link backlog. Listed every venture
+        under ventures/ lacking a share.mjs, pulled origin/main first
+        (grant-deadline-tracker and sponsor-ready had just landed theirs,
+        #3457 and #3453, one commit ahead of the local checkout). Grepped
+        the remaining ~44 for existing inline sharing under other names
+        (copyLink/writeShareQuery/scenarioLink/location.hash) to avoid
+        duplicating already-shipped work: booth-rent-vs-commission,
+        chargeback-evidence-packet, no-show-fee-calculator,
+        tiktok-shop-fee-calculator, and which-job-first all already carry a
+        query-string share link, just not named share.mjs. shop-rate-
+        calculator was ruled out on its own committed test
+        ("the tool does not read or write a saved bid or a shared link" --
+        payroll/overhead figures are deliberately kept out of any URL).
+        contractor-bid-readiness was the real gap: a genuine bid-prep tool
+        (opportunity name, deadline, and a dynamic list of requirement rows
+        with owner/status/note) whose own copy already promised "a portable
+        handoff" but only shipped a Markdown download half of that promise
+        -- no way to hand the live, editable checklist itself to a
+        subcontractor or co-bidder.
+      - >-
+        share.mjs follows the fleet's established convention: URLSearchParams
+        in the URL fragment (never a query string, never sent to a server or
+        logged in a Referer header), a fixed field list mirroring index.html's
+        own #opportunity/#due ids and its per-row {name, owner, status, note}
+        shape (readItems()), a blank/unusable field omitted rather than
+        serialized as a default, and the row-encoding pattern (colon-
+        separated cells, comma-separated rows, URI-encoded free text) that
+        tree-service-bid-calculator/share.mjs uses for the same open-ended-
+        list problem. A row with no usable name is dropped on decode,
+        matching index.html's own `.filter(item => item.name.trim())` before
+        a row is ever assessed, so a crafted link cannot inject a nameless
+        requirement. Wrote the control-character stripper as a character-code
+        loop rather than a regex literal after the first draft's `\u00XX`
+        regex escapes were written into the file as literal control bytes by
+        the file-write path -- caught by `file` reporting the module as
+        binary, not text, before it ever reached a test run.
+      - >-
+        Wired "Copy shareable link" into the Required artifacts panel,
+        decoding an incoming hash/query ahead of the two placeholder rows so
+        a recipient opening a shared link sees the sender's requirements on
+        first paint instead of the shipped example; added a shareStatus
+        line, a FAQ entry (both the visible page and the JSON-LD, kept
+        verbatim per platform/pages/faq-visible.test.mjs), and a privacy-
+        panel sentence naming the fragment mechanism, matching the wording
+        convention invoice-payment-terms-calculator and grant-deadline-
+        tracker already use. Updated README.md and the SoftwareApplication
+        JSON-LD description to mention the link. Found unrelated, uncommitted
+        work for a different venture (delivery-app-margin-calculator) sitting
+        in the working tree from earlier in this session; backed it up,
+        reverted it so this venture's regen.mjs run and commit stayed scoped
+        to contractor-bid-readiness only, and left the backup in the
+        session's scratchpad rather than discarding it.
+      - >-
+        Verified locally (Actions runners remain starved per
+        infra_state.yaml): venture suite 44/44 (15 new share.test.mjs
+        assertions: round-trip, field-coverage against readItems(), dropped
+        nameless row, unknown-status fallback to "attention", MAX_ROWS cap,
+        cell truncation, separator-embedded text, hash/query prefixes).
+        platform/marketing + platform/pages 1172/1172 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml -- diffed to confirm no other
+        venture's entries moved). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 50/50. gitops/tests: 461
+        passed, 25 skipped. All 17 platform/ci unittest modules pass
+        individually.
+    mrr_end: null

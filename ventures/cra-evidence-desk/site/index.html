@@ -30,6 +30,14 @@
   "mainEntity": [
     {
       "@type": "Question",
+      "name": "When do CRA Article 14 reporting obligations start?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "11 September 2026, under Article 14(1) and (3): a manufacturer that becomes aware of an actively exploited vulnerability or a severe incident in a product with digital elements already on the EU market must notify ENISA — an early warning within 24 hours, a fuller notification within 72 hours, and a final report within 14 days (actively exploited vulnerability) or one month (severe incident) after the 72-hour notification. It applies to products already on the market, not only new releases. This tool does not determine whether an obligation applies to your situation; it helps you find the matching components and draft the notification once you or a qualified professional decide it does."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "What SBOM formats does this accept?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -137,6 +145,12 @@
     named, and download a dated record plus an Article 14 review draft.
     <strong>Nothing leaves your device</strong> — your SBOM is never uploaded.
   </p>
+  <p class="lede">
+    <strong>Article 14's reporting duty starts 11 September 2026</strong> — for
+    products already on the EU market, not only new releases. This page does
+    not tell you whether it applies to you; it helps you find the matches and
+    draft the notification quickly once you decide it does.
+  </p>
 
   <section class="panel">
     <h2 style="margin-top:0">1. Your files</h2>
@@ -220,6 +234,19 @@
   <p>Review every finding against the authoritative advisory with a qualified professional before you rely on it.</p>
 
   <h2>Questions</h2>
+  <h3>When do CRA Article 14 reporting obligations start?</h3>
+  <p>
+    11 September 2026, under Article 14(1) and (3): a manufacturer that
+    becomes aware of an actively exploited vulnerability or a severe incident
+    in a product with digital elements already on the EU market must notify
+    ENISA — an early warning within 24 hours, a fuller notification within 72
+    hours, and a final report within 14 days (actively exploited
+    vulnerability) or one month (severe incident) after the 72-hour
+    notification. It applies to products already on the market, not only new
+    releases. This tool does not determine whether an obligation applies to
+    your situation; it helps you find the matching components and draft the
+    notification once you or a qualified professional decide it does.
+  </p>
   <h3>What SBOM formats does this accept?</h3>
   <p>
     CycloneDX JSON (what <code>npm sbom</code>, syft, cdxgen and trivy emit),

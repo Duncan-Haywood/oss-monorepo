@@ -120,6 +120,18 @@ systemd_available() {
 PREREQS=(nginx node git curl)
 NODE_MIN_MAJOR=18
 
+# Binary name -> Debian/Ubuntu package that provides it, where they differ.
+# `apt-get install node` does not install Node: on Debian and Ubuntu `node` is
+# the Amateur Packet Radio Node program, and the JavaScript runtime is
+# `nodejs`. So the remediation line has to name the package or following it
+# leaves the operator with the wrong software and still no `node`.
+prereq_package() {
+  case "$1" in
+    node) echo "nodejs" ;;
+    *)    echo "$1" ;;
+  esac
+}
+
 node_major() {
   local v
   v="$(node --version 2>/dev/null || true)"   # v22.22.2
@@ -127,14 +139,19 @@ node_major() {
   printf '%s' "${v%%.*}"
 }
 
+# Packages the last `host_prereqs` run found missing. A global because the
+# install path acts on the list and `--check`, which also calls it, must not.
+PREREQ_ABSENT=()
+
 host_prereqs() {
   local absent=() tool rc=0
+  PREREQ_ABSENT=()
   for tool in "${PREREQS[@]}"; do
     if command -v "$tool" >/dev/null 2>&1; then
       ok "$tool"
     else
       warn "missing: $tool"
-      absent+=("$tool")
+      absent+=("$(prereq_package "$tool")")
       rc=1
     fi
   done
@@ -144,16 +161,56 @@ host_prereqs() {
     major="$(node_major)"
     if [[ -z "$major" || "$major" -lt "$NODE_MIN_MAJOR" ]]; then
       warn "node is $(node --version 2>/dev/null), but build.mjs needs >= v${NODE_MIN_MAJOR}"
+      absent+=("nodejs")
       rc=1
     fi
   fi
 
   if [[ "${#absent[@]}" != "0" ]]; then
+    PREREQ_ABSENT=("${absent[@]}")
     say ""
     say "  apt-get update && apt-get install -y --no-install-recommends ${absent[*]}"
     say ""
   fi
   return "$rc"
+}
+
+# Supply the packages `host_prereqs` just reported, from the distribution's own
+# archive. Returns 1 when it cannot, leaving the caller to refuse.
+#
+# Same reasoning as `install-codex-host.sh`, and the same constraint: this is a
+# plain `apt-get` against Ubuntu's archive -- nginx, nodejs, git and curl are
+# all there -- so no third-party repository, no added key, and nothing
+# downloaded and piped into a shell. Keep it that way; if a prerequisite ever
+# falls outside the archive, refuse and say so rather than fetching an
+# installer here.
+#
+# It matters more on this script than on that one. A box that cannot run the
+# Codex worker is a box with no dev capacity; a box that cannot run *this* is a
+# box still showing a stranger a refused connection, which is the outage this
+# whole file exists to end.
+install_prereqs() {
+  [[ "${#PREREQ_ABSENT[@]}" == "0" ]] && return 0
+
+  if ! command -v apt-get >/dev/null 2>&1; then
+    warn "no apt-get on this host, so the packages above cannot be installed here"
+    return 1
+  fi
+
+  say "  Installing them from the distribution archive."
+  # Noninteractive: the caller is usually a non-interactive SSH command, and a
+  # package that stopped to ask a question would hang the whole restore.
+  export DEBIAN_FRONTEND=noninteractive
+  if ! apt-get update -qq; then
+    warn "apt-get update failed — is this box online?"
+    return 1
+  fi
+  if ! apt-get install -y --no-install-recommends "${PREREQ_ABSENT[@]}"; then
+    warn "apt-get install failed; see its output above"
+    return 1
+  fi
+  ok "packages installed"
+  return 0
 }
 
 # --------------------------------------------------------------- nginx config
@@ -445,8 +502,21 @@ do_install() {
   done
   ok "templates, units and refresh script present"
 
+  # Try to supply what is missing, then re-ask rather than trusting apt's exit
+  # code -- a package can install and still put nothing on PATH, and an install
+  # that proceeds on that basis leaves a box that cannot serve while reporting
+  # clean. Only a second failed check refuses, before anything is written.
   step "host prerequisites"
-  host_prereqs || fail "install the packages above and re-run. Nothing was changed."
+  if ! host_prereqs; then
+    if [[ "${SKIP_PREREQ_INSTALL:-0}" == "1" ]]; then
+      warn "SKIP_PREREQ_INSTALL=1 — not installing the packages above."
+    elif install_prereqs; then
+      step "host prerequisites (re-checked)"
+      host_prereqs || true
+    fi
+  fi
+  [[ "${#PREREQ_ABSENT[@]}" == "0" ]] || \
+    fail "install the packages above and re-run. Nothing was changed."
 
   step "directories"
   install -d -m 0755 "$PREFIX" "$STATE_DIR" "$STATE_DIR/releases" "$ACME_WEBROOT"

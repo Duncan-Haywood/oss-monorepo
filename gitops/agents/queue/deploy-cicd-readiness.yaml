@@ -20,11 +20,22 @@
 # the first window after an owner flips the governor on is the most
 # valuable quota this fleet will ever spend.
 #
-# The portfolio has 169 finished tools and no public URL, so the delivery
-# path is worth more per run than anything else here -- but only the parts
-# an agent can actually finish. The credential steps are owner-only and
-# already queued; this item exists to keep the code half complete and
-# correct so that nothing but the flip is missing when it comes.
+# The portfolio's delivery path is worth more per run than anything else
+# here -- but only the parts an agent can actually finish. The credential
+# steps are owner-only and already queued; this item exists to keep the code
+# half complete and correct so that nothing but the flip is missing when it
+# comes.
+#
+# CORRECTED 2026-09-06. This comment read "169 finished tools and no public
+# URL". The second half is no longer true: GitHub Pages serves the `gh-pages`
+# branch, measured by its own managed builder running on that branch and
+# succeeding (runs 34011996382, 34012041708), so the catalogue has a public
+# URL and `deploy-settings` is granted. The line is corrected rather than
+# deleted because a *ranking argument* resting on "no public URL" would go on
+# being made from it -- and the argument survives anyway: keeping the snapshot
+# fresh after every merge is now the delivery work, since a committed artifact
+# does not rebuild itself. Ask `platform/ci/pages_state.py`, never this
+# comment.
 id: deploy-cicd-readiness
 repo: Duncan-Haywood/monorepo-projects
 ref: main

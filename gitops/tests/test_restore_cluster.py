@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -80,6 +81,16 @@ case "$cmd" in
     printf 'STDIN %s bytes: host-mode payload\\n' "${{#body}}" >> "{calls}"
     exit 0
     ;;
+  # The site host's token arrives the same way and for the same reason it is
+  # not an env-var prefix: a `GH_TOKEN=... ssh` would put the PAT in the remote
+  # box's own `ps`. Draining it here also lets a test assert the token never
+  # appears in the recorded argv, which is the property that matters.
+  *"--credentials"*)
+    body="$(cat)"
+    printf 'STDIN %s bytes: credentials\\n' "${{#body}}" >> "{calls}"
+    test ! -f "{state}/site_creds_fails"
+    exit $?
+    ;;
 esac
 
 # No trailing `exit 0`: several branches below are probes whose *exit status*
@@ -105,6 +116,8 @@ case "$cmd" in
     test ! -f "{state}/codex_install_fails" ;;
   *"install-github-runner-host.sh"*)
     test ! -f "{state}/runner_install_fails" ;;
+  *"install-portfolio-site-host.sh"*)
+    test ! -f "{state}/site_install_fails" ;;
   *"kubectl wait"*) echo "node/cp condition met" ;;
   *"kubectl get nodes"*) echo "cp Ready; ag Ready" ;;
   *curl*) echo "200, 4096 bytes" ;;
@@ -577,3 +590,148 @@ def test_both_host_mode_extras_can_be_installed_in_one_restore(box):
     log = box.log()
     assert any("install-codex-host.sh" in line for line in log.splitlines())
     assert any("install-github-runner-host.sh" in line for line in log.splitlines())
+
+
+# --------------------------------------------- step 11: the one that *serves*
+#
+# Steps 9 and 10 restore what builds -- dev capacity and CI -- onto the box's
+# own systemd. Nothing did the same for what serves, so the restore could
+# finish every earlier step and leave a visitor to marisstella.dev looking at
+# the same refused connection the whole exercise exists to end.
+#
+# Two properties here are not shared with 9 and 10 and are the ones worth
+# pinning. It goes on the CONTROL PLANE, because that is where the apex, www
+# and tools all resolve (`Outage triage`, run 33889983086) -- sending it to the
+# agent box would install a perfectly working server on an address no DNS
+# record points at, and nothing downstream would notice. And its credential is
+# needed UP FRONT rather than after, because the origin is private and the
+# deploy checkout cannot be cloned without it.
+
+
+def test_portfolio_site_host_is_not_installed_by_default(box):
+    result = box.run()
+    assert result.returncode == 0, result.stderr
+    assert "install-portfolio-site-host.sh" not in box.log()
+    assert "WITH_PORTFOLIO_SITE_HOST=1" in result.stdout
+
+
+def test_portfolio_site_host_installs_on_the_control_plane_when_opted_in(box):
+    result = box.run(WITH_PORTFOLIO_SITE_HOST=1, SITE_GH_TOKEN="ghp_exampletoken")
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+
+    install = [
+        line
+        for line in log.splitlines()
+        if "install-portfolio-site-host.sh" in line and "--credentials" not in line
+    ]
+    assert install, "the installer was never invoked"
+    # The apex points at the control plane. On the agent box this would serve
+    # correctly to nobody.
+    assert any(CP in line for line in install), f"not sent to the control plane: {install}"
+    assert not any(AG in line for line in install), "installed on the agent box"
+    assert any("CONFIRM=install-portfolio-site-host" in line for line in install)
+    assert "host-mode payload" in log, "the site tree never reached the box"
+
+
+def test_portfolio_site_host_token_never_appears_in_argv(box):
+    """The PAT rides stdin, so it must not be anywhere in a recorded command.
+
+    An env-var prefix on the remote command string would put it in the box's
+    own `ps` -- the rule `ARGOCD_REPO_TOKEN` already follows in step 8.
+    """
+    token = "ghp_averysecrettokenvalue"
+    result = box.run(WITH_PORTFOLIO_SITE_HOST=1, SITE_GH_TOKEN=token)
+    assert result.returncode == 0, result.stderr
+    assert token not in box.log()
+    assert token not in result.stdout
+    assert token not in result.stderr
+    # It did reach the box, over stdin.
+    assert "credentials" in box.log()
+
+
+def test_portfolio_site_host_skips_without_a_token_and_says_why(box):
+    """No token is a skip, not a half-install: nothing would be serving."""
+    result = box.run(WITH_PORTFOLIO_SITE_HOST=1)
+    assert result.returncode == 0, result.stderr
+    assert "install-portfolio-site-host.sh" not in box.log()
+    assert "SITE_GH_TOKEN" in result.stderr
+    assert "cluster restore above is" in result.stderr
+
+
+def test_portfolio_site_host_failure_does_not_fail_the_restore(box):
+    (box.state / "site_install_fails").write_text("")
+    result = box.run(WITH_PORTFOLIO_SITE_HOST=1, SITE_GH_TOKEN="ghp_exampletoken")
+    assert result.returncode == 0, result.stderr
+    assert "did not complete" in result.stderr
+    assert "cluster restore above is unaffected" in result.stderr
+    assert "nothing was" in result.stderr and "published" in result.stderr
+
+
+def test_portfolio_site_host_respects_dry_run(box):
+    result = box.run(
+        CONFIRM="", DRY_RUN=1, WITH_PORTFOLIO_SITE_HOST=1, SITE_GH_TOKEN="ghp_x"
+    )
+    assert result.returncode == 0, result.stderr
+    assert "install-portfolio-site-host.sh" not in box.log()
+    assert "would serve the portfolio site" in result.stdout
+
+
+def test_dry_run_warns_when_the_token_is_missing(box):
+    """The plan is where a missing token is cheap to notice."""
+    result = box.run(CONFIRM="", DRY_RUN=1, WITH_PORTFOLIO_SITE_HOST=1)
+    assert "NO SITE_GH_TOKEN" in result.stdout
+
+
+def test_portfolio_site_host_serves_http_without_a_tls_email(box):
+    result = box.run(WITH_PORTFOLIO_SITE_HOST=1, SITE_GH_TOKEN="ghp_x")
+    assert "HTTP only" in result.stdout or "HTTP" in result.stdout
+    assert "--tls" in result.stdout
+
+
+def test_all_three_host_mode_extras_can_be_installed_in_one_restore(box):
+    """The three flags are independent; taking one must not skip the others."""
+    result = box.run(
+        WITH_CODEX_HOST=1,
+        WITH_GITHUB_RUNNER_HOST=1,
+        WITH_PORTFOLIO_SITE_HOST=1,
+        SITE_GH_TOKEN="ghp_x",
+    )
+    assert result.returncode == 0, result.stderr
+    log = box.log()
+    assert "install-codex-host.sh" in log
+    assert "install-github-runner-host.sh" in log
+    assert "install-portfolio-site-host.sh" in log
+
+
+# ------------------------------------ the instruction that goes stale silently
+#
+# `restore-cluster.sh` is run by a person reading `portfolio/ledger/asks.yaml`,
+# not by anything that would notice a missing flag. So a step added here is
+# only actually reachable once that row names it -- and on 2026-09-06 step 11
+# shipped while the row still listed the two flags that restore what *builds*
+# and neither setting that restores what *serves*. The paste would have
+# finished clean and left marisstella.dev refusing.
+#
+# That is the same shape CLAUDE.md records paying for twice under "168 became
+# 169": a rule restated in a second place, going stale in one of them. It
+# cannot be fixed by importing here -- the row is prose for a human -- so this
+# asserts the two agree instead.
+
+
+def test_every_with_flag_is_named_in_the_owners_instruction():
+    script = SCRIPT.read_text()
+    ask = (
+        SCRIPT.resolve().parents[1] / "portfolio" / "ledger" / "asks.yaml"
+    ).read_text()
+
+    flags = sorted(set(re.findall(r'"\$\{(WITH_[A-Z_]+):-0\}"', script)))
+    assert flags, "no WITH_* flags found; has the script's idiom changed?"
+
+    missing = [f for f in flags if f not in ask]
+    assert not missing, (
+        f"{missing} gate a step of the recovery but are named nowhere in "
+        "portfolio/ledger/asks.yaml, which is where the owner reads the "
+        "command to run. A step nobody is told to pass is a step that does "
+        "not happen."
+    )

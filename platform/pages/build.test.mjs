@@ -83,6 +83,9 @@ import {
   groupComparisons,
   renderComparePage,
   renderCompareProductPage,
+  renderCategoryPage,
+  sponsorsNote,
+  SPONSORS_URL,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -4385,4 +4388,80 @@ test('the built site publishes /compare/, links it, and lists it in the sitemap'
   assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
 
   await fs.rm(out, { recursive: true, force: true });
+});
+
+// The hub pages are where a stranger from a search query lands first, and until
+// 2026-09-06 they were the only user-facing pages on the published site with no
+// sponsors line: 698 of 721 pages carried one, and the 23 that did not were
+// `404.html`, `offline.html`, the six category hubs and the fifteen comparison
+// pages. That is backwards — a visitor could read a whole "vs ServiceTitan"
+// comparison and never learn the tools are free and supportable.
+//
+// `portfolio/DIRECTION.md` names keeping every product's own half of the
+// donation ask correct as the agent-doable part of `funding-sponsors-live`,
+// while the owner decision it waits on stays owner-only.
+test('every hub page carries the optional-support line', () => {
+  const surfaces = [
+    { slug: 'a-calculator', title: 'A Calculator' },
+    { slug: 'b-calculator', title: 'B Calculator' },
+  ];
+  const entry = (subject, slug, title) => ({
+    subject,
+    subjectKey: comparisonSubjectKey(subject),
+    slug,
+    file: `vs-${subject.toLowerCase()}.html`,
+    title,
+    description: 'Does the arithmetic for a job.',
+  });
+  const groups = groupComparisons([
+    entry('Jobber', 'a-calculator', 'A Calculator'),
+    entry('Jobber', 'b-calculator', 'B Calculator'),
+  ]);
+  const baseUrl = 'https://example.test/';
+
+  const category = categoryFor('a-calculator');
+  const categoryItems = surfaces.map((s) => ({ ...s, description: 'Does the arithmetic.' }));
+  const categoryGroups = [{ category, items: categoryItems }];
+
+  const pages = {
+    'compare hub': renderComparePage({ groups, surfaces, categoryGroups: [], baseUrl }),
+    'compare product page': renderCompareProductPage({
+      group: groups[0],
+      surfaces,
+      baseUrl,
+    }),
+    'category hub': renderCategoryPage({
+      category,
+      items: categoryItems,
+      groups: categoryGroups,
+      baseUrl,
+    }),
+  };
+
+  for (const [name, html] of Object.entries(pages)) {
+    assert.ok(
+      html.includes(SPONSORS_URL),
+      `${name} does not link the Sponsors profile`,
+    );
+    assert.ok(
+      html.includes(sponsorsNote()),
+      `${name} does not carry the optional-support line verbatim`,
+    );
+    // PRODUCT_PLAYBOOK.md §6: the ask lives in the footer, never in front of a
+    // feature. If it ever renders outside the footer that is a product defect,
+    // not a copy tweak.
+    const footer = html.slice(html.lastIndexOf('<footer'));
+    assert.ok(
+      footer.includes(sponsorsNote()),
+      `${name} carries the line outside its footer`,
+    );
+  }
+});
+
+test('the sponsors line is honest about what refusing costs', () => {
+  // The one claim this sentence makes is that declining changes nothing about
+  // the product. That has to stay true of the copy as well as the code: a
+  // donation ask that overstates itself is worse than none at all.
+  assert.match(sponsorsNote(), /optional and changes nothing/);
+  assert.ok(!/must|required|unlock|premium|pro\b/i.test(sponsorsNote()));
 });

@@ -133,6 +133,14 @@ readings:
       first, and it needs a runner, so it is downstream of both rows here;
       what changed is that it is no longer downstream of a *person* being
       available to SSH to two boxes in order.
+      Corroborated 2026-09-06 from the owner's own browser, which is the first
+      reading of the apex this repository has that came from outside a runner
+      and outside a sandbox: `https://marisstella.dev/` returns
+      `ERR_CONNECTION_REFUSED`. Same signature as run 33889983086 — a refusal,
+      not a timeout, so the host is up and nothing is bound. The verdict does
+      not move on it (a browser cannot see `:6443`), but it does close the one
+      gap the 2026-09-04 measurement had: that reading came from a GitHub
+      runner, and nobody had confirmed a visitor sees the same thing.
 
   codex-host-mode:
     # `up` here means the route is installable and runnable, not that it is
@@ -270,10 +278,23 @@ readings:
     #   `github-pages-origin` — does the URL actually return a page?
     # Until 2026-09-05 the middle one was believed unreadable from a session,
     # so it was folded into the third and both stayed `unknown`.
-    verdict: down
-    measured: "2026-09-05"
-    run: null
+    # CHANGED 2026-09-06: down -> up. The owner flipped the dropdown, or it
+    # was already flipped; either way the route this row tracks is live and
+    # the 2026-09-05 reading below is superseded rather than deleted, because
+    # the way it was wrong is the reusable part.
+    verdict: up
+    measured: "2026-09-06"
+    run: 34012041708
     how: >-
+      `python3 platform/ci/pages_state.py` and read the **`deployed`** row
+      (added 2026-09-06). It lists runs of GitHub's managed builder filtered
+      to `gh-pages` and looks for a completed one. A managed Pages build is
+      triggered only by a push to the *configured source*, so a successful run
+      on `gh-pages` names the branch and shows a real deployment -- which the
+      `source` row below cannot do: that one reads whether the builder is
+      *listed*, which establishes that some branch source exists but names no
+      branch and proves no build ever ran.
+      Superseded reading, kept for the shape of the error:
       `python3 platform/ci/pages_state.py` and read the `source` row (added
       2026-09-05). It lists every workflow GitHub reports for this repository
       and looks for the synthetic `dynamic/pages/` path. GitHub creates that
@@ -304,8 +325,32 @@ readings:
       `vars.PAGES_ENABLED == 'true'` (skipped on every run measured to date)
       *and* needs a runner (`github-actions-runners` is down). Two independent
       reasons nothing has been published from it.
-      **What it does not change.** Whether the origin serves — that still
-      needs a fetch, and `github-pages-origin` below stays `unknown`. Nor the
+      **SUPERSEDED 2026-09-06.** The paragraphs above are the 2026-09-05
+      reading and every one of them was correct that day; the source has since
+      become the branch. Measured: `platform/pages/publish-branch.sh` pushed a
+      fresh `gh-pages` snapshot and GitHub's own
+      `dynamic/pages/pages-build-deployment` ran on that branch and concluded
+      `success` -- runs 34011996382 (head 1c2254a3) and 34012041708 (head
+      e7b5a940). Both ran *while `github-actions-runners` was down*, which is
+      the second finding: the managed Pages builder is not drawn from the
+      metered Actions allowance, so this delivery route survives the
+      starvation that takes every other one out.
+      The generalisable half is the same shape the 2026-09-05 note already
+      named and then walked into from the other side. That note reasoned from
+      *absence* -- no `dynamic/pages/` entry -- and absence goes stale
+      silently: nothing re-runs when the fact changes, so the file kept
+      asserting `down` after it stopped being true. A reading taken from a
+      thing that is *present* (a run, with an id and a conclusion) carries its
+      own date. Prefer those.
+      **What it does not change.** Whether the origin serves a *stranger*.
+      GitHub built and deployed the branch, which is strictly more than
+      "configured", but it is still not an unauthenticated HTTP 200: this
+      session cannot fetch the URL (the agent egress proxy answers
+      `403 to CONNECT` for `github.io`), and a Pages site can in principle be
+      access-controlled rather than public. `github-pages-origin` below
+      therefore stays `unknown`, and the cheapest way to close it is the owner
+      opening the URL in a logged-out browser, or `Public surface check` once
+      a runner is available. Nor the
       plan gate: on Free, a private repository's Pages site serves a stranger
       nothing whichever source it points at, so `github-pages-plan` above is
       still the thirty seconds that decides whether this flip is worth taking.
@@ -388,3 +433,27 @@ readings:
       repository has already spent a week on once.
       This does not supersede `github-actions-runners` or `k3s-cluster`; it is
       orthogonal to both. It says who can act while they are down.
+      **Added 2026-09-06: do not port-probe :80 or :443 from a session — the
+      answer is a lie, and it lies in the healthy direction.** The row above
+      measures the proxy *refusing* (403 to CONNECT) and a raw socket to `:22`
+      *timing out*, and both readings are honest failures. A raw socket to
+      `:443` is not: the sandbox accepts the connection itself and will even
+      complete a TLS handshake, returning an empty peer certificate. So
+      `89.167.29.39:443` reads OPEN from here on the same day a browser gets
+      `ERR_CONNECTION_REFUSED` from it.
+      The control that proves it costs one line and belongs in any such probe:
+      TEST-NET-2 `198.51.100.7:443`, an address with nothing listening on it
+      anywhere in the world, *also* connects. (TEST-NET-1 `192.0.2.1:443` is
+      refused, so a single control can come back clean — use both, or use the
+      one that is documented here to answer.)
+      Why this is worth a row rather than a footnote: every other measurement
+      failure this file records fails toward *unknown*, and the tooling is
+      built to treat unknown as never-healthy. This one fails toward **up**. A
+      session asking "is the site back?" with `/dev/tcp` gets "yes" from a dead
+      origin, which is the 2026-08-30..09-04 "nothing is served" episode run in
+      reverse and would be believed faster, because good news is not audited.
+      `platform/ci/public_surface.py` is not affected — it goes through the
+      proxy, gets the 403, and reports NOT MEASURED (verified in this session,
+      28/28 probes blocked). The trap is only for hand-rolled socket probes,
+      which is precisely what a session reaches for when the tool says it
+      cannot answer.

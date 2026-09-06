@@ -96,6 +96,23 @@ test('the stylesheet makes the wrapper scroll and print whole', () => {
   assert.match(REFLOW_CSS, /@media print\{[^}]*overflow-x:visible/);
 });
 
+test('a <pre> scrolls on screen and wraps on paper', () => {
+  // Cause (3). The screen rule mirrors the table's: scroll the block, not the
+  // page, so an install command stays copyable as the one line it was written
+  // as. `vendor-change-watch` was 649px inside a 360px window on this.
+  assert.match(REFLOW_CSS, /:where\(pre\)\{overflow-x:auto/);
+  // Zero specificity, so a venture that styled its own <pre> still wins —
+  // the same contract every other relaxation in this file signs.
+  assert.ok(
+    !/(^|[^:(\w])pre\{/.test(REFLOW_CSS.replace(/:where\(pre\)/g, '')),
+    'the <pre> rule must only appear inside :where()',
+  );
+  // Paper cannot scroll, so the trade inverts: wrap rather than crop at the
+  // edge of the sheet. `pre-wrap` still preserves every space and newline.
+  const print = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media print{:where(pre)'));
+  assert.match(print, /^@media print\{:where\(pre\)\{[^}]*white-space:pre-wrap/);
+});
+
 test('the min-width relaxations are zero-specificity and phone-only', () => {
   const narrow = REFLOW_CSS.slice(REFLOW_CSS.indexOf('@media (max-width:640px)'));
   assert.ok(narrow.includes('min-width:0'), 'the relaxation is inside the narrow-viewport query');

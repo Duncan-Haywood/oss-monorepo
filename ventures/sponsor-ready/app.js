@@ -23,6 +23,28 @@ function parseRepoInput(raw) {
   return null;
 }
 
+// Reads a shared scan target out of the URL fragment rather than the query
+// string. A fragment is never sent in the HTTP request for the page itself,
+// so a link to someone else's scan cannot end up in any server's access log
+// — the same guarantee the fleet's other share links rely on, even though
+// the repo name here is already public on GitHub.
+function repoFromHash(hash) {
+  try {
+    const params = new URLSearchParams(String(hash || "").replace(/^#/, ""));
+    const raw = params.get("repo");
+    return raw ? raw.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
+// A link that reopens this exact scan. Kept as a pure function of its
+// inputs (never reads `location` itself) so it is testable without a DOM.
+function buildShareUrl(origin, pathname, owner, repo) {
+  const params = new URLSearchParams({ repo: `${owner}/${repo}` });
+  return `${origin}${pathname}#${params.toString()}`;
+}
+
 async function fetchJson(path) {
   let res;
   try {
@@ -213,6 +235,10 @@ function renderResults(container, { owner, repo, score, maxScore, results, archi
       <button type="button" id="copy-summary">Copy ranked list</button>
       <span id="copy-status" role="status"></span>
     </div>
+    <div class="summary-actions">
+      <button type="button" id="copy-link">Copy link to this result</button>
+      <span id="link-status" role="status"></span>
+    </div>
   `;
 
   const copyBtn = container.querySelector("#copy-summary");
@@ -224,6 +250,21 @@ function renderResults(container, { owner, repo, score, maxScore, results, archi
       track("summary_copied");
     } catch {
       if (status) status.textContent = "Copy failed — select the list above instead.";
+    }
+  });
+
+  const linkBtn = container.querySelector("#copy-link");
+  const linkStatus = container.querySelector("#link-status");
+  linkBtn?.addEventListener("click", async () => {
+    const url = buildShareUrl(location.origin, location.pathname, owner, repo);
+    try {
+      await navigator.clipboard.writeText(url);
+      history.replaceState(null, "", url);
+      if (linkStatus) linkStatus.textContent = "Link copied — opening it re-runs this scan.";
+      track("link_copied");
+    } catch {
+      if (linkStatus) linkStatus.textContent = "Copy failed — the link is in your address bar instead.";
+      try { history.replaceState(null, "", url); } catch { /* file:// origins may reject it */ }
     }
   });
 }
@@ -264,6 +305,17 @@ function initApp() {
     form.requestSubmit();
   });
 
+  // A link someone shared reopens the exact scan it pointed at — through
+  // requestSubmit(), the same path a typed repo or the worked example takes,
+  // so a malformed shared value hits the same validation error rather than a
+  // silent no-op.
+  const shared = repoFromHash(location.hash);
+  if (shared) {
+    input.value = shared;
+    track("scan_from_link");
+    form.requestSubmit();
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     errorBox.hidden = true;
@@ -298,5 +350,5 @@ if (typeof window !== "undefined") {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk, fetchRepoFacts, renderResults };
+  module.exports = { parseRepoInput, fundingYmlHasEntries, containsSponsorshipAsk, fetchRepoFacts, renderResults, repoFromHash, buildShareUrl };
 }

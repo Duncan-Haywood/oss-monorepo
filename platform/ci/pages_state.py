@@ -133,10 +133,13 @@ runner-side probe remains the credential-free way to get one.
 """
 
 import argparse
+import fnmatch
 import json
 import os
 import re
 import sys
+
+import yaml
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -153,8 +156,31 @@ BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{{branch}}"
 WORKFLOWS_PATH = (
     f"repos/{REPO_PLACEHOLDER}/actions/workflows?per_page=100&page={{page}}"
 )
+# Runs of the managed builder, newest first. Filtered to the publish branch
+# server-side so a busy repository's run history cannot push the one that
+# matters off the first page.
+PAGES_RUNS_PATH = (
+    f"repos/{REPO_PLACEHOLDER}/actions/runs"
+    f"?branch={{branch}}&per_page=20&page=1"
+)
+# Files changed between the snapshot's source commit and the tip of the default
+# branch. GitHub caps the `files` array at 300 entries, which `read_changed_paths`
+# treats as "could not read" rather than as a short list -- see there.
+COMPARE_PATH = f"repos/{REPO_PLACEHOLDER}/compare/{{base}}...{{head}}"
 
 PUBLISH_BRANCH = "gh-pages"
+
+# The publishing workflow, read for its `paths:` filter rather than restated
+# here. That filter *is* the set of inputs `build.mjs` reads, and the repository
+# has now twice paid for a constant copied out of the file that owns it
+# (CLAUDE.md, "168 became 169"), so this parses the one source of truth and
+# `test_pages_state.py` asserts the file still parses.
+PUBLISH_WORKFLOW = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    ".github",
+    "workflows",
+    "publish-pages-branch.yml",
+)
 
 # GitHub's managed builder for a *branch*-sourced Pages site. It is not a file
 # in `.github/workflows/`; GitHub synthesises it and lists it under this path
@@ -217,6 +243,66 @@ def read_default_head(api, branch):
     return ((payload.get("commit") or {}).get("sha")) or None
 
 
+def build_input_patterns(path=PUBLISH_WORKFLOW):
+    """The `paths:` filter of the publishing workflow, or None if unreadable.
+
+    None means "I could not look", and `freshness` treats that the same way it
+    treats an unreadable comparison: as a reason to keep saying `stale`, never
+    as licence to call a snapshot current. The distinction matters because this
+    is the only thing standing between a real drift and a quiet pass.
+    """
+    try:
+        with open(path, encoding="utf-8") as handle:
+            document = yaml.safe_load(handle)
+    except (OSError, yaml.YAMLError):
+        return None
+    # `on:` is the YAML 1.1 boolean `True` once parsed, which is why this looks
+    # for both spellings rather than the obvious one.
+    triggers = document.get("on") if isinstance(document, dict) else None
+    if triggers is None and isinstance(document, dict):
+        triggers = document.get(True)
+    push = (triggers or {}).get("push") if isinstance(triggers, dict) else None
+    paths = (push or {}).get("paths") if isinstance(push, dict) else None
+    if not paths:
+        return None
+    return [str(pattern) for pattern in paths]
+
+
+def is_build_input(changed_path, patterns):
+    """Whether one changed file is an input the published artifact is built from."""
+    for pattern in patterns:
+        # `dir/**` is the only glob this filter uses, and it means the subtree.
+        if pattern.endswith("/**"):
+            if changed_path.startswith(pattern[:-2]):
+                return True
+        elif fnmatch.fnmatch(changed_path, pattern):
+            return True
+    return False
+
+
+def read_changed_paths(api, base, head):
+    """Files changed between two commits, or None when that cannot be trusted.
+
+    Returns None rather than a partial list when GitHub truncates the response.
+    The comparison endpoint caps `files` at 300 entries, and a truncated list
+    read as a complete one is exactly how a genuinely stale snapshot would be
+    waved through as current -- the failure this whole function exists to avoid
+    creating.
+    """
+    if not base or not head:
+        return None
+    try:
+        payload = api(COMPARE_PATH.replace("{base}", base).replace("{head}", head))
+    except RuntimeError:
+        return None
+    files = payload.get("files")
+    if not isinstance(files, list):
+        return None
+    if len(files) >= 300:
+        return None
+    return [str(entry.get("filename") or "") for entry in files]
+
+
 def read_workflow_paths(api):
     """Every workflow path GitHub lists for this repository, or None.
 
@@ -243,6 +329,87 @@ def read_workflow_paths(api):
         if len(batch) < 100:
             break
     return paths
+
+
+def read_pages_deployment(api, branch=PUBLISH_BRANCH):
+    """The most recent managed Pages build on `branch`, or None.
+
+    This is the strongest credential-free reading available, and it is
+    strictly stronger than `verdict_source`'s. That one asks whether GitHub
+    *lists* a branch builder, which establishes that some branch source is
+    configured but names no branch and proves no build ever happened. This
+    asks whether that builder has actually *run on this branch and
+    succeeded* -- which names the branch (a managed Pages build is triggered
+    only by a push to the configured source) and shows a real deployment of a
+    known commit.
+
+    The distinction is the one the module docstring left open: "configured"
+    and "deployed" are different claims, and the repository has been reading
+    the first as the second. It still is not an HTTP 200 -- a successful
+    deploy can still 404 for plan reasons -- but it moves the owner-facing
+    answer from "open this URL and tell us" to a measurement.
+    """
+    try:
+        payload = api(PAGES_RUNS_PATH.replace("{branch}", branch))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    for run in payload.get("workflow_runs") or []:
+        # `event: dynamic` and the synthetic path together are what mark this
+        # as GitHub's own builder rather than a repository workflow that
+        # happens to run on the same branch.
+        if not str(run.get("path", "")).startswith(PAGES_BUILDER_PREFIX):
+            continue
+        if run.get("status") != "completed":
+            continue
+        return {
+            "branch": run.get("head_branch"),
+            "conclusion": run.get("conclusion"),
+            "head_sha": (run.get("head_sha") or "")[:8],
+            "run_id": run.get("id"),
+            "updated_at": run.get("updated_at"),
+        }
+    return None
+
+
+def verdict_deployment(deployment, publish):
+    """`(verdict, reason)` for whether GitHub has actually deployed the branch.
+
+    `served` is the only verdict that lets a session stop asking the owner to
+    flip a Settings dropdown, so it requires a *successful* completed run, not
+    merely a recent one: a build that failed is a configured source that is
+    serving whatever it served before.
+    """
+    if deployment is None:
+        return (
+            "unknown",
+            f"no completed `{PAGES_BUILDER_PREFIX}` run on `{PUBLISH_BRANCH}` is "
+            "visible, so nothing here says GitHub has built this branch",
+        )
+    if deployment["conclusion"] != "success":
+        return (
+            "failed",
+            f"GitHub's managed builder last ran on `{deployment['branch']}` at "
+            f"{deployment['head_sha']} and concluded `{deployment['conclusion']}` "
+            f"(run {deployment['run_id']}) -- the branch IS the Pages source, but "
+            "this snapshot did not deploy",
+        )
+    fresh = ""
+    if publish and publish.get("sha", "")[:8] != deployment["head_sha"]:
+        fresh = (
+            f" NOTE: `{PUBLISH_BRANCH}` has since moved to "
+            f"{publish['sha'][:8]}, which may not be deployed yet"
+        )
+    return (
+        "served",
+        f"GitHub's managed builder ran on `{deployment['branch']}` at "
+        f"{deployment['head_sha']} and succeeded (run {deployment['run_id']}, "
+        f"{deployment['updated_at']}). A managed Pages build is triggered only "
+        f"by a push to the configured source, so `{PUBLISH_BRANCH}` IS that "
+        f"source and this snapshot deployed. `deploy-settings` is already "
+        f"granted.{fresh}"
+    )
 
 
 def verdict_source(repo, publish, workflow_paths):
@@ -330,8 +497,27 @@ def plan_verdict(repo):
     )
 
 
-def freshness(publish, head_sha):
-    """Whether the staged snapshot matches the tip of the default branch."""
+def freshness(publish, head_sha, changed_paths=None, patterns=None):
+    """Whether re-publishing would change what the site serves.
+
+    The question this answers used to be "was the snapshot built from the tip
+    of `main`?", which is a different and worse question. Measured 2026-09-06:
+    `main` was one docs-only commit ahead of the snapshot (#3452, touching
+    `AGENTS.md`, `portfolio/DIRECTION.md` and a ledger file), this reported
+    `stale`, and rebuilding produced a tree **byte-identical** to the published
+    one -- 2053 files, zero diff.
+
+    That false alarm is not free. It asks every session after a docs merge to
+    force-push an identical 2000-file artifact, which spends a managed Pages
+    build to change nothing; and a warning that cries wolf after every docs
+    merge is one the fleet learns to skim, which costs exactly on the day the
+    drift is real. So the comparison is now against the build's *inputs* --
+    the `paths:` filter of the workflow that publishes the branch, which is the
+    same set `build.mjs` reads.
+
+    Both unreadable cases (no comparison, no filter) keep the old `stale`
+    answer. An absent measurement must never read as a healthy one.
+    """
     if publish is None:
         return "absent", f"no `{PUBLISH_BRANCH}` branch: nothing is staged to serve"
     if not publish["built_from"]:
@@ -346,6 +532,22 @@ def freshness(publish, head_sha):
         head_sha[: len(publish["built_from"])]
     ):
         return "current", f"built from the tip of the default branch ({head_sha[:8]})"
+    if changed_paths is not None and patterns:
+        touched = [path for path in changed_paths if is_build_input(path, patterns)]
+        if not touched:
+            return (
+                "current",
+                f"built from {publish['built_from'][:8]} and the default branch is "
+                f"now at {head_sha[:8]}, but nothing changed since touches a path "
+                f"the site is built from ({', '.join(patterns)}) -- re-publishing "
+                "would produce the same tree",
+            )
+        return (
+            "stale",
+            f"built from {publish['built_from'][:8]}, but the default branch is now "
+            f"at {head_sha[:8]} and {len(touched)} changed file(s) feed the build "
+            f"(e.g. {touched[0]}) -- re-run publish-branch.sh",
+        )
     return (
         "stale",
         f"built from {publish['built_from'][:8]}, but the default branch is now "
@@ -459,11 +661,27 @@ def collect(api):
     # than restated here -- the copied-constant mistake CLAUDE.md records twice.
     base_url = public_surface.pages_base_url()
     verdict, reason = plan_verdict(repo)
-    fresh, fresh_reason = freshness(publish, head_sha)
+    # Only pay for the comparison when the cheap check would say `stale`: when
+    # the snapshot was built from the tip there is nothing to compare, and the
+    # docstring's promise that this reads without a second API call still holds
+    # for the common case.
+    changed_paths = None
+    patterns = None
+    if publish and publish.get("built_from") and head_sha:
+        if not head_sha.startswith(publish["built_from"]):
+            patterns = build_input_patterns()
+            if patterns:
+                changed_paths = read_changed_paths(api, publish["built_from"], head_sha)
+    fresh, fresh_reason = freshness(publish, head_sha, changed_paths, patterns)
     source, source_reason = verdict_source(repo, publish, read_workflow_paths(api))
+    deployment = read_pages_deployment(api)
+    deployed, deployed_reason = verdict_deployment(deployment, publish)
     return {
         "source": source,
         "source_reason": source_reason,
+        "deployed": deployed,
+        "deployed_reason": deployed_reason,
+        "deployment": deployment,
         "private": repo["private"],
         "has_pages": repo["has_pages"],
         "default_branch": repo["default_branch"],
@@ -491,6 +709,9 @@ def render(state):
         "",
         f"  source            {state['source']}",
         f"                    {state['source_reason']}",
+        "",
+        f"  deployed          {state['deployed']}",
+        f"                    {state['deployed_reason']}",
         "",
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",

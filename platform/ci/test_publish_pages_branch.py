@@ -227,5 +227,110 @@ class PublishPagesBranchWorkflow(unittest.TestCase):
         self.assertIn("workflow_dispatch", on)
 
 
+class FetchesARewrittenServingBranch(unittest.TestCase):
+    """The publisher must be able to re-read a branch it rewrote itself.
+
+    `publish-branch.sh` reads the serving branch before publishing, so a custom
+    domain set in Settings -> Pages is carried forward rather than silently
+    dropped. It fetches that branch first, and refuses to publish when the fetch
+    fails.
+
+    The catch is that every publish writes `gh-pages` as a fresh *orphan*
+    commit, so the remote ref is never a fast-forward of whatever a previous
+    fetch left in `refs/remotes/origin/gh-pages`. An unforced refspec is
+    rejected as non-fast-forward, the guard reads that as "cannot read the
+    branch", and publishing stops -- which happened on 2026-09-06 and blocked
+    the deploy until the tracking ref was force-updated by hand.
+
+    CI never saw it, and that is the reason this test exists: `actions/checkout`
+    fetches one branch, so no tracking ref is present there and the plain fetch
+    always succeeds. It fails only in a long-lived clone, which is where every
+    by-hand publish happens -- and the by-hand publish is the *only* route to
+    the live site while Actions runners are starved.
+    """
+
+    def test_the_serving_branch_refspec_is_forced(self) -> None:
+        script = (ROOT / "platform" / "pages" / "publish-branch.sh").read_text()
+        # assertTrue rather than assertIn: the latter prints the whole script on
+        # failure, which buries the one line that matters.
+        self.assertTrue(
+            '"+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"' in script,
+            "the serving-branch fetch must be forced; an orphan republish is "
+            "never a fast-forward",
+        )
+        self.assertFalse(
+            'origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"' in script,
+            "found the unforced refspec, which is rejected on the second "
+            "publish from any clone that has fetched the branch once",
+        )
+
+    def test_git_really_rejects_the_unforced_refspec(self) -> None:
+        """The premise above, measured rather than asserted.
+
+        Without this, the test above pins a string whose reason nobody can
+        check. This builds the exact situation -- a branch replaced by an
+        unrelated orphan commit, and a stale tracking ref -- and shows the plain
+        refspec failing and the forced one succeeding.
+        """
+        import subprocess
+        import tempfile
+
+        def git(repo, *args, check=True):
+            return subprocess.run(
+                ["git", "-C", str(repo), *args],
+                capture_output=True, text=True, check=check,
+            )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            remote, clone = tmp / "remote", tmp / "clone"
+            remote.mkdir()
+            git(remote, "init", "-q", "-b", "main")
+            git(remote, "config", "user.email", "t@example.invalid")
+            git(remote, "config", "user.name", "t")
+            (remote / "f").write_text("1")
+            git(remote, "add", "f")
+            git(remote, "commit", "-q", "-m", "one")
+            # The serving branch, as an orphan -- the shape publish-branch.sh writes.
+            git(remote, "checkout", "-q", "--orphan", "gh-pages")
+            (remote / "index.html").write_text("v1")
+            git(remote, "add", "index.html")
+            git(remote, "commit", "-q", "-m", "publish 1")
+            git(remote, "checkout", "-q", "main")
+
+            subprocess.run(
+                ["git", "clone", "-q", str(remote), str(clone)],
+                capture_output=True, text=True, check=True,
+            )
+            git(clone, "fetch", "-q", "origin",
+                "refs/heads/gh-pages:refs/remotes/origin/gh-pages")
+
+            # Republish: a second orphan, unrelated to the first.
+            git(remote, "checkout", "-q", "--orphan", "gh-pages-2")
+            (remote / "index.html").write_text("v2")
+            git(remote, "add", "index.html")
+            git(remote, "commit", "-q", "-m", "publish 2")
+            git(remote, "branch", "-q", "-D", "gh-pages")
+            git(remote, "branch", "-q", "-m", "gh-pages")
+            git(remote, "checkout", "-q", "main")
+
+            plain = git(clone, "fetch", "-q", "origin",
+                        "refs/heads/gh-pages:refs/remotes/origin/gh-pages",
+                        check=False)
+            self.assertNotEqual(
+                plain.returncode, 0,
+                "expected the unforced refspec to be rejected as "
+                "non-fast-forward -- if this ever passes, the bug this guards "
+                "against has changed shape",
+            )
+            forced = git(clone, "fetch", "-q", "origin",
+                         "+refs/heads/gh-pages:refs/remotes/origin/gh-pages",
+                         check=False)
+            self.assertEqual(
+                forced.returncode, 0,
+                f"the forced refspec must succeed; got: {forced.stderr}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

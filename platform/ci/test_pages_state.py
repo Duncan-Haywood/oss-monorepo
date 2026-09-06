@@ -9,8 +9,11 @@ tests that matter are the ones pinning where the verdict must *not* go:
   - `has_pages: false` is not evidence of a Free plan either, only of an
     unflipped switch, so it must stay `unknown` rather than becoming `down`;
   - a `gh-pages` branch built from a commit that is no longer the tip must
-    read `stale`, because the failure this half exists to prevent is an owner
-    flipping the switch and publishing a snapshot from last week.
+    read `stale` **when a build input changed**, because the failure this half
+    exists to prevent is an owner flipping the switch and publishing a snapshot
+    from last week -- and must read `current` when nothing the site is built
+    from moved, because a warning that fires after every docs merge is one the
+    fleet learns to skim.
 """
 
 import io
@@ -21,7 +24,8 @@ import unittest.mock
 import pages_state as ps
 
 
-def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fail=False):
+def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fail=False,
+             runs=None, runs_fail=False, compare=None, compare_fail=False):
     """An api(path) callable over canned payloads.
 
     `missing` names branches that should raise the way `http_api_for` does on
@@ -38,6 +42,16 @@ def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fai
     branches = branches or {}
 
     def call(path):
+        if "/compare/" in path:
+            if compare_fail:
+                raise RuntimeError("GET .../compare failed: HTTP 404")
+            return {"files": [{"filename": name} for name in (compare or [])]}
+        if "/actions/runs" in path:
+            if runs_fail:
+                raise RuntimeError("GET .../actions/runs failed: HTTP 403")
+            if runs is None:
+                return repo
+            return {"workflow_runs": runs}
         if "/actions/workflows" in path:
             if workflows_fail:
                 raise RuntimeError("GET .../actions/workflows failed: HTTP 403")
@@ -133,6 +147,110 @@ class Freshness(unittest.TestCase):
         self.assertEqual(state, "unknown")
 
 
+PATTERNS = ["ventures/**", "platform/pages/**", ".github/workflows/publish-pages-branch.yml"]
+
+
+class BuildInputs(unittest.TestCase):
+    """The filter is parsed from the workflow, never restated here.
+
+    A copied constant is the mistake CLAUDE.md records twice as having cost
+    live product, so the test that matters is that the real file still parses
+    and still names the subtrees the build reads.
+    """
+
+    def test_patterns_come_from_the_publishing_workflow(self):
+        patterns = ps.build_input_patterns()
+        self.assertIsNotNone(patterns)
+        self.assertIn("ventures/**", patterns)
+        self.assertIn("platform/pages/**", patterns)
+
+    def test_unreadable_workflow_is_none_not_empty(self):
+        """None and [] support opposite conclusions in `freshness`."""
+        self.assertIsNone(ps.build_input_patterns("/nonexistent/publish.yml"))
+
+    def test_subtree_glob_matches_nested_files(self):
+        self.assertTrue(ps.is_build_input("ventures/a/site/index.html", PATTERNS))
+
+    def test_docs_are_not_build_inputs(self):
+        for path in ("AGENTS.md", "portfolio/DIRECTION.md", "portfolio/ledger/2026-09.yaml"):
+            self.assertFalse(ps.is_build_input(path, PATTERNS), path)
+
+    def test_a_literal_path_matches_exactly(self):
+        self.assertTrue(
+            ps.is_build_input(".github/workflows/publish-pages-branch.yml", PATTERNS)
+        )
+        self.assertFalse(ps.is_build_input(".github/workflows/other.yml", PATTERNS))
+
+    def test_a_truncated_comparison_reads_as_unknown(self):
+        """300 files is GitHub's cap, so the list may be incomplete.
+
+        Returning the partial list would let a genuinely stale snapshot pass as
+        current -- the one way this optimisation could cause the failure it
+        exists to sharpen.
+        """
+        api = fake_api(compare=[f"ventures/v{i}/index.html" for i in range(300)])
+        self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
+
+    def test_an_unreadable_comparison_is_none(self):
+        api = fake_api(compare_fail=True)
+        self.assertIsNone(ps.read_changed_paths(api, "a" * 40, "b" * 40))
+
+
+class FreshnessAgainstBuildInputs(unittest.TestCase):
+    """Measured 2026-09-06: `main` was one docs commit ahead of the snapshot and
+    rebuilding produced a byte-identical tree (2053 files, zero diff). The old
+    check called that `stale`."""
+
+    def test_docs_only_drift_is_current(self):
+        state, reason = ps.freshness(
+            {"built_from": "d" * 40}, "e" * 40, ["AGENTS.md"], PATTERNS
+        )
+        self.assertEqual(state, "current")
+        self.assertIn("same tree", reason)
+
+    def test_a_changed_venture_is_still_stale(self):
+        state, reason = ps.freshness(
+            {"built_from": "d" * 40},
+            "e" * 40,
+            ["AGENTS.md", "ventures/foo/index.html"],
+            PATTERNS,
+        )
+        self.assertEqual(state, "stale")
+        self.assertIn("ventures/foo/index.html", reason)
+        self.assertIn("publish-branch.sh", reason)
+
+    def test_an_unreadable_comparison_keeps_saying_stale(self):
+        """An absent measurement must never read as a healthy one."""
+        state, _ = ps.freshness({"built_from": "d" * 40}, "e" * 40, None, PATTERNS)
+        self.assertEqual(state, "stale")
+
+    def test_an_unreadable_filter_keeps_saying_stale(self):
+        state, _ = ps.freshness({"built_from": "d" * 40}, "e" * 40, ["AGENTS.md"], None)
+        self.assertEqual(state, "stale")
+
+    def test_collect_reports_current_for_a_docs_only_merge(self):
+        api = fake_api(
+            branches={
+                "gh-pages": branch(),
+                "main": branch(sha="f" * 40, message="docs: tidy"),
+            },
+            compare=["AGENTS.md", "portfolio/DIRECTION.md"],
+        )
+        state = ps.collect(api)
+        self.assertEqual(state["snapshot"], "current")
+
+    def test_collect_still_reports_stale_when_a_venture_moved(self):
+        api = fake_api(
+            branches={
+                "gh-pages": branch(),
+                "main": branch(sha="f" * 40, message="feat: new tool"),
+            },
+            compare=["ventures/new-tool/index.html"],
+        )
+        state = ps.collect(api)
+        self.assertEqual(state["snapshot"], "stale")
+
+
 class ReadPublishBranch(unittest.TestCase):
     def test_missing_branch_is_none_not_an_error(self):
         api = fake_api(missing=("gh-pages",))
@@ -155,12 +273,18 @@ class Collect(unittest.TestCase):
         self.assertEqual(ps.exit_code(state), 0)
 
     def test_exit_code_ignores_a_stale_snapshot(self):
-        """A stale snapshot is a re-run away; it must not flip the verdict."""
+        """A stale snapshot is a re-run away; it must not flip the verdict.
+
+        The `compare` payload is what makes this snapshot genuinely stale
+        rather than merely built from an older commit -- since 2026-09-06 those
+        are different things, and only the first should read `stale`.
+        """
         api = fake_api(
             branches={
                 "gh-pages": branch(),
                 "main": branch(sha="f" * 40, message="merge"),
-            }
+            },
+            compare=["ventures/foo/index.html"],
         )
         state = ps.collect(api)
         self.assertEqual(state["snapshot"], "stale")
@@ -371,3 +495,96 @@ class SourceNoteFromVerdict(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def pages_run(conclusion="success", sha="e" * 40, branch_name="gh-pages",
+              status="completed", path="dynamic/pages/pages-build-deployment"):
+    return {
+        "path": path,
+        "status": status,
+        "conclusion": conclusion,
+        "head_branch": branch_name,
+        "head_sha": sha,
+        "id": 34012041708,
+        "updated_at": "2026-09-06T04:39:47Z",
+    }
+
+
+class DeploymentVote(unittest.TestCase):
+    """The vote that separates "configured" from "actually deployed".
+
+    `verdict_source` reads whether GitHub *lists* a branch builder. That
+    establishes some branch source exists but names no branch and proves no
+    build ever ran, and this repository spent days reading it as though it
+    meant the site was up. A managed Pages build is triggered only by a push
+    to the configured source, so a *successful run of it on gh-pages* names
+    the branch and shows a real deployment.
+    """
+
+    def test_a_successful_managed_run_means_served(self):
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run()])), None
+        )
+        self.assertEqual(got, "served")
+        self.assertIn("gh-pages", why)
+        self.assertIn("already granted", why)
+
+    def test_a_failed_build_is_not_served_but_still_names_the_source(self):
+        """A failed deploy still proves the branch is the source.
+
+        Those are different facts and collapsing them would either hide a
+        broken deploy or re-raise an owner ask that is already granted.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run(conclusion="failure")])),
+            None,
+        )
+        self.assertEqual(got, "failed")
+        self.assertIn("did not deploy", why)
+
+    def test_no_runs_is_unknown_not_served(self):
+        got, _ = ps.verdict_deployment(ps.read_pages_deployment(fake_api()), None)
+        self.assertEqual(got, "unknown")
+
+    def test_an_unreadable_listing_is_unknown_not_served(self):
+        got, _ = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs_fail=True)), None
+        )
+        self.assertEqual(got, "unknown")
+
+    def test_a_repository_workflow_on_the_branch_is_not_a_pages_build(self):
+        """The namespace is the whole signal.
+
+        `publish-pages-branch.yml` is a repository workflow that also runs on
+        pushes to this branch. Counting it would report `served` on a
+        repository where Pages was never enabled at all.
+        """
+        deployment = ps.read_pages_deployment(
+            fake_api(runs=[pages_run(path=".github/workflows/publish-pages-branch.yml")])
+        )
+        self.assertIsNone(deployment)
+
+    def test_an_in_progress_run_is_skipped_for_the_last_completed_one(self):
+        deployment = ps.read_pages_deployment(fake_api(runs=[
+            pages_run(status="in_progress", conclusion=None, sha="f" * 40),
+            pages_run(sha="a" * 40),
+        ]))
+        self.assertEqual(deployment["head_sha"], "aaaaaaaa")
+
+    def test_a_snapshot_pushed_after_the_last_build_is_flagged(self):
+        """Served, but not necessarily *this* snapshot -- worth saying."""
+        _, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run(sha="e" * 40)])),
+            {"sha": "9" * 40},
+        )
+        self.assertIn("has since moved", why)
+
+    def test_the_reading_reaches_the_rendered_report(self):
+        api = fake_api(
+            branches={"main": branch(sha="c" * 40), "gh-pages": branch()},
+            workflows=DYNAMIC_BUT_NOT_PAGES + ["dynamic/pages/pages-build-deployment"],
+            runs=[pages_run()],
+        )
+        out = ps.render(ps.collect(api))
+        self.assertIn("deployed", out)
+        self.assertIn("served", out)

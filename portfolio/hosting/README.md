@@ -97,6 +97,68 @@ is the only thing that differs, and each route stamps its own canonical
 URLs. Publish through one of them at a time so the two do not compete in
 search results for the same pages.
 
+## Amended 2026-09-06: the branch route can serve `marisstella.dev` itself
+
+Confirmed from a browser on 2026-09-06: `https://marisstella.dev/` returns
+`ERR_CONNECTION_REFUSED`. That is the owner-side reading of the same state
+`Outage triage` measured on 2026-09-04 — the k3s API is not listening, so no
+pod serves the apex, so both bullets in the section above describe a host that
+answers nothing.
+
+The `gh-pages` branch route (`platform/pages/publish-branch.sh`) is the only
+delivery path here that is downstream of neither a runner nor the cluster. Its
+one gap was that it published to `duncan-haywood.github.io/monorepo-projects/`
+and had no way to serve the portfolio's own name — so the flip restored the
+*catalogue* while leaving the *domain* dark.
+
+**A GitHub Pages custom domain closes that, and it is a registrar change plus
+one Settings field.** Both are owner actions; neither needs a runner, the
+cluster, or the SSH key.
+
+1. **Settings → Pages → Custom domain →** `marisstella.dev` → Save. GitHub
+   commits a `CNAME` file to the serving branch and reads the domain back out
+   of that file on every deploy.
+2. **At the registrar**, point the apex at GitHub Pages. Read the current
+   record values from [GitHub's own Pages
+   docs](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site)
+   rather than from this file — they are GitHub's to change, and a stale IP
+   copied out of a repository doc is exactly the kind of claim this portfolio
+   has already been burned by. At the time of writing they are four `A`
+   records on the apex (`185.199.108.153`, `.109.153`, `.110.153`,
+   `.111.153`), four matching `AAAA` records, and a `CNAME` on `www` pointing
+   at `duncan-haywood.github.io`.
+3. Wait for the **Enforce HTTPS** checkbox to become available (GitHub issues
+   the certificate once DNS resolves). `.dev` is HSTS-preloaded for the whole
+   TLD, so until that lands browsers will refuse the site rather than fall
+   back to `http://` — see `gitops/prod/host/README.md`, which learned the
+   same thing about the box.
+
+**The trade-off, stated plainly.** These records move the apex off
+`89.167.29.39`. When the cluster is restored it will no longer serve
+`marisstella.dev`, and `gitops/prod/portfolio-front.yaml` becomes a host with
+no traffic until DNS is pointed back. Pick one origin for the apex at a time —
+the same rule the section above states about competing canonical URLs, applied
+to DNS instead of to `PAGES_BASE_URL`. `tools.marisstella.dev` is unaffected
+either way; it is a separate record.
+
+### What the publisher had to be taught first
+
+Step 1 above would have been undone automatically. `publish-branch.sh` builds
+an **orphan commit from the build output and force-pushes it**, so anything on
+the branch that the build did not produce is deleted — and the domain lives in
+a file on that branch. GitHub reads its absence as "the custom domain was
+removed". So the sequence was: owner sets the domain, the next merge to `main`
+triggers `publish-pages-branch.yml`, the site quietly reverts to the github.io
+URL, and nothing anywhere turns red. The workflow prints "pushed"; the check
+stays green.
+
+The script now carries the file forward (fixed 2026-09-06). `PAGES_CNAME`
+overrides it, an explicitly empty `PAGES_CNAME=` is the only way to remove a
+domain, and the domain also sets `PAGES_BASE_URL` so canonical tags,
+`sitemap.xml` and the feed name the address the site is actually served from.
+`gitops/tests/test_publish_branch.py` pins all four behaviours; they fail
+against the previous script, which is the point of them.
+
 ## What we are not adding
 
 - **Cloudflare** (Pages, Workers, Access) is not a portfolio default. Gated
