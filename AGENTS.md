@@ -211,7 +211,10 @@ product PR?"
 1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
    and no SLA on hosted URLs. Copy the wording from
    [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
-   *and* somewhere the user sees it (footer, about, `--help`).
+   *and* somewhere the user sees it (footer, about, `--help`). A page that
+   names a specific competitor (`vs-<competitor>.html`) needs a second,
+   separate disclaimer — §5f, nominative fair use plus a "not affiliated
+   with" line — checked by `node platform/pages/clauses.mjs <slug>`.
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).

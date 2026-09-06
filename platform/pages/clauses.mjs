@@ -58,7 +58,44 @@ import { REPO_ROOT, discoverSurfaces, isPublishable, publishedPages } from './bu
 export const NO_WARRANTY = /no warranty/i;
 
 /**
- * Every page missing the clause, as `{ page, clause }` rows.
+ * PRODUCT_PLAYBOOK.md 5f: a page that names a specific commercial product to
+ * compare against it (`vs-<competitor>.html`) has to say, in terms a reader
+ * and a trademark owner both parse the same way, that it isn't that
+ * product's page. Nominative fair use -- naming a trademark only to say what
+ * you are not -- is a real defense; naming one and staying silent about
+ * affiliation is what invites the claim the defense exists to answer.
+ *
+ * Matched loosely, same reasoning as NO_WARRANTY: 172 of 173 comparison pages
+ * on `main` already carry some wording of this on their own, in the author's
+ * own voice ("Not affiliated with ServiceMonster.", "not affiliated with,
+ * endorsed by, or sponsored by ServiceMonster"), so the check has to accept
+ * that range rather than demand one sentence.
+ */
+export const NOT_AFFILIATED = /not\s+affiliated\s+with/i;
+
+/**
+ * A comparison page compares this free tool against one specific named
+ * product or company, which is the case the trademark disclaimer exists for.
+ * A page that compares against a generic category or role -- "your title
+ * company's net sheet", nobody's trademark -- is not one, and requiring the
+ * disclaimer there would demand a sentence about a party that does not
+ * exist. There is exactly one such page on `main` today; list it here by its
+ * `slug/relative` display path, with why, rather than loosening the pattern
+ * for everyone else.
+ */
+const COMPARISON_DISCLAIMER_EXEMPT = new Set([
+  // Compares against "your title company's net sheet" -- a role every deal
+  // has, not a company or product this could be mistaken for.
+  'seller-net-sheet/vs-title-company-net-sheet.html',
+]);
+
+/** Does `page`'s filename mark it as a named-competitor comparison page? */
+function isComparisonPage(page) {
+  return /(?:^|\/)vs-[^/]+\.html$/i.test(page);
+}
+
+/**
+ * Every page missing a required clause, as `{ page, clause }` rows.
  *
  * `pages` maps a display path to its markup. Returned rather than thrown so a
  * run reports the whole set at once -- fixing these one failure per run is how
@@ -68,6 +105,13 @@ export function missingClauses(pages) {
   const missing = [];
   for (const [page, markup] of pages) {
     if (!NO_WARRANTY.test(markup)) missing.push({ page, clause: 'no-warranty' });
+    if (
+      isComparisonPage(page) &&
+      !COMPARISON_DISCLAIMER_EXEMPT.has(page) &&
+      !NOT_AFFILIATED.test(markup)
+    ) {
+      missing.push({ page, clause: 'not-affiliated' });
+    }
   }
   return missing;
 }
@@ -153,21 +197,39 @@ export async function main(argv = process.argv.slice(2)) {
 
   const missing = missingClauses(pages);
   if (missing.length > 0) {
-    console.error(
-      `${missing.length} page(s) missing the no-warranty clause:\n` +
-        missing.map(({ page }) => `  ${page}`).join('\n') +
-        '\n\nEvery published page needs it (PRODUCT_PLAYBOOK.md 5b): free and\n' +
-        'as-is, no liability, not [trade] advice, verify before relying on it.\n' +
-        'Copy the paragraph from PRODUCT_PLAYBOOK.md rather than from a sibling\n' +
-        'venture -- copying a sibling footer is how the clause goes missing.\n\n' +
-        'The no-SLA clause is not checked here: build.mjs injects it into every\n' +
+    const byClause = { 'no-warranty': [], 'not-affiliated': [] };
+    for (const m of missing) byClause[m.clause].push(m.page);
+
+    const lines = [`${missing.length} page(s) missing a required clause:`];
+    if (byClause['no-warranty'].length > 0) {
+      lines.push(
+        `\nno-warranty (PRODUCT_PLAYBOOK.md 5b) -- free and as-is, no liability,\n` +
+          'not [trade] advice, verify before relying on it. Copy the paragraph\n' +
+          'from PRODUCT_PLAYBOOK.md rather than from a sibling venture -- copying\n' +
+          'a sibling footer is how the clause goes missing:',
+        ...byClause['no-warranty'].map((page) => `  ${page}`),
+      );
+    }
+    if (byClause['not-affiliated'].length > 0) {
+      lines.push(
+        `\nnot-affiliated (PRODUCT_PLAYBOOK.md 5f) -- a vs-<competitor> page names a\n` +
+          'trademark and has to say plainly that it is not that product\'s page,\n' +
+          'not affiliated with, endorsed by, or sponsored by it. If the page truly\n' +
+          'compares against a generic role rather than a named product or company,\n' +
+          'add it to COMPARISON_DISCLAIMER_EXEMPT in clauses.mjs with why:',
+        ...byClause['not-affiliated'].map((page) => `  ${page}`),
+      );
+    }
+    lines.push(
+      '\nThe no-SLA clause is not checked here: build.mjs injects it into every\n' +
         'published page, so a venture does not have to carry it.',
     );
+    console.error(lines.join('\n'));
     return 1;
   }
 
   console.log(
-    `${pages.length} published page(s) across ${surfaces.length} surface(s) carry the no-warranty clause`,
+    `${pages.length} published page(s) across ${surfaces.length} surface(s) carry their required clauses`,
   );
   return 0;
 }
