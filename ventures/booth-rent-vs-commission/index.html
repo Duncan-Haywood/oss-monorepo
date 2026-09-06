@@ -258,25 +258,44 @@
       recordUsage(localStorage, el('usageOptOut').checked, event);
     }
 
+    // The fragment, never the query string. Both survive a copied link, but a
+    // `?` is sent to the server on every navigation and rides along in the
+    // `Referer` header of any outbound click; a `#` is stripped from both by
+    // the browser and never leaves the device. This page's fields are a
+    // stylist's rent, ticket, book size and marginal tax rate, and they are
+    // written here on every keystroke -- long before anyone presses "Copy
+    // share link" -- so a query string would put a working book into someone
+    // else's access log for merely typing.
     function writeShareQuery() {
       const params = new URLSearchParams();
       FIELD_IDS.forEach(id => {
         const value = el(id).value;
         if (value !== '') params.set(id, value);
       });
-      const next = `${location.pathname}?${params.toString()}`;
+      const query = params.toString();
+      const next = `${location.pathname}${query ? `#${query}` : ''}`;
       history.replaceState(null, '', next);
     }
 
     function loadShareQuery() {
-      const params = new URLSearchParams(location.search);
+      // Read the fragment first, then fall back to the query string: links
+      // shared before this page moved to the fragment are still out there in
+      // texts and emails, and they have to keep opening to the sender's
+      // numbers. Only the *write* side changed.
+      const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
+      const search = new URLSearchParams(location.search);
       let loaded = false;
       FIELD_IDS.forEach(id => {
-        if (params.has(id)) {
+        const params = hash.has(id) ? hash : search.has(id) ? search : null;
+        if (params) {
           el(id).value = params.get(id);
           loaded = true;
         }
       });
+      // A legacy `?` link is rewritten to a `#` one on load, so the visitor's
+      // figures stop being resent to the server on every subsequent
+      // navigation from this tab.
+      if (loaded && location.search) writeShareQuery();
       if (loaded) count('share_opened');
     }
 

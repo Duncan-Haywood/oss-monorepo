@@ -787,23 +787,49 @@ export function clearDraft(storage) {
   }
 }
 
-/** @param {Record<string, unknown>} raw @param {string} baseUrl */
+/**
+ * The share payload goes in the URL fragment, never the query string.
+ *
+ * SHARE_FIELDS carries `businessName` alongside the price, no-show rate and
+ * fee — so a `?` link would put a named salon's or clinic's booking economics
+ * into the request line every server on the path logs, and into the `Referer`
+ * header the browser attaches to any outbound click from the opened page.
+ * A fragment is sent in neither: it is resolved entirely in the browser.
+ *
+ * @param {Record<string, unknown>} raw @param {string} baseUrl
+ */
 export function buildShareUrl(raw, baseUrl) {
   const url = new URL(baseUrl);
+  const params = new URLSearchParams();
   for (const field of SHARE_FIELDS) {
     const value = String(raw[field] ?? "").trim();
-    if (value) url.searchParams.set(field, value);
+    if (value) params.set(field, value);
   }
-  return url.toString();
+  const encoded = params.toString();
+  url.search = "";
+  url.hash = encoded;
+  // `URL` renders an empty hash as a bare trailing "#". Nothing to share means
+  // the plain page address, not a link that looks like it carries something.
+  return encoded ? url.toString() : url.toString().replace(/#$/, "");
 }
 
-/** @param {string} urlString */
+/**
+ * Read a share payload from the fragment, falling back to the query string.
+ *
+ * The `?` branch exists only for links copied before this tool moved to the
+ * fragment: they are already in people's inboxes and must keep opening to the
+ * sender's figures. Nothing writes one any more.
+ *
+ * @param {string} urlString
+ */
 export function readShareValues(urlString) {
-  const params = new URL(urlString).searchParams;
+  const url = new URL(urlString);
+  const hash = new URLSearchParams(url.hash.replace(/^#/, ""));
+  const search = url.searchParams;
   /** @type {Record<string, string>} */
   const values = {};
   for (const field of SHARE_FIELDS) {
-    const value = params.get(field);
+    const value = hash.get(field) ?? search.get(field);
     if (value !== null) values[field] = value;
   }
   return values;
