@@ -17053,3 +17053,67 @@ entries:
         republished (186 products, 750 pages, no dead links), and a final
         `pages_state.py --require-current` confirmed `current` (exit 0).
     mrr_end: null
+  - venture: vehicle-wrap-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First drained the open-PR/branch queue for the session's product-first
+        mandate: 0 open PRs; of 264 remote branches, 162 already carried zero
+        commits ahead of `main`, and `supersede_check.py` against the
+        remaining highest-ahead-count branches (all 5 `pr/*`-prefixed
+        branches, plus `claude/festive-mccarthy-xrn3ua`,
+        `cursor/3pl-quote-normalizer-compare-20260825`,
+        `pr/where-to-sell-rank-by-profit-per-day`,
+        `agent/marketing-distribution-gutter-guard-vs-jobnimbus`) came back
+        SUPERSEDED or a stale draft `main` has since overtaken in every case
+        checked -- consistent with the exhaustive 232-branch sweep already
+        recorded in `infra_state.yaml` on 2026-09-05. `session_gate.py`
+        returned PROCEED with an empty `build-now` pipeline, so moved to
+        product work rather than continuing to re-check a backlog already
+        confirmed empty of repairable PRs.
+      - >-
+        Added `vs-shopvox.html` (+ test) to `vehicle-wrap-bid-calculator`,
+        the venture graduated earlier this session by a concurrent run
+        (PR #3549/#3550) -- closing the gap that it, along with
+        `dumpster-rental-margin-calculator`, was one of only two of 195
+        ventures with a live page but no `vs-*` comparison page at all.
+        Compares against ShopVOX, a real account-based sign/wrap shop
+        management platform; no unverifiable competitor pricing claimed
+        (ShopVOX's site is not reachable from this sandbox), explicit
+        non-affiliation statement, standard disclaimers, FAQ JSON-LD
+        verified verbatim against visible copy.
+      - >-
+        Opened as PR #3554. All 19 triggered check runs came back red in
+        ~3s each; `ci_starvation.py` on a representative job id confirmed
+        `runner_id: 0` (starvation, not a real failure), matching this
+        session's `infra_state.yaml` reading. Verified locally instead:
+        161 venture tests, 1140 `platform/marketing`+`platform/pages`
+        tests, 490 `gitops/tests` pytest cases (25 skipped), and
+        `checklist_coverage.py` clean. Merged on that verification per
+        CLAUDE.md's "Ship without review ceremony". No payment collection,
+        no new third-party script/CDN/network call, no personal data
+        collected.
+      - >-
+        Deployed the same session: after merge, `pages_state.py
+        --require-current` reported `stale` (`main` had moved again to
+        merge a concurrently-landed `locksmith-bid-calculator` graduation),
+        then `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh` republished (186 products, 751
+        pages, no dead links), and a final `pages_state.py
+        --require-current` confirmed `current`.
+      - >-
+        Investigated the owner's explicit ask this session to prioritize
+        Hetzner deployment/CI-CD and setting up a Codex-CLI worker on the
+        Hetzner VM. Both are already fully blocked on a single owner-only
+        action recorded in `decision_queue.py` ask #1 (`#3184`): rotating
+        `HETZNERSSHKEY` from the public key currently stored to the real
+        private key matching the boxes' installed public half. The
+        Codex-host-mode systemd-timer worker (`gitops/agents/host/`) is
+        already built and verified (`infra_state.yaml`'s
+        `codex-host-mode: up`) and self-hosted CI runners
+        (`gitops/ci/`) are likewise ready -- neither can be installed from
+        this sandbox without that credential, and nothing else in the repo
+        was blocking either. No new owner ask added; this reconfirms the
+        existing one covers both requests.
+    mrr_end: null
