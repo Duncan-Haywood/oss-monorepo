@@ -265,14 +265,13 @@ account and a tax identity.
 **Two separate things exist here — do not conflate them:**
 
 1. **A per-product `github.com/sponsors/<owner>` link in the footer or about
-   section.** This is agent-decidable, needs no owner action, and is already
-   live: verified 2026-09-06, **181 of 185 ventures** (excluding two
-   `NOT-A-VENTURE` scaffolding directories) already carry a working link. Add
-   it the same way when you ship a new product, and if you're touching one of
-   the four still missing it — `local-site-studio`, `photo-editing`,
-   `quick-pick-survey`, `retail-pilot-intel` — adding it to that app's own
-   layout/footer component is real, available revenue work today, not
-   something waiting on an owner decision.
+   section.** This is agent-decidable, needs no owner action, and now ships
+   on **all 185 ventures** (excluding two `NOT-A-VENTURE` scaffolding
+   directories): 181 already carried it as of 2026-09-06, and the last four
+   app-shaped ventures — `local-site-studio`, `photo-editing`,
+   `quick-pick-survey`, `retail-pilot-intel` — were closed the same day by
+   adding the link to each app's own layout/footer component. Add it the
+   same way when you ship a new product.
 2. **The native repo-level GitHub "Sponsor this project" button**, via
    `.github/FUNDING.yml`, which is a separate, owner-only account-ownership
    decision (queued as `funding-sponsors-live`, PR #839 — read the queue with
