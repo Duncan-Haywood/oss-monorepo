@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 112 files, 553363 bytes
 #   portfolio-front-tools-2: 147 files, 550717 bytes
 #   portfolio-front-tools-3: 121 files, 556753 bytes
-#   portfolio-front-tools-4: 118 files, 550067 bytes
+#   portfolio-front-tools-4: 119 files, 553657 bytes
 #   portfolio-front-tools-5: 127 files, 552521 bytes
 #   portfolio-front-tools-6: 107 files, 555833 bytes
 #   portfolio-front-tools-7: 116 files, 553744 bytes
@@ -616,6 +616,7 @@ configMapGenerator:
       - card-processing-fee-audit__calc.mjs.gz=card-processing-fee-audit__calc.mjs.gz
       - card-processing-fee-audit__index.html.gz=card-processing-fee-audit__index.html.gz
       - card-processing-fee-audit__usage.mjs.gz=card-processing-fee-audit__usage.mjs.gz
+      - card-processing-fee-audit__vs-helcim-rate-calculator.html.gz=card-processing-fee-audit__vs-helcim-rate-calculator.html.gz
       - card-processing-fee-audit__what-is-a-good-effective-rate-for-card-processing.html.gz=card-processing-fee-audit__what-is-a-good-effective-rate-for-card-processing.html.gz
       - carpet-cleaning-bid-calculator__calc.mjs.gz=carpet-cleaning-bid-calculator__calc.mjs.gz
       - carpet-cleaning-bid-calculator__how-to-price-carpet-cleaning.html.gz=carpet-cleaning-bid-calculator__how-to-price-carpet-cleaning.html.gz
