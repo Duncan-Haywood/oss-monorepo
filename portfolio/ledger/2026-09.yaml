@@ -14888,3 +14888,46 @@ entries:
         check.mjs dist: 175 products, 720 pages, no dead links, and exactly
         one `id="shareLink"` in the built output (no duplicate control).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled direction-setting run. portfolio/DIRECTION.md's "Current
+        priority" section still read as if no built product had a public
+        URL, dated 2026-08-25 through 2026-09-02 -- stale against
+        platform/ci/pages_state.py, which now reports the GitHub Pages
+        route deployed (GitHub's own managed builder ran gh-pages, run
+        34013011002, 2026-09-06T05:03:36Z) and current (snapshot built from
+        main's own tip). A session reading DIRECTION.md alone (not
+        CLAUDE.md, which already carries the newer correction) would still
+        re-derive deploy-first urgency that no longer applies. Added a
+        dated superseding note plus a new "What changes now that
+        distribution is solved" section giving the fleet's next priority
+        order now that ~175 products are reachable: keep the snapshot
+        fresh, read usage.yaml before picking work and prioritize any
+        product with a nonzero signal, stop adding depth to a product that
+        has had a fair run at zero (pointing at portfolio/router/
+        allocate.py's existing kill_criteria review for ventures at $0 MRR
+        past revenue stage), then weigh a new venture against the
+        pipeline's own liability/ethics gates and a named channel rather
+        than as a default action.
+      - >-
+        Added a "Revenue: donations, and keeping customers happy" section
+        naming funding-sponsors-live (#839, decision_queue.py) precisely --
+        a yes/no on re-landing .github/FUNDING.yml, merged once and
+        reverted the same day by #862 -- as the one lever that moves
+        revenue off $0 without touching payment rails, and stating what an
+        agent can do while it's pending (keep every product's own Sponsors
+        line correct and non-coercive) versus what stays owner-only (the
+        account-ownership decision itself). Tied "keeping customers happy"
+        to concrete, already-existing checks (browser_checks.py, the WCAG
+        AA link-contrast test, the PRODUCT_PLAYBOOK.md §5b disclaimer)
+        rather than adding a new subjective bar. Cross-referenced both
+        sections from AGENTS.md's build-criteria section so a session
+        reading that file first also gets redirected. No code changed;
+        verified with check_ledger_only.py that this entry rides with a
+        real docs change rather than standing alone, and confirmed the
+        referenced pages_state.py/decision_queue.py/allocate.py output by
+        running each rather than restating a remembered figure.
+    mrr_end: null
