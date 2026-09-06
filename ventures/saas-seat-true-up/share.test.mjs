@@ -6,12 +6,31 @@ import { encodeInputs, decodeInputs } from './share.mjs';
 const SCENARIO = { purchased: 20, used: 14, price: 18, months: 4, overageRate: 0, seatMinimum: 0 };
 
 test('round-trips every known field and drops junk', () => {
-  const encoded = encodeInputs({ ...SCENARIO, renewalDate: '2026-12-01' });
+  const encoded = encodeInputs({ ...SCENARIO, renewalDate: '2026-12-01', noticeDays: 60 });
   const decoded = decodeInputs(`?${encoded}`);
   for (const field of INPUT_FIELDS) {
     assert.equal(decoded[field], SCENARIO[field]);
   }
-  assert.equal(decoded.renewalDate, undefined, 'renewalDate is session-only, like the saved scenario');
+  // Regression for the 2026-09-06 defect `platform/pages/roundtrip.mjs` found:
+  // noticeDays and renewalDate feed evaluateNoticeDeadline's verdict, and a
+  // link that dropped them silently hid that verdict on the recipient's page
+  // (a blank renewalDate makes evaluateNoticeDeadline return null outright).
+  // They are deliberately outside INPUT_FIELDS -- see calc.mjs's comment --
+  // because they are not part of calculateTrueUp itself and are excluded from
+  // the *saved* scenario, but the share link still needs to carry both so a
+  // reviewer's link shows the same deadline warning the sender saw.
+  assert.equal(decoded.noticeDays, 60);
+  assert.equal(decoded.renewalDate, '2026-12-01');
+});
+
+test('drops a malformed or missing renewal date rather than a garbage string', () => {
+  assert.equal(decodeInputs('renewalDate=not-a-date').renewalDate, undefined);
+  assert.equal(encodeInputs({ ...SCENARIO, renewalDate: '' }).includes('renewalDate='), false);
+  assert.equal(encodeInputs({ ...SCENARIO }).includes('renewalDate='), false);
+});
+
+test('drops a negative notice period rather than carrying it into the form', () => {
+  assert.equal(encodeInputs({ ...SCENARIO, noticeDays: -1 }).includes('noticeDays='), false);
 });
 
 test('decodes a hash-prefixed link the same as a query string', () => {

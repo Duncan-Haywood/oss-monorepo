@@ -1,12 +1,17 @@
 /**
- * The form fields a shared link carries, in the form's own ids -- not the
- * `calculateTrueUp` parameter names, which is what `share.mjs` reads and
- * writes on the page. Single-sourced here so a field added to the form is
- * shareable the day it ships rather than silently dropped by an encoder that
- * never learned about it. Deliberately the same set `usage.mjs`'s
- * `SCENARIO_FIELDS` persists locally -- `renewalDate` and `noticeDays` are
- * session-only on this page already, so a shared link matches what "Save
- * scenario" already carries rather than promising more.
+ * The `calculateTrueUp` inputs, in the form's own ids. Single-sourced here so
+ * a field added to the form is shareable the day it ships rather than
+ * silently dropped by an encoder that never learned about it. Also the exact
+ * set `usage.mjs`'s `SCENARIO_FIELDS` persists locally.
+ *
+ * `renewalDate` and `noticeDays` are deliberately NOT in this list -- they
+ * are session-only for the *saved* scenario (a renewal date from last quarter
+ * would be actively wrong reappearing on a later, unrelated visit) -- but as
+ * of 2026-09-06 `share.mjs` carries both anyway, on its own field lists
+ * alongside this one. A share link describes the *same* renewal the sender is
+ * looking at right now, not a future one, so the staleness argument above
+ * does not apply to it, and the recipient needs `renewalDate`/`noticeDays` to
+ * see the same notice-deadline verdict the sender saw.
  */
 export const INPUT_FIELDS = Object.freeze(['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum']);
 

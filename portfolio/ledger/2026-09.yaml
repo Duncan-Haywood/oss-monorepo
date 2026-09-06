@@ -15295,3 +15295,63 @@ entries:
         passed, 25 skipped. All 17 platform/ci unittest modules pass
         individually.
     mrr_end: null
+  - venture: saas-seat-true-up
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real discoverability/reliability defect rather than adding a
+        feature: ran the full `platform/pages/` browser-check suite (all 7
+        checks, 720 pages, with axe-core installed so `contrast` actually ran
+        rather than skipping) for the first time since it last ran locally,
+        and it turned up exactly one failure fleet-wide --
+        `roundtrip.mjs` reporting saas-seat-true-up's shareable link dropping
+        `noticeDays` (1 -> 0). Reading why showed the real defect was larger
+        than the one field the probe can see: `noticeDays` and `renewalDate`
+        together drive `evaluateNoticeDeadline`, and `renewalDate` is an
+        `input[type="date"]`, outside `roundtrip.mjs`'s `input[type="number"]`
+        scan. Neither field was ever in share.mjs's INPUT_FIELDS, so opening a
+        shared link with a blank renewalDate makes evaluateNoticeDeadline
+        return null and the entire notice-deadline warning (e.g. "this
+        auto-renews at the full 20 seats unless you act by <date>") silently
+        vanishes for whoever the sender shared the link with -- while the
+        FAQ's own JSON-LD claims "the shareable link carries the same
+        totals". Same bug class CLAUDE.md already records costing real money
+        on where-to-sell-calculator and shopify-fee-calculator.
+      - >-
+        Fixed in share.mjs: added `noticeDays` as an extra numeric field and
+        `renewalDate` as a shape-checked (not calendar-checked) ISO date
+        field, following the DATE_FIELD_IDS pattern already established in
+        grant-deadline-tracker/share.mjs. Left local "Save scenario" /
+        "Reset" untouched on purpose -- usage.mjs's SCENARIO_FIELDS still
+        excludes both, since a renewal date from last quarter reappearing on
+        a later, unrelated visit would be actively wrong; that staleness
+        argument does not apply to a share link, which describes the same
+        renewal the sender is looking at right now. index.html's `values()`
+        and the from-link restore path were extended via a new
+        `linkOnlyIds` array kept separate from `ids` so the saved-scenario
+        restore path (which still only has the original 6 fields) is
+        unaffected. Updated calc.mjs's INPUT_FIELDS comment, which had
+        asserted the opposite design intent, and share.test.mjs, which had
+        an explicit assertion that renewalDate must NOT survive a link.
+      - >-
+        Verified with a live Playwright round trip beyond what
+        roundtrip.mjs itself checks (since it cannot see the date field):
+        built the site, opened the tool in one browser context, set
+        renewalDate=2026-09-20 and noticeDays=60 (a deadline already 46 days
+        passed), copied the link, opened it in a fresh context with no
+        storage, and confirmed the notice-deadline paragraph text is
+        byte-identical between sender and recipient. Before the fix this
+        text was empty (hidden) on the recipient's page.
+      - >-
+        Verified locally: venture suite 53/53 (added 3 share.test.mjs
+        assertions: noticeDays/renewalDate round-trip, malformed/missing
+        date dropped, negative notice period dropped).
+        platform/pages/roundtrip.mjs re-run scoped to this venture: ok (was
+        the fleet's only failure). platform/marketing + platform/pages
+        1136/1136 after node platform/marketing/regen.mjs (rewrote only this
+        venture's mirror shard and kustomization.yaml). platform/proposal +
+        platform/privacy + platform/webcheck 151/151. gitops/tests: 480
+        passed, 25 skipped. All 17 platform/ci unittest modules pass
+        (605 tests).
+    mrr_end: null

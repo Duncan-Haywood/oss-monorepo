@@ -134,9 +134,14 @@
   import { encodeInputs, decodeInputs } from './share.mjs';
   const form = document.querySelector('#form');
   const ids = ['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum'];
+  // Carried by a shared link (and so read into it below) but deliberately not
+  // part of `ids`, which also drives "Save scenario" / "Reset" -- a renewal
+  // date is only meaningful for the review the sender is looking at right
+  // now, not one resumed on a later visit. See the comment on share.mjs.
+  const linkOnlyIds = ['renewalDate', 'noticeDays'];
   const example = [20, 14, 18, 4, 0, 0];
   const read = id => document.querySelector(`#${id}`).value;
-  const values = () => Object.fromEntries(ids.map(id => [id, read(id)]));
+  const values = () => Object.fromEntries([...ids, ...linkOnlyIds].map(id => [id, read(id)]));
   const status = text => { document.querySelector('#status').textContent = text; };
   function render(count = false) {
     try {
@@ -221,7 +226,7 @@
   const fromLink = decodeInputs(location.hash);
   const saved = loadScenario();
   if (Object.keys(fromLink).length) {
-    ids.forEach(id => { if (fromLink[id] !== undefined) document.querySelector(`#${id}`).value = fromLink[id]; });
+    [...ids, ...linkOnlyIds].forEach(id => { if (fromLink[id] !== undefined) document.querySelector(`#${id}`).value = fromLink[id]; });
     recordEvent('scenario_from_link');
     status('Scenario loaded from a shared link.');
     render(false);
