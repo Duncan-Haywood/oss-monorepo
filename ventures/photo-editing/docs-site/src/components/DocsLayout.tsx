@@ -55,6 +55,13 @@ export function DocsLayout({
           ) : null}
         </header>
         <article className="page-body">{children}</article>
+        <p className="doc-support">
+          Free to run.{" "}
+          <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">
+            Support
+          </a>{" "}
+          is entirely optional and never changes what the product does.
+        </p>
       </div>
     </div>
   );

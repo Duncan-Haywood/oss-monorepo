@@ -91,6 +91,13 @@ export function PortalShell({
           <button type="button" className="btn-ghost" onClick={signOut}>
             Sign out
           </button>
+          <p className="sidebar-support">
+            Free to run.{" "}
+            <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">
+              Support
+            </a>{" "}
+            is entirely optional and never changes what this demo does.
+          </p>
         </div>
       </aside>
 
