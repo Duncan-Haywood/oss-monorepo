@@ -93,6 +93,41 @@ pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
 
+**If your change touches markup a user types into, run the browser checks too —
+one `npm install` is the whole barrier, and sessions have been treating it as
+impossible** (added 2026-09-06):
+
+```
+npm install --no-save playwright@1.56.0 axe-core   # both in ONE command
+python3 platform/ci/browser_checks.py --only <slug>
+```
+
+`platform/ci/browser_checks.py` already does the hard parts — it builds into a
+temp dir, proves with a sentinel token that the port is not answering a stale
+build, and finds the Chromium the image ships at `/opt/pw-browsers` on its own.
+What no session had, and what kept every one of them writing *"no Playwright in
+this environment, so the browser-only checks were not run"* in its limitations
+section (PR #3525 included), is the install line above. Two traps in it:
+`playwright@1.56.0` is the release matching the preinstalled build 1194 — 1.55
+wants 1187 and 1.57 wants 1200, and either fails at launch and invites you to
+run `npx playwright install`, which downloads a second browser tree and can
+exhaust a session's disk allowance. And `npm install --no-save X` prunes a
+package a previous `--no-save` added, so installing the two separately
+uninstalls the first and the next run fails with `ERR_MODULE_NOT_FOUND` for a
+package you watched install.
+
+This is not a nice-to-have. The first full `contrast.mjs` run in this
+repository's history, on 2026-09-06, found **48 critical axe `label` violations
+across three live products** — 24 route-table inputs with no accessible name,
+announced to a screen reader as `edit, number` and nothing else.
+`checklist_coverage`, `guide-coverage`, `clauses`, `check.mjs` and 1139 passing
+`node --test` assertions were all green at the time, because not one of them
+looks at accessible names. The checks had been in the tree, correct and unrun,
+for the whole life of the catalogue — the same "a guard nobody runs is worth
+less than no guard" defect recorded above for `platform/proposal/`, reached
+from a fifth direction, and the only one of them that was shipping a live
+accessibility failure to real users the entire time.
+
 **The first line was added 2026-09-06, to stop the second block from going
 stale the same way three times.** `platform/proposal/`, then
 `platform/privacy/` and `platform/webcheck/`, were each added to this list only
