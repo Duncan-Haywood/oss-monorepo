@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 180,
-  "collection_total": 180,
+  "served_here": 181,
+  "collection_total": 181,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 4
+      "tool_count": 5
     }
   ],
   "tools": [
@@ -529,6 +529,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a sealcoating job from square feet, coats, oil spots, crack fill, and the drive — not a cents-per-foot special. See gallons, walk-away price, and margin before you quote.",
       "pages": 3
+    },
+    {
+      "slug": "atm-route-margin",
+      "name": "ATM Route Margin Calculator — Price Each Placement",
+      "url": "https://marisstella.dev/tools/atm-route-margin/",
+      "category": "More free tools",
+      "description": "Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.",
+      "pages": 1
     },
     {
       "slug": "attic-insulation-bid-calculator",
@@ -1408,7 +1416,7 @@
       "url": "https://marisstella.dev/tools/vending-machine-route-margin/",
       "category": "More free tools",
       "description": "Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "vendor-change-watch",

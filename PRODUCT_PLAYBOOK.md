@@ -283,28 +283,31 @@ needs a decision-queue row first, not a code review comment.
    `main` today is no `FUNDING.yml`. This only adds a second entry point on
    top of links that already work — it is not what turns donations on.
 
-**The link ships everywhere now, and nothing measures whether anyone ever
-uses it.** As of 2026-09-06 that is a real gap: the fleet closed "does every
-product carry a sponsor link" (all 185) without closing "do we know if the
-link does anything." Fix it the same way every other feature event is
-recorded — no new mechanism, no vendor:
+**Corrected 2026-09-06, same day: the link ships everywhere, and clicks on it
+are now counted everywhere too — automatically, not venture by venture.**
+This section used to read as a per-venture backlog item ("wire a `click`
+listener into each venture's own `usage.mjs`"). That was overtaken a commit
+later (#3511): `platform/pages/build.mjs`'s `markSponsorLinksIn` tags every
+Sponsors anchor on every published page — tool, hub, category, and comparison
+— across all 186 ventures, and the shared `pf-site.js` chrome those pages
+already load counts a click into `portfolio-hub-usage` under the literal event
+`sponsor_link_clicked`. See
+[`portfolio/usage/README.md`](portfolio/usage/README.md) "Wired the same day,
+on the published site, in one place rather than 186."
 
-- Give the sponsor `<a>` a `click` listener that calls the venture's own
-  `recordUsage(storage, optedOut, 'sponsor_link_clicked')` (the same
-  `usage.mjs` helper every other counter in the venture already uses — see
-  [`portfolio/usage/README.md`](portfolio/usage/README.md)). Same rules as
-  any other counter: aggregate-only, local-first, honors `DNT`/GPC, no
-  identifiers.
-- Use the literal event name `sponsor_link_clicked` fleet-wide, not a
-  per-venture variant — a click on the one link this whole section is about
-  is worth being able to compare across products, which a different string
-  per venture would quietly prevent.
-- This is the one usage signal on the direct path from "link exists" to
-  "donation revenue exists." It does not by itself license a mechanical
-  185-venture pass — see "the fleet-parity trap" in `portfolio/DIRECTION.md`
-  before treating this as a task in its own right — but wire it in on any
-  session that is already touching a venture's footer for another reason,
-  and it is a legitimate reason to touch a zero-usage product on its own.
+**Do not hand-wire a second listener into a venture's own `usage.mjs` for
+this** — the build already covers the published site, and adding one anyway
+is the fleet-parity trap described in `portfolio/DIRECTION.md`, not new
+signal. The one legitimate reason to wire it in a venture's own code: that
+venture's `index.html` is meant to be opened outside the published build (a
+local clone, an offline copy), where the shared chrome never loads. That is
+rare and worth naming explicitly rather than assuming.
+
+Like every other counter in this portfolio, the click is `localStorage`-only
+and never transmits — it is now *countable* on the visitor's own device, not
+yet *counted for us*. Reading the aggregate back is the same open problem
+`portfolio/usage/README.md` already describes for the rest of the fleet, not
+something a venture's own PR can close.
 
 No third-party donation links, and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
@@ -323,9 +326,12 @@ Ship when every line is true:
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.
 - [ ] Usage counting is in, and off-switchable.
-- [ ] The sponsor link fires `sponsor_link_clicked` through the same counter
-      (§6) — new ventures ship this from v0 rather than joining the fleet's
-      backlog of links nobody can tell are being clicked.
+- [ ] The sponsor link is present and reads `github.com/sponsors/Duncan-Haywood`
+      (§6) — the `sponsor_link_clicked` counter itself needs no per-venture
+      wiring: the published-site build counts every Sponsors anchor
+      automatically (§6). Only wire it in the venture's own `usage.mjs` if the
+      venture is meant to be opened outside that build (a local clone, an
+      offline copy).
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,

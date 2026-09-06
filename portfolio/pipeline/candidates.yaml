@@ -947,6 +947,29 @@ candidates:
     mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: atm-route-margin
+    name: ATM route margin calculator
+    doc: candidates/atm-route-margin.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/atm-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: vending-machine-route-margin
     name: Vending machine route profit calculator
     doc: candidates/vending-machine-route-margin.md
