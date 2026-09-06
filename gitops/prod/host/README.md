@@ -6,15 +6,28 @@ different place to stand.
 
 ## Why this exists
 
-This repository has ~175 finished products and, as of 2026-09-06, no way for a
-stranger to open any of them. Every route to a public surface is down, and two
-of the three are down *because they were built on top of each other*:
+This repository has ~175 finished products. `marisstella.dev`, the
+portfolio's own name, shows every visitor a refused connection, and two of
+the three routes that would serve it are down *because they were built on top
+of each other*:
 
 | route | state | why |
 |---|---|---|
 | Argo CD on k3s ([`gitops/prod`](../)) | down | `:6443` refused on both boxes — [`Outage triage`](../../../.github/workflows/outage-triage.yml) run 33889983086 |
-| GitHub Pages ([`portfolio-pages.yml`](../../../.github/workflows/portfolio-pages.yml)) | down | needs an Actions runner; metered minutes exhausted |
+| GitHub Pages, Actions source ([`portfolio-pages.yml`](../../../.github/workflows/portfolio-pages.yml)) | down | needs an Actions runner; metered minutes exhausted |
 | self-hosted runners ([`gitops/ci/`](../../ci/README.md)) | down | they run **as pods in that same k3s** |
+
+**Corrected 2026-09-06.** This table used to open with "no way for a stranger
+to open any of them", written before the `gh-pages` *branch* route — a fourth
+path, distinct from the `portfolio-pages.yml` row above, and not downstream of
+a runner — was confirmed live the same day: `python3 platform/ci/pages_state.py`
+shows GitHub's own managed builder deploying that branch, so the catalogue is
+reachable today at `https://duncan-haywood.github.io/monorepo-projects/`. What
+the table still describes correctly is `marisstella.dev` itself: none of its
+three routes serve it, so the portfolio's *own name* still refuses every
+connection even though the catalogue has a public URL elsewhere. See
+`portfolio/hosting/README.md`'s "Amended 2026-09-06" section for the fuller
+picture, and do not read this file as saying the catalogue is unreachable.
 
 [`gitops/agents/host/`](../../agents/host/README.md) and
 [`gitops/ci/host/`](../../ci/host/README.md) already answer this for the two
@@ -22,10 +35,12 @@ things that *build* — put them on the box's own systemd, where neither k3s nor
 an Actions runner is in the way. Both of their READMEs note the boxes
 themselves were up the whole time: `:22` answers on both.
 
-Nothing had yet done the same for the thing that **serves**. So the repository
-could restore its dev capacity and its CI onto a box that still showed a
-stranger a refused connection. This closes that gap, and it is the only one of
-the three whose completion a *user* can see.
+Nothing had yet done the same for the thing that **serves `marisstella.dev`
+itself**. So the repository could restore its dev capacity and its CI onto a
+box that still showed a stranger a refused connection at the portfolio's own
+name — while a stranger could already reach the catalogue at the github.io
+URL above. This closes the `marisstella.dev` gap, and it is the only one of
+the three whose completion a user *visiting that domain* can see.
 
 ## What it serves
 
