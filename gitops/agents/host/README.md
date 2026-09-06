@@ -120,7 +120,16 @@ Neither override silences the report; the warnings still print.
 
 ## Install
 
-Run it on the box, as root, from a checkout of this repository.
+From your laptop, in one run — discovers the key that opens the box, copies
+the checkout, runs the installer, and hands over the credential, all in one
+script:
+
+```bash
+./bootstrap/scripts/setup-codex-host-from-laptop.sh              # full run
+./bootstrap/scripts/setup-codex-host-from-laptop.sh --check      # report only
+```
+
+Or by hand, on the box, as root, from a checkout of this repository:
 
 ```bash
 # on your laptop

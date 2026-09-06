@@ -176,6 +176,26 @@ readings:
       diagnosis it bought before. Do not rank it as a route to the *public
       surface*; it schedules agents, it serves no traffic.
 
+      **Two friction points closed 2026-09-06, still no owner ask added.**
+      First, `enable-codex-governor.sh` — the one sanctioned way to flip
+      `policy.json`'s "enabled" field, the single kill switch both the k3s
+      CronJob and this host-mode timer read — refused to flip it without a
+      k8s SealedSecret in the tree, a precondition host mode never needs (its
+      credential is a plain file on the box). That would have made the
+      sanctioned script itself the blocker once the owner had SSH and wanted
+      host-mode-only dev capacity while the cluster stayed down. It now takes
+      `--host-only`, which flips only `policy.json` and leaves `cronjob.yaml`
+      suspended. Second, there was no laptop-driven installer for this route
+      — only the GitHub-runner one (`setup-runner-from-laptop.sh`) existed;
+      an owner had to assemble the rsync/ssh/credential hand-off from
+      `gitops/agents/host/README.md`'s prose by hand.
+      `bootstrap/scripts/setup-codex-host-from-laptop.sh` does both the
+      install and the credential hand-off in one run, mirroring the runner
+      script exactly. Neither change touches what is blocked or by what —
+      `hetzner-ssh-key-is-a-public-key` is still the one thing standing
+      between here and a running worker — they just remove two extra trips
+      the owner would otherwise take after that key is rotated.
+
   hetzner-private-network:
     # `down` rather than a truer-sounding "absent": the schema's three verdicts
     # are about whether a route can run on this today, and for that purpose a
