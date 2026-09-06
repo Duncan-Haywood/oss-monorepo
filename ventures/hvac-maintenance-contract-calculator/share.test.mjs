@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { encodeShare, decodeShare, SHARE_FIELDS } from './share.mjs';
 
 const sample = {
@@ -57,7 +58,24 @@ test('empty or broken fragments are absent, not a crash', () => {
 });
 
 test('SHARE_FIELDS includes every field the calculation reads', () => {
-  for (const key of ['visits', 'hours', 'rate', 'travel', 'parts', 'callbacks', 'callbackHours', 'callbackCost', 'overhead', 'margin', 'proposed']) {
+  for (const key of ['visits', 'hours', 'rate', 'travel', 'parts', 'callbacks', 'callbackHours', 'callbackCost', 'overhead', 'margin', 'proposed', 'pullThrough', 'cancelMonths']) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
+});
+
+test('the allowlist matches the ids the page actually reads', () => {
+  // The failure this guards against is silent on both ends: the sender copies
+  // a link, the recipient's page falls back to the HTML defaults for whatever
+  // was dropped, and the two of them read different floors off the "same"
+  // plan. Derived from the page rather than restated, so a field added to the
+  // form without a share entry fails here instead of in someone's inbox.
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const ids = html.match(/const ids = \[([^\]]+)\]/)[1].match(/'([^']+)'/g).map((s) => s.slice(1, -1));
+  assert.deepEqual([...SHARE_FIELDS].sort(), [...ids].sort());
+});
+
+test('the retention inputs survive a round trip', () => {
+  const restored = decodeShare(encodeShare({ ...sample, pullThrough: 600, cancelMonths: 3 }));
+  assert.equal(restored.pullThrough, 600);
+  assert.equal(restored.cancelMonths, 3);
 });
