@@ -3695,5 +3695,58 @@
       },
       "Identification checked and the journal entry completed for each act"
     ]
+  },
+  "change-order-margin-calculator": {
+    "priceField": "targetPrice",
+    "screenPriceSelector": "#targetPrice",
+    "calcFn": "calculateChangeOrder",
+    "depositPercent": 0,
+    "jobTitle": "Change order — {changeTitle}",
+    "jobTitleFallback": "Change order",
+    "disclaimerTail": "This document prices the added scope only. It does not modify any other term of the underlying contract, does not itself constitute the contract's required change-order approval process, and does not determine whether the added work is owed under that contract.",
+    "labels": {
+      "heading": "Send the customer a written change order",
+      "intro": "The price above is for you. This is the page you print or save as a PDF and give the customer to approve before the added work begins — your details, theirs, what the change covers, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer’s details are never saved.",
+      "depositPercent": "Deposit (%) — leave at 0 to bill on completion",
+      "scope": "What this change order covers — one line each, edit freely",
+      "printButton": "Print change order / Save as PDF"
+    },
+    "placeholders": {
+      "clientName": "L. Bergstrom",
+      "clientAddress": "812 Chamberlain St",
+      "scope": "Added two exterior outlets on a dedicated 20A circuit",
+      "paymentTerms": "Due on completion of the added work, before it is folded into the next draw."
+    },
+    "fields": {
+      "changeTitle": {
+        "input": "title"
+      },
+      "materialsAmount": {
+        "number": "materials"
+      },
+      "subAmount": {
+        "number": "subcontractor"
+      }
+    },
+    "scope": [
+      "Change order: {changeTitle}",
+      {
+        "line": "{hours~2} additional labor hour(s) beyond the original scope",
+        "when": "hours"
+      },
+      {
+        "line": "Additional materials for the added scope",
+        "when": "materialsAmount"
+      },
+      {
+        "line": "Additional subcontracted work for the added scope",
+        "when": "subAmount"
+      },
+      {
+        "line": "{daysAdded~0} additional day(s) added to the project schedule, including extended site supervision and equipment",
+        "when": "daysAdded"
+      },
+      "Priced separately from, and not itself a change to, the underlying contract's other terms"
+    ]
   }
 }

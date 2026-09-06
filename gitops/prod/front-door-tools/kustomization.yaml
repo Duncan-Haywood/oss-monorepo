@@ -33,10 +33,10 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 551806 bytes
-#   portfolio-front-tools-1: 114 files, 555486 bytes
-#   portfolio-front-tools-2: 147 files, 556593 bytes
-#   portfolio-front-tools-3: 121 files, 546903 bytes
+#   portfolio-front-tools-0: 133 files, 555586 bytes
+#   portfolio-front-tools-1: 114 files, 553055 bytes
+#   portfolio-front-tools-2: 146 files, 554713 bytes
+#   portfolio-front-tools-3: 123 files, 554253 bytes
 #   portfolio-front-tools-4: 118 files, 555004 bytes
 #   portfolio-front-tools-5: 125 files, 553841 bytes
 #   portfolio-front-tools-6: 104 files, 542746 bytes
@@ -70,6 +70,7 @@ configMapGenerator:
       - change-order-margin-calculator__how-to-price-a-change-order.html.gz=change-order-margin-calculator__how-to-price-a-change-order.html.gz
       - change-order-margin-calculator__index.html.gz=change-order-margin-calculator__index.html.gz
       - change-order-margin-calculator__share.mjs.gz=change-order-margin-calculator__share.mjs.gz
+      - change-order-margin-calculator__usage.mjs.gz=change-order-margin-calculator__usage.mjs.gz
       - change-order-margin-calculator__vs-buildertrend.html.gz=change-order-margin-calculator__vs-buildertrend.html.gz
       - subcontractor-cashflow-planner__calc.mjs.gz=subcontractor-cashflow-planner__calc.mjs.gz
       - subcontractor-cashflow-planner__how-much-cash-do-i-need-for-net-30-payment-terms.html.gz=subcontractor-cashflow-planner__how-much-cash-do-i-need-for-net-30-payment-terms.html.gz
@@ -198,12 +199,12 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-add-shipping-insurance-on-ebay.html.gz=ebay-fee-calculator__should-i-add-shipping-insurance-on-ebay.html.gz
       - ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz=ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz
       - ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html.gz=ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html.gz
-      - ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz=ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz=ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz
       - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz
       - ebay-fee-calculator__should-i-offer-an-ebay-coupon.html.gz=ebay-fee-calculator__should-i-offer-an-ebay-coupon.html.gz
       - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html.gz=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html.gz
@@ -317,12 +318,12 @@ configMapGenerator:
       - 3pl-quote-normalizer__warnings-page.mjs.gz=3pl-quote-normalizer__warnings-page.mjs.gz
       - freight-accessorial-auditor__audit.mjs.gz=freight-accessorial-auditor__audit.mjs.gz
       - freight-accessorial-auditor__does-this-fuel-surcharge-match-the-contract.html.gz=freight-accessorial-auditor__does-this-fuel-surcharge-match-the-contract.html.gz
-      - freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html.gz=freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html.gz=freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html.gz
       - freight-accessorial-auditor__import.mjs.gz=freight-accessorial-auditor__import.mjs.gz
       - freight-accessorial-auditor__index.html.gz=freight-accessorial-auditor__index.html.gz
       - freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html.gz=freight-accessorial-auditor__should-i-bill-this-accessorial-to-the-customer.html.gz
@@ -468,13 +469,13 @@ configMapGenerator:
       - booth-rent-vs-commission__usage.mjs.gz=booth-rent-vs-commission__usage.mjs.gz
       - booth-rent-vs-commission__vs-vagaro.html.gz=booth-rent-vs-commission__vs-vagaro.html.gz
       - sponsor-ready__app.js.gz=sponsor-ready__app.js.gz
-      - sponsor-ready__github-sponsors-readiness-checklist.html.gz=sponsor-ready__github-sponsors-readiness-checklist.html.gz
-      - sponsor-ready__index.html.gz=sponsor-ready__index.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - sponsor-ready__github-sponsors-readiness-checklist.html.gz=sponsor-ready__github-sponsors-readiness-checklist.html.gz
+      - sponsor-ready__index.html.gz=sponsor-ready__index.html.gz
       - sponsor-ready__scoring.js.gz=sponsor-ready__scoring.js.gz
       - sponsor-ready__style.css.gz=sponsor-ready__style.css.gz
       - sponsor-ready__usage.js.gz=sponsor-ready__usage.js.gz
