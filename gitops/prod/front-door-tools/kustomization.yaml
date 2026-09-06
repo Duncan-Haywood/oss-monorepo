@@ -33,17 +33,17 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556080 bytes
-#   portfolio-front-tools-1: 112 files, 553370 bytes
-#   portfolio-front-tools-2: 147 files, 550709 bytes
-#   portfolio-front-tools-3: 121 files, 556836 bytes
-#   portfolio-front-tools-4: 120 files, 550747 bytes
-#   portfolio-front-tools-5: 129 files, 553467 bytes
-#   portfolio-front-tools-6: 104 files, 556249 bytes
-#   portfolio-front-tools-7: 112 files, 547581 bytes
-#   portfolio-front-tools-8: 107 files, 554275 bytes
-#   portfolio-front-tools-9: 109 files, 542020 bytes
-#   portfolio-front-tools-10: 68 files, 358335 bytes
+#   portfolio-front-tools-0: 136 files, 556036 bytes
+#   portfolio-front-tools-1: 112 files, 553330 bytes
+#   portfolio-front-tools-2: 147 files, 550681 bytes
+#   portfolio-front-tools-3: 121 files, 556827 bytes
+#   portfolio-front-tools-4: 120 files, 550725 bytes
+#   portfolio-front-tools-5: 129 files, 553445 bytes
+#   portfolio-front-tools-6: 104 files, 556214 bytes
+#   portfolio-front-tools-7: 112 files, 547556 bytes
+#   portfolio-front-tools-8: 107 files, 554249 bytes
+#   portfolio-front-tools-9: 112 files, 551997 bytes
+#   portfolio-front-tools-10: 68 files, 358322 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -1300,6 +1300,9 @@ configMapGenerator:
       - tuckpointing-bid-calculator__index.html.gz=tuckpointing-bid-calculator__index.html.gz
       - tuckpointing-bid-calculator__usage.mjs.gz=tuckpointing-bid-calculator__usage.mjs.gz
       - tuckpointing-bid-calculator__vs-quoteiq.html.gz=tuckpointing-bid-calculator__vs-quoteiq.html.gz
+      - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
+      - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
+      - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
       - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
       - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz

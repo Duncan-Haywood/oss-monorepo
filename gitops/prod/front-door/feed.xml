@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 179 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 180 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -42,6 +42,15 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.</summary>
+  </entry>
+  <entry>
+    <title>Vending Machine Route Profit Calculator — Price Each Location</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/vending-machine-route-margin/"/>
+    <id>tag:marisstella.dev,2026:tool/vending-machine-route-margin</id>
+    <published>2026-09-06T00:00:00Z</published>
+    <updated>2026-09-06T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for independent vending machine route operators: find real profit per location after commission, card fees, shrink, drive time, and machine cost, then see whether your whole route hits your income goal.</summary>
   </entry>
   <entry>
     <title>Which Job First? Free Pairwise Job Priority Ranker for Contractors</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — plus the walk-away price a $4 / sq ft special cannot see.</summary>
-  </entry>
-  <entry>
-    <title>Crown Molding Bid Calculator — Price to Install It</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/crown-molding-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/crown-molding-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.</summary>
   </entry>
 </feed>

@@ -4631,3 +4631,19 @@ products:
           Counts are local, opt-in, off by default, and honor DNT/GPC, so a
           zero here is the expected reading for a tool nobody has switched the
           counter on for.
+  - slug: vending-machine-route-margin
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-06
+        signals:
+          live_url_visitors: null
+          visit_priced: 0
+          route_check: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror (`/tools/vending-machine-route-margin/`)
+          from its first commit, so unlike most rows here it has never been an
+          instrumented-but-unreachable product. Counts are local, opt-in, off
+          by default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet.

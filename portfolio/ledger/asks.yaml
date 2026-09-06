@@ -1157,6 +1157,30 @@ decisions:
     choosing what to seal, and the governor stays `suspend: true` /
     `enabled: false` either way. No agent flipped anything.
 
+    UPDATE 2026-09-06: this row's `requires: [k3s-cluster]` is correct for
+    its own mechanism (a Kubernetes CronJob reading a Kubernetes Secret) but
+    is no longer the only way to grant what the row is actually for. A
+    2026-09-06 scheduled session was asked, again, to get the Codex CLI
+    "set up to use up the built-in quota for dev work ... on the hetzner
+    vm" and found that `gitops/agents/host/` -- built 2026-09-05/06,
+    specifically because this row's own mechanism sits downstream of the
+    outage -- runs the identical governor and worker as a systemd timer
+    directly on either box, no k3s, no Argo, no runner. It is already
+    reachable from `hetzner-ssh-key-is-a-public-key` above as the optional
+    `WITH_CODEX_HOST=1` flag on a full cluster restore, but that bundles it
+    with standing up Argo and the runner host too. An owner who wants only
+    "Codex spends its quota on Hetzner" and nothing else can skip the
+    cluster restore entirely: `./bootstrap/scripts/setup-codex-host-from-
+    laptop.sh` (or `install-codex-host.sh` by hand, per
+    `gitops/agents/host/README.md`) installs it alone, needing only the
+    `:22` access that same row already established is credible. It prompts
+    for the same two credentials this row describes and, like this row's
+    CronJob, ships with `policy.json` `"enabled": false` -- installing does
+    not start it; `enable-codex-governor.sh` still does that, deliberately,
+    as its own step. Not a new decision, and not a reason to add a second
+    row: the choice of credential and account is identical to this one, only
+    the machine differs, so this paragraph is the whole update.
+
 - id: portfolio-site-hetzner-deploy
   asks: []
   prs: [1999]
