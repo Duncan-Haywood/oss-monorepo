@@ -16675,3 +16675,75 @@ entries:
         No payment collection, no new third-party script/CDN/network call,
         no personal data collected, no named competitor on any page.
     mrr_end: null
+  - venture: photo-booth-event-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item. Concurrency check first per
+        CLAUDE.md's "Duplicate PRs" section: `find ventures -iname
+        "vs-*.html"` (189 hits, correctly including the 5 ventures whose
+        site lives under `site/`, which a `-maxdepth 2` search misses)
+        diffed against the 183 built tool slugs left only
+        `atm-route-margin` and `photo-booth-event-quote` with no
+        comparison page. Mid-session another PR (#3533) shipped
+        `custom-farm-rate-calculator/vs-survey-rates.html` while a draft
+        for that same venture was in progress here -- discarded it, reset
+        to fresh `origin/main`, and picked `photo-booth-event-quote`
+        instead rather than duplicate.
+      - >-
+        Added `vs-photobooth-supply-co.html`: Photobooth Supply Co, a real
+        photo booth equipment/software vendor, publishes a free Profit
+        Calculator (verified via WebSearch -- WebFetch is egress-blocked
+        for every external domain in this session) that is a market-sizing
+        lead-gen tool (local search volume, an assumed booking rate,
+        results emailed to you), aimed at someone deciding whether to
+        start a photo booth business. This tool prices one booking that
+        already exists, from its real costs, with no email and no
+        account. No dollar figure from their tool is quoted anywhere on
+        the page -- only well-corroborated, non-numeric facts -- same
+        discipline `vs-miniorange.html` already uses when a number is not
+        cleanly verifiable. Nominative fair use only, not-affiliated
+        disclaimer present, FAQPage matches the visible FAQ, linked from
+        `index.html` and `sitemap.xml`.
+      - >-
+        Also fixed forward, discovered via this branch's own required
+        `node --test platform/pages/*.test.mjs` run going red:
+        `custom-farm-rate-calculator/vs-survey-rates.html` (merged in
+        #3533, unrelated to this venture) names no specific survey
+        publisher by design, so `clauses.mjs`'s vs-*.html pattern was
+        flagging a page with no party to disclaim affiliation with. Added
+        it to `COMPARISON_DISCLAIMER_EXEMPT` in `platform/pages/clauses.mjs`,
+        same pattern as the existing `seller-net-sheet` exemption, in the
+        same commit.
+      - >-
+        Ran the full local checklist from CLAUDE.md's "Ship without review
+        ceremony" section, after `git fetch --unshallow` (the clone was
+        shallow, which also explained 2 otherwise-unrelated
+        `platform/webcheck` failures against an old revision it could not
+        resolve -- not a regression): the venture's own suite (46/46),
+        `clauses.mjs` (clean), `build.mjs`/`check.mjs` (183 products, 742
+        pages, no dead links), `regen.mjs` (committed the gitops/ rewrite),
+        `checklist_coverage.py` (clean), the marketing+pages suite
+        (1140/1140 after the clauses.mjs fix), the proposal suite
+        (101/101), the privacy+webcheck suite (66/66 after unshallowing),
+        `gitops/tests` (483 passed, 25 skipped), all 19 `platform/ci`
+        unittest modules (657 tests), `agent_review` (21 tests), and the
+        ledger/scoring/router/usage/pipeline + infra pytest suites (370
+        passed, 8 subtests). `check_ledger_only.py` confirmed 12 real
+        files, not ledger prose.
+      - >-
+        Opened as PR #3539, merged on this session's own local
+        verification per CLAUDE.md's "Ship without review ceremony": all
+        10 triggered workflow runs came back red in 2-3s each, and
+        `ci_starvation.py --run` on each confirmed `runner_id: 0`
+        (starvation, not a real failure). No payment collection, no new
+        third-party script/CDN/network call, no personal data collected.
+        Deployed the same run: `pages_state.py --require-current` was
+        already `current` at merge (another concurrent session's publish
+        happened to land on this exact commit), then
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        republished anyway per the queue item's instructions (184
+        products, 745 pages, no dead links), and a final
+        `pages_state.py --require-current` confirmed `current` (exit 0).
+    mrr_end: null
