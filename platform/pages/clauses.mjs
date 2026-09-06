@@ -87,6 +87,13 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
+  // Compares against "a published custom rate survey" -- the category of
+  // extension-service rate surveys generally, not one publisher's. The page
+  // names no company, product or mark anywhere (verified: no proper noun of
+  // that shape, no ® or ™), so there is nothing a reader could mistake this
+  // for the page of, and a "not affiliated with <blank>" line would name a
+  // trademark the page otherwise never mentions.
+  'custom-farm-rate-calculator/vs-survey-rates.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
