@@ -458,13 +458,37 @@ def verdict(
     if revenue:
         return "PROCEED", ["Revenue is recorded this month — work the venture that is earning."]
     if meta < META_SHARE_THRESHOLD:
-        return "PROCEED", [
+        proceed_reasons = [
             f"Recent meta-work share {meta:.0%} is below the {META_SHARE_THRESHOLD:.0%} "
             "threshold — the fleet is spending on ventures, not on itself. Continue as briefed.",
             "Deploy-first still applies: if the venture you are on already has a built "
             "surface with no public URL, that deploy is the work. Do not start a sibling "
             "product. See `portfolio/DIRECTION.md` Current priority.",
         ]
+        # PROCEED is the common case (low meta-work), and until now it never
+        # looked at the pipeline at all -- "screen a fresh niche" only ever
+        # reached a session through the BUILD branch below, which fires on
+        # *high* meta-work share. So on an ordinary day (this one included:
+        # 32% meta-work, well under the 70% threshold) a session got told
+        # "continue as briefed" and nothing else, even though
+        # `portfolio/DIRECTION.md`'s 2026-09-06 "Owner direction" section
+        # says new ventures rank ahead of a parity feature whenever a genuine
+        # one is available -- and even though the pipeline's `build-now`
+        # queue is, right now, genuinely empty. A session with no
+        # in-progress venture work had no way to learn either fact from this
+        # gate. Surface it here too, once, without touching the BUILD branch.
+        proceed_targets = build_targets() if targets is None else targets
+        if proceed_targets == []:
+            proceed_reasons.append(
+                "The `build-now` pipeline is empty (every scored candidate has already "
+                "graduated). Per `portfolio/DIRECTION.md` 'Owner direction, 2026-09-06', "
+                "new ventures rank first, not last, when a genuine one is available -- "
+                "if you have no in-progress venture work, screening a fresh niche against "
+                "`portfolio/pipeline/screened-out.md` and the liability/ethical gates in "
+                "`portfolio/pipeline/README.md`, and graduating it the same session if it "
+                "clears them, outranks a parity feature on a product nobody has visited."
+            )
+        return "PROCEED", proceed_reasons
     reasons = [
         f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, not venture "
         "work, and no revenue is recorded. The fleet is debating process instead of shipping "
