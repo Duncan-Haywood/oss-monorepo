@@ -14979,6 +14979,68 @@ entries:
         tests, run individually as CLAUDE.md's starvation section
         directs).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Direction-setting session (scheduled brief: focus the fleet on viable
+        businesses, donation revenue, customer happiness, and marketing
+        without new legal liability). Found the gap by checking practice
+        against enforcement rather than against prose: 173 `vs-<competitor>`
+        comparison pages exist across the portfolio, naming real trademarks
+        (ServiceMonster, Jobber, ServiceTitan, Avalara, Extensiv, and more),
+        and 172 of them already carry a "not affiliated with" disclaimer by
+        author convention -- but nothing checked for it, and one page
+        (`seller-net-sheet/vs-title-company-net-sheet.html`, correctly, since
+        it compares against a generic role rather than a named product) had
+        already drifted from the pattern. That is the exact shape CLAUDE.md's
+        own history warns about: a guard nobody runs is invisible until the
+        thing it should have caught costs something, and a page that names a
+        trademark with no affiliation disclaimer and unverified claims about
+        a competitor is a real Lanham Act / trademark exposure for the owner,
+        not a hypothetical one.
+      - >-
+        Closed it with an enforced check, not just a written rule.
+        `platform/pages/clauses.mjs` now also flags any `vs-<competitor>.html`
+        page missing a "not affiliated with" disclaimer (`NOT_AFFILIATED`
+        pattern, loosely matched like the existing no-warranty check), with a
+        narrow, named `COMPARISON_DISCLAIMER_EXEMPT` allowlist for the one
+        genuine non-trademark comparison rather than a loosened pattern for
+        everyone. `node platform/pages/clauses.mjs <slug>` -- already wired
+        into every venture's CI -- now checks both clauses in one pass.
+        Documented as `PRODUCT_PLAYBOOK.md` §5f (nominative fair use, a
+        required disclaimer, and "facts only, sourced, comparative rather
+        than derogatory" -- comparison copy that reads as an attack is a
+        defamation/false-advertising exposure this portfolio does not need to
+        take), cross-linked from `AGENTS.md`'s disclaimer checklist and
+        `portfolio/DIRECTION.md`'s legal guardrails, and added to the §7
+        definition-of-done checklist next to the existing no-warranty bullet.
+      - >-
+        Also sharpened `portfolio/DIRECTION.md`'s new-venture guidance per the
+        brief: the existing "only then does a new venture compete for time"
+        ordering was right about sequencing (an untested backlog beats an
+        unscreened 37th idea) but read as a demotion of new ventures rather
+        than as a queue order, which is not what the owner wants signaled to
+        the fleet. Added a dated addendum making explicit that a candidate
+        clearing both pipeline gates (`liability_containment` >= 5,
+        `ethical_robustness` >= 5) and naming a real channel is exactly as
+        welcome as a queued `build-now` item, without lowering the evidence
+        bar that "176th niche calculator with no evidence" already guards
+        against.
+      - >-
+        Verified: `node --test platform/pages/clauses.test.mjs` (21/21,
+        including a new suite asserting the real venture tree's 173
+        comparison pages all pass or are explicitly exempted) and
+        `node platform/pages/clauses.mjs` (695 pages / 175 surfaces, clean).
+        Then the full required set for a `platform/pages/` change per
+        CLAUDE.md: `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` -- 1135/1135. No venture code, no gitops,
+        no platform/ci touched, so those suites do not apply this cycle.
+        Revenue is still $0 recorded across the ledger; this does not move
+        usage or MRR, it closes a liability gap the fleet's own marketing
+        practice had already outrun its enforcement on.
+    mrr_end: null
   - venture: grant-deadline-tracker
     agent_spend_usd: null
     human_hours: 0
