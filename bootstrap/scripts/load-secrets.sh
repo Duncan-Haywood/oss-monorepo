@@ -70,6 +70,18 @@ AGE_IDENTITY_FILE="${AGE_IDENTITY_FILE:-${SOPS_AGE_KEY_FILE:-${XDG_CONFIG_HOME:-
 
 die() { echo "load-secrets: $*" >&2; exit 1; }
 
+# Torn down by the EXIT trap `--exec` installs. Defined here, at script scope
+# and with its variables initialised here too, because a trap handler runs after
+# the function that armed it has returned: anything `local` to that function is
+# gone, and under `set -u` reading it aborts the handler before the `rm -rf`.
+AGENT_DIR=""
+STARTED_AGENT=0
+cleanup() {
+  [[ "$STARTED_AGENT" == 1 ]] && ssh-agent -k >/dev/null 2>&1
+  [[ -n "$AGENT_DIR" ]] && rm -rf "$AGENT_DIR"
+  return 0
+}
+
 # ---------------------------------------------------------------- the registry
 #
 # The names are in a committed file rather than in this script because two other
@@ -211,7 +223,9 @@ cmd_put() {
   ( umask 077; cat > "$SECRETS_DIR/$name" )
   chmod 600 "$SECRETS_DIR/$name"
   echo "wrote $SECRETS_DIR/$name"
-  resolve "$name" && describe "$name" "$REPLY" || true
+  # if/then, not `A && B || C`: describe() returns 1 for a bad value and that
+  # must not fail the write that just succeeded.
+  if resolve "$name"; then describe "$name" "$REPLY" || true; fi
 }
 
 cmd_encrypt() {
@@ -230,9 +244,17 @@ cmd_encrypt() {
 
 cmd_exec() {
   [[ $# -gt 0 ]] || die "--exec needs a command after --"
-  local name env_args=()
+  local name
+  # `export` into this process rather than `env NAME=VALUE -- cmd`, because argv
+  # is world-readable and the environment is not. On Linux /proc/<pid>/cmdline
+  # is mode 444 and /proc/<pid>/environ is mode 400 owner-only (verified
+  # 2026-09-06), so building an `env` argv puts every secret where any local
+  # user can read it for as long as the exec takes -- a window that is short but
+  # is exactly the disclosure `--put` already avoids by taking its value on
+  # stdin. Exporting keeps the values in two owner-readable environments (this
+  # script's and the child's) and in no argv at all.
   while read -r name; do
-    resolve "$name" && env_args+=("$name=$REPLY")
+    resolve "$name" && export "$name=$REPLY"
   done < <(registry_names)
 
   # An ssh-agent scoped to this one command. restore-cluster.sh and the host
@@ -241,36 +263,42 @@ cmd_exec() {
   # still would not make the deploy work, and the owner would be back to
   # ssh-add'ing a key by hand. It is killed on exit, touches neither ~/.ssh nor
   # your own agent, and its key file lives in a mode-700 temp dir.
-  local agent_dir="" started_agent=0
+  #
+  # AGENT_DIR/STARTED_AGENT are deliberately globals. The EXIT trap fires after
+  # this function has returned, so a `local` here is out of scope by the time
+  # cleanup() reads it -- and under `set -u` that is not a silent no-op but an
+  # "unbound variable" abort *inside the trap*, which skips the `rm -rf` and
+  # leaves the private key sitting in /tmp for the rest of the boot. The failure
+  # was invisible because a trap's stderr is easy to miss and its status is not
+  # the script's.
+  AGENT_DIR=""; STARTED_AGENT=0  # re-armed per invocation
   if resolve HETZNERSSHKEY && command -v ssh-agent >/dev/null 2>&1 \
      && [[ "${NO_SSH_AGENT:-0}" != "1" ]]; then
-    agent_dir="$(mktemp -d)"; chmod 700 "$agent_dir"
+    AGENT_DIR="$(mktemp -d)"; chmod 700 "$AGENT_DIR"
     # Reuses the classifier rather than restating it: it normalises the two ways
     # a pasted key breaks (literal \n escapes, CRLF) and refuses a public key
     # with a specific message.
-    if HETZNERSSHKEY="$REPLY" "$ROOT/bootstrap/scripts/load-ssh-key.sh" "$agent_dir/id" >/dev/null; then
+    if HETZNERSSHKEY="$REPLY" "$ROOT/bootstrap/scripts/load-ssh-key.sh" "$AGENT_DIR/id" >/dev/null; then
       eval "$(ssh-agent -s)" >/dev/null
-      started_agent=1
-      ssh-add -q "$agent_dir/id" 2>/dev/null || echo "load-secrets: ssh-add refused the key" >&2
-      env_args+=("SSH_AUTH_SOCK=$SSH_AUTH_SOCK")
+      STARTED_AGENT=1
+      ssh-add -q "$AGENT_DIR/id" 2>/dev/null || echo "load-secrets: ssh-add refused the key" >&2
+      export SSH_AUTH_SOCK
     else
       echo "load-secrets: HETZNERSSHKEY is unusable; running without an ssh-agent" >&2
     fi
   fi
 
-  cleanup() {
-    [[ "$started_agent" == 1 ]] && ssh-agent -k >/dev/null 2>&1 || true
-    [[ -n "$agent_dir" ]] && rm -rf "$agent_dir" || true
-  }
   trap cleanup EXIT
 
-  # `env --` and not `export`: the values land in the child's environment and in
-  # no shell that outlives it.
-  env "${env_args[@]}" "$@"
+  # Run as a child rather than `exec` so the EXIT trap above still fires: the
+  # throwaway agent and its key file have to be torn down even when the command
+  # fails. The exit status is propagated so `--exec` is transparent to callers
+  # that branch on it.
+  "$@"
 }
 
 MODE="${1:---check}"
-[[ $# -gt 0 ]] && shift || true
+if [[ $# -gt 0 ]]; then shift; fi
 case "$MODE" in
   --check|check)     cmd_check "$@" ;;
   --get|get)         cmd_get "$@" ;;
