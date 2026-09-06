@@ -208,6 +208,7 @@ jobs:
             bootstrap/restore-cluster.sh \
             bootstrap/label-existing.sh \
             bootstrap/scripts/load-ssh-key.sh \
+            bootstrap/scripts/load-secrets.sh \
             bootstrap/scripts/gen-age-key.sh \
             bootstrap/scripts/seal-owner-secrets.sh \
             bootstrap/scripts/enable-codex-governor.sh \
