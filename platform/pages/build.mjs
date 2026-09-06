@@ -514,6 +514,80 @@ export const ABOUT_PATH = 'about/';
 export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
 
 /**
+ * The one usage event name that is fleet-standard rather than per-product.
+ *
+ * Every venture names its own feature events for what that product does
+ * (`bid_calculated`, `record_exported`, ...) and they vary on purpose. The
+ * Sponsors link is the single thing identical across all of them, and until
+ * this shipped it was the fleet's only *unmeasured* revenue signal: 186
+ * ventures render the link and not one recorded whether it is ever used, so
+ * "does the link exist" was closed while "does anyone click it" was not.
+ *
+ * The literal string is specified in `portfolio/usage/README.md` so a click is
+ * comparable across products instead of scattered under a different name per
+ * venture. It is deliberately un-slugged: every published page is served from
+ * one origin, so one store already aggregates the fleet, and `tool_viewed:*`
+ * in that same store is the denominator this number is read against.
+ */
+export const SPONSOR_CLICK_EVENT = 'sponsor_link_clicked';
+
+/**
+ * The marker `markSponsorLinks` writes and the chrome counter matches on.
+ *
+ * The counter could have matched `a[href^="<the sponsors URL>"]` directly and
+ * needed no marker at all. It does not, for one reason worth stating because
+ * it looks like indirection for its own sake: `pf-site.js` is asserted to
+ * contain **no off-origin URL whatsoever** (`build.test.mjs`, "the chrome
+ * counts locally ... and asks for nothing off-origin"). That guard is blunt on
+ * purpose — a script every published page loads is the one file where a single
+ * added URL would undo the privacy claim on all 733 of them — and a URL sitting
+ * in a `closest()` selector would have been a real weakening of it to buy
+ * nothing, since the marker costs one attribute.
+ *
+ * It also matches the `[data-pf-to]` delegation already in that handler, and it
+ * catches the link wherever it was written: five templates in this file plus
+ * the 186 ventures that author their own footer.
+ */
+export const SPONSOR_LINK_ATTR = 'data-pf-sponsor';
+
+const SPONSOR_ANCHOR_RE = new RegExp(
+  `<a\\b([^>]*\\bhref="${SPONSORS_URL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^"]*"[^>]*)>`,
+  'gi',
+);
+
+/**
+ * Tags every Sponsors anchor on a page so a click on it can be counted.
+ *
+ * Idempotent: a page that already carries the marker is returned unchanged, so
+ * running this after a pass that copied markup around cannot double-tag.
+ */
+export function markSponsorLinks(html) {
+  return html.replace(SPONSOR_ANCHOR_RE, (whole, attrs) =>
+    (attrs.includes(SPONSOR_LINK_ATTR) ? whole : `<a${attrs} ${SPONSOR_LINK_ATTR}>`));
+}
+
+/**
+ * Applies `markSponsorLinks` across the finished site.
+ *
+ * A whole-tree pass rather than a step inside `addSiteChrome`, because the
+ * sponsor line is not only on the tool pages the chrome wraps: the hub, the
+ * category pages, the comparison pages and `about/` each render their own, and
+ * a counter that missed those would under-report exactly the pages a visitor
+ * arriving from search lands on first. Returns the files it changed.
+ */
+export async function markSponsorLinksIn(outDir) {
+  const marked = [];
+  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
+    const html = await fs.readFile(file, 'utf8');
+    const next = markSponsorLinks(html);
+    if (next === html) continue;
+    await fs.writeFile(file, next);
+    marked.push(path.relative(outDir, file));
+  }
+  return marked;
+}
+
+/**
  * The optional-support line a user-facing page carries in its footer.
  *
  * ## Why the hub pages needed one
@@ -4073,6 +4147,21 @@ export function renderChromeStyle() {
 //
 // The slug is the only per-page value, and it rides on the `<script>` tag as
 // `data-pf-slug` now that this is one shared file. See `CHROME_MODULE_FILE`.
+//
+// Three events, and the third is why the click delegate reads two selectors
+// instead of one. `sponsor_link_clicked` (see `SPONSOR_CLICK_EVENT`) is counted
+// here rather than in each venture's own `usage.mjs` because the link is not a
+// venture's own feature: it is identical markup on all 186 of them, and 155 of
+// those have a `usage.mjs` to wire while the rest have none. Counting it in the
+// shared chrome covers every published page — tools, category pages, compare
+// pages, the about page, the hub — in one file that every page already loads,
+// so it costs no per-page bytes and no second request, and it cannot go stale
+// on the day a 187th venture ships.
+//
+// Same store, same rules, same off switches as the two events above it: DNT or
+// Sec-GPC silences it, `portfolio-hub-optout` silences it, and it never leaves
+// the device. `localStorage.setItem` is synchronous and the handler runs before
+// the browser navigates, so following the link does not lose the count.
 const CHROME_SCRIPT = () => `
 (function(){
   try{
@@ -4092,8 +4181,11 @@ const CHROME_SCRIPT = () => `
     };
     bump('tool_viewed:'+slug);
     document.addEventListener('click',function(e){
-      var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
+      var t=e.target&&e.target.closest?e.target:null;
+      if(!t)return;
+      var a=t.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+      if(t.closest('[${SPONSOR_LINK_ATTR}]'))bump('${SPONSOR_CLICK_EVENT}');
     });
   }catch(e){}
 })();
@@ -5680,6 +5772,13 @@ export async function buildSite({
     wrapped, rated, saved, shared, described, highlighted, narrowed, embedded,
   } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
+  // After the chrome pass, which writes the sponsor line into the footer of
+  // every page it wraps -- marking before it would leave those unmarked and
+  // uncounted. Before the offline layer below, for the reason stated there:
+  // this rewrites HTML, so a cache named from a hash taken earlier would ship
+  // pages that no longer match it.
+  const sponsored = await markSponsorLinksIn(outDir);
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -5687,7 +5786,7 @@ export async function buildSite({
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, offline, comparisons,
+    highlighted, narrowed, embedded, sponsored, offline, comparisons,
   };
 }
 
@@ -5847,4 +5946,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Highlighted the rejected input on ${result.highlighted.length} page(s).`);
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
+  console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
 }
