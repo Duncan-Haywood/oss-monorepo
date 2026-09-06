@@ -14,6 +14,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { DRAFT_FIELDS } from './draft.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
@@ -109,7 +110,12 @@ test('the sheet-goods inputs and result fields are present', () => {
 
 test('the sheet-goods on-hand offcut field is parsed, drafted, and wired to a render', () => {
   assert.match(scriptSource, /onHand:\s*parseOnHandSheets\(\$\('sheet-onhand'\)\.value\)/, 'renderSheet does not pass the on-hand offcut field into optimizeSheets');
-  assert.match(scriptSource, /DRAFT_FIELDS\s*=\s*\[[^\]]*'sheet-onhand'[^\]]*\]/s, 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft loses it');
+  // DRAFT_FIELDS moved from a literal in this file's script into draft.mjs when
+  // share.mjs needed the same list. Asserting against the exported array rather
+  // than a regex over the source is what the check was reaching for anyway: it
+  // now fails if the field is dropped, and no longer depends on where the list
+  // happens to be written.
+  assert.ok(DRAFT_FIELDS.includes('sheet-onhand'), 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft and a shared link both lose it');
 });
 
 // A cut too long for any stock on hand or to buy no longer throws away the
@@ -144,7 +150,12 @@ test('every module the page imports exists and exports what it names', async () 
   for (const [, names, specifier] of imports) {
     const module = await import(new URL(specifier, import.meta.url).href);
     for (const name of names.split(',').map((n) => n.trim()).filter(Boolean)) {
-      assert.equal(typeof module[name], 'function', `${specifier} does not export ${name}`);
+      // The check is that the name resolves — a typo in an import is the defect
+      // it catches, and that shows up as `undefined` whatever the export's type.
+      // It asserted `typeof === 'function'` while every import happened to be
+      // one; DRAFT_FIELDS is an array, and a constant is as importable as a
+      // function.
+      assert.notEqual(module[name], undefined, `${specifier} does not export ${name}`);
     }
   }
 });

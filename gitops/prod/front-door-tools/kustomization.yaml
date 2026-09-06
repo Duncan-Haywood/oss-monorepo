@@ -37,8 +37,8 @@
 #   portfolio-front-tools-1: 112 files, 553362 bytes
 #   portfolio-front-tools-2: 147 files, 550711 bytes
 #   portfolio-front-tools-3: 121 files, 556832 bytes
-#   portfolio-front-tools-4: 119 files, 553625 bytes
-#   portfolio-front-tools-5: 128 files, 545863 bytes
+#   portfolio-front-tools-4: 119 files, 553420 bytes
+#   portfolio-front-tools-5: 129 files, 549729 bytes
 #   portfolio-front-tools-6: 104 files, 553928 bytes
 #   portfolio-front-tools-7: 113 files, 555319 bytes
 #   portfolio-front-tools-8: 109 files, 554899 bytes
@@ -677,6 +677,7 @@ configMapGenerator:
       - cut-list-optimizer__csv.mjs.gz=cut-list-optimizer__csv.mjs.gz
       - cut-list-optimizer__draft.mjs.gz=cut-list-optimizer__draft.mjs.gz
       - cut-list-optimizer__index.html.gz=cut-list-optimizer__index.html.gz
+      - cut-list-optimizer__share.mjs.gz=cut-list-optimizer__share.mjs.gz
       - cut-list-optimizer__sheet.mjs.gz=cut-list-optimizer__sheet.mjs.gz
       - cut-list-optimizer__usage.mjs.gz=cut-list-optimizer__usage.mjs.gz
       - cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz=cut-list-optimizer__vs-opticutter-and-cutlist-optimizer.html.gz
@@ -720,12 +721,12 @@ configMapGenerator:
       - duct-cleaning-bid-calculator__index.html.gz=duct-cleaning-bid-calculator__index.html.gz
       - duct-cleaning-bid-calculator__share.mjs.gz=duct-cleaning-bid-calculator__share.mjs.gz
       - duct-cleaning-bid-calculator__usage.mjs.gz=duct-cleaning-bid-calculator__usage.mjs.gz
-      - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - duct-cleaning-bid-calculator__vs-jobber.html.gz=duct-cleaning-bid-calculator__vs-jobber.html.gz
       - egress-window-bid-calculator__calc.mjs.gz=egress-window-bid-calculator__calc.mjs.gz
       - egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz=egress-window-bid-calculator__how-much-to-charge-to-install-an-egress-window.html.gz
       - egress-window-bid-calculator__index.html.gz=egress-window-bid-calculator__index.html.gz

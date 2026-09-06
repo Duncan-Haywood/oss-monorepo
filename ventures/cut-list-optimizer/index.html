@@ -328,6 +328,7 @@ Top: 31.5 x 11.25 x 2</textarea>
   <footer>
     <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
     <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite">Drafts are saved only on this device.</span></div>
+    <div class="actions"><button type="button" id="share-link" class="draft-button">Copy link to this plan</button><span id="share-status" role="status" aria-live="polite">Sends whoever opens it the same layout, not just the list of cuts. Nothing is uploaded &mdash; the sizes ride in the part of the address browsers never send to a server.</span></div>
     <p>
       <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
       It is not engineering, financial, or business advice and does not replace a qualified professional.
@@ -355,7 +356,8 @@ Top: 31.5 x 11.25 x 2</textarea>
     import { parseCuts, parseStock, optimizeCutList, formatCutPlan, formatCutPlanCSV, compareStockLengths, formatStockComparison } from './calc.mjs';
     import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, formatSheetPlanCSV, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
-    import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
+    import { loadDraft, saveDraft, clearDraft, DRAFT_FIELDS } from './draft.mjs';
+    import { decodeInputs, shareUrl, isSafeLength } from './share.mjs';
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $('optout').checked;
@@ -746,11 +748,6 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     /* ---------------- Wiring ---------------- */
 
-    const DRAFT_FIELDS = [
-      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand', 'sheet-unit', 'sheet-rotate',
-      'stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency',
-    ];
-
     function draftValues() {
       return Object.fromEntries(DRAFT_FIELDS.map((id) => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
     }
@@ -878,10 +875,58 @@ Top: 31.5 x 11.25 x 2</textarea>
       setTimeout(() => { $('draft-status').textContent = ''; }, 4000);
     });
 
+    function currentTab() {
+      return $('tab-linear').getAttribute('aria-selected') === 'true' ? 'linear' : 'sheet';
+    }
+
+    $('share-link').addEventListener('click', async () => {
+      const status = $('share-status');
+      const url = shareUrl(location.href, draftValues(), currentTab());
+      if (!isSafeLength(url)) {
+        // A long parts list makes a link that some browsers and most chat apps
+        // cut short, and a truncated cutting plan is worse than none: it opens,
+        // it looks complete, and the parts that were dropped are simply not
+        // cut. The CSV export has no such limit, so send them there instead of
+        // copying something that will silently lose parts.
+        status.textContent = 'This parts list is too long to fit in a link. Use the CSV or the copied plan for a job this size.';
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        status.textContent = 'Link copied. Whoever opens it sees this layout and can change it.';
+        recordUsage(localStorage, optedOut(), 'share-links');
+      } catch {
+        // Clipboard access is refused in more places than it is granted (an
+        // insecure origin, a permissions policy, a browser wanting a closer
+        // user gesture). Putting the payload in the address bar leaves the
+        // visitor something to copy by hand rather than a button that lies.
+        location.hash = url.split('#')[1] ?? '';
+        status.textContent = 'Clipboard access was blocked. The address bar now holds the link — copy it from there.';
+      }
+      setTimeout(() => { status.textContent = ''; }, 6000);
+    });
+
+    // A link wins over the saved draft, and so is applied after it: someone who
+    // opened a shared plan asked for those parts specifically, and blending
+    // them with whatever this browser last held would be a cutting list neither
+    // person checked. Fields absent from the link keep the draft's value, which
+    // is what lets a short link carry only the panel that was actually shared.
     const restored = restoreDraft();
+    const shared = decodeInputs(location.hash);
+    const fromLink = Object.keys(shared.values).length > 0;
+    if (fromLink) {
+      for (const id of DRAFT_FIELDS) {
+        if (!(id in shared.values)) continue;
+        if ($(id).type === 'checkbox') $(id).checked = Boolean(shared.values[id]);
+        else $(id).value = String(shared.values[id]);
+      }
+      if (shared.tab) selectTab(shared.tab);
+      recordUsage(localStorage, optedOut(), 'share-opens');
+    }
     renderSheet();
     renderLinear();
-    if (restored) $('draft-status').textContent = 'Saved draft restored.';
+    if (fromLink) $('share-status').textContent = 'Opened from a shared link. Check the sizes against your own stock before cutting.';
+    else if (restored) $('draft-status').textContent = 'Saved draft restored.';
   </script>
 </body>
 </html>
