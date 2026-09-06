@@ -487,6 +487,46 @@ export function categoryPagePath(categoryId) {
 export const ABOUT_PATH = 'about/';
 
 /**
+ * The owner's GitHub Sponsors profile, in one place.
+ *
+ * It was written out longhand in four separate templates before this constant
+ * existed, which is four places to miss on the day the account changes — the
+ * copied-constant mistake CLAUDE.md records twice as having cost live product.
+ */
+export const SPONSORS_URL = 'https://github.com/sponsors/Duncan-Haywood';
+
+/**
+ * The optional-support line a user-facing page carries in its footer.
+ *
+ * ## Why the hub pages needed one
+ *
+ * Measured 2026-09-06 against the published snapshot: 698 of its 721 pages
+ * carried a sponsors line and 23 did not. Two of those are `404.html` and
+ * `offline.html`, which correctly have none. The other 21 were the category
+ * hubs (`/c/<id>/`) and the comparison pages (`/compare/`, `/compare/<product>/`)
+ * — which is exactly backwards, because those are the pages a stranger arriving
+ * from a search query lands on *first*. A visitor could read a whole
+ * "vs ServiceTitan" comparison and never be told the tools are free and
+ * supportable, while the deeper tool page they might never reach said so.
+ *
+ * `portfolio/DIRECTION.md` names this as the agent-doable half of the
+ * `funding-sponsors-live` decision: whether the repo publishes a funding
+ * surface is the owner's call, but making sure every product already carries
+ * its own half correctly is not, so the day it is decided nothing is missing.
+ *
+ * ## Why it is phrased this way
+ *
+ * `PRODUCT_PLAYBOOK.md` §6: a donation prompt lives in the README and the
+ * footer, "nowhere a user has to pass through", and never in front of a
+ * feature. The sentence says the ask changes nothing about the product because
+ * that is true — refusing costs the visitor no functionality — and a donation
+ * ask that overstates itself is worse than none.
+ */
+export function sponsorsNote() {
+  return `<a href="${SPONSORS_URL}">Sponsoring on GitHub</a> is optional and changes nothing about what these tools do.`;
+}
+
+/**
  * The index of every `vs-<product>.html` comparison page in the catalogue,
  * grouped by the product each one names.
  *
@@ -1887,6 +1927,7 @@ ${siblings}
 
     <footer>${disclaimerHtml(toRoot, groups.flatMap((g) => g.items))}
       <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">Comparisons</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every tool page loads, with the
@@ -2121,6 +2162,7 @@ ${categoryLinks}
         tool does and does not do.
       </p>
       <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every other page loads, with this
@@ -2334,6 +2376,7 @@ ${categoryLinks}
         documentation.
       </p>
       <p style="margin-top:18px"><a href="${escapeHtml(`${toRoot}${COMPARE_PATH}`)}">All comparisons</a> · <a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(surfaces.length))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+      <p>${sponsorsNote()}</p>
     </footer>
   </div>
   <!-- Its own slug, not the hub's. Whether a product page earns the traffic
@@ -2535,7 +2578,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
       </p>
       <p>
         If one of these has saved you money,
-        <a href="https://github.com/sponsors/Duncan-Haywood">sponsoring on
+        <a href="${SPONSORS_URL}">sponsoring on
         GitHub</a> is welcome and entirely optional. Declining changes nothing
         about what any tool does, and nothing here is gated behind it.
       </p>
@@ -3108,7 +3151,7 @@ ${OFFLINE_WIDGET_HTML}
 
     <div class="support">
       <strong>Free, and staying free.</strong> If one of these saved you money,
-      <a href="https://github.com/sponsors/Duncan-Haywood">sponsoring on GitHub</a>
+      <a href="${SPONSORS_URL}">sponsoring on GitHub</a>
       is welcome and entirely optional — nothing here is gated behind it, and
       declining changes nothing about what the tools do.
     </div>
@@ -4643,7 +4686,7 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
-      <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
+      <a href="${SPONSORS_URL}">Sponsoring on GitHub</a>
       is optional and changes nothing about what these tools do.
     </p>
   </div>
