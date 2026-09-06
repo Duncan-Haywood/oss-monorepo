@@ -33,13 +33,28 @@ readings:
 
   github-actions-runners:
     verdict: down
-    measured: "2026-09-05"
-    run: 33953052273
+    measured: "2026-09-06"
+    run: 101548826585
     how: >-
-      Dispatch any workflow that needs no secret (`Public surface check` is
-      the cheapest) and classify it:
-      `python3 platform/ci/ci_starvation.py --run <run_id>`.
+      Cheapest route, and it costs nothing at all: classify a check that
+      already ran on any open PR, by its **job** id rather than a run id --
+      `python3 platform/ci/ci_starvation.py <job_id>`. Ordinary PR traffic
+      produces these constantly during a starvation window, so there is no
+      need to dispatch anything. To dispatch instead, `Public surface check`
+      needs no secret: `python3 platform/ci/ci_starvation.py --run <run_id>`.
       Exit 0 means runners are being assigned; exit 1 means starvation.
+      Re-measured 2026-09-06: still down. Nine checks across three PRs
+      (#3542 job 101543942608, #3544 jobs 101546212616/101546212612/
+      101546212714, #3547 jobs 101548826585/101548826210/101548826104) all
+      came back `runner_id: 0`, 3s, no steps. So the window that opened
+      2026-09-04T22:39Z has now been open three days.
+      Note what this reading does NOT cover, because it was measured the same
+      day and the two look alike: GitHub's **managed** Pages builder
+      (`pages build and deployment`) ran to `success` on `gh-pages` four
+      times during this window, including run 34055759342 at 19:42Z. It is
+      not an Actions runner and is not metered against this allowance, which
+      is why the publish route in `github-pages-branch-route` keeps working
+      while everything in `.github/workflows/` starves.
     note: >-
       Starvation recurred mid-session on 2026-09-04, exactly as
       `gitops/ci/README.md` predicted it would when the metered allowance is
@@ -304,8 +319,17 @@ readings:
     # the way it was wrong is the reusable part.
     verdict: up
     measured: "2026-09-06"
-    run: 34012041708
+    run: 34055759342
     how: >-
+      RE-MEASURED 2026-09-06T19:42Z, run 34055759342, after publishing a
+      merge that touched `ventures/**`: the managed builder ran on `gh-pages`
+      and concluded `success` again, so the route is not a one-off reading.
+      Keeping this row fresh is now load-bearing rather than tidy.
+      `decision_queue.py`'s `PUBLIC_ORIGINS` consults it through `reading()`,
+      so once it ages past `STALE_AFTER_DAYS` the owner's banner reverts to
+      announcing that the catalogue is dark -- which is what it wrongly said
+      all day on 2026-09-06 until this row was wired into it. Re-measure it
+      on any session that publishes.
       `python3 platform/ci/pages_state.py` and read the **`deployed`** row
       (added 2026-09-06). It lists runs of GitHub's managed builder filtered
       to `gh-pages` and looks for a completed one. A managed Pages build is
