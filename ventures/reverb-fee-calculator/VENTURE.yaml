@@ -43,5 +43,5 @@ kill_criteria:
   - Fewer than three qualified Reverb sellers use the calculator twice within 90 days.
   - Users do not find at least one offer whose net differs materially from waiting for list or listing on eBay.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/reverb-fee-calculator/
   analytics: null

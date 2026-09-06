@@ -27,5 +27,5 @@ kill_criteria:
   - Fewer than three qualified makers use the optimizer twice within 90 days.
   - Users report that the generated plan does not reduce material purchased versus their usual estimate.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/cut-list-optimizer/
   analytics: null

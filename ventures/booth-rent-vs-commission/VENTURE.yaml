@@ -28,5 +28,5 @@ kill_criteria:
   - Users report that modelling unpaid hours is more work than their existing napkin math without changing the deal they would have taken.
   - The starting example book proves so far from real chairs that the tool cannot be used without survey data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/booth-rent-vs-commission/
   analytics: null

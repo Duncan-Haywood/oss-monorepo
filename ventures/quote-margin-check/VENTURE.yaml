@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified freelancers run the calculator twice within 90 days.
   - Users do not report finding at least one underpriced or below-target quote in the first 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/quote-margin-check/
   analytics: null

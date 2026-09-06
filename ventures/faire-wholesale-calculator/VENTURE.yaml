@@ -45,5 +45,5 @@ kill_criteria:
   - Users report that the first-order versus reorder gap never changes a wholesale price.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/faire-wholesale-calculator/
   analytics: null

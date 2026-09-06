@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified agent teams run the checker twice within 90 days.
   - Users cannot identify a changed or removed tool from the generated report.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/mcp-supply-chain-watch/
   analytics: null

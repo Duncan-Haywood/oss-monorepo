@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified shippers use the estimator twice within 90 days.
   - Users report that the density estimate does not change the class they request from a carrier.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/ltl-freight-class-estimator/
   analytics: null
