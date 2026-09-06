@@ -490,6 +490,13 @@ workflows:
 - workflow: public-surface-check.yml
   classification: none
   publishes: []
+- workflow: publish-pages-branch.yml
+  classification: gated
+  publishes:
+  - job: publish
+    step: runs 'publish-branch.sh'
+    gates:
+    - vars.PAGES_BRANCH_PUBLISH == 'true'
 - workflow: quick-pick-survey-ci.yml
   classification: none
   publishes: []

@@ -73,6 +73,45 @@ class Detection(unittest.TestCase):
         # would mark retail-pilot-intel live on a run whose deploy job skipped.
         self.assertIsNone(ps.publish_marker({"uses": "actions/upload-pages-artifact@v3"}))
 
+    # `platform/pages/publish-branch.sh` is the only entry in PUBLISH_COMMANDS
+    # that is a path inside this repository, so a plain substring match also
+    # hits steps that merely name the file. These four pin the discrimination.
+
+    def test_running_the_branch_publisher_is_publishing(self):
+        step = {
+            "run": "./platform/pages/publish-branch.sh",
+            "env": {"CONFIRM": "publish-pages-branch", "PUSH": "1"},
+        }
+        self.assertEqual(ps.publish_marker(step), "runs 'publish-branch.sh'")
+
+    def test_shellchecking_the_branch_publisher_is_not_publishing(self):
+        # The real shape from hetzner-gitops-ci.yml's `scripts` job: the path
+        # is an argument to a linter. Before the CONFIRM check, adding the
+        # script to PUBLISH_COMMANDS reclassified that whole workflow as
+        # `live` -- a false claim that every merge to main publishes the site.
+        step = {
+            "run": (
+                "pip install shellcheck-py\n"
+                "shellcheck bootstrap/preflight.sh \\\n"
+                "  platform/pages/publish-branch.sh\n"
+            )
+        }
+        self.assertIsNone(ps.publish_marker(step))
+
+    def test_the_branch_publisher_with_push_off_is_not_publishing(self):
+        # It builds and runs check.mjs but transmits nothing. Counting it
+        # would print its `if:` gate as the condition under which the site
+        # goes live -- the negation of the real one.
+        step = {
+            "run": "./platform/pages/publish-branch.sh",
+            "env": {"CONFIRM": "publish-pages-branch", "PUSH": "0"},
+        }
+        self.assertIsNone(ps.publish_marker(step))
+
+    def test_an_inline_confirm_token_still_counts(self):
+        step = {"run": "CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh"}
+        self.assertEqual(ps.publish_marker(step), "runs 'publish-branch.sh'")
+
 
 GATED = """
 on:

@@ -1,0 +1,146 @@
+# Keeps the `gh-pages` branch snapshot in step with `main`.
+#
+# Why this exists
+# ---------------
+# There are two GitHub Pages routes in this repository and they are served by
+# different mechanisms:
+#
+#   - `portfolio-pages.yml` publishes through `actions/deploy-pages`. That is
+#     the "GitHub Actions" Pages source, gated on `vars.PAGES_ENABLED`.
+#   - `platform/pages/publish-branch.sh` commits the same built artifact to an
+#     orphan `gh-pages` branch, for the "Deploy from a branch" source. That
+#     route is downstream of neither an Actions runner nor the k3s cluster,
+#     which is why `platform/ci/pages_state.py` recommends it while both are
+#     down.
+#
+# The branch route has one cost, stated plainly in `publish-branch.sh`'s own
+# header: a committed artifact is a snapshot, so **nothing refreshes it when
+# `main` moves**. Until this workflow existed, the only thing keeping it
+# current was a session remembering to run the script by hand after a merge --
+# and CLAUDE.md's instruction to do so was already being missed. The snapshot
+# was found stale on 2026-09-06 (built from 1afe50c5 while `main` was at
+# 565cc635).
+#
+# That is a quiet failure. If the owner has flipped Settings -> Pages -> Source
+# to `gh-pages / (root)`, a stale snapshot is not a staging detail: it is the
+# live site silently lagging `main`, with nothing anywhere turning red to say
+# so. This workflow closes that hole.
+#
+# Why it ships switched off
+# -------------------------
+# CLAUDE.md, "Automation": *do not add or re-enable unattended workflows that
+# push commits without owner approval.* Pushing a generated artifact to a
+# dedicated orphan branch is a deploy rather than a source commit -- it is the
+# same act `actions/deploy-pages` already performs in `portfolio-pages.yml` --
+# but it is still a push, so it is gated the same way that workflow's deploy
+# is, on an owner-set configuration variable.
+#
+# With `vars.PAGES_BRANCH_PUBLISH` unset (the default), this workflow **builds
+# and verifies the artifact and pushes nothing**. That is deliberately useful
+# on its own: `check.mjs` runs against the built output, so a dead link or a
+# stale canonical introduced by the copy step turns this red at merge time
+# rather than after a crawler has read it. Setting the variable to `true` is
+# the owner's one flip that makes the branch self-refreshing.
+#
+# Not `GITHUB_PAGES_BRANCH_PUBLISH`: GitHub reserves the `GITHUB_` prefix and
+# refuses to create a configuration variable carrying it, so such a gate would
+# read as unset forever. `portfolio-pages.yml` shipped exactly that bug, and
+# `platform/ci/validate_workflows.py` invariant 5 now fails any workflow that
+# reintroduces it.
+name: Publish Pages branch
+
+on:
+  push:
+    branches: [main]
+    # The same inputs `platform/pages/build.mjs` reads. It walks `ventures/`
+    # for surfaces (via its own ENTRY_OVERRIDES) and takes everything else
+    # from `platform/pages/`; it does not read `platform/marketing/`, whose
+    # generated pages land inside `ventures/` and so are already covered here.
+    paths:
+      - "ventures/**"
+      - "platform/pages/**"
+      - ".github/workflows/publish-pages-branch.yml"
+  workflow_dispatch:
+
+# One publisher at a time, repository-wide rather than per-ref: every run
+# force-pushes the same branch, so two overlapping merges racing here could
+# leave `gh-pages` built from the older of the two.
+#
+# `cancel-in-progress: false` on purpose. Cancelling the queued run of a newer
+# merge would leave the branch permanently behind `main` with a green check --
+# the precise failure this workflow exists to prevent.
+concurrency:
+  group: publish-pages-branch
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    # The build is ~2000 files and `check.mjs` crawls the whole artifact for
+    # dead links; it takes a couple of minutes on a warm runner. Fifteen is
+    # generous without letting a wedged build ride the 360-minute default.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # `publish-branch.sh` builds its commit with `git commit-tree`, which
+      # needs a committer identity. `actions/checkout` does not set one, so
+      # without this the script dies on "Committer identity unknown" *after*
+      # a full build -- a slow way to discover a two-line omission.
+      - name: Configure the committer identity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      # Two mutually exclusive steps rather than one step with the gate in an
+      # `env:` expression. Exactly one of them runs, so the site is built once
+      # either way -- and the gate is a real `if:`, which matters for more than
+      # legibility: `platform/ci/publish_surface.py` derives "what does a merge
+      # to main publish?" from job- and step-level `if:` conditions only. A
+      # publish gated inside an `env:` expression reads to that tool as an
+      # *ungated* one, so this workflow would have been classified `live` --
+      # a false claim that a merge publishes unconditionally, in the one tool
+      # the repo uses to answer that question.
+      - name: Build and verify the snapshot (publishing off)
+        if: vars.PAGES_BRANCH_PUBLISH != 'true'
+        env:
+          CONFIRM: publish-pages-branch
+          PUSH: "0"
+        run: ./platform/pages/publish-branch.sh
+
+      - name: Build, verify, and publish the snapshot
+        if: vars.PAGES_BRANCH_PUBLISH == 'true'
+        env:
+          CONFIRM: publish-pages-branch
+          PUSH: "1"
+        run: ./platform/pages/publish-branch.sh
+
+      - name: Say what happened
+        if: always()
+        env:
+          PUBLISHED: ${{ vars.PAGES_BRANCH_PUBLISH == 'true' }}
+        run: |
+          {
+            if [ "${PUBLISHED}" = 'true' ]; then
+              echo "### gh-pages refreshed from \`${GITHUB_SHA}\`"
+              echo
+              echo "The branch snapshot now matches this commit. If Settings ->"
+              echo "Pages -> Source is \`gh-pages / (root)\`, the live site is current."
+            else
+              echo "### Built and verified; nothing pushed"
+              echo
+              echo "\`vars.PAGES_BRANCH_PUBLISH\` is not \`true\`, so this run checked the"
+              echo "artifact and stopped. The \`gh-pages\` branch is unchanged and may be"
+              echo "behind \`main\` -- \`platform/ci/pages_state.py\` reports which."
+              echo
+              echo "To make the branch self-refreshing, set the repository variable"
+              echo "\`PAGES_BRANCH_PUBLISH\` to \`true\`."
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
