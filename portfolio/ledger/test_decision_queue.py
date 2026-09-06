@@ -231,15 +231,39 @@ class OutageFlag(unittest.TestCase):
         self.assertIn("down comes first", header)
         self.assertNotIn("not downstream of each other", header)
 
-    def test_the_live_queue_flags_both_dark_origins(self):
-        # Not a fixture: the real asks.yaml. Both origins were measured dark on
-        # 2026-09-04 (run 33912053750), so both rows carry the flag, and a
+    def test_the_live_queue_flags_only_the_origin_still_dark(self):
+        # Not a fixture: the real asks.yaml.
+        #
+        # This test used to require BOTH origins to carry the outage flag, and
+        # its own comment predicted the day that would stop being true: "a
         # future session that fixes one and clears its flag should see this
-        # test fall back to the singular case rather than silently keep the
-        # plural header.
+        # test fall back to the singular case". That day was 2026-09-06.
+        # `deploy-settings` is granted -- GitHub's managed builder deployed
+        # `gh-pages` (run 34039823265) and `pages_state.py` reads `served` --
+        # so the Pages origin is no longer dark and correctly no longer
+        # flagged. The `marisstella.dev` origin still is: k3s `:6443` refused,
+        # and the SSH key needed to repair it is a public key.
+        #
+        # Nobody caught the transition, because nothing runs this suite:
+        # CLAUDE.md's starvation checklist names `gitops/tests` and
+        # `platform/ci` and no other Python directory, and
+        # `checklist_coverage.py` only enumerated `*.test.mjs`. Both are fixed
+        # in the same commit as this test.
         flagged = {d["id"] for d in load() if d.get("outage") and not d["blocked_by"]}
         self.assertIn("hetzner-ssh-key-is-a-public-key", flagged)
-        self.assertIn("deploy-settings", flagged)
+        self.assertNotIn(
+            "deploy-settings",
+            flagged,
+            "deploy-settings is granted and Pages serves; it must not be "
+            "flagged as a dark origin. If this fails, re-measure with "
+            "`python3 platform/ci/pages_state.py` before editing the test.",
+        )
+        # With one origin dark the header must use the singular wording, which
+        # is the branch `test_one_outage_row_keeps_the_singular_wording` covers
+        # against a fixture. Asserting it here ties that branch to the real file.
+        header = render(load(), TODAY).split("1. ")[0]
+        self.assertIn("comes first", header)
+        self.assertNotIn("not downstream of each other", header)
 
 
 class Helpers(unittest.TestCase):

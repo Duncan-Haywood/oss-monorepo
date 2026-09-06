@@ -6142,3 +6142,186 @@ ventures:
       cameras may point, whether audio may be recorded, and how long footage
       may be kept are legal questions it does not answer. Nothing entered
       leaves the browser.
+
+  - slug: card-processing-fee-audit
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is an arithmetic split of
+      one statement into pass-through and markup, and the whole point is that
+      a merchant can re-derive it in front of a processor. An inferred figure
+      would be exactly the thing the page argues against: a confident number
+      the merchant cannot defend when challenged.
+    basis: >-
+      Scored 2026-09-06, filling a coverage gap rather than at graduation —
+      this venture shipped without a score row, which is what
+      `score_ventures.py --check` exists to catch. Defensibility 4, one below
+      the trade bid calculators: interchange and assessment tables are
+      published, so the model is closer to the marketplace-fee tools that
+      restate a fee schedule than to the access-hours calculators that encode
+      how an operator actually loses a day. The band-with-a-stated-reason
+      framing is a real differentiator against processor lead-gen pages, but
+      it is presentation rather than a moat. Distribution 6, below the trade
+      calculators: "what is a good effective rate for card processing" carries
+      strong commercial intent, but the SERP is owned by processors buying
+      that intent, which is a harder room than "how much to charge to install
+      gutter guards".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the merchant's own statement figures,
+      reported as an estimated band, never a recommended processor, a
+      negotiation guarantee, or a representation of any named processor's
+      actual pricing. Nothing entered leaves the browser.
+
+  - slug: dog-walking-route-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — route drive time,
+      per-pet surcharge, and overnight on-call hours priced as hours rather
+      than as a flat visit fee — and that is arithmetic an operator has to be
+      able to re-derive for a client.
+    basis: >-
+      Scored 2026-09-06 to fill a missing row, not at graduation. Defensibility
+      5, with the trade bid calculators: charging route drive time and
+      overnight on-call exposure is the thing a flat per-walk rate cannot see,
+      which is the same shape as the moving calculator's access hours.
+      Distribution 7: "how much to charge for dog walking" and "pet sitting
+      rates" are lower-volume than marketplace-fee queries and the category
+      carries a strong free-advice norm, but the searcher is an operator
+      setting a rate rather than a consumer comparing prices.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the walker's own inputs, never a
+      recommended rate, an insurance or bonding opinion, or a worker
+      classification determination. The vs-rover comparison cites Rover's own
+      published fee schedule and makes no derogatory claim. Nothing entered
+      leaves the browser.
+
+  - slug: equipment-lease-buyout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is converting two paths to a comparable
+      cost per month of use and naming the break-even payoff price — a
+      calculation the lessee needs to be able to restate to a lessor, which an
+      inferred number would undermine rather than strengthen.
+    basis: >-
+      Scored 2026-09-06 to fill a missing row. Defensibility 5: naming a
+      break-even buyout price, and costing the replacement path all-in
+      including removal and downtime, is a real model rather than a restated
+      schedule — a lessor's own payoff quote is deliberately not comparable to
+      anything, and this makes it comparable. Distribution 6, below the trade
+      calculators: "equipment lease buyout calculator" is a low-volume query,
+      but each searcher is facing a four- or five-figure decision with a
+      deadline, so intent is far above the volume.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the lessee's own figures, never tax,
+      accounting, or legal advice, never a lease-term interpretation, and
+      never a recommendation to buy out or return. Useful-life and downtime
+      figures are the user's own inputs. Nothing entered leaves the browser.
+
+  - slug: pet-grooming-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — size and coat
+      against matting condition and add-on time, as loaded labour hours — and
+      it is arithmetic a groomer has to be able to justify to an owner who
+      thinks the quote is high.
+    basis: >-
+      Scored 2026-09-06 to fill a missing row. Defensibility 5, with the trade
+      bid calculators: pricing matting condition and coat type as time is what
+      generic per-breed price lists cannot do, and it is the case where a
+      groomer most often undercharges. Distribution 7: "how much to charge for
+      dog grooming" and "matted dog grooming price" are steady operator
+      queries against a SERP of consumer price-guide content rather than of
+      tools, though the category's free-advice norm is strong.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the groomer's own inputs, never a
+      recommended price, an animal-health or handling opinion, or a judgement
+      about whether a matted coat should be shaved. Nothing entered leaves the
+      browser.
+
+  - slug: vending-machine-route-margin
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — commission split,
+      card fees, shrink, drive time, and machine amortization netted against
+      gross sales per stop — and it is arithmetic an operator has to be able
+      to re-derive when deciding to keep or drop a location.
+    basis: >-
+      Graduated 2026-09-06 and scored the same day, which is the point: the
+      four ventures scored immediately above this one shipped with no score
+      row at all, and this one would have too had `score_ventures.py --check`
+      not been added to CLAUDE.md's merge checklist in the same commit.
+      Defensibility 5, with the trade bid calculators: netting commission and
+      shrink per stop is what a generic markup calculator cannot do, and it is
+      the case where a route operator most often keeps an unprofitable
+      location. Distribution 6: "vending machine route profit" and "vending
+      commission calculator" are lower-volume than the trades, and the
+      category's SERP carries a heavy business-opportunity marketing norm that
+      a free tool has to cut through.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended commission rate, a location-agreement interpretation, or a
+      claim about what a route will earn. Nothing entered leaves the browser.
