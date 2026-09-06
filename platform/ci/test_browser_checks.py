@@ -406,6 +406,24 @@ class DiscoverModules(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
+        # `module_search_roots` always appends the repo's own `node_modules`
+        # and `platform/pages/node_modules`, which is correct behaviour and
+        # exactly what a session gets after `npm install axe-core` in the repo
+        # root -- the install the WCAG check needs in order to run at all.
+        # Left unpatched, the two "nothing was found" cases below assert on
+        # whether *this machine* happens to have that install, so following
+        # `browser_checks.py`'s own advice turns this suite red with a failure
+        # that reads like a code break. Point both at empty scratch
+        # directories so these tests measure the search, not the developer.
+        # `test_the_repo_itself_is_searched` reads the same attributes, so it
+        # keeps testing the real contract against the patched values.
+        for attr in ("REPO_ROOT", "PAGES"):
+            empty = tempfile.mkdtemp(prefix=f"bc-{attr.lower()}-")
+            self.addCleanup(shutil.rmtree, empty, ignore_errors=True)
+            p = mock.patch.object(bc, attr, empty)
+            p.start()
+            self.addCleanup(p.stop)
+
     def tearDown(self):
         shutil.rmtree(self.root, ignore_errors=True)
 
