@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 112 files, 553347 bytes
 #   portfolio-front-tools-2: 147 files, 550707 bytes
 #   portfolio-front-tools-3: 124 files, 552766 bytes
-#   portfolio-front-tools-4: 118 files, 550256 bytes
+#   portfolio-front-tools-4: 119 files, 553722 bytes
 #   portfolio-front-tools-5: 128 files, 553435 bytes
 #   portfolio-front-tools-6: 106 files, 555899 bytes
 #   portfolio-front-tools-7: 113 files, 556185 bytes
@@ -679,6 +679,7 @@ configMapGenerator:
       - custom-farm-rate-calculator__calc.mjs.gz=custom-farm-rate-calculator__calc.mjs.gz
       - custom-farm-rate-calculator__index.html.gz=custom-farm-rate-calculator__index.html.gz
       - custom-farm-rate-calculator__usage.mjs.gz=custom-farm-rate-calculator__usage.mjs.gz
+      - custom-farm-rate-calculator__vs-survey-rates.html.gz=custom-farm-rate-calculator__vs-survey-rates.html.gz
       - cut-list-optimizer__calc.mjs.gz=cut-list-optimizer__calc.mjs.gz
       - cut-list-optimizer__compare-4x8-vs-5x5.html.gz=cut-list-optimizer__compare-4x8-vs-5x5.html.gz
       - cut-list-optimizer__csv.mjs.gz=cut-list-optimizer__csv.mjs.gz
