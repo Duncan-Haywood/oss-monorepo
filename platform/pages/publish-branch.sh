@@ -139,7 +139,23 @@ if [ "${PAGES_CNAME+set}" != 'set' ] \
   && ! git -C "$repo_root" rev-parse --verify --quiet "refs/heads/$BRANCH" >/dev/null 2>&1 \
   && git -C "$repo_root" remote | grep -qx origin; then
   if git -C "$repo_root" ls-remote --exit-code origin "refs/heads/$BRANCH" >/dev/null 2>&1; then
-    if ! git -C "$repo_root" fetch -q origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" 2>/dev/null; then
+    # Forced (`+`), because this script republishes `$BRANCH` as an *orphan*
+    # commit every time: each publish rewrites its history rather than adding to
+    # it, so the remote ref is never a fast-forward of the tracking ref a
+    # previous fetch left behind. Without the `+` the second publish from any
+    # clone that has fetched this branch once is rejected as non-fast-forward,
+    # the guard below reads that as "cannot read the branch", and publishing
+    # stops -- refusing precisely when it is most needed, since the manual run is
+    # the only route to the live site while Actions runners are starved.
+    #
+    # CI never saw it: `actions/checkout` fetches one branch, so no tracking ref
+    # exists there and the plain fetch always succeeds. This failed only in a
+    # long-lived clone, which is where every by-hand publish happens.
+    #
+    # Safe because the refspec writes a remote-*tracking* ref and nothing else.
+    # `+refs/heads/*:refs/remotes/origin/*` is what an ordinary `git fetch
+    # origin` already uses; dropping the `+` here was the deviation.
+    if ! git -C "$repo_root" fetch -q origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" 2>/dev/null; then
       if [ "${PUSH:-}" = '1' ]; then
         die "cannot read the existing '$BRANCH' branch, so publishing could silently drop a custom domain; retry, or pass PAGES_CNAME explicitly"
       fi
