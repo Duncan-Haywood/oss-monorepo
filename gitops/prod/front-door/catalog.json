@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 187,
+  "served_here": 188,
   "collection_total": 187,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 122
+      "tool_count": 123
     },
     {
       "id": "evidence",
@@ -968,6 +968,14 @@
       "url": "https://marisstella.dev/tools/hot-tub-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.",
+      "pages": 3
+    },
+    {
+      "slug": "ice-dam-removal-bid-calculator",
+      "name": "Ice Dam Removal Bid Calculator — Price a Steam Removal Job",
+      "url": "https://marisstella.dev/tools/ice-dam-removal-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job's largely fixed cost before a short call quietly loses money.",
       "pages": 3
     },
     {
