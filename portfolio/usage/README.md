@@ -4,11 +4,29 @@ Revenue is zero by design right now — everything ships free and full-feature �
 so **usage is the only honest signal about which product deserves more of the
 fleet's time.** This directory is where it lands.
 
-A reading cannot exist until a stranger can reach the product. While every
-row here is still a zero baseline with `live_url_visitors: null`, the next
-task is a public URL for something already on `main`, not another
-instrumented-but-undeployed calculator. See
-[`../DIRECTION.md`](../DIRECTION.md) "Current priority".
+A reading cannot exist until a stranger can reach the product.
+
+**That precondition was met on 2026-09-06, and the paragraph this replaces had
+not noticed.** It read: "While every row here is still a zero baseline with
+`live_url_visitors: null`, the next task is a public URL for something already
+on `main`, not another instrumented-but-undeployed calculator." Both halves are
+now false. All 175 finished products are served at
+`https://duncan-haywood.github.io/monorepo-projects/` — measured, not inferred:
+GitHub's own managed builder ran the `gh-pages` branch and concluded `success`
+(`python3 platform/ci/pages_state.py`, the `deployed` row). So "get a public
+URL" is no longer the next task, and a session reading the old line would have
+gone looking for a deploy that was already done.
+
+Note what the old line *was* right about, because it is the reason this
+directory still reads mostly zeros: an unreachable product cannot be measured.
+The correction is that unreachability is no longer the reason. The remaining
+reason is narrower and worth stating plainly — **GitHub Pages exposes no
+server-side visitor analytics**, and this portfolio will not add a third-party
+one (see "No analytics vendor" below). So `live_url_visitors` stays `null` on
+these rows not because nobody can visit, but because the honest signal on a
+static host is the local-first, opt-in counter described further down, plus
+whatever the products' own repos report. Record that distinction in a note
+rather than letting a `null` read as "still dark".
 
 Two rules decide everything else in this file:
 
@@ -67,6 +85,22 @@ An acceptable event payload, in full:
 Anything richer than that needs a reason written next to it in `usage.yaml`.
 
 ## The published tool site counts itself
+
+> **Not on the route that is currently serving.** Everything in this section
+> describes nginx on the k3s cluster (`gitops/prod/site-usage.yaml`), and that
+> cluster is down — `:6443` refused on both boxes, `Outage triage` run
+> 33889983086. The origin strangers actually reach today is GitHub Pages,
+> where there is no nginx in the path and GitHub exposes no visitor analytics
+> we could read. So the live catalogue **does not count itself**: the only
+> signal it produces is the opt-in `localStorage` counter each tool shows its
+> own user.
+>
+> This is a gap, not a defect to fix by reaching for a vendor — see "No
+> analytics vendor" above; adding one would make the privacy line on every
+> page untrue. It closes when the cluster is restored
+> (`hetzner-ssh-key-is-a-public-key`, #3184), and until then a `null` in
+> `usage.yaml` means "not measurable on this route", not "nobody came".
+> Say which one you mean in the note.
 
 Every venture's `usage.mjs` is `localStorage`-only: the count lives in the
 visitor's own browser and never transmits. That is the right default — a

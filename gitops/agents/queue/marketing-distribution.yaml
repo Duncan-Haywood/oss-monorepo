@@ -9,10 +9,17 @@
 # is the "building and deploying marketing materials" half of that sentence,
 # so it now sits second, directly below deploy-cicd-readiness (7).
 #
-# It stays *below* deploy-cicd-readiness for the reason it always did: a
-# distribution asset for a site nobody can reach yet is worth less than the
-# path that makes it reachable, and the owner named deployment first in the
-# same sentence. It stays above seo-discoverability-audit (3), because that
+# It stays *below* deploy-cicd-readiness, but **the reason changed on
+# 2026-09-06 and the old one is now false.** It used to be "a distribution
+# asset for a site nobody can reach yet is worth less than the path that makes
+# it reachable". The site is reachable: GitHub's managed builder ran the
+# `gh-pages` branch and succeeded (`platform/ci/pages_state.py`, `deployed:
+# served`), so every asset this item ships lands in front of strangers as soon
+# as the snapshot is refreshed. The ranking survives on a different argument --
+# the owner named deployment first in the same sentence, and a committed
+# artifact does not rebuild itself, so keeping the delivery path correct still
+# gates whether anything this item builds actually reaches anyone.
+# It stays above seo-discoverability-audit (3), because that
 # item now reports full coverage on both of its backlogs (169/169 FAQ,
 # 169/169 guide pages on 2026-08-31) and has been reduced to depth work.
 #
@@ -55,15 +62,29 @@ prompt: |
   going out.
 
   Ship ONE distribution asset that lives in this repository and deploys with
-  the site, so it is working the day `tools.marisstella.dev` serves content.
+  the site. **It goes in front of strangers as soon as you refresh the
+  snapshot, so build it against the origin that actually serves.**
+
+  The two lines below used to read
+  `PAGES_BASE_URL=https://tools.marisstella.dev/`, and that was the sharpest
+  defect this item ever carried. That host has been refusing connections since
+  2026-09-04 (`Outage triage` run 33889983086: `:443` refused on both boxes),
+  while `build.mjs` bakes the base URL into every canonical tag, every
+  `og:url` and every `<loc>` in the sitemap. A run following the old line
+  built a correct asset, measured it against a dead origin, and would have
+  published canonicals pointing at a host no crawler can fetch -- poisoning
+  the indexing of the live site in the name of promoting it. Do not
+  reintroduce a `PAGES_BASE_URL` override: `build.mjs`'s `DEFAULT_BASE_URL` is
+  the live origin, and `publish-branch.sh` derives it from the branch's own
+  CNAME. Overriding it is how the wrong origin gets baked in.
 
   Measure before you pick, the same discipline seo-discoverability-audit
   learned the hard way -- an earlier revision of that item hard-coded which
   backlog was largest and kept sending runs at an empty list. Build the site
   and look at what is actually there:
 
-    PAGES_BASE_URL=https://tools.marisstella.dev/ node platform/pages/build.mjs
-    node platform/pages/check.mjs --dist=platform/pages/dist
+    node platform/pages/build.mjs --out=/tmp/pages-dist
+    node platform/pages/check.mjs /tmp/pages-dist
 
   Candidates, best first. **All four below had a baseline already shipped as
   of 2026-08-31** -- confirm the gap is still real, and past that, look for
@@ -172,6 +193,23 @@ prompt: |
   this, repair and merge that one and let this run end there. Open the PR,
   note what you verified, and merge it yourself once sound, per this repo's
   no-review-gate rule for product PRs.
+
+  **Then deploy it, in the same run.** The owner's sentence that promoted this
+  item says "building *and deploying* marketing materials", and on this route
+  those are two separate acts: GitHub Pages serves the `gh-pages` branch,
+  which is a committed artifact, so nothing rebuilds it when `main` moves. An
+  asset merged and not published is an asset no stranger will ever see, and
+  the gap is invisible -- there is no error anywhere to say the live site is
+  behind. After your merge lands:
+
+    python3 platform/ci/pages_state.py                  # says `stale` or `current`
+    CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
+
+  That script rebuilds from `main`'s tip, runs `check.mjs` against the
+  artifact before it pushes anything, and refuses to publish a broken one. It
+  needs no runner, no cluster and no credential beyond the push you already
+  have -- which is why it is your job and not the owner's. Re-run
+  `pages_state.py` afterwards and record that it reports `current`.
 
   Make the smallest correct change that ships one working asset. Do not start
   unrelated new work in this run, and do not produce a marketing plan,
