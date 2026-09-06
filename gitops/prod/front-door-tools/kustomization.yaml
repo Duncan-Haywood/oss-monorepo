@@ -33,8 +33,8 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 553763 bytes
-#   portfolio-front-tools-1: 113 files, 548937 bytes
+#   portfolio-front-tools-0: 133 files, 551805 bytes
+#   portfolio-front-tools-1: 114 files, 555486 bytes
 #   portfolio-front-tools-2: 147 files, 556593 bytes
 #   portfolio-front-tools-3: 120 files, 544617 bytes
 #   portfolio-front-tools-4: 118 files, 554997 bytes
@@ -118,6 +118,7 @@ configMapGenerator:
       - cam-reconciliation-check__calc.mjs.gz=cam-reconciliation-check__calc.mjs.gz
       - cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz=cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz
       - cam-reconciliation-check__index.html.gz=cam-reconciliation-check__index.html.gz
+      - cam-reconciliation-check__share.mjs.gz=cam-reconciliation-check__share.mjs.gz
       - cam-reconciliation-check__vs-yardi.html.gz=cam-reconciliation-check__vs-yardi.html.gz
       - appliance-repair-quote-calculator__calc.mjs.gz=appliance-repair-quote-calculator__calc.mjs.gz
       - appliance-repair-quote-calculator__index.html.gz=appliance-repair-quote-calculator__index.html.gz
@@ -198,12 +199,12 @@ configMapGenerator:
       - ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz=ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz
       - ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html.gz=ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html.gz
       - ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz=ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz
-      - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz
       - ebay-fee-calculator__should-i-offer-an-ebay-coupon.html.gz=ebay-fee-calculator__should-i-offer-an-ebay-coupon.html.gz
       - ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html.gz=ebay-fee-calculator__should-i-offer-an-ebay-quantity-discount.html.gz
       - ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html.gz=ebay-fee-calculator__should-i-offer-ebay-combined-shipping.html.gz

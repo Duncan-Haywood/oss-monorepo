@@ -81,6 +81,42 @@ class CheckTree(unittest.TestCase):
         problems = self._tree('<input id="area" type="number" min="0.01" step="1" value="10000">')
         self.assertEqual(problems, [])
 
+    def test_flags_a_numeric_placeholder_the_field_would_refuse(self):
+        # The `cam-reconciliation-check` shape: no `value`, but the page names
+        # 95 in the placeholder and every whole number is off the step grid.
+        problems = self._tree(
+            '<form><input id="target" type="number" min="0.01" max="100" step="0.1" placeholder="95"></form>'
+        )
+        self.assertEqual(len(problems), 1)
+        self.assertIn("target", problems[0])
+        self.assertIn('placeholder="95"', problems[0])
+
+    def test_ignores_a_prose_placeholder(self):
+        # "leave blank for band" is good copy, not a suggested figure. Three of
+        # these ship today; flagging them would make the check noise.
+        problems = self._tree(
+            '<form><input id="fee" type="number" min="0.01" step="0.1" '
+            'placeholder="leave blank for band"></form>'
+        )
+        self.assertEqual(problems, [])
+
+    def test_a_numeric_placeholder_on_a_reachable_grid_is_fine(self):
+        problems = self._tree(
+            '<form><input id="target" type="number" min="0.01" max="100" step="any" placeholder="95"></form>'
+        )
+        self.assertEqual(problems, [])
+
+    def test_value_still_wins_over_placeholder(self):
+        # A field carrying both is judged on what it actually ships filled in.
+        problems = self._tree(
+            '<form><input id="area" type="number" min="0" step="1" value="500" placeholder="0.5"></form>'
+        )
+        self.assertEqual(problems, [])
+
+    def test_a_bare_empty_field_is_still_left_alone(self):
+        problems = self._tree('<form><input id="area" type="number" min="0.01" step="0.1"></form>')
+        self.assertEqual(problems, [])
+
     def test_clean_page_reports_nothing(self):
         problems = self._tree(
             '<form><input id="a" type="number" min="0" step="0.01" value="120000">'

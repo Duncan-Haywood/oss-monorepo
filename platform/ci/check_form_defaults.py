@@ -38,10 +38,31 @@ Scope is deliberately what a browser actually blocks, and no wider:
     submission; a calculator that reads `.value` from a click handler with no
     form around it is never stopped, so a step mismatch there is cosmetic and
     flagging it would bury the two real breakages in ~30 harmless ones.
-  * Only *prefilled* inputs. An empty required field is how a tool that needs
-    the visitor's own data is supposed to start.
+  * Only inputs the page has named a figure for -- a `value`, or (since
+    2026-09-06) a `placeholder` that parses as a number. An empty field with no
+    suggested figure is how a tool that needs the visitor's own data is supposed
+    to start; a prose placeholder ("leave blank for band") is good copy and not
+    a claim about what the field accepts.
   * Not values written by JavaScript. Rows rendered from a template literal
     carry `value="${row[1]}"` in the source; the browser never sees that text.
+
+**Why the placeholder half was added, three weeks after the value half.** The
+original scope note above says "only *prefilled* inputs", reasoning that an
+empty field is awaiting the visitor's own data. That is true of a bare empty
+field and false of one carrying `placeholder="95"`: there, the page has named
+the figure it expects, and the visitor typing it is following an instruction.
+
+`cam-reconciliation-check` shipped both of its occupancy gross-up fields as
+`min="0.01" step="0.1"` -- a grid of 0.01, 0.11, 0.21, ... containing no whole
+number at all -- beside placeholders of `100` and `95`. Its FAQ, its JSON-LD,
+and `calc.mjs`'s own comments each name 95% as the usual gross-up target, so
+every piece of copy on the page was instructing the visitor to type a value
+that silently made the form unsubmittable. This check already understood step
+bases; it was looking at the one attribute those two fields did not have.
+
+Found by driving the page in Chromium rather than by reading it, which is the
+transferable part: the whole failure mode here is one that leaves no trace in
+markup, tests, or the console.
 
 Decimal, not float: `(90 - 0.01) / 0.1` is 899.9999999999999 in binary floating
 point, which would report a mismatch on a field that is fine.
@@ -81,21 +102,44 @@ def check_input(attrs: dict[str, str]) -> str | None:
     if attrs.get("type", "").lower() != "number":
         return None
     raw_value = attrs.get("value", "").strip()
+    source = "value"
     if not raw_value:
-        return None  # awaiting the visitor's own data; not a default at all
+        # No `value`, but a numeric `placeholder` is not "awaiting the visitor's
+        # own data" either -- it is the page naming the figure it expects, and a
+        # visitor who types the number the page suggested and gets it refused is
+        # in a worse position than one who was told nothing.
+        #
+        # Found on 2026-09-06 in `cam-reconciliation-check`, whose two occupancy
+        # fields declare `min="0.01" step="0.1"` -- a grid of 0.01, 0.11, 0.21,
+        # ... that contains no whole number at all -- beside placeholders of
+        # `100` and `95`. The FAQ, the JSON-LD, and `calc.mjs`'s own comments all
+        # name 95% as the usual gross-up target, and every one of them was
+        # instructing the visitor to type a value that made the form unsubmittable.
+        # This check already knew about step bases; it just was not looking at
+        # the only figure those two fields declare.
+        raw_value = attrs.get("placeholder", "").strip()
+        source = "placeholder"
+        if not raw_value:
+            return None  # awaiting the visitor's own data; not a default at all
+        if _decimal(raw_value) is None:
+            # Prose, not a suggested figure -- "leave blank for band", "Defaults
+            # to the session price". Three of these ship today and every one is
+            # good copy. Only a placeholder the visitor could literally type into
+            # the box is a claim this check can hold the markup to.
+            return None
     if TEMPLATE_RE.search(raw_value):
         return None  # filled in by script at render time
 
     value = _decimal(raw_value)
     if value is None:
-        return f'value="{raw_value}" is not a number'
+        return f'{source}="{raw_value}" is not a number'
 
     minimum = _decimal(attrs.get("min", ""))
     maximum = _decimal(attrs.get("max", ""))
     if minimum is not None and value < minimum:
-        return f'value="{raw_value}" is below min="{attrs["min"]}"'
+        return f'{source}="{raw_value}" is below min="{attrs["min"]}"'
     if maximum is not None and value > maximum:
-        return f'value="{raw_value}" is above max="{attrs["max"]}"'
+        return f'{source}="{raw_value}" is above max="{attrs["max"]}"'
 
     raw_step = attrs.get("step", "").strip()
     if raw_step.lower() == "any":
@@ -110,7 +154,7 @@ def check_input(attrs: dict[str, str]) -> str | None:
     if offset % step != 0:
         low = base + (offset // step) * step
         return (
-            f'value="{raw_value}" is not reachable from min="{attrs.get("min", "0")}" '
+            f'{source}="{raw_value}" is not reachable from min="{attrs.get("min", "0")}" '
             f'in steps of "{raw_step or 1}" (nearest valid: {low} and {low + step}) '
             f"-- the browser blocks submit, so the page's own handler never runs"
         )
