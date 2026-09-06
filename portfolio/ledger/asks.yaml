@@ -516,7 +516,18 @@ decisions:
   # other one: GitHub Pages needs no k3s, no SSH key and no sealed clone
   # token, so it is not downstream of the cluster and never was. The ranking
   # encoded the pre-#3199 belief that the portfolio had a single origin.
-  outage: true
+  #
+  # CLEARED 2026-09-06. `outage: true` asserts a *measured, current* loss of a
+  # public surface -- decision_queue.py is explicit that it "is not a way to
+  # say important" -- and the measurement it rested on (the 404 from run
+  # 33912053750 on 2026-09-04) has been overtaken. GitHub's managed builder
+  # now runs on `gh-pages` and succeeds (runs 34011996382, 34012041708), which
+  # happens only for the configured Pages source, so this route is deployed
+  # rather than dark. What is left is one logged-out fetch nobody here can
+  # make, and "unverified" is not "down": leaving the flag set would keep the
+  # banner telling the owner to restore a surface that is already up, which
+  # is the same failure in the opposite direction.
+  outage: false
   # Until 2026-09-05 this read `requires: [github-actions-runners]`, and that
   # was correct for the only route that existed: `portfolio-pages.yml` had to
   # build the artifact and run `deploy-pages`, and that needs a runner.
@@ -543,6 +554,34 @@ decisions:
     Source "Deploy from a branch". No workflow is dispatched at any point,
     so runner starvation does not block this route.
   action: >-
+    **GRANTED — measured 2026-09-06. Do not flip anything; one 10-second
+    confirmation is all that is left.** GitHub's own managed builder
+    `dynamic/pages/pages-build-deployment` ran on `gh-pages` and concluded
+    `success` (runs 34011996382 and 34012041708), and a managed Pages build is
+    triggered only by a push to the *configured source*. So Pages is on, the
+    source is the `gh-pages` branch, and the snapshot built from the tip of
+    `main` has been deployed. Both runs also completed while
+    `github-actions-runners` was down, so this route does not spend the
+    metered Actions allowance.
+    What is genuinely left, and it is not a settings change: **open
+    https://duncan-haywood.github.io/monorepo-projects/ in a logged-out
+    browser and confirm you see the catalogue.** A deploy succeeding is not
+    the same as an unauthenticated stranger getting a 200 — a Pages site can be
+    access-controlled — and no session can check it, because the agent egress
+    proxy answers `403 to CONNECT` for `github.io`. If it loads, this row is
+    closed and `github-pages-origin` in `infra_state.yaml` goes `up`. If it
+    404s or asks you to log in, that is the plan question below, and only then
+    does the rest of this row apply.
+    **The standing job for sessions, now that the route is live:** a committed
+    artifact does not rebuild itself, so re-run
+    `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+    after any merge that touches a served surface. That is this route's one
+    real cost and it is now the difference between the live site and `main`.
+    ---
+    **Superseded below (2026-09-05 and earlier), kept because the way it went
+    stale is the reusable part: every sentence was a correct reading of the
+    manifests and the API restated as a claim about what a visitor receives,
+    and nothing re-ran when the world changed.**
     **Check the plan first — thirty seconds, and it decides whether the rest
     of this row is worth anything.** Settings → Billing names it. Pages will
     not serve a *private* repository's site on the Free tier, and this

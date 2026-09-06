@@ -170,13 +170,31 @@ def test_does_not_push_unless_asked(sandbox: Path):
     assert _git(sandbox, "remote") == ""
 
 
-def test_names_the_owner_switch_rather_than_flipping_it(sandbox: Path):
-    result = run(sandbox)
-    # Publishing under the portfolio's public name is the owner's call. The
-    # script stages and stops, and has to say so, or the next session reads a
-    # written branch as a live site.
-    assert "Deploy from a branch" in result.stdout
+def test_writes_the_branch_without_publishing_it(sandbox: Path):
+    """The script stages and stops; it never enables Pages.
+
+    This used to also assert the closing text said "Deploy from a branch",
+    pinning a *fixed* sentence that told every reader the owner still had to
+    flip a Settings dropdown. That sentence was true when written and stopped
+    being true when Pages became branch-sourced -- so the test was actively
+    holding a stale claim in place, and the assertion looked like a safety
+    property while doing it. Measured 2026-09-06: GitHub's managed builder
+    runs on `gh-pages` and succeeds.
+
+    What is worth pinning is the behaviour that has not changed -- nothing is
+    pushed without PUSH=1 -- and that the script does not *assert* a serving
+    state it cannot observe. `pages_state.py` owns that reading now, and the
+    sandbox has no token, so the script must degrade to saying it does not
+    know rather than falling back to the old guess.
+    """
+    # Token cleared explicitly rather than relying on the sandbox happening to
+    # lack one: with a real GH_TOKEN in the ambient environment this test would
+    # otherwise exercise the measured path and fail for a reason that has
+    # nothing to do with what it is checking.
+    result = run(sandbox, GH_TOKEN="", GITHUB_TOKEN="")
     assert "not pushed" in result.stdout
+    assert "unknown from here" in result.stdout + result.stderr
+    assert "Staged, not served" not in result.stdout
 
 
 # --- The custom domain ------------------------------------------------------

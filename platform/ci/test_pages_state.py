@@ -21,7 +21,8 @@ import unittest.mock
 import pages_state as ps
 
 
-def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fail=False):
+def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fail=False,
+             runs=None, runs_fail=False):
     """An api(path) callable over canned payloads.
 
     `missing` names branches that should raise the way `http_api_for` does on
@@ -38,6 +39,12 @@ def fake_api(repo=None, branches=None, missing=(), workflows=None, workflows_fai
     branches = branches or {}
 
     def call(path):
+        if "/actions/runs" in path:
+            if runs_fail:
+                raise RuntimeError("GET .../actions/runs failed: HTTP 403")
+            if runs is None:
+                return repo
+            return {"workflow_runs": runs}
         if "/actions/workflows" in path:
             if workflows_fail:
                 raise RuntimeError("GET .../actions/workflows failed: HTTP 403")
@@ -371,3 +378,96 @@ class SourceNoteFromVerdict(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def pages_run(conclusion="success", sha="e" * 40, branch_name="gh-pages",
+              status="completed", path="dynamic/pages/pages-build-deployment"):
+    return {
+        "path": path,
+        "status": status,
+        "conclusion": conclusion,
+        "head_branch": branch_name,
+        "head_sha": sha,
+        "id": 34012041708,
+        "updated_at": "2026-09-06T04:39:47Z",
+    }
+
+
+class DeploymentVote(unittest.TestCase):
+    """The vote that separates "configured" from "actually deployed".
+
+    `verdict_source` reads whether GitHub *lists* a branch builder. That
+    establishes some branch source exists but names no branch and proves no
+    build ever ran, and this repository spent days reading it as though it
+    meant the site was up. A managed Pages build is triggered only by a push
+    to the configured source, so a *successful run of it on gh-pages* names
+    the branch and shows a real deployment.
+    """
+
+    def test_a_successful_managed_run_means_served(self):
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run()])), None
+        )
+        self.assertEqual(got, "served")
+        self.assertIn("gh-pages", why)
+        self.assertIn("already granted", why)
+
+    def test_a_failed_build_is_not_served_but_still_names_the_source(self):
+        """A failed deploy still proves the branch is the source.
+
+        Those are different facts and collapsing them would either hide a
+        broken deploy or re-raise an owner ask that is already granted.
+        """
+        got, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run(conclusion="failure")])),
+            None,
+        )
+        self.assertEqual(got, "failed")
+        self.assertIn("did not deploy", why)
+
+    def test_no_runs_is_unknown_not_served(self):
+        got, _ = ps.verdict_deployment(ps.read_pages_deployment(fake_api()), None)
+        self.assertEqual(got, "unknown")
+
+    def test_an_unreadable_listing_is_unknown_not_served(self):
+        got, _ = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs_fail=True)), None
+        )
+        self.assertEqual(got, "unknown")
+
+    def test_a_repository_workflow_on_the_branch_is_not_a_pages_build(self):
+        """The namespace is the whole signal.
+
+        `publish-pages-branch.yml` is a repository workflow that also runs on
+        pushes to this branch. Counting it would report `served` on a
+        repository where Pages was never enabled at all.
+        """
+        deployment = ps.read_pages_deployment(
+            fake_api(runs=[pages_run(path=".github/workflows/publish-pages-branch.yml")])
+        )
+        self.assertIsNone(deployment)
+
+    def test_an_in_progress_run_is_skipped_for_the_last_completed_one(self):
+        deployment = ps.read_pages_deployment(fake_api(runs=[
+            pages_run(status="in_progress", conclusion=None, sha="f" * 40),
+            pages_run(sha="a" * 40),
+        ]))
+        self.assertEqual(deployment["head_sha"], "aaaaaaaa")
+
+    def test_a_snapshot_pushed_after_the_last_build_is_flagged(self):
+        """Served, but not necessarily *this* snapshot -- worth saying."""
+        _, why = ps.verdict_deployment(
+            ps.read_pages_deployment(fake_api(runs=[pages_run(sha="e" * 40)])),
+            {"sha": "9" * 40},
+        )
+        self.assertIn("has since moved", why)
+
+    def test_the_reading_reaches_the_rendered_report(self):
+        api = fake_api(
+            branches={"main": branch(sha="c" * 40), "gh-pages": branch()},
+            workflows=DYNAMIC_BUT_NOT_PAGES + ["dynamic/pages/pages-build-deployment"],
+            runs=[pages_run()],
+        )
+        out = ps.render(ps.collect(api))
+        self.assertIn("deployed", out)
+        self.assertIn("served", out)

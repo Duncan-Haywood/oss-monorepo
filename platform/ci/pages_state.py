@@ -153,6 +153,13 @@ BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{{branch}}"
 WORKFLOWS_PATH = (
     f"repos/{REPO_PLACEHOLDER}/actions/workflows?per_page=100&page={{page}}"
 )
+# Runs of the managed builder, newest first. Filtered to the publish branch
+# server-side so a busy repository's run history cannot push the one that
+# matters off the first page.
+PAGES_RUNS_PATH = (
+    f"repos/{REPO_PLACEHOLDER}/actions/runs"
+    f"?branch={{branch}}&per_page=20&page=1"
+)
 
 PUBLISH_BRANCH = "gh-pages"
 
@@ -243,6 +250,87 @@ def read_workflow_paths(api):
         if len(batch) < 100:
             break
     return paths
+
+
+def read_pages_deployment(api, branch=PUBLISH_BRANCH):
+    """The most recent managed Pages build on `branch`, or None.
+
+    This is the strongest credential-free reading available, and it is
+    strictly stronger than `verdict_source`'s. That one asks whether GitHub
+    *lists* a branch builder, which establishes that some branch source is
+    configured but names no branch and proves no build ever happened. This
+    asks whether that builder has actually *run on this branch and
+    succeeded* -- which names the branch (a managed Pages build is triggered
+    only by a push to the configured source) and shows a real deployment of a
+    known commit.
+
+    The distinction is the one the module docstring left open: "configured"
+    and "deployed" are different claims, and the repository has been reading
+    the first as the second. It still is not an HTTP 200 -- a successful
+    deploy can still 404 for plan reasons -- but it moves the owner-facing
+    answer from "open this URL and tell us" to a measurement.
+    """
+    try:
+        payload = api(PAGES_RUNS_PATH.replace("{branch}", branch))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    for run in payload.get("workflow_runs") or []:
+        # `event: dynamic` and the synthetic path together are what mark this
+        # as GitHub's own builder rather than a repository workflow that
+        # happens to run on the same branch.
+        if not str(run.get("path", "")).startswith(PAGES_BUILDER_PREFIX):
+            continue
+        if run.get("status") != "completed":
+            continue
+        return {
+            "branch": run.get("head_branch"),
+            "conclusion": run.get("conclusion"),
+            "head_sha": (run.get("head_sha") or "")[:8],
+            "run_id": run.get("id"),
+            "updated_at": run.get("updated_at"),
+        }
+    return None
+
+
+def verdict_deployment(deployment, publish):
+    """`(verdict, reason)` for whether GitHub has actually deployed the branch.
+
+    `served` is the only verdict that lets a session stop asking the owner to
+    flip a Settings dropdown, so it requires a *successful* completed run, not
+    merely a recent one: a build that failed is a configured source that is
+    serving whatever it served before.
+    """
+    if deployment is None:
+        return (
+            "unknown",
+            f"no completed `{PAGES_BUILDER_PREFIX}` run on `{PUBLISH_BRANCH}` is "
+            "visible, so nothing here says GitHub has built this branch",
+        )
+    if deployment["conclusion"] != "success":
+        return (
+            "failed",
+            f"GitHub's managed builder last ran on `{deployment['branch']}` at "
+            f"{deployment['head_sha']} and concluded `{deployment['conclusion']}` "
+            f"(run {deployment['run_id']}) -- the branch IS the Pages source, but "
+            "this snapshot did not deploy",
+        )
+    fresh = ""
+    if publish and publish.get("sha", "")[:8] != deployment["head_sha"]:
+        fresh = (
+            f" NOTE: `{PUBLISH_BRANCH}` has since moved to "
+            f"{publish['sha'][:8]}, which may not be deployed yet"
+        )
+    return (
+        "served",
+        f"GitHub's managed builder ran on `{deployment['branch']}` at "
+        f"{deployment['head_sha']} and succeeded (run {deployment['run_id']}, "
+        f"{deployment['updated_at']}). A managed Pages build is triggered only "
+        f"by a push to the configured source, so `{PUBLISH_BRANCH}` IS that "
+        f"source and this snapshot deployed. `deploy-settings` is already "
+        f"granted.{fresh}"
+    )
 
 
 def verdict_source(repo, publish, workflow_paths):
@@ -461,9 +549,14 @@ def collect(api):
     verdict, reason = plan_verdict(repo)
     fresh, fresh_reason = freshness(publish, head_sha)
     source, source_reason = verdict_source(repo, publish, read_workflow_paths(api))
+    deployment = read_pages_deployment(api)
+    deployed, deployed_reason = verdict_deployment(deployment, publish)
     return {
         "source": source,
         "source_reason": source_reason,
+        "deployed": deployed,
+        "deployed_reason": deployed_reason,
+        "deployment": deployment,
         "private": repo["private"],
         "has_pages": repo["has_pages"],
         "default_branch": repo["default_branch"],
@@ -491,6 +584,9 @@ def render(state):
         "",
         f"  source            {state['source']}",
         f"                    {state['source_reason']}",
+        "",
+        f"  deployed          {state['deployed']}",
+        f"                    {state['deployed_reason']}",
         "",
         f"  {PUBLISH_BRANCH} snapshot  {state['snapshot']}",
         f"                    {state['snapshot_reason']}",
