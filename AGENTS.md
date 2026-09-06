@@ -34,6 +34,17 @@ venture on `main` still has no public URL, that deploy is the next task.
 See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
 Do not open a second `deploy-settings` ask.
 
+**As of 2026-09-06 the primary deploy (GitHub Pages) is done and confirmed
+current** — `deploy-settings` is granted, ~175 products are live at
+`https://duncan-haywood.github.io/monorepo-projects/`, and the standing job
+is just keeping the snapshot fresh (`python3 platform/ci/pages_state.py`,
+then `platform/pages/publish-branch.sh` if stale). With distribution solved,
+default to reading [`portfolio/usage/usage.yaml`](portfolio/usage/README.md)
+first and improving a product with an actual signal, over adding depth to
+one that has had a fair run at zero. See `portfolio/DIRECTION.md`
+"What changes now that distribution is solved" for the full priority order,
+including when a new venture is and isn't the better use of the session.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 

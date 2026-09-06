@@ -40,6 +40,42 @@ Revenue comes later. For now:
 
 ## Current priority: deploy what is already built
 
+> **Superseded 2026-09-06: the primary deploy is done, confirmed serving, and
+> current.** Everything in this section was written between 2026-08-25 and
+> 2026-09-02 on the premise that no built product had a public URL that
+> mattered. That premise is now false. `python3 platform/ci/pages_state.py`
+> reports `deployed: served` — GitHub's own managed builder ran the
+> `gh-pages` branch (run 34013011002, 2026-09-06T05:03:36Z) — and
+> `current` — the snapshot was built from `main`'s own tip (`d5f6709f`), not
+> a stale commit. `deploy-settings` is granted. All ~175 finished products
+> are reachable today at
+> `https://duncan-haywood.github.io/monorepo-projects/`, no owner action
+> pending. Stop naming that flip as a blocker and stop reading a built
+> product with no *second* URL as undeployed.
+>
+> What is **not** fixed by the above: the separate `marisstella.dev` /
+> Hetzner k3s route is still down (`CLAUDE.md`'s outage block has the
+> measurements) and its recovery is a real owner action
+> (`hetzner-ssh-key-is-a-public-key`, #3184) — a local SSH/Argo restore, not
+> a Pages setting. Don't conflate the two: a session that reads "the
+> catalogue is dark" from that block and reads no further will re-derive
+> the deploy-first urgency this note just retired. The Pages route needs
+> nothing further to keep serving *except* the standing job below.
+>
+> The standing job that survives this correction: **a committed branch does
+> not rebuild itself.** After any merge touching a served surface
+> (`ventures/**`, `platform/pages/**`, `platform/marketing/**`), run
+> `python3 platform/ci/pages_state.py`; if it reports `stale`, run
+> `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`.
+> That is now the only thing standing between `main` and what a stranger
+> sees.
+>
+> Read the rest of this section for *why* deploy-first was the right call
+> while it was true — the reasoning generalizes to the next channel that
+> isn't live yet. Then read
+> "[What changes now that distribution is solved](#what-changes-now-that-distribution-is-solved)"
+> below for what replaces it as the fleet's default job.
+
 A product that only exists as `index.html` in this repo is not yet a product
 people use. As of 2026-08-25 a cluster of calculators and CLIs is on `main`
 (seller-fee tools, trade bids, quote-margin, retainage, e-invoice preflight,
@@ -101,6 +137,109 @@ picking work:
   owner flip, and nothing an agent builds changes that. So the next unit of
   work is making the tools that will go live better — depth, correctness,
   onboarding, discoverability — not a thirty-fourth front page.
+
+## What changes now that distribution is solved
+
+Distribution was the fleet's bottleneck for two weeks and consumed most of
+the direction-setting prose above. It no longer is: 175 products are one
+click away from any stranger, indexed, and the deploy-and-forget loop
+(`pages_state.py` → `publish-branch.sh`) closes it in under a minute. That
+changes what "the next task" means. In order:
+
+1. **Keep the snapshot current.** One command, above. Do this before
+   anything else on a session that touched a served surface — a stale
+   snapshot is a live regression nobody's CI will catch, because CI checks
+   `main`, not the branch a visitor actually gets.
+2. **Read `portfolio/usage/usage.yaml` before picking work.** As of
+   2026-09-02 it recorded zero observed users across every one of ~184
+   products — the fleet spent August building depth into calculators nobody
+   had yet been able to reach. That excuse is gone. **Any product with a
+   nonzero signal — a real visitor, a return visit, a completed export —
+   now outranks every other candidate for this session's time.** Go make
+   that one product better: fix the friction its actual visitor hit, not
+   the friction a hypothetical one might.
+3. **A product that has had a fair run and stayed at zero is not the next
+   place to add a comparison page.** "Fair run" here means: live and
+   reachable from the apex catalogue's own index/sitemap for a couple of
+   weeks, discoverable in its niche search terms per the checklist in
+   `PRODUCT_PLAYBOOK.md` §5e. If those are true and `usage.yaml`'s trend
+   line for it is still flat zero, say so in one ledger line (the pattern
+   `usage/README.md` already asks for — "listed for two weeks, still zero,
+   stopping work on it") and spend the session elsewhere. This is not
+   deletion: the product stays live, free, and disclaimed. It just stops
+   being where build time goes until something changes the picture — a new
+   channel, a rescoring, an actual piece of inbound interest. Ventures
+   whose `VENTURE.yaml` carries a `stage` at or past `revenue` with $0 MRR
+   already surface this in `python3 portfolio/router/allocate.py`'s review
+   list — check a venture's own `kill_criteria` there before deciding
+   whether "stop adding features" should become "stop routing this venture
+   any budget at all."
+4. **Only then does a new venture compete for the same time.** New ventures
+   are still wanted — they are how the portfolio finds the business that
+   actually works, and a catalogue of untested calculators proves nothing
+   on its own. But "graduate a new candidate" is not free just because
+   distribution is solved: prefer a `build-now` candidate from
+   `portfolio/pipeline/` that already clears both gates
+   (`liability_containment` ≥ 5, `ethical_robustness` ≥ 5, per
+   `pipeline/README.md`'s scoring) and names a real distribution channel,
+   over inventing a 176th niche calculator with no such evidence. A strong,
+   non-duplicative idea is never blocked — but "strong" now means
+   evidence-backed, because for the first time the fleet has a real
+   audience to measure it against instead of a hypothetical one.
+5. **Every live product should carry a working, honest donation ask.** See
+   the next section — this is the one lever that moves the portfolio's
+   revenue off $0 without touching payment rails, and it currently sits
+   unrealized behind one owner decision.
+
+## Revenue: donations, and keeping customers happy
+
+The portfolio's revenue model is, and stays, **donations only** — GitHub
+Sponsors, nothing else. No payment collection, no payout rails, no merchant
+account: that is unchanged and is not up for a rescore by any session (see
+"Legal guardrails" below and `PRODUCT_PLAYBOOK.md` §6). What changed on
+2026-09-06 is that the reason to bother — a stranger can actually reach the
+products now — is real, so the one owner decision that turns this on is
+worth naming precisely rather than leaving as a stale queue row:
+
+- **`funding-sponsors-live` (#839 in `portfolio/ledger/decision_queue.py`)**
+  is a yes/no on re-landing `.github/FUNDING.yml` (15 lines, `github:
+  [Duncan-Haywood]`) pointing at the owner's own GitHub Sponsors profile.
+  It was merged once and reverted the same day (#862); the safe state — no
+  funding surface — is what's on `main` today. This is an
+  account-ownership decision an agent cannot make (it ties a real legal
+  person's Sponsors profile to the repo), so it stays owner-only. What an
+  agent *can* and should do: make sure nothing about a product's own
+  Sponsors line is broken or missing while this is pending, so the day it
+  is decided, every product is already carrying its half correctly.
+- Every user-facing product still ships the optional Sponsors/donate line
+  from `PRODUCT_PLAYBOOK.md` §6 — footer or about section only, never in
+  front of a feature, never phrased as payment for using the tool. A
+  donation ask that reads like a paywall is a legal-exposure regression,
+  not a revenue win; keep it exactly as optional as the free tier it sits
+  next to.
+
+**Keeping customers happy is not a separate initiative — it's what makes a
+donation ask credible, and it's cheap to check for:**
+
+- **The page has to actually work.** `PLAYWRIGHT=$(npm root -g)/playwright/index.js python3 platform/ci/browser_checks.py`
+  and the venture's own tests are what catch a page that renders and
+  computes nothing — see `AGENTS.md`. A visitor who hits a broken
+  calculator does not come back, let alone donate.
+- **Accessible.** `ink.test.mjs` and the WCAG AA link-contrast check exist
+  because a tool that fails them is unusable for part of its own audience —
+  treat that red the same as any other correctness bug, not as
+  optional polish.
+- **Honest about what it is and isn't** (the disclaimer in
+  `PRODUCT_PLAYBOOK.md` §5b): evidence and drafts, never a determination
+  made on the user's behalf, never an uptime promise this portfolio can't
+  keep. A customer who was told the truth about a free, best-effort tool is
+  a happy one even when something breaks; a customer who was oversold is
+  not, however good the tool actually is.
+- **Fix reported defects fast, and don't let a defect ship twice.** A bug a
+  real visitor hit and a session can reproduce is not "meta-work" or a
+  ledger entry to defer — it's the single highest-signal piece of product
+  feedback this portfolio currently has, because it's the only kind that
+  didn't have to be imagined.
 
 ## What a good product looks like here
 
