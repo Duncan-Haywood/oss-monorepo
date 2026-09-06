@@ -35,5 +35,5 @@ kill_criteria:
   - Fewer than three practitioners in existing public security/procurement communities engage after being shown a real diff from their own watchlist.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/vendor-change-watch/
   analytics: null

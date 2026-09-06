@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that counting panels and knee wall is more work than their existing square-foot method without changing the price they would have bid.
   - The starting panel-width and mesh figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/screened-porch-bid-calculator/
   analytics: null

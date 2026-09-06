@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified subcontractors run two scenarios within 90 days of public availability.
   - Users do not report discovering a timing gap before taking a project.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/subcontractor-cashflow-planner/
   analytics: null

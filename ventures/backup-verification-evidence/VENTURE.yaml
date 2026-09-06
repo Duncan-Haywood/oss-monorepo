@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified sysadmins/MSPs identify this as a real, recurring problem after ten conversations.
   - No practitioner values a portable verification record over just watching cron/systemd exit codes directly.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/backup-verification-evidence/
   analytics: null

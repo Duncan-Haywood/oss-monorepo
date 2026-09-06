@@ -28,5 +28,5 @@ kill_criteria:
   - Operators report that pricing days, pump-outs, and miles separately is more work than their existing Saturday-special without changing the price they would have quoted.
   - The starting fleet estimate is treated as a code table often enough that the disclaimer does not contain the liability.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/portable-restroom-event-quote/
   analytics: null

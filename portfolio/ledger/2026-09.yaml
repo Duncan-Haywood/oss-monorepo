@@ -1,5 +1,60 @@
 period: 2026-09
 entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled direction-setting session. `portfolio/DIRECTION.md` and
+        `AGENTS.md` were already current (5 commits landed on them earlier
+        today: #3512, #3518, #3530, #3532, #3542, #3551) and `session_gate.py`
+        read PROCEED with no build-now candidates and no usage-signal drift,
+        so re-stating the north star again would have added a sixth
+        restatement of the same paragraph rather than new direction.
+        Investigated the fleet's actual routing tool instead
+        (`portfolio/router/allocate.py`) and found its dispatchability
+        verdict -- the thing that tells a session which venture it can
+        actually start work on -- was being computed from `links.production`,
+        which was `null` in all 195 `ventures/*/VENTURE.yaml` files. That
+        included the 186 ventures `platform/pages/build.mjs` has been
+        building into the live GitHub Pages catalogue
+        (`duncan-haywood.github.io/monorepo-projects/<slug>/`) for weeks and
+        that `pages_state.py` confirms are current. Result: `allocate.py`
+        was reporting 0 of 194 ventures dispatchable, i.e. the entire fleet
+        blocked pending a "customer response" that was already answerable
+        because the products were already live -- the same class of stale
+        bookkeeping this file's own history already flagged for
+        `pipeline/candidates.yaml` (#3542) and treats as worse than no
+        tracker at all.
+      - >-
+        Fixed by setting `links.production` on exactly the 186
+        `VENTURE.yaml` files whose slug appears in the output of
+        `node platform/pages/build.mjs --out=<dir>` (read from the builder's
+        own output, not a re-derived include/exclude list, per the
+        `venturePageRoot` lesson in `CLAUDE.md`). The other 9 scored
+        ventures with no static page (`ai-first-markets`,
+        `garmin-world-traveler-watchface`, `local-site-studio`,
+        `photo-editing`, `photos-import-tools`, `quick-pick-survey`,
+        `retail-pilot-intel`, `vendor-watch`, `world-clock-widget`) correctly
+        kept `links.production: null`; `ubuntu-agent-server` has no
+        `VENTURE.yaml` and was untouched. Re-ran `allocate.py`: now reports
+        186 of 194 dispatchable. Verified: all 195 `VENTURE.yaml` files still
+        parse as YAML; `python3 -m pytest portfolio/router portfolio/scoring -q`
+        (88 tests) and `python3 -m unittest discover -s portfolio/router -t
+        portfolio/router` (51 tests) both pass unchanged. Added a dated
+        correction to `portfolio/router/README.md` so its own worked
+        examples ("0 of 11", "9 of 11 ... blocked on publishing") aren't
+        read as today's numbers -- they describe an 11-venture portfolio
+        from 2026-08-20, before this one grew to 195 and before GitHub
+        Pages went live.
+      - >-
+        Scope check: data-only change to `links.production` (a URL string)
+        plus one documentation file; no code path, no payment code, no new
+        dependency, no personal data, nothing publishing under the
+        portfolio's public name (GitHub Pages was already live and
+        confirmed by `pages_state.py` before this session started). No
+        owner ask needed or added.
+    mrr_end: null
   - venture: dog-walking-route-pricing
     agent_spend_usd: null
     human_hours: 0

@@ -35,5 +35,5 @@ kill_criteria:
   - Fewer than three sellers use the comparison twice within 90 days.
   - Sellers report that the winning channel is always the one they had already chosen, so the comparison changes no decision.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/where-to-sell-calculator/
   analytics: null

@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Shop owners report that separating waste-inclusive material cost from bare surface area is more work than their existing flat installed-rate method without changing the price they would have quoted.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/vehicle-wrap-bid-calculator/
   analytics: null

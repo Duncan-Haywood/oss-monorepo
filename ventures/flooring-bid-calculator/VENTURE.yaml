@@ -28,5 +28,5 @@ kill_criteria:
   - Installers report that the waste-and-tear-out model is more work than their existing method without changing the price they would have bid.
   - The starting waste and production figures prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/flooring-bid-calculator/
   analytics: null

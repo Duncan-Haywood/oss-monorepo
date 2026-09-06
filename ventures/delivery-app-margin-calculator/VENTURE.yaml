@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three operators run the comparison twice within 90 days.
   - Operators report that the app they already use always "wins" after they raise the delivery price, so the comparison changes no decision.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/delivery-app-margin-calculator/
   analytics: null

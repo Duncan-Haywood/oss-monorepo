@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three qualified credentialing or staffing practitioners identify a recurring missed-change problem after ten conversations.
   - No pilot user returns to compare a second snapshot.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/public-record-watch/
   analytics: null
