@@ -1,9 +1,10 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculate, computeRouteProfit, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const guideHtml = readFileSync(new URL('./how-many-extinguishers-make-a-site-worth-servicing.html', import.meta.url), 'utf8');
 
 test('every DEFAULTS field has a matching input on the page', () => {
   for (const id of Object.keys(DEFAULTS)) {
@@ -86,4 +87,80 @@ test('every route-table input carries an accessible aria-label', () => {
 test('every .html file in the venture is reachable from the sitemap', () => {
   const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
   assert.match(sitemap, /fire-extinguisher-inspection-route-margin\/<\/loc>/);
+  // The assertion above only ever checked the index, so it passed unchanged
+  // the moment a second page joined the tree -- the sitemap could advertise
+  // nothing about it and this test, whose name promises otherwise, would stay
+  // green. Walk the directory instead of naming files: a third page is then
+  // covered the day it lands rather than the day someone remembers.
+  for (const file of readdirSync(new URL('./', import.meta.url))) {
+    if (!file.endsWith('.html') || file === 'index.html') continue;
+    assert.ok(
+      sitemap.includes(`/fire-extinguisher-inspection-route-margin/${file}<`),
+      `${file} exists in the venture but is missing from sitemap.xml`,
+    );
+  }
+});
+
+// --- the break-even guide page -------------------------------------------
+//
+// The tool answers "what does this site earn"; a searcher asks "is this small
+// site worth keeping at all" before they know the tool exists. That question
+// is the page, and it is the venture's first non-index surface.
+
+test('the tool links to the break-even guide page', () => {
+  assert.match(html, /href="how-many-extinguishers-make-a-site-worth-servicing\.html"/);
+});
+
+test('the guide page links back to the calculator and carries the no-warranty clause', () => {
+  assert.match(guideHtml, /<a href="\.\/">/);
+  assert.match(guideHtml, /No warranty\.<\/strong> This tool is provided free and as-is/);
+  assert.match(guideHtml, /not tax, financial, or business advice/);
+  // The niche-specific half: this page talks about NFPA 10 cadence, so it must
+  // repeat that it does not certify compliance.
+  assert.match(guideHtml, /does not determine or record NFPA 10/);
+});
+
+test('the guide page worked example matches calc.mjs exactly', () => {
+  // Every dollar figure published on that page is asserted here against the
+  // calculator that produced it. A fee-default change in calc.mjs then fails
+  // this test instead of silently leaving a wrong number on a public page --
+  // which is the failure mode a hand-written worked example always has.
+  const money = (n) => `$${n.toFixed(2)}`;
+
+  const six = calculate({ ...DEFAULTS, extinguisherCount: 6 });
+  assert.equal(money(six.visitRevenue), '$165.24');
+  assert.equal(money(six.materialsCost), '$43.68');
+  assert.equal(money(six.mileageCost), '$6.03');
+  assert.equal(money(six.laborCost), '$25.60');
+  assert.equal(money(six.visitProfit), '$89.93');
+  assert.equal(six.netProfit.toFixed(2), '-0.51');
+  for (const shown of ['$165.24', '$43.68', '$6.03', '$25.60', '$89.93', '&minus;$0.51']) {
+    assert.ok(guideHtml.includes(shown), `${shown} is on the page but not in calc.mjs output`);
+  }
+  // The monthly share of the visit, which is the whole point of the page.
+  assert.equal((six.visitProfit / 12).toFixed(2), '7.49');
+  assert.ok(guideHtml.includes('$7.49'));
+
+  // The break-even table, row by row.
+  const rows = { 4: '-3.53', 5: '-2.02', 6: '-0.51', 7: '1.00', 8: '2.52', 10: '5.54', 12: '8.56', 18: '17.62' };
+  for (const [count, monthly] of Object.entries(rows)) {
+    const r = calculate({ ...DEFAULTS, extinguisherCount: Number(count) });
+    assert.equal(r.netProfit.toFixed(2), monthly, `break-even row for ${count} units drifted`);
+  }
+  // Break-even really is between 6 and 7 at these defaults, which is the
+  // claim the page's headline makes.
+  assert.ok(calculate({ ...DEFAULTS, extinguisherCount: 6 }).netProfit < 0);
+  assert.ok(calculate({ ...DEFAULTS, extinguisherCount: 7 }).netProfit > 0);
+
+  // The longer-drive comparison.
+  const farther = calculate({ ...DEFAULTS, extinguisherCount: 6, driveMinutes: 40, mileage: 22 });
+  assert.equal(money(farther.visitProfit), '$72.69');
+  assert.equal(farther.netProfit.toFixed(2), '-1.94');
+  assert.ok(guideHtml.includes('$72.69') && guideHtml.includes('&minus;$1.94'));
+
+  // The cheaper-recordkeeping lever.
+  const lean = calculate({ ...DEFAULTS, extinguisherCount: 6, recordkeepingMonthlyCost: 3 });
+  assert.equal(money(lean.netProfit), '$4.49');
+  assert.equal(lean.profitMarginPct.toFixed(2), '32.64');
+  assert.ok(guideHtml.includes('$4.49') && guideHtml.includes('32.64%'));
 });
