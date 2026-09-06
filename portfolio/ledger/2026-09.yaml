@@ -16596,3 +16596,82 @@ entries:
         exits 0. No payment collection, no new third-party script/CDN/
         network call, no personal data collected.
     mrr_end: null
+  - venture: dumpster-rental-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Originated a fresh niche per DIRECTION.md's "North star" point 2
+        (candidates.yaml had zero unbuilt build-now candidates): independent
+        roll-off dumpster rental operators (a truck or two and a handful of
+        containers) price a rental once, up front, around an included weight
+        allowance, but disposal is billed by the ton once the container
+        actually comes back and the customer's own fill decides the weight.
+        The underserved risk: an overage rate priced below the operator's
+        own tipping fee loses money on every excess ton with no ceiling, and
+        that mispricing is invisible until a heavy job (a shingle tear-off,
+        a concrete tear-out) produces enough overage tons to erase the
+        built-in margin. Checked against `portfolio/pipeline/screened-out.md`
+        (not present) and all existing `ventures/*/VENTURE.yaml` slugs --
+        distinct from `junk-removal-bid-calculator` (that operator loads and
+        hauls material themselves and prices the whole job from estimated
+        tonnage; this one rents an empty container the customer fills,
+        priced from a weight allowance and a separately billed overage fee).
+      - >-
+        Graduated `ventures/dumpster-rental-margin-calculator`: `calc.mjs`
+        (deterministic pricing -- a base rental price built to cover the
+        included allowance only, not the estimated job weight; an
+        overage-rate-vs-tipping-fee cost-floor check reporting
+        `maxOverageTonsBeforeLoss`; and a real-scale-ticket check against
+        the quote), `index.html` (full form, live results,
+        input-validation/error states, `aria-live` result panel, FAQ with
+        JSON-LD matching the visible copy, the standard section 5b
+        no-warranty disclaimer, a GitHub Sponsors link wired to
+        `sponsor_link_clicked`, and an opt-in local usage counter honoring
+        DNT/GPC), a guide page
+        (`why-your-overage-fee-might-be-losing-you-money.html`) with a
+        worked example, `README.md`, MIT `LICENSE`, `robots.txt`/
+        `sitemap.xml`, and `VENTURE.yaml`. 42 passing `node --test`
+        assertions across `calc.test.mjs` (21), `usage.test.mjs` (7),
+        `page.test.mjs` (14). Named `-margin-calculator` rather than
+        `-bid-calculator` (same family as `atm-route-margin`,
+        `vending-machine-route-margin`, `custom-farm-rate-calculator`) since
+        it prices a rental's margin rather than a one-time trade bid, so it
+        correctly falls outside the `-bid-calculator` family's
+        proposal-module-adoption and shared-shop-rates conventions.
+      - >-
+        Ran `node platform/marketing/regen.mjs` (front-door mirror 183 ->
+        184 tools) and `node platform/pages/launched.mjs --write`. Added a
+        merit score to `portfolio/scoring/venture-scores.yaml` (composite
+        6.333) and a candidate write-up + `candidates.yaml` entry
+        (composite 6.875, both `liability_containment` and
+        `ethical_robustness` gates pass) and a baseline row to
+        `portfolio/usage/usage.yaml`. Updated the five places CLAUDE.md
+        names that carry the mirrored-tool count by hand
+        (`infra/OWNER_CHECKLIST.md` x2, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2) plus the pinning test
+        `gitops/tests/test_manifests.py`.
+      - >-
+        Ran the full local checklist from CLAUDE.md's "while runners are
+        starved" section: `checklist_coverage.py` (clean), the marketing/
+        pages suite (1140 passed after merging a concurrent
+        `custom-farm-rate-calculator` PR and regenerating against the
+        merged tree), the proposal suite (101 passed, including the
+        discoverability test that requires every `-bid-calculator` to
+        either ship the proposal or be documented -- this venture is exempt
+        by naming rather than by carve-out), the venture's own suite
+        (42/42), `gitops/tests` (483 passed, 25 skipped), all `platform/ci`
+        unittest modules, and the ledger/scoring/router/usage/pipeline +
+        infra pytest suites (370 passed, 8 subtests). `node
+        platform/pages/clauses.mjs`, `python3 portfolio/router/validate.py`,
+        `python3 portfolio/pipeline/validate_candidates.py`, `python3
+        portfolio/scoring/score_ventures.py --check`, and `python3
+        platform/ci/check_no_payment_code.py` all pass.
+      - >-
+        Opened as PR #3537, merged on this session's own local verification
+        per CLAUDE.md's "Ship without review ceremony": all 22 check runs
+        came back red in 3-4s each, and `ci_starvation.py --run` on several
+        of them confirmed `runner_id: 0` (starvation, not a real failure).
+        No payment collection, no new third-party script/CDN/network call,
+        no personal data collected, no named competitor on any page.
+    mrr_end: null
