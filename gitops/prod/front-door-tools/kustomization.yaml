@@ -40,7 +40,7 @@
 #   portfolio-front-tools-4: 119 files, 555186 bytes
 #   portfolio-front-tools-5: 130 files, 556520 bytes
 #   portfolio-front-tools-6: 107 files, 549754 bytes
-#   portfolio-front-tools-7: 112 files, 541742 bytes
+#   portfolio-front-tools-7: 113 files, 545782 bytes
 #   portfolio-front-tools-8: 109 files, 543813 bytes
 #   portfolio-front-tools-9: 104 files, 542671 bytes
 #   portfolio-front-tools-10: 101 files, 516832 bytes
@@ -992,6 +992,7 @@ configMapGenerator:
       - locksmith-bid-calculator__index.html.gz=locksmith-bid-calculator__index.html.gz
       - locksmith-bid-calculator__usage.mjs.gz=locksmith-bid-calculator__usage.mjs.gz
       - locksmith-bid-calculator__vs-housecall-pro.html.gz=locksmith-bid-calculator__vs-housecall-pro.html.gz
+      - locksmith-bid-calculator__vs-jobber.html.gz=locksmith-bid-calculator__vs-jobber.html.gz
       - marketplace-fee-compare__calc.mjs.gz=marketplace-fee-compare__calc.mjs.gz
       - marketplace-fee-compare__index.html.gz=marketplace-fee-compare__index.html.gz
       - marketplace-fee-compare__share.mjs.gz=marketplace-fee-compare__share.mjs.gz
