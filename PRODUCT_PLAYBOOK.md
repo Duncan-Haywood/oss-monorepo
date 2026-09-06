@@ -260,7 +260,10 @@ not just the disclaimer in §5b.
 No checkout, no card fields, no billing code, no merchant of record, not even
 disabled. That is on the owner-only list in
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
-account and a tax identity.
+account and a tax identity. `python3 platform/ci/check_no_payment_code.py`
+enforces this fleet-wide in CI — see "Legal guardrails" in `DIRECTION.md` for
+the two pre-existing exceptions it currently allows and why adding a third
+needs a decision-queue row first, not a code review comment.
 
 **Two separate things exist here — do not conflate them:**
 

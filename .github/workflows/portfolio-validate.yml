@@ -363,6 +363,21 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_money_sign
 
+      # PRODUCT_PLAYBOOK.md §6 / DIRECTION.md "Legal guardrails" forbid payment
+      # collection fleet-wide ("no checkout, no card fields, no billing code,
+      # not even disabled"), but that sentence had no check behind it. Two
+      # ventures had real Stripe checkout code on `main` with no matching
+      # decision row before 2026-09-06 -- one already flagged
+      # (local-site-studio, #731), one found only when this check was written
+      # (print-atelier). This fails a third silent instance instead of relying
+      # on a session remembering the sentence above.
+      - name: Check no venture ships payment-SDK code without a decision-queue row
+        run: python3 platform/ci/check_no_payment_code.py
+
+      - name: Payment-SDK checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_no_payment_code
+
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
 

@@ -549,20 +549,44 @@ These stay in every product regardless of the speed mandate:
 
 Payment is deferred, not disclaimers.
 
-**One existing exception needs an owner decision, not agent judgment
-(found 2026-09-06).** `ventures/local-site-studio` carries a full, working
-Stripe checkout/webhook integration (`src/app/api/stripe/`, ~2,300 lines) —
-real checkout sessions, recurring upgrades, and dispute handling — gated
-only by unset `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` env vars. That
-is exactly what `PRODUCT_PLAYBOOK.md` §6 forbids everywhere else in the
-fleet ("no checkout, no card fields, no billing code... not even
-disabled"), and it arrived through a still-open gate-crossing
-(`local-site-studio-subtree-gate-crossing`, PR #731, in
-`portfolio/ledger/asks.yaml`): a self-merged 1,405-commit subtree the owner
-has not yet said accept-or-revert on. Until that lands, do not extend the
-Stripe integration, do not supply or wire live keys, and do not copy this
-pattern into any other venture — the donations-only model above governs
-everywhere else in the fleet regardless of this one unresolved case.
+**Two existing exceptions need an owner decision, not agent judgment.**
+`ventures/local-site-studio` carries a full, working Stripe checkout/webhook
+integration (`src/app/api/stripe/`, ~2,300 lines) — real checkout sessions,
+recurring upgrades, and dispute handling — gated only by unset
+`STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` env vars. That is exactly what
+`PRODUCT_PLAYBOOK.md` §6 forbids everywhere else in the fleet ("no checkout,
+no card fields, no billing code... not even disabled"), and it arrived
+through a still-open gate-crossing (`local-site-studio-subtree-gate-crossing`,
+PR #731, in `portfolio/ledger/asks.yaml`): a self-merged 1,405-commit subtree
+the owner has not yet said accept-or-revert on.
+
+**A second, previously-undocumented instance was found 2026-09-06:**
+`ventures/print-atelier` carries real Stripe checkout, Connect-payout, and
+webhook code (`src/app/api/stripe/`, `src/lib/stripe-checkout-server.ts`,
+`src/lib/commerce/stripe-connect.ts`) with the same unset-key gating and the
+same never-been-live status — but no decision-queue row existed until this
+session added one (`print-atelier-stripe-checkout`,
+`portfolio/ledger/asks.yaml`). Unlike `local-site-studio`'s bot self-merge,
+this one arrived by the owner's own direct subtree merge on 2026-07-29, four
+weeks before this donations-only policy was first written — so it is not a
+process violation, just a pre-existing venture nobody reconciled against the
+policy once it existed. That distinction does not change what an agent does
+with it: **do not extend either Stripe integration, do not supply or wire
+live keys, and do not copy this pattern into any other venture** — the
+donations-only model above governs everywhere else in the fleet regardless
+of these two unresolved cases.
+
+**This is now enforced, not just stated.**
+`platform/ci/check_no_payment_code.py` (added 2026-09-06, wired into
+`portfolio-validate.yml`) fails CI if any `ventures/*` directory outside its
+`ALLOWED_EXCEPTIONS` (currently exactly these two, each pointing at its
+decision row) imports a payment-processor SDK — Stripe, Braintree, Square,
+PayPal's server SDK, Adyen, Checkout.com, Razorpay, Klarna — or lists one as
+a dependency. Two instances existing before any check did is the reason it
+exists: the policy sentence above was already accurate reading of
+`PRODUCT_PLAYBOOK.md`, and a second venture still slipped past it undetected
+for six weeks. Run `python3 platform/ci/check_no_payment_code.py` before
+adding a payment-adjacent dependency to anything.
 
 ## Success signals
 
