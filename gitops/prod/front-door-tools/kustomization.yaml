@@ -33,12 +33,12 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 135 files, 555776 bytes
-#   portfolio-front-tools-1: 114 files, 556201 bytes
-#   portfolio-front-tools-2: 146 files, 553993 bytes
-#   portfolio-front-tools-3: 123 files, 555762 bytes
-#   portfolio-front-tools-4: 118 files, 554812 bytes
-#   portfolio-front-tools-5: 125 files, 553007 bytes
+#   portfolio-front-tools-0: 135 files, 550493 bytes
+#   portfolio-front-tools-1: 113 files, 556835 bytes
+#   portfolio-front-tools-2: 147 files, 556073 bytes
+#   portfolio-front-tools-3: 123 files, 555985 bytes
+#   portfolio-front-tools-4: 118 files, 557022 bytes
+#   portfolio-front-tools-5: 126 files, 554679 bytes
 #   portfolio-front-tools-6: 105 files, 546888 bytes
 #   portfolio-front-tools-7: 118 files, 550365 bytes
 #   portfolio-front-tools-8: 100 files, 544202 bytes
@@ -96,6 +96,7 @@ configMapGenerator:
       - job-margin-variance__LICENSE.gz=job-margin-variance__LICENSE.gz
       - job-margin-variance__calc.mjs.gz=job-margin-variance__calc.mjs.gz
       - job-margin-variance__index.html.gz=job-margin-variance__index.html.gz
+      - job-margin-variance__share.mjs.gz=job-margin-variance__share.mjs.gz
       - job-margin-variance__usage.mjs.gz=job-margin-variance__usage.mjs.gz
       - job-margin-variance__vs-quickbooks-job-costing.html.gz=job-margin-variance__vs-quickbooks-job-costing.html.gz
       - job-margin-variance__why-did-my-job-cost-more-than-i-estimated.html.gz=job-margin-variance__why-did-my-job-cost-more-than-i-estimated.html.gz
@@ -200,12 +201,12 @@ configMapGenerator:
       - ebay-fee-calculator__share.mjs.gz=ebay-fee-calculator__share.mjs.gz
       - ebay-fee-calculator__should-i-accept-this-ebay-offer.html.gz=ebay-fee-calculator__should-i-accept-this-ebay-offer.html.gz
       - ebay-fee-calculator__should-i-add-shipping-insurance-on-ebay.html.gz=ebay-fee-calculator__should-i-add-shipping-insurance-on-ebay.html.gz
-      - ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz=ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz
   - name: portfolio-front-tools-1
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz=ebay-fee-calculator__should-i-break-an-ebay-lot-into-individual-listings.html.gz
       - ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html.gz=ebay-fee-calculator__should-i-buy-ebay-shipping-labels.html.gz
       - ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz=ebay-fee-calculator__should-i-list-ebay-auction-or-buy-it-now.html.gz
       - ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz=ebay-fee-calculator__should-i-offer-a-partial-refund-on-ebay.html.gz
@@ -318,13 +319,13 @@ configMapGenerator:
       - 3pl-quote-normalizer__usage.mjs.gz=3pl-quote-normalizer__usage.mjs.gz
       - 3pl-quote-normalizer__vs-extensiv.html.gz=3pl-quote-normalizer__vs-extensiv.html.gz
       - 3pl-quote-normalizer__vs-shipbob.html.gz=3pl-quote-normalizer__vs-shipbob.html.gz
-      - 3pl-quote-normalizer__warnings-page.mjs.gz=3pl-quote-normalizer__warnings-page.mjs.gz
-      - freight-accessorial-auditor__audit.mjs.gz=freight-accessorial-auditor__audit.mjs.gz
   - name: portfolio-front-tools-2
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - 3pl-quote-normalizer__warnings-page.mjs.gz=3pl-quote-normalizer__warnings-page.mjs.gz
+      - freight-accessorial-auditor__audit.mjs.gz=freight-accessorial-auditor__audit.mjs.gz
       - freight-accessorial-auditor__does-this-fuel-surcharge-match-the-contract.html.gz=freight-accessorial-auditor__does-this-fuel-surcharge-match-the-contract.html.gz
       - freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html.gz=freight-accessorial-auditor__how-to-audit-a-whole-freight-invoice.html.gz
       - freight-accessorial-auditor__import.mjs.gz=freight-accessorial-auditor__import.mjs.gz
@@ -470,12 +471,12 @@ configMapGenerator:
       - booth-rent-vs-commission__index.html.gz=booth-rent-vs-commission__index.html.gz
       - booth-rent-vs-commission__payroll.mjs.gz=booth-rent-vs-commission__payroll.mjs.gz
       - booth-rent-vs-commission__usage.mjs.gz=booth-rent-vs-commission__usage.mjs.gz
-      - booth-rent-vs-commission__vs-vagaro.html.gz=booth-rent-vs-commission__vs-vagaro.html.gz
   - name: portfolio-front-tools-3
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - booth-rent-vs-commission__vs-vagaro.html.gz=booth-rent-vs-commission__vs-vagaro.html.gz
       - sponsor-ready__app.js.gz=sponsor-ready__app.js.gz
       - sponsor-ready__github-sponsors-readiness-checklist.html.gz=sponsor-ready__github-sponsors-readiness-checklist.html.gz
       - sponsor-ready__index.html.gz=sponsor-ready__index.html.gz
@@ -598,12 +599,12 @@ configMapGenerator:
       - boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz=boiler-replacement-bid-calculator__should-i-take-a-saturday-boiler-call.html.gz
       - boiler-replacement-bid-calculator__usage.mjs.gz=boiler-replacement-bid-calculator__usage.mjs.gz
       - boiler-replacement-bid-calculator__vs-servicetitan.html.gz=boiler-replacement-bid-calculator__vs-servicetitan.html.gz
-      - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
   - name: portfolio-front-tools-4
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - cabinet-refinishing-bid-calculator__calc.mjs.gz=cabinet-refinishing-bid-calculator__calc.mjs.gz
       - cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz=cabinet-refinishing-bid-calculator__how-much-to-charge-to-paint-kitchen-cabinets.html.gz
       - cabinet-refinishing-bid-calculator__index.html.gz=cabinet-refinishing-bid-calculator__index.html.gz
       - cabinet-refinishing-bid-calculator__share.mjs.gz=cabinet-refinishing-bid-calculator__share.mjs.gz
@@ -721,12 +722,12 @@ configMapGenerator:
       - einvoice-preflight__LICENSE.gz=einvoice-preflight__LICENSE.gz
       - einvoice-preflight__adjustment.mjs.gz=einvoice-preflight__adjustment.mjs.gz
       - einvoice-preflight__bic.mjs.gz=einvoice-preflight__bic.mjs.gz
-      - einvoice-preflight__breakdown.mjs.gz=einvoice-preflight__breakdown.mjs.gz
   - name: portfolio-front-tools-5
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - einvoice-preflight__breakdown.mjs.gz=einvoice-preflight__breakdown.mjs.gz
       - einvoice-preflight__checks.mjs.gz=einvoice-preflight__checks.mjs.gz
       - einvoice-preflight__cii.mjs.gz=einvoice-preflight__cii.mjs.gz
       - einvoice-preflight__document.mjs.gz=einvoice-preflight__document.mjs.gz
