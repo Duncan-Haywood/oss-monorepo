@@ -243,7 +243,53 @@ candidate list. Either:
 2. Build a `build-now` candidate (`session_gate.py` names the top one), or
 3. Graduate and build a new niche not in `screened-out.md`.
 
-> **MEASURED 2026-09-04: nothing is served. Read this before anything below.**
+> **SUPERSEDED IN PART, 2026-09-06: the catalogue IS served. Read this first.**
+>
+> All 175 products are built, deployed and being served by GitHub Pages at
+> **https://duncan-haywood.github.io/monorepo-projects/** — Pages serves the
+> `gh-pages` branch that `platform/pages/publish-branch.sh` writes.
+> Proof rather than inference: GitHub's own managed builder
+> `dynamic/pages/pages-build-deployment` ran on that branch and concluded
+> `success` (runs 34011996382 and 34012041708), and a managed Pages build is
+> triggered *only* by a push to the configured source. Both completed while
+> Actions runners were starved, so this route does not spend the metered
+> allowance. `deploy-settings` is granted; do not rank it, and do not describe
+> the portfolio as having no public URL.
+>
+> **Stated exactly, because the failure being corrected here is overclaiming.**
+> What is measured is that GitHub *deployed* the branch. What is not measured
+> is an unauthenticated HTTP 200: no session can fetch it — the agent egress
+> proxy answers `403 to CONNECT` for `github.io` — and a Pages site can in
+> principle be access-controlled rather than public. That last step is one
+> logged-out page load by the owner, and `github-pages-origin` in
+> `infra_state.yaml` stays `unknown` until someone takes it. "Deployed" is a
+> great deal more than the "dark" this file has been asserting, and it is not
+> the same as "a stranger has read it".
+>
+> **What is still down is `marisstella.dev`** — the k3s cluster, everything in
+> the block below, and it is all still accurate about *that* origin. The two
+> were run together because the repository assumed a single origin; they are
+> two, and only one of them is dark.
+>
+> **The standing job this creates.** A committed artifact does not rebuild
+> itself and nothing refreshes it while runners are down, so after any merge
+> that touches a served surface, run
+> `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`.
+> That command is now the difference between the live site and `main`.
+>
+> **And the lesson, which is why the block below is kept rather than deleted.**
+> Every sentence in it was a correct reading of the manifests and the API on
+> the day it was taken, restated as a claim about what a visitor receives —
+> and then nothing re-ran when the world changed. The 2026-09-05 Pages reading
+> made it worse by reasoning from an *absence* (no `dynamic/pages/` workflow
+> listed), and an absence goes stale in silence. Prefer a reading taken from
+> something *present*: a run has an id, a conclusion and a date. Ask
+> `python3 platform/ci/pages_state.py` and read its `deployed` row rather than
+> trusting any prose here, this correction included.
+>
+> ---
+>
+> **MEASURED 2026-09-04 (about `marisstella.dev`): nothing is served.**
 >
 > Every claim in this section was derived from the manifests. On 2026-09-04 the
 > hostnames were asked directly, from a GitHub runner, over real DNS and real
