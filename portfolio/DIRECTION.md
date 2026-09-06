@@ -204,9 +204,9 @@ changes what "the next task" means. In order:
    shape with no new mechanism and no evidence anyone asked for it — that is
    the "176th" this item warns against, not novelty itself.
 5. **Every live product should carry a working, honest donation ask.** See
-   the next section — this is the one lever that moves the portfolio's
-   revenue off $0 without touching payment rails, and it currently sits
-   unrealized behind one owner decision.
+   the next section — this lever is already live on 181 of 185 ventures, not
+   waiting on an owner decision. Closing the remaining 4 is real,
+   available work today.
 
 ## The fleet-parity trap, and where new ventures actually stand (added 2026-09-06)
 
@@ -272,10 +272,16 @@ done.
 The portfolio's revenue model is, and stays, **donations only** — GitHub
 Sponsors, nothing else. No payment collection, no payout rails, no merchant
 account: that is unchanged and is not up for a rescore by any session (see
-"Legal guardrails" below and `PRODUCT_PLAYBOOK.md` §6). What changed on
-2026-09-06 is that the reason to bother — a stranger can actually reach the
-products now — is real, so the one owner decision that turns this on is
-worth naming precisely rather than leaving as a stale queue row:
+"Legal guardrails" below and `PRODUCT_PLAYBOOK.md` §6).
+
+**Corrected 2026-09-06: donations are not blocked on an owner decision, and
+this section previously read as if they were.** `PRODUCT_PLAYBOOK.md` §6 has
+the full detail; the short version is that a per-product `github.com/sponsors`
+link is agent-decidable and already ships on **181 of 185 ventures**
+(verified this session, excluding two `NOT-A-VENTURE` scaffolding
+directories) — that mechanism has been live since before distribution was
+even solved. What actually is owner-only is a second, separate thing: the
+*native* repo-level GitHub "Sponsor" button, gated behind:
 
 - **`funding-sponsors-live` (#839 in `portfolio/ledger/decision_queue.py`)**
   is a yes/no on re-landing `.github/FUNDING.yml` (15 lines, `github:
@@ -283,10 +289,17 @@ worth naming precisely rather than leaving as a stale queue row:
   It was merged once and reverted the same day (#862); the safe state — no
   funding surface — is what's on `main` today. This is an
   account-ownership decision an agent cannot make (it ties a real legal
-  person's Sponsors profile to the repo), so it stays owner-only. What an
-  agent *can* and should do: make sure nothing about a product's own
-  Sponsors line is broken or missing while this is pending, so the day it
-  is decided, every product is already carrying its half correctly.
+  person's Sponsors profile to the repo), so it stays owner-only. It adds
+  one more entry point on top of links that already work; it is not what
+  turns donations on.
+
+**What an agent should actually do:** close the remaining gap —
+`local-site-studio`, `photo-editing`, `quick-pick-survey`,
+`retail-pilot-intel` are the four ventures without a working link, all
+app-shaped (the link belongs in the app's own layout/footer component, not a
+static HTML footer a build script can inject into). That is real, available
+revenue-enabling work today, not something to defer behind #839.
+
 - Every user-facing product still ships the optional Sponsors/donate line
   from `PRODUCT_PLAYBOOK.md` §6 — footer or about section only, never in
   front of a feature, never phrased as payment for using the tool. A
@@ -429,6 +442,21 @@ These stay in every product regardless of the speed mandate:
   the session's.
 
 Payment is deferred, not disclaimers.
+
+**One existing exception needs an owner decision, not agent judgment
+(found 2026-09-06).** `ventures/local-site-studio` carries a full, working
+Stripe checkout/webhook integration (`src/app/api/stripe/`, ~2,300 lines) —
+real checkout sessions, recurring upgrades, and dispute handling — gated
+only by unset `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` env vars. That
+is exactly what `PRODUCT_PLAYBOOK.md` §6 forbids everywhere else in the
+fleet ("no checkout, no card fields, no billing code... not even
+disabled"), and it arrived through a still-open gate-crossing
+(`local-site-studio-subtree-gate-crossing`, PR #731, in
+`portfolio/ledger/asks.yaml`): a self-merged 1,405-commit subtree the owner
+has not yet said accept-or-revert on. Until that lands, do not extend the
+Stripe integration, do not supply or wire live keys, and do not copy this
+pattern into any other venture — the donations-only model above governs
+everywhere else in the fleet regardless of this one unresolved case.
 
 ## Success signals
 

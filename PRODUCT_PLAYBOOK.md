@@ -255,19 +255,34 @@ not just the disclaimer in §5b.
    rather than a fact sheet is a defamation and false-advertising exposure
    for a page that costs nothing to make safe instead.
 
-## 6. Money: not yet
+## 6. Money: donations only, and most of it already ships
 
 No checkout, no card fields, no billing code, no merchant of record, not even
 disabled. That is on the owner-only list in
 [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) because it needs a bank
 account and a tax identity.
 
-The one thing that may exist is GitHub Sponsors, via `.github/FUNDING.yml`
-pointing at the owner's account, once the owner has enabled it (queued as the
-`funding-sponsors-live` decision, PR #839 — read the queue with
-`python3 portfolio/ledger/decision_queue.py`; do not open a second one). No
-third-party donation links, and never in front of a feature — a donation prompt
-lives in the README and the footer, nowhere a user has to pass through.
+**Two separate things exist here — do not conflate them:**
+
+1. **A per-product `github.com/sponsors/<owner>` link in the footer or about
+   section.** This is agent-decidable, needs no owner action, and is already
+   live: verified 2026-09-06, **181 of 185 ventures** (excluding two
+   `NOT-A-VENTURE` scaffolding directories) already carry a working link. Add
+   it the same way when you ship a new product, and if you're touching one of
+   the four still missing it — `local-site-studio`, `photo-editing`,
+   `quick-pick-survey`, `retail-pilot-intel` — adding it to that app's own
+   layout/footer component is real, available revenue work today, not
+   something waiting on an owner decision.
+2. **The native repo-level GitHub "Sponsor this project" button**, via
+   `.github/FUNDING.yml`, which is a separate, owner-only account-ownership
+   decision (queued as `funding-sponsors-live`, PR #839 — read the queue with
+   `python3 portfolio/ledger/decision_queue.py`; do not open a second one). It
+   was merged once and reverted the same day (#862), so the safe state on
+   `main` today is no `FUNDING.yml`. This only adds a second entry point on
+   top of links that already work — it is not what turns donations on.
+
+No third-party donation links, and never in front of a feature — a donation
+prompt lives in the README and the footer, nowhere a user has to pass through.
 
 What "free for now" is buying: usage data, which is the only evidence we have
 about which product deserves more time. Design so that turning payment on later
