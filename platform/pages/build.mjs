@@ -963,7 +963,10 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-openings',
       title: 'Windows, doors & garage',
-      test: (slug) => /^(window-replacement|egress-window|entry-door|interior-door|patio-door|garage-door|plantation-shutter|automatic-driveway-gate)/.test(slug),
+      // `locksmith` joins this group rather than a new one of its own: the
+      // hardware a locksmith prices (cylinders, deadbolts, fobs) sits on the
+      // same doors this group's other tools are installing or replacing.
+      test: (slug) => /^(window-replacement|egress-window|entry-door|interior-door|patio-door|garage-door|plantation-shutter|automatic-driveway-gate|locksmith)/.test(slug),
     },
     {
       id: 'trades-mep',

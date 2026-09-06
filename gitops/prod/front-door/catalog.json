@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 121
+      "tool_count": 122
     },
     {
       "id": "evidence",
@@ -752,7 +752,7 @@
       "url": "https://marisstella.dev/tools/dumpster-rental-margin-calculator/",
       "category": "More free tools",
       "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "egress-window-bid-calculator",
@@ -1025,6 +1025,14 @@
       "category": "Trade & contractor bids",
       "description": "Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "locksmith-bid-calculator",
+      "name": "Locksmith Bid Calculator — Price a Service Call",
+      "url": "https://marisstella.dev/tools/locksmith-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today's calls hit your income goal.",
+      "pages": 2
     },
     {
       "slug": "marketplace-fee-compare",
@@ -1448,7 +1456,7 @@
       "url": "https://marisstella.dev/tools/vehicle-wrap-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "vending-machine-route-margin",

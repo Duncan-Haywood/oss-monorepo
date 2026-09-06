@@ -1039,6 +1039,30 @@ candidates:
     mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+
+  - slug: locksmith-bid-calculator
+    name: Locksmith bid calculator
+    doc: candidates/locksmith-bid-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/locksmith-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every output as a pricing planning floor rather than a quote the tool issues on the locksmith's behalf; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
   - slug: fire-extinguisher-inspection-route-margin
     name: Fire extinguisher inspection route margin calculator
     doc: candidates/fire-extinguisher-inspection-route-margin.md

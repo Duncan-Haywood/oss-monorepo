@@ -607,6 +607,27 @@ decisions:
     `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
     after any merge that touches a served surface. That is this route's one
     real cost and it is now the difference between the live site and `main`.
+    **And there is a second flip that retires that standing job — added
+    2026-09-06, because this row has been describing the drift as permanent
+    while the fix sat in the tree unmentioned.**
+    `.github/workflows/publish-pages-branch.yml` runs exactly the command
+    above on every push to `main` that touches `ventures/**` or
+    `platform/pages/**`. It ships switched off, because CLAUDE.md's
+    "Automation" rule forbids an unattended workflow that pushes commits
+    without your approval — so the gate *is* the approval, the same way
+    `PAGES_ENABLED` gates the other Pages route. To arm it: **Settings →
+    Secrets and variables → Actions → Variables → `PAGES_BRANCH_PUBLISH` =
+    `true`**. Clearing it switches the pushing back off; with it unset the
+    workflow still builds the site and runs `check.mjs`, so a dead link the
+    copy step introduces turns a merge red instead of reaching a crawler.
+    Worth setting now even though it changes nothing today: it needs an
+    Actions runner, and `github-actions-runners` has been down since
+    2026-09-04, so what setting it buys is that the drift hole closes by
+    itself on the day the allowance resets rather than waiting on somebody
+    to remember this paragraph then. It is listed here rather than as its
+    own queue row because it is the same decision as this one — how the
+    Pages route stays published — and CLAUDE.md is explicit about not
+    duplicating asks.
     ---
     **Superseded below (2026-09-05 and earlier), kept because the way it went
     stale is the reusable part: every sentence was a correct reading of the

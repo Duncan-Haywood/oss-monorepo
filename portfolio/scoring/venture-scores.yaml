@@ -6538,6 +6538,51 @@ ventures:
       determination, or a design/trademark clearance opinion. The tool never
       touches a live transaction or anyone else's data. Nothing entered
       leaves the browser.
+
+  - slug: locksmith-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — an after-hours
+      premium applied to billed time only (never to parts), and a minimum
+      service charge floor compared against the calculated price — and it is
+      arithmetic a mobile locksmith has to be able to re-derive before
+      quoting a call on the phone.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. A fresh niche (not in
+      `portfolio/pipeline/screened-out.md`, not an existing `ventures/`
+      directory) rather than a queued pipeline candidate, per
+      `portfolio/DIRECTION.md`'s 2026-09-06 direction that a genuinely new,
+      gate-cleared niche competes on equal footing with the (currently empty)
+      `build-now` queue. Same per-job trade-calculator shape as
+      `appliance-repair-quote-calculator` and `notary-trip-quote`, scored the
+      same way. Defensibility 5: the after-hours-premium-on-time-only and
+      minimum-charge-floor arithmetic is specific to this trade and not
+      modeled by a generic service-call or trade-bid calculator, and it is
+      the exact pair of mechanics a phone-quote guess most often gets wrong.
+      Distribution 6: "locksmith service call pricing" and "how much should a
+      locksmith charge" are narrow, real search terms bought by an operator
+      pricing a call, with no incumbent free interactive tool built around
+      this exact arithmetic, but volume is unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never a
+      recommended price, a locksmith license/bond verification, or a
+      determination about a specific lock, fob, or vehicle. The tool never
+      touches a live transaction or anyone else's data. Nothing entered
+      leaves the browser.
   - slug: fire-extinguisher-inspection-route-margin
     scores:
       ai_leverage: 1
