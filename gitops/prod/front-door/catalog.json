@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 184,
-  "collection_total": 184,
+  "served_here": 185,
+  "collection_total": 185,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 120
+      "tool_count": 121
     },
     {
       "id": "evidence",
@@ -1433,6 +1433,14 @@
       "category": "Trade & contractor bids",
       "description": "Price tuckpointing from wall area, grind versus smear, scaffold versus swing stage, and extras — plus the walk-away price an $8 / sq ft special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "vehicle-wrap-bid-calculator",
+      "name": "Vehicle Wrap Bid Calculator — Price a Wrap Install",
+      "url": "https://marisstella.dev/tools/vehicle-wrap-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.",
+      "pages": 2
     },
     {
       "slug": "vending-machine-route-margin",

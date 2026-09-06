@@ -79,6 +79,11 @@ const NO_SHARED_SHOP_RATES = {
     'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
     '`burdenPercent` -- and its target margin already matches the canonical id directly, so it ' +
     'now carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
+  'vehicle-wrap-bid-calculator':
+    'its installer rate is a loaded rate -- wage and burden together, spelled `installerHourlyRate` ' +
+    '-- with no separate burden field, so hourlyWage and burdenRate cannot be shared onto it. Its ' +
+    'overhead and target margin already carry the canonical ids directly, so it carries two of the ' +
+    'four: see PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

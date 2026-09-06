@@ -1,0 +1,32 @@
+name: vehicle-wrap-bid-calculator
+description: A private browser calculator for independent vehicle wrap and graphics shops that prices a full or partial vehicle wrap from waste-inclusive material square footage, install complexity, and labor — and shows exactly what a quote based on the vehicle's bare surface area loses per job once the roll's real waste is accounted for.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent vehicle wrap and graphics shops will use a waste-factor-aware wrap calculator because vinyl is bought and consumed by the linear foot off a roll, and a coverage chart's bare vehicle surface area never reflects what curves, mirrors, and handles cost in wasted material.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The waste-blind loss figure is the number shop owners actually act on, more than the quoted price itself, because it converts an abstract "waste factor" into the concrete dollars a bare-surface-area quote loses on this specific job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Shops will use the actual-roll-usage checker after an install more than they will re-run the estimate before quoting, since real material consumption is only known once the job is cut and installed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Shop owners report that separating waste-inclusive material cost from bare surface area is more work than their existing flat installed-rate method without changing the price they would have quoted.
+links:
+  production: null
+  analytics: null
