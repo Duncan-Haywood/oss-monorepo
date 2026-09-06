@@ -191,6 +191,19 @@ CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh
 python3 platform/ci/pages_state.py --require-current   # and 0 once you have
 ```
 
+**If that middle line refuses with "publishing backwards", another session
+published while you were building** (added 2026-09-06). Do exactly what it
+says — `git fetch origin main && git reset --hard origin/main`, then re-run —
+and do not reach for `ALLOW_REGRESSION=1`, which exists for a deliberate
+rollback and nothing else. The refusal is new because the failure it catches
+was measured that day: two sessions overlapped, one published the merge that
+had just landed, and the other, still holding the previous commit, force-pushed
+a second later and took a just-shipped venture off the live site. Nothing went
+red — `pages_state.py` reported `stale` afterwards, which reads as "nobody has
+published yet", not "somebody undid a publish". With up to 4 distinct sessions
+inside a 15-minute window here (`session_gate.py`), that overlap is the
+ordinary case.
+
 **`--require-current` was added 2026-09-06, and the reason is that the
 paragraph you are reading did not work.** This section has said "refresh the
 snapshot" since 2026-09-05, and on 2026-09-06 the snapshot was found stale
