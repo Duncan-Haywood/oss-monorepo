@@ -1,9 +1,10 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculate, computeRouteProfit, DEFAULTS } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const guideHtml = readFileSync(new URL('./is-this-atm-placement-worth-it.html', import.meta.url), 'utf8');
 
 test('every DEFAULTS field has a matching input on the page', () => {
   for (const id of Object.keys(DEFAULTS)) {
@@ -68,4 +69,78 @@ test('an invalid location input hides stale results instead of leaving them next
   const body = catchBlock[1];
   assert.match(body, /el\('profit'\)\.hidden = true/, 'the profit hero is not hidden on a rejected input');
   assert.match(body, /el\('errors'\)\.hidden = false/, 'the error message is never shown');
+});
+
+// Regression: this venture graduated (#3519) with no secondary page at all --
+// guide-coverage.mjs flags it as the only route-margin sibling with zero pages
+// beside the entry page, unlike vending-machine-route-margin (two vs- pages)
+// and medical-courier-route-margin (a guide page and a vs- page). The tool's
+// own page answers "what did I actually profit", not "should I take this
+// placement offer" -- the question a buyer types before they know the tool
+// exists.
+test('the tool links to the placement-evaluation guide page', () => {
+  assert.match(html, /href="is-this-atm-placement-worth-it\.html"/);
+});
+
+test('the guide page links back to the calculator and carries the no-warranty clause', () => {
+  assert.match(guideHtml, /<a href="\.\/">/);
+  assert.match(guideHtml, /No warranty\.<\/strong> This tool is provided free and as-is/);
+  assert.match(guideHtml, /not tax, financial, or business advice/);
+});
+
+test('the guide page worked example matches calc.mjs exactly', () => {
+  const r = calculate({
+    monthlyWithdrawals: 90,
+    surchargeFee: 2.5,
+    locationCommissionPct: 50,
+    locationFlatFee: 0,
+    processingFeePerTxn: 0.3,
+    cashCostAnnualRatePct: 8,
+    averageCashLoad: 2000,
+    refillVisitsPerMonth: 4,
+    refillMinutes: 15,
+    driveMinutes: 20,
+    mileage: 8,
+    mileageRate: 0.67,
+    targetHourlyRate: 25,
+    machineMonthlyCost: 60,
+    armoredCostPerVisit: 0,
+  });
+  // A losing placement is the point of this worked example -- it is the case
+  // a withdrawal-count pitch hides, and the one the tool's own page (which
+  // defaults to a profitable location) never shows.
+  assert.ok(r.netProfit < 0, 'the worked example should be a losing placement');
+  assert.match(guideHtml, /\$225\.00/);
+  assert.match(guideHtml, /\$112\.50/);
+  assert.match(guideHtml, /\$27\.00/);
+  assert.match(guideHtml, /\$13\.33/);
+  assert.match(guideHtml, /\$21\.44/);
+  assert.match(guideHtml, /\$58\.33/);
+  assert.match(guideHtml, /\$292\.60/);
+  assert.match(guideHtml, /67\.61/);
+  assert.match(guideHtml, /30\.0%/);
+  assert.match(guideHtml, /0\.75/);
+});
+
+test('every visible FAQ question and answer on the guide page also appears in its FAQPage block', () => {
+  // This page hand-authors its own FAQPage (it is a secondary page, so
+  // build.mjs's derived-schema path in faqEntries() does not run for it), and
+  // nothing else keeps the two in step -- the drift class fixed in #2497, and
+  // guarded fleet-wide by platform/pages/faq-visible.test.mjs.
+  const questions = [...guideHtml.matchAll(/<h3>([^<]+)<\/h3>/g)].map((m) => m[1]);
+  assert.ok(questions.length >= 4, `expected at least 4 visible questions, saw ${questions.length}`);
+  const schema = guideHtml.slice(guideHtml.indexOf('"@type":"FAQPage"'));
+  for (const question of questions) {
+    assert.ok(schema.includes(JSON.stringify(question).slice(1, -1)), `visible question is missing from the FAQPage block: ${question}`);
+  }
+});
+
+test('every .html file in the venture is reachable from the sitemap', () => {
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const dir = new URL('./', import.meta.url);
+  const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  for (const name of htmlFiles) {
+    if (name === 'index.html') continue;
+    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+  }
 });

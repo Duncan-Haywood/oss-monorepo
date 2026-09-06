@@ -536,7 +536,7 @@
       "url": "https://marisstella.dev/tools/atm-route-margin/",
       "category": "More free tools",
       "description": "Free calculator for independent ATM route operators: find real monthly profit per location after the surcharge split, processor fees, and vault cash cost of capital, then see whether your whole route hits your income goal.",
-      "pages": 1
+      "pages": 2
     },
     {
       "slug": "attic-insulation-bid-calculator",
@@ -1129,6 +1129,14 @@
       "category": "Trade & contractor bids",
       "description": "Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.",
       "pages": 3
+    },
+    {
+      "slug": "photo-booth-event-quote",
+      "name": "Photo Booth Event Quote Calculator — Price a Booking",
+      "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
+      "category": "More free tools",
+      "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
+      "pages": 1
     },
     {
       "slug": "plantation-shutter-bid-calculator",

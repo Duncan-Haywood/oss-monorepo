@@ -1301,10 +1301,13 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 181 since 2026-09-06, when `atm-route-margin` shipped — same shape
     # again: a new venture with a static `index.html` from its first commit,
     # entering the mirror and the total together.
-    # 182 since 2026-09-06, when `custom-farm-rate-calculator` shipped — same
+    # 182 since 2026-09-06, when `photo-booth-event-quote` shipped — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 182  # `infra/OWNER_CHECKLIST.md`'s own "N of the 182 tools" wording.
+    # 183 since 2026-09-06, when `custom-farm-rate-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    total = 183  # `infra/OWNER_CHECKLIST.md`'s own "N of the 183 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
