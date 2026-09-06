@@ -17348,3 +17348,63 @@ entries:
         served today; `platform/pages/publish-branch.sh` needs a run after
         this merges to pick the new page up there.
     mrr_end: null
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second vs-competitor comparison page,
+        `vs-workiz.html` (+ test), for `locksmith-bid-calculator` --
+        graduated earlier the same day (#3552) with zero `vs-*` pages.
+        Compares against Workiz, a field service management platform
+        founded in 2015 by three former locksmiths (Idan Kadosh, Erez
+        Marom, Saar Kohanovitch), which explicitly serves the locksmith
+        trade among others -- following the exact sibling template
+        (`junk-removal-bid-calculator/vs-workiz.html`,
+        `dumpster-rental-margin-calculator/vs-jobber.html`): no
+        unverifiable Workiz pricing/feature claims (workiz.com is not
+        reachable from this sandbox), explicit non-affiliation statement,
+        FAQPage JSON-LD verified byte-for-byte against the visible
+        <h3>/<p> answers (not just heading presence), internal links back
+        to the calculator and its worked-example guide.
+      - >-
+        Collision mid-flight: a concurrent session merged
+        `vs-housecall-pro.html` for the same venture (#3561) between this
+        session's initial collision check and its own push. Re-checked
+        after `git fetch`: no `vs-workiz.html` existed anywhere on `main`,
+        so this is additive (a second, differently-named competitor), not
+        a duplicate -- consistent with the fleet's existing pattern of
+        several ventures already carrying 2-4 `vs-*.html` pages each
+        (e.g. `amazon-fba-calculator` has 4). Merged `main` into the
+        branch, resolved conflicts (generated `gitops/prod/front-door/*`
+        mirror files taken from `main`, then regenerated fresh; hand-merged
+        `sitemap.xml` to list both new pages), and re-ran every check below
+        against the merged tree, not just the pre-merge one.
+      - >-
+        Ran `platform/marketing/regen.mjs` twice (before and after the
+        `main` merge) so the front-door mirror and gitops ConfigMap pick
+        the page up -- Workiz crossed the two-comparison threshold this
+        session (`junk-removal-bid-calculator` + this one), so it now gets
+        its own dedicated `vs__workiz.html.gz` page. `front-door.test.mjs`
+        caught a missing mount line for it in
+        `gitops/prod/kustomization.yaml` before commit ("must mount
+        vs__workiz.html.gz; add it or the page is dark"); added the line
+        and re-ran green.
+      - >-
+        CI was fleet-wide starved (runner_id: 0 pattern documented
+        elsewhere in this file). Verified locally against the
+        post-merge tree instead: `checklist_coverage.py` clean; 89
+        `locksmith-bid-calculator` venture tests (both vs-pages); 1140
+        `platform/marketing` + `platform/pages` tests; 490
+        `gitops/tests` pytest cases (25 skipped); all 19 `platform/ci`
+        unittest modules; 167 `platform/proposal` + `platform/privacy` +
+        `platform/webcheck` tests; 380 `portfolio/ledger|scoring|router
+        |usage|pipeline` + `infra/tests` pytest cases; and the
+        Playwright/axe browser pass (contrast/axe found zero WCAG A/AA
+        violations, sweep/journey/roundtrip/presets/sideways all green,
+        `highlight` skipped -- this venture makes no highlight promise)
+        via `browser_checks.py --only locksmith-bid-calculator`. No
+        payment collection, no new third-party script/CDN/network call,
+        no personal data collected beyond the existing privacy-conscious
+        usage-tracking pattern already used fleet-wide.
+    mrr_end: null
