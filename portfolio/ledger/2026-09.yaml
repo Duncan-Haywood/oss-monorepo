@@ -16822,3 +16822,74 @@ entries:
         dead links), and a final `pages_state.py --require-current`
         confirmed `current` (exit 0).
     mrr_end: null
+
+  - venture: vehicle-wrap-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per `portfolio/DIRECTION.md`'s "new ventures
+        rank first" direction and the empty `build-now` pipeline queue:
+        screened a fresh niche (vehicle wrap/graphics shops) against
+        `portfolio/pipeline/screened-out.md` (not listed) rather than adding
+        a parity feature to an existing, unvisited product.
+      - >-
+        `ventures/vehicle-wrap-bid-calculator`: prices a full or partial
+        vehicle wrap from waste-inclusive material square footage (vinyl is
+        bought and consumed by the linear foot off a roll, and cutting
+        around mirrors/handles/pillars/curves wastes 15-30% that a
+        bare-surface-area quote never sees), scales install hours by a
+        complexity multiplier for curved vs. flat panels, and reports the
+        exact dollar loss (`wasteBlindLossPerJob`) a bare-area quote would
+        incur on that job -- the same "rate priced below the real cost
+        floor" mechanism as `dumpster-rental-margin-calculator`'s overage
+        check, applied to vinyl waste instead of disposal tonnage. Includes
+        an actual-roll-usage checker, a guide page with a worked example
+        matching `calc.mjs` output, the standard disclaimer, privacy line,
+        GitHub Sponsors link, usage tracking (`quote-priced`,
+        `material-check-run`), and adopted the shared customer-proposal
+        module (`platform/proposal/adopt.mjs` + a `trades.json` entry) and
+        the shared shop-rates bar (overhead/target-margin carry directly;
+        the loaded installer rate has no separate burden field, documented
+        as a partial-adoption exception in `rates.mjs`/`rates.test.mjs`,
+        same shape as `appliance-repair-quote-calculator`).
+      - >-
+        Ran `node --test ventures/vehicle-wrap-bid-calculator/*.test.mjs`
+        (78/78), the marketing+pages suite (1140/1140, run three times
+        across intermediate edits and two merges of `main`), the proposal
+        suite (101/101), the privacy+webcheck suite (167/167),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped, after
+        bumping the mirrored-tool count 184->185 in the four places
+        `test_manifests.py` checks: `infra/OWNER_CHECKLIST.md` twice,
+        `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` twice), all 19 `platform/ci` unittest modules,
+        `agent_review` (21 tests), the ledger/scoring/router/usage/pipeline
+        + infra pytest suites (380 passed, 8 subtests -- after adding the
+        venture's row to `portfolio/scoring/venture-scores.yaml`, composite
+        6.333, and re-running `score_ventures.py --check`),
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `router/validate.py`, `clauses.mjs` (fleet-wide, 721 pages across
+        185 surfaces), and (having touched user-facing markup)
+        `npm install --no-save playwright@1.56.0 axe-core` +
+        `platform/ci/browser_checks.py --only vehicle-wrap-bid-calculator`
+        (6 of 7 checks pass; `highlight` skips because this venture prints
+        no highlight-promise sentence, which is allowed).
+      - >-
+        Opened as PR #3549, merged on this session's own local verification
+        per CLAUDE.md's "Ship without review ceremony": all 17-22 triggered
+        check runs came back red in 2-4s each, and `ci_starvation.py --run`
+        on all twelve distinct workflow runs confirmed `runner_id: 0` on
+        every job (starvation, not a real failure). No payment collection,
+        no new third-party script/CDN/network call, no personal data
+        collected. Merged `main` into the branch twice mid-session
+        (`atm-route-margin`'s vs-page, then `custom-farm-rate-calculator`'s
+        contrast fix landed concurrently); both times the only conflicts
+        were generated mirror artifacts, resolved by taking `main`'s copy
+        and re-running `regen.mjs`. Republished the GitHub Pages `gh-pages`
+        snapshot from the merge commit (`pages_state.py` reported `stale`,
+        built from `47359064` while `main` was at `d057ce00`), then
+        `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh` (185 products, 748 pages, no
+        dead links), and a final `pages_state.py --require-current`
+        confirmed `current` (exit 0).
+    mrr_end: null
