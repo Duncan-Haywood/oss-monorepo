@@ -16403,3 +16403,73 @@ entries:
         exits 0. No payment collection, no new third-party script/CDN/
         network call, no personal data collected.
     mrr_end: null
+
+  - venture: photo-booth-event-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Generic-brief run (`session_gate.py` verdict: PROCEED, build-now
+        pipeline empty). Zero open PRs and no overlapping remote branch, so
+        originated a new niche per `PRODUCT_PLAYBOOK.md` section 1:
+        independent mobile photo booth rental operators (weddings,
+        corporate events, parties), who typically quote a flat package
+        price that hides setup/teardown time, travel, and an
+        unlimited-print package's print-volume risk. Checked against
+        `portfolio/pipeline/screened-out.md` (not present) and all 191
+        existing `ventures/*/VENTURE.yaml` slugs (no duplicate; same
+        event-rental quote shape as `portable-restroom-event-quote`,
+        applied to a distinct niche).
+      - >-
+        Graduated `ventures/photo-booth-event-quote`: `calc.mjs`
+        (deterministic quote arithmetic -- setup/teardown plus travel added
+        to booked hours, attendant labor, mileage, weekend/holiday
+        premium, equipment amortization, print cost, target margin;
+        derives a print-cost-share-of-price risk flag for unlimited-print
+        packages, a marked-up recommended overtime rate, and a
+        proposed-price breakeven/margin check), `index.html` (full form,
+        live results, input-validation/error states, `aria-live` result
+        panel, FAQ with JSON-LD matching the visible copy verbatim, the
+        standard section 5b no-warranty disclaimer, a GitHub Sponsors link
+        wired to `sponsor_link_clicked`, and an opt-in local usage counter
+        honoring DNT/GPC), `README.md`, MIT `LICENSE`,
+        `robots.txt`/`sitemap.xml`, and `VENTURE.yaml` with untested
+        hypotheses and kill criteria. 56 passing `node --test` assertions
+        across `calc.test.mjs` (19), `usage.test.mjs` (18), `page.test.mjs`
+        (19).
+      - >-
+        Ran `node platform/marketing/regen.mjs` (front-door mirror 181 ->
+        182 tools) and `node platform/pages/launched.mjs --write` (caught
+        missing by `launched.test.mjs`). Added a merit score to
+        `portfolio/scoring/venture-scores.yaml` (composite 6.667, both
+        liability_containment and ethical_robustness gates pass) and a
+        baseline row to `portfolio/usage/usage.yaml`. Updated the four
+        places CLAUDE.md names that carry the mirrored-tool count by hand
+        (`infra/OWNER_CHECKLIST.md` x2, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2) plus the pinning test
+        `gitops/tests/test_manifests.py`.
+      - >-
+        Ran the full local checklist from CLAUDE.md's "while runners are
+        starved" section: `checklist_coverage.py` (clean), the marketing/
+        pages/proposal/privacy/webcheck node suites (1139 + 101 + 66
+        passed, after `git fetch --unshallow` fixed two webcheck failures
+        that were shallow-clone artifacts, not real), the venture's own
+        suite (37/37), `gitops/tests` (483 passed, 25 skipped), all 18
+        `platform/ci` unittest modules (657 passed) plus `agent_review`
+        (21 passed), and the ledger/scoring/router/usage/pipeline/infra
+        pytest suites (370 passed, 8 subtests). Fixed two real findings
+        along the way: an FAQ JSON-LD/visible-copy text mismatch
+        (`faq-visible.test.mjs`) and the missing `launched.json` entry
+        above. `node platform/pages/clauses.mjs` and
+        `python3 platform/ci/check_no_payment_code.py` both pass.
+      - >-
+        Opened as PR #3527, then merged on this session's own local
+        verification per CLAUDE.md's "Ship without review ceremony": all
+        21 check runs came back red in 3-4s each, and `ci_starvation.py
+        --run` on four of them confirmed `runner_id: 0` on each
+        (starvation, not a real failure). Republished the GitHub Pages
+        `gh-pages` snapshot from the merge-commit tree afterward (built
+        from `d64d07c9`) and confirmed `pages_state.py --require-current`
+        exits 0. No payment collection, no new third-party script/CDN/
+        network call, no personal data collected.
+    mrr_end: null
