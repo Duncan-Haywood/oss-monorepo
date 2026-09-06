@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 181 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 182 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -51,6 +51,15 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.</summary>
+  </entry>
+  <entry>
+    <title>Photo Booth Event Quote Calculator — Price a Booking</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/photo-booth-event-quote/"/>
+    <id>tag:marisstella.dev,2026:tool/photo-booth-event-quote</id>
+    <published>2026-09-06T00:00:00Z</published>
+    <updated>2026-09-06T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you&#39;re already considering against the breakeven.</summary>
   </entry>
   <entry>
     <title>Vending Machine Route Profit Calculator — Price Each Location</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a quartz or granite countertop job from slabs, sink and cooktop cutouts, edge profile, backsplash, and waterfalls — not a published price per finished square foot. See the walk-away number before you match a cheaper kitchen quote.</summary>
-  </entry>
-  <entry>
-    <title>CRA Evidence Desk — free SBOM vs advisory matcher for EU software vendors</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/cra-evidence-desk/"/>
-    <id>tag:marisstella.dev,2026:tool/cra-evidence-desk</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Compliance checks &amp; evidence records"/>
-    <summary type="text">Free Cyber Resilience Act evidence tool: match your CycloneDX or SPDX SBOM against an OSV advisory export, see exactly which components are named, and download a dated record and an Article 14 review draft. Runs entirely in your browser — your SBOM is never uploaded.</summary>
   </entry>
 </feed>

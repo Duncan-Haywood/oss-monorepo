@@ -1,0 +1,32 @@
+name: photo-booth-event-quote
+description: Free browser calculator for independent mobile photo booth rental operators to find the real price for one event booking after setup/teardown time, travel, attendant labor, an unlimited-print package's print-volume risk, and equipment cost, then check a price already on the table against the breakeven.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent mobile photo booth operators will use a per-booking price calculator that adds setup/teardown time and travel to the booked hours, since a "3-hour, $500" package prices only the hours a guest sees the booth running and quietly cuts the real hourly rate the operator earns.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators selling unlimited-print packages will use a calculator that reports what share of the price the print line already represents, because the actual print count depends on how busy the event turns out to be and is the cost line most likely to erase a thin margin without the operator noticing until after the event.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who already quoted a price will use the "check a price you're already considering" comparison to see the margin it actually leaves, more than they will build a quote from scratch every time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+  - Operators report that pricing setup/teardown and print risk separately is more work than their existing flat package price without changing the number they would have quoted.
+links:
+  production: null
+  analytics: null

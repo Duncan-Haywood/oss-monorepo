@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 181,
-  "collection_total": 181,
+  "served_here": 182,
+  "collection_total": 182,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 6
     }
   ],
   "tools": [
@@ -1121,6 +1121,14 @@
       "category": "Trade & contractor bids",
       "description": "Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.",
       "pages": 3
+    },
+    {
+      "slug": "photo-booth-event-quote",
+      "name": "Photo Booth Event Quote Calculator — Price a Booking",
+      "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
+      "category": "More free tools",
+      "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
+      "pages": 1
     },
     {
       "slug": "plantation-shutter-bid-calculator",
