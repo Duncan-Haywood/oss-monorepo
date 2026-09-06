@@ -1,3 +1,15 @@
+/**
+ * The form fields a shared link carries, in the form's own ids -- not the
+ * `calculateTrueUp` parameter names, which is what `share.mjs` reads and
+ * writes on the page. Single-sourced here so a field added to the form is
+ * shareable the day it ships rather than silently dropped by an encoder that
+ * never learned about it. Deliberately the same set `usage.mjs`'s
+ * `SCENARIO_FIELDS` persists locally -- `renewalDate` and `noticeDays` are
+ * session-only on this page already, so a shared link matches what "Save
+ * scenario" already carries rather than promising more.
+ */
+export const INPUT_FIELDS = Object.freeze(['purchased', 'used', 'price', 'months', 'overageRate', 'seatMinimum']);
+
 export function calculateTrueUp({ seatsPurchased, seatsUsed, monthlyPrice, monthsRemaining = 12, overageRatePct = 0, seatMinimum = 0 }) {
   const purchased = Number(seatsPurchased);
   const used = Number(seatsUsed);

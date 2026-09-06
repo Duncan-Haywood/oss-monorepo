@@ -392,6 +392,61 @@ def test_releases_are_pruned_but_a_rollback_target_is_kept(tmp_path):
     assert seen[-1].name in kept, "the live release was pruned"
 
 
+def test_pruning_never_deletes_the_release_being_served(tmp_path):
+    """The invariant, forced rather than waited for.
+
+    The test above builds four real releases and hopes their timestamps differ.
+    They are `<%Y%m%dT%H%M%SZ>-<sha8>` and four `build.mjs` runs can land inside
+    one second, at which point the only thing separating two names is the commit
+    sha -- which is not chronological. Sorting names then puts the live release
+    somewhere arbitrary in the order and the tail is deleted, so `current`
+    dangles and nginx answers 404 for every path on the site. It reproduced
+    about two runs in five before the fix.
+
+    Waiting for a flake to reappear is not a regression test, so this one builds
+    the collision by hand: same timestamp, same mtime, three different shas,
+    with `current` pointed at the one a name-sort ranks *last*.
+    """
+    releases = tmp_path / "state" / "releases"
+    releases.mkdir(parents=True)
+    current = tmp_path / "state" / "current"
+
+    stamp = "20260906T042340Z"
+    names = [f"{stamp}-aaaaaaaa", f"{stamp}-bbbbbbbb", f"{stamp}-cccccccc"]
+    for name in names:
+        (releases / name).mkdir()
+        os.utime(releases / name, (1_757_000_000, 1_757_000_000))
+    live = releases / names[0]  # sorts first descending, so `sort -r | tail` drops it
+    current.symlink_to(live)
+
+    subprocess.run(
+        ["bash", "-c", _PRUNE_ONLY],
+        env={**os.environ, "RELEASES": str(releases), "CURRENT": str(current), "KEEP": "2"},
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    survivors = sorted(p.name for p in releases.glob("2*"))
+    assert len(survivors) == 2, survivors
+    assert live.name in survivors, "the live release was pruned"
+    assert current.resolve().is_dir(), "current is dangling"
+
+
+# The prune block lifted out of refresh-site.sh so it can be driven against a
+# hand-built directory. Extracted by marker rather than retyped: a copy would
+# pass forever after the original changed, which is the failure mode of every
+# test that restates its subject.
+def _prune_block() -> str:
+    src = REFRESH.read_text()
+    start = src.index("# Keep a few predecessors")
+    end = src.index("# nginx resolves `root` per request")
+    return src[start:end]
+
+
+_PRUNE_ONLY = "set -euo pipefail\nlog() { :; }\n" + _prune_block()
+
+
 @pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
 def test_releases_are_world_readable_so_nginx_can_serve_them(tmp_path):
     """nginx's workers run unprivileged. A release tree built under a

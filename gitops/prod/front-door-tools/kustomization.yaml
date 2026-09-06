@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 550182 bytes
+#   portfolio-front-tools-0: 135 files, 555776 bytes
 #   portfolio-front-tools-1: 114 files, 556201 bytes
 #   portfolio-front-tools-2: 146 files, 553993 bytes
 #   portfolio-front-tools-3: 123 files, 555762 bytes
@@ -114,6 +114,7 @@ configMapGenerator:
       - saas-seat-true-up__calc.mjs.gz=saas-seat-true-up__calc.mjs.gz
       - saas-seat-true-up__how-many-unused-saas-seats-am-i-paying-for.html.gz=saas-seat-true-up__how-many-unused-saas-seats-am-i-paying-for.html.gz
       - saas-seat-true-up__index.html.gz=saas-seat-true-up__index.html.gz
+      - saas-seat-true-up__share.mjs.gz=saas-seat-true-up__share.mjs.gz
       - saas-seat-true-up__usage.mjs.gz=saas-seat-true-up__usage.mjs.gz
       - saas-seat-true-up__vs-vendr.html.gz=saas-seat-true-up__vs-vendr.html.gz
       - saas-seat-true-up__vs-zylo.html.gz=saas-seat-true-up__vs-zylo.html.gz
@@ -121,6 +122,7 @@ configMapGenerator:
       - cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz=cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz
       - cam-reconciliation-check__index.html.gz=cam-reconciliation-check__index.html.gz
       - cam-reconciliation-check__share.mjs.gz=cam-reconciliation-check__share.mjs.gz
+      - cam-reconciliation-check__vs-appfolio.html.gz=cam-reconciliation-check__vs-appfolio.html.gz
       - cam-reconciliation-check__vs-yardi.html.gz=cam-reconciliation-check__vs-yardi.html.gz
       - appliance-repair-quote-calculator__calc.mjs.gz=appliance-repair-quote-calculator__calc.mjs.gz
       - appliance-repair-quote-calculator__index.html.gz=appliance-repair-quote-calculator__index.html.gz
