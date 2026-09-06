@@ -17169,3 +17169,55 @@ entries:
         products, 752 pages, no dead links), and a final `pages_state.py
         --require-current` confirmed `current`.
     mrr_end: null
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled deploy-focused session. `session_gate.py` returned PROCEED
+        (32% meta-work share); `pages_state.py` confirmed the GitHub Pages
+        route is already granted and the `gh-pages` snapshot was current
+        against `main`. No open PRs, so no duplicate-work risk. Swept
+        `ventures/*/VENTURE.yaml` ventures for the last ones missing a
+        `vs-*` comparison page (the gap `vehicle-wrap-bid-calculator` and
+        `dumpster-rental-margin-calculator` closed the prior session) and
+        found 10; most (a Garmin watch face, two macOS/iOS apps, a
+        market-research tool, an internal idea-scoring tool, a survey
+        engine, a Shopify-style website builder) have no natural paid
+        competitor to compare against honestly. `locksmith-bid-calculator`
+        does: it is shaped exactly like the trade calculators that already
+        carry one.
+      - >-
+        Added `vs-housecall-pro.html` (+ test) to `locksmith-bid-calculator`,
+        following the same template used by
+        `appliance-repair-quote-calculator/vs-housecall-pro.html` and
+        `garage-door-bid-calculator/vs-housecall-pro.html`: only
+        well-documented, non-numeric Housecall Pro facts (category, publicly
+        stated user count), no dollar figure, explicit non-affiliation
+        statement, linked from the tool page and the sitemap rather than
+        left orphaned. Housecall Pro's site is not reachable from this
+        sandbox to verify current claims, so nothing beyond that public,
+        non-numeric identity is stated.
+      - >-
+        Opened as PR against `main`. Verified locally: 81
+        `locksmith-bid-calculator` tests, 1140
+        `platform/marketing`+`platform/pages` tests, `checklist_coverage.py`
+        clean, 490 `gitops/tests` pytest cases (25 skipped, since this
+        touches `gitops/**` via `regen.mjs`'s front-door mirror rewrite),
+        all 19 `platform/ci` unittest modules, the `agent_review` suite (21
+        tests), 380 `portfolio/ledger|scoring|router|usage|pipeline`+
+        `infra/tests` pytest cases, and the Playwright/axe browser pass
+        (contrast, sweep, journey, sideways, presets, roundtrip all green)
+        via `browser_checks.py --only locksmith-bid-calculator`. No payment
+        collection, no new third-party script/CDN/network call, no personal
+        data collected beyond the existing privacy-conscious usage tracking
+        pattern already used fleet-wide.
+      - >-
+        `marisstella.dev` (the k3s-cluster route) remains down per
+        `infra_state.yaml`, blocked on the owner rotating
+        `HETZNERSSHKEY` (it currently holds a public key) — unchanged by
+        this session and not something a session can act on. The GitHub
+        Pages route is the one unified portfolio surface actually being
+        served today; `platform/pages/publish-branch.sh` needs a run after
+        this merges to pick the new page up there.
+    mrr_end: null
