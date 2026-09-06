@@ -333,6 +333,96 @@ donation ask credible, and it's cheap to check for:**
   feedback this portfolio currently has, because it's the only kind that
   didn't have to be imagined.
 
+## Owner direction, 2026-09-06: new ventures get first call, legal exposure is the one hard stop
+
+The owner's own framing, relayed this session: the fleet's job is viable
+software businesses — ones that reach real users, earn optional donation
+revenue, keep those users happy, and never create legal exposure the owner
+has to clean up personally. Every section above already says a version of
+this; what this section changes is the ranking, and it corrects a real bug
+in the tool that was supposed to enforce it.
+
+**New ventures rank first, not last, when a genuine one is available.**
+"Only then does a new venture compete for the same time" (above) is easy to
+read as "new ventures are the leftover slot" — that section already flagged
+the same misreading once. Read it as: build the venture when one clears the
+gates, ahead of a parity feature or a deeper feature on a product nobody has
+visited. This portfolio exists to find the businesses that work; a fleet
+that spends its time evenly re-polishing 185 unvisited products never finds
+one.
+
+**The pipeline's own bookkeeping was hiding whether a candidate was
+available, so this session fixed it before pointing anyone at it.**
+`portfolio/pipeline/candidates.yaml` had **five `build-now` candidates still
+marked unbuilt while all five were already shipped**:
+`quote-margin-check`, `consent-change-record`, and
+`shopify-permission-drift` are live `ventures/` directories with no
+`initiated`/`initiated_path` recorded; `eaa-remediation-pipeline` and
+`mls-photo-spec-preflight` had graduated as `product_lines` on
+`local-site-studio` and `real-estate-agent-photo-app` on 2026-08-24 —
+`portfolio/pipeline/README.md` has said so since that date — but
+`candidates.yaml` still read `verdict: build-now` for both. `session_gate.py`
+reads exactly this field to name the next unbuilt candidate for a session in
+`BUILD` regime, so this bug's failure mode was a session being sent to
+rebuild a venture that already exists. All five are now `verdict: graduated`
+with `initiated`/`initiated_path` set, matching the schema every other
+graduated candidate already uses, and re-verified against
+`validate_candidates.py` and `validate_doc_consistency.py` (still 22/22
+consistent). **The result: the pipeline's `build-now` queue is genuinely
+empty right now** — not because nothing is worth building, but because
+everything that was scored and ready has already been built. The five
+`probe`-verdict candidates that also have a `ventures/` directory
+(`mcp-supply-chain-watch`, `shopify-a11y-evidence`, `public-record-watch`,
+`dns-configuration-evidence`, `backup-verification-evidence`) are not a
+second version of this bug — each write-up deliberately keeps its verdict at
+`probe` pending an owner-gated buyer test, per `pipeline/README.md`'s
+`graduate_as` rules; do not "fix" those to `graduated`.
+
+**So the next new-venture session screens a fresh niche, not the queue.**
+Pick one not in `screened-out.md`, score it honestly against the
+`liability_containment` and `ethical_robustness` gates in
+`pipeline/README.md`, and graduate it the same session if it clears them —
+exactly the standing process, just with the confidence that "check the
+pipeline first" no longer means picking up stale, already-shipped work. If
+you add or graduate a candidate, flip its `candidates.yaml` verdict in the
+same PR: a tracker that never learns a candidate was built is worse than no
+tracker, for the reason CLAUDE.md's "Duplicate PRs" section gives for any
+other stale status — it actively misdirects the next session instead of
+staying silent.
+
+**Donation revenue is the other lever agents actually control, and as of
+this session it is fully done.** All 185 ventures now carry a working
+`github.com/sponsors/Duncan-Haywood` link (see the Revenue section above and
+`PRODUCT_PLAYBOOK.md` §6, closed today by #3481). The two things that would
+actually move the revenue ceiling off $0 — `payout-rail` and
+`funding-sponsors-live` — are
+both owner-only (`python3 portfolio/ledger/decision_queue.py`); that does
+not make everything donation-adjacent an agent can do less worth doing.
+
+**Legal exposure is the one place "build more, faster" does not apply.**
+`ventures/local-site-studio` still carries a full Stripe checkout
+integration behind unset env vars, gated on the still-open
+`local-site-studio-subtree-gate-crossing` decision (PR #731) — see "Legal
+guardrails" below. A new venture that reaches for payment collection, a
+compliance warranty, or scraped personal data to move faster is not a
+viable business here no matter how good its numbers look — it is exposure
+the owner has to resolve personally, the same way #731 still is. Donations
+only, disclaimed, evidence-not-advice: those are not friction to build
+around, they are what keeps a fast-shipping fleet an asset instead of a
+liability.
+
+**Customer happiness is still measured at zero, fleet-wide, as of this
+session** — every `usage.yaml` field that reports a nonzero number today is
+a build-time artifact count (pages written, local reports generated), never
+a stranger; every field that actually measures one (`live_url_visitors`,
+`repo_views_14d`, `release_downloads_total`) is `None` or `0` across all 185
+products. That is the real argument for ranking a new venture above another
+parity feature: the fleet cannot yet tell which existing product a happy
+customer would come from, so the higher-value session either puts a new,
+gate-cleared bet in front of a real audience, or fixes a concrete reason an
+existing one isn't reaching theirs (see "The fleet-parity trap" above) —
+not one that adds a feature nobody visiting the product has asked for.
+
 ## What a good product looks like here
 
 | Criterion | Why it matters |

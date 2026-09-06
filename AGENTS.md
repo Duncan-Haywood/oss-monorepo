@@ -49,11 +49,19 @@ including when a new venture is and isn't the better use of the session.
 it** (a share link, a save slot, an export format), check that venture's row
 in `portfolio/usage/usage.yaml`. As of 2026-09-06, 55 of 185 ventures had a
 `share.mjs` added this way with zero usage signal on any of them to justify
-it, while the pipeline still has ungraduated `build-now` candidates and new,
-non-duplicative niches are always welcome. See `portfolio/DIRECTION.md`
-"The fleet-parity trap, and where new ventures actually stand" — a new
-venture or a real discoverability fix now outranks a parity feature on a
-product nobody has visited yet.
+it, while new, non-duplicative niches are always welcome. See
+`portfolio/DIRECTION.md` "The fleet-parity trap, and where new ventures
+actually stand" — a new venture or a real discoverability fix now outranks a
+parity feature on a product nobody has visited yet.
+
+**New ventures now rank first, not last, and the pipeline's `build-now`
+queue is genuinely empty** (added 2026-09-06) — five candidates that had
+already shipped were still marked unbuilt in `candidates.yaml` (a
+`session_gate.py` misdirection risk, now fixed). The next new-venture
+session screens a fresh niche against `portfolio/pipeline/screened-out.md`
+and the liability/ethics gates, not the queue. See `portfolio/DIRECTION.md`
+"Owner direction, 2026-09-06" for the full read, including why legal
+exposure (not speed) is still the one hard stop.
 
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
