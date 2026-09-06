@@ -186,6 +186,27 @@ flipped Settings → Pages → `gh-pages`, a stale snapshot is not a staging
 detail — it is the live site silently lagging `main`, with no error anywhere
 to say so. Refreshing costs about a minute and needs no credential.
 
+**Keep doing it by hand while runners are starved, but it is no longer the
+only thing standing between `main` and the branch** (added 2026-09-06).
+`.github/workflows/publish-pages-branch.yml` runs exactly the command above on
+every push to `main` that touches `ventures/**` or `platform/pages/**`. Two
+things to know about it, because both are deliberate:
+
+- **It pushes nothing until the owner sets `PAGES_BRANCH_PUBLISH` to `true`.**
+  CLAUDE.md's "Automation" rule forbids adding an unattended workflow that
+  pushes commits without owner approval, so the gate is the approval, exactly
+  as `PAGES_ENABLED` gates the `deploy-pages` route in `portfolio-pages.yml`.
+  With it unset the workflow still builds the site and runs `check.mjs`
+  against the artifact, so a dead link the copy step introduces turns a merge
+  red instead of reaching a crawler.
+- **It needs a runner**, so during a starvation window it does nothing at all
+  and the manual command above is still the only route. That is the honest
+  limit: this closes the drift hole from the day runners return, not today.
+
+The snapshot was found stale again on 2026-09-06 (built from `1afe50c5` while
+`main` was at `565cc635`) — one merge behind, by a session that had read this
+section. That is the argument for automating it rather than restating it.
+
 **Merge yourself after CI is green:**
 
 - `platform/`, `portfolio/`, docs, tests, CI
