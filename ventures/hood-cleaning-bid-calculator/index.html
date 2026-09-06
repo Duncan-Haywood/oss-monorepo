@@ -332,7 +332,7 @@
       row.innerHTML = `
         <label for="${id}-type"><span class="lbl">Component</span><select class="c-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
         <label for="${id}-qty"><span class="lbl">Quantity</span><input class="c-qty" id="${id}-qty" type="number" min="0" step="0.5"></label>
-        <label for="${id}-min"><span class="lbl">Minutes per unit</span><input class="c-min" id="${id}-min" type="number" min="0.1" step="0.5"></label>
+        <label for="${id}-min"><span class="lbl">Minutes per unit</span><input class="c-min" id="${id}-min" type="number" min="0.1" step="any"></label>
         <label for="${id}-acc"><span class="lbl">Access</span><select class="c-acc" id="${id}-acc">${ACCESS_OPTIONS}</select></label>
         <button type="button" class="remove">Remove<span class="lbl"> this component</span></button>`;
 

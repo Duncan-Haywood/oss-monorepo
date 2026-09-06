@@ -334,6 +334,23 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_input_bounds
 
+      # The third question in that family: not "is the shipped value legal" or
+      # "is the bound wide enough", but "is the grid these attributes describe
+      # one a human can land on at all". `min` doubles as the step base, so
+      # `min="0.01" step="0.1"` accepts 0.01, 0.11, 0.21, ... and no whole
+      # number -- which nobody writes on purpose, and which is fatal and silent
+      # inside a `<form>`: the browser refuses the submit before dispatching
+      # the event, so the page's handler never runs and the button does
+      # nothing. `cam-reconciliation-check`'s occupancy gross-up shipped that
+      # way and had never once worked in a browser. 58 inputs across 33 files
+      # were in that state on 2026-09-06.
+      - name: Check no number input's step grid excludes whole numbers
+        run: python3 platform/ci/check_step_grid.py
+
+      - name: Step-grid checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_step_grid
+
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
       # -0 as "$-0.00". 11,172 unit tests went green over both, because not one
