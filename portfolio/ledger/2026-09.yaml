@@ -16747,3 +16747,78 @@ entries:
         products, 745 pages, no dead links), and a final
         `pages_state.py --require-current` confirmed `current` (exit 0).
     mrr_end: null
+
+  - venture: atm-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Named session: ran a brief comparison per `portfolio/DIRECTION.md`
+        between (a) sweeping more live products for a real defect, (b)
+        graduating a genuinely new niche, and (c) deepening an existing thin
+        product, before picking one. (a): targeted `contrast`/`sideways`/
+        `presets`/`roundtrip`/`highlight`/`sweep` runs across 29 ventures --
+        14 chosen for the dynamic-table-row-input pattern that caused PR
+        #3530's 60-violation fix, plus 15 of the `-bid-calculator` template
+        family -- all clean, no violations found; diminishing returns after
+        #3530 already fixed the known defect class. (b): the
+        `-bid-calculator` (103 ventures) and route-margin/route-pricing
+        categories already cover nearly every home-service trade and common
+        route business; a new one risked being the "twelfth undeployed
+        calculator" CLAUDE.md warns against, and properly screening a novel
+        niche against the liability/ethical gates needed more session time
+        than remained. Picked (c).
+      - >-
+        Shipped `vs-atm-depot.html` on `ventures/atm-route-margin`, which
+        graduated 2026-09-06 (#3519, #3522) with only one secondary page --
+        `node platform/pages/guide-coverage.mjs` flagged it as the only
+        route-margin sibling fleet-wide with no `vs-<competitor>` page,
+        unlike `vending-machine-route-margin` (two) and
+        `medical-courier-route-margin` (one). ATM Depot, a real ATM
+        equipment and processing vendor, publishes a free Profit Calculator
+        (facts gathered via WebSearch -- WebFetch on its live pages, and on
+        an unrelated control domain, was blocked by this session's network
+        egress proxy): a single-machine, email-gated lead tool comparing
+        current processing to ATM Depot's own rebate offer, with no field
+        for a location's commission split, vault cash cost of capital, or
+        refill labor/travel -- the per-location costs this calculator
+        already models and rolls up into a route total against an income
+        goal. No dollar figure from either tool is quoted anywhere on the
+        page, same discipline `vs-photobooth-supply-co.html` and
+        `vs-vendr.html` already use for their own unreachable competitors.
+        Linked both ways with `index.html`, added to the venture's
+        hand-maintained `sitemap.xml`, nominative-fair-use and no-warranty
+        disclaimers present, FAQPage schema matches the visible FAQ.
+      - >-
+        Ran `node --test ventures/atm-route-margin/*.test.mjs` (46/46),
+        `node platform/pages/clauses.mjs atm-route-margin` and
+        `guide-coverage.mjs atm-route-margin` (clean, now covered),
+        `python3 platform/ci/checklist_coverage.py` (clean),
+        `node platform/marketing/regen.mjs` (re-run after rebasing onto
+        `main`'s tip, committed what it rewrote), the marketing+pages suite
+        (1140/1140), the proposal suite (101/101), the privacy+webcheck
+        suite (66/66), `python3 -m pytest gitops/tests -q` (490 passed, 25
+        skipped, re-run after the rebase+regen), all 18 `platform/ci`
+        unittest modules (657 tests), `agent_review` (21 tests), the
+        ledger/scoring/router/usage/pipeline + infra pytest suites (370
+        passed, 8 subtests), and (having touched user-facing markup)
+        `npm install --no-save playwright@1.56.0 axe-core` +
+        `platform/ci/browser_checks.py --only atm-route-margin` (6 of 7
+        checks pass; `highlight` skips because this venture prints no
+        highlight-promise sentence, pre-existing and unrelated).
+      - >-
+        Opened as PR #3545, merged on this session's own local verification
+        per CLAUDE.md's "Ship without review ceremony": all 19 triggered
+        check runs came back red in 2-4s each, and `ci_starvation.py --run`
+        on four distinct workflow runs (covering `build`, `gitops`/
+        `scripts`/`tofu`/`hcloud-scope`, `page-integrity`, and `coverage`)
+        confirmed `runner_id: 0` on every one (starvation, not a real
+        failure). No payment collection, no new third-party script/CDN/
+        network call, no personal data collected. Republished the GitHub
+        Pages `gh-pages` snapshot from the merge commit (`pages_state.py`
+        reported `stale`, built from `046659b5` while `main` was at
+        `2ca1b683`), then `CONFIRM=publish-pages-branch PUSH=1
+        ./platform/pages/publish-branch.sh` (184 products, 746 pages, no
+        dead links), and a final `pages_state.py --require-current`
+        confirmed `current` (exit 0).
+    mrr_end: null
