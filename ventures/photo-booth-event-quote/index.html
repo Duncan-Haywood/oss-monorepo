@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo Booth Event Quote Calculator — Price a Booking</title>
+<meta name="description" content="Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Photo Booth Event Quote Calculator">
+<meta property="og:description" content="A '3-hour, $500' package prices only the hours a guest sees the booth running. Find real profit after setup/teardown, travel, labor, and the print-volume risk an unlimited-print package hides.">
+<meta property="og:type" content="website">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Photo Booth Event Quote Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a mobile photo booth event booking from booked hours, setup/teardown time, travel, attendant labor, print cost, props, and equipment cost, then flags the print-volume risk in unlimited-print packages and checks a proposed price against breakeven."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why count setup and teardown time when the guest only sees the booth running for the booked hours?","acceptedAnswer":{"@type":"Answer","text":"Because you and your equipment are committed to the job for that time too. A 3-hour package with an hour of setup and 45 minutes of teardown is 4.75 hours on site before travel — pricing only the 3 booked hours quietly cuts your real hourly rate every time."}},{"@type":"Question","name":"Why does the calculator treat print cost as a risk, not just a cost line?","acceptedAnswer":{"@type":"Answer","text":"Unlimited-print packages are quoted from an estimated print count, but the actual count depends on how many guests show up and use the booth — a busy open bar can print far more strips than a seated dinner. The calculator reports what share of your price the print line already represents, so you can see how much room is left before extra prints erase the margin you built the quote on."}},{"@type":"Question","name":"How is the recommended overtime rate different from just charging my hourly rate for the extra time?","acceptedAnswer":{"@type":"Answer","text":"It marks the extra hour up the same way the rest of the quote is marked up — attendant pay plus your overhead rate, divided by your target margin — so an event that runs long still earns the same margin instead of just covering the added labor at cost."}},{"@type":"Question","name":"Does anything about my event details get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#2a1730;background:#f7eefb}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #e2c7ee;border-radius:16px;padding:20px;box-shadow:0 8px 24px #4a127708;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #ecd9f4;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#7a1c8f;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #d8a9e8;border-radius:8px;font:inherit;background:#fdfbff}.result{background:#5c0f5c;color:#fff;border-color:#5c0f5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#6a4c66}.result .note{color:#eacdea}.err{color:#ffd9a6;font-weight:700}.warn{background:#fff4e0;border:1px solid #f0c987;color:#7a4b06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650}.result .warn{background:#3f0a3f;border-color:#a35bb0;color:#ffe6b0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #d8a9e8;background:#fff;cursor:pointer;color:#2a1730}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR INDEPENDENT MOBILE PHOTO BOOTH OPERATORS</p><h1>A booked hour isn't a paid hour.</h1><p class="lede">A "3-hour, $500" package prices only the hours a guest sees the booth running. Setup, teardown, and the drive to the venue are real committed time, and an unlimited-print package's paper and ink cost depends on how busy the event actually is. This free calculator finds the real price for one booking, flags the print-volume risk, and checks a price you're already considering.</p></header>
+
+<main class="layout">
+<section><h2>Price one booking</h2>
+<fieldset><legend>Event time &amp; travel</legend><div class="fields">
+<label>Booked event hours<input id="eventHours" type="number" min="0.5" step="0.25" value="3"></label>
+<label>Setup minutes<input id="setupMinutes" type="number" min="0" step="5" value="60"></label>
+<label>Teardown minutes<input id="teardownMinutes" type="number" min="0" step="5" value="45"></label>
+<label>Round-trip drive minutes<input id="driveMinutesRoundTrip" type="number" min="0" step="5" value="40"></label>
+<label>Round-trip miles<input id="milesRoundTrip" type="number" min="0" step="1" value="24"></label>
+<label>Mileage rate ($/mile)<input id="mileageRate" type="number" min="0" step="0.01" value="0.67"></label>
+</div></fieldset>
+<fieldset><legend>Labor</legend><div class="fields">
+<label>Attendants on the job<input id="attendantCount" type="number" min="0" step="1" value="1"></label>
+<label>Attendant pay ($/hr)<input id="attendantHourlyRate" type="number" min="0" step="1" value="25"></label>
+</div></fieldset>
+<fieldset><legend>Prints</legend><div class="fields">
+<label>Expected prints this event<input id="expectedPrints" type="number" min="0" step="10" value="150"></label>
+<label>Cost per print ($, paper+ink)<input id="costPerPrint" type="number" min="0" step="0.01" value="0.35"></label>
+</div></fieldset>
+<fieldset><legend>Other costs &amp; margin</legend><div class="fields">
+<label>Props &amp; backdrop cost ($)<input id="propsBackdropCost" type="number" min="0" step="1" value="20"></label>
+<label>Equipment cost per event ($)<input id="equipmentCostPerEvent" type="number" min="0" step="1" value="35"></label>
+<label>Weekend/holiday premium (%)<input id="weekendHolidayPremiumPct" type="number" min="0" step="1" value="15"></label>
+<label>Overhead (% of direct cost)<input id="overheadRate" type="number" min="0" step="1" value="10"></label>
+<label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99" step="1" value="35"></label>
+<label>Other flat cost ($)<input id="otherCost" type="number" min="0" step="1" value="0"></label>
+</div></fieldset>
+</section>
+
+<section class="result" aria-live="polite"><h2>Quote for this booking</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="price" class="big">$0.00</div><p id="perHourLine" class="note"></p>
+<dl>
+<dt>Attendant labor</dt><dd id="laborOut"></dd>
+<dt>Mileage</dt><dd id="mileageOut"></dd>
+<dt>Weekend/holiday premium</dt><dd id="premiumOut"></dd>
+<dt>Prints</dt><dd id="printOut"></dd>
+<dt>Props &amp; backdrop</dt><dd id="propsOut"></dd>
+<dt>Equipment</dt><dd id="equipmentOut"></dd>
+<dt>Overhead</dt><dd id="overheadOut"></dd>
+<dt>Total cost (breakeven)</dt><dd id="totalCostOut"></dd>
+<dt>Profit</dt><dd id="profitOut"></dd>
+<dt>Recommended overtime rate ($/hr extra)</dt><dd id="overtimeOut"></dd>
+</dl>
+<p id="printWarning" class="warn" hidden></p>
+<p class="note">This is a planning floor from the numbers you typed, not an audited statement. It does not add sales tax, insurance, or a no-show/cancellation policy unless you fold those into other cost yourself.</p>
+</section>
+</main>
+
+<section><h2>Check a price you're already considering</h2><p class="note">Already told a couple or a planner a number? Enter it here to see the profit and margin it actually leaves once the costs above are counted.</p>
+<div class="fields">
+<label>Price you're considering ($)<input id="proposedPrice" type="number" min="0" step="1" value=""></label>
+</div>
+<p id="proposedErrors" class="err" role="alert" hidden></p>
+<dl id="proposedResult" hidden>
+<dt>Profit at that price</dt><dd id="proposedProfitOut"></dd>
+<dt>Margin at that price</dt><dd id="proposedMarginOut"></dd>
+<dt>Below breakeven?</dt><dd id="proposedBelowOut"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your event details, prices, and costs are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>quote-priced</code>, <code>proposed-price-checked</code>) so we can tell whether the calculator gets used — no event details, prices, or costs are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why count setup and teardown time when the guest only sees the booth running for the booked hours?</h3><p>Because you and your equipment are committed to the job for that time too. A 3-hour package with an hour of setup and 45 minutes of teardown is 4.75 hours on site before travel — pricing only the 3 booked hours quietly cuts your real hourly rate every time.</p>
+<h3>Why does the calculator treat print cost as a risk, not just a cost line?</h3><p>Unlimited-print packages are quoted from an estimated print count, but the actual count depends on how many guests show up and use the booth — a busy open bar can print far more strips than a seated dinner. The calculator reports what share of your price the print line already represents, so you can see how much room is left before extra prints erase the margin you built the quote on.</p>
+<h3>How is the recommended overtime rate different from just charging my hourly rate for the extra time?</h3><p>It marks the extra hour up the same way the rest of the quote is marked up — attendant pay plus your overhead rate, divided by your target margin — so an event that runs long still earns the same margin instead of just covering the added labor at cost.</p>
+<h3>Does anything about my event details get uploaded?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a venue or vendor contract, predict actual attendance or print volume, or replace your own contract, insurance, or accountant.</p><p>MIT licensed. If it helped you price a booking, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculateQuote, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const FIELD_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let proposedCounted = false;
+
+function fieldInputs() { return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])); }
+
+function updateQuote(count = false) {
+  try {
+    const r = calculateQuote(fieldInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('price').hidden = false;
+    el('price').textContent = money(r.price);
+    el('perHourLine').textContent = `${money(r.pricePerBookedHour)}/booked hr — ${r.committedHoursPerAttendant.toFixed(2)} hrs actually committed per attendant`;
+    el('laborOut').textContent = money(r.laborCost);
+    el('mileageOut').textContent = money(r.mileageCost);
+    el('premiumOut').textContent = money(r.peakPremium);
+    el('printOut').textContent = money(r.printCost);
+    el('propsOut').textContent = money(r.propsBackdropCost);
+    el('equipmentOut').textContent = money(r.equipmentCostPerEvent);
+    el('overheadOut').textContent = money(r.overhead);
+    el('totalCostOut').textContent = money(r.totalCost);
+    el('profitOut').textContent = money(r.profit);
+    el('overtimeOut').textContent = money(r.recommendedOvertimeRate);
+    if (r.printBudgetTight) {
+      el('printWarning').hidden = false;
+      el('printWarning').textContent = `Print cost is already ${r.printCostSharePct.toFixed(0)}% of this quote's price. This event's margin can absorb actual prints up to about ${r.maxPrintsAtBreakeven} before profit hits zero — worth a per-print cap or a higher print allowance if this is an open bar or a long reception.`;
+    } else {
+      el('printWarning').hidden = true;
+    }
+    if (count && !counted) { recordEvent('quote-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('price').hidden = true;
+    el('printWarning').hidden = true;
+    for (const id of ['perHourLine', 'laborOut', 'mileageOut', 'premiumOut', 'printOut', 'propsOut', 'equipmentOut', 'overheadOut', 'totalCostOut', 'profitOut', 'overtimeOut']) el(id).textContent = '';
+  }
+}
+
+function updateProposed(count = false) {
+  const raw = el('proposedPrice').value;
+  if (raw === '') {
+    el('proposedResult').hidden = true;
+    el('proposedErrors').hidden = true; el('proposedErrors').textContent = '';
+    return;
+  }
+  try {
+    const r = calculateQuote({ ...fieldInputs(), proposedPrice: raw });
+    el('proposedErrors').hidden = true; el('proposedErrors').textContent = '';
+    el('proposedResult').hidden = false;
+    el('proposedProfitOut').textContent = money(r.proposed.profit);
+    el('proposedMarginOut').textContent = `${r.proposed.margin.toFixed(1)}%`;
+    el('proposedBelowOut').textContent = r.proposed.belowBreakEven ? 'Yes — below your breakeven cost' : 'No';
+    if (count && !proposedCounted) { recordEvent('proposed-price-checked'); proposedCounted = true; }
+  } catch (e) {
+    el('proposedErrors').textContent = e.message; el('proposedErrors').hidden = false;
+    el('proposedResult').hidden = true;
+  }
+}
+
+FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updateQuote(true); updateProposed(false); }));
+el('proposedPrice').addEventListener('input', () => updateProposed(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateQuote(false);
+updateProposed(false);
+</script>
+</body></html>

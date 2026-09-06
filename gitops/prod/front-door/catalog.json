@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 181,
-  "collection_total": 181,
+  "served_here": 183,
+  "collection_total": 183,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -47,6 +47,12 @@
       "tool_count": 12
     },
     {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
@@ -57,12 +63,6 @@
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
       "tool_count": 6
-    },
-    {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
     }
   ],
   "tools": [
@@ -667,6 +667,14 @@
       "pages": 3
     },
     {
+      "slug": "custom-farm-rate-calculator",
+      "name": "Custom Farm Rate Calculator — Price Custom Field Work Per Acre",
+      "url": "https://marisstella.dev/tools/custom-farm-rate-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.",
+      "pages": 1
+    },
+    {
       "slug": "cut-list-optimizer",
       "name": "Cut List Optimizer — Compare Sheet Sizes and Board Lengths",
       "url": "https://marisstella.dev/tools/cut-list-optimizer/",
@@ -1121,6 +1129,14 @@
       "category": "Trade & contractor bids",
       "description": "Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.",
       "pages": 3
+    },
+    {
+      "slug": "photo-booth-event-quote",
+      "name": "Photo Booth Event Quote Calculator — Price a Booking",
+      "url": "https://marisstella.dev/tools/photo-booth-event-quote/",
+      "category": "More free tools",
+      "description": "Free calculator for independent mobile photo booth operators: find the real price for one event booking after setup/teardown time, travel, attendant labor, unlimited-print risk, and equipment cost, then check a price you're already considering against the breakeven.",
+      "pages": 1
     },
     {
       "slug": "plantation-shutter-bid-calculator",
