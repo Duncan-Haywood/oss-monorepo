@@ -49,7 +49,12 @@ Entries are saved in your own browser so the page remembers them next time.
 
 After calculating, use **Copy decision summary** to copy a compact owner-review
 note with the winning path, monthly contribution, and each path's price needed
-to match dine-in.
+to match dine-in. Use **Copy shareable link** instead to hand the whole
+comparison — the ticket and every path's rates, not just the conclusion — to
+a partner or accountant so they can open it, change an assumption, and see
+the result for themselves. The link carries the numbers after `#` in the
+address, which a browser never sends to a server, so pasting it into a text
+or an email is the only way it travels.
 
 A worked example of the default ticket is on
 [doordash-fees-for-restaurants.html](doordash-fees-for-restaurants.html).
@@ -88,7 +93,9 @@ hostile-storage behaviour.
 Everything runs in the visitor's browser. Prices, costs and rates are never
 uploaded — there is no server to upload them to. No accounts, cookies,
 tracking pixels, or analytics vendors. Saved entries stay in `localStorage`
-on that device.
+on that device. A shareable link encodes the same entries into the URL
+fragment (`#...`, never the query string) and is never sent anywhere; it
+is built and copied entirely in the visitor's own browser.
 
 The optional usage counter records only an event name
 (`comparison_calculated`, `channel_rates_edited`, `channel_toggled`,

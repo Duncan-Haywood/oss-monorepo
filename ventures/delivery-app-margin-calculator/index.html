@@ -148,7 +148,10 @@
       </p>
       <div class="actions">
         <button id="reset" type="button">Reset everything</button>
+        <button id="copyLink" type="button">Copy shareable link</button>
+        <span id="linkStatus" class="note" role="status" aria-live="polite"></span>
       </div>
+      <p class="note" id="restoreNote" hidden></p>
     </section>
 
     <section class="verdict" aria-labelledby="verdict-heading">
@@ -248,7 +251,7 @@
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. The optional local counter records only an event name and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Everything runs in your browser. Your prices, costs and rates are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. Your entries are saved in this browser only, so the page remembers them next time; clearing site data removes them. A shareable link encodes only the ticket and channel rates you choose into the address bar — it is never sent anywhere and is not the same as the usage counter. The optional local counter records only an event name and the day, never your inputs — turn it off above, or with Do Not Track / Global Privacy Control.</p>
     <p>Free and open source. If it stopped you selling delivery at a loss, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
     <p>Related: <a href="doordash-fees-for-restaurants.html">DoorDash fees for restaurants</a> · <a href="doordash-vs-ubereats-fees.html">DoorDash vs Uber Eats fees</a> · <a href="../no-show-fee-calculator/">No-show fee calculator</a> · <a href="../quote-margin-check/">Quote margin check</a>.</p>
     <p class="note">Already run restaurant point-of-sale software? See <a href="vs-toast.html">this calculator vs. Toast</a>.</p>
@@ -257,6 +260,7 @@
   <script type="module">
     import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
     import { readOptOut, recordUsage, writeOptOut } from "./usage.mjs";
+    import { buildSpec, encodeShare, saveShare, clearShare, restoreShare } from "./share.mjs";
 
     const SHARED_FIELDS = ["ticketPrice", "foodCost", "hourlyWage", "monthlyOrders"];
     const CHANNEL_FIELDS = [
@@ -268,7 +272,16 @@
       { key: "extraLaborMinutes", label: "Extra labor (minutes)", step: "0.1" },
       { key: "deliveryCost", label: "Driver / delivery cost", step: "0.01" },
     ];
-    const SAVE_KEY = "delivery-app-margin-inputs";
+    // What a shareable link and this browser's own save carry between visits
+    // or to a partner — see share.mjs for how. Sourced from the same
+    // SHARED_FIELDS, CHANNEL_FIELDS and CHANNEL_PRESETS the form itself reads
+    // and renders, so a field added to either is shareable the moment it
+    // exists rather than needing a second, hand-kept list here.
+    const SHARE_SPEC = buildSpec(
+      SHARED_FIELDS,
+      CHANNEL_FIELDS.map((field) => field.key),
+      CHANNEL_PRESETS.map((channel) => channel.id),
+    );
     const money = (value) =>
       Number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
     const signedMoney = (value) => `${value > 0 ? "−" : ""}${money(Math.abs(value))}`;
@@ -299,32 +312,49 @@
       return document.getElementById("usageOptOut").checked;
     }
 
-    function save() {
+    // The comparison in the shape a shareable link and this browser's own
+    // save actually carry: each channel's rate fields plus its `enabled`
+    // toggle as a '1'/'0' choice rather than a boolean, because a row cell in
+    // share.mjs's spec is a number or a choice — there is no boolean cell
+    // kind, the same convention `tree-service-bid-calculator` uses for its
+    // per-tree checkboxes.
+    function readSavable() {
+      return {
+        ...readShared(),
+        channels: channels.map((channel) => ({
+          id: channel.id,
+          enabled: channel.enabled === false ? "0" : "1",
+          ...Object.fromEntries(CHANNEL_FIELDS.map((field) => [field.key, channel[field.key]])),
+        })),
+      };
+    }
+
+    function persist() {
       try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify({ shared: readShared(), channels }));
+        saveShare(localStorage, SHARE_SPEC, readSavable());
       } catch {
         // Saving is a convenience; a blocked or full storage must not stop the
         // calculator from working.
       }
     }
 
-    function restore() {
-      let saved;
-      try {
-        saved = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
-      } catch {
-        saved = null;
+    // Puts a restored or shared comparison back on screen. Channels are
+    // matched back to `CHANNEL_PRESETS` by id, so a link built by an older or
+    // newer build — or one missing a channel entirely — can only ever fill in
+    // fields this build knows about; anything else keeps that channel's
+    // shipped default, exactly as the page's own reset does.
+    function applyValues(values) {
+      if (!values || typeof values !== "object") return;
+      for (const id of SHARED_FIELDS) {
+        if (values[id] !== undefined) document.getElementById(id).value = values[id];
       }
-      if (!saved || typeof saved !== "object") return;
-      if (saved.shared) {
-        for (const id of SHARED_FIELDS) {
-          if (saved.shared[id] !== undefined) document.getElementById(id).value = saved.shared[id];
-        }
-      }
-      if (Array.isArray(saved.channels)) {
+      if (Array.isArray(values.channels)) {
         channels = freshChannels().map((channel) => {
-          const stored = saved.channels.find((candidate) => candidate?.id === channel.id);
-          return stored ? { ...channel, ...stored, label: channel.label, note: channel.note } : channel;
+          const stored = values.channels.find((candidate) => candidate?.id === channel.id);
+          if (!stored) return channel;
+          const merged = { ...channel, ...stored, label: channel.label, note: channel.note };
+          if (stored.enabled !== undefined) merged.enabled = stored.enabled !== "0";
+          return merged;
         });
       }
     }
@@ -355,7 +385,7 @@
         });
         input.addEventListener("change", () => {
           recordUsage(localStorage, optedOut(), "channel_rates_edited");
-          save();
+          persist();
         });
       }
       for (const toggle of document.querySelectorAll("#channelPanels input[data-enable]")) {
@@ -371,7 +401,7 @@
           }
           update();
           recordUsage(localStorage, optedOut(), "channel_toggled");
-          save();
+          persist();
         });
       }
     }
@@ -437,7 +467,7 @@
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
         recordUsage(localStorage, optedOut(), "comparison_calculated");
-        save();
+        persist();
       });
     }
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
@@ -468,21 +498,67 @@
       }
     });
 
+    document.getElementById("copyLink").addEventListener("click", async () => {
+      const url = `${location.origin}${location.pathname}#${encodeShare(SHARE_SPEC, readSavable())}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement("textarea");
+        fallback.value = url;
+        fallback.setAttribute("readonly", "");
+        fallback.style.position = "fixed";
+        fallback.style.opacity = "0";
+        document.body.append(fallback);
+        fallback.select();
+        try {
+          document.execCommand("copy");
+        } catch {
+          document.getElementById("linkStatus").textContent = " Copy failed; copy the address bar instead.";
+          fallback.remove();
+          return;
+        }
+        fallback.remove();
+      }
+      document.getElementById("linkStatus").textContent =
+        " Link copied — it reopens this ticket and every path's rates, not just the summary.";
+      recordUsage(localStorage, optedOut(), "link_copied");
+    });
+
     document.getElementById("reset").addEventListener("click", () => {
       try {
-        localStorage.removeItem(SAVE_KEY);
+        clearShare(localStorage, SHARE_SPEC);
       } catch {
         // Nothing to clear.
       }
       channels = freshChannels();
       const defaults = { ticketPrice: 32, foodCost: 9.6, hourlyWage: 18, monthlyOrders: 400 };
       for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
+      document.getElementById("restoreNote").hidden = true;
       renderPanels();
       update();
     });
 
     document.getElementById("usageOptOut").checked = readOptOut(localStorage);
-    restore();
+
+    const restored = restoreShare(SHARE_SPEC, {
+      hash: location.hash,
+      storage: (() => {
+        try {
+          return localStorage;
+        } catch {
+          return null;
+        }
+      })(),
+    });
+    applyValues(restored.values);
+    if (restored.source !== "none") {
+      const note = document.getElementById("restoreNote");
+      note.hidden = false;
+      note.textContent = restored.source === "link"
+        ? "Opened from a shared link — these are the sender’s numbers, not yours."
+        : "Picked up your last comparison from this browser. “Reset everything” clears it.";
+    }
+
     renderPanels();
     update();
   </script>
