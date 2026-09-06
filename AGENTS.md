@@ -69,6 +69,16 @@ and the liability/ethics gates, not the queue. See `portfolio/DIRECTION.md`
 "Owner direction, 2026-09-06" for the full read, including why legal
 exposure (not speed) is still the one hard stop.
 
+**Raise the bar on graduating the next one, not just the count** (added
+2026-09-06, North star point 2) — 195 ventures now exist with zero confirmed
+visitors anywhere in `usage/usage.yaml`. Before graduating a fresh niche,
+name where its first real visitor comes from (a specific forum, subreddit,
+or search phrase with real volume), the same evidence `PRODUCT_PLAYBOOK.md`
+§1 already asks for. And do not read the fleet-wide `usage.yaml` zero as
+"nobody wants these" — GitHub Pages, the route actually serving, self-reports
+nothing, so right now that field is unmeasured, not measured-and-zero; see
+`portfolio/DIRECTION.md` North star point 2 for the full correction.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
