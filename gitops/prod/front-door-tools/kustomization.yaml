@@ -37,7 +37,7 @@
 #   portfolio-front-tools-1: 113 files, 556835 bytes
 #   portfolio-front-tools-2: 146 files, 546766 bytes
 #   portfolio-front-tools-3: 121 files, 555329 bytes
-#   portfolio-front-tools-4: 115 files, 540250 bytes
+#   portfolio-front-tools-4: 116 files, 544721 bytes
 #   portfolio-front-tools-5: 127 files, 556008 bytes
 #   portfolio-front-tools-6: 107 files, 549570 bytes
 #   portfolio-front-tools-7: 118 files, 554157 bytes
@@ -690,6 +690,7 @@ configMapGenerator:
       - delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz=delivery-app-margin-calculator__doordash-fees-for-restaurants.html.gz
       - delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz=delivery-app-margin-calculator__doordash-vs-ubereats-fees.html.gz
       - delivery-app-margin-calculator__index.html.gz=delivery-app-margin-calculator__index.html.gz
+      - delivery-app-margin-calculator__share.mjs.gz=delivery-app-margin-calculator__share.mjs.gz
       - delivery-app-margin-calculator__usage.mjs.gz=delivery-app-margin-calculator__usage.mjs.gz
       - delivery-app-margin-calculator__vs-toast.html.gz=delivery-app-margin-calculator__vs-toast.html.gz
       - dns-configuration-evidence__dns-evidence.mjs.gz=dns-configuration-evidence__dns-evidence.mjs.gz

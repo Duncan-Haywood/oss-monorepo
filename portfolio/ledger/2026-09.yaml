@@ -15134,3 +15134,93 @@ entries:
         check.mjs dist: 175 products, 7 category pages, 721 pages, no dead
         links.
     mrr_end: null
+  - venture: delivery-app-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable comparison link, continuing this month's
+        shareable-link backlog on a venture assigned from a shortlist a
+        concurrent session was also drawing from (a different venture,
+        chosen to avoid collision). Confirmed no branch existed yet for any
+        shortlist venture, then ruled out four of the ten as already
+        covered before picking: booth-rent-vs-commission, which-job-first
+        and tiktok-shop-fee-calculator each already carry an inline
+        share-link mechanism under a different name (writeShareQuery/
+        loadShareQuery, an encode-for-share-link pair, and a
+        copyScenario/scenarioLink respectively); equipment-rental-break-
+        even and quote-margin-check already ship their own share.mjs or
+        equivalent decodeQuote/copy-share-link wiring. shop-rate-calculator
+        was also ruled out, but for a different reason worth recording
+        separately: its own page.test.mjs asserts outright that the tool
+        "does not read or write a saved bid or a shared link", because
+        burden and overhead are a shop's payroll figures and "more than
+        anybody should put in a URL" -- the same reasoning an earlier
+        session this month recorded for shop-rate-calculator against
+        invoice-payment-terms-calculator. delivery-app-margin-calculator
+        was the real gap: a bounded, fixed-shape comparison (one ticket
+        across up to seven named delivery channels) that already had a
+        local `localStorage` save/restore and a text-only "Copy decision
+        summary" button, but no way to hand the live, editable comparison
+        itself to a partner or accountant.
+      - >-
+        share.mjs follows the fleet's established convention (URLSearchParams
+        in the URL fragment, never sent to a server or logged in a Referer
+        header; localStorage save/load/clear/restore mirroring
+        tree-service-bid-calculator's; a link winning over a browser's own
+        saved comparison on load). Its field spec is built at runtime from
+        index.html's own SHARED_FIELDS and CHANNEL_FIELDS arrays plus
+        CHANNEL_PRESETS' own channel ids (via a new `buildSpec` export), not
+        restated as a second literal list, so a field added to the form is
+        shareable the moment it exists. Each channel rides as a `rows` entry
+        keyed by its preset id -- a `choice` cell restricted to the ids
+        CHANNEL_PRESETS actually ships -- so a crafted link cannot address a
+        channel with no rate table behind it, and a channel a link omits
+        keeps its shipped default exactly as "Reset everything" already did.
+        Replaced the venture's ad hoc `SAVE_KEY` localStorage blob with
+        share.mjs's own save/load, so the comparison is persisted through
+        the same validated path a link uses rather than two divergent ones.
+        Added a "Copy shareable link" button beside "Reset everything" and a
+        restoreNote status line naming whether the page opened from a link,
+        a save, or neither -- the same convention
+        tree-service-bid-calculator uses.
+      - >-
+        A field-coverage test in html.test.mjs checks the share spec against
+        calc.mjs's own readers by regex (every `channel.<key>` and
+        `shared.<key>` calculateChannel/compareChannels actually dereference)
+        rather than re-deriving the same field lists a second time, which
+        would be tautological. Confirmed the check is not vacuous by
+        rebuilding the spec with a field dropped by hand and watching the
+        assertion fail before restoring it.
+      - >-
+        Hit a live concurrency hazard mid-session: another process sharing
+        this same git checkout performed branch switches and a fast-forward
+        merge (visible in `git reflog`) that silently wiped this venture's
+        uncommitted share.mjs/share.test.mjs (deleted) and reverted
+        index.html/README.md/html.test.mjs to origin/main, while leaving a
+        different concurrent agent's own in-progress, uncommitted edits to
+        contractor-bid-readiness intact in the same working tree. Recovered
+        by moving to an isolated `git worktree` on a fresh branch off
+        origin/main rather than continuing to share the primary checkout,
+        recreating the same diff there, and committing immediately rather
+        than leaving further uncommitted work exposed to the same failure
+        mode. No content lost since the work was recreated from this
+        session's own record of what it had just written, but the next
+        session sharing this checkout should commit to a branch early
+        rather than leaving edits uncommitted on `main`.
+      - >-
+        Verified locally (Actions starved this run: run 34016966948's
+        `build` job classifies via ci_starvation.py as runner_id 0, 3s, no
+        steps): venture suite 57/57 (13 new share.test.mjs assertions --
+        round-trip, unknown-channel-id rejection, partial-row fallback,
+        negative/non-numeric rejection, storage round-trip and
+        blocked-storage handling, link-wins-over-storage, and a
+        row-truncation ceiling -- plus 3 new html.test.mjs assertions for
+        the button/wiring and the calc.mjs field-coverage check).
+        platform/marketing + platform/pages 1135/1135 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 50/50. gitops/tests: 461
+        passed, 25 skipped. All 17 platform/ci unittest modules pass
+        individually (603 tests).
+    mrr_end: null
