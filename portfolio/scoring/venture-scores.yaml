@@ -6367,6 +6367,47 @@ ventures:
       claim about what a route will earn. The tool never touches a live
       transaction, card data, or cash-handling compliance. Nothing entered
       leaves the browser.
+  - slug: custom-farm-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product. The value is a domain model — field capacity from
+      speed, width and field efficiency, fuel and repairs scaled by hours for
+      the job, and the machine's own annual ownership cost spread over hours
+      actually used — and it is arithmetic an operator has to be able to
+      re-derive when deciding what to charge a customer.
+    basis: >-
+      Graduated and scored 2026-09-06, in the same change, per
+      `score_ventures.py --check`. Same shape as this portfolio's other
+      route/rate calculators (`shop-rate-calculator`, `atm-route-margin`,
+      `vending-machine-route-margin`), scored the same way, applied to a
+      genuinely different buyer: a custom farm operator pricing field work
+      from a machine's field capacity and ownership economics rather than a
+      route of fixed placements. Defensibility 5: the field-capacity/
+      ownership-cost arithmetic is specific to this buyer and not modeled by
+      a generic markup calculator or a published custom rate survey, which
+      reports someone else's cost structure rather than this operator's own.
+      Distribution 6: "custom farming rate calculator" and "custom combine
+      rate calculator" are narrow, low-volume search terms with no incumbent
+      free interactive tool built around this exact arithmetic, but volume is
+      unmeasured.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own figures, never an
+      agronomic recommendation, a market-rate determination, or a
+      custom-farming agreement interpretation. The tool never touches a live
+      transaction or anyone else's data. Nothing entered leaves the browser.
 
   - slug: photo-booth-event-quote
     scores:

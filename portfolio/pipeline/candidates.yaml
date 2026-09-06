@@ -993,3 +993,26 @@ candidates:
     mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
     first_experiment_days: 14
     first_experiment_budget_usd: 0
+  - slug: custom-farm-rate-calculator
+    name: Custom farm rate calculator
+    doc: candidates/custom-farm-rate-calculator.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-09-06
+    initiated_path: ventures/custom-farm-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 6.875
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label every input as a user-supplied planning assumption; measure repeat use before adding any integration or AI-assisted feature.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0

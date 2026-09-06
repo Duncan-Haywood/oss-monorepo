@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 182,
-  "collection_total": 182,
+  "served_here": 183,
+  "collection_total": 183,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -47,6 +47,12 @@
       "tool_count": 12
     },
     {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
@@ -56,12 +62,6 @@
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
       "tool_count": 6
     }
   ],
@@ -665,6 +665,14 @@
       "category": "Trade & contractor bids",
       "description": "Price a residential crown-molding install from linear feet, corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — plus the walk-away price an $8/ft special cannot see.",
       "pages": 3
+    },
+    {
+      "slug": "custom-farm-rate-calculator",
+      "name": "Custom Farm Rate Calculator — Price Custom Field Work Per Acre",
+      "url": "https://marisstella.dev/tools/custom-farm-rate-calculator/",
+      "category": "More free tools",
+      "description": "Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.",
+      "pages": 1
     },
     {
       "slug": "cut-list-optimizer",
