@@ -17,7 +17,12 @@
     h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: -.04em; line-height: 1.1; }
     table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .92rem; }
     th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #d9edbb; vertical-align: top; }
-    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #5a8a20; }
+    /* #4a6b1f, not the #5a8a20 this shipped with: at .8rem bold on #f3fbe7 the
+       lighter green measured 3.88:1, below the 4.5:1 WCAG AA needs for text
+       this size. #4a6b1f measures 5.79:1 and is the same green the calculator
+       page already uses for its own `th`, so this is the venture's existing
+       convention rather than a new colour. */
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: #4a6b1f; }
     .cta { display: inline-block; margin: 8px 0 20px; padding: 10px 14px; border-radius: 8px; background: #2f6b1f; color: #f3fbe7; text-decoration: none; font-weight: 650; }
     .note { font-size: .85rem; color: #56634f; }
     footer { margin-top: 2rem; font-size: .85rem; color: #56634f; }
