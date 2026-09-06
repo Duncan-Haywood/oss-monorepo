@@ -43,6 +43,9 @@ case "$1" in
       case "$arg" in --out=*) out="${arg#--out=}" ;; esac
     done
     [ -n "$out" ] || { echo "stub: no --out" >&2; exit 1; }
+    if [ -n "${STUB_ENV_OUT:-}" ]; then
+      printf '%s' "${PAGES_BASE_URL:-}" > "$STUB_ENV_OUT"
+    fi
     mkdir -p "$out/tools/example"
     echo '<!doctype html><title>home</title>' > "$out/index.html"
     echo '<!doctype html><title>tool</title>' > "$out/tools/example/index.html"
@@ -174,3 +177,92 @@ def test_names_the_owner_switch_rather_than_flipping_it(sandbox: Path):
     # written branch as a live site.
     assert "Deploy from a branch" in result.stdout
     assert "not pushed" in result.stdout
+
+
+# --- The custom domain ------------------------------------------------------
+#
+# GitHub stores Settings -> Pages -> Custom domain as a `CNAME` file *on the
+# serving branch* and reads it back from there on every deploy. Every run of
+# this script force-pushes an orphan tree, so a run that does not carry that
+# file forward unsets the domain -- silently, with a green workflow and a
+# "pushed" line. These pin the three cases that keeps apart.
+
+
+def _cname_on_branch(repo: Path) -> str | None:
+    listing = _git(repo, "ls-tree", "gh-pages", "--name-only").split("\n")
+    if "CNAME" not in listing:
+        return None
+    return _git(repo, "show", "gh-pages:CNAME").strip()
+
+
+def test_publishes_no_cname_when_there_is_no_custom_domain(sandbox: Path):
+    run(sandbox)
+    # A project-Pages site must not carry one: an empty or stray CNAME fails
+    # the site over to a domain that does not resolve.
+    assert _cname_on_branch(sandbox) is None
+
+
+def test_writes_the_custom_domain_when_asked(sandbox: Path):
+    run(sandbox, PAGES_CNAME="marisstella.dev")
+    assert _cname_on_branch(sandbox) == "marisstella.dev"
+
+
+def test_carries_an_existing_custom_domain_forward(sandbox: Path):
+    """The regression this file exists for.
+
+    A second run is the *automated* case -- `publish-pages-branch.yml` on every
+    merge to `main` -- so this dropping the file would unset the owner's domain
+    minutes after they set it, repeatedly, with nothing turning red.
+    """
+    run(sandbox, PAGES_CNAME="marisstella.dev")
+    run(sandbox)  # no PAGES_CNAME: the branch is the source of truth
+    assert _cname_on_branch(sandbox) == "marisstella.dev"
+
+
+def test_an_empty_pages_cname_removes_the_domain(sandbox: Path):
+    # Removing has to be something you type. `unset` means carry forward, so
+    # the empty string is the only way out -- which is what stops a removal
+    # from ever being an omission.
+    run(sandbox, PAGES_CNAME="marisstella.dev")
+    run(sandbox, PAGES_CNAME="")
+    assert _cname_on_branch(sandbox) is None
+
+
+def test_the_custom_domain_sets_the_base_url(sandbox: Path):
+    """Canonicals, `sitemap.xml` and the feed are absolute.
+
+    Built against the project Pages URL and served from the custom domain,
+    every page tells a crawler the real address is a different origin -- the
+    site de-indexes itself in favour of a URL that may serve nothing.
+    """
+    log = sandbox.parent / "base-url.txt"
+    run(sandbox, PAGES_CNAME="marisstella.dev", STUB_ENV_OUT=str(log))
+    assert log.read_text() == "https://marisstella.dev/"
+
+
+def test_an_explicit_base_url_still_wins(sandbox: Path):
+    log = sandbox.parent / "base-url.txt"
+    run(
+        sandbox,
+        PAGES_CNAME="marisstella.dev",
+        PAGES_BASE_URL="https://staging.example.com/",
+        STUB_ENV_OUT=str(log),
+    )
+    assert log.read_text() == "https://staging.example.com/"
+
+
+def test_no_custom_domain_leaves_the_base_url_to_build_mjs(sandbox: Path):
+    log = sandbox.parent / "base-url.txt"
+    run(sandbox, STUB_ENV_OUT=str(log))
+    # Empty, not the github.io URL: the default belongs to `build.mjs`'s
+    # DEFAULT_BASE_URL, and restating it here would be a second copy to drift.
+    assert log.read_text() == ""
+
+
+def test_refuses_a_cname_that_is_not_a_bare_hostname(sandbox: Path):
+    # A CNAME GitHub cannot parse is worse than none -- it fails the domain
+    # over with no error, which is the failure mode this whole area has.
+    for bad in ("https://marisstella.dev/", "marisstella.dev/tools", "localhost"):
+        result = run(sandbox, PAGES_CNAME=bad, expect=1)
+        assert "custom domain" in result.stderr, bad
+        assert _git(sandbox, "branch", "--list", "gh-pages") == "", bad
