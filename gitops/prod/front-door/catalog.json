@@ -9,7 +9,7 @@
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
   "served_here": 188,
-  "collection_total": 187,
+  "collection_total": 188,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -832,7 +832,7 @@
       "url": "https://marisstella.dev/tools/fire-extinguisher-inspection-route-margin/",
       "category": "Service business pricing & quotes",
       "description": "Free calculator for independent fire-extinguisher and life-safety inspection route operators: find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then see whether your whole route hits your income goal.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "fireplace-insert-bid-calculator",
