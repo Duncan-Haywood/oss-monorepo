@@ -42,6 +42,37 @@ prompt: |
   manifest merged to `main` is the deploy. You have no cluster access and
   must not attempt any.
 
+  **Read that last paragraph as conditional, not as today's state.** As of
+  2026-09-06 the cluster is down (`:6443` refused on both boxes), so a
+  manifest merged to `main` syncs nothing and "the deploy" deploys
+  nothing. A run that treats it as current spends itself on an inert path.
+  Re-measure before believing either way --
+  `portfolio/ledger/infra_state.yaml` carries the dated readings and the
+  command behind each, and a reading past its staleness window is
+  *unknown*, never "up".
+
+  What is *not* downstream of the cluster is host mode: the same work
+  installed onto a box's own systemd, which is where this repository's
+  execution capacity actually lives right now. There are three, and they
+  are siblings by design -- read the one nearest your change before
+  starting, because between them they already cover most of what "fix the
+  delivery path" used to mean here:
+
+  - `gitops/agents/host/` -- the Codex worker (this fleet's own scheduler)
+  - `gitops/ci/host/`     -- a self-hosted GitHub Actions runner
+  - `gitops/prod/host/`   -- **serving the catalogue itself**: nginx plus a
+    ten-minute pull-and-rebuild timer, fail-closed on `check.mjs`, so a
+    merge to `main` is the deploy again with neither a runner nor the
+    cluster in the path
+
+  Do not rebuild any of those. If you extend one, extend it where it is;
+  if you find a defect in one, that is an excellent pick for this item.
+  All three are blocked on the same single owner action and no other --
+  `HETZNERSSHKEY` holds a public key, so nothing installs until it is
+  rotated. Do not add a second ask for it, and do not treat it as a reason
+  to skip work: the code half being complete is what makes that one
+  rotation buy a served catalogue instead of only a diagnosis.
+
   Pick ONE concrete, finishable defect or gap in the delivery path and fix
   it. Candidates, best first:
 
