@@ -56,6 +56,39 @@ on:
           HETZNERSSHKEY holds a private key. Type restore-cluster to confirm.
         type: string
         default: ""
+      with_codex_host:
+        description: >-
+          Also install the Codex worker's systemd-timer scheduler on the
+          agent box (gitops/agents/host/). Cannot fail the restore and
+          enables nothing -- the governor policy stays disabled until you
+          separately flip it. Only used when restore is set.
+        type: boolean
+        default: false
+      with_github_runner_host:
+        description: >-
+          Also install a self-hosted GitHub Actions runner as a systemd
+          service on the agent box (gitops/ci/host/), independent of k3s.
+          Cannot fail the restore and registers with GitHub only once you
+          separately credential it. Only used when restore is set.
+        type: boolean
+        default: false
+      with_portfolio_site_host:
+        description: >-
+          Also serve the portfolio site from the control-plane box's own
+          nginx (gitops/prod/host/), independent of k3s, Argo and Pages.
+          Reuses ARGOCDREPOTOKEN as the read-only clone credential. This IS
+          the decision to publish under the portfolio's public name on a
+          domain whose DNS already points here -- only check this box when
+          you mean to. Only used when restore is set.
+        type: boolean
+        default: false
+      site_tls_email:
+        description: >-
+          Only used with with_portfolio_site_host. Where Let's Encrypt sends
+          expiry warnings. Leave blank to serve over HTTP for now and add a
+          certificate later.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -293,6 +326,16 @@ jobs:
   # Deliberately not reachable from push, schedule, or any agent Job: it is a
   # workflow_dispatch that additionally requires the operator to type the
   # confirmation string, so a mis-click on the Run workflow button does nothing.
+  #
+  # The three WITH_* flags below (added to the script in #3252, #3364 and
+  # #3438) forward the workflow_dispatch inputs of the same name. This job
+  # predates all three and, until now, had no way to pass any of them --
+  # `portfolio/ledger/asks.yaml` tells the owner "the GitHub route ...
+  # reaches the same script", which was true of the binary but not of what it
+  # would do: dispatching this workflow could only ever run steps 1-8, never
+  # steps 9-11, with no input here even naming the option. Defaulting all
+  # three to false keeps today's behaviour unchanged; ticking one is the same
+  # explicit opt-in the laptop route already requires via its env vars.
   restore:
     if: github.event_name == 'workflow_dispatch' && inputs.restore == 'restore-cluster'
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
@@ -318,6 +361,14 @@ jobs:
           # Contents: Read on this repository is enough; it is the same
           # permission the site's clone token needs, so one token can do both.
           ARGOCD_REPO_TOKEN: ${{ secrets.ARGOCDREPOTOKEN }}
+          WITH_CODEX_HOST: ${{ inputs.with_codex_host && '1' || '' }}
+          WITH_GITHUB_RUNNER_HOST: ${{ inputs.with_github_runner_host && '1' || '' }}
+          WITH_PORTFOLIO_SITE_HOST: ${{ inputs.with_portfolio_site_host && '1' || '' }}
+          # Same PAT as ARGOCD_REPO_TOKEN above (asks.yaml: "one PAT covers
+          # both") — empty unless the box is actually being asked to serve,
+          # so an unchecked box needs no clone credential to sit unused.
+          SITE_GH_TOKEN: ${{ inputs.with_portfolio_site_host && secrets.ARGOCDREPOTOKEN || '' }}
+          SITE_TLS_EMAIL: ${{ inputs.site_tls_email }}
         run: |
           set -euo pipefail
           bootstrap/scripts/load-ssh-key.sh "${HOME}/.ssh/id_hetzner"
