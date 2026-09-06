@@ -17169,6 +17169,66 @@ entries:
         products, 752 pages, no dead links), and a final `pages_state.py
         --require-current` confirmed `current`.
     mrr_end: null
+  - venture: fire-extinguisher-inspection-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per `portfolio/DIRECTION.md`'s "new ventures
+        rank first" direction: the open-PR queue was empty (confirmed via
+        `list_pull_requests` and `search_pull_requests`) and a fresh
+        branch-backlog spot check (~55 of ~264 remote branches, using
+        `portfolio/ledger/supersede_check.py`) found every checked branch
+        already superseded or a stale draft main has since overtaken --
+        consistent with the prior session's exhaustive 232-branch check
+        recorded in `infra_state.yaml` on 2026-09-05. Ran the fleet-wide
+        guardrails (`clauses.mjs`, `check_no_payment_code.py`) plus two
+        independent samples of 18 already-live ventures (`node --test` +
+        the full `browser_checks.py` suite: sideways/presets/roundtrip/
+        highlight/contrast/sweep/journey) with zero defects found, before
+        screening a fresh niche (fire-extinguisher and life-safety
+        inspection route operators) against `screened-out.md` (not listed).
+      - >-
+        `ventures/fire-extinguisher-inspection-route-margin`: prices one
+        certified-maintenance site visit from three distinct service types
+        (recharge, hydrostatic test, replacement), each with its own
+        incidence rate, fee, and materials cost, plus a tag fee/cost on
+        every unit and an annual (not monthly) visit cadence matching NFPA
+        10's certified-maintenance requirement -- the one input this
+        calculator's route-pricing siblings (`atm-route-margin`,
+        `vending-machine-route-margin`, `pool-route-pricing`,
+        `dog-walking-route-pricing`) do not need. Same two-layer shape (one
+        site, then a route rollup against an income goal) as those
+        siblings. Includes the standard disclaimer (explicit that the tool
+        does not perform, certify, or record NFPA 10 compliance status),
+        privacy line, GitHub Sponsors link, and usage tracking
+        (`site-priced`, `route-check`).
+      - >-
+        Ran `node --test ventures/fire-extinguisher-inspection-route-margin/*.test.mjs`
+        (34/34), the marketing+pages suite (1140/1140, run four times across
+        intermediate edits -- `regen.mjs` had to be re-run after a
+        `build.mjs` category fix and `launched.mjs --write`),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped, after
+        bumping the mirrored-tool count 185->186 in the same four places
+        as the `vehicle-wrap-bid-calculator` ship: `infra/OWNER_CHECKLIST.md`
+        twice, `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` twice, plus `gitops/tests/test_manifests.py`'s own
+        hand-typed `total` constant), the ledger/scoring/router/usage/
+        pipeline + infra pytest suites (380 passed, 8 subtests -- after
+        adding the venture's row to `portfolio/scoring/venture-scores.yaml`,
+        composite 6.333, and re-running `score_ventures.py --check`),
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `router/validate.py`, `clauses.mjs` (fleet-wide, 722 pages across
+        186 surfaces), and (having touched user-facing markup)
+        `npm install --no-save playwright@1.56.0 axe-core` +
+        `platform/ci/browser_checks.py --only fire-extinguisher-inspection-route-margin`
+        (6 of 7 checks pass; `highlight` skips because this venture prints
+        no highlight-promise sentence, which is allowed). Also fixed
+        `platform/pages/build.mjs`'s category rule so the new venture (and
+        not the catch-all) claims it -- the catch-all was at its 8-tool
+        ceiling and would have failed `build.test.mjs`'s "time for another
+        category" guard otherwise.
+    mrr_end: null
   - venture: locksmith-bid-calculator
     agent_spend_usd: null
     human_hours: 0

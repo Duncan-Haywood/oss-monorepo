@@ -1,0 +1,31 @@
+name: fire-extinguisher-inspection-route-margin
+description: Free browser calculator for independent fire-extinguisher and life-safety inspection route operators to find real monthly profit per customer site after recharge, hydro-test, and replacement materials, tags, drive time, and recordkeeping cost, then check a site list against a monthly income goal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent fire-extinguisher and life-safety inspection route operators will use a per-site profit calculator that nets out recharge, hydro-test, and replacement materials cost against their own fees, since judging a site by unit count alone hides which sites are actually unprofitable.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how to price a fire extinguisher inspection route or how much fire-extinguisher servicing companies charge are underserved by generic small-business profit calculators because the recharge/hydro-test/replacement materials arithmetic and the annual-visit cadence NFPA 10 sets are specific to this business.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Operators who price one site will also want to see whether their whole route clears a monthly income goal, not just whether one site clears a margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 5
+  protected: true
+kill_criteria:
+  - No repeat usage or organic traffic within 60 days of a public URL.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: null
+  analytics: null

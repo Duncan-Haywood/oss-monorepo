@@ -4679,3 +4679,20 @@ products:
           instrumented-but-unreachable product. Counts are local, opt-in, off
           by default, and honor DNT/GPC, so zero is the expected reading for a
           tool nobody has visited or switched the counter on for yet.
+  - slug: fire-extinguisher-inspection-route-margin
+    surface: github-pages
+    readings:
+      - as_of: 2026-09-06
+        signals:
+          live_url_visitors: null
+          site-priced: 0
+          route-check: 0
+          sponsor_link_clicked: 0
+        note: >-
+          Baseline at publication. Graduated and shipped today with a public
+          route in the front-door mirror
+          (`/tools/fire-extinguisher-inspection-route-margin/`) from its
+          first commit, so unlike most rows here it has never been an
+          instrumented-but-unreachable product. Counts are local, opt-in, off
+          by default, and honor DNT/GPC, so zero is the expected reading for a
+          tool nobody has visited or switched the counter on for yet.
