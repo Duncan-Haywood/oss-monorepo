@@ -16123,3 +16123,67 @@ entries:
         usage, organic search demand, and distribution all remain to be
         seen, same as every other calculator at graduation.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled direction-setting session (owner brief: push the fleet
+        toward viable, donation-revenue businesses, keep customers happy,
+        avoid legal exposure, and rank new ventures highly). Read
+        `portfolio/DIRECTION.md`, `AGENTS.md`, `PRODUCT_PLAYBOOK.md`,
+        `portfolio/pipeline/README.md`, `session_gate.py`, and
+        `decision_queue.py` first: the fleet is already following this
+        exact direction (new-ventures-first, donations-only, disclaimers,
+        `check_no_payment_code.py` enforcement, `session_gate.py` reporting
+        32% meta-work share, well under the 70% threshold), so another
+        restatement of the same policy would have been the ledger-only /
+        analysis-document anti-pattern this file already warns against.
+      - >-
+        Found a real, narrow inconsistency instead of adding more prose:
+        `portfolio/DIRECTION.md`'s Revenue section and `PRODUCT_PLAYBOOK.md`
+        §6 still said "zero of 185 ventures record whether their sponsor
+        link is ever clicked" and told sessions to hand-wire
+        `sponsor_link_clicked` into each venture's own `usage.mjs` footer.
+        That was overtaken the same day, one commit later
+        (`8e8f29685`, #3511, 17:37 UTC+3) than the paragraph making that ask
+        (`f47646026`, #3502) and before `DIRECTION.md`'s own next commit
+        (`9f53603c4`, #3512, 18:23 UTC+3, which touched an unrelated
+        section and did not notice): `platform/pages/build.mjs`'s
+        `markSponsorLinksIn` now tags every Sponsors anchor across all 186
+        ventures' published tool/hub/category/comparison pages, and the
+        shared `pf-site.js` chrome those pages already load counts a click
+        into `portfolio-hub-usage` under the literal event
+        `sponsor_link_clicked` -- confirmed by reading
+        `SPONSOR_CLICK_EVENT`/`markSponsorLinksIn` in `build.mjs` and the
+        counted-click code in the shared chrome, and cross-checked that only
+        one venture (`vending-machine-route-margin`) had actually hand-wired
+        the old per-venture ask, everywhere else "sponsor" and `recordUsage`
+        co-occurring in a grep was two unrelated strings in the same file,
+        not real instrumentation.
+      - >-
+        Corrected `portfolio/DIRECTION.md` (Revenue section and "the
+        fleet-parity trap" housekeeping item) and `PRODUCT_PLAYBOOK.md`
+        (§6 and the §7 definition-of-done checklist) to say what actually
+        ships: click tracking is automatic fleet-wide from the
+        published-site build, hand-wiring a second listener into a
+        venture's own footer is now the fleet-parity trap rather than
+        progress, and the one legitimate reason to still wire it
+        per-venture is a copy meant to be opened outside that build (a
+        local clone, an offline page). Also noted the remaining honest gap
+        those docs undersold: the count is `localStorage`-only like every
+        other counter here, so it is now countable, not yet readable back
+        by anyone -- unchanged by this fix, just no longer misattributed to
+        "nobody wired it."
+      - >-
+        Left the new-ventures-first, donations-only, and legal-guardrails
+        sections of `DIRECTION.md` alone -- they are current (dated
+        2026-09-06), already say what the owner's brief asked for, and
+        `session_gate.py`'s PROCEED verdict confirms the fleet is acting on
+        them (meta-work share well under threshold, build-now queue
+        genuinely empty, `check_no_payment_code.py` merged the same day as
+        a mechanical enforcement of the payment guardrail). No code shipped
+        this session; the deliverable is two corrected direction documents
+        so the next session reads an accurate state instead of re-doing
+        already-shipped instrumentation or reporting a false gap.
+    mrr_end: null
