@@ -375,6 +375,97 @@ class RefusesToPublishBackwards(unittest.TestCase):
             "the guard reads the source commit out of the remote tip's own "
             "message, which is the same string the publish writes",
         )
+        self.assertTrue(
+            "--is-shallow-repository" in script and "fetch --quiet --unshallow" in script,
+            "the checkout `publish-pages-branch.yml` hands this script is "
+            "shallow (actions/checkout's default fetch-depth is 1), so "
+            "$published_from's ancestry is not present until this unshallows "
+            "-- without it, cat-file/merge-base below can only ever fail to "
+            "find what they are looking for, and the guard is silently inert",
+        )
+
+    def test_the_guard_still_fires_from_a_shallow_checkout(self) -> None:
+        """The gap the unshallow step above exists to close, measured directly.
+
+        `test_git_and_the_message_really_identify_a_backwards_publish` proves
+        the two primitives work in a repo that already has full history. That
+        is not what `publish-pages-branch.yml` hands this script:
+        `actions/checkout@v4` with no `fetch-depth` override fetches exactly
+        one commit -- the run's own trigger SHA -- and nothing else. This
+        reproduces that shape (a fresh repo whose only object is the trigger
+        commit, fetched by exact SHA the way `actions/checkout` does it, not
+        by cloning a branch tip) and shows `cat-file -e $published_from`
+        fails on it before the fix's unshallow step, and that unshallowing
+        first -- exactly what the script now does -- makes both primitives
+        work as `test_git_and_the_message_really_identify_a_backwards_publish`
+        already showed they do given full history.
+        """
+        import subprocess
+        import tempfile
+
+        def git(repo, *args, check=True):
+            return subprocess.run(
+                ["git", "-C", str(repo), *args],
+                capture_output=True, text=True, check=check,
+            )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            remote = tmp_path / "remote.git"
+            work = tmp_path / "work"
+            git(tmp_path, "init", "-q", "--bare", str(remote))
+            git(tmp_path, "clone", "-q", str(remote), str(work))
+            git(work, "config", "user.email", "t@example.invalid")
+            git(work, "config", "user.name", "t")
+            (work / "f").write_text("1")
+            git(work, "add", "f")
+            git(work, "commit", "-q", "-m", "older main")
+            older = git(work, "rev-parse", "HEAD").stdout.strip()
+            (work / "f").write_text("2")
+            git(work, "add", "f")
+            git(work, "commit", "-q", "-m", "newer main")
+            newer = git(work, "rev-parse", "HEAD").stdout.strip()
+            git(work, "push", "-q", "origin", "HEAD:main")
+
+            # A fresh, empty repo that fetches only `older` at depth 1 by its
+            # exact SHA -- what actions/checkout does for a workflow triggered
+            # on an earlier push that has not yet finished by the time a
+            # later push's run publishes `newer` (the 2026-09-06 race).
+            ci = tmp_path / "ci"
+            ci.mkdir()
+            git(ci, "init", "-q")
+            git(ci, "remote", "add", "origin", f"file://{remote}")
+            git(ci, "fetch", "-q", "--depth=1", "origin", older)
+            git(ci, "checkout", "-q", "FETCH_HEAD")
+            self.assertEqual(git(ci, "rev-parse", "HEAD").stdout.strip(), older)
+            self.assertEqual(
+                git(ci, "rev-parse", "--is-shallow-repository").stdout.strip(), "true",
+            )
+
+            # Before unshallowing: `newer` (what $published_from would read
+            # from the live branch's commit message) is not an object this
+            # checkout has ever fetched, so cat-file cannot find it -- the bug.
+            before = git(ci, "cat-file", "-e", f"{newer}^{{commit}}", check=False)
+            self.assertNotEqual(
+                before.returncode, 0,
+                "a depth-1 checkout of `older` must not already have `newer` "
+                "-- if it does, this fixture no longer reproduces the gap",
+            )
+
+            # The fix: unshallow when shallow, then the same two primitives
+            # the guard runs.
+            git(ci, "fetch", "--quiet", "--unshallow", "origin")
+            after = git(ci, "cat-file", "-e", f"{newer}^{{commit}}", check=False)
+            self.assertEqual(
+                after.returncode, 0,
+                "unshallowing must make $published_from's object reachable",
+            )
+            backwards = git(ci, "merge-base", "--is-ancestor", older, newer, check=False)
+            self.assertEqual(
+                backwards.returncode, 0,
+                "with full history restored, the ordinary ancestry check "
+                "must correctly classify `older` as behind `newer`",
+            )
 
     def test_git_and_the_message_really_identify_a_backwards_publish(self) -> None:
         """The premise above, measured rather than asserted.

@@ -15736,3 +15736,110 @@ entries:
         above); the venture has no separate Hetzner surface to fail. No
         Cloudflare/Vercel added.
     mrr_end: null
+  - venture: dog-walking-route-pricing
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `session_gate.py` returned PROCEED and named the pipeline's
+        `build-now` queue empty (every scored candidate already graduated) as
+        the concrete next action, per `portfolio/DIRECTION.md`'s 2026-09-06
+        "new ventures get first call" direction. Screened a fresh niche
+        against `portfolio/pipeline/screened-out.md` and the existing
+        ventures/ directory (185 slugs, dominated by per-trade bid
+        calculators, marketplace-fee calculators, and evidence/monitoring
+        tools): independent dog walkers and pet sitters running their own
+        recurring client book, not a marketplace app (Rover/Wag) that sets
+        the rate for them. Distinct from `pet-grooming-bid-calculator`
+        (one-off groom price, not a recurring route) and
+        `pool-route-pricing` (different buyer, different unit economics --
+        chemicals and pool time vs. drive-time clustering, multi-pet
+        surcharges, and overnight on-call hours). Not in screened-out.md
+        under any name.
+      - >-
+        Scored against the pipeline's 8-dimension rubric in
+        `portfolio/pipeline/candidates/dog-walking-route-pricing.md`:
+        ai_leverage 1, autonomous_ops 10, time_to_revenue 6, gross_margin 10,
+        defensibility 5, distribution 6, liability_containment 8,
+        ethical_robustness 9. Composite 6.875, floor 1 (ai_leverage, the
+        deliberate floor of a deterministic calculator). Both gates clear
+        with room: liability_containment 8 and ethical_robustness 9, well
+        above the 5 floor -- the tool prices arithmetic from user-supplied
+        inputs, never assesses an animal's fitness, screens a client, or
+        makes a determination on the operator's behalf. Added to
+        `candidates.yaml` as `graduated` and to `README.md`'s ranked table
+        (row 11, tied at 6.875 with `mcp-supply-chain-watch`) in the same
+        commit that built it, per the pipeline's own stale-tracker rule.
+      - >-
+        Built `ventures/dog-walking-route-pricing`: a static, dependency-free
+        browser calculator (`calc.mjs`, 19 tests) that prices one visit
+        (walk, drop-in, or overnight) from on-site minutes, drive time,
+        mileage, extra-pet surcharges, a special-needs fee, overnight
+        on-call hours billed separately from active minutes, a holiday/
+        last-minute surcharge, and a payment-processing gross-up so a
+        target margin survives the processor's cut -- then rolls a
+        six-row recurring client list up into monthly route revenue and
+        compares it to a stated income goal (`computeRouteRevenue`,
+        `incomeGap`). `usage.mjs` counts two anonymous events (`estimate`,
+        `route-check`) with a Do Not Track / GPC / opt-out switch, same
+        pattern as every other venture. No share.mjs and no
+        vs-<competitor>.html page -- scoped to one workflow done well per
+        `PRODUCT_PLAYBOOK.md` §4, not a copy of every sibling's parity
+        features onto a venture with zero usage signal yet.
+      - >-
+        Verified locally (runners were not checked for starvation this
+        session; this is a from-scratch build, not a CI dispute). `node
+        --test` in the venture: 36/36 (19 calc, 6 usage, 11 page).
+        `checklist_coverage.py` exit 0. `router/validate.py`: 187/187
+        VENTURE.yaml valid. `clauses.mjs dog-walking-route-pricing`: 1
+        published page carries its required clause. `launched.mjs --write`
+        entered it into the Atom feed (179 tools, 1 added).
+      - >-
+        `regen.mjs` ran (2 generators) after every content edit and its
+        output is committed: the venture is now mirrored onto the apex
+        catalogue (179 tools, up from 178) and the front-door/sitemap/
+        feed/llms.txt artifacts under `gitops/prod/front-door*` were
+        regenerated to match. `platform/ci/test_check_money_sign.py` caught
+        a real defect on first draft -- the page's `money()` formatted a
+        negative value as `$-9.24` instead of `-$9.24` -- fixed with `node
+        platform/ci/fix_money_sign.mjs`. `platform/pages/faq-visible.test.mjs`
+        caught the same class of defect the previous two sessions'
+        ledger entries flagged (card-processing-fee-audit,
+        equipment-lease-buyout-calculator): the page's authored FAQPage
+        JSON-LD said "button below" where the visible copy says "button
+        above" (the usage-toggle button sits above the FAQ section on this
+        page's layout). This is now three consecutive new ventures shipping
+        a divergence in the same JSON-LD/visible-copy check on first draft --
+        stronger evidence a template or lint fix, not another one-off note
+        here, is the right response for whichever session builds the next
+        one. Both fixed; `platform/marketing` + `platform/pages` node
+        suites 1136/1136 after the fixes. `platform/proposal` 101/101,
+        `platform/privacy` + `platform/webcheck` 66/66 (the latter needed
+        `git fetch --unshallow` first -- two of its tests read specific
+        commits from git history and fail with no explanation on this
+        session's shallow clone, exactly as `AGENTS.md` warns). `pytest
+        gitops/tests` 480/480 (25 skipped) -- failed first on the same
+        documented four-place mirrored-tool count (178 -> 179 in
+        OWNER_CHECKLIST.md x2, aggregate.py, default.conf, plus the typed
+        constant in test_manifests.py) and on test_ci_runner's runs-on
+        count (262/264/229 -> 263/265/230 in gitops/ci/README.md, after
+        adding this venture's own CI workflow file), both fixed in this
+        commit. All 15 platform/ci unittest modules OK, after registering
+        the new venture's CI workflow (`dog-walking-route-pricing-ci.yml`,
+        mirroring `pool-route-pricing-ci.yml`) in publish-surface.yaml via
+        `publish_surface.py --write` (classification `none`, same as the
+        pool venture -- no separate deploy surface). `PLAYWRIGHT=... python3
+        platform/ci/browser_checks.py --only dog-walking-route-pricing`:
+        sweep, sideways, roundtrip, and journey all passed (highlight and
+        contrast skipped -- no highlight promise on this page, and axe-core
+        is not installed in this environment; both are skips, not
+        failures, per `AGENTS.md`).
+      - >-
+        Not deployed beyond the GitHub Pages branch route (mirrored into
+        the apex catalogue via `regen.mjs`, per the above); the venture has
+        no separate Hetzner surface to fail. No Cloudflare/Vercel added. No
+        payment collection, checkout code, card fields, or scraped personal
+        data. Opened as a PR for the standard CI-green merge path rather
+        than merged directly, per this session's explicit instruction to
+        stop at a ready-for-review PR.
+    mrr_end: null
