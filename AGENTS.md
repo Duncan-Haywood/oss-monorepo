@@ -2,10 +2,12 @@
 
 Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — start with its
 "North star" section for the six-point version (deploy what's built, new
-ventures rank first while the pipeline's build-now queue is empty, donations
-only, keep customers happy by shipping working/honest products, market the
-products within the fair-use rules, legal exposure is the one hard stop).
-This file is how to execute that strategy in this repo.
+ventures rank first as the owner's standing preference, donations only, keep
+customers happy by shipping working/honest products, market the products
+within the fair-use rules — enforced automatically in CI, not a manual
+re-derivation — and legal exposure is the one hard stop) and its "Fast scan
+for what should this session do" checklist right after it. This file is how
+to execute that strategy in this repo.
 
 ## Your job
 
