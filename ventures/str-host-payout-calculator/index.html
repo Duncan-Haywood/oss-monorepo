@@ -229,7 +229,13 @@
 
     const state = CHANNEL_PRESETS.map((channel) => ({ ...channel, enabled: true }));
 
-    const shared = decodeComparison(new URLSearchParams(location.search).get("c"));
+    // Fragment first, query string second. The `?c=` form is only still read
+    // because links built before this page moved to the fragment are already
+    // out there and must keep opening; nothing writes one any more.
+    const sharedParam =
+      new URLSearchParams(location.hash.replace(/^#/, "")).get("c") ??
+      new URLSearchParams(location.search).get("c");
+    const shared = decodeComparison(sharedParam);
     if (shared) {
       for (const [key, value] of Object.entries(shared.booking)) {
         const field = el(key);
@@ -381,8 +387,20 @@
       }
     });
     el("copyLink").addEventListener("click", async () => {
+      // The payload goes in the fragment: a query string is sent to the server
+      // on every load and leaks in the `Referer` header of any outbound click,
+      // while a fragment never leaves the browser. That is what makes the
+      // status line below ("it holds the numbers, not your address") true of
+      // the recipient's server as well as of the link's text.
+      // Built with URLSearchParams, not string concatenation, so the fragment
+      // carries the same one-extra-level-of-escaping the `?c=` form had. The
+      // reader below parses it with URLSearchParams too, which strips exactly
+      // that level and hands `decodeComparison` the string it expects -- the
+      // payload is already `encodeURIComponent`-ed, so getting this wrong by
+      // one level silently yields an unparseable link rather than an error.
       const url = new URL(location.href);
-      url.searchParams.set("c", encodeComparison(bookingInput(), state));
+      url.search = "";
+      url.hash = new URLSearchParams({ c: encodeComparison(bookingInput(), state) }).toString();
       try {
         await navigator.clipboard.writeText(url.toString());
         el("status").textContent = "Link copied. It holds the numbers, not your address.";

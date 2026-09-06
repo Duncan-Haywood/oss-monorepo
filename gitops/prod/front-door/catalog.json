@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 175,
-  "collection_total": 175,
+  "served_here": 179,
+  "collection_total": 179,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 116
+      "tool_count": 120
     },
     {
       "id": "evidence",
@@ -35,16 +35,16 @@
       "tool_count": 19
     },
     {
+      "id": "backoffice",
+      "name": "Back-office money & contracts",
+      "url": "https://marisstella.dev/c/backoffice/",
+      "tool_count": 13
+    },
+    {
       "id": "marketplace",
       "name": "Marketplace seller tools",
       "url": "https://marisstella.dev/c/marketplace/",
       "tool_count": 12
-    },
-    {
-      "id": "backoffice",
-      "name": "Back-office money & contracts",
-      "url": "https://marisstella.dev/c/backoffice/",
-      "tool_count": 11
     },
     {
       "id": "services",
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 5
+      "tool_count": 3
     }
   ],
   "tools": [
@@ -102,7 +102,7 @@
       "slug": "tender-bid-readiness",
       "name": "Tender Bid Readiness Checker for Small Contractors",
       "url": "https://marisstella.dev/tools/tender-bid-readiness/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Paste a public tender and get a fast bid-readiness checklist for deadlines, bonds, insurance, certifications, questions, and submission instructions. Runs privately in your browser.",
       "pages": 3
     },
@@ -579,6 +579,14 @@
       "pages": 3
     },
     {
+      "slug": "card-processing-fee-audit",
+      "name": "Card Processing Fee Audit — Split Your Statement Into Interchange and Markup",
+      "url": "https://marisstella.dev/tools/card-processing-fee-audit/",
+      "category": "Back-office money & contracts",
+      "description": "Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.",
+      "pages": 3
+    },
+    {
       "slug": "carpet-cleaning-bid-calculator",
       "name": "Carpet Cleaning Bid Calculator — Price the Stop, Not Room",
       "url": "https://marisstella.dev/tools/carpet-cleaning-bid-calculator/",
@@ -691,6 +699,14 @@
       "pages": 3
     },
     {
+      "slug": "dog-walking-route-pricing",
+      "name": "Dog Walking & Pet Sitting Rate Calculator — Price Your Route",
+      "url": "https://marisstella.dev/tools/dog-walking-route-pricing/",
+      "category": "More free tools",
+      "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
+      "pages": 1
+    },
+    {
       "slug": "dryer-vent-bid-calculator",
       "name": "Dryer Vent Bid Calculator — Stories, Run, and Roof Cap",
       "url": "https://marisstella.dev/tools/dryer-vent-bid-calculator/",
@@ -753,6 +769,14 @@
       "category": "Trade & contractor bids",
       "description": "Price an epoxy or polyaspartic garage floor from grind hours, flake load, waste, cracks, and travel — not a $4/sq ft special. See kit cost, walk-away price, and whether a proposed number loses money.",
       "pages": 4
+    },
+    {
+      "slug": "equipment-lease-buyout-calculator",
+      "name": "Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace",
+      "url": "https://marisstella.dev/tools/equipment-lease-buyout-calculator/",
+      "category": "Back-office money & contracts",
+      "description": "Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.",
+      "pages": 3
     },
     {
       "slug": "equipment-rental-break-even",
@@ -1083,6 +1107,14 @@
       "pages": 3
     },
     {
+      "slug": "pet-grooming-bid-calculator",
+      "name": "Pet Grooming Bid Calculator — Price a Dog or Cat Groom",
+      "url": "https://marisstella.dev/tools/pet-grooming-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free pet grooming price calculator: size, coat, matting, add-ons, and mobile travel go into one transparent quote with break-even and target-margin price.",
+      "pages": 3
+    },
+    {
       "slug": "plantation-shutter-bid-calculator",
       "name": "Plantation Shutter Bid Calculator — Price to Install It",
       "url": "https://marisstella.dev/tools/plantation-shutter-bid-calculator/",
@@ -1342,7 +1374,7 @@
       "slug": "tender-radar",
       "name": "Tender Radar",
       "url": "https://marisstella.dev/tools/tender-radar/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.",
       "pages": 3
     },
@@ -1446,7 +1478,7 @@
       "slug": "which-job-first",
       "name": "Which Job First? Free Pairwise Job Priority Ranker for Contractors",
       "url": "https://marisstella.dev/tools/which-job-first/",
-      "category": "More free tools",
+      "category": "Trade & contractor bids",
       "description": "Paste your job list, answer a handful of this-or-that questions, and get a ranked work order. Free, private, runs entirely in your browser with no account.",
       "pages": 3
     },

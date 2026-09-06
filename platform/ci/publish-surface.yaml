@@ -113,6 +113,9 @@ workflows:
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
+- workflow: card-processing-fee-audit-ci.yml
+  classification: none
+  publishes: []
 - workflow: carpet-cleaning-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -191,6 +194,9 @@ workflows:
 - workflow: dns-configuration-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: dog-walking-route-pricing-ci.yml
+  classification: none
+  publishes: []
 - workflow: dryer-vent-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -222,6 +228,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: epoxy-garage-floor-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: equipment-lease-buyout-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: equipment-rental-break-even-ci.yml
@@ -435,6 +444,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: pest-control-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pet-grooming-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: photo-editing-ci.yml

@@ -91,6 +91,9 @@
 #                     domain when there is one, else the project Pages URL
 #   PAGES_CNAME       custom domain to publish; unset carries the branch's
 #                     existing one forward, empty removes it
+#   ALLOW_REGRESSION  set to 1 to publish anyway when the branch already
+#                     carries a snapshot built from a NEWER commit than this
+#                     one -- see "Publishing backwards" below
 set -euo pipefail
 
 readonly REQUIRED_CONFIRM='publish-pages-branch'
@@ -243,10 +246,69 @@ say "source commit: $source_sha"
 
 if [ "${PUSH:-}" = '1' ]; then
   echo
+  # Publishing backwards.
+  #
+  # The force-push below is safe against losing *authored* work -- everything
+  # on this branch is regenerated -- and that was read for years as "safe",
+  # full stop. It is not. The branch is the live site, so a force-push from an
+  # older `main` than the one already published silently REVERTS the site, and
+  # nothing anywhere turns red: `pages_state.py` then reports `stale`, which
+  # reads as "somebody has not published yet" rather than "somebody undid a
+  # publish".
+  #
+  # Measured 2026-09-06, in the ten minutes it took to notice. Two sessions
+  # overlapped: one published 433a68bf (a merge that had just landed), and a
+  # concurrent session, still holding 14494ea1, published a second later and
+  # took the newly shipped venture off the live site. `session_gate.py` reports
+  # up to 4 distinct sessions inside a 15-minute window here, so this is the
+  # ordinary case rather than a freak race.
+  #
+  # So: read the source commit out of the remote tip's own message and refuse
+  # when it is strictly ahead of ours. Cheap, and it fails closed only in the
+  # one direction that costs live product.
+  remote_tip="$(git -C "$repo_root" ls-remote origin "refs/heads/$BRANCH" 2>/dev/null | cut -f1)"
+  if [ -n "$remote_tip" ]; then
+    # The tip is an orphan commit, so a plain fetch of the branch is enough to
+    # read its message; it carries no history to pull along with it.
+    git -C "$repo_root" fetch --quiet --depth=1 origin "refs/heads/$BRANCH" 2>/dev/null || true
+    published_from="$(git -C "$repo_root" show -s --format=%B "$remote_tip" 2>/dev/null \
+      | sed -n 's/^Publish site built from \([0-9a-f]\{7,40\}\).*/\1/p' | head -n1)"
+    # `merge-base --is-ancestor` needs $published_from's own ancestry present
+    # locally, and `actions/checkout` -- what publish-pages-branch.yml uses,
+    # with no `fetch-depth` override -- leaves exactly one commit in the repo.
+    # Left alone, `cat-file -e` below fails on every ordinary CI run (the
+    # referenced commit is simply absent) and the whole guard falls through
+    # silently: no error, just the backwards push it exists to stop. Unshallow
+    # first, so the check runs against real history instead of a single
+    # commit it was never going to find anything in.
+    if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
+       && [ "$(git -C "$repo_root" rev-parse --is-shallow-repository 2>/dev/null)" = 'true' ]; then
+      git -C "$repo_root" fetch --quiet --unshallow origin 2>/dev/null || true
+    fi
+    if [ -n "$published_from" ] && [ "$published_from" != "$source_sha" ] \
+       && git -C "$repo_root" cat-file -e "${published_from}^{commit}" 2>/dev/null \
+       && git -C "$repo_root" merge-base --is-ancestor "$source_sha" "$published_from" 2>/dev/null; then
+      if [ "${ALLOW_REGRESSION:-}" = '1' ]; then
+        say "WARNING: $BRANCH already serves a newer snapshot ($published_from);"
+        say "         publishing over it anyway because ALLOW_REGRESSION=1."
+      else
+        die "refusing to publish backwards: '$BRANCH' already serves a snapshot built
+  from $published_from, which is NEWER than this one ($source_sha). Pushing
+  would take whatever landed in between off the live site, and nothing would
+  report it as an error.
+  Another session almost certainly published while this one was building.
+  Fix: re-run from an up-to-date checkout --
+    git fetch origin main && git reset --hard origin/main
+    CONFIRM=$REQUIRED_CONFIRM PUSH=1 $0
+  Override with ALLOW_REGRESSION=1 only if you mean to roll the site back."
+      fi
+    fi
+  fi
   echo "Pushing $BRANCH to origin..."
   # Force, because each run is a fresh orphan commit with no ancestry in
-  # common with the last one. Safe here precisely because the branch holds no
-  # authored work: everything on it is regenerated from `main` by this script.
+  # common with the last one. Safe against losing authored work -- everything
+  # on the branch is regenerated from `main` by this script -- with the
+  # backwards case ruled out just above.
   git -C "$repo_root" push --force origin "refs/heads/$BRANCH:refs/heads/$BRANCH"
   say "pushed"
 else

@@ -339,7 +339,11 @@ shareBtn.addEventListener("click", async () => {
     copyStatus.textContent = "Fix the numbers before creating a share link.";
     return;
   }
-  const shareUrl = buildShareUrl(raw, window.location.href.split("?")[0]);
+  // Strip both the query string and any existing fragment before rebuilding:
+  // the page may itself have been opened from a share link, and the payload
+  // now lives in the fragment, so carrying the old one in would be building
+  // the new link on top of the sender's numbers.
+  const shareUrl = buildShareUrl(raw, window.location.href.split("?")[0].split("#")[0]);
   try {
     await navigator.clipboard.writeText(shareUrl);
     copyStatus.textContent = "Share link copied. Anyone with it can see the values in the link.";

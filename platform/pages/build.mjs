@@ -344,7 +344,16 @@ const CATEGORY_RULES = [
     // people who cut plywood for a living are the ones bidding the cabinet,
     // countertop and molding work below. See the note in `logistics`, which is
     // where it used to land.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list)/.test(slug),
+    // `tender-bid-readiness` and `which-job-first` sat in the catch-all for the
+    // same reason `contractor-bid-readiness` used to: the slug names the
+    // surface, not the trade, so no keyword above caught it. Both are read by
+    // the same contractor deciding whether and what to bid — a readiness
+    // checklist before a tender submission, a pairwise ranker for which job on
+    // the list to take first — which is this section's audience exactly.
+    // `tender-radar` triages the tender listings that `tender-bid-readiness`
+    // then checks, so the two belong beside each other for the reader who uses
+    // both.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair|cut-list|tender-bid-readiness|tender-radar|which-job-first)/.test(slug),
   },
   {
     id: 'services',
@@ -403,9 +412,18 @@ const CATEGORY_RULES = [
     title: 'Back-office money & contracts',
     accent: '#1f5c35',
     blurb: 'Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.',
+    // `equipment-lease-buyout-calculator` is the same decision as
+    // `equipment-rental-break-even` — converting a financing choice to cost
+    // per month of use — but its slug ends in `-calculator`, not `-break-even`,
+    // so the suffix rule above never caught it and it sat in the catch-all
+    // beside its own sibling's section.
+    // `card-processing-fee-audit` splits a merchant statement into pass-through
+    // and markup — the same after-the-sale reconciliation job as this section's
+    // other tools, just for a card processor's bill instead of a landlord's CAM
+    // statement or a SaaS seat count.
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
-      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit)/.test(slug),
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit|equipment-lease-buyout|card-processing-fee-audit)/.test(slug),
   },
 ];
 
@@ -852,12 +870,12 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-paid',
       title: 'Getting paid & job margin',
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|tender-bid-readiness|tender-radar|which-job-first)/.test(slug),
     },
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam|pet-grooming)/.test(slug),
     },
     {
       id: 'trades-roof',

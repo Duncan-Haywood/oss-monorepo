@@ -335,6 +335,35 @@ export function summarize(report) {
   return `${bits.join(", ")}.`;
 }
 
+/**
+ * Escape the Markdown emphasis characters the word-diff below relies on, so a
+ * word the vendor's own page happens to write with `*`, `_`, `~` or a
+ * backtick (a footnote marker, a code span, "Tier_2") cannot be mistaken for
+ * the ~~removed~~ / **added** markup this function wraps around it.
+ */
+function escapeMarkdown(text) {
+  return String(text).replace(/[\\`*_~]/g, (char) => `\\${char}`);
+}
+
+/**
+ * Render one section's word-level diff as Markdown, so the clause that moved
+ * is visible directly in a pasted ticket — the same thing `<ins>`/`<del>` give
+ * a reader on the page itself. Without this, `markdownReport` fell back to a
+ * full **Before:** / **After:** dump of the whole section, which is exactly
+ * the "two walls of near-identical prose" `wordDiff`'s own docstring says a
+ * reader should never be shown.
+ */
+function markdownWordDiff(before, after) {
+  return wordDiff(before, after)
+    .map((part) => {
+      const text = escapeMarkdown(part.text);
+      if (part.kind === "added") return `**${text}**`;
+      if (part.kind === "removed") return `~~${text}~~`;
+      return text;
+    })
+    .join(" ");
+}
+
 /** Markdown a practitioner can paste into a ticket, with the source on it. */
 export function markdownReport(report) {
   const lines = [`# Vendor page change report`, ""];
@@ -358,8 +387,12 @@ export function markdownReport(report) {
   }
   for (const change of report.changes) {
     lines.push(`## ${change.heading} — ${change.change}`, "");
-    if (change.before) lines.push(`**Before:** ${change.before}`, "");
-    if (change.after) lines.push(`**After:** ${change.after}`, "");
+    if (change.change === "changed") {
+      lines.push(markdownWordDiff(change.before, change.after), "");
+    } else {
+      if (change.before) lines.push(`**Before:** ${change.before}`, "");
+      if (change.after) lines.push(`**After:** ${change.after}`, "");
+    }
   }
 
   lines.push("---", "");
