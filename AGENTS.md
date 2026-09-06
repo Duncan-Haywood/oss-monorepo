@@ -1,7 +1,11 @@
 # Agent instructions
 
-Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first. That is the
-company strategy; this file is how to execute it in this repo.
+Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — start with its
+"North star" section for the five-point version (deploy what's built, new
+ventures rank first while the pipeline's build-now queue is empty, donations
+only, keep customers happy by shipping working/honest products, legal
+exposure is the one hard stop). This file is how to execute that strategy in
+this repo.
 
 ## Your job
 
