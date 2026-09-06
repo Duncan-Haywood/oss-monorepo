@@ -437,6 +437,9 @@ workflows:
 - workflow: pest-control-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pet-grooming-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []

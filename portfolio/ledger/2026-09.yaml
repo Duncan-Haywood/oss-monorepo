@@ -15410,3 +15410,88 @@ entries:
         (#3184). HETZNERSSHKEY holds a public key, so it has never opened a
         session.
     mrr_end: null
+  - venture: pet-grooming-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a new venture from scratch: a free browser bid calculator for
+        independent and mobile dog/cat groomers, mirroring
+        mobile-detailing-bid-calculator's file list and conventions (LICENSE,
+        VENTURE.yaml, calc.mjs/.test, index.html/page.test, proposal.mjs/
+        proposal-terms.mjs (vendored, generic) + tests, share.mjs/.test,
+        usage.mjs/.test, robots.txt, sitemap.xml, how-much-to-charge.html, a
+        vs-moego.html comparison page, and a scoped CI workflow). calc.mjs
+        prices a groom from a size tier (small/medium/large/giant, 45-105 base
+        minutes) times a coat multiplier (smooth/medium/long/curly, 1.0x-1.6x),
+        plus a matting-severity surcharge (none/light/moderate/severe), a
+        seven-item add-on checklist (nail trim, nail grinding, teeth brushing,
+        ear cleaning, de-shedding, flea/tick treatment, anal gland expression),
+        and an optional mobile-travel toggle (miles + vehicle rate + setup
+        minutes), then the same loaded-labor/payment-fee/target-margin/
+        break-even math shape every bid calculator here uses, including the
+        fee+margin-exceeds-100%-claims-the-whole-price guard.
+      - >-
+        The niche-specific liability containment this brief called for:
+        `calculateBid` throws and refuses to price a "severe" matting
+        selection unless the caller has separately set `severeMattingAck`
+        (a checkbox gated to the severe option, mirrored by the calc-level
+        guard so a crafted share link cannot bypass it) -- severely matted
+        coats can hide skin damage that needs a vet or vet tech rather than a
+        bigger invoice, and an unsafe or fearful animal is a safety call for
+        the groomer, not a pricing input. `mattingNote()` shows a live welfare
+        warning on the page independent of whether the calculation succeeds.
+        The disclaimer (page footer, README, printed customer proposal, and
+        the FAQPage JSON-LD) states explicitly that the tool makes no
+        veterinary, animal-health, or animal-welfare determination and that
+        severe matting or an unsafe animal should be referred out rather than
+        priced in. VENTURE.yaml records this under a `mitigations` block
+        naming the risk and the containment.
+      - >-
+        vs-moego.html researched via WebSearch (not available to the
+        mobile-detailing-bid-calculator session this mirrors) rather than left
+        unverifiable: MoeGo's founding (late 2019, Ethan Dong, Culver City CA),
+        its $24M Series A (Base10 Partners, with Mars Petcare's Digitalis
+        Ventures participating), and its publicly reported per-van/
+        per-location subscription pricing tiers, each sourced and hedged
+        ("reported publicly as roughly...See MoeGo's own pricing page for
+        today's numbers") rather than asserted as a fixed current figure,
+        plus the required not-affiliated nominative-fair-use disclaimer.
+      - >-
+        Ran the full "ship without review ceremony" verification set given
+        starvation is standing policy this month: venture suite 113/113 (calc
+        edge cases including the severe-matting guard and the fee+margin
+        guard, page/DOM behavior, share-link round-trip for every number/
+        boolean/enum field, usage-counter, proposal/terms, vs-moego). Two
+        cross-venture drift failures surfaced and were fixed rather than
+        worked around, both because this venture's slug ends in
+        `-bid-calculator`: `platform/pages/build.mjs`'s SUBCATEGORY_RULES.trades
+        had no keyword matching `pet-grooming` (added one), and
+        `platform/pages/rates.mjs`'s shared shop-rates bar required all four
+        canonical fields or an explicit, justified exclusion (added
+        SHOP_RATE_ALIASES + PARTIAL_SHOP_RATE_PAGES entries: wage/burdenPercent
+        alias to the canonical ids, targetMargin already matches directly,
+        overhead stays excluded because it is dollars-for-the-job rather than
+        a percentage of direct cost, same as mobile-detailing-bid-calculator).
+        `node platform/pages/clauses.mjs pet-grooming-bid-calculator`: pass.
+        `python3 portfolio/router/validate.py`: 184/184 (now 185) valid.
+        `node platform/pages/launched.mjs --write` + `node
+        platform/marketing/regen.mjs` (twice, after the build.mjs/rates.mjs
+        fixes): mirror grew to 176 tools, front-door/catalog/sitemap/llms.txt/
+        kustomization rewritten and committed. platform/marketing +
+        platform/pages: 1136/1136. platform/proposal (including
+        term-ids.test.mjs, which now covers this venture's vendored
+        proposal-terms.mjs): 101/101. platform/privacy + platform/webcheck:
+        50/50. gitops/tests: fixed two more drift failures the mirror's growth
+        exposed (the hand-typed "N of M tools" counts in
+        infra/OWNER_CHECKLIST.md, gitops/prod/usage/aggregate.py's comment,
+        and gitops/prod/front-door/default.conf's two comments, plus the
+        hardcoded `total` in test_manifests.py itself, all bumped 175->176)
+        and the runs-on-lines-read-the-switch count in gitops/ci/README.md
+        (259/261/226 -> 260/262/227, since this venture's new CI workflow adds
+        one job); 480 passed, 25 skipped after. All 17 platform/ci unittest
+        modules pass individually, including test_publish_surface.py after
+        adding this venture's workflow to platform/ci/publish-surface.yaml
+        (classification: none, publishes: []). Combined final run of
+        marketing+pages+proposal+privacy+webcheck+this-venture: 1400/1400.
+    mrr_end: null

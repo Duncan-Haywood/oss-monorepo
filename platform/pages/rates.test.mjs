@@ -74,6 +74,11 @@ const NO_SHARED_SHOP_RATES = {
     '("Operator hourly wage", $22), so rather than rename an id that reaches calc.mjs\'s ' +
     'input contract, its tests and every bid link already shared, SHOP_RATE_ALIASES maps ' +
     'the canonical field onto that id and the page carries the full set.',
+  'pet-grooming-bid-calculator':
+    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
+    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
+    '`burdenPercent` -- and its target margin already matches the canonical id directly, so it ' +
+    'now carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

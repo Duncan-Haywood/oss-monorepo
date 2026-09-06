@@ -105,6 +105,10 @@ export const SHOP_RATE_ALIASES = {
   // started costing the whole stop (#1172); the exclusion recorded against it
   // predates that and still said it had "no wage input at all".
   'mobile-detailing-bid-calculator': { hourlyWage: 'wage', burdenRate: 'burdenPercent' },
+  // Same shape again: "Hourly wage before burden" and "Payroll burden (%)"
+  // are `wage` and `burdenPercent` here too. `targetMargin` already matches
+  // the canonical id directly, so only these two need the alias.
+  'pet-grooming-bid-calculator': { hourlyWage: 'wage', burdenRate: 'burdenPercent' },
 };
 
 /**
@@ -123,6 +127,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
   'portable-restroom-event-quote':
     'This tool prices units and hauls rather than crew hours, so your saved wage and burden are left alone here.',
   'mobile-detailing-bid-calculator':
+    'This tool allocates overhead as dollars for the job rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
+  'pet-grooming-bid-calculator':
     'This tool allocates overhead as dollars for the job rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
 };
 
