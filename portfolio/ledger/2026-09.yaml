@@ -16203,6 +16203,78 @@ entries:
         usage, organic search demand, and distribution all remain to be
         seen, same as every other calculator at graduation.
     mrr_end: null
+  - venture: vending-machine-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled Hetzner-CI/CD-and-marketing/Codex-CLI mandate run. First
+        drained the open-PR/branch queue rather than assuming the prior
+        session's "nothing repairable" finding still held: 0 open PRs
+        (`list_pull_requests`, `search_pull_requests` both empty), then
+        `supersede_check.py` against the 93 remote branches carrying commits
+        `main` lacks. All resolved to SUPERSEDED (identical-merge or line-scan
+        proof) or STALE DRAFT SUSPECTED/RENAME SUSPECTED with main's own
+        version read and confirmed later/fuller (including
+        `marketing/vs-rover-dog-walking-route-pricing`, whose vs-rover.html
+        predates the one already on `main`) -- nothing repairable, matching
+        and extending the 2026-09-05T07:37Z session's conclusion. No PR
+        opened or merged from that queue because none qualified; see this
+        session's reply for the branch-by-branch disposition.
+      - >-
+        Verified deployment/CI-CD state rather than trusting prior prose:
+        `pages_state.py` confirms the GitHub Pages route is `served` and
+        `current` (run 34043516620) -- the live catalogue needs no owner
+        action today. `github-actions-runners` remain starved (consistent
+        with the recurring metered-allowance pattern `infra_state.yaml`
+        already tracks); `k3s-cluster`/Hetzner remain down, gated on
+        `hetzner-ssh-key-is-a-public-key` (#3184), which is also the sole
+        blocker on installing `gitops/agents/host/`'s Codex worker
+        (systemd-timer scheduler, already built and unit-tested per
+        `codex-host-mode` in `infra_state.yaml`) on the Hetzner box -- an
+        owner-only SSH action no session can substitute for.
+      - >-
+        Shipped a marketing/comparison page for the venture graduated
+        2026-09-06: `vs-vendsoft.html`, comparing this free one-time
+        calculator against VendSoft's paid per-machine route-accounting
+        subscription (published pricing verified via WebSearch
+        cross-corroboration across GetApp/SoftwareFinder/Software
+        Advice/wifitalents, since WebFetch cannot reach vendsoft.com from
+        this sandbox's egress proxy -- same discipline as the existing
+        `vs-rover.html` precedent). Added `id="price"`/`id="routeRevenue"`
+        anchors to `index.html` so the comparison page's links resolve, a
+        footer cross-link, a sitemap.xml entry, and `vs-vendsoft.test.mjs`
+        (11 new tests) following the `vs-rover.test.mjs` pattern, including
+        a test that pins every VendSoft dollar/percent figure to sit near
+        its own pricing-page citation.
+      - >-
+        Verified: `ventures/vending-machine-route-margin` (41/41, after
+        fixing the pre-existing `page.test.mjs` id-selector assertion my
+        anchor edit changed), `node platform/marketing/regen.mjs` (front-door
+        mirror + sitemap regenerated), `node --test
+        platform/marketing/*.test.mjs platform/pages/*.test.mjs` (1139/1139,
+        after `faq-visible.test.mjs` caught a JSON-LD/visible-text divergence
+        in the new FAQ answer and it was corrected), `platform/proposal`
+        (101/101), `platform/privacy` + `platform/webcheck` (66/66), all 18
+        `platform/ci` unittest modules, `platform/ci/agent_review` (21/21),
+        `portfolio/ledger`+`scoring`+`router`+`usage`+`pipeline`+`infra/tests`
+        (370 passed), `check_no_payment_code.py`, `clauses.mjs
+        vending-machine-route-margin`, `router/validate.py` (188 valid),
+        `checklist_coverage.py`.
+      - >-
+        `python3 -m pytest gitops/tests -q` caught a real, pre-existing,
+        unrelated regression while verifying this PR: `gitops/ci/README.md`'s
+        hand-written runs-on/workflow counts (263/265/230) had drifted one
+        workflow-job behind reality (264/266/231) since the prior session's
+        480-passed baseline -- some other concurrent session added a
+        workflow. Fixed in a separate, narrowly-scoped PR rather than
+        widening this one, per this repo's CI-red handling rules.
+      - >-
+        No revenue moved. Usage counters exist but the product has had no
+        fair run yet (graduated the same day per usage.yaml). Distribution
+        for the new page is the sitemap/mirror entries just added plus
+        eventual crawl of `duncan-haywood.github.io`.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0

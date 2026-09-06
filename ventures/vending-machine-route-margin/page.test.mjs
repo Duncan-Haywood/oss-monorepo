@@ -56,7 +56,7 @@ test('the privacy line names both stored event types and says nothing is uploade
 });
 
 test('the visit result panel announces recalculation to screen readers', () => {
-  assert.match(html, /<section class="result" aria-live="polite">/);
+  assert.match(html, /<section id="price" class="result" aria-live="polite">/);
 });
 
 test('an invalid visit input hides stale results instead of leaving them next to a silent error', () => {
