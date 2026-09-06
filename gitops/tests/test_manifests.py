@@ -1289,7 +1289,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # venture with a static `index.html` from its first commit, so it entered
     # the mirror and the total in the same change, the same shape as
     # `pet-grooming-bid-calculator` above.
-    total = 177  # `infra/OWNER_CHECKLIST.md`'s own "N of the 177 tools" wording.
+    # 178 since 2026-09-06, when `equipment-lease-buyout-calculator` shipped —
+    # same shape again: a new venture with a static `index.html` from its
+    # first commit, entering the mirror and the total together.
+    total = 178  # `infra/OWNER_CHECKLIST.md`'s own "N of the 178 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

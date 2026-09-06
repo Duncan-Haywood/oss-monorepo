@@ -227,6 +227,9 @@ workflows:
 - workflow: epoxy-garage-floor-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: equipment-lease-buyout-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: equipment-rental-break-even-ci.yml
   classification: none
   publishes: []

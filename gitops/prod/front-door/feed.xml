@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Free small-business calculators — tools on marisstella.dev</title>
-  <subtitle>The 177 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
+  <subtitle>The 178 free, browser-only tools served directly from marisstella.dev — the newest 40 of them listed here, newest first. No account, no upload: every number stays on your own device. The full catalogue is larger and lives at tools.marisstella.dev.</subtitle>
   <link rel="self" type="application/atom+xml" href="https://marisstella.dev/feed.xml"/>
   <link rel="alternate" type="text/html" href="https://marisstella.dev/"/>
   <id>tag:marisstella.dev,2026:front-door-tools</id>
@@ -15,6 +15,15 @@
     <updated>2026-09-06T00:00:00Z</updated>
     <category term="More free tools"/>
     <summary type="text">Read five numbers off your merchant statement and see how much of your card processing bill is network interchange you cannot negotiate and how much is processor markup you can. Free, private, runs in your browser.</summary>
+  </entry>
+  <entry>
+    <title>Equipment Lease Buyout Calculator — Buy Out vs. Return and Replace</title>
+    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/equipment-lease-buyout-calculator/"/>
+    <id>tag:marisstella.dev,2026:tool/equipment-lease-buyout-calculator</id>
+    <published>2026-09-06T00:00:00Z</published>
+    <updated>2026-09-06T00:00:00Z</updated>
+    <category term="More free tools"/>
+    <summary type="text">Compare the true monthly cost of buying out an equipment lease against returning it and replacing it, using fair market value and remaining useful life. Free, private, runs in your browser.</summary>
   </entry>
   <entry>
     <title>Pet Grooming Bid Calculator — Price a Dog or Cat Groom</title>
@@ -357,14 +366,5 @@
     <updated>2026-08-26T00:00:00Z</updated>
     <category term="Trade &amp; contractor bids"/>
     <summary type="text">Price a residential deck from height, material, railing lineal feet, and stairs — not a flat dollar-per-square-foot. See walk-away price, price per sf, and whether a $28-a-foot special loses money.</summary>
-  </entry>
-  <entry>
-    <title>Deck Staining Bid Calculator — Rails, Stairs, and Coats</title>
-    <link rel="alternate" type="text/html" href="https://marisstella.dev/tools/deck-staining-bid-calculator/"/>
-    <id>tag:marisstella.dev,2026:tool/deck-staining-bid-calculator</id>
-    <published>2026-08-26T00:00:00Z</published>
-    <updated>2026-08-26T00:00:00Z</updated>
-    <category term="Trade &amp; contractor bids"/>
-    <summary type="text">Price a deck stain or seal from walking surface, picket-rail lineal feet, stairs, prep, coats, and access — not a published $2.50-per-square-foot special. See the walk-away number before you match a cheaper quote.</summary>
   </entry>
 </feed>
