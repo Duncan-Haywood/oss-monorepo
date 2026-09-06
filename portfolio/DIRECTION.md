@@ -186,6 +186,23 @@ changes what "the next task" means. In order:
    non-duplicative idea is never blocked — but "strong" now means
    evidence-backed, because for the first time the fleet has a real
    audience to measure it against instead of a hypothetical one.
+
+   **Added 2026-09-06: "only then" orders the queue, it is not a demotion.**
+   New ventures are the portfolio's actual bet — every existing product,
+   `ai-first-markets` included, started as one — and the owner's standing
+   interest is in finding the *next* viable business, not in polishing the
+   174th calculator forever. Reordering the list above put deploy-and-measure
+   first because a genuinely new idea competing against an untested backlog
+   was the failure mode actually observed (36 candidates from six sessions in
+   one day, most never built); it was never meant to read as "ventures are
+   the leftover slot." A candidate that clears both pipeline gates and names
+   a real channel is exactly as welcome on a session with a fresh, sharp niche
+   idea as a `build-now` candidate from the queue — screen it against
+   `screened-out.md`, score it honestly (the gates are not negotiable; the
+   composite is not a formality), and graduate it the same day. What still
+   isn't wanted is a niche calculator that duplicates an existing venture's
+   shape with no new mechanism and no evidence anyone asked for it — that is
+   the "176th" this item warns against, not novelty itself.
 5. **Every live product should carry a working, honest donation ask.** See
    the next section — this is the one lever that moves the portfolio's
    revenue off $0 without touching payment rails, and it currently sits
@@ -345,6 +362,12 @@ These stay in every product regardless of the speed mandate:
 - **No scraping personal data or bought lead lists.**
 - **Terms/disclaimers** on user-facing surfaces limiting liability,
   including the no-SLA hosting clause in `PRODUCT_PLAYBOOK.md` §5b.
+- **Comparison pages that name a competitor** (`vs-<competitor>.html`, and
+  173 of them exist) carry a nominative-fair-use disclaimer and stick to
+  sourced facts, never disparagement — `PRODUCT_PLAYBOOK.md` §5f, enforced by
+  `node platform/pages/clauses.mjs <slug>`. This is marketing copy that names
+  someone else's trademark; get it wrong and the exposure is the owner's, not
+  the session's.
 
 Payment is deferred, not disclaimers.
 
