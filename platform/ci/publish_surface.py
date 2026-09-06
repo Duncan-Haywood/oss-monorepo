@@ -884,11 +884,35 @@ def render_pages_branch(row) -> str:
         out.append(f"  - built from {row['source'][:9]}, which is {behind} commit(s) behind `{DEFAULT_BRANCH}`.")
         out.append("    Serving it would serve the repository as of that commit, not as of now.")
         out.append("    Re-run platform/pages/publish-branch.sh to restage it.")
-    # Said in both cases, because a current artifact is still not a served one,
-    # and this tool has no way to tell whether the Settings switch is on.
+    # Said in both cases, because staleness and servedness are different
+    # questions and this tool can only answer the first.
+    #
+    # This block used to assert the second one anyway: "Staged, not served:
+    # enabling Pages is the account owner's decision". That was written to stop
+    # a fresh artifact being misread as a live site -- a mistake this repository
+    # really had made -- and it was true when written. It became false on
+    # 2026-09-06, when GitHub's own managed builder ran on `gh-pages` and
+    # succeeded, which happens only for the configured Pages source. So the
+    # branch IS served and `deploy-settings` IS granted, while this tool went on
+    # telling every session the opposite.
+    #
+    # The bug is not the stale date, it is the shape: a tool that reads git and
+    # the manifests, and never the Pages API, stated a conclusion about the
+    # Pages API. Guarding against overclaiming by hard-coding the *negative*
+    # claim is still a claim, and it fails in the more expensive direction --
+    # it invites a duplicate owner ask for a switch already flipped, and ranks
+    # a granted route as blocking. So this now says what it can see and names
+    # the tool that measures the rest, rather than answering for it.
     out.append("")
-    out.append("  Staged, not served: enabling Pages is the account owner's decision")
-    out.append(f"  (Settings -> Pages -> Source 'Deploy from a branch' -> {PAGES_BRANCH} / root).")
+    out.append("  Whether this artifact is actually SERVED is not visible from here:")
+    out.append("  this tool reads git and the manifests, never the Pages API. A fresh")
+    out.append("  artifact is not evidence of a live site, and a stale one is not")
+    out.append("  evidence of a dark one. Ask the tool that measures it:")
+    out.append("")
+    out.append("      python3 platform/ci/pages_state.py      # read its `deployed` row")
+    out.append("")
+    out.append("  If that reports the branch is not the Pages source, the owner's flip is")
+    out.append(f"  Settings -> Pages -> Source 'Deploy from a branch' -> {PAGES_BRANCH} / root.")
     return "\n".join(out)
 
 
