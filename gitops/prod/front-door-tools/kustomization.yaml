@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 147 files, 550711 bytes
 #   portfolio-front-tools-3: 121 files, 556832 bytes
 #   portfolio-front-tools-4: 119 files, 553625 bytes
-#   portfolio-front-tools-5: 127 files, 541936 bytes
+#   portfolio-front-tools-5: 128 files, 545863 bytes
 #   portfolio-front-tools-6: 104 files, 553928 bytes
 #   portfolio-front-tools-7: 113 files, 555319 bytes
 #   portfolio-front-tools-8: 109 files, 554899 bytes
@@ -779,6 +779,7 @@ configMapGenerator:
       - equipment-lease-buyout-calculator__calc.mjs.gz=equipment-lease-buyout-calculator__calc.mjs.gz
       - equipment-lease-buyout-calculator__index.html.gz=equipment-lease-buyout-calculator__index.html.gz
       - equipment-lease-buyout-calculator__usage.mjs.gz=equipment-lease-buyout-calculator__usage.mjs.gz
+      - equipment-lease-buyout-calculator__vs-crest-capital.html.gz=equipment-lease-buyout-calculator__vs-crest-capital.html.gz
       - equipment-lease-buyout-calculator__vs-lendzero.html.gz=equipment-lease-buyout-calculator__vs-lendzero.html.gz
       - equipment-rental-break-even__app.mjs.gz=equipment-rental-break-even__app.mjs.gz
       - equipment-rental-break-even__how-much-should-i-charge-to-rent-out-equipment.html.gz=equipment-rental-break-even__how-much-should-i-charge-to-rent-out-equipment.html.gz
