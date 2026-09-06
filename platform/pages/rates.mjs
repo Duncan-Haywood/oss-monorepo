@@ -116,6 +116,13 @@ export const SHOP_RATE_ALIASES = {
   // separate payroll-burden field, so `burdenRate` is not carried at all: see
   // PARTIAL_SHOP_RATE_PAGES.
   'ice-dam-removal-bid-calculator': { hourlyWage: 'crewHourlyRate' },
+  // `home-staging-bid-calculator` asks for "Crew pay ($/hr)" — the same raw,
+  // un-burdened per-person wage as `hourlyWage` — under the id
+  // `crewHourlyRate`. Its overhead and target margin already match the
+  // canonical ids directly, so only this one alias is needed; it has no
+  // separate payroll-burden field, so `burdenRate` is not carried at all: see
+  // PARTIAL_SHOP_RATE_PAGES.
+  'home-staging-bid-calculator': { hourlyWage: 'crewHourlyRate' },
 };
 
 /**
@@ -142,6 +149,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
   'locksmith-bid-calculator':
     'This tool prices one call from a single billed rate rather than a separate crew wage and payroll burden, so your saved wage and burden are left alone here.',
   'ice-dam-removal-bid-calculator':
+    'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
+  'home-staging-bid-calculator':
     'This tool has no separate payroll-burden field, so your saved burden rate is left alone here.',
 };
 

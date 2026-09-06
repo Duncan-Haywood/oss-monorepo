@@ -1,13 +1,13 @@
 # Free calculators and checks for people who run a small business
 
-> 188 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+> 189 free, browser-only tools served directly from marisstella.dev, for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
 
 Each tool is a static page that works offline once opened, and is free with no
 gated features. They are estimates and records to act on, not professional
 advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
-Every tool in the collection is listed below — all 188 of them — and
+Every tool in the collection is listed below — all 189 of them — and
 every one is linked at a URL this host serves. Nothing is held back for
 another hostname: tools.marisstella.dev is reserved as this collection's
 eventual canonical address, is not serving yet, and is named here only so it
@@ -80,6 +80,7 @@ page that hosts it.
 - [Hardwood Refinishing Bid Calculator — Stairs and Closets](https://marisstella.dev/tools/hardwood-refinishing-bid-calculator/): Price a hardwood floor refinish from field square footage, stair treads, closets, stain, and extra coats — then see price per square foot, the share of hours eaten by stairs, and the walk-away number.
 - [Holiday Light Bid Calculator — Price to Hang the Lights](https://marisstella.dev/tools/holiday-light-bid-calculator/): Price Christmas lights from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $3 / LF hang special cannot see.
 - [Home Elevator Bid Calculator — Price to Install It](https://marisstella.dev/tools/home-elevator-bid-calculator/): Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.
+- [Home Staging Bid Calculator — Price a Vacant Listing](https://marisstella.dev/tools/home-staging-bid-calculator/): Free calculator for independent home stagers: price a vacant-listing staging job from the included term, furniture carrying cost, crew labor, and mileage, then check whether your extension fee actually covers your own carrying cost before a slow listing erases the margin.
 - [Kitchen Hood Cleaning Bid Calculator — Exhaust Price](https://marisstella.dev/tools/hood-cleaning-bid-calculator/): Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.
 - [Hot Tub Bid Calculator — Crane, Pad, and Circuit](https://marisstella.dev/tools/hot-tub-bid-calculator/): Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.
 - [Ice Dam Removal Bid Calculator — Price a Steam Removal Job](https://marisstella.dev/tools/ice-dam-removal-bid-calculator/): Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job's largely fixed cost before a short call quietly loses money.
