@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 182,
-  "collection_total": 182,
+  "served_here": 183,
+  "collection_total": 183,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -47,6 +47,12 @@
       "tool_count": 12
     },
     {
+      "id": "more",
+      "name": "More free tools",
+      "url": "https://marisstella.dev/c/more/",
+      "tool_count": 7
+    },
+    {
       "id": "services",
       "name": "Service business pricing & quotes",
       "url": "https://marisstella.dev/c/services/",
@@ -56,12 +62,6 @@
       "id": "logistics",
       "name": "Logistics, freight & cloud cost",
       "url": "https://marisstella.dev/c/logistics/",
-      "tool_count": 6
-    },
-    {
-      "id": "more",
-      "name": "More free tools",
-      "url": "https://marisstella.dev/c/more/",
       "tool_count": 6
     }
   ],

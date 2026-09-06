@@ -33,17 +33,17 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 136 files, 556047 bytes
-#   portfolio-front-tools-1: 112 files, 553342 bytes
-#   portfolio-front-tools-2: 147 files, 550686 bytes
-#   portfolio-front-tools-3: 123 files, 548833 bytes
-#   portfolio-front-tools-4: 118 files, 550161 bytes
-#   portfolio-front-tools-5: 128 files, 553438 bytes
-#   portfolio-front-tools-6: 106 files, 555892 bytes
-#   portfolio-front-tools-7: 113 files, 556403 bytes
-#   portfolio-front-tools-8: 107 files, 554640 bytes
-#   portfolio-front-tools-9: 112 files, 554313 bytes
-#   portfolio-front-tools-10: 74 files, 383833 bytes
+#   portfolio-front-tools-0: 136 files, 556051 bytes
+#   portfolio-front-tools-1: 112 files, 553347 bytes
+#   portfolio-front-tools-2: 147 files, 550707 bytes
+#   portfolio-front-tools-3: 124 files, 552649 bytes
+#   portfolio-front-tools-4: 118 files, 550178 bytes
+#   portfolio-front-tools-5: 128 files, 553435 bytes
+#   portfolio-front-tools-6: 106 files, 555899 bytes
+#   portfolio-front-tools-7: 113 files, 556185 bytes
+#   portfolio-front-tools-8: 108 files, 551017 bytes
+#   portfolio-front-tools-9: 110 files, 555385 bytes
+#   portfolio-front-tools-10: 78 files, 397105 bytes
 #
 # The hash is deliberately left ON, matching `portfolio-front-html` and
 # `portfolio-front-nginx`: a Deployment mounts these, so a generated name has
@@ -574,6 +574,7 @@ configMapGenerator:
       - asphalt-sealcoat-bid-calculator__vs-bitumio.html.gz=asphalt-sealcoat-bid-calculator__vs-bitumio.html.gz
       - atm-route-margin__calc.mjs.gz=atm-route-margin__calc.mjs.gz
       - atm-route-margin__index.html.gz=atm-route-margin__index.html.gz
+      - atm-route-margin__is-this-atm-placement-worth-it.html.gz=atm-route-margin__is-this-atm-placement-worth-it.html.gz
       - atm-route-margin__usage.mjs.gz=atm-route-margin__usage.mjs.gz
       - attic-insulation-bid-calculator__calc.mjs.gz=attic-insulation-bid-calculator__calc.mjs.gz
       - attic-insulation-bid-calculator__how-much-to-charge.html.gz=attic-insulation-bid-calculator__how-much-to-charge.html.gz
@@ -1061,6 +1062,9 @@ configMapGenerator:
       - pet-grooming-bid-calculator__share.mjs.gz=pet-grooming-bid-calculator__share.mjs.gz
       - pet-grooming-bid-calculator__usage.mjs.gz=pet-grooming-bid-calculator__usage.mjs.gz
       - pet-grooming-bid-calculator__vs-moego.html.gz=pet-grooming-bid-calculator__vs-moego.html.gz
+      - photo-booth-event-quote__calc.mjs.gz=photo-booth-event-quote__calc.mjs.gz
+      - photo-booth-event-quote__index.html.gz=photo-booth-event-quote__index.html.gz
+      - photo-booth-event-quote__usage.mjs.gz=photo-booth-event-quote__usage.mjs.gz
       - plantation-shutter-bid-calculator__calc.mjs.gz=plantation-shutter-bid-calculator__calc.mjs.gz
       - plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz=plantation-shutter-bid-calculator__how-much-to-charge-to-install-plantation-shutters.html.gz
       - plantation-shutter-bid-calculator__index.html.gz=plantation-shutter-bid-calculator__index.html.gz
@@ -1081,14 +1085,14 @@ configMapGenerator:
       - popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz=popcorn-ceiling-bid-calculator__how-much-to-charge-to-remove-popcorn-ceiling.html.gz
       - popcorn-ceiling-bid-calculator__index.html.gz=popcorn-ceiling-bid-calculator__index.html.gz
       - popcorn-ceiling-bid-calculator__usage.mjs.gz=popcorn-ceiling-bid-calculator__usage.mjs.gz
-      - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
-      - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
-      - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
   - name: portfolio-front-tools-8
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - popcorn-ceiling-bid-calculator__vs-jobber.html.gz=popcorn-ceiling-bid-calculator__vs-jobber.html.gz
+      - pressure-washing-bid-calculator__calc.mjs.gz=pressure-washing-bid-calculator__calc.mjs.gz
+      - pressure-washing-bid-calculator__how-much-to-charge.html.gz=pressure-washing-bid-calculator__how-much-to-charge.html.gz
       - pressure-washing-bid-calculator__index.html.gz=pressure-washing-bid-calculator__index.html.gz
       - pressure-washing-bid-calculator__share.mjs.gz=pressure-washing-bid-calculator__share.mjs.gz
       - pressure-washing-bid-calculator__usage.mjs.gz=pressure-washing-bid-calculator__usage.mjs.gz
@@ -1194,13 +1198,13 @@ configMapGenerator:
       - shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-pickup-on-shopify.html.gz
       - shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz=shopify-fee-calculator__should-i-offer-shop-pay-installments.html.gz
       - shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz=shopify-fee-calculator__should-i-offer-store-credit-instead-of-a-refund.html.gz
-      - shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz
-      - shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz=shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz
   - name: portfolio-front-tools-9
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz=shopify-fee-calculator__should-i-offer-subscriptions-on-shopify.html.gz
+      - shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz=shopify-fee-calculator__should-i-recover-abandoned-checkouts-on-shopify.html.gz
       - shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz=shopify-fee-calculator__should-i-sell-gift-cards-on-shopify.html.gz
       - shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz=shopify-fee-calculator__should-i-take-bank-transfer-on-shopify.html.gz
       - shopify-fee-calculator__should-i-take-shopify-capital.html.gz=shopify-fee-calculator__should-i-take-shopify-capital.html.gz
@@ -1309,15 +1313,15 @@ configMapGenerator:
       - vending-machine-route-margin__calc.mjs.gz=vending-machine-route-margin__calc.mjs.gz
       - vending-machine-route-margin__index.html.gz=vending-machine-route-margin__index.html.gz
       - vending-machine-route-margin__usage.mjs.gz=vending-machine-route-margin__usage.mjs.gz
-      - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
-      - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
-      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
-      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
   - name: portfolio-front-tools-10
     options:
       annotations:
         argocd.argoproj.io/sync-options: ServerSideApply=true
     files:
+      - vending-machine-route-margin__vs-cantaloupe.html.gz=vending-machine-route-margin__vs-cantaloupe.html.gz
+      - vending-machine-route-margin__vs-vendsoft.html.gz=vending-machine-route-margin__vs-vendsoft.html.gz
+      - vendor-change-watch__diff.mjs.gz=vendor-change-watch__diff.mjs.gz
+      - vendor-change-watch__examples.mjs.gz=vendor-change-watch__examples.mjs.gz
       - vendor-change-watch__index.html.gz=vendor-change-watch__index.html.gz
       - vendor-change-watch__store.mjs.gz=vendor-change-watch__store.mjs.gz
       - vendor-change-watch__usage.mjs.gz=vendor-change-watch__usage.mjs.gz
