@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Custom Farm Rate Calculator — Price Custom Field Work Per Acre</title>
+<meta name="description" content="Free calculator for custom farm operators: find the rate to charge per acre for combining, planting, spraying, baling, or tillage work, from your own machine speed, width, fuel, repairs, ownership cost, and labor — then check a season of jobs against an income goal.">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Custom Farm Rate Calculator">
+<meta property="og:description" content="Stop guessing at a per-acre rate. Work out the field capacity, fuel, repairs, ownership cost, and labor behind one job, then price it at your own target margin.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="./">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Custom Farm Rate Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that finds the rate to charge for one custom farm field job (combining, planting, spraying, baling, or tillage) from field speed, implement width, field efficiency, fuel burn, repairs, annual machine ownership cost spread over hours actually used, and operator labor, then rolls a season of jobs up into total profit against an income goal."}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the field efficiency percentage matter so much?","acceptedAnswer":{"@type":"Answer","text":"Because it directly scales how many hours a job actually takes. A machine rated for a given speed and width never works at 100% of that in the field — turns at the end of every pass, overlap between passes, and stops to refill or unload all eat into it. Overstating field efficiency understates hours for the job, which understates every cost that scales with hours: fuel, repairs, ownership cost, and your own labor."}},{"@type":"Question","name":"Why spread the machine's ownership cost over hours used per year instead of just this job's hours?","acceptedAnswer":{"@type":"Answer","text":"A combine or planter costs money to own — depreciation, interest, insurance, and housing — whether it runs 50 hours a year or 500. Spreading that fixed annual cost over the hours it actually runs, then charging each job its share of the resulting per-hour figure, is what makes lightly used equipment carry a higher rate per acre than the same machine run hard across more acres and more customers."}},{"@type":"Question","name":"Is margin here a percentage of cost or a percentage of price?","acceptedAnswer":{"@type":"Answer","text":"A percentage of price. Fifteen percent margin on a $3,000 job is $450 of profit; a 15% mark-up on $3,000 of cost is $450 too, coincidentally, but the two diverge as the margin percentage rises — a 40% margin and a 40% mark-up are very different numbers. This calculator always treats your target as a share of what you bill, since that is the number a season's revenue and profit actually depend on."}},{"@type":"Question","name":"Does this replace a published custom rate survey?","acceptedAnswer":{"@type":"Answer","text":"No. Published regional custom rate surveys report what other operators charged last season, averaged across many farms and machines — useful as a market check, not as your own cost structure. This calculator works out what a job costs a machine with your specific speed, width, fuel burn, repair history, ownership cost, and hours of annual use, which the survey average cannot know."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the job list you type into the season section is never saved anywhere — it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above."}}]}</script>
+<style>
+:root{font:16px/1.5 system-ui,sans-serif;color:#1c2416;background:#f2f5ea}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,4.2rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfdcb8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #33420d08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe7c4;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#4a6b1f;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b9cd94;border-radius:8px;font:inherit;background:#fdfdf9}.result{background:#33420d;color:#fff;border-color:#33420d;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#516138}.result .note{color:#dcedbf}.err{color:#ffd9a6;font-weight:700}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:6px 4px;text-align:left}th{font-size:.75rem;color:#4a6b1f}td input{padding:6px}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b9cd94;background:#fff;cursor:pointer;color:#1c2416}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><p>FOR CUSTOM FARM OPERATORS</p><h1>A per-acre rate that starts from your machine, not a rumor.</h1><p class="lede">Custom rate surveys report what other operators charged last season, on someone else's machine. This free calculator works out the rate a job actually needs to cover on <em>yours</em> — field capacity, fuel, repairs, the machine's own ownership cost spread over the hours it runs, and your labor — then checks a season of jobs against an income goal.</p></header>
+
+<main class="layout">
+<section><h2>Price one field job</h2>
+<fieldset><legend>The job</legend><div class="fields">
+<label>Acres in this job<input id="acres" type="number" min="0.1" step="any" value="160"></label>
+<label>Field speed (mph)<input id="fieldSpeedMph" type="number" min="0.1" step="0.1" value="4.5"></label>
+<label>Implement width (ft)<input id="implementWidthFt" type="number" min="0.1" step="any" value="30"></label>
+<label>Field efficiency (%)<input id="fieldEfficiencyPct" type="number" min="1" max="100" step="1" value="75"></label>
+</div></fieldset>
+<fieldset><legend>Running the machine</legend><div class="fields">
+<label>Fuel price ($/gal)<input id="fuelPricePerGallon" type="number" min="0" step="0.01" value="3.85"></label>
+<label>Fuel burn (gal/hr)<input id="fuelBurnGph" type="number" min="0" step="0.1" value="12"></label>
+<label>Repairs &amp; maintenance ($/hr)<input id="repairsPerHour" type="number" min="0" step="0.5" value="18"></label>
+<label>Labor rate ($/hr)<input id="laborRatePerHour" type="number" min="0" step="0.5" value="24"></label>
+</div></fieldset>
+<fieldset><legend>Owning the machine</legend><div class="fields">
+<label>Annual ownership cost ($/yr)<input id="annualOwnershipCost" type="number" min="0" step="100" value="28000"></label>
+<label>Hours used per year<input id="hoursUsedPerYear" type="number" min="0.1" step="any" value="250"></label>
+</div></fieldset>
+<fieldset><legend>What you want to make</legend><div class="fields">
+<label>Target margin (%)<input id="targetMarginPct" type="number" min="0" max="99.9" step="0.5" value="15"></label>
+</div></fieldset>
+<p class="note">Annual ownership cost is depreciation, interest, insurance, and housing for the machine and implement together — the cost that applies whether it runs 50 hours or 500. Hours used per year should be every hour the machine runs across all your customers and your own ground, not just this one job.</p>
+</section>
+
+<section id="price" class="result" aria-live="polite"><h2>Rate for this job</h2><p id="errors" class="err" role="alert" hidden></p>
+<div id="billRate" class="big">$0.00/ac</div><p id="rateLine" class="note"></p>
+<dl>
+<dt>Field capacity</dt><dd id="capacityOut"></dd>
+<dt>Hours for this job</dt><dd id="hoursOut"></dd>
+<dt>Fuel cost</dt><dd id="fuelOut"></dd>
+<dt>Repairs &amp; maintenance</dt><dd id="repairsOut"></dd>
+<dt>Ownership cost (this job's share)</dt><dd id="ownershipOut"></dd>
+<dt>Labor cost</dt><dd id="laborOut"></dd>
+<dt>Total cost</dt><dd id="totalCostOut"></dd>
+<dt>Break-even rate</dt><dd id="breakEvenOut"></dd>
+<dt>Revenue at bill rate</dt><dd id="revenueOut"></dd>
+<dt>Profit at bill rate</dt><dd id="profitOut"></dd>
+</dl>
+<p class="note">This is a planning floor from the numbers you typed, not a market quote or a published custom rate survey. It does not add hauling, drying, or a second machine's cost unless you fold those into the inputs above.</p>
+</section>
+</main>
+
+<section id="seasonRevenue"><h2>Your season this year</h2><p class="note">For each job, run it through the calculator above and enter its profit here. Blank or zero rows are ignored. Nothing you type here is saved or uploaded — refreshing the page clears it.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Job</th><th>Profit ($)</th></tr></thead><tbody id="jobRows">
+<tr><td>1</td><td><input class="jobProfit" data-row="1" type="number" step="1" value="460"></td></tr>
+<tr><td>2</td><td><input class="jobProfit" data-row="2" type="number" step="1" value="310"></td></tr>
+<tr><td>3</td><td><input class="jobProfit" data-row="3" type="number" step="1" value=""></td></tr>
+<tr><td>4</td><td><input class="jobProfit" data-row="4" type="number" step="1" value=""></td></tr>
+<tr><td>5</td><td><input class="jobProfit" data-row="5" type="number" step="1" value=""></td></tr>
+<tr><td>6</td><td><input class="jobProfit" data-row="6" type="number" step="1" value=""></td></tr>
+</tbody></table></div>
+<div class="fields" style="margin-top:14px">
+<label>Target season income<input id="targetSeasonIncome" type="number" min="0" step="100" value="6000"></label>
+</div>
+<p id="seasonErrors" class="err" role="alert" hidden></p>
+<dl>
+<dt>Jobs counted</dt><dd id="seasonJobs"></dd>
+<dt>Total season profit</dt><dd id="seasonTotal"></dd>
+<dt>Average profit / job</dt><dd id="seasonAverage"></dd>
+<dt>Gap to income goal</dt><dd id="seasonGap"></dd>
+<dt>Additional jobs to close it</dt><dd id="seasonExtra"></dd>
+</dl>
+</section>
+
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your job figures and season list are never uploaded, there is no account, and nothing is saved when you close the tab. We count only anonymous local feature events (<code>job-priced</code>, <code>season-check</code>) so we can tell whether the calculator gets used — no acres, rates, or profit figures are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p></section>
+
+<section><h2>Common questions</h2>
+<h3>Why does the field efficiency percentage matter so much?</h3><p>Because it directly scales how many hours a job actually takes. A machine rated for a given speed and width never works at 100% of that in the field &mdash; turns at the end of every pass, overlap between passes, and stops to refill or unload all eat into it. Overstating field efficiency understates hours for the job, which understates every cost that scales with hours: fuel, repairs, ownership cost, and your own labor.</p>
+<h3>Why spread the machine's ownership cost over hours used per year instead of just this job's hours?</h3><p>A combine or planter costs money to own &mdash; depreciation, interest, insurance, and housing &mdash; whether it runs 50 hours a year or 500. Spreading that fixed annual cost over the hours it actually runs, then charging each job its share of the resulting per-hour figure, is what makes lightly used equipment carry a higher rate per acre than the same machine run hard across more acres and more customers.</p>
+<h3>Is margin here a percentage of cost or a percentage of price?</h3><p>A percentage of price. Fifteen percent margin on a $3,000 job is $450 of profit; a 15% mark-up on $3,000 of cost is $450 too, coincidentally, but the two diverge as the margin percentage rises &mdash; a 40% margin and a 40% mark-up are very different numbers. This calculator always treats your target as a share of what you bill, since that is the number a season's revenue and profit actually depend on.</p>
+<h3>Does this replace a published custom rate survey?</h3><p>No. Published regional custom rate surveys report what other operators charged last season, averaged across many farms and machines &mdash; useful as a market check, not as your own cost structure. This calculator works out what a job costs a machine with your specific speed, width, fuel burn, repair history, ownership cost, and hours of annual use, which the survey average cannot know.</p>
+<h3>Is my data uploaded anywhere?</h3><p>No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and the job list you type into the season section is never saved anywhere &mdash; it exists only in the page while it is open. Usage counting only tallies anonymous feature events, and you can turn it off with the button above.</p>
+</section>
+
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not agronomic, tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, set a market rate, verify a custom-farming agreement, or replace your own contract, insurance, or accountant.</p><p>MIT licensed. If it helped you price a job, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+
+<script type="module">
+import { calculate, computeSeasonProfit, incomeGap, DEFAULTS } from './calc.mjs';
+import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
+const el = id => document.getElementById(id);
+const money = (n) => {
+  const format = (n) => `$${n.toFixed(2)}`;
+  const text = format(Math.abs(n));
+  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
+const JOB_IDS = Object.keys(DEFAULTS);
+let counted = false;
+let seasonCounted = false;
+
+function jobInputs() { return Object.fromEntries(JOB_IDS.map(id => [id, el(id).value])); }
+
+function updateJob(count = false) {
+  try {
+    const r = calculate(jobInputs());
+    el('errors').hidden = true; el('errors').textContent = ''; el('billRate').hidden = false;
+    el('billRate').textContent = `${money(r.billRatePerAcre)}/ac`;
+    el('rateLine').textContent = `about ${r.hoursForJob.toFixed(1)} hrs at ${r.fieldCapacityAcresPerHour.toFixed(1)} ac/hr field capacity`;
+    el('capacityOut').textContent = `${r.fieldCapacityAcresPerHour.toFixed(1)} ac/hr`;
+    el('hoursOut').textContent = `${r.hoursForJob.toFixed(1)} hrs`;
+    el('fuelOut').textContent = money(r.fuelCost);
+    el('repairsOut').textContent = money(r.repairsCost);
+    el('ownershipOut').textContent = money(r.ownershipCost);
+    el('laborOut').textContent = money(r.laborCost);
+    el('totalCostOut').textContent = money(r.totalCost);
+    el('breakEvenOut').textContent = `${money(r.breakEvenRatePerAcre)}/ac`;
+    el('revenueOut').textContent = money(r.revenueAtBillRate);
+    el('profitOut').textContent = money(r.profitAtBillRate);
+    if (count && !counted) { recordEvent('job-priced'); counted = true; }
+  } catch (e) {
+    el('errors').textContent = e.message; el('errors').hidden = false; el('billRate').hidden = true;
+    for (const id of ['rateLine', 'capacityOut', 'hoursOut', 'fuelOut', 'repairsOut', 'ownershipOut', 'laborOut', 'totalCostOut', 'breakEvenOut', 'revenueOut', 'profitOut']) el(id).textContent = '';
+  }
+}
+
+function updateSeason(count = false) {
+  try {
+    const jobs = [];
+    for (let row = 1; row <= 6; row++) {
+      const profitEl = document.querySelector(`.jobProfit[data-row="${row}"]`);
+      const profit = parseFloat(profitEl.value);
+      if (!Number.isFinite(profit) || profit === 0) continue;
+      jobs.push({ profit });
+    }
+    const season = computeSeasonProfit(jobs);
+    const targetSeasonIncome = parseFloat(el('targetSeasonIncome').value) || 0;
+    const gap = incomeGap(targetSeasonIncome, season.totalSeasonProfit, season.averageProfitPerJob);
+    el('seasonErrors').hidden = true; el('seasonErrors').textContent = '';
+    el('seasonJobs').textContent = String(season.jobCount);
+    el('seasonTotal').textContent = money(season.totalSeasonProfit);
+    el('seasonAverage').textContent = money(season.averageProfitPerJob);
+    el('seasonGap').textContent = gap.meetsTarget ? 'Goal met' : money(gap.gap);
+    el('seasonExtra').textContent = gap.meetsTarget ? '0' : (gap.additionalJobsNeeded === null ? 'add a profitable job' : String(gap.additionalJobsNeeded));
+    if (count && !seasonCounted) { recordEvent('season-check'); seasonCounted = true; }
+  } catch (e) {
+    el('seasonErrors').textContent = e.message; el('seasonErrors').hidden = false;
+    for (const id of ['seasonJobs', 'seasonTotal', 'seasonAverage', 'seasonGap', 'seasonExtra']) el(id).textContent = '';
+  }
+}
+
+JOB_IDS.forEach(id => el(id).addEventListener('input', () => updateJob(true)));
+document.querySelectorAll('.jobProfit').forEach(input => input.addEventListener('input', () => updateSeason(true)));
+el('targetSeasonIncome').addEventListener('input', () => updateSeason(true));
+el('sponsorLink').addEventListener('click', () => recordEvent('sponsor_link_clicked'));
+el('usage').addEventListener('click', () => { toggleUsage(false); el('usageStatus').textContent = ' Counting is off in this browser.'; });
+if (!usageAllowed()) el('usageStatus').textContent = ' Counting is off in this browser.';
+updateJob(false);
+updateSeason(false);
+</script>
+</body></html>

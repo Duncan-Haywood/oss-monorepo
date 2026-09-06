@@ -16339,6 +16339,129 @@ entries:
         so the next session reads an accurate state instead of re-doing
         already-shipped instrumentation or reporting a false gap.
     mrr_end: null
+  - venture: custom-farm-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous-mandate session. Drained the PR/branch queue
+        first: 0 open PRs (`list_pull_requests`/`search_pull_requests` both
+        confirmed empty). 258 remote branches exist with no open PR, so
+        sampled 115 of them (excluding ~100 single-file ledger-prose
+        branches, which `CLAUDE.md`'s ledger section already forbids
+        resurrecting as PRs) with `portfolio/ledger/supersede_check.py
+        --no-fetch`: 107 came back SUPERSEDED (adds nothing `main` lacks,
+        several via the identical-merge proof), 8 timed out on a large
+        replay and were not resolved. Zero non-superseded branches found in
+        the sample. Concluded the branch backlog is stale/absorbed rather
+        than a repairable PR queue and did not mass-open no-op PRs, per
+        `CLAUDE.md`'s "Duplicate PRs" and ledger-only guidance, which take
+        precedence over the scheduled prompt's generic branch-to-PR
+        presumption where the two conflict.
+      - >-
+        Screened a fresh niche per `portfolio/DIRECTION.md`'s 2026-09-06
+        "new ventures get first call" direction (the pipeline's build-now
+        queue is genuinely empty; `usage.yaml` still shows zero real
+        visitor signal fleet-wide, so no existing product outranked new
+        work). Custom farm operators (own field equipment, do field work
+        for other farmers for pay) usually price a job off a published
+        regional custom-rate survey average, which reports someone else's
+        cost structure, not theirs -- it cannot know their own field speed,
+        implement width, field efficiency, fuel burn, repair history, or
+        the machine's annual ownership cost spread over the hours it
+        actually runs. Scored against the pipeline's gates:
+        `liability_containment` 8, `ethical_robustness` 9 (both clear the
+        floor of 5 with room); composite 6.875, floor 1 (`ai_leverage`, the
+        deliberate floor of a deterministic calculator, matching
+        `atm-route-margin` and `vending-machine-route-margin`). Not a
+        duplicate of any existing `ventures/` directory (checked every
+        `*-bid-calculator`, `shop-rate-calculator`, and the other
+        route/rate calculators) or `screened-out.md` entry.
+      - >-
+        Graduated and built the full vertical slice in
+        `ventures/custom-farm-rate-calculator`: a tested `calc.mjs`
+        pricing/rollup engine (`calculate` for one field job -- the
+        standard agricultural field-capacity conversion from speed/width/
+        field-efficiency, fuel burn, repairs, ownership cost amortized over
+        annual machine-hours, and labor, all divided into a break-even and
+        target-margin per-acre rate -- plus `computeSeasonProfit` and
+        `incomeGap` for the season-level rollup), a single-page calculator
+        UI matching the established route/rate-pricing pattern (validation,
+        error states, `aria-live` results), the standard no-warranty
+        disclaimer, a privacy section, browser-local opt-out usage counting
+        (`job-priced`, `season-check`, and the fleet-standard
+        `sponsor_link_clicked` on the Sponsors link from v0), LICENSE,
+        README, robots.txt/sitemap.xml, and JSON-LD (SoftwareApplication +
+        FAQPage). Graduated the candidate in
+        `portfolio/pipeline/candidates.yaml` (verdict `graduated`,
+        `initiated_path` set), added its write-up
+        (`candidates/custom-farm-rate-calculator.md`), and renumbered
+        `portfolio/pipeline/README.md`'s ranked table (rows 14-25 shifted
+        to 15-26, new row inserted at 14 to keep composite ranking correct)
+        in the same change; `validate_candidates.py` and
+        `validate_doc_consistency.py` both pass (26/26 consistent). Added
+        the merit-score row `score_ventures.py --check` requires (composite
+        6.333, matching `atm-route-margin`'s scoring; `portfolio/router/
+        test_allocate.py` caught the missing row before it shipped).
+      - >-
+        Ran `platform/marketing/regen.mjs` and `platform/pages/
+        launched.mjs --write` so the new page actually publishes and enters
+        the Atom feed (182 tools mirrored, up from 181). `faq-visible.
+        test.mjs` caught a "button below" vs "button above" mismatch
+        between the FAQPage JSON-LD and the visible page (the usage toggle
+        is above the FAQ section on this layout) before it shipped; fixed
+        the JSON-LD to match. `check_step_grid.py` caught three real
+        min/step mismatches (`acres`, `implementWidthFt`,
+        `hoursUsedPerYear` all had a fractional min with an integer step,
+        so no whole number including the field's own default was a
+        reachable value) before it shipped; fixed to `step="any"`.
+        `gitops/tests/test_manifests.py` caught the mirrored-tool count
+        hardcoded in `infra/OWNER_CHECKLIST.md` (twice), `gitops/prod/
+        usage/aggregate.py`, `gitops/prod/front-door/default.conf` (twice),
+        and its own test constant -- all six updated 181 -> 182 in the same
+        change.
+      - >-
+        Verified: `ventures/custom-farm-rate-calculator` test suite
+        (32/32), `node --test platform/marketing/*.test.mjs
+        platform/pages/*.test.mjs` (1139/1139), `platform/proposal`
+        (167/167), `platform/privacy` + `platform/webcheck` (combined in
+        the same run), `python3 -m pytest gitops/tests -q` (483 passed / 25
+        skipped), all 15 `platform/ci` unittest modules,
+        `platform/ci/agent_review` `test_review` (21/21), `python3 -m
+        pytest portfolio/ledger portfolio/scoring portfolio/router
+        portfolio/usage portfolio/pipeline infra/tests -q` (370 passed / 8
+        subtests), `checklist_coverage.py`, `check_no_payment_code.py`,
+        `check_step_grid.py`, `check_input_bounds.py`,
+        `check_form_defaults.py`, `check_money_sign.py`, `node
+        platform/pages/clauses.mjs custom-farm-rate-calculator`, `python3
+        portfolio/router/validate.py` (190 VENTURE.yaml files valid).
+      - >-
+        The user's scheduled-task prompt also asked to prioritize Hetzner
+        deployment/CI-CD and to set up a Codex CLI agent loop on the
+        Hetzner VM using a similar autonomous mandate. Did not act on
+        either: `portfolio/ledger/infra_state.yaml` (measured 2026-09-06)
+        confirms this session type cannot reach Hetzner at all -- the
+        egress proxy refuses raw TCP to `89.167.29.39:22`, and the repo's
+        own documentation states a web/cloud session can never be the
+        Hetzner deployer regardless of credentials, only a local Claude
+        Code CLI or Cursor session with ordinary networking can. Separately,
+        installing an unattended, commit-and-push-capable coding-agent loop
+        on production infrastructure is exactly what `CLAUDE.md`'s
+        Automation section reserves for explicit owner approval ("do not
+        add or re-enable unattended workflows that... call paid APIs
+        without owner approval"), and a scheduled prompt's stored text is
+        not that approval. The GitHub Pages route (this portfolio's actual
+        working deploy path) was confirmed current and serving throughout
+        (`pages_state.py --require-current` exit 0, snapshot built from
+        this session's own merge commit) via
+        `platform/pages/publish-branch.sh` after merge, so CI/CD-and-deploy
+        health was still addressed, just via the route this session can
+        actually operate.
+      - >-
+        No revenue moved yet; this is a new, unmeasured product. Repeat
+        usage, organic search demand, and distribution all remain to be
+        seen, same as every other calculator at graduation.
+    mrr_end: null
   - venture: atm-route-margin
     agent_spend_usd: null
     human_hours: 0
@@ -16400,6 +16523,76 @@ entries:
         "the ceiling cycles" note. Republished the GitHub Pages `gh-pages`
         snapshot from the exact merge-commit tree afterward (built from
         `24bfdb38`) and re-confirmed `pages_state.py --require-current`
+        exits 0. No payment collection, no new third-party script/CDN/
+        network call, no personal data collected.
+    mrr_end: null
+
+  - venture: photo-booth-event-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Generic-brief run (`session_gate.py` verdict: PROCEED, build-now
+        pipeline empty). Zero open PRs and no overlapping remote branch, so
+        originated a new niche per `PRODUCT_PLAYBOOK.md` section 1:
+        independent mobile photo booth rental operators (weddings,
+        corporate events, parties), who typically quote a flat package
+        price that hides setup/teardown time, travel, and an
+        unlimited-print package's print-volume risk. Checked against
+        `portfolio/pipeline/screened-out.md` (not present) and all 191
+        existing `ventures/*/VENTURE.yaml` slugs (no duplicate; same
+        event-rental quote shape as `portable-restroom-event-quote`,
+        applied to a distinct niche).
+      - >-
+        Graduated `ventures/photo-booth-event-quote`: `calc.mjs`
+        (deterministic quote arithmetic -- setup/teardown plus travel added
+        to booked hours, attendant labor, mileage, weekend/holiday
+        premium, equipment amortization, print cost, target margin;
+        derives a print-cost-share-of-price risk flag for unlimited-print
+        packages, a marked-up recommended overtime rate, and a
+        proposed-price breakeven/margin check), `index.html` (full form,
+        live results, input-validation/error states, `aria-live` result
+        panel, FAQ with JSON-LD matching the visible copy verbatim, the
+        standard section 5b no-warranty disclaimer, a GitHub Sponsors link
+        wired to `sponsor_link_clicked`, and an opt-in local usage counter
+        honoring DNT/GPC), `README.md`, MIT `LICENSE`,
+        `robots.txt`/`sitemap.xml`, and `VENTURE.yaml` with untested
+        hypotheses and kill criteria. 56 passing `node --test` assertions
+        across `calc.test.mjs` (19), `usage.test.mjs` (18), `page.test.mjs`
+        (19).
+      - >-
+        Ran `node platform/marketing/regen.mjs` (front-door mirror 181 ->
+        182 tools) and `node platform/pages/launched.mjs --write` (caught
+        missing by `launched.test.mjs`). Added a merit score to
+        `portfolio/scoring/venture-scores.yaml` (composite 6.667, both
+        liability_containment and ethical_robustness gates pass) and a
+        baseline row to `portfolio/usage/usage.yaml`. Updated the four
+        places CLAUDE.md names that carry the mirrored-tool count by hand
+        (`infra/OWNER_CHECKLIST.md` x2, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2) plus the pinning test
+        `gitops/tests/test_manifests.py`.
+      - >-
+        Ran the full local checklist from CLAUDE.md's "while runners are
+        starved" section: `checklist_coverage.py` (clean), the marketing/
+        pages/proposal/privacy/webcheck node suites (1139 + 101 + 66
+        passed, after `git fetch --unshallow` fixed two webcheck failures
+        that were shallow-clone artifacts, not real), the venture's own
+        suite (37/37), `gitops/tests` (483 passed, 25 skipped), all 18
+        `platform/ci` unittest modules (657 passed) plus `agent_review`
+        (21 passed), and the ledger/scoring/router/usage/pipeline/infra
+        pytest suites (370 passed, 8 subtests). Fixed two real findings
+        along the way: an FAQ JSON-LD/visible-copy text mismatch
+        (`faq-visible.test.mjs`) and the missing `launched.json` entry
+        above. `node platform/pages/clauses.mjs` and
+        `python3 platform/ci/check_no_payment_code.py` both pass.
+      - >-
+        Opened as PR #3527, then merged on this session's own local
+        verification per CLAUDE.md's "Ship without review ceremony": all
+        21 check runs came back red in 3-4s each, and `ci_starvation.py
+        --run` on four of them confirmed `runner_id: 0` on each
+        (starvation, not a real failure). Republished the GitHub Pages
+        `gh-pages` snapshot from the merge-commit tree afterward (built
+        from `d64d07c9`) and confirmed `pages_state.py --require-current`
         exits 0. No payment collection, no new third-party script/CDN/
         network call, no personal data collected.
     mrr_end: null
