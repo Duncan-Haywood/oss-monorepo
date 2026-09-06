@@ -87,6 +87,10 @@ const COMPARISON_DISCLAIMER_EXEMPT = new Set([
   // Compares against "your title company's net sheet" -- a role every deal
   // has, not a company or product this could be mistaken for.
   'seller-net-sheet/vs-title-company-net-sheet.html',
+  // Compares against "published regional custom rate surveys" as a category
+  // -- no single verifiable primary source exists for "the" survey, so the
+  // page names no trademark and makes no numeric claim about any one of them.
+  'custom-farm-rate-calculator/vs-survey-rates.html',
 ]);
 
 /** Does `page`'s filename mark it as a named-competitor comparison page? */
