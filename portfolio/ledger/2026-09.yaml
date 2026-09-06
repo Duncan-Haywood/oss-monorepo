@@ -17033,3 +17033,23 @@ entries:
         starved this session) is accounted for. See the fast-follow
         ledger entry for the PR number and the deploy confirmation.
     mrr_end: null
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Opened as PR #3552, merged on this session's own local
+        verification per CLAUDE.md's "Ship without review ceremony": all
+        23 triggered check runs on the PR came back red in 2-4s each, and
+        `ci_starvation.py --run` on two representative run ids confirmed
+        `runner_id: 0` on every job checked (starvation, not a real
+        failure) -- consistent with `portfolio/ledger/infra_state.yaml`'s
+        reading for this session. No payment collection, no new
+        third-party script/CDN/network call, no personal data collected.
+        Deployed the same session: `pages_state.py --require-current`
+        reported `stale` (built from `d057ce00`, `main` had moved to
+        `dc3cad7d`), then
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-branch.sh`
+        republished (186 products, 750 pages, no dead links), and a final
+        `pages_state.py --require-current` confirmed `current` (exit 0).
+    mrr_end: null
