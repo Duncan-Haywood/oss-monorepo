@@ -35,6 +35,11 @@
 #   ./bootstrap/scripts/install-codex-host.sh --credentials  # write creds from stdin
 #   CONFIRM=install-codex-host ./bootstrap/scripts/install-codex-host.sh --uninstall
 #
+# The install apt-gets any missing prerequisite from the distribution archive
+# and re-checks; SKIP_PREREQ_INSTALL=1 reports and refuses without touching the
+# package manager, ALLOW_MISSING_PREREQS=1 proceeds anyway. `--check` never
+# installs anything.
+#
 # Run it on the box, as root. To drive it from a laptop over SSH:
 #
 #   ssh root@<box> 'bash -s' < bootstrap/scripts/install-codex-host.sh
@@ -167,10 +172,16 @@ node_major() {
   [[ "$v" =~ ^[0-9]+$ ]] && printf '%s' "$v"
 }
 
+# Debian/Ubuntu packages the last `host_prereqs` run found missing. A global
+# because the install path has to act on the list, and `host_prereqs` is also
+# called by `--check`, which must not.
+PREREQ_ABSENT=()
+
 # Reports every prerequisite; returns 1 if any is missing or too old.
 # Changes nothing, so both --check and the install can call it.
 host_prereqs() {
   local absent=() entry tool reason major
+  PREREQ_ABSENT=()
   for entry in "${PREREQS[@]}"; do
     tool="${entry%%|*}"
     reason="${entry#*|}"
@@ -195,6 +206,7 @@ host_prereqs() {
 
   [[ "${#absent[@]}" == "0" ]] && return 0
 
+  PREREQ_ABSENT=("${absent[@]}")
   say ""
   say "  The worker runs on this host directly, not in a container, so it needs"
   say "  these already on PATH. On Ubuntu 24.04 (infra/servers.tf builds both"
@@ -203,6 +215,57 @@ host_prereqs() {
   say "      apt-get update && apt-get install -y --no-install-recommends ${absent[*]}"
   say ""
   return 1
+}
+
+# Install the packages `host_prereqs` just reported, from the distribution's
+# own archive. Returns 1 when it cannot (no apt, or apt failed), leaving the
+# caller to fall back to the refusal below.
+#
+# WHY THIS INSTALLS RATHER THAN ONLY ADVISING
+#
+# Printing the apt-get line was correct for someone reading a terminal, and
+# wrong for the way this script is actually reached. `restore-cluster.sh`
+# runs it over SSH, non-interactively, in the middle of a recovery
+# (`WITH_CODEX_HOST=1`) whose whole premise is "take this while you are
+# already holding the key" -- and a fresh `ubuntu-24.04`, which
+# `infra/servers.tf:23` builds both boxes from, has none of these. So the
+# one-command recovery reached step 9, refused, and handed the owner a second
+# trip they had been told they would not need. The advice was accurate and it
+# still cost the thing it was protecting.
+#
+# It is a plain `apt-get install` from Ubuntu's own archive and nothing more:
+# every package the worker needs is there (`nodejs` is 18.x, above the >= 16
+# floor `@openai/codex` declares), so there is no third-party repository, no
+# added key, and nothing downloaded and piped into a shell. That is the reason
+# this is safe to do unattended, and the reason it must stay apt-only -- if a
+# future prerequisite is not in the archive, refuse and say so rather than
+# reaching for a NodeSource-style installer here.
+install_prereqs() {
+  [[ "${#PREREQ_ABSENT[@]}" == "0" ]] && return 0
+
+  if ! command -v apt-get >/dev/null 2>&1; then
+    warn "no apt-get on this host, so the packages above cannot be installed here"
+    return 1
+  fi
+
+  say ""
+  say "  Installing them from the distribution archive:"
+  say "      apt-get install -y --no-install-recommends ${PREREQ_ABSENT[*]}"
+  say ""
+
+  # Noninteractive because the caller is usually an SSH command with no tty;
+  # a package that stops to ask a question would hang the whole restore.
+  export DEBIAN_FRONTEND=noninteractive
+  if ! apt-get update -qq; then
+    warn "apt-get update failed — is this box online?"
+    return 1
+  fi
+  if ! apt-get install -y --no-install-recommends "${PREREQ_ABSENT[@]}"; then
+    warn "apt-get install failed; see its output above"
+    return 1
+  fi
+  ok "packages installed"
+  return 0
 }
 
 # ------------------------------------------------------------------ reporting
@@ -294,11 +357,28 @@ do_install() {
   # cannot run the worker is the outcome this check exists to prevent, and
   # stopping before anything is written leaves the box exactly as it was.
   #
-  # ALLOW_MISSING_PREREQS=1 is for preparing a box whose packages arrive by
-  # another route (an image build, a config-management run) after this. It
-  # deliberately does not silence the report -- the warnings still print.
+  # The order matters. Try to supply what is missing (`install_prereqs`), then
+  # re-ask the same question rather than assuming the install worked -- apt can
+  # exit 0 having installed a package that still puts nothing on PATH. Only a
+  # second failed check refuses.
+  #
+  # SKIP_PREREQ_INSTALL=1 keeps the old advise-and-refuse behaviour, for a box
+  # whose packages are managed elsewhere and where an apt-get would fight
+  # config management. ALLOW_MISSING_PREREQS=1 is the stronger one: proceed
+  # even though the box cannot run the worker yet, for preparing a box whose
+  # packages arrive by another route afterwards. Neither silences the report --
+  # the warnings still print.
   step "host prerequisites"
   if ! host_prereqs; then
+    if [[ "${SKIP_PREREQ_INSTALL:-0}" == "1" ]]; then
+      warn "SKIP_PREREQ_INSTALL=1 — not installing the packages above."
+    elif install_prereqs; then
+      step "host prerequisites (re-checked)"
+      host_prereqs || true
+    fi
+  fi
+
+  if [[ "${#PREREQ_ABSENT[@]}" != "0" ]]; then
     [[ "${ALLOW_MISSING_PREREQS:-0}" == "1" ]] || fail \
       "this host cannot run the worker yet; install the packages above and re-run. Nothing was changed. (ALLOW_MISSING_PREREQS=1 overrides.)"
     warn "ALLOW_MISSING_PREREQS=1 — installing anyway; the worker will fail until they are present."
