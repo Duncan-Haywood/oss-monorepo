@@ -155,6 +155,7 @@
       </table>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy week summary</button>
+        <button type="button" id="copyShareLink">Copy share link</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <hr>
@@ -198,6 +199,7 @@
   <script type="module">
     import { calculateWeek, compareAccessorials } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
 
     const FIELD_IDS = [
       'loadedMiles', 'emptyMiles', 'mpg', 'dieselPrice',
@@ -365,6 +367,41 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    // Restoring a shared link sets each field's value directly rather than
+    // going through readInput()'s string coercion, and skips any id the
+    // link did not carry so the recipient's own page defaults stand.
+    function applyShared(incoming) {
+      for (const id of FIELD_IDS) {
+        if (id in incoming) el(id).value = incoming[id];
+      }
+      if ('factorAccessorials' in incoming) el('factorAccessorials').checked = incoming.factorAccessorials;
+    }
+
+    function shareUrl() {
+      const { origin, pathname } = window.location;
+      return `${origin}${pathname}#${encodeInputs(readInput())}`;
+    }
+
+    async function copyShareLink() {
+      const text = shareUrl();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Link copied — the numbers travel in the link, not to a server';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     FIELD_IDS.forEach(id => {
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => {
@@ -394,7 +431,19 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShareLink').addEventListener('click', () => {
+      copyShareLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
 
+    // A shared week arrives in the fragment, which browsers never send to a
+    // server. `search` is accepted too, so a link that lost its # on the way
+    // through a messaging app still opens on the sender's numbers.
+    const incoming = decodeInputs(window.location.hash || window.location.search);
+    if (Object.keys(incoming).length > 0) {
+      applyShared(incoming);
+      count('shared_link_opened');
+      el('summaryStatus').textContent = 'Opened from a shared link — verify every figure against your own fuel receipts and notes.';
+    }
     update();
   </script>
 </body>
