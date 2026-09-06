@@ -49,6 +49,18 @@ test('the input id list is imported, never restated in the page script', () => {
   );
 });
 
+test('the page money formatter rounds to cents before deciding a sign, so a break-even variance never prints as -$0.00', () => {
+  // `variance` is the one figure here that can be negative, and a
+  // perfectly reconciled statement (billed to the exact cent of the
+  // modeled share) routinely lands it a sub-cent residual below zero from
+  // floating-point subtraction rather than a real shortfall --
+  // `Intl.NumberFormat(...).format(-0.002)` prints "-$0.00" verbatim. See
+  // calc.mjs's `moneyText` and its own regression tests for the reproduction
+  // and the arithmetic; this just guards that the page's own formatter
+  // wasn't left on the un-rounded call the fix replaced.
+  assert.match(html, /const money=n=>\{const c=Math\.round\(n\*100\);return new Intl\.NumberFormat\('en-US',\{style:'currency',currency:'USD'\}\)\.format\(c===0\?0:c\/100\);\};/);
+});
+
 test('the transparent-result panel is an aria-live region so screen readers hear it appear', () => {
   // #output starts hidden and is revealed by script on submit, with no page
   // reload -- without aria-live a screen-reader user gets no announcement
