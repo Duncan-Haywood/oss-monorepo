@@ -86,6 +86,10 @@ import {
   renderCategoryPage,
   sponsorsNote,
   SPONSORS_URL,
+  SPONSOR_CLICK_EVENT,
+  SPONSOR_LINK_ATTR,
+  markSponsorLinks,
+  renderChromeModule,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
@@ -2148,6 +2152,120 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   // Nor does the shared file: an off-origin request from a script every page
   // loads would be the whole privacy claim undone in one line.
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
+});
+
+/**
+ * Runs the real shared chrome file against a stub DOM and returns what it
+ * wrote, plus a way to click something.
+ *
+ * A string match on `renderChromeModule()` cannot tell a counter that fires
+ * from one whose selector never matches, and the selector is the whole of this
+ * feature: the marker attribute and the handler are written in two different
+ * functions and nothing but a real match holds them together. So the script is
+ * executed rather than read.
+ */
+function chromeCounter({ slug = 'etsy-profit-calculator', navigator = {}, stored = {} } = {}) {
+  let click = null;
+  const store = new Map(Object.entries(stored).map(([k, v]) => [k, JSON.stringify(v)]));
+  const localStorage = {
+    getItem: (k) => (store.has(k) ? store.get(k) : null),
+    setItem: (k, v) => store.set(k, v),
+  };
+  const document = {
+    readyState: 'complete',
+    querySelector: () => (slug === null ? null : { getAttribute: () => slug }),
+    addEventListener: (type, fn) => { if (type === 'click') click = fn; },
+    // The scroll-accessibility half of the same file sweeps these; it is not
+    // what this test is about, so it is given an empty page to find nothing in.
+    getElementsByTagName: () => [],
+    body: { getElementsByTagName: () => [] },
+  };
+  new Function('navigator', 'localStorage', 'document', 'addEventListener', 'getComputedStyle',
+    renderChromeModule())(
+    navigator, localStorage, document, () => {}, () => ({ overflowX: 'visible' }),
+  );
+  return {
+    counts: () => JSON.parse(store.get('portfolio-hub-usage') || '{}'),
+    // `matches` is the set of selectors this element should answer `closest`
+    // for -- the stand-in for where it sits in the real page.
+    clickOn: (...matches) => click?.({ target: { closest: (sel) => (matches.includes(sel) ? {
+      getAttribute: () => 'roofing-bid-calculator',
+    } : null) } }),
+    clicked: () => click !== null,
+  };
+}
+
+test('a click on the sponsor link is counted, under the same rules as every other event', async () => {
+  const marker = `[${SPONSOR_LINK_ATTR}]`;
+
+  const page = chromeCounter();
+  assert.ok(page.clicked(), 'the counter registered no click listener at all');
+  assert.equal(page.counts()[SPONSOR_CLICK_EVENT], undefined, 'nothing is counted before a click');
+  page.clickOn(marker);
+  assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 1);
+  page.clickOn(marker);
+  assert.equal(page.counts()[SPONSOR_CLICK_EVENT], 2, 'a second click is a second count');
+  assert.equal(page.counts()['tool_viewed:etsy-profit-calculator'], 1,
+    'and the view it is read against is still counted once, not once per click');
+
+  // The two halves of the delegate are independent: the cross-tool link was
+  // there first and a sponsor click must not be read as one, or the denominator
+  // moves every time the numerator does.
+  const other = chromeCounter();
+  other.clickOn('[data-pf-to]');
+  assert.equal(other.counts()[SPONSOR_CLICK_EVENT], undefined);
+  assert.equal(other.counts()['cross_tool_click:roofing-bid-calculator'], 1);
+
+  // A click on neither -- the ordinary case, since most clicks on these pages
+  // land on a number field.
+  const idle = chromeCounter();
+  idle.clickOn();
+  assert.deepEqual(Object.keys(idle.counts()).filter((k) => k !== 'last_day'),
+    ['tool_viewed:etsy-profit-calculator']);
+
+  // Every off switch that silences the other two events silences this one,
+  // because it is the same guarded block and not a second counter beside it.
+  for (const [why, options] of [
+    ['Do Not Track', { navigator: { doNotTrack: '1' } }],
+    ['Global Privacy Control', { navigator: { globalPrivacyControl: true } }],
+    ['the hub opt-out', { stored: { 'portfolio-hub-optout': 1 } }],
+  ]) {
+    const off = chromeCounter(options);
+    off.clickOn(marker);
+    assert.equal(off.counts()[SPONSOR_CLICK_EVENT], undefined, `${why} did not silence the count`);
+  }
+});
+
+test('the sponsor link is marked wherever it was written, and marking it twice changes nothing', async () => {
+  const link = `<a href="${SPONSORS_URL}">Sponsoring on GitHub</a>`;
+  const marked = markSponsorLinks(link);
+  assert.match(marked, new RegExp(`<a href="${SPONSORS_URL}" ${SPONSOR_LINK_ATTR}>`));
+  assert.equal(markSponsorLinks(marked), marked, 'a second pass double-tagged the anchor');
+
+  // Attributes the venture already wrote survive, and an anchor that is not the
+  // sponsor link is left completely alone -- including the LICENSE link that
+  // sits beside it in most of these footers.
+  assert.match(
+    markSponsorLinks(`<a class="x" href="${SPONSORS_URL}" rel="noopener">S</a>`),
+    /<a class="x" href="[^"]+" rel="noopener" data-pf-sponsor>/,
+  );
+  const unrelated = '<a href="LICENSE">MIT</a><a href="https://github.com/other">other</a>';
+  assert.equal(markSponsorLinks(unrelated), unrelated);
+
+  // And on the built site: the tool pages the chrome wraps, plus the four kinds
+  // of page it does not, each of which renders its own sponsor line.
+  for (const parts of [
+    ['etsy-profit-calculator', 'index.html'],
+    ['index.html'],
+    ['about', 'index.html'],
+  ]) {
+    const html = await read(...parts);
+    const sponsorAnchors = [...html.matchAll(/<a\b[^>]*href="[^"]*\/sponsors\/[^"]*"[^>]*>/g)];
+    assert.ok(sponsorAnchors.length > 0, `${parts.join('/')} renders no sponsor link at all`);
+    for (const [tag] of sponsorAnchors) {
+      assert.ok(tag.includes(SPONSOR_LINK_ATTR), `${parts.join('/')} has an uncountable sponsor link: ${tag}`);
+    }
+  }
 });
 
 test('a page carries no inline chrome script or stylesheet, only links to the shared ones', async () => {

@@ -95,6 +95,26 @@ venture that wires it, the same way `PRODUCT_PLAYBOOK.md` §6 describes, so a
 click on that one link is comparable across products instead of scattered
 under a different name per venture.
 
+**Wired the same day, on the published site, in one place rather than 186.**
+The paragraph above asks each venture to wire it, and taking that literally
+meant editing 186 `index.html` footers — of which only 155 have a `usage.mjs`
+to call, so 31 would have had no way to comply and a 187th venture would ship
+uncounted by default. The link is not a venture's own feature: it is identical
+markup on every one of them, so it is counted where the identical markup is
+already handled, in `platform/pages/build.mjs`. A build pass marks every
+Sponsors anchor with `data-pf-sponsor` (`markSponsorLinks`), and the shared
+`pf-site.js` that all 733 published pages already load counts a click on it
+into `portfolio-hub-usage` — the same store, the same day-only granularity and
+the same three off switches (DNT, Sec-GPC, `portfolio-hub-optout`) as the
+`tool_viewed:*` events that are its denominator. It never transmits.
+
+Two consequences worth knowing before reading the number. It counts on the
+**published site**, so a venture's own repo or a locally opened `index.html`
+still records nothing — wire `recordUsage(..., 'sponsor_link_clicked')` there
+if a venture needs it. And, like every counter here, it lands in the visitor's
+own browser: it makes the click *countable*, and getting the count back off
+the device is still the open problem the next section describes.
+
 ## The published tool site counts itself
 
 > **Not on the route that is currently serving.** Everything in this section
