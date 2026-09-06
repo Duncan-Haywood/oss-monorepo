@@ -14979,3 +14979,96 @@ entries:
         tests, run individually as CLAUDE.md's starvation section
         directs).
     mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled deploy/marketing-focused run. Open-PR and open-branch
+        drain came first per this run's mandate: 0 open PRs (list_pull_requests,
+        state=open, empty). Sampled the five branches whose names read as
+        deliberate work rather than an auto-generated session slug
+        (agent/deploy-cicd-ledger-2868, agent/marketing-distribution-gutter-
+        guard-vs-jobnimbus, agent/runner-token-error-message, ci/hetzner-ssh-
+        key-diagnostic, claude/codex-governor-ask-and-queue-drain-report) --
+        all five came back SUPERSEDED or an identical-merge proof from
+        supersede_check.py, consistent with the 232-branch sweep this file's
+        infra_state.yaml already recorded on 2026-09-05. Nothing repairable
+        found; quota does not apply when the queue is empty.
+      - >-
+        Re-measured the Hetzner/Codex-host deployment blocker the run's
+        prompt asked about directly, rather than restating portfolio/ledger/
+        infra_state.yaml from memory: github-actions-runners still down
+        (fresh dispatch classified via ci_starvation.py --run 34014826526,
+        runner_id 0, 3s, no steps -- checked this morning, not inherited),
+        k3s-cluster still down, and both are gated on the same owner-only
+        action (hetzner-ssh-key-is-a-public-key, decision_queue.py's #1 row)
+        that no agent session can perform: it needs the owner's own private
+        key material pasted from their own machine, which is categorically
+        outside what a hosted session's credentials or network access cover
+        (agent-session-egress reads down for this account's Hetzner boxes,
+        confirmed by infra_state.yaml's own probe results, not simulated
+        here). codex-host-mode's installer/governor code is otherwise ready
+        (gitops/agents/host/), so once the key is rotated the existing
+        `WITH_CODEX_HOST=1` flag on the documented restore command installs
+        it in the same pass -- no separate ask needed, no code change made.
+        The live, actually-agent-operable deploy/CI-CD route right now is
+        the GitHub Pages gh-pages branch: platform/ci/pages_state.py reports
+        it deployed (GitHub's own managed builder, run 34014862380,
+        2026-09-06T05:48:07Z, success) and current (snapshot built from
+        main's own tip e026c22f). No refresh needed this run.
+      - >-
+        Selected product work the same way the two prior scheduled sessions
+        in this file did: usage.yaml carries no genuine external-user signal
+        yet (all 30 nonzero readings are one-off local self-checks or
+        portfolio-pages build aggregates, not visits), so continued the
+        fleet's established shareable-link backlog rather than picking a
+        product on invented evidence. Scanned every venture for a `<form>`
+        with no share.mjs and no existing share-link text/id; five
+        candidates, three ruled out (sponsor-ready already has its own
+        buildShareUrl under app.js, just not named share.mjs; shop-rate-
+        calculator's own test explicitly refuses a share link because
+        payroll/overhead figures are "more than anybody should put in a
+        URL"; grant-reporting-tracker and construction-evidence-log are both
+        open-ended multi-entry logs -- an unbounded list of free-text site
+        notes or grant awards -- not a bounded single scenario, the shape
+        every existing share.mjs in this fleet actually covers).
+        grant-deadline-tracker's "Cash at risk if this report is late" panel
+        was the real gap: a bounded 9-numeric-plus-1-date single-scenario
+        calculator that already implies a sharing need via its existing
+        "Copy a board-ready note" button (static text a board member cannot
+        recalculate or adjust), but had no way to send the live, editable
+        scenario itself.
+      - >-
+        share.mjs follows the fleet's established convention exactly
+        (URLSearchParams in the URL fragment, never sent to a server or
+        logged in a Referer header; a fixed field allowlist mirroring
+        readRiskInput() so a crafted fragment cannot inject an unrecognised
+        value; a blank/unusable field omitted rather than serialized as a
+        default; a shape-only date check, leaving calc.mjs's own
+        compareLateReport to reject an impossible calendar date). Added
+        "Copy shareable link" beside the existing risk-form actions and a
+        riskShareStatus status line; decodes an incoming hash/query ahead of
+        the form's own HTML defaults, before the first renderRisk() call, so
+        a recipient sees the sender's numbers on first paint; two new
+        countUsage events (risk_share_link_copied, risk_shared_link_opened)
+        added the same way this venture's usage.mjs already counts every
+        other feature (no closed EVENTS allowlist exists here, unlike some
+        sibling ventures, so no allowlist edit was needed). Verified a
+        crafted `__proto__` fragment is dropped rather than polluting the
+        prototype, matching the fleet's existing prototype-pollution test
+        pattern.
+      - >-
+        Verified locally (ci_starvation.py --run 34014826526 confirms
+        Actions still starved this morning, runner_id 0, 3s, no steps):
+        venture suite 45/45 (11 new share.test.mjs assertions, including a
+        round-trip, a proto-pollution-drop test, and a page.test.mjs check
+        that the new button/events/import are wired). platform/marketing +
+        platform/pages 1128/1128 after node platform/marketing/regen.mjs
+        (rewrote only this venture's mirror shard and kustomization.yaml).
+        platform/proposal 101/101. platform/privacy + platform/webcheck
+        50/50. gitops/tests: 461 passed, 25 skipped. All 17 platform/ci
+        unittest modules pass individually. build.mjs --out=dist +
+        check.mjs dist: 175 products, 7 category pages, 721 pages, no dead
+        links.
+    mrr_end: null
