@@ -38,7 +38,7 @@
 #   portfolio-front-tools-2: 147 files, 550721 bytes
 #   portfolio-front-tools-3: 125 files, 556708 bytes
 #   portfolio-front-tools-4: 119 files, 555168 bytes
-#   portfolio-front-tools-5: 130 files, 544075 bytes
+#   portfolio-front-tools-5: 131 files, 549120 bytes
 #   portfolio-front-tools-6: 106 files, 553058 bytes
 #   portfolio-front-tools-7: 115 files, 554178 bytes
 #   portfolio-front-tools-8: 114 files, 548737 bytes
@@ -821,6 +821,7 @@ configMapGenerator:
       - exterior-painting-bid-calculator__usage.mjs.gz=exterior-painting-bid-calculator__usage.mjs.gz
       - exterior-painting-bid-calculator__vs-paintscout.html.gz=exterior-painting-bid-calculator__vs-paintscout.html.gz
       - fire-extinguisher-inspection-route-margin__calc.mjs.gz=fire-extinguisher-inspection-route-margin__calc.mjs.gz
+      - fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz=fire-extinguisher-inspection-route-margin__how-many-extinguishers-make-a-site-worth-servicing.html.gz
       - fire-extinguisher-inspection-route-margin__index.html.gz=fire-extinguisher-inspection-route-margin__index.html.gz
       - fire-extinguisher-inspection-route-margin__usage.mjs.gz=fire-extinguisher-inspection-route-margin__usage.mjs.gz
       - fire-extinguisher-inspection-route-margin__vs-servicetitan.html.gz=fire-extinguisher-inspection-route-margin__vs-servicetitan.html.gz
