@@ -355,21 +355,33 @@
       recordUsage(localStorage, el("usageOptOut").checked, event);
     }
 
+    // The scenario rides in the fragment. The copy button's own status line
+    // tells the seller "the link contains your assumptions" -- their cost of
+    // goods, ad spend and margin -- and a query string would make that
+    // sentence true of the recipient's server logs and of the `Referer`
+    // header on any outbound click too. A fragment is stripped from both by
+    // the browser, so the assumptions stay between sender and recipient.
     function scenarioLink() {
       const params = new URLSearchParams();
       FIELD_IDS.forEach((id) => params.set(id, el(id).value));
       params.set("affiliateRefundedOnReturn", el("affiliateRefundedOnReturn").checked ? "1" : "0");
       params.set("affiliateOnItemOnly", el("affiliateOnItemOnly").checked ? "1" : "0");
-      return `${window.location.href.split("?")[0]}?${params}`;
+      return `${window.location.href.split("?")[0].split("#")[0]}#${params}`;
     }
 
     function restoreScenario() {
-      const params = new URLSearchParams(window.location.search);
+      // Fragment first, query string second: scenario links copied before this
+      // page moved to the fragment are already out there and must keep opening.
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const search = new URLSearchParams(window.location.search);
+      const pick = (id) => (hash.has(id) ? hash : search.has(id) ? search : null);
       FIELD_IDS.forEach((id) => {
-        if (params.has(id)) el(id).value = params.get(id);
+        const params = pick(id);
+        if (params) el(id).value = params.get(id);
       });
       ["affiliateRefundedOnReturn", "affiliateOnItemOnly"].forEach((id) => {
-        if (params.has(id)) el(id).checked = params.get(id) === "1";
+        const params = pick(id);
+        if (params) el(id).checked = params.get(id) === "1";
       });
     }
 
@@ -534,6 +546,13 @@
     });
 
     restoreScenario();
+    // Someone opening a scenario link copied before this page moved to the
+    // fragment is still carrying their assumptions in the query string, and
+    // would keep resending them on every subsequent request from this tab.
+    // Rewrite the address to the fragment form once, in place.
+    if (window.location.search) {
+      history.replaceState(null, "", scenarioLink());
+    }
     paint();
   </script>
 </body>

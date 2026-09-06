@@ -528,18 +528,34 @@
       } catch {
         saved = { costs: {}, surfaces: [] };
       }
-      const fromLink = decodeState(location.search || location.hash || '');
-      // The terms ride in the fragment even though this tool's own payload is a
-      // query string. A fragment is not sent in the request line a server logs,
-      // nor in the Referer header a later click carries, and a payment-terms
-      // clause is the painter's own wording — it does not belong in either.
-      applyTerms(decodeTerms(splitTerms(location.hash).terms), el);
+      // Everything rides in the fragment now, terms and numbers alike. The
+      // terms already did, for a reason spelled out here before: a fragment is
+      // not sent in the request line a server logs, nor in the Referer header
+      // a later click carries. That argument was never specific to wording —
+      // this tool's payload is the painter's labour rate, overhead, production
+      // rates and target margin, which is their cost structure. Splitting the
+      // two put the sentence and the numbers behind it on opposite sides of
+      // the same privacy boundary.
+      //
+      // `location.search` is still read so bids shared as `?...` links before
+      // this change keep opening to the sender's figures; nothing writes one.
+      const { payload, terms } = splitTerms(location.hash);
+      const fromLink = decodeState(payload || location.search || '');
+      applyTerms(decodeTerms(terms), el);
       const costs = { ...DEFAULT_COSTS, ...saved.costs, ...fromLink.costs };
       const surfaces = fromLink.surfaces.length ? fromLink.surfaces
         : saved.surfaces.length ? saved.surfaces
         : STARTING_SURFACES;
       applyCosts(costs);
       surfaces.forEach(addSurfaceRow);
+      // A bid opened from a pre-fragment `?` link still has the painter's
+      // costs in the query string, where every later request from this tab
+      // would resend them. Move them to the fragment once, in place, keeping
+      // whatever terms came in alongside.
+      if (location.search) {
+        const moved = withTerms(encodeState({ surfaces, costs }), readTerms(el));
+        history.replaceState(null, '', `${location.pathname}${moved ? `#${moved}` : ''}`);
+      }
     }
 
     el('addSurface').addEventListener('click', () => {
@@ -557,8 +573,11 @@
     el('shareLink').addEventListener('click', async () => {
       const query = encodeState({ surfaces: readSurfaces(), costs: readCosts() });
       const terms = readTerms(el);
-      const fragment = withTerms('', terms);
-      const url = `${location.origin}${location.pathname}?${query}${fragment ? `#${fragment}` : ''}`;
+      // `withTerms` appends the terms to the venture's own payload with `&`,
+      // which is exactly the shape `splitTerms` takes apart on the way back
+      // in — so both halves fit in the one fragment with no second separator.
+      const fragment = withTerms(query, terms);
+      const url = `${location.origin}${location.pathname}${fragment ? `#${fragment}` : ''}`;
       const leftBehind = overlongTermsNote(terms);
       try {
         await navigator.clipboard.writeText(url);
@@ -567,7 +586,7 @@
           : 'Link copied. It contains only the numbers in this form, your deposit and your terms.';
         count('share_copied');
       } catch {
-        history.replaceState(null, '', `?${query}${fragment ? `#${fragment}` : ''}`);
+        history.replaceState(null, '', `${location.pathname}${fragment ? `#${fragment}` : ''}`);
         el('shareStatus').textContent = 'Could not copy automatically — the address bar now holds the shareable link.';
       }
     });

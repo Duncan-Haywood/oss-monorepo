@@ -641,7 +641,12 @@
     }
 
     function restoreSharedLink() {
-      const value = new URLSearchParams(window.location.search).get("c");
+      // Fragment first, then the legacy query string. Links built before this
+      // page moved off `?c=` are already in people's inboxes and must keep
+      // opening to the sender's numbers; only the write side changed.
+      const value =
+        new URLSearchParams(window.location.hash.replace(/^#/, "")).get("c") ??
+        new URLSearchParams(window.location.search).get("c");
       const shared = decodeComparison(value);
       if (!shared) return false;
       for (const id of SHARED_FIELDS) {
@@ -965,8 +970,15 @@
       const status = document.getElementById("share-status");
       try {
         compareChannels(channels, readShared());
+        // The fragment, not the query string: a `?` reaches the server on
+        // every load and rides the `Referer` header of any outbound click,
+        // so the assurance printed below ("it contains your assumptions")
+        // would otherwise be true of the link's text and false of the wire.
+        // Same `c=` + already-escaped payload shape as before, so the decode
+        // level on the reading side is unchanged.
         const url = new URL(window.location.href);
-        url.search = `?c=${encodeComparison(readShared(), channels)}`;
+        url.search = "";
+        url.hash = `c=${encodeComparison(readShared(), channels)}`;
         if (navigator.clipboard?.writeText) {
           try {
             await navigator.clipboard.writeText(url.href);
