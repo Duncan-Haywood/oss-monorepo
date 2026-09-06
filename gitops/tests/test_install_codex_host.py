@@ -441,3 +441,173 @@ def test_a_complete_box_passes_the_check_and_installs(box):
     assert "host prerequisites" in combined
     assert "missing:" not in combined
     assert (Path(box["CODEX_HOST_PREFIX"]) / "workers" / "worker.sh").exists()
+
+
+# --------------------------------------- supplying the prerequisites, not just
+# naming them
+#
+# Printing the apt-get line is the right thing for someone reading a terminal
+# and the wrong thing for how this script is actually reached: `restore-cluster.sh`
+# runs it over SSH, non-interactively, as step 9 of a recovery whose premise is
+# "take this while you are already holding the key". A fresh `ubuntu-24.04` --
+# what `infra/servers.tf:23` builds both boxes from -- has none of these, so the
+# one-command recovery refused at that step and handed the owner a second trip.
+#
+# These tests pin the installer supplying them instead, and pin the two ways
+# that must still refuse: apt failing, and apt succeeding without actually
+# putting the binary on PATH.
+
+
+def _fake_apt(bindir, *, succeed=True, provides=()):
+    """An `apt-get` that records its argv and symlinks `provides` into PATH.
+
+    `provides` names *binaries* to appear after the install, so a case can make
+    apt-get exit 0 while leaving PATH exactly as it was -- which is the failure
+    the re-check exists to catch, and is not hypothetical: a package can install
+    and still put nothing under the directories on PATH.
+    """
+    log = Path(bindir) / "apt-get.log"
+    # Absolute `ln`: this script runs under the restricted PATH it is part of,
+    # which deliberately holds only the installer's own tools.
+    ln = shutil.which("ln")
+    links = "\n".join(
+        f'"{ln}" -sf "{shutil.which(b)}" "{bindir}/{b}"'
+        for b in provides
+        if shutil.which(b)
+    )
+    script = Path(bindir) / "apt-get"
+    script.write_text(
+        "#!/bin/bash\n"
+        f'echo "$@" >> "{log}"\n'
+        'if [[ "$1" == "update" ]]; then exit 0; fi\n'
+        f"{links}\n"
+        f"exit {0 if succeed else 100}\n"
+    )
+    script.chmod(0o755)
+    return log
+
+
+def test_missing_prerequisite_is_installed_and_the_install_proceeds(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+    log = _fake_apt(path, provides=("npm",))
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(os.environ, **box, PATH=path, CONFIRM="install-codex-host"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    # It asked for the package, not the binary, and only the missing one.
+    assert "npm" in log.read_text()
+    # And it got far enough to actually lay the payload down.
+    assert (Path(box["CODEX_HOST_PREFIX"]) / "workers" / "worker.sh").exists()
+
+
+def test_node_is_requested_as_the_nodejs_package(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("npm", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+    log = _fake_apt(path, provides=("node",))
+
+    subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(os.environ, **box, PATH=path, CONFIRM="install-codex-host"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    # `apt-get install node` installs an unrelated package on Debian/Ubuntu.
+    asked = log.read_text()
+    assert "nodejs" in asked
+    assert "install -y --no-install-recommends node\n" not in asked
+
+
+def test_apt_failure_refuses_and_changes_nothing(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+    _fake_apt(path, succeed=False)
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(os.environ, **box, PATH=path, CONFIRM="install-codex-host"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 1, result.stdout
+    combined = result.stdout + result.stderr
+    assert "apt-get install failed" in combined
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+
+
+def test_apt_succeeding_without_providing_the_binary_still_refuses(box, tmp_path):
+    """The re-check, and the reason it is a re-check rather than a return code.
+
+    apt can exit 0 having installed something that puts nothing on PATH. Trusting
+    the exit code would install the payload onto a box that cannot run the
+    worker -- exactly the outcome the prerequisite gate exists to prevent, with
+    the added cost that it now reports clean.
+    """
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+    _fake_apt(path, succeed=True, provides=())
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(os.environ, **box, PATH=path, CONFIRM="install-codex-host"),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 1, result.stdout
+    assert "missing: npm" in result.stdout + result.stderr
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+
+
+def test_skip_prereq_install_keeps_the_advise_and_refuse_behaviour(box, tmp_path):
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+    log = _fake_apt(path, provides=("npm",))
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT)],
+        env=dict(
+            os.environ, **box, PATH=path,
+            CONFIRM="install-codex-host", SKIP_PREREQ_INSTALL="1",
+        ),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 1, result.stdout
+    assert "SKIP_PREREQ_INSTALL=1" in result.stdout + result.stderr
+    # It really did not touch the package manager.
+    assert not log.exists()
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()
+
+
+def test_check_never_installs_anything(box, tmp_path):
+    """`--check` is the read-only mode; supplying packages must not change that."""
+    path = _restricted_path(tmp_path, provide=("node", "git", "curl", "tar"))
+    if path is None:
+        pytest.skip("the test host is missing a prerequisite of its own")
+    log = _fake_apt(path, provides=("npm",))
+
+    result = subprocess.run(
+        ["bash", str(SCRIPT), "--check"],
+        env=dict(os.environ, **box, PATH=path),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    assert result.returncode == 0, result.stderr
+    assert "missing: npm" in result.stdout + result.stderr
+    assert not log.exists()
+    assert not Path(box["CODEX_HOST_PREFIX"]).exists()

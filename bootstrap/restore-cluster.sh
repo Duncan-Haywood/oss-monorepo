@@ -354,12 +354,14 @@ if [[ "${WITH_CODEX_HOST:-0}" == "1" ]]; then
     else
       echo "  ! the Codex host install did not complete." >&2
       echo "    The cluster restore above is unaffected." >&2
-      echo "    The installer prints the reason and, for a missing package, the" >&2
-      echo "    exact apt-get line -- read the output just above rather than" >&2
-      echo "    starting over. The most likely reason on a fresh ubuntu-24.04" >&2
-      echo "    box is that it ships no node and no npm: the worker runs on the" >&2
-      echo "    host here, not in the node:22-bookworm image the k3s Job used." >&2
-      echo "    Fix it on ${AG} and re-run this step, or follow" >&2
+      echo "    A fresh ubuntu-24.04 box ships no node and no npm -- the worker" >&2
+      echo "    runs on the host here, not in the node:22-bookworm image the k3s" >&2
+      echo "    Job used -- but the installer now apt-gets those itself, so that" >&2
+      echo "    is no longer the likely reason. Check whether ${AG} can reach the" >&2
+      echo "    Ubuntu archive: the installer prints apt's own output, and" >&2
+      echo "    'apt-get update failed' there means the box is offline rather" >&2
+      echo "    than missing anything. Read the output just above rather than" >&2
+      echo "    starting over, fix it on ${AG} and re-run this step, or follow" >&2
       echo "    gitops/agents/host/README.md, which does it without this script." >&2
     fi
     ssh_ag "rm -rf '${codex_dir}'" >/dev/null 2>&1 || true
