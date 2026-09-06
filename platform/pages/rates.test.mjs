@@ -84,6 +84,12 @@ const NO_SHARED_SHOP_RATES = {
     '-- with no separate burden field, so hourlyWage and burdenRate cannot be shared onto it. Its ' +
     'overhead and target margin already carry the canonical ids directly, so it carries two of the ' +
     'four: see PARTIAL_SHOP_RATE_PAGES.',
+  'locksmith-bid-calculator':
+    'it prices time as one billed hourly rate rather than a separate crew wage and payroll ' +
+    'burden -- there is no `hourlyWage` or `burdenRate` concept on this page to alias. Its ' +
+    'overhead and target margin do match the canonical meaning exactly and are spelled ' +
+    '`overheadRate` and `targetMargin` directly, so it carries two of the four: see ' +
+    'PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {
