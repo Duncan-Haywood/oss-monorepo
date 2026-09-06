@@ -168,9 +168,18 @@ decisions:
     OPENSSH PRIVATE KEY-----` through `-----END …-----`) and the PAT as
     `ARGOCDREPOTOKEN`, then dispatch `hetzner-gitops CI` with `preflight:
     true` to confirm, and again with `restore: restore-cluster`. It reaches
-    the same script. It is worth doing eventually so the recovery is
-    repeatable without a laptop, but it buys nothing today: both dispatches
-    return `runner_id: 0`.
+    the same script, and, as of 2026-09-06 (#3543), the same host-mode flags:
+    the dispatch form itself now carries `with_codex_host`,
+    `with_github_runner_host`, `with_portfolio_site_host` and `site_tls_email`
+    inputs, forwarded into the script's env exactly as the laptop route's
+    env vars are — tick the boxes you want on the one `restore` dispatch
+    rather than re-running it. Before #3543 this route could only ever reach
+    steps 1-8 (the k3s/Argo restore): the three flags above existed in the
+    script but had no workflow_dispatch input and were never forwarded, so a
+    dispatch from here alone left the Codex worker, the self-hosted runner
+    and the portfolio site all uninstalled regardless of what was ticked.
+    It is worth doing eventually so the recovery is repeatable without a
+    laptop, but it buys nothing today: both dispatches return `runner_id: 0`.
     **Why this row was rewritten on 2026-09-05:** it used to lead with the
     Settings route and declared no prerequisites, so the queue rendered it
     `up` and the banner named it as the one row that "can be granted now and
