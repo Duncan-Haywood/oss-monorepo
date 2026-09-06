@@ -119,6 +119,67 @@ business that reaches real users, earns donations, and keeps them happy.
 Treat "screen and graduate a fresh niche" as always in bounds, every
 session, not as a fallback for when the pipeline queue happens to be empty.
 
+## Owner direction, relayed again: the standing brief in one place
+
+This does not create new policy — every point below already exists somewhere
+in this file. It exists because with 3-4 sessions committing concurrently
+(`session_gate.py`'s collision signal), one paragraph that says the whole
+brief at once is worth more than five sessions each reconstructing it from a
+different part of a long document. In the owner's own words, relayed again
+this session: **find viable software businesses — ones that reach real
+users, earn optional donation revenue, keep those users happy, and create no
+legal exposure the owner has to clean up personally.** Ship, deploy, and
+market the products; new ventures get first call, not the leftover slot.
+
+Concretely, as measured this session (`session_gate.py`, `allocate.py`,
+`usage.yaml`):
+
+1. **"Viable" is the operative word, not "more."** 196 `ventures/`
+   directories exist, zero carry a confirmed visitor anywhere in
+   `usage.yaml`, and `session_gate.py` reports $0 revenue across 756 ledger
+   entries. A 197th calculator with no named channel moves none of those
+   numbers. Before graduating a new niche, name the actual place its first
+   visitor comes from (North star point 2, above) — that is what makes it a
+   business bet instead of a repo entry.
+2. **New ventures still rank first when a genuine one clears the gates.**
+   This is the owner's standing preference, not a dated note (see above). A
+   fresh, gate-cleared niche with a named channel outranks a parity feature
+   or added depth on a product nobody has visited — the owner has said
+   directly that new ventures get a special priority here.
+3. **Picking which existing venture gets a session is a solved problem —
+   use the tool, don't guess.** `python3 portfolio/router/allocate.py`
+   ranks the dispatchable set by merit and names the specific untested
+   hypothesis each one is waiting on (187 of 196 ventures dispatchable as of
+   this session). Its top rows are the mechanical answer to "what is the
+   most productive use of this session" on an existing product, ahead of a
+   self-chosen parity feature.
+4. **Marketing is part of the job, and the legal guardrails around it are
+   automatic, not a reason to under-market.** Landing pages, SEO content,
+   and named-competitor comparison pages are how a free niche product gets
+   found without ad spend — keep writing them. `platform/pages/clauses.mjs`
+   and `platform/ci/check_no_payment_code.py` already catch a missing
+   disclaimer or a stray payment SDK fleet-wide in CI; follow
+   `PRODUCT_PLAYBOOK.md` §5b/§5f when writing the copy and let CI be the
+   backstop instead of re-deriving the rules by hand each time.
+5. **Donations are the only revenue lever agents hold, and the mechanism is
+   done.** Every venture ships a `github.com/sponsors/Duncan-Haywood` link
+   and the click already counts itself fleet-wide (see "Revenue" below).
+   There is no remaining per-venture donation task. The two changes that
+   would actually move revenue off $0 — `payout-rail` and
+   `funding-sponsors-live` — are both owner-only
+   (`portfolio/ledger/decision_queue.py`); do not add a third ask about
+   money.
+6. **Legal exposure is the one place speed does not apply, and the list is
+   short and fixed**: payment collection, a compliance warranty, scraped
+   personal data, or a claim the product can't back up. Nothing else trades
+   against speed — a session should never slow down to re-verify an
+   already-verified PR, re-litigate this document, or grow the decision
+   queue with an item that doesn't block a product from shipping.
+
+Read this section as the five-minute version of the brief; the sections
+above and below carry the reasoning and the incident history that produced
+each rule, for whenever the five-minute version isn't enough.
+
 **Fast scan for "what should this session do," in priority order:**
 
 1. A live product is broken, or a fleet-wide guardrail is red
