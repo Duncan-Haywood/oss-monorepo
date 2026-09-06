@@ -280,6 +280,29 @@ account and a tax identity.
    `main` today is no `FUNDING.yml`. This only adds a second entry point on
    top of links that already work — it is not what turns donations on.
 
+**The link ships everywhere now, and nothing measures whether anyone ever
+uses it.** As of 2026-09-06 that is a real gap: the fleet closed "does every
+product carry a sponsor link" (all 185) without closing "do we know if the
+link does anything." Fix it the same way every other feature event is
+recorded — no new mechanism, no vendor:
+
+- Give the sponsor `<a>` a `click` listener that calls the venture's own
+  `recordUsage(storage, optedOut, 'sponsor_link_clicked')` (the same
+  `usage.mjs` helper every other counter in the venture already uses — see
+  [`portfolio/usage/README.md`](portfolio/usage/README.md)). Same rules as
+  any other counter: aggregate-only, local-first, honors `DNT`/GPC, no
+  identifiers.
+- Use the literal event name `sponsor_link_clicked` fleet-wide, not a
+  per-venture variant — a click on the one link this whole section is about
+  is worth being able to compare across products, which a different string
+  per venture would quietly prevent.
+- This is the one usage signal on the direct path from "link exists" to
+  "donation revenue exists." It does not by itself license a mechanical
+  185-venture pass — see "the fleet-parity trap" in `portfolio/DIRECTION.md`
+  before treating this as a task in its own right — but wire it in on any
+  session that is already touching a venture's footer for another reason,
+  and it is a legitimate reason to touch a zero-usage product on its own.
+
 No third-party donation links, and never in front of a feature — a donation
 prompt lives in the README and the footer, nowhere a user has to pass through.
 
@@ -297,6 +320,9 @@ Ship when every line is true:
 - [ ] LICENSE, disclaimer, and privacy line are in the README **and** the
       product.
 - [ ] Usage counting is in, and off-switchable.
+- [ ] The sponsor link fires `sponsor_link_clicked` through the same counter
+      (§6) — new ventures ship this from v0 rather than joining the fleet's
+      backlog of links nobody can tell are being clicked.
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
 - [ ] The §5b **no-warranty** clause is on every page the venture publishes,

@@ -84,6 +84,17 @@ An acceptable event payload, in full:
 
 Anything richer than that needs a reason written next to it in `usage.yaml`.
 
+**One event name is fleet-standard rather than per-product: `sponsor_link_clicked`.**
+Every venture's own feature events are named for what that product does
+(`bid_calculated`, `record_exported`, ...) and vary venture to venture on
+purpose. The GitHub Sponsors link is the one thing identical across all 185
+ventures, and as of 2026-09-06 it ships everywhere with no signal on whether
+it is ever clicked — the fleet closed "does the link exist" without closing
+"does anyone use it." Use the literal string `sponsor_link_clicked` on every
+venture that wires it, the same way `PRODUCT_PLAYBOOK.md` §6 describes, so a
+click on that one link is comparable across products instead of scattered
+under a different name per venture.
+
 ## The published tool site counts itself
 
 > **Not on the route that is currently serving.** Everything in this section
