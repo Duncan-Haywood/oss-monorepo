@@ -1848,10 +1848,18 @@
     "priceField": "finalPrice",
     "depositPercent": 0,
     "fields": {
-      "laborMinutes": { "number": "laborMinutes" },
-      "travelMinutes": { "number": "travelMinutes" },
-      "partsSupplied": { "number": "partsCost" },
-      "emergencyApplied": { "from": "emergencyCall" }
+      "laborMinutes": {
+        "number": "laborMinutes"
+      },
+      "travelMinutes": {
+        "number": "travelMinutes"
+      },
+      "partsSupplied": {
+        "number": "partsCost"
+      },
+      "emergencyApplied": {
+        "from": "emergencyCall"
+      }
     },
     "scope": [
       {
@@ -3810,5 +3818,31 @@
       "notes": "Vehicle should arrive clean and free of wax or silicone-based products for the film to bond properly."
     },
     "disclaimerTail": "Vinyl wrap adhesion depends on paint condition and surface prep; it is not a paint-correction, dent, or rust repair, and film life varies with climate, garaging, and care."
+  },
+  "ice-dam-removal-bid-calculator": {
+    "jobTitle": "Ice dam removal — {edgeFeet} ft of roof edge",
+    "priceField": "quotedPrice",
+    "fields": {
+      "emergencyApplied": {
+        "from": "emergencyCall"
+      }
+    },
+    "scope": [
+      "Steam-clear {edgeFeet} linear ft of roof eave and valley of built-up ice",
+      {
+        "line": "Dispatched as a storm / after-hours priority call",
+        "when": "emergencyApplied"
+      },
+      "Crew and equipment on site to clear ice without damaging roofing, gutters, or siding",
+      "Walk the roof edge before and after to confirm the ice is cleared"
+    ],
+    "placeholders": {
+      "companyName": "North Ridge Ice Dam Removal LLC",
+      "scope": "Steam-clear the front and north-side eaves\nClear the valley above the garage",
+      "exclusions": "Roof shoveling or snow-load removal\nGutter or shingle repair",
+      "paymentTerms": "Due on completion of the call.",
+      "notes": "Weather may require rescheduling; we will call ahead."
+    },
+    "disclaimerTail": "It is not a roofing, structural, or ice-dam-prevention assessment, and it does not replace your own contract or insurance."
   }
 }

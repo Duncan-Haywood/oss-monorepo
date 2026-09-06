@@ -71,6 +71,43 @@ test('gross-up never fires, and never shrinks the pool, once actual occupancy al
   assert.equal(result.modeledShare, 12000);
 });
 
+test('a perfectly reconciled statement prints as break-even, not as a tiny loss', () => {
+  // A landlord who bills the tenant to the exact cent of the modeled share
+  // (the honest, common case) leaves `variance` as a sub-cent floating-point
+  // residual rather than exactly 0 -- `share = tenantArea / rentableArea` is
+  // rarely a terminating decimal. `summary()` must round that residual away
+  // before printing a sign, or a perfect reconciliation reads as "you are
+  // down money" (`(-0.002).toFixed(2)` is the literal string "-0.00").
+  const annualExpenses = 187654.32;
+  const rentableArea = 45000;
+  const tenantArea = 1850;
+  const modeledShare = annualExpenses * (tenantArea / rentableArea);
+  const billedAmount = Math.round(modeledShare * 100) / 100; // billed to the cent
+  const result = reconcile({ annualExpenses, rentableArea, tenantArea, billedAmount, credits: 0 });
+  // The floating-point residual is real and non-zero -- this is the
+  // regression fixture, not a tautology.
+  assert.notEqual(result.variance, 0);
+  assert.ok(Math.abs(result.variance) < 0.01, 'fixture must be a sub-cent residual');
+  const text = summary(result);
+  assert.match(text, /Variance \(modeled less billed\): \$0\.00/);
+  assert.doesNotMatch(text, /\$-0\.00/);
+  assert.match(text, /Monthly equivalent: \$0\.00/);
+});
+
+test('a genuine shortfall still prints its real negative sign', () => {
+  // The fix must not swallow every negative -- only ones that round to zero
+  // cents. A visitor actually owed money still needs to see "-$" and the
+  // checklist wording that goes with it.
+  const parsed = parseInputs({ annualExpenses: '120000', rentableArea: '10000', tenantArea: '1000', billedAmount: '12500', credits: '0' });
+  const result = reconcile(parsed.values);
+  assert.equal(result.variance, -500);
+  // Sign outside the currency symbol, per platform/ci/check_money_sign.py:
+  // "-$500.00", never "$-500.00".
+  assert.match(summary(result), /Variance \(modeled less billed\): -\$500\.00/);
+  assert.doesNotMatch(summary(result), /\$-/);
+  assert.match(reviewItems(result).at(-1), /Net billed is above the modeled share/);
+});
+
 test('rejects gross-up fields outside their valid ranges', () => {
   const base = { annualExpenses: '120000', rentableArea: '10000', tenantArea: '1000', billedAmount: '10000', credits: '500' };
   assert.equal(parseInputs({ ...base, variablePercent: '101' }).ok, false);

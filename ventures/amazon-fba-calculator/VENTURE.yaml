@@ -51,5 +51,5 @@ kill_criteria:
   - Fewer than three qualified Amazon sellers use the calculator twice within 90 days.
   - Users do not find the FBA vs FBM comparison materially different from a single-path FBA fee estimate.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/amazon-fba-calculator/
   analytics: null

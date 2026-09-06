@@ -30,5 +30,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
 
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/
   analytics: null

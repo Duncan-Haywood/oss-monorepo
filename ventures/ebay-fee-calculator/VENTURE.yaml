@@ -67,5 +67,5 @@ kill_criteria:
   - Fewer than three qualified eBay resellers use the calculator twice within 90 days.
   - Users do not find at least one item whose break-even resale price differs materially from their expectation.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/ebay-fee-calculator/
   analytics: null

@@ -1,5 +1,60 @@
 period: 2026-09
 entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled direction-setting session. `portfolio/DIRECTION.md` and
+        `AGENTS.md` were already current (5 commits landed on them earlier
+        today: #3512, #3518, #3530, #3532, #3542, #3551) and `session_gate.py`
+        read PROCEED with no build-now candidates and no usage-signal drift,
+        so re-stating the north star again would have added a sixth
+        restatement of the same paragraph rather than new direction.
+        Investigated the fleet's actual routing tool instead
+        (`portfolio/router/allocate.py`) and found its dispatchability
+        verdict -- the thing that tells a session which venture it can
+        actually start work on -- was being computed from `links.production`,
+        which was `null` in all 195 `ventures/*/VENTURE.yaml` files. That
+        included the 186 ventures `platform/pages/build.mjs` has been
+        building into the live GitHub Pages catalogue
+        (`duncan-haywood.github.io/monorepo-projects/<slug>/`) for weeks and
+        that `pages_state.py` confirms are current. Result: `allocate.py`
+        was reporting 0 of 194 ventures dispatchable, i.e. the entire fleet
+        blocked pending a "customer response" that was already answerable
+        because the products were already live -- the same class of stale
+        bookkeeping this file's own history already flagged for
+        `pipeline/candidates.yaml` (#3542) and treats as worse than no
+        tracker at all.
+      - >-
+        Fixed by setting `links.production` on exactly the 186
+        `VENTURE.yaml` files whose slug appears in the output of
+        `node platform/pages/build.mjs --out=<dir>` (read from the builder's
+        own output, not a re-derived include/exclude list, per the
+        `venturePageRoot` lesson in `CLAUDE.md`). The other 9 scored
+        ventures with no static page (`ai-first-markets`,
+        `garmin-world-traveler-watchface`, `local-site-studio`,
+        `photo-editing`, `photos-import-tools`, `quick-pick-survey`,
+        `retail-pilot-intel`, `vendor-watch`, `world-clock-widget`) correctly
+        kept `links.production: null`; `ubuntu-agent-server` has no
+        `VENTURE.yaml` and was untouched. Re-ran `allocate.py`: now reports
+        186 of 194 dispatchable. Verified: all 195 `VENTURE.yaml` files still
+        parse as YAML; `python3 -m pytest portfolio/router portfolio/scoring -q`
+        (88 tests) and `python3 -m unittest discover -s portfolio/router -t
+        portfolio/router` (51 tests) both pass unchanged. Added a dated
+        correction to `portfolio/router/README.md` so its own worked
+        examples ("0 of 11", "9 of 11 ... blocked on publishing") aren't
+        read as today's numbers -- they describe an 11-venture portfolio
+        from 2026-08-20, before this one grew to 195 and before GitHub
+        Pages went live.
+      - >-
+        Scope check: data-only change to `links.production` (a URL string)
+        plus one documentation file; no code path, no payment code, no new
+        dependency, no personal data, nothing publishing under the
+        portfolio's public name (GitHub Pages was already live and
+        confirmed by `pages_state.py` before this session started). No
+        owner ask needed or added.
+    mrr_end: null
   - venture: dog-walking-route-pricing
     agent_spend_usd: null
     human_hours: 0
@@ -17295,4 +17350,206 @@ entries:
         CLAUDE.md's note about sessions writing "no Playwright in this
         environment" continues to be the only thing standing between this
         catalogue and defects of this class.
+    mrr_end: null
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled deploy-focused session. `session_gate.py` returned PROCEED
+        (32% meta-work share); `pages_state.py` confirmed the GitHub Pages
+        route is already granted and the `gh-pages` snapshot was current
+        against `main`. No open PRs, so no duplicate-work risk. Swept
+        `ventures/*/VENTURE.yaml` ventures for the last ones missing a
+        `vs-*` comparison page (the gap `vehicle-wrap-bid-calculator` and
+        `dumpster-rental-margin-calculator` closed the prior session) and
+        found 10; most (a Garmin watch face, two macOS/iOS apps, a
+        market-research tool, an internal idea-scoring tool, a survey
+        engine, a Shopify-style website builder) have no natural paid
+        competitor to compare against honestly. `locksmith-bid-calculator`
+        does: it is shaped exactly like the trade calculators that already
+        carry one.
+      - >-
+        Added `vs-housecall-pro.html` (+ test) to `locksmith-bid-calculator`,
+        following the same template used by
+        `appliance-repair-quote-calculator/vs-housecall-pro.html` and
+        `garage-door-bid-calculator/vs-housecall-pro.html`: only
+        well-documented, non-numeric Housecall Pro facts (category, publicly
+        stated user count), no dollar figure, explicit non-affiliation
+        statement, linked from the tool page and the sitemap rather than
+        left orphaned. Housecall Pro's site is not reachable from this
+        sandbox to verify current claims, so nothing beyond that public,
+        non-numeric identity is stated.
+      - >-
+        Opened as PR against `main`. Verified locally: 81
+        `locksmith-bid-calculator` tests, 1140
+        `platform/marketing`+`platform/pages` tests, `checklist_coverage.py`
+        clean, 490 `gitops/tests` pytest cases (25 skipped, since this
+        touches `gitops/**` via `regen.mjs`'s front-door mirror rewrite),
+        all 19 `platform/ci` unittest modules, the `agent_review` suite (21
+        tests), 380 `portfolio/ledger|scoring|router|usage|pipeline`+
+        `infra/tests` pytest cases, and the Playwright/axe browser pass
+        (contrast, sweep, journey, sideways, presets, roundtrip all green)
+        via `browser_checks.py --only locksmith-bid-calculator`. No payment
+        collection, no new third-party script/CDN/network call, no personal
+        data collected beyond the existing privacy-conscious usage tracking
+        pattern already used fleet-wide.
+      - >-
+        `marisstella.dev` (the k3s-cluster route) remains down per
+        `infra_state.yaml`, blocked on the owner rotating
+        `HETZNERSSHKEY` (it currently holds a public key) — unchanged by
+        this session and not something a session can act on. The GitHub
+        Pages route is the one unified portfolio surface actually being
+        served today; `platform/pages/publish-branch.sh` needs a run after
+        this merges to pick the new page up there.
+    mrr_end: null
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a second vs-competitor comparison page,
+        `vs-workiz.html` (+ test), for `locksmith-bid-calculator` --
+        graduated earlier the same day (#3552) with zero `vs-*` pages.
+        Compares against Workiz, a field service management platform
+        founded in 2015 by three former locksmiths (Idan Kadosh, Erez
+        Marom, Saar Kohanovitch), which explicitly serves the locksmith
+        trade among others -- following the exact sibling template
+        (`junk-removal-bid-calculator/vs-workiz.html`,
+        `dumpster-rental-margin-calculator/vs-jobber.html`): no
+        unverifiable Workiz pricing/feature claims (workiz.com is not
+        reachable from this sandbox), explicit non-affiliation statement,
+        FAQPage JSON-LD verified byte-for-byte against the visible
+        <h3>/<p> answers (not just heading presence), internal links back
+        to the calculator and its worked-example guide.
+      - >-
+        Collision mid-flight: a concurrent session merged
+        `vs-housecall-pro.html` for the same venture (#3561) between this
+        session's initial collision check and its own push. Re-checked
+        after `git fetch`: no `vs-workiz.html` existed anywhere on `main`,
+        so this is additive (a second, differently-named competitor), not
+        a duplicate -- consistent with the fleet's existing pattern of
+        several ventures already carrying 2-4 `vs-*.html` pages each
+        (e.g. `amazon-fba-calculator` has 4). Merged `main` into the
+        branch, resolved conflicts (generated `gitops/prod/front-door/*`
+        mirror files taken from `main`, then regenerated fresh; hand-merged
+        `sitemap.xml` to list both new pages), and re-ran every check below
+        against the merged tree, not just the pre-merge one.
+      - >-
+        Ran `platform/marketing/regen.mjs` twice (before and after the
+        `main` merge) so the front-door mirror and gitops ConfigMap pick
+        the page up -- Workiz crossed the two-comparison threshold this
+        session (`junk-removal-bid-calculator` + this one), so it now gets
+        its own dedicated `vs__workiz.html.gz` page. `front-door.test.mjs`
+        caught a missing mount line for it in
+        `gitops/prod/kustomization.yaml` before commit ("must mount
+        vs__workiz.html.gz; add it or the page is dark"); added the line
+        and re-ran green.
+      - >-
+        CI was fleet-wide starved (runner_id: 0 pattern documented
+        elsewhere in this file). Verified locally against the
+        post-merge tree instead: `checklist_coverage.py` clean; 89
+        `locksmith-bid-calculator` venture tests (both vs-pages); 1140
+        `platform/marketing` + `platform/pages` tests; 490
+        `gitops/tests` pytest cases (25 skipped); all 19 `platform/ci`
+        unittest modules; 167 `platform/proposal` + `platform/privacy` +
+        `platform/webcheck` tests; 380 `portfolio/ledger|scoring|router
+        |usage|pipeline` + `infra/tests` pytest cases; and the
+        Playwright/axe browser pass (contrast/axe found zero WCAG A/AA
+        violations, sweep/journey/roundtrip/presets/sideways all green,
+        `highlight` skipped -- this venture makes no highlight promise)
+        via `browser_checks.py --only locksmith-bid-calculator`. No
+        payment collection, no new third-party script/CDN/network call,
+        no personal data collected beyond the existing privacy-conscious
+        usage-tracking pattern already used fleet-wide.
+    mrr_end: null
+  - venture: ice-dam-removal-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new niche not in `portfolio/pipeline/screened-out.md`
+        and not an existing `ventures/` directory: independent ice dam
+        removal contractors (steam-based winter roof service) pricing a
+        job by linear feet of roof edge. Shipped the full vertical slice
+        (#3569), following `locksmith-bid-calculator` and
+        `dumpster-rental-margin-calculator` as templates -- VENTURE.yaml,
+        README, MIT LICENSE, calc.mjs + 19 calc.test.mjs cases,
+        index.html with labeled/accessible inputs, page.test.mjs,
+        usage.mjs (local-only, DNT/GPC-respecting) + usage.test.mjs,
+        robots.txt, sitemap.xml, a worked-example guide page, and
+        vs-jobber.html + vs-jobber.test.mjs (FAQPage JSON-LD, no
+        fabricated competitor pricing since jobber.com is unreachable
+        from this sandbox, standard non-affiliation disclaimer).
+      - >-
+        The core economic insight modeled: a two-person crew, truck and
+        steam machine cost nearly the same to dispatch whether the eave
+        needing clearing is 15ft or 150ft, so a per-linear-foot rate card
+        that comfortably covers a long roof run can lose money on a short
+        one. `breakEvenRatePerFoot` says what the rate would need to be
+        for a specific job's footage to break even on its own, ignoring
+        the minimum service charge, and `underpriced` flags the sharper
+        case where even the minimum charge does not clear the job's real
+        cost. A separate actual-hours reconciliation section (ice removal
+        time is unpredictable) recomputes the real profit from the
+        crew's actual on-site hours against the quote already given,
+        catching a job that ran long enough to erase the built-in
+        margin -- mirroring `dumpster-rental-margin-calculator`'s
+        actual-scale-ticket check on the cost side instead of the
+        revenue side.
+      - >-
+        Adopted the fleet-wide customer-proposal module
+        (`platform/proposal/`), required of every `*-bid-calculator`
+        venture: added a `trades.json` entry and ran `adopt.mjs`, plus
+        the JSON-LD `featureList` clause `discoverability.test.mjs`
+        checks for. Added the matching `SHOP_RATE_ALIASES` /
+        `PARTIAL_SHOP_RATE_PAGES` entry in `platform/pages/rates.mjs`
+        (this venture's `crewHourlyRate` aliases the canonical
+        `hourlyWage`; no separate payroll-burden field, so it carries
+        three of the four shared shop-rate fields) with the matching
+        `NO_SHARED_SHOP_RATES` entry in `rates.test.mjs`. Scored in
+        `portfolio/scoring/venture-scores.yaml` (composite 6.333, same
+        shape and gates as `locksmith-bid-calculator`).
+      - >-
+        Ran `platform/marketing/regen.mjs` and `platform/pages/build.mjs`,
+        which bumped the mirrored-tool count 187 -> 188 in the four
+        places `gitops/tests/test_manifests.py` checks by hand
+        (`infra/OWNER_CHECKLIST.md`, `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` x2, and the test's own
+        comment trail), and added this venture's sub-group keyword to
+        `build.mjs`'s `SUBCATEGORY_RULES.trades` (joins the
+        "Roofing, siding & gutters" group). `main` moved twice while this
+        session worked it (a sibling `fire-extinguisher-inspection-
+        route-margin` graduation and a `cam-reconciliation-check` fix);
+        rebuilt the branch cleanly on the current tip both times rather
+        than force-resolving stale generated-file conflicts.
+      - >-
+        CI was fleet-wide starved (runner_id: 0 on every red check,
+        confirmed with `ci_starvation.py` on all distinct failing job
+        types before merging). Verified locally against the merged tree
+        instead: 88 `ice-dam-removal-bid-calculator` venture tests; 1140
+        `platform/marketing` + `platform/pages` tests; 167
+        `platform/proposal` + `platform/privacy` + `platform/webcheck`
+        tests; 490 `gitops/tests` pytest cases (25 skipped); all 15
+        `platform/ci` unittest modules plus `agent_review`'s
+        `test_review`; 380 `portfolio/ledger|scoring|router|usage
+        |pipeline` + `infra/tests` pytest cases (8 subtests);
+        `checklist_coverage.py` clean; and the Playwright/axe browser
+        pass (contrast/axe found zero WCAG A/AA violations,
+        sweep/journey/roundtrip/presets/sideways all green, `highlight`
+        skipped -- this venture makes no highlight promise) via
+        `browser_checks.py --only ice-dam-removal-bid-calculator`, plus
+        `platform/proposal/verify.mjs` against a built `dist` (1/1
+        sound). No payment collection, no third-party script/CDN/network
+        call, no personal data collected beyond the existing
+        privacy-conscious usage-tracking pattern already used
+        fleet-wide.
+      - >-
+        Merged as #3569. Deployed: `pages_state.py --require-current`
+        found the `gh-pages` snapshot stale (built from `bbc5f53f` while
+        `main` had moved to the merge commit `519069aa`); ran
+        `CONFIRM=publish-pages-branch PUSH=1 ./platform/pages/publish-
+        branch.sh` (188 products, 760 pages, no dead links), and
+        `pages_state.py --require-current` then reported `current`,
+        built from `519069aa`, exit 0.
     mrr_end: null

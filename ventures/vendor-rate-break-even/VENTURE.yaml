@@ -23,5 +23,5 @@ kill_criteria:
   - Fewer than three operators use the calculator twice within 90 days.
   - Users cannot identify a vendor scenario that changes their per-job cost or break-even volume.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/vendor-rate-break-even/
   analytics: null

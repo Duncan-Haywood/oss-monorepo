@@ -8,7 +8,7 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 187,
+  "served_here": 188,
   "collection_total": 187,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 122
+      "tool_count": 123
     },
     {
       "id": "evidence",
@@ -971,6 +971,14 @@
       "pages": 3
     },
     {
+      "slug": "ice-dam-removal-bid-calculator",
+      "name": "Ice Dam Removal Bid Calculator — Price a Steam Removal Job",
+      "url": "https://marisstella.dev/tools/ice-dam-removal-bid-calculator/",
+      "category": "Trade & contractor bids",
+      "description": "Free calculator for independent ice dam removal contractors: price a job from linear feet of roof edge, crew size, an emergency/storm premium, and a minimum service charge, then check whether your per-foot rate card actually covers this job's largely fixed cost before a short call quietly loses money.",
+      "pages": 3
+    },
+    {
       "slug": "interior-door-bid-calculator",
       "name": "Interior Door Bid Calculator — Price to Replace Doors",
       "url": "https://marisstella.dev/tools/interior-door-bid-calculator/",
@@ -1032,7 +1040,7 @@
       "url": "https://marisstella.dev/tools/locksmith-bid-calculator/",
       "category": "Trade & contractor bids",
       "description": "Free calculator for mobile locksmiths: price one service call — lockout, rekey, lock install, or fob programming — with the after-hours premium and minimum service charge built in, then check whether today's calls hit your income goal.",
-      "pages": 2
+      "pages": 4
     },
     {
       "slug": "marketplace-fee-compare",

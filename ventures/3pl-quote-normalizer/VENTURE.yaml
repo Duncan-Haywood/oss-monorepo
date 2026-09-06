@@ -39,5 +39,5 @@ kill_criteria:
   - Fewer than three qualified brands use the calculator twice within 90 days.
   - Users do not identify at least one hidden fee or minimum in a real quote.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/3pl-quote-normalizer/
   analytics: null

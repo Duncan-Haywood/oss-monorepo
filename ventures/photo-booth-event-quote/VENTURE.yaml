@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Operators report that pricing setup/teardown and print risk separately is more work than their existing flat package price without changing the number they would have quoted.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/photo-booth-event-quote/
   analytics: null

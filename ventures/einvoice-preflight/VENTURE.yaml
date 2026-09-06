@@ -47,5 +47,5 @@ kill_criteria:
   - Fewer than three qualified bookkeepers or integrators run the checker twice within 90 days.
   - Users do not report catching a defect before submission within 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/einvoice-preflight/
   analytics: null

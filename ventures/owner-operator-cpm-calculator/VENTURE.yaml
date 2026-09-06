@@ -28,5 +28,5 @@ kill_criteria:
   - Operators report that converting to a loaded rate is more work than the load-board number they already use, without changing which loads they take.
   - The starting week is so far from real running that operators cannot use the tool without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/owner-operator-cpm-calculator/
   analytics: null

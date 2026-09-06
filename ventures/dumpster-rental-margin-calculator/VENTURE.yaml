@@ -28,5 +28,5 @@ kill_criteria:
   - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
   - Operators report that separating the allowance price from the overage fee is more work than their existing flat per-size rate card without changing the number they would have quoted.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/dumpster-rental-margin-calculator/
   analytics: null

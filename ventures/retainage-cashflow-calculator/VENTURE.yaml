@@ -23,5 +23,5 @@ kill_criteria:
   - No repeat use or organic repository traffic after 60 days of public availability.
   - Users do not report that the output helped them identify cash tied up in an unpaid project within 90 days.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/retainage-cashflow-calculator/
   analytics: null

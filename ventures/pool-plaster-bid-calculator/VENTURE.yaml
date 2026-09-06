@@ -28,5 +28,5 @@ kill_criteria:
   - Contractors report that splitting plaster surface from water surface, plus chip-out, spa, and tile, is more work than their existing per-square-foot method without changing the price they would have bid.
   - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/pool-plaster-bid-calculator/
   analytics: null

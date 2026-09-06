@@ -90,6 +90,11 @@ const NO_SHARED_SHOP_RATES = {
     'overhead and target margin do match the canonical meaning exactly and are spelled ' +
     '`overheadRate` and `targetMargin` directly, so it carries two of the four: see ' +
     'PARTIAL_SHOP_RATE_PAGES.',
+  'ice-dam-removal-bid-calculator':
+    'its per-tech wage is spelled `crewHourlyRate` rather than `hourlyWage`, but means the same ' +
+    'raw, un-burdened wage -- SHOP_RATE_ALIASES maps it. Its overhead and target margin already ' +
+    'match the canonical ids directly. It has no separate payroll-burden field at all, so it ' +
+    'carries three of the four: see PARTIAL_SHOP_RATE_PAGES.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {

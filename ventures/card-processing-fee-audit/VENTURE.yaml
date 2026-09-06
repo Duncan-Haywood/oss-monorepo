@@ -44,5 +44,5 @@ kill_criteria:
     No unsolicited feedback, star, fork, or referral within 90 days of
     publishing, and no evidence anyone completed an audit.
 links:
-  production: null
+  production: https://duncan-haywood.github.io/monorepo-projects/card-processing-fee-audit/
   analytics: null
