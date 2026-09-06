@@ -319,7 +319,27 @@ check that venture's row in `usage.yaml` first. Zero usage after a fair run
    in `AGENTS.md` catch, which a share-link addition does nothing about and
    which is a more plausible reason a product sits at zero than "it lacked a
    share button."
-3. **Donation-readiness housekeeping** (next section) — so the day
+3. **A real correctness or accessibility defect on an already-live product,
+   not a defect on the product you happen to be adding a feature to.**
+   Added 2026-09-06: this is not hypothetical. #3530, opened the same day
+   this section was last touched, fixes 48 critical axe-detected label
+   violations across three tools already serving on the published site —
+   introduced during the same fast-build cadence this section describes,
+   never caught because nothing routes session time toward *checking* a
+   shipped product once its own PR merges. `AGENTS.md`'s browser checks
+   (`browser_checks.py`) and `ink.test.mjs`'s WCAG AA contrast check run
+   against a single venture when that venture is being edited; nothing
+   fleet-wide asks "of the ~193 already live, which ones would fail these
+   checks today." With zero traffic to any of them, this is also the one
+   quality problem an agent can find and fix *before* it costs a real
+   visitor rather than after — pick a handful of already-shipped ventures a
+   session isn't otherwise touching, run their own `node --test` suite plus
+   the browser/contrast checks, and fix what's red. This is not a call for a
+   dedicated audit initiative or a tracking spreadsheet (that is exactly the
+   meta-work this file elsewhere warns against) — it is a legitimate answer
+   to "what do I do with this session" that ranks above a parity feature,
+   the same as the two items above it.
+4. **Donation-readiness housekeeping** (next section) — so the day
    `funding-sponsors-live` is decided, every product's footer is already
    correct and nothing needs revisiting. **Corrected 2026-09-06:** the
    `sponsor_link_clicked` counter is no longer a per-venture task to wire —
