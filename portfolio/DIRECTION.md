@@ -310,10 +310,12 @@ beats another build**:
 
 The host is decided: GitHub Pages for static products, the existing
 Hetzner boxes for processes — see [`hosting/README.md`](hosting/README.md).
-The remaining owner flip is `deploy-settings` (enable GitHub Pages). Do
-not open a second platform ask, and do not add Cloudflare or Vercel as
-the way a product goes live. Agents prepare the deploy artifact; they
-do not register a domain, store listing, or npm publish. Building
+~~The remaining owner flip is `deploy-settings` (enable GitHub Pages).~~
+**No longer true — see the "Superseded 2026-09-06" note above: `deploy-settings`
+is granted, and this line contradicted that note by still naming it as the
+remaining blocker two paragraphs below it.** Do not add Cloudflare or
+Vercel as the way a product goes live. Agents prepare the deploy artifact;
+they do not register a domain, store listing, or npm publish. Building
 privately remains allowed. Cloning a twelfth undeployed calculator is
 not.
 
