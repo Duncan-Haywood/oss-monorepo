@@ -133,6 +133,14 @@ readings:
       first, and it needs a runner, so it is downstream of both rows here;
       what changed is that it is no longer downstream of a *person* being
       available to SSH to two boxes in order.
+      Corroborated 2026-09-06 from the owner's own browser, which is the first
+      reading of the apex this repository has that came from outside a runner
+      and outside a sandbox: `https://marisstella.dev/` returns
+      `ERR_CONNECTION_REFUSED`. Same signature as run 33889983086 — a refusal,
+      not a timeout, so the host is up and nothing is bound. The verdict does
+      not move on it (a browser cannot see `:6443`), but it does close the one
+      gap the 2026-09-04 measurement had: that reading came from a GitHub
+      runner, and nobody had confirmed a visitor sees the same thing.
 
   codex-host-mode:
     # `up` here means the route is installable and runnable, not that it is
@@ -388,3 +396,27 @@ readings:
       repository has already spent a week on once.
       This does not supersede `github-actions-runners` or `k3s-cluster`; it is
       orthogonal to both. It says who can act while they are down.
+      **Added 2026-09-06: do not port-probe :80 or :443 from a session — the
+      answer is a lie, and it lies in the healthy direction.** The row above
+      measures the proxy *refusing* (403 to CONNECT) and a raw socket to `:22`
+      *timing out*, and both readings are honest failures. A raw socket to
+      `:443` is not: the sandbox accepts the connection itself and will even
+      complete a TLS handshake, returning an empty peer certificate. So
+      `89.167.29.39:443` reads OPEN from here on the same day a browser gets
+      `ERR_CONNECTION_REFUSED` from it.
+      The control that proves it costs one line and belongs in any such probe:
+      TEST-NET-2 `198.51.100.7:443`, an address with nothing listening on it
+      anywhere in the world, *also* connects. (TEST-NET-1 `192.0.2.1:443` is
+      refused, so a single control can come back clean — use both, or use the
+      one that is documented here to answer.)
+      Why this is worth a row rather than a footnote: every other measurement
+      failure this file records fails toward *unknown*, and the tooling is
+      built to treat unknown as never-healthy. This one fails toward **up**. A
+      session asking "is the site back?" with `/dev/tcp` gets "yes" from a dead
+      origin, which is the 2026-08-30..09-04 "nothing is served" episode run in
+      reverse and would be believed faster, because good news is not audited.
+      `platform/ci/public_surface.py` is not affected — it goes through the
+      proxy, gets the 403, and reports NOT MEASURED (verified in this session,
+      28/28 probes blocked). The trap is only for hand-rolled socket probes,
+      which is precisely what a session reaches for when the tool says it
+      cannot answer.

@@ -28,6 +28,35 @@
 # does — but it is a real cost, and the honest fix is to go back to the
 # workflow route once runners are reliable. Re-run this script to refresh.
 #
+# The custom domain it must not eat
+# ---------------------------------
+# Every run force-pushes an orphan commit built from `dist/`, so whatever is on
+# the branch that this build did not produce is *deleted*. That is the right
+# behaviour for a generated artifact and it is wrong for exactly one file.
+#
+# When the owner sets Settings -> Pages -> Custom domain, GitHub does not store
+# that choice only in the account: it commits a `CNAME` file to the serving
+# branch, and it reads the domain back from that file. So the next run of this
+# script used to publish a tree without it, GitHub read the absence as "the
+# custom domain was removed", and `marisstella.dev` stopped serving -- with no
+# error anywhere, a green workflow, and this script printing "pushed".
+#
+# That is not hypothetical on the path the repository is currently on:
+# `.github/workflows/publish-pages-branch.yml` runs this on every merge to
+# `main` once `PAGES_BRANCH_PUBLISH` is `true`, so the domain would have been
+# unset automatically, minutes after the owner set it, over and over.
+#
+# So the domain is *carried forward* from the branch unless it is explicitly
+# changed, and it also decides the site's base URL -- a canonical tag pointing
+# at the github.io project URL on every page of a custom-domain site is an SEO
+# defect this repository has already paid for once.
+#
+#   PAGES_CNAME=marisstella.dev   set (or change) the custom domain
+#   PAGES_CNAME=                  deliberately drop it -- the empty string is
+#                                 the only way to remove one, precisely so that
+#                                 it cannot happen by omission
+#   unset                         carry forward whatever the branch has
+#
 # What it deliberately does NOT do
 # --------------------------------
 # It does not enable GitHub Pages. Publishing under the portfolio's public
@@ -45,8 +74,10 @@
 #   CONFIRM           required, must be exactly `publish-pages-branch`
 #   PUSH              set to 1 to push the branch to `origin`
 #   BRANCH            branch to write (default `gh-pages`)
-#   PAGES_BASE_URL    passed through to build.mjs; defaults to the project
-#                     Pages URL for this repository
+#   PAGES_BASE_URL    passed through to build.mjs; defaults to the custom
+#                     domain when there is one, else the project Pages URL
+#   PAGES_CNAME       custom domain to publish; unset carries the branch's
+#                     existing one forward, empty removes it
 set -euo pipefail
 
 readonly REQUIRED_CONFIRM='publish-pages-branch'
@@ -64,6 +95,59 @@ say() { printf '  %s\n' "$*"; }
 command -v node >/dev/null 2>&1 || die 'node is not on PATH'
 git -C "$repo_root" rev-parse --git-dir >/dev/null 2>&1 || die "$repo_root is not a git repository"
 
+# Resolve the custom domain before the build, because it decides the base URL
+# that `build.mjs` bakes into every canonical tag, every `sitemap.xml` and the
+# Atom feed. Deciding it afterwards would publish a custom-domain site whose
+# every page tells a crawler the real address is somewhere else.
+resolve_cname() {
+  # An explicitly set `PAGES_CNAME` wins, including when it is empty: dropping
+  # a custom domain has to be something you *type*, never something that
+  # happens because a lookup came back quiet.
+  if [ "${PAGES_CNAME+set}" = 'set' ]; then
+    printf '%s' "$PAGES_CNAME"
+    return 0
+  fi
+  local ref
+  for ref in "refs/heads/$BRANCH" "refs/remotes/origin/$BRANCH"; do
+    git -C "$repo_root" rev-parse --verify --quiet "$ref" >/dev/null 2>&1 || continue
+    git -C "$repo_root" cat-file -e "$ref:CNAME" 2>/dev/null || continue
+    git -C "$repo_root" show "$ref:CNAME" 2>/dev/null | head -n 1
+    return 0
+  done
+  printf ''
+}
+
+# `actions/checkout` fetches one branch, so inside the publishing workflow the
+# serving branch is not in the clone at all -- which is precisely where an
+# unnoticed drop would be automated. Fetch it before reading, and when the ref
+# exists on the remote but cannot be fetched, refuse rather than publish a tree
+# whose CNAME state was guessed.
+if [ "${PAGES_CNAME+set}" != 'set' ] \
+  && ! git -C "$repo_root" rev-parse --verify --quiet "refs/heads/$BRANCH" >/dev/null 2>&1 \
+  && git -C "$repo_root" remote | grep -qx origin; then
+  if git -C "$repo_root" ls-remote --exit-code origin "refs/heads/$BRANCH" >/dev/null 2>&1; then
+    if ! git -C "$repo_root" fetch -q origin "refs/heads/$BRANCH:refs/remotes/origin/$BRANCH" 2>/dev/null; then
+      if [ "${PUSH:-}" = '1' ]; then
+        die "cannot read the existing '$BRANCH' branch, so publishing could silently drop a custom domain; retry, or pass PAGES_CNAME explicitly"
+      fi
+      say "warning: could not fetch '$BRANCH'; any existing custom domain is unknown"
+    fi
+  fi
+fi
+
+cname="$(resolve_cname | tr -d '[:space:]')"
+if [ -n "$cname" ]; then
+  # A CNAME file GitHub cannot parse is worse than none: it fails the domain
+  # over without saying so. Only a bare hostname is publishable.
+  case "$cname" in
+    *[!A-Za-z0-9.-]* | -* | *- | .* | *. | *..*)
+      die "not a bare hostname, refusing to publish it as a custom domain: '$cname'" ;;
+    *.*) : ;;
+    *) die "a Pages custom domain must be fully qualified, got: '$cname'" ;;
+  esac
+  export PAGES_BASE_URL="${PAGES_BASE_URL:-https://$cname/}"
+fi
+
 # Everything happens in a scratch directory: the build output and a private
 # index file. The working tree and the checked-out branch are never touched,
 # which is what makes this safe to run mid-session on a dirty tree.
@@ -74,6 +158,11 @@ dist="$scratch/dist"
 echo "Building the site..."
 ( cd "$here" && node build.mjs --out="$dist" >/dev/null )
 say "built $(find "$dist" -type f | wc -l | tr -d ' ') files"
+if [ -n "$cname" ]; then
+  say "custom domain: $cname (base URL ${PAGES_BASE_URL})"
+else
+  say "custom domain: none (serves at the project Pages URL)"
+fi
 
 # Against the artifact, not the sources: a dead link or a stale canonical is
 # created by the copy step, so only the output can show it. Publishing one is
@@ -86,6 +175,14 @@ echo "Checking the built artifact..."
 # the failure mode is a missing page rather than an error, so the guard is
 # worth its one byte.
 : > "$dist/.nojekyll"
+
+# GitHub reads the custom domain back out of this file on every deploy, so it
+# has to be in every tree this script writes, not only the one where it was
+# first set. Written after `check.mjs` for the same reason `.nojekyll` is:
+# it is Pages configuration rather than a page, and nothing links to it.
+if [ -n "$cname" ]; then
+  printf '%s\n' "$cname" > "$dist/CNAME"
+fi
 
 # Build the commit with plumbing rather than a checkout. `git add` needs an
 # index, so it gets a throwaway one; the repository's real index is untouched.
@@ -133,3 +230,15 @@ Staged, not served. To serve it:
   Settings -> Pages -> Source "Deploy from a branch" -> $BRANCH / (root)
 That needs no Actions runner and no k3s cluster, which is the point.
 EOF
+
+if [ -n "$cname" ]; then
+  cat <<EOF
+This snapshot carries the custom domain ${cname}, so it serves there once DNS
+points at GitHub Pages -- see portfolio/hosting/README.md for the records.
+EOF
+else
+  cat <<EOF
+It will serve at the project Pages URL. To serve a custom domain instead, set
+it in Settings -> Pages; this script carries it forward from then on.
+EOF
+fi
