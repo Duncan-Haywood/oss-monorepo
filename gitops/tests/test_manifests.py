@@ -1313,7 +1313,10 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # 185 since 2026-09-06, when `vehicle-wrap-bid-calculator` shipped — same
     # shape again: a new venture with a static `index.html` from its first
     # commit, entering the mirror and the total together.
-    total = 185  # `infra/OWNER_CHECKLIST.md`'s own "N of the 185 tools" wording.
+    # 186 since 2026-09-06, when `locksmith-bid-calculator` shipped — same
+    # shape again: a new venture with a static `index.html` from its first
+    # commit, entering the mirror and the total together.
+    total = 186  # `infra/OWNER_CHECKLIST.md`'s own "N of the 186 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 

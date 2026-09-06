@@ -1843,6 +1843,44 @@
     "disclaimerTail": "It is a maintenance schedule, not a turf health, agronomic, or irrigation assessment, and it does not guarantee the condition or appearance of the lawn.",
     "screenPriceSelector": "#monthly"
   },
+  "locksmith-bid-calculator": {
+    "jobTitle": "Locksmith service call",
+    "priceField": "finalPrice",
+    "depositPercent": 0,
+    "fields": {
+      "laborMinutes": { "number": "laborMinutes" },
+      "travelMinutes": { "number": "travelMinutes" },
+      "partsSupplied": { "number": "partsCost" },
+      "emergencyApplied": { "from": "emergencyCall" }
+    },
+    "scope": [
+      {
+        "line": "{laborMinutes} minute{laborMinutes+s} of on-site labor to complete the job",
+        "when": "laborMinutes"
+      },
+      {
+        "line": "{travelMinutes} minute{travelMinutes+s} of round-trip travel to reach you",
+        "when": "travelMinutes"
+      },
+      {
+        "line": "After-hours or emergency response",
+        "when": "emergencyApplied"
+      },
+      {
+        "line": "Hardware supplied and fitted as needed for the job",
+        "when": "partsSupplied"
+      },
+      "Test all affected locks or hardware on completion and confirm normal operation"
+    ],
+    "placeholders": {
+      "companyName": "Bright Key Locksmith LLC",
+      "scope": "Respond to an after-hours lockout\nRekey the front and back door locks to one key",
+      "exclusions": "Safe opening or safe combination work\nAccess-control system programming beyond a single fob",
+      "paymentTerms": "Due in full on completion of the call.",
+      "notes": "Photo ID matching the service address may be requested before work begins."
+    },
+    "disclaimerTail": "It is not a determination of legal ownership or occupancy of the property, and it does not verify a locksmith license or bond."
+  },
   "mobile-detailing-bid-calculator": {
     "jobTitle": "Mobile detailing — {laborHours~1} hour{laborHours+s} on site",
     "jobTitleFallback": "Mobile detailing",

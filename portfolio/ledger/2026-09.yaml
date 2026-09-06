@@ -16892,4 +16892,144 @@ entries:
         ./platform/pages/publish-branch.sh` (185 products, 748 pages, no
         dead links), and a final `pages_state.py --require-current`
         confirmed `current` (exit 0).
+  - venture: locksmith-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Screened and graduated a fresh niche per DIRECTION.md's "Owner
+        direction, 2026-09-06" section (new-venture session, build-now
+        queue confirmed empty, screen a fresh niche rather than re-scoring
+        the pipeline). Checked `ls ventures/` (194 directories) and
+        `screened-out.md` first: no existing locksmith venture, and
+        neither "locksmith" nor an adjacent lock-bypass/security-consulting
+        category appears in the rejected table. Picked mobile locksmith
+        service-call pricing: a real, narrow, recurring pricing problem
+        (an after-hours/emergency premium that belongs on billed time only,
+        never on parts, and a minimum service charge floor that protects a
+        short job from pricing below what the trip cost) that no existing
+        `*-bid-calculator` or route-margin venture models. Scored against
+        `pipeline/README.md`'s gates: `liability_containment` 8 and
+        `ethical_robustness` 9, both clearing the floor of 5 with room —
+        arithmetic on the locksmith's own figures, never a license/bond
+        verification or a determination about a specific lock, fob, or
+        customer; nothing typed leaves the browser. Composite 6.875, floor
+        1 (`ai_leverage`, the deliberate floor of a deterministic
+        calculator, matching every other graduated route/bid calculator's
+        pattern). Write-up at
+        `portfolio/pipeline/candidates/locksmith-bid-calculator.md`,
+        `candidates.yaml` flipped to `graduated` in the same PR, and the
+        pipeline README table re-ordered by composite (also fixed a
+        pre-existing gap found by `validate_doc_consistency.py`:
+        `dumpster-rental-margin-calculator`, scored in `candidates.yaml`
+        from an earlier session, had no README table row at all).
+      - >-
+        Built `ventures/locksmith-bid-calculator`: a deterministic browser
+        calculator (`calc.mjs`) pricing one service call from labor and
+        travel minutes, an hourly rate, an after-hours/emergency premium
+        applied to billed time only (never parts), a trip fee, parts cost
+        and markup, a callback/warranty reserve, overhead, target margin,
+        and a minimum service charge floor compared against the calculated
+        target — plus a `dailyIncomeGap` check comparing a day's worth of
+        calls, at that average profit, against a target daily income. 14
+        `calc.test.mjs` cases cover the default arithmetic, the emergency
+        premium applying to time only, the minimum-charge floor kicking in
+        on a short job, and input validation. Shipped with the standard
+        five: MIT `LICENSE`, the no-warranty/no-SLA disclaimer on every
+        page, a privacy section naming the two counted events
+        (`call-priced`, `daily-goal-check`) with a visible opt-out honoring
+        Do Not Track/GPC, the `github.com/sponsors/Duncan-Haywood` link
+        with a counted click, and the discoverability checklist (title,
+        meta description, Open Graph, `SoftwareApplication` + `FAQPage`
+        JSON-LD, `sitemap.xml`, `robots.txt`). Added a worked-example guide
+        page,
+        `how-much-should-a-locksmith-charge-for-a-service-call.html`, whose
+        numbers are asserted against `calc.mjs` directly in
+        `page.test.mjs` so a future rounding change cannot drift silently
+        from the printed example. `VENTURE.yaml` added and
+        `portfolio/scoring/venture-scores.yaml` given a matching row (same
+        six-dimension method as every other scored venture) in the same
+        change per `score_ventures.py --check`.
+      - >-
+        The slug ends in `-bid-calculator`, which put it inside two
+        fleet-wide required mechanisms neither obvious from the venture
+        template: `platform/pages/rates.test.mjs`'s "every trade bid
+        calculator on main carries all four shop-rate fields" and
+        `platform/proposal/discoverability.test.mjs`'s "the adopted set is
+        what the module README says it is." Renamed `overheadRatePct` /
+        `targetMarginPct` to the canonical `overheadRate` / `targetMargin`
+        (identical meaning, so a safe rename) to plug into the shared
+        cross-tool shop-rates bar as a partial adopter — the tool prices
+        time as one billed rate rather than a separate crew wage and
+        payroll burden, so there is no `hourlyWage`/`burdenRate` to alias —
+        and added the venture to `NO_SHARED_SHOP_RATES` in
+        `rates.test.mjs` and `PARTIAL_SHOP_RATE_PAGES` in `rates.mjs` with
+        that stated reason, matching the precedent set by
+        `tree-service-bid-calculator` and `pet-grooming-bid-calculator`.
+        Adopted the customer-proposal module properly rather than opting
+        out, since a printable proposal (scope, price, deposit terms,
+        signature line) is real value for a locksmith's own customer, not
+        fleet-parity filler: renamed the page's input reader to
+        `readInput()` and added a `count()` wrapper (house conventions
+        `adopt.mjs` detects), added a `locksmith-bid-calculator` entry to
+        `platform/proposal/trades.json`, ran `node
+        platform/proposal/adopt.mjs locksmith-bid-calculator`, and added
+        the required `featureList` clause
+        ("printable customer proposal with scope, price-held date and
+        signature line") to the JSON-LD. Verified with `node
+        platform/proposal/verify.mjs locksmith-bid-calculator` against a
+        real build (drives Chromium, prints, and asserts the sheet matches
+        the screen price, carries no cost/wage/margin figure, and clears
+        4.5:1 contrast): "1/1 calculators hand the customer a sound
+        proposal."
+      - >-
+        `node platform/pages/build.mjs`'s `SUBCATEGORY_RULES.trades`
+        required a keyword or the tool fell into the generic "More trade
+        bids" catch-all (`build.test.mjs`'s "every published trade tool
+        lands in a named sub-group" caught it) — added `locksmith` to the
+        `trades-openings` (windows, doors & garage) group, since the
+        hardware a locksmith prices sits on the same doors that group's
+        other tools install or replace. Also bumped the mirrored-tool count
+        in the four places CLAUDE.md's "Ship without review ceremony"
+        section names (`infra/OWNER_CHECKLIST.md` twice,
+        `gitops/prod/usage/aggregate.py`,
+        `gitops/prod/front-door/default.conf` twice) plus
+        `gitops/tests/test_manifests.py`'s own `total` constant, 184 to
+        185, after `regen.mjs` and `gitops/tests` both caught the count
+        going stale.
+      - >-
+        Ran the full local checklist from CLAUDE.md's "Ship without review
+        ceremony" section (Actions runners confirmed starved this session
+        per `portfolio/ledger/infra_state.yaml`, so verified locally
+        rather than waiting on CI): the venture's own suite (73/73 after
+        the proposal adoption), `platform/pages/checklist_coverage.py`
+        (clean), `node platform/pages/clauses.mjs locksmith-bid-calculator`
+        (clean), `node platform/pages/check.mjs` against a real build (185
+        products, 747 pages, no dead links), `regen.mjs` (committed the
+        gitops/ rewrite), the marketing+pages suite (1140/1140), the full
+        proposal suite (101/101, including `discoverability.test.mjs` and
+        `verify.mjs`'s real-browser pass), the privacy+webcheck suite
+        (66/66), `gitops/tests` (486 passed, 25 skipped, after the count
+        bump), all 19 `platform/ci` unittest modules, `agent_review` (21
+        tests), the ledger/scoring/router/usage/pipeline + infra pytest
+        suites (370 passed, 8 subtests), and
+        `python3 platform/ci/browser_checks.py --only
+        locksmith-bid-calculator` (`npm install --no-save
+        playwright@1.56.0 axe-core` in one command per CLAUDE.md's exact
+        version note) — 6 of 7 checks ran and passed (contrast, sweep,
+        journey, presets, roundtrip, sideways), 1 skipped as
+        not-applicable (`highlight`, no highlight promise on this page).
+        `check_ledger_only.py` confirmed real shipped files, not ledger
+        prose.
+      - >-
+        Checked for open PRs and recent commits both before starting and
+        immediately before opening the PR per this session's instructions
+        (none touching this niche or slug both times; rebased cleanly
+        onto `main` moving twice, once past `vehicle-wrap-bid-calculator`
+        graduating the same session -- a different niche, not a
+        duplicate, resolved per CLAUDE.md's guidance on overlap not being
+        supersession). To be merged on this local verification per
+        CLAUDE.md's "Ship without review ceremony" once CI (confirmed
+        starved this session) is accounted for. See the fast-follow
+        ledger entry for the PR number and the deploy confirmation.
     mrr_end: null
