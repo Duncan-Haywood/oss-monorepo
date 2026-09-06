@@ -1,6 +1,10 @@
 # Agent instructions
 
-Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — start with its
+Read [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) first — if your brief
+is "set direction" for the fleet, start with its "Before rewriting this brief
+again" note: that exact brief was already re-answered three times in three
+hours immediately before that note was added, and none of the three shipped
+a venture. Otherwise, or once that check clears, start with its
 "North star" section for the six-point version (deploy what's built, new
 ventures rank first as the owner's standing preference, donations only, keep
 customers happy by shipping working/honest products, market the products
