@@ -1,5 +1,6 @@
 import { parseInputs, plan, policyDraft, comparisonNote, netEffectNote } from './calc.mjs';
 import { recordUsage, isUsageEnabled, setUsageEnabled } from './usage.mjs';
+import { encodeInputs, decodeInputs } from './share.mjs';
 
 const form = document.querySelector('#deposit-form');
 const money = (value, currency) => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(value);
@@ -75,3 +76,38 @@ if (navigator.doNotTrack === '1' || navigator.globalPrivacyControl) {
   optout.disabled = true;
 }
 optout.addEventListener('change', (event) => setUsageEnabled(!event.target.checked));
+
+// Restoring a shared link sets each named field directly and skips any id
+// the link did not carry, so the recipient's own page defaults stand for
+// whatever the sender left alone (an unfilled deposit percentage, say).
+function applyShared(incoming) {
+  for (const [id, value] of Object.entries(incoming)) {
+    const field = form.elements.namedItem(id);
+    if (field) field.value = value;
+  }
+}
+
+document.querySelector('#share-link').addEventListener('click', async () => {
+  const status = document.querySelector('#share-status');
+  try {
+    const hash = encodeInputs(Object.fromEntries(new FormData(form)));
+    const url = `${location.origin}${location.pathname}#${hash}`;
+    await navigator.clipboard.writeText(url);
+    history.replaceState(null, '', `#${hash}`);
+    status.textContent = 'Link copied — your numbers travel in the link, not to a server.';
+    recordUsage('share_link_copied');
+  } catch {
+    status.textContent = 'Could not copy automatically — copy the page URL after clicking once more.';
+  }
+});
+
+// A shared plan arrives in the fragment, which browsers never send to a
+// server or log in a Referer header. `search` is accepted too, in case a
+// link loses its # going through a messaging app that rewrites URLs.
+const incomingShare = decodeInputs(window.location.hash || window.location.search);
+if (Object.keys(incomingShare).length > 0) {
+  applyShared(incomingShare);
+  render();
+  recordUsage('shared_link_opened');
+  document.querySelector('#share-status').textContent = 'Opened from a shared link — verify every number before relying on it.';
+}

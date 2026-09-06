@@ -36,7 +36,7 @@
 #   portfolio-front-tools-0: 133 files, 551806 bytes
 #   portfolio-front-tools-1: 114 files, 555486 bytes
 #   portfolio-front-tools-2: 147 files, 556593 bytes
-#   portfolio-front-tools-3: 120 files, 544627 bytes
+#   portfolio-front-tools-3: 121 files, 546903 bytes
 #   portfolio-front-tools-4: 118 files, 555004 bytes
 #   portfolio-front-tools-5: 125 files, 553841 bytes
 #   portfolio-front-tools-6: 104 files, 542746 bytes
@@ -542,6 +542,7 @@ configMapGenerator:
       - appointment-deposit-calculator__calc.mjs.gz=appointment-deposit-calculator__calc.mjs.gz
       - appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz=appointment-deposit-calculator__deposit-vs-no-show-fee.html.gz
       - appointment-deposit-calculator__index.html.gz=appointment-deposit-calculator__index.html.gz
+      - appointment-deposit-calculator__share.mjs.gz=appointment-deposit-calculator__share.mjs.gz
       - appointment-deposit-calculator__style.css.gz=appointment-deposit-calculator__style.css.gz
       - appointment-deposit-calculator__usage.mjs.gz=appointment-deposit-calculator__usage.mjs.gz
       - appointment-deposit-calculator__vs-square-appointments.html.gz=appointment-deposit-calculator__vs-square-appointments.html.gz
