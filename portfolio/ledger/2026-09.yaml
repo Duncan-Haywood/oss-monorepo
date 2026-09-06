@@ -14701,3 +14701,80 @@ entries:
         makes the existing ask buy a served catalogue instead of only a
         diagnosis.
     mrr_end: null
+  - venture: change-order-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Adopted the shared customer-proposal panel (platform/proposal/) onto
+        this venture -- the printable, signable document ~106 sibling bid
+        calculators already ship, which this tool lacked despite its own copy
+        already pointing at the gap ("a summary you can send for written
+        approval"). A construction change order specifically needs the
+        customer's written sign-off before the added work proceeds, so the
+        missing document was a real gap, not a cosmetic one. The generated
+        panel derives its scope lines from the change actually priced (added
+        labor hours, materials, subcontracted work, schedule days), carries a
+        deposit and a price-hold date, and prints a document with no cost,
+        wage, or margin figure on it -- the customer receives only what the
+        contractor is offering to charge, per platform/proposal/README.md's
+        design.
+      - >-
+        Two prerequisite refactors, both additive and behaviour-preserving:
+        extracted the page's inline usage counter into a tested usage.mjs (the
+        adoption tooling anchors its generated import there) with the same
+        event names and opt-out key as before, and added a standalone
+        readInput() the existing render loop now calls (previously an inline
+        Object.fromEntries at the top of update()).
+      - >-
+        Adoption surfaced two real, pre-existing gaps that its own guards
+        exist to catch, and both are fixed rather than routed around. First:
+        this venture's share.mjs predates the proposal panel and had its own
+        hand-kept field allowlist, so the panel's deposit and terms would have
+        silently reverted to defaults for the recipient of a shared link or
+        the sender's own saved draft on their next visit -- the exact defect
+        class platform/proposal/term-ids.test.mjs exists to catch (and which
+        cost five other ventures a real shipped bug on 2026-08-29 per that
+        file's own history). Extended SHARE_FIELDS with the five term ids and
+        wired restoreDraft/restoreShared/copyShare/update to carry them, with
+        a new regression test. Second: platform/pages/jobs.test.mjs's
+        cross-file consistency check caught that this page's hero figure is
+        marked class="hero" rather than this site's class="hero-number"
+        convention, so its own "saved bid" feature (a pre-existing, unrelated
+        feature) had silently never carried a headline figure at all -- the
+        same shape as a defect jobs.mjs already documents for
+        appliance-repair-quote-calculator. Added the matching
+        HEADLINE_AMOUNT_OVERRIDES entry.
+      - >-
+        Picked after ruling out five other candidate gaps by measurement
+        rather than assumption, per this run's brief: FAQPage coverage 175/175
+        (platform/pages/faq-coverage.mjs), guide-page coverage 175/175
+        (guide-coverage.mjs), GitHub Sponsors footer and the no-warranty
+        clause both universal via build-time injection, zero a11y/contrast
+        findings across 653 pages (ink.mjs --strict), and every *-bid-
+        calculator already on the proposal panel per
+        platform/proposal/adopt.mjs --list. Comparison pages and shareable
+        links were both already reported saturated at session start and were
+        not re-investigated.
+      - >-
+        Verified locally (Actions starved -- runners assign runner_id 0, per
+        this repo's standing ci_starvation.py finding this session did not
+        re-dispatch): venture suite 81/81 (11 new assertions: usage.test.mjs
+        x6, share.test.mjs's new deposit/terms round-trip). platform/proposal
+        101/101, including the deposit/terms-survive-a-share-link guard.
+        platform/marketing+platform/pages 1126/1126 after
+        node platform/marketing/regen.mjs (rewrote only this venture's mirror
+        shard, kustomization, and the new usage.mjs mirror asset) -- this
+        included catching and fixing the jobs.test.mjs failure above before
+        counting the suite clean. platform/privacy+platform/webcheck 151/151
+        (combined with platform/proposal). gitops/tests: 409 passed, 25
+        skipped. All 16 platform/ci unittest modules pass, including
+        check_money_sign.py and check_form_defaults.py against the new
+        markup. Real-browser verification via
+        platform/proposal/verify.mjs (Playwright, against
+        platform/pages/build.mjs's own output): 107/107 adopted calculators
+        -- including this one -- "hand the customer a sound proposal" (no
+        undefined/NaN on the printed sheet, non-empty scope, on-screen price
+        matches the printed price, no cost/wage/margin leak in print, print
+        correctly hides the calculator).
+    mrr_end: null

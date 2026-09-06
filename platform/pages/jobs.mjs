@@ -244,6 +244,11 @@ export const HEADLINE_AMOUNT_OVERRIDES = {
   // printed proposal carries — `trades.json` names the same element, and
   // `jobs.test.mjs` holds the two to each other.
   'appliance-repair-quote-calculator': '#target',
+  // Same shape as appliance-repair above: `class="hero"`, not `hero-number`.
+  // `#targetPrice` is the margin-protected price this tool quotes and the
+  // figure its printed proposal carries; `trades.json`'s own
+  // `screenPriceSelector` names the same element.
+  'change-order-margin-calculator': '#targetPrice',
 };
 
 const HERO_NUMBER_TAG_RE = /<[^>]*\bclass="[^"]*\bhero-number\b[^"]*"[^>]*>/i;
