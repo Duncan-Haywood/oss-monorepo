@@ -17224,3 +17224,130 @@ entries:
         products, 752 pages, no dead links), and a final `pages_state.py
         --require-current` confirmed `current`.
     mrr_end: null
+  - venture: fire-extinguisher-inspection-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a new venture per `portfolio/DIRECTION.md`'s "new ventures
+        rank first" direction: the open-PR queue was empty (confirmed via
+        `list_pull_requests` and `search_pull_requests`) and a fresh
+        branch-backlog spot check (~55 of ~264 remote branches, using
+        `portfolio/ledger/supersede_check.py`) found every checked branch
+        already superseded or a stale draft main has since overtaken --
+        consistent with the prior session's exhaustive 232-branch check
+        recorded in `infra_state.yaml` on 2026-09-05. Ran the fleet-wide
+        guardrails (`clauses.mjs`, `check_no_payment_code.py`) plus two
+        independent samples of 18 already-live ventures (`node --test` +
+        the full `browser_checks.py` suite: sideways/presets/roundtrip/
+        highlight/contrast/sweep/journey) with zero defects found, before
+        screening a fresh niche (fire-extinguisher and life-safety
+        inspection route operators) against `screened-out.md` (not listed).
+      - >-
+        `ventures/fire-extinguisher-inspection-route-margin`: prices one
+        certified-maintenance site visit from three distinct service types
+        (recharge, hydrostatic test, replacement), each with its own
+        incidence rate, fee, and materials cost, plus a tag fee/cost on
+        every unit and an annual (not monthly) visit cadence matching NFPA
+        10's certified-maintenance requirement -- the one input this
+        calculator's route-pricing siblings (`atm-route-margin`,
+        `vending-machine-route-margin`, `pool-route-pricing`,
+        `dog-walking-route-pricing`) do not need. Same two-layer shape (one
+        site, then a route rollup against an income goal) as those
+        siblings. Includes the standard disclaimer (explicit that the tool
+        does not perform, certify, or record NFPA 10 compliance status),
+        privacy line, GitHub Sponsors link, and usage tracking
+        (`site-priced`, `route-check`).
+      - >-
+        Ran `node --test ventures/fire-extinguisher-inspection-route-margin/*.test.mjs`
+        (34/34), the marketing+pages suite (1140/1140, run four times across
+        intermediate edits -- `regen.mjs` had to be re-run after a
+        `build.mjs` category fix and `launched.mjs --write`),
+        `python3 -m pytest gitops/tests -q` (490 passed, 25 skipped, after
+        bumping the mirrored-tool count 185->186 in the same four places
+        as the `vehicle-wrap-bid-calculator` ship: `infra/OWNER_CHECKLIST.md`
+        twice, `gitops/prod/usage/aggregate.py`, `gitops/prod/front-door/
+        default.conf` twice, plus `gitops/tests/test_manifests.py`'s own
+        hand-typed `total` constant), the ledger/scoring/router/usage/
+        pipeline + infra pytest suites (380 passed, 8 subtests -- after
+        adding the venture's row to `portfolio/scoring/venture-scores.yaml`,
+        composite 6.333, and re-running `score_ventures.py --check`),
+        `checklist_coverage.py`, `check_no_payment_code.py`,
+        `router/validate.py`, `clauses.mjs` (fleet-wide, 722 pages across
+        186 surfaces), and (having touched user-facing markup)
+        `npm install --no-save playwright@1.56.0 axe-core` +
+        `platform/ci/browser_checks.py --only fire-extinguisher-inspection-route-margin`
+        (6 of 7 checks pass; `highlight` skips because this venture prints
+        no highlight-promise sentence, which is allowed). Also fixed
+        `platform/pages/build.mjs`'s category rule so the new venture (and
+        not the catch-all) claims it -- the catch-all was at its 8-tool
+        ceiling and would have failed `build.test.mjs`'s "time for another
+        category" guard otherwise.
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a live share-link defect: the tool's share link carried 18 of
+        its 24 plan fields and silently dropped all six of the
+        alternative-sheet comparison inputs (`sheet-alt1-width/height/cost`,
+        `sheet-alt2-width/height/cost`). A recipient opening a shared plan
+        got the sender's primary sheet beside their own browser's defaults
+        for both alternatives -- a complete, plausible, *different*
+        comparison, under a headline figure that matched the sender's. No
+        error was shown at either end. This is the exact failure
+        `platform/pages/roundtrip.mjs` was written for after
+        `where-to-sell-calculator` (2026-08-24) and `shopify-fee-calculator`
+        (2026-08-29) shipped it, and this is the first whole-catalogue run
+        of that check to find a third instance.
+      - >-
+        Root cause was a hand-kept list, not a copied one. `DRAFT_FIELDS` in
+        `draft.mjs` is already the single definition -- `share.mjs`,
+        `index.html`'s value collector, its draft restorer and its link
+        applier all import it rather than restating it, and
+        `share.test.mjs` asserted that every name in the list exists in the
+        markup. What nothing asserted was the converse: that every editable
+        control in the form appears in the list. So when the
+        alternative-sheet comparison added six inputs to `index.html` and
+        none to `DRAFT_FIELDS`, containment stayed true and every test
+        stayed green. Same shape as the `platform/proposal/term-ids` and
+        `venturePageRoot` lessons in CLAUDE.md, reached from a fourth
+        direction: one definition stops two uses drifting apart, and does
+        nothing about the definition drifting from the form.
+      - >-
+        Fix: added the six ids to `DRAFT_FIELDS` (which repairs encode,
+        decode, draft save/restore and DOM write-back at once, since all
+        four iterate the list generically), and added the missing converse
+        assertion to `share.test.mjs` -- it enumerates input/select/textarea
+        ids out of `index.html` and fails naming any that ride in no link,
+        with `optout` excluded and the reason written down (it is the
+        visitor's own privacy preference for their browser, not part of the
+        plan, and carrying it would apply the sender's choice to the
+        recipient's device). Enumerated rather than asserting a field count,
+        which would be a second hand-kept list with the same failure mode.
+      - >-
+        Verified: `node --test ventures/cut-list-optimizer/*.test.mjs`
+        (146/146; the new test failed as intended against the unfixed list,
+        and the pre-existing "every draft field rides in the link" test
+        caught the incomplete fixture), then the real browser check --
+        `npm install --no-save playwright@1.56.0 axe-core` +
+        `platform/ci/browser_checks.py --checks roundtrip --only
+        cut-list-optimizer` -- which now reports `ok cut-list-optimizer: 24
+        fields` where the whole-catalogue run had reported six dropped. Also
+        ran `regen.mjs` (rewrites the mirror shard
+        `cut-list-optimizer__draft.mjs.gz` and `kustomization.yaml`),
+        `python3 -m pytest gitops/tests -q`, the marketing+pages suite
+        (1140/1140) and `checklist_coverage.py`.
+      - >-
+        Found by the first whole-catalogue `browser_checks.py` sweep of this
+        session: 6 of 7 checks passed fleet-wide (`sweep` 192/192 tools
+        answered, `contrast` clean -- so the axe label fixes in #3530 and the
+        WCAG contrast fixes in #3547 are holding -- plus `journey`,
+        `sideways`, `presets`, `highlight`), and `roundtrip` failed on this
+        one venture out of 157 carrying a share link. Worth recording that
+        the sweep costs ~30 minutes and one `npm install` line, and that
+        CLAUDE.md's note about sessions writing "no Playwright in this
+        environment" continues to be the only thing standing between this
+        catalogue and defects of this class.
+    mrr_end: null

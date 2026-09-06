@@ -160,6 +160,7 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 26 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
 | 27 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
 | 28 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 29 | [Fire extinguisher inspection route margin calculator](candidates/fire-extinguisher-inspection-route-margin.md) | 6.875 | 1 | Graduated 2026-09-06 as `ventures/fire-extinguisher-inspection-route-margin`; browser-local per-site and route profit for independent fire-extinguisher/life-safety inspection route operators, modeling the recharge/hydro-test/replacement materials split and NFPA 10's annual-visit cadence, with repeat usage and organic search demand still unmeasured. Appended out of composite order (6.875, same tier as rows 11-14) to avoid renumbering the table; see its own scoring section for the breakdown |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four
