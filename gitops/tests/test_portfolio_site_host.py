@@ -475,3 +475,101 @@ def test_releases_are_world_readable_so_nginx_can_serve_them(tmp_path):
     assert (state / "current").resolve().stat().st_mode & stat.S_IXOTH, (
         "the release directory is not world-traversable"
     )
+
+
+# ------------------------------------------------------ naming the package
+#
+# `apt-get install node` does not install Node. On Debian and Ubuntu `node` is
+# the Amateur Packet Radio Node program; the JavaScript runtime is `nodejs`.
+# The installer used to print the *binary* names it had found missing, so on
+# the fresh `ubuntu-24.04` both boxes are built from -- which has neither nginx
+# nor node -- following its own remediation left the operator with a ham-radio
+# daemon installed, still no `node`, and the same refusal on the next run.
+#
+# `install-codex-host.sh` already guarded this and had a test naming it. This
+# one did not, which is the ordinary way a rule that lives in two scripts goes
+# stale in one of them.
+
+# `INSTALLER` is already defined at the top of this file; these cases use it.
+
+# Everything the installer shells out to before it reports prerequisites. A
+# case that wants to hide `node` from `command -v` cannot just prepend a
+# directory, so it builds a PATH holding only these plus what it means to keep.
+_INSTALLER_TOOLS = (
+    "bash", "sh", "cat", "chmod", "grep", "id",
+    "install", "mktemp", "mv", "rm", "sed", "stat",
+    # The script resolves its own ROOT with these before anything else; without
+    # them it fails at "source tree" and never reaches the prerequisite report,
+    # which a case looking only for a substring can mistake for a pass.
+    "dirname", "readlink", "pwd",
+)
+
+
+def _path_without(tmp_path, *hidden):
+    """A PATH with the installer's own tools and every prerequisite but `hidden`.
+
+    The four prerequisites are *stubbed* rather than symlinked from the host.
+    Symlinking would make each case depend on what the machine running the
+    tests happens to have installed -- and this image has no nginx, so the one
+    case that actually pins the node/nodejs mapping skipped itself here while
+    reporting green. A guard that skips on the developer's machine and runs
+    only on CI is the shape CLAUDE.md keeps recording the cost of; stubs make
+    the case measure the installer instead of the container.
+    """
+    bindir = tmp_path / "prereq-bin"
+    bindir.mkdir(exist_ok=True)
+    for tool in _INSTALLER_TOOLS:
+        found = shutil.which(tool)
+        if found is None:
+            return None
+        link = bindir / tool
+        if not link.exists():
+            link.symlink_to(found)
+    for tool in ("nginx", "node", "git", "curl"):
+        if tool in hidden:
+            continue
+        stub = bindir / tool
+        # node's stub has to answer --version: the installer parses it against
+        # a floor of 18, and an unreadable version is itself a refusal.
+        stub.write_text(
+            "#!/bin/sh\necho v22.0.0\n" if tool == "node" else "#!/bin/sh\nexit 0\n"
+        )
+        stub.chmod(0o755)
+    return str(bindir)
+
+
+def _check(tmp_path, *hidden):
+    path = _path_without(tmp_path, *hidden)
+    if path is None:
+        pytest.skip("the test host is missing one of the installer's own tools")
+    result = subprocess.run(
+        ["bash", str(INSTALLER), "--check"],
+        env=dict(os.environ, PATH=path),
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    return result.stdout + result.stderr
+
+
+def test_a_missing_node_is_remediated_as_the_nodejs_package(tmp_path):
+    out = _check(tmp_path, "node")
+    assert "missing: node" in out
+    assert "nodejs" in out
+    # The bug: the apt-get line naming the binary rather than the package.
+    assert "--no-install-recommends node\n" not in out
+
+
+def test_a_package_whose_name_matches_its_binary_is_unchanged(tmp_path):
+    """Only `node` differs; `nginx` must not be rewritten into something else."""
+    out = _check(tmp_path, "nginx")
+    assert "missing: nginx" in out
+    assert "nginx" in out.split("apt-get")[-1]
+
+
+def test_check_is_read_only_even_though_the_install_now_apt_gets(tmp_path):
+    """`--check` reports; supplying packages is the install path's job alone."""
+    out = _check(tmp_path, "node", "nginx")
+    assert "apt-get update && apt-get install" in out
+    # The advisory line, not a report of having done it.
+    assert "Installing them from the distribution archive" not in out

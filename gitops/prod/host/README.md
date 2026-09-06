@@ -88,6 +88,37 @@ installer's own idempotent re-render of that same file.
 
 ## Install
 
+### As part of the recovery (preferred)
+
+`bootstrap/restore-cluster.sh` takes this as step 11, alongside the Codex
+worker and the self-hosted runner, so the whole surface comes back in one pass
+while the operator is still holding the SSH key:
+
+```bash
+CONFIRM=restore-cluster \
+  WITH_CODEX_HOST=1 WITH_GITHUB_RUNNER_HOST=1 \
+  WITH_PORTFOLIO_SITE_HOST=1 \
+  SITE_GH_TOKEN=<fine-grained PAT, Contents: Read> \
+  SITE_TLS_EMAIL=you@example.com \
+  bootstrap/restore-cluster.sh
+```
+
+It goes on the **control-plane box**, because that is where the apex, `www` and
+`tools` all resolve — on the agent box it would serve correctly to nobody.
+Add `DRY_RUN=1` to see the plan, which also warns if `SITE_GH_TOKEN` is unset.
+
+Unlike steps 9 and 10 this one needs its credential **up front**: the origin is
+private, so the deploy checkout cannot be cloned without a token, and an
+install that got that far and stopped would leave nothing serving. The token
+reaches the box over stdin via `--credentials`, never in the remote command
+string where it would show in the box's own `ps`. Without it the step skips
+and says so rather than half-installing.
+
+`SITE_TLS_EMAIL` is optional; without it the site is served over HTTP and you
+add the certificate afterwards with `--tls`.
+
+### By hand
+
 Run it on the box, as root, from a checkout of this repository.
 
 ```bash
