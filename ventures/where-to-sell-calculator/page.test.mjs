@@ -21,6 +21,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { CHANNEL_PRESETS, calculateChannel, compareChannels } from './calc.mjs';
+import { HANDOFFS } from './handoff.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
@@ -316,6 +317,26 @@ test('following a handoff is counted, and honours the opt-out', () => {
     'the counter takes the opt-out the same way every other event on this page does');
   // The event name carries the destination and nothing about the item.
   assert.ok(!/recordUsage\([^)]*price|recordUsage\([^)]*itemCost/.test(render));
+});
+
+test('the privacy note names every handoff event the page can record', () => {
+  // The event name is built as `handoff_${offer.channel}`, so adding a channel
+  // to HANDOFFS creates a new recordable event with no code change here — and
+  // the privacy paragraph enumerates the events by hand. That paragraph is the
+  // page's central promise ("only an event name and the day, never your
+  // inputs"), and a promise that silently stops listing everything it records
+  // is worse than one that lists nothing.
+  //
+  // Caught by hand when Reverb was added: the fifth handoff shipped an
+  // undisclosed `handoff_reverb` and every suite here stayed green. Asserted
+  // now so the sixth cannot.
+  const privacy = html.slice(html.indexOf('Everything runs in your browser.'));
+  for (const entry of HANDOFFS) {
+    assert.ok(
+      privacy.includes(`<code>handoff_${entry.channel}</code>`),
+      `the privacy note does not disclose handoff_${entry.channel}`,
+    );
+  }
 });
 
 test('the handoff styles live inside the verdict panel', () => {

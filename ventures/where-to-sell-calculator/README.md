@@ -9,6 +9,13 @@ month. Then it asks the question a fee table cannot: **how often does it
 actually sell there**, and what is one listing worth per month of shelf once
 you count that.
 
+**Reverb** is a sixth channel, switched off until you turn it on. It only
+applies to musical instruments and audio gear, and a channel a seller cannot
+list on is noise in a ranking rather than information. Its fee assumptions are
+not restated here — `channel-parity.test.mjs` imports them from
+[`../reverb-fee-calculator`](../reverb-fee-calculator/) and fails if the two
+tools ever quote the same marketplace differently.
+
 It runs entirely in the browser: static ES modules, no build step, no
 dependencies, no server, no account, no API key.
 

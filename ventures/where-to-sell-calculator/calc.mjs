@@ -88,6 +88,42 @@ export const CHANNEL_PRESETS = [
     listingRenewalDays: 0,
   },
   {
+    id: "reverb",
+    label: "Reverb (musical gear)",
+    note: "Off by default because it only applies to instruments and audio gear — turn it on if that is what you sell. Reverb bills the selling fee and payment processing separately, which is why the processor rate is not zero here the way it is for eBay. Sell-through and days to sell are illustrative starting points, not a claim about Reverb velocity.",
+    // Matches ventures/reverb-fee-calculator's own defaults (5% selling fee,
+    // 2.9% + $0.30 Reverb Payments). Two tools in one portfolio printing
+    // different fee assumptions for the same marketplace is a credibility
+    // problem, so `channel-parity.test.mjs` asserts these stay equal by
+    // importing that calculator's defaults rather than restating them.
+    commissionRate: 5,
+    paymentRate: 2.9,
+    paymentFixed: 0.3,
+    perListingFee: 0,
+    monthlyFee: 0,
+    // Bumps are optional and priced per listing rather than as a rate, so they
+    // are left at zero here; the dedicated calculator is where that decision
+    // gets made (it has a whole page on whether a bump pays for itself).
+    adRate: 0,
+    // Illustrative return assumptions. Gear buyers inspect on arrival and
+    // Reverb's protection means a rejected item usually comes back; the fee is
+    // normally refunded with it.
+    returnRate: 6,
+    returnShippingCost: 18,
+    resellableRate: 90,
+    feeRefundRate: 100,
+    // A Reverb listing does not expire on a cycle, so there is no renewal to
+    // charge — but gear is a considered purchase and sits longer than a
+    // general-marketplace item of the same price.
+    sellThroughPct: 50,
+    daysToSell: 35,
+    listingRenewalDays: 0,
+    // Off until the seller says this is gear: enabled by default it would add
+    // a channel most sellers cannot list on to every comparison, and a channel
+    // that does not apply is noise in a ranking, not information.
+    enabled: false,
+  },
+  {
     id: "own-store",
     label: "Own store (Shopify Basic)",
     note: "No marketplace commission — you pay the plan and card processing, and you supply the traffic. Sell-through starts low here for the same reason: you bring the buyers.",
