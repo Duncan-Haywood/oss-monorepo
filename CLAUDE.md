@@ -74,6 +74,7 @@ So when `ci_starvation.py` says starvation, run these before merging, and say
 in the PR what they said:
 
 ```
+python3 platform/ci/checklist_coverage.py  # fails if a line below is missing
 node platform/marketing/regen.mjs        # then commit whatever it rewrites
 node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs
 node --test platform/proposal/*.test.mjs
@@ -87,6 +88,22 @@ python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new ven
 pytest, so that `gitops/tests` line exits `No module named pytest` rather than
 failing any test. Do not read that as a clean run. The `platform/ci` line needs
 no pytest — those suites are `unittest`.)
+
+**The first line was added 2026-09-06, to stop the second block from going
+stale the same way three times.** `platform/proposal/`, then
+`platform/privacy/` and `platform/webcheck/`, were each added to this list only
+after a guard in an un-enumerated directory had already gone unrun — most
+sharply `platform/proposal/term-ids.test.mjs`, red on `main` for days while
+five sessions each shipped the bug it exists to catch and each recorded a
+clean local run, because the list they ran did not name it. The lines above
+name each directory literally rather than with a glob that would auto-discover
+a new one, so a sixth `platform/<new-thing>/*.test.mjs` directory is exactly
+as invisible to this checklist as the third one was, until someone thinks to
+run `find . -name '*.test.mjs' -not -path './ventures/*'` by hand and notices.
+`checklist_coverage.py` is that command turned into a check: it fails, naming
+the missing line, the moment a new test directory outruns this list, instead
+of waiting for the bug the missing line would have caught. If it fails, add
+the line it prints in the same commit that added the tests.
 
 **The `gitops/tests` condition was widened on 2026-09-05, because "only if you
 touched `gitops/`" reads as "only if you meant to".** Giving a venture a public
