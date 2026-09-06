@@ -14630,3 +14630,74 @@ entries:
         starved" section as reason to verify locally and report what ran,
         not as a reason to skip local verification.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped gitops/prod/host/ -- host-mode serving for the portfolio
+        site, the third and last of the host-mode paths and the only one
+        whose completion a user can see. gitops/agents/host/ (Codex worker)
+        and gitops/ci/host/ (Actions runner) already moved the two things
+        that BUILD onto the box's own systemd; nothing had done the same for
+        the thing that SERVES, so the repository could restore its dev
+        capacity and its CI onto a box that still showed a stranger a
+        refused connection. install-portfolio-site-host.sh installs nginx
+        config, a deploy checkout, systemd units and the first validated
+        release; --tls obtains a Let's Encrypt certificate via
+        certonly --webroot (not the --nginx plugin, which would fight the
+        installer's own idempotent re-render of the same file).
+      - >-
+        It pulls rather than snapshots. portfolio-site-refresh.timer ticks
+        every 10 minutes, refresh-site.sh fetches main, and rebuilds+swaps
+        only if main moved -- so a merge to main is the deploy again, with
+        neither a runner nor the cluster in the path. This is the drift hole
+        publish-branch.sh names in its own header and that CLAUDE.md records
+        the gh-pages artifact falling into on 2026-09-06, one merge behind.
+        Fail-closed: a release goes live only if check.mjs passes on it, so
+        an unattended rebuild cannot replace the catalogue with a broken
+        copy. Atomic symlink swap, SITE_KEEP=3 releases kept for rollback.
+      - >-
+        Two defects found by running it against a real nginx, neither
+        visible in a diff. (1) nginx's stock mime.types has no .mjs entry,
+        so every ES module was served as application/octet-stream -- and a
+        browser REFUSES a type="module" script with a non-JS MIME type
+        rather than mistyping it. Failure mode was 200 on every request and
+        every calculator on the site inert; no page-level check would have
+        caught it. (2) listen [::]:80 makes nginx refuse to start entirely
+        on a box without IPv6, so the installer comments it out when
+        /proc/net/if_inet6 is absent rather than leaving a dark site.
+        Also pinned umask 022 in refresh-site.sh: a hardened unit's UMask
+        would otherwise yield a clean build, a clean swap, and 404s with
+        "Permission denied" in the error log.
+      - >-
+        Verified end-to-end against a real nginx 1.24.0 in this session, not
+        only by reading: full install, 2048 files staged, then curl over
+        HTTP -- front page 200 (306 KB), tool pages 200, sitemap.xml /
+        robots.txt / feed.xml / llms.txt 200, /healthz 200, mistyped path
+        404 (not a soft-200), .mjs served as application/javascript after
+        the fix, gzip negotiated on sitemap and feed, the three security
+        headers present on every content location, and an idempotent
+        re-install correctly reporting "already serving ... nothing to do".
+      - >-
+        Verified: new gitops/tests/test_portfolio_site_host.py 20/20,
+        including the fail-closed property asserted directly (a failing
+        check.mjs and a failing build.mjs each leave the previous release
+        serving and drop no staging directory) rather than read off the
+        source; mutation-checked that the .mjs and security-header guards
+        actually fail when the config regresses. gitops/tests 447 passed,
+        7 skipped. All 17 platform/ci unittest modules OK.
+        platform/marketing+platform/pages 1126/1126 after regen.mjs
+        (which rewrote nothing). platform/proposal 101/101.
+        platform/privacy+platform/webcheck 50/50. shellcheck clean on both
+        new scripts, and both wired into hetzner-gitops-ci.yml's shellcheck
+        job plus test_shellcheck_coverage.py's CHECKED_DIRS so the coverage
+        guard cannot drift. CI itself still starved:
+        ci_starvation.py --run 34009122865 reports runner_id 0, no steps.
+      - >-
+        Still owner-blocked on one thing and it is unchanged: reaching the
+        box. HETZNERSSHKEY holds a public key, so this installs nothing
+        until that is rotated. No new ask was added to the queue -- this
+        makes the existing ask buy a served catalogue instead of only a
+        diagnosis.
+    mrr_end: null

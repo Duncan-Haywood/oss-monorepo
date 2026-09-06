@@ -32,6 +32,11 @@ CHECKED_DIRS = (
     REPO / "infra" / "scripts",
     REPO / "gitops" / "agents" / "workers",
     REPO / "gitops" / "ci",
+    # `gitops/prod/host/` is here for the same reason `platform/pages` is
+    # below: refresh-site.sh rebuilds and swaps the tree nginx serves to
+    # strangers, unattended, on a timer. A shell bug in it is a publishing
+    # bug -- and unlike publish-branch.sh, nobody is watching it run.
+    REPO / "gitops" / "prod" / "host",
     # `platform/pages` holds one script rather than a suite of them, and it is
     # here for the same reason the bootstrap ones are: `publish-branch.sh`
     # writes a branch that GitHub can serve directly to strangers, so a shell

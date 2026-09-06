@@ -104,7 +104,18 @@ toward *running in public* ranks with feature work here, not below it:
   second route that is downstream of neither the cluster nor an Actions runner:
   `platform/pages/publish-branch.sh` builds the site here and commits it to an
   orphan `gh-pages` branch, ready for a branch-source Pages flip the owner has
-  not yet made. Both routes, and how stale the staged artifact is, are reported
+  not yet made.
+
+  **And a third, added 2026-09-06: `gitops/prod/host/`.** Host mode for the
+  *site*, completing the set `gitops/agents/host/` (this worker) and
+  `gitops/ci/host/` (the Actions runner) had already started — nginx and a
+  systemd timer on the box, no k3s, no Argo, no runner. Unlike the `gh-pages`
+  snapshot it **pulls**: the timer fetches `main` every ten minutes and
+  rebuilds only if it moved, fail-closed on `check.mjs`, so a merge to `main`
+  is the deploy again. If you land product code, that is the route that will
+  carry it. Do not rebuild it, and do not add an owner ask for it — all three
+  host-mode paths are blocked on the same one (`HETZNERSSHKEY` holds a public
+  key) and on nothing else. Both routes, and how stale the staged artifact is, are reported
   by `python3 platform/ci/publish_surface.py` — read that rather than either
   this file or `CLAUDE.md`, both of which are prose about a live configuration
   and go stale silently. `portfolio/ledger/infra_state.yaml` carries the dated
