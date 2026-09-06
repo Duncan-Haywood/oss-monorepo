@@ -82,6 +82,10 @@ node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
 node --test ventures/<slug>/*.test.mjs
 python3 -m pytest gitops/tests -q        # gitops/, platform/ci/, or ANY new venture
 (cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)
+(cd platform/ci/agent_review && python3 -m unittest test_review)
+python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline infra/tests -q
+python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
+python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 ```
 
 (`pip install pytest` first in a web session — the image has Python but not

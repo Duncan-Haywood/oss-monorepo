@@ -8,6 +8,7 @@ would auto-discover new ones -- does not mention it. So most of these tests
 build exactly that shape rather than testing the happy path alone.
 """
 
+import tempfile
 import textwrap
 import unittest
 from pathlib import Path
@@ -198,6 +199,136 @@ class AgainstTheRealRepo(unittest.TestCase):
         # Sanity: this should actually be exercising something, not silently
         # finding zero directories on both sides.
         self.assertGreaterEqual(len(disk_dirs), 3)
+
+
+# ---------------------------------------------------------------------------
+# The Python half.
+#
+# Added 2026-09-06 after enumerating instead of recalling: `find . -name
+# 'test_*.py'` returned 54 directories against the 2 the checklist named, and
+# four suites in that gap were red -- `portfolio/scoring` and
+# `portfolio/router` (four shipped ventures had no score row, so the router
+# could not allocate to them) and `portfolio/ledger` (still asserting both
+# origins were dark, long after Pages started serving).
+# ---------------------------------------------------------------------------
+
+PY_CHECKLIST = CHECKLIST_TEMPLATE.replace(
+    '(cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)',
+    '(cd platform/ci && for m in test_*.py; do python3 -m unittest "${m%.py}" || break; done)\n'
+    "python3 -m pytest portfolio/ledger portfolio/scoring -q\n"
+    "python3 -m pytest portfolio/pipeline/probes/<probe> -q",
+)
+
+
+def make_py_repo(tmp_path, test_dirs, addopts=None):
+    """Create tmp_path/<dir>/test_sample.py for each dir, plus an optional root
+    pyproject.toml carrying pytest addopts."""
+    for d in test_dirs:
+        p = tmp_path / d
+        p.mkdir(parents=True, exist_ok=True)
+        (p / "test_sample.py").write_text("# placeholder\n")
+    if addopts is not None:
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.pytest.ini_options]\n" f'addopts = "{addopts}"\n'
+        )
+    return tmp_path
+
+
+class LiteralPrefix(unittest.TestCase):
+    def test_stops_at_a_placeholder_or_glob(self):
+        self.assertEqual(cc.literal_prefix("ventures/<slug>/*.test.mjs"), "ventures")
+        self.assertEqual(
+            cc.literal_prefix("platform/privacy/*.test.mjs"), "platform/privacy"
+        )
+
+    def test_keeps_a_plain_directory_and_drops_a_filename(self):
+        self.assertEqual(cc.literal_prefix("gitops/tests"), "gitops/tests")
+        self.assertEqual(cc.literal_prefix("portfolio/ledger/README.md"), "portfolio/ledger")
+
+
+class PythonGaps(unittest.TestCase):
+    def test_an_unnamed_python_directory_is_a_gap(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(Path(tmp), ["portfolio/ledger", "portfolio/brand-new"])
+            gaps, _, _ = cc.find_py_gaps(PY_CHECKLIST, root)
+            self.assertEqual(gaps, ["portfolio/brand-new"])
+
+    def test_a_named_python_directory_is_covered(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(Path(tmp), ["portfolio/ledger", "portfolio/scoring"])
+            gaps, _, _ = cc.find_py_gaps(PY_CHECKLIST, root)
+            self.assertEqual(gaps, [])
+
+    def test_ventures_are_covered_by_the_standing_placeholder(self):
+        # The `.mjs` scan excludes ventures/ in code; the Python scan does not,
+        # relying on the checklist's `ventures/<slug>/` placeholder instead, so
+        # the exclusion is stated once rather than twice.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(Path(tmp), ["ventures/some-tool/tests"])
+            gaps, _, _ = cc.find_py_gaps(PY_CHECKLIST, root)
+            self.assertEqual(gaps, [])
+
+    def test_a_parent_line_does_not_cover_a_root_ignored_tree(self):
+        # The regression this exists for: the root pyproject ignores
+        # portfolio/pipeline/probes, so `pytest portfolio/pipeline` collects
+        # none of it. Crediting the parent line would report coverage that does
+        # not run -- the exact silent failure this script prevents elsewhere.
+        checklist = PY_CHECKLIST.replace(
+            "python3 -m pytest portfolio/pipeline/probes/<probe> -q",
+            "python3 -m pytest portfolio/pipeline -q",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(
+                Path(tmp),
+                ["portfolio/pipeline", "portfolio/pipeline/probes/a-probe"],
+                addopts="--ignore=portfolio/pipeline/probes",
+            )
+            gaps, _, _ = cc.find_py_gaps(checklist, root)
+            self.assertEqual(gaps, ["portfolio/pipeline/probes/a-probe"])
+
+    def test_naming_the_ignored_tree_itself_does_cover_it(self):
+        # PY_CHECKLIST names `portfolio/pipeline/probes/<probe>` but not
+        # `portfolio/pipeline`, so only the probe directory exists here --
+        # the point is that a line at the ignored tree does reach inside it.
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(
+                Path(tmp),
+                ["portfolio/pipeline/probes/a-probe"],
+                addopts="--ignore=portfolio/pipeline/probes",
+            )
+            gaps, _, _ = cc.find_py_gaps(PY_CHECKLIST, root)
+            self.assertEqual(gaps, [])
+
+    def test_root_ignored_trees_are_read_from_pyproject(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = make_py_repo(Path(tmp), [], addopts="--ignore=a/b --ignore=c")
+            self.assertEqual(cc.root_ignored_trees(root), {"a/b", "c"})
+
+    def test_no_pyproject_means_no_ignored_trees(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(cc.root_ignored_trees(Path(tmp)), set())
+
+
+class LivePythonCoverage(unittest.TestCase):
+    def test_current_repo_has_no_python_gap(self):
+        claude_md_path = cc.REPO_ROOT / "CLAUDE.md"
+        gaps, _, disk_dirs = cc.find_py_gaps(claude_md_path.read_text(), cc.REPO_ROOT)
+        self.assertEqual(
+            gaps,
+            [],
+            f"CLAUDE.md's checklist does not name: {gaps} -- add a pytest line "
+            "for each, in the same commit that added the tests.",
+        )
+        # This repo carries dozens; if it ever reads as a handful the scan has
+        # broken rather than the repo having shrunk.
+        self.assertGreaterEqual(len(disk_dirs), 20)
+
+    def test_the_live_root_pyproject_still_ignores_the_probes(self):
+        # If this stops being true the probes become root-collectible and the
+        # placeholder line should be replaced with a real one.
+        self.assertIn(
+            "portfolio/pipeline/probes", cc.root_ignored_trees(cc.REPO_ROOT)
+        )
 
 
 if __name__ == "__main__":
