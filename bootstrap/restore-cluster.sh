@@ -58,6 +58,17 @@
 #                              (gitops/ci/host/), independent of k3s and Argo.
 #                              Opt-in, runs last, cannot fail the restore, and
 #                              registers with GitHub only once credentialed.
+#   WITH_PORTFOLIO_SITE_HOST=1 also serve the portfolio site from the control
+#                              plane box's own nginx (gitops/prod/host/),
+#                              independent of k3s, Argo and Pages. Opt-in, runs
+#                              last, cannot fail the restore. Needs
+#                              SITE_GH_TOKEN (the origin is private); set
+#                              SITE_TLS_EMAIL too to get a certificate.
+#   SITE_GH_TOKEN=<pat>        fine-grained PAT, Contents: Read on this repo.
+#                              Reaches the box over stdin, never argv.
+#   SITE_TLS_EMAIL=<addr>      where Let's Encrypt should send expiry warnings.
+#                              Without it the site is installed and served over
+#                              HTTP only; add the certificate later with --tls.
 #   DRY_RUN=1                  print the plan and the detected mode, change nothing
 set -euo pipefail
 
@@ -190,6 +201,11 @@ if [[ "$DRY_RUN" == "1" ]]; then
   fi
   if [[ "${WITH_GITHUB_RUNNER_HOST:-0}" == "1" ]]; then
     echo "  runner  ${AG}  would install the GitHub Actions runner, host mode (holds until credentialed)"
+  fi
+  if [[ "${WITH_PORTFOLIO_SITE_HOST:-0}" == "1" ]]; then
+    echo -n "  site    ${CP}  would serve the portfolio site from this box's nginx"
+    [[ -n "${SITE_GH_TOKEN:-}" ]] || echo -n "  (NO SITE_GH_TOKEN -- would fail)"
+    [[ -n "${SITE_TLS_EMAIL:-}" ]] && echo "  (+TLS)" || echo "  (HTTP only)"
   fi
   exit 0
 fi
@@ -411,4 +427,81 @@ else
   echo "Not installed: the GitHub Actions runner's host-mode service (gitops/ci/host/)."
   echo "  Re-run with WITH_GITHUB_RUNNER_HOST=1 to add it while you still hold the SSH key."
   echo "  It is what keeps CI running the next time metered minutes or this cluster are not."
+fi
+
+# ------------------------------------------ step 11: something a stranger can
+# open
+#
+# Steps 9 and 10 restore the two things that *build* -- dev capacity and CI --
+# to a box's own systemd, where neither k3s nor an Actions runner is in the way.
+# Nothing did the same for the thing that *serves*, so this script could finish
+# every earlier step and leave a visitor to marisstella.dev still looking at a
+# refused connection. That is the one gap whose closing a user can see.
+#
+# It goes on ${CP}: the apex, www and tools all resolve to that box
+# (`Outage triage`, run 33889983086), so it is where the DNS already points.
+#
+# Like 9 and 10 this is opt-in and runs last, and it cannot fail the restore.
+# Unlike them it needs its credential *up front* rather than after: the origin
+# is private, so the deploy checkout cannot be cloned without a token, and an
+# install that got that far and stopped would leave nothing serving. The token
+# reaches the box over stdin via --credentials -- never in the remote command
+# string, where it would show in the box's own `ps` -- which is the same rule
+# ARGOCD_REPO_TOKEN follows in step 8.
+#
+# Running this IS the decision to publish under the portfolio's public name, on
+# a domain whose DNS already points here. That is why it takes an explicit
+# opt-in flag and why there is deliberately no second gate after it
+# (portfolio/DIRECTION.md: "do not add a second ask").
+if [[ "${WITH_PORTFOLIO_SITE_HOST:-0}" == "1" ]]; then
+  step "Portfolio site, host mode (control plane box)"
+  if [[ -z "${SITE_GH_TOKEN:-}" ]]; then
+    echo "  ! SITE_GH_TOKEN is not set, and the origin is private, so the deploy" >&2
+    echo "    checkout cannot be cloned. Skipped; the cluster restore above is" >&2
+    echo "    unaffected. Re-run with SITE_GH_TOKEN=<fine-grained PAT, Contents:" >&2
+    echo "    Read on this repository> to serve the site from ${CP}." >&2
+  else
+    mask "${SITE_GH_TOKEN}"
+    site_dir="$(ssh_cp 'mktemp -d' 2>/dev/null || true)"
+    if [[ -z "$site_dir" ]]; then
+      echo "  ! could not create a working directory on ${CP}; skipped." >&2
+      echo "    The cluster restore above is unaffected." >&2
+    else
+      site_sh="${site_dir}/bootstrap/scripts/install-portfolio-site-host.sh"
+      # Credentials first and separately: --credentials only writes the file,
+      # so the install below can source it for the clone.
+      if tar -C "${HERE}/.." -cz gitops/prod/host bootstrap/scripts/install-portfolio-site-host.sh \
+           | ssh_cp "tar -xz -C '${site_dir}'" \
+         && printf 'GH_TOKEN=%s\n' "${SITE_GH_TOKEN}" \
+           | ssh_cp "bash '${site_sh}' --credentials" \
+         && ssh_cp "CONFIRM=install-portfolio-site-host SITE_TLS_EMAIL='${SITE_TLS_EMAIL:-}' bash '${site_sh}'"; then
+        echo
+        if [[ -n "${SITE_TLS_EMAIL:-}" ]]; then
+          echo "  Serving. Add the certificate with:"
+          echo "    SITE_TLS_EMAIL='${SITE_TLS_EMAIL}' CONFIRM=install-portfolio-site-host \\"
+          echo "      ${site_sh} --tls"
+        else
+          echo "  Serving over HTTP. For a certificate, re-run this step with"
+          echo "  SITE_TLS_EMAIL set, then pass --tls to the installer."
+        fi
+        echo "  Verify from off the box:  curl -sSI https://marisstella.dev/healthz"
+        echo "  Then update portfolio/ledger/infra_state.yaml -- the reading that"
+        echo "  matters is what a stranger gets, not that this step exited 0."
+      else
+        echo "  ! the portfolio site host install did not complete." >&2
+        echo "    The cluster restore above is unaffected, and nothing was" >&2
+        echo "    published. The installer prints the reason -- a rejected token" >&2
+        echo "    shows as a failed clone, and an offline box as 'apt-get update" >&2
+        echo "    failed'. Read the output just above rather than starting over," >&2
+        echo "    or follow gitops/prod/host/README.md, which does it by hand." >&2
+      fi
+      ssh_cp "rm -rf '${site_dir}'" >/dev/null 2>&1 || true
+    fi
+  fi
+else
+  echo
+  echo "Not installed: the portfolio site's host-mode server (gitops/prod/host/)."
+  echo "  Re-run with WITH_PORTFOLIO_SITE_HOST=1 and SITE_GH_TOKEN=<pat> to serve"
+  echo "  the catalogue from ${CP} while you still hold the SSH key."
+  echo "  Steps 9 and 10 restore what builds; this is the one that serves."
 fi
