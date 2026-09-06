@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 185,
-  "collection_total": 185,
+  "served_here": 186,
+  "collection_total": 186,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -26,7 +26,7 @@
       "id": "trades",
       "name": "Trade & contractor bids",
       "url": "https://marisstella.dev/c/trades/",
-      "tool_count": 121
+      "tool_count": 122
     },
     {
       "id": "evidence",
@@ -752,7 +752,7 @@
       "url": "https://marisstella.dev/tools/dumpster-rental-margin-calculator/",
       "category": "More free tools",
       "description": "Free calculator for independent roll-off dumpster rental operators: price a rental from the included weight allowance, tipping fee, labor, and mileage, then check whether your overage rate actually covers your own disposal cost before a heavy load erases the margin.",
-      "pages": 2
+      "pages": 3
     },
     {
       "slug": "egress-window-bid-calculator",
