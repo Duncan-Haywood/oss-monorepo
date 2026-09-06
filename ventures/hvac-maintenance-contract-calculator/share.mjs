@@ -17,6 +17,12 @@ export const SHARE_FIELDS = Object.freeze([
   'overhead',
   'margin',
   'proposed',
+  // Added with the retention and pull-through analysis. Omitting them here
+  // would have shipped the exact bug this file's header warns about: the
+  // recipient's page would silently fall back to the HTML defaults and read a
+  // different floor and a different cancellation exposure than the sender saw.
+  'pullThrough',
+  'cancelMonths',
 ]);
 
 function pick(object, keys) {

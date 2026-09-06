@@ -14422,3 +14422,69 @@ entries:
         starvation rather than a real failure; merged (#3420) on the local
         verification above per CLAUDE.md's "ship without review ceremony".
     mrr_end: null
+  - venture: hvac-maintenance-contract-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the two dimensions that decide whether a preventive-maintenance
+        agreement makes money, neither of which the annual arithmetic could
+        show. (1) Retention: preventive visits are front-loaded -- the first
+        tune-up happens at signing -- so the contract is underwater from day
+        one. costThroughMonth() accrues visits on the visit calendar and
+        callbacks/overhead on the clock, which yields months-to-break-even
+        (month 5 on the defaults, not month 1) and a cancel-at-month-N
+        exposure ($96.88 lost on a month-3 cancellation of an agreement whose
+        annual margin reads 20%). Straight-line proration reports that same
+        month as roughly break-even, which is why the split matters. (2)
+        Repair pull-through: an optional annual gross-profit figure produces a
+        second floor beside the plan-fee floor ($64.17 -> $14.17/month at $600
+        of pull-through) and a total-profit-per-member figure. Both floors stay
+        on screen because they answer different questions; pull-through is
+        excluded from the break-even and cancellation math, which are floors
+        and must not rest on expected revenue with an unknown date.
+      - >-
+        Both inputs are optional and blank by default, so every existing user
+        sees the plan-fee arithmetic unchanged -- a regression test asserts
+        that explicitly rather than leaving it to inspection.
+      - >-
+        Two guards in this repo caught real defects during the work, both of
+        the kind that ship silently. share.mjs carries its own field
+        allowlist, so the new inputs had to be added there or a shared link
+        would have dropped them and left the recipient reading a different
+        floor from the same URL -- the exact failure that file's header warns
+        about; share.test.mjs now derives the expected allowlist from the
+        page's own `ids` array instead of restating it, so the next field
+        added to the form fails here rather than in someone's inbox.
+        platform/ci/check_money_sign.py caught a `$-96.88` in the new
+        cancellation banner (negative nets are new to this page);
+        fix_money_sign.mjs applied the repo's own formatter.
+      - >-
+        Also extended the SEO/AI-discovery surface for the two new concepts:
+        two FAQ entries on the tool page and two on the guide page, each in
+        both the visible copy and the FAQPage JSON-LD, plus a new
+        "Two things the annual figure hides" section on the guide.
+      - >-
+        Verified (Actions starved -- a fresh Public surface check dispatch,
+        run 34003772473, came back runner_id 0 in 3s and
+        ci_starvation.py exits 0 confirming starvation, so these local runs
+        are the check): venture suite 37/37 (24 new assertions across calc,
+        page and share); platform/marketing+pages 1126/1126 after
+        node platform/marketing/regen.mjs; platform/proposal+privacy+webcheck
+        151/151; gitops/tests 409 passed, 25 skipped; all 16 platform/ci
+        unittest modules OK; build.mjs + check.mjs -> 719 pages, no dead
+        links. Real-browser pass with platform/ci/browser_checks.py --only:
+        sweep, roundtrip, presets, sideways and journey all green, plus a
+        hand-driven Chromium run confirming the new metrics compute, stay
+        hidden until asked for, clear on a rejected input, and survive a
+        sender-to-recipient share link with identical figures on both ends.
+      - >-
+        Queue state at the start of this run: zero open PRs, and an
+        identical-merge proof (git merge-tree -X ours) over every remote
+        branch ahead of main found all of them either already landed or stale
+        drafts main has overtaken by 600-5000 files -- merging any would have
+        reverted live product. The three-PR quota was therefore vacuous, not
+        skipped. Deployment remains owner-blocked exactly as recorded:
+        runners starved, k3s :6443 refused, and the Codex-on-Hetzner host
+        route built and waiting on the owner's own SSH private key.
+    mrr_end: null
