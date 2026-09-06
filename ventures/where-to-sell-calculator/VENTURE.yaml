@@ -1,5 +1,5 @@
 name: where-to-sell-calculator
-description: A private browser calculator that puts one item through every channel a small seller can list it on — eBay, Etsy, Amazon, an own store, a direct sale — and reports net profit after each channel's fee shape and expected keep after returns, plus the price each channel needs to match the best one, and expected monthly cash when volumes differ. It then ranks the same channels on what one listing is worth per month of shelf once sell-through, time to sale, renewal listing fees and tied-up cash are counted, because the channel that pays best per sale is often not the channel to list on.
+description: A private browser calculator that puts one item through every channel a small seller can list it on — eBay, Etsy, Amazon, an own store, a direct sale, and Reverb for musical gear (off until switched on) — and reports net profit after each channel's fee shape and expected keep after returns, plus the price each channel needs to match the best one, and expected monthly cash when volumes differ. It then ranks the same channels on what one listing is worth per month of shelf once sell-through, time to sale, renewal listing fees and tied-up cash are counted, because the channel that pays best per sale is often not the channel to list on.
 stage: prototype
 owner: duncan
 hypotheses:
