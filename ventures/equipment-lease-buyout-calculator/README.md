@@ -44,6 +44,10 @@ A rough guess in either number produces a rough verdict — which is still more
 useful than comparing two dollar figures that were never on the same footing
 to begin with.
 
+See [this calculator vs. Crest Capital's lease calculator](vs-crest-capital.html)
+for which job fits a new-lease payment estimate versus checking an existing
+lease's buyout offer against returning and replacing the equipment.
+
 ## Running it
 
 Open `index.html` in a browser. No build, no dependencies, no server.
