@@ -1281,7 +1281,11 @@ def test_mirrored_tool_count_matches_what_the_docs_claim() -> None:
     # routine event here, not an exception, which is also why
     # `platform/pages/clauses.test.mjs` stopped using a CLI as its fixture for
     # "a venture with no browser surface" in the same change.
-    total = 175  # `infra/OWNER_CHECKLIST.md`'s own "N of the 175 tools" wording.
+    # 176 since 2026-09-06, when `pet-grooming-bid-calculator` shipped — a new
+    # venture with a static `index.html` from its first commit, entering the
+    # mirror and the total in the same change rather than closing a gap
+    # between them, the same shape as `which-job-first`.
+    total = 176  # `infra/OWNER_CHECKLIST.md`'s own "N of the 176 tools" wording.
 
     checklist = (REPO / "infra" / "OWNER_CHECKLIST.md").read_text()
 
