@@ -14931,3 +14931,51 @@ entries:
         referenced pages_state.py/decision_queue.py/allocate.py output by
         running each rather than restating a remembered figure.
     mrr_end: null
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a shareable scenario link, closing this venture's gap
+        against the rest of the fleet that already carries one. This
+        venture has no exported field-id list in calc.mjs/schedule.mjs
+        (the `ids`/`scheduleIds` arrays live only in index.html's own
+        script), so share.mjs declares its own matching literal lists
+        covering all 21 numeric fields, the one enum field (`payRun`,
+        checked against the form's own `<select>` options), and the one
+        date field (`invoiceDate`, shape-checked as YYYY-MM-DD and left for
+        calc.mjs's own calendar validation to reject an impossible date the
+        same way it rejects one typed by hand). Same URL-fragment
+        convention as the rest of the fleet: never sent to a server or
+        logged in a Referer header, blank/unusable fields omitted rather
+        than serialized as a default, and a fixed field allowlist so a
+        crafted fragment cannot inject an unrecognised value. "Copy
+        shareable link" sits beside the venture's existing local-draft
+        save/load controls; an incoming shared link is decoded ahead of
+        both the date default and the draft on load, and recalculates both
+        the single-invoice and billing-schedule sections together.
+      - >-
+        Deliberately checked first for a reason this venture's own page.test.mjs
+        does not carry but a sibling one does: shop-rate-calculator's test
+        suite asserts outright that it "does not read or write a saved bid
+        or a shared link" because its inputs are a shop's payroll and
+        overhead figures, "more than anybody should put in a URL." Started
+        building the share link there before reading that test, reverted
+        it, and picked this venture instead -- invoice terms, late-fee
+        rates, and billing-schedule percentages carry materially less
+        sensitive data than a business's payroll costs.
+      - >-
+        Verified locally (Actions is starved this cycle per CLAUDE.md's
+        ci_starvation.py signature): venture suite 99/99 (9 new
+        share.test.mjs assertions, including round-trips through the enum
+        and date fields and a rejection test for an out-of-allowlist
+        payRun value). platform/marketing + platform/pages 1126/1126 after
+        node platform/marketing/regen.mjs (rewrote only this venture's
+        mirror shard and kustomization.yaml, plus a merge-conflict
+        re-regen after rebasing onto #3453 which touched the same
+        generated kustomization.yaml). platform/proposal 101/101.
+        platform/privacy + platform/webcheck 50/50. gitops/tests: 461
+        passed, 25 skipped. All 17 platform/ci unittest modules pass (590
+        tests, run individually as CLAUDE.md's starvation section
+        directs).
+    mrr_end: null
