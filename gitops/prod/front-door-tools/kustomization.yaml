@@ -33,7 +33,7 @@
 # eligible catalogue inside a comparable budget.
 #
 # Shards as generated:
-#   portfolio-front-tools-0: 133 files, 550182 bytes
+#   portfolio-front-tools-0: 134 files, 554364 bytes
 #   portfolio-front-tools-1: 114 files, 556201 bytes
 #   portfolio-front-tools-2: 146 files, 553993 bytes
 #   portfolio-front-tools-3: 123 files, 555762 bytes
@@ -121,6 +121,7 @@ configMapGenerator:
       - cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz=cam-reconciliation-check__how-much-cam-do-i-owe-based-on-square-footage.html.gz
       - cam-reconciliation-check__index.html.gz=cam-reconciliation-check__index.html.gz
       - cam-reconciliation-check__share.mjs.gz=cam-reconciliation-check__share.mjs.gz
+      - cam-reconciliation-check__vs-appfolio.html.gz=cam-reconciliation-check__vs-appfolio.html.gz
       - cam-reconciliation-check__vs-yardi.html.gz=cam-reconciliation-check__vs-yardi.html.gz
       - appliance-repair-quote-calculator__calc.mjs.gz=appliance-repair-quote-calculator__calc.mjs.gz
       - appliance-repair-quote-calculator__index.html.gz=appliance-repair-quote-calculator__index.html.gz
