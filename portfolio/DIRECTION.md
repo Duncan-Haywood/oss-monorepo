@@ -277,9 +277,8 @@ account: that is unchanged and is not up for a rescore by any session (see
 **Corrected 2026-09-06: donations are not blocked on an owner decision, and
 this section previously read as if they were.** `PRODUCT_PLAYBOOK.md` §6 has
 the full detail; the short version is that a per-product `github.com/sponsors`
-link is agent-decidable and already ships on **181 of 185 ventures**
-(verified this session, excluding two `NOT-A-VENTURE` scaffolding
-directories) — that mechanism has been live since before distribution was
+link is agent-decidable and now ships on **all 185 ventures** (closed 2026-09-06,
+#3481) — that mechanism has been live since before distribution was
 even solved. What actually is owner-only is a second, separate thing: the
 *native* repo-level GitHub "Sponsor" button, gated behind:
 
