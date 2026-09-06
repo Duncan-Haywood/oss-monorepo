@@ -16339,3 +16339,67 @@ entries:
         so the next session reads an accurate state instead of re-doing
         already-shipped instrumentation or reporting a false gap.
     mrr_end: null
+  - venture: atm-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled mandate run covering the owner's Hetzner-CI/CD, marketing-
+        deploy, and Codex-CLI-on-Hetzner asks. Open-PR/branch queue was
+        empty (zero open PRs, only this session's own branch and `main` on
+        the remote), so the three-PR merge quota was trivially met.
+        Independently re-confirmed this run's own reading, not inherited:
+        `pages_state.py` reported `deployed: served` and the `gh-pages`
+        snapshot `current` (built from `main`'s exact tip) before any work
+        started, and a fresh CI dispatch (`ci_starvation.py --run
+        34047617371`) got real runners and passed.
+      - >-
+        Hetzner deployment and Codex-CLI-on-Hetzner: confirmed, corroborating
+        the same finding already in this file from earlier in the month,
+        that both are already fully built (`gitops/agents/host/`, whose
+        `workers/mandate.md` already mirrors this session's own operating
+        mandate) and blocked purely on the owner's own `HETZNERSSHKEY` being
+        a public key instead of a private one (decision-queue items #1996
+        and #3184). Not re-built; nothing here can substitute for the
+        owner's own credential.
+      - >-
+        Shipped one product improvement instead: `ventures/atm-route-margin`
+        graduated two days ago (#3519, #3522) with a calculator page and
+        zero secondary pages -- `node platform/pages/guide-coverage.mjs`
+        flagged it as the only route-margin sibling fleet-wide with no
+        second page, unlike `vending-machine-route-margin` (two `vs-` pages)
+        and `medical-courier-route-margin` (a guide + a `vs-` page). Added
+        `is-this-atm-placement-worth-it.html`: visible Q&A matching a
+        hand-authored `FAQPage` block, a worked example computed straight
+        from `calc.mjs` (a 90-withdrawal/$2.50-surcharge/50%-commission
+        offer that sounds profitable but nets about -$67.61/month once
+        processor fees, vault cash cost of capital, and refill labor/mileage
+        are counted), the venture's no-warranty disclaimer, and a link both
+        ways with the calculator. Updated the venture's hand-maintained
+        `sitemap.xml` and extended `page.test.mjs` with tests that assert
+        the worked example against live `calc.mjs` output (not hand-typed
+        numbers), FAQ-visible/schema parity, sitemap completeness, and the
+        cross-link.
+      - >-
+        Ran `node --test ventures/atm-route-margin/*.test.mjs` (37/37),
+        `node --test platform/marketing/*.test.mjs platform/pages/*.test.mjs`
+        (1139/1139), `python3 platform/ci/checklist_coverage.py` (clean),
+        `node platform/pages/guide-coverage.mjs --quiet` (181/181, was
+        180/181) -- independently re-verified all of the above myself in a
+        separate worktree after the implementing agent reported them, not
+        only inherited from its report. `node platform/marketing/regen.mjs`
+        produced zero drift against what the PR had committed.
+      - >-
+        Opened as PR #3525, then merged on this session's own local
+        verification per CLAUDE.md's "Ship without review ceremony": every
+        one of the PR's 19 check runs came back red, and
+        `ci_starvation.py --run` on five of them confirmed `runner_id: 0`
+        on each (starvation, not a real failure) -- Actions runners flipped
+        from healthy to starved within the same 11-minute window this
+        session observed both states in, consistent with CLAUDE.md's
+        "the ceiling cycles" note. Republished the GitHub Pages `gh-pages`
+        snapshot from the exact merge-commit tree afterward (built from
+        `24bfdb38`) and re-confirmed `pages_state.py --require-current`
+        exits 0. No payment collection, no new third-party script/CDN/
+        network call, no personal data collected.
+    mrr_end: null
