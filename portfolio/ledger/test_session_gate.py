@@ -105,6 +105,39 @@ def test_build_falls_back_to_researching_a_new_candidate():
     assert "screened-out.md" in " ".join(reasons)
 
 
+def test_proceed_also_surfaces_an_empty_pipeline():
+    """PROCEED (low meta-work) is the common lane, and until now it never
+    looked at the pipeline -- "screen a fresh niche" only reached a session
+    through the BUILD branch, which fires on *high* meta-work share. An
+    empty build-now queue and DIRECTION.md's new-ventures-first framing
+    should reach the common case too, not only the rare one.
+    """
+    call, reasons = sg.verdict(
+        revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=2.0, targets=[]
+    )
+    assert call == "PROCEED"
+    joined = " ".join(reasons)
+    assert "screened-out.md" in joined
+    assert "new ventures rank first" in joined.lower()
+
+
+def test_proceed_stays_quiet_when_the_pipeline_still_has_a_target():
+    call, reasons = sg.verdict(
+        revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=2.0, targets=[TARGET]
+    )
+    assert call == "PROCEED"
+    assert "screened-out.md" not in " ".join(reasons)
+
+
+def test_proceed_does_not_treat_an_unreadable_pipeline_as_empty(monkeypatch):
+    """Same distinction as the BUILD branch: None (could not read) must not be
+    laundered into [] (read it, nothing eligible) here either."""
+    monkeypatch.setattr(sg, "build_targets", lambda: None)
+    call, reasons = sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=2.0)
+    assert call == "PROCEED"
+    assert "screened-out.md" not in " ".join(reasons)
+
+
 def test_build_targets_skips_what_has_already_graduated(tmp_path, monkeypatch):
     """Graduation is a fact on disk: a VENTURE.yaml, or a product_lines entry."""
     (tmp_path / "portfolio" / "pipeline").mkdir(parents=True)
