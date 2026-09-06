@@ -189,10 +189,16 @@ if (slugs.length === 0) {
   // different reactions, and under a filter the second is the likely one. A
   // venture that genuinely makes no highlight promise has nothing for this
   // check to hold it to, which is not a defect in the venture.
+  // `describeFilter` returns a standalone banner ("FILTERED to 1 venture(s):
+  // x"), which reads correctly on its own line above but garbles this
+  // sentence into "No tool matching FILTERED to 1 venture(s): x promises a
+  // highlight". Name the slugs inline instead, matching how `requireNonEmpty`
+  // phrases the same scope in `only-slugs.mjs`.
   console.error(only
-    ? `No tool matching ${describeFilter(only)} promises a highlight, so this\n`
-      + 'check has nothing to verify for it. Either the slug is misspelled, or\n'
-      + 'that venture does not print the promise sentence — which is allowed.'
+    ? `No tool matching ONLY_SLUGS=${[...only].sort().join(',')} promises a\n`
+      + 'highlight, so this check has nothing to verify for it. Either the slug\n'
+      + 'is misspelled, or that venture does not print the promise sentence —\n'
+      + 'which is allowed.'
     : 'No tool in the artifact promises a highlight.');
   process.exit(2);
 }
