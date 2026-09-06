@@ -8,8 +8,8 @@
   },
   "privacy": "client-side-only",
   "generated_by": "platform/marketing/front-door.mjs",
-  "served_here": 178,
-  "collection_total": 178,
+  "served_here": 179,
+  "collection_total": 179,
   "feed": "https://marisstella.dev/feed.xml",
   "sitemap": "https://marisstella.dev/sitemap.xml",
   "embed": {
@@ -62,7 +62,7 @@
       "id": "more",
       "name": "More free tools",
       "url": "https://marisstella.dev/c/more/",
-      "tool_count": 2
+      "tool_count": 3
     }
   ],
   "tools": [
@@ -697,6 +697,14 @@
       "category": "Compliance checks & evidence records",
       "description": "Capture what public resolvers answer for a customer domain, capture again after the change, and get a source-linked report of what changed, what did not, and what could not be observed. Free, runs entirely in your browser.",
       "pages": 3
+    },
+    {
+      "slug": "dog-walking-route-pricing",
+      "name": "Dog Walking & Pet Sitting Rate Calculator — Price Your Route",
+      "url": "https://marisstella.dev/tools/dog-walking-route-pricing/",
+      "category": "More free tools",
+      "description": "Free calculator for independent dog walkers and pet sitters: price a walk, drop-in, or overnight from time, drive, mileage, extra pets, and overhead, then see your monthly route revenue and the gap to your income goal.",
+      "pages": 1
     },
     {
       "slug": "dryer-vent-bid-calculator",
